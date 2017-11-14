@@ -70,10 +70,11 @@ public class GMavenToBazel {
 
 
     PrintWriter bzlWriter = new PrintWriter(new FileWriter(OUTPUT_FILE));
-    bzlWriter.println(
-        "load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')");
-    bzlWriter.println(
-        "def gmaven_rules():");
+    // TODO: Get maven_jar and maven_aar from @bazel_tools and delete local copy after bazel 0.9.0
+    // bzlWriter.println(
+    //    "load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')");
+    bzlWriter.println("load('//:maven_rules.bzl', 'maven_jar', 'maven_aar')");
+    bzlWriter.println("def gmaven_rules():");
     for (String repositoryName : repositoryNameToRuleType.keySet()) {
       String ruleType = repositoryNameToRuleType.get(repositoryName);
       String artifactString = repositoryNameToArtifactString.get(repositoryName);
@@ -84,8 +85,14 @@ public class GMavenToBazel {
       bzlWriter.println("      settings = '//:settings.xml',");
       bzlWriter.println("      deps = [");
       for (String repositoryNameDep : repositoryNameToRepositoryNameDeps.get(repositoryName)) {
-        bzlWriter.println(
-            String.format("        '%s',", repositoryNameToTargetName.get(repositoryNameDep)));
+        String targetNameDep = repositoryNameToTargetName.get(repositoryNameDep);
+        if (targetNameDep == null) {
+          // our princess is in another castle!
+          bzlWriter.println(String.format("        # GMaven does not have %s" , repositoryNameDep));
+        } else {
+          bzlWriter.println(
+              String.format("        '%s',", repositoryNameToTargetName.get(repositoryNameDep)));
+        }
       }
       bzlWriter.println("      ],");
       bzlWriter.println("    )");

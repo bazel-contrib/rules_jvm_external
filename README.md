@@ -1,5 +1,7 @@
 A bzl file that contains maven_jar and maven_aar rules for all artifacts in
-https://maven.google.com. Not guaranteed to be up to date.
+https://maven.google.com. Not guaranteed to be correct or up to date. Some of
+the artifacts depend on artifacts that are not present on
+https://maven.google.com. We ignore these and hope not to fail.
 
 To use this from your project, in your `WORKSPACE` file add
 
