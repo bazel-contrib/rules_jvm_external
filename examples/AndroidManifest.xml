@@ -1,0 +1,7 @@
+<manifest
+  package='com.example.foo'
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  <uses-sdk
+    android:minSdkVersion="14"
+    android:targetSdkVersion="14" />
+</manifest>
