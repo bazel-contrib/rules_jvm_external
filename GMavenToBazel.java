@@ -82,7 +82,7 @@ public class GMavenToBazel {
       bzlWriter.println(String.format("  %s(", ruleType));
       bzlWriter.println(String.format("      name = '%s',", repositoryName));
       bzlWriter.println(String.format("      artifact = '%s',", artifactString));
-      bzlWriter.println("      settings = '//:settings.xml',");
+      bzlWriter.println("      settings = '@gmaven_rules//:settings.xml',");
       bzlWriter.println("      deps = [");
       for (String repositoryNameDep : repositoryNameToRepositoryNameDeps.get(repositoryName)) {
         String targetNameDep = repositoryNameToTargetName.get(repositoryNameDep);
