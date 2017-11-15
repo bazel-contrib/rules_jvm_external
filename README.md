@@ -20,6 +20,3 @@ To regenerate gmaven.bzl, run
 ```
 rm gmaven.bzl && javac GMavenToBazel.java && java GMavenToBazel
 ```
-
-Note that this requires a Bazel binary containing the changes in
-https://github.com/bazelbuild/bazel/commit/431b6436373c9feb5d03e488ff72f822bbe55b2d
