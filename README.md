@@ -15,6 +15,19 @@ load('@gmaven_rules//:gmaven.bzl', 'gmaven_rules')
 gmaven_rules()
 ```
 
+You can then reference the generated library targets from your `BUILD` files like:
+
+```
+android_library(
+    ...
+    deps = [
+        '@com_android_support_design_27_0_1//aar',
+    ],
+)
+```
+
+You can see the full list of generated targets in [gmaven.bzl](https://raw.githubusercontent.com/aj-michael/gmaven_rules/master/gmaven.bzl).
+
 To regenerate gmaven.bzl, run
 
 ```
