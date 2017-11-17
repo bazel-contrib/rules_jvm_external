@@ -28,7 +28,7 @@ android_library(
 
 You can see the full list of generated targets in [gmaven.bzl](https://raw.githubusercontent.com/aj-michael/gmaven_rules/master/gmaven.bzl).
 
-To regenerate gmaven.bzl, run
+To regenerate gmaven.bzl, run the following command. It will take about 5 minutes.
 
 ```
 rm gmaven.bzl && javac GMavenToBazel.java && java GMavenToBazel
