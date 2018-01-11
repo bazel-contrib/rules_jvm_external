@@ -1,4 +1,4 @@
-load('//:maven_rules.bzl', 'maven_jar', 'maven_aar')
+load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')
 def gmaven_rules():
 
   maven_aar(
@@ -391,6 +391,18 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha07',
+      artifact = 'com.android.tools.layoutlib:layoutlib-api:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_annotations_13_0
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_tagmanager_11_4_0',
       artifact = 'com.google.android.gms:play-services-tagmanager:11.4.0',
@@ -409,6 +421,18 @@ def gmaven_rules():
       deps = [
         '@com_android_support_recyclerview_v7_24_0_0_alpha1//aar',
         '@com_android_support_support_v4_24_0_0_alpha1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha04',
+      artifact = 'com.android.tools.layoutlib:layoutlib-api:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_annotations_13_0
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha04//jar',
       ],
     )
 
@@ -433,6 +457,30 @@ def gmaven_rules():
         '@com_android_tools_annotations_26_1_0_alpha03//jar',
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
         '@com_android_tools_common_26_1_0_alpha03//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha06',
+      artifact = 'com.android.tools.layoutlib:layoutlib-api:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_annotations_13_0
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha05',
+      artifact = 'com.android.tools.layoutlib:layoutlib-api:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_annotations_13_0
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+        '@com_android_tools_common_26_1_0_alpha05//jar',
       ],
     )
 
@@ -744,6 +792,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_location_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-location-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_invites_10_2_6',
       artifact = 'com.google.firebase:firebase-invites:10.2.6',
       settings = '@gmaven_rules//:settings.xml',
@@ -815,6 +871,18 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_build_gradle_api_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:gradle-api:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha07//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_build_builder_model_3_0_0_alpha4',
       artifact = 'com.android.tools.build:builder-model:3.0.0-alpha4',
       settings = '@gmaven_rules//:settings.xml',
@@ -834,6 +902,18 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_build_gradle_api_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:gradle-api:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha06//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_build_builder_model_3_0_0_alpha5',
       artifact = 'com.android.tools.build:builder-model:3.0.0-alpha5',
       settings = '@gmaven_rules//:settings.xml',
@@ -849,6 +929,18 @@ def gmaven_rules():
       deps = [
         '@com_google_firebase_firebase_analytics_10_2_1//aar',
         '@com_google_android_gms_play_services_appinvite_10_2_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_api_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:gradle-api:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha05//jar',
+        # GMaven does not have com_google_guava_guava_22_0
       ],
     )
 
@@ -933,6 +1025,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_common_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-common-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_tasks_10_2_1',
       artifact = 'com.google.android.gms:play-services-tasks:10.2.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -947,6 +1047,17 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_10_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_preference_v7_27_0_2',
+      artifact = 'com.android.support:preference-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_appcompat_v7_27_0_2//aar',
+        '@com_android_support_support_v4_27_0_2//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
       ],
     )
 
@@ -1276,6 +1387,36 @@ def gmaven_rules():
       artifact = 'com.android.support:cardview-v7:23.2.1',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_3_0_1',
+      artifact = 'com.android.tools.build:builder:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_0_1//jar',
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_build_builder_model_3_0_1//jar',
+        '@com_android_tools_build_manifest_merger_26_0_1//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3_2
+        '@com_android_tools_sdklib_26_0_1//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_analytics_library_protos_26_0_1//jar',
+        '@com_android_tools_analytics_library_shared_26_0_1//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_common_26_0_1//jar',
+        '@com_android_tools_ddms_ddmlib_26_0_1//jar',
+        '@com_android_tools_build_apksig_3_0_1//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        '@com_android_tools_analytics_library_tracker_26_0_1//jar',
+        '@com_android_tools_sdk_common_26_0_1//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
       ],
     )
 
@@ -1620,6 +1761,18 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_build_gradle_api_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:gradle-api:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_model_3_1_0_alpha04//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_build_gradle_api_3_1_0_alpha03',
       artifact = 'com.android.tools.build:gradle-api:3.1.0-alpha03',
       settings = '@gmaven_rules//:settings.xml',
@@ -1710,6 +1863,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_ddms_ddmlib_26_0_0_rc1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_ar_core_0_91_0',
+      artifact = 'com.google.ar:core:0.91.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -2013,6 +2174,15 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_aapt2_proto_0_1_0',
+      artifact = 'com.android.tools.build:aapt2-proto:0.1.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_analytics_impl_9_2_1',
       artifact = 'com.google.android.gms:play-services-analytics-impl:9.2.1',
@@ -2159,6 +2329,28 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_support_constraint_constraint_layout_solver_1_1_0_beta4',
+      artifact = 'com.android.support.constraint:constraint-layout-solver:1.1.0-beta4',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_inspector_26_0_1',
+      artifact = 'com.android.tools.analytics-library:inspector:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_0_1//jar',
+        '@com_android_tools_analytics_library_shared_26_0_1//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_annotations_26_0_1//jar',
+        # GMaven does not have com_google_code_gson_gson_2_3
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_analytics_library_inspector_26_0_0',
       artifact = 'com.android.tools.analytics-library:inspector:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -2230,6 +2422,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_ddms_ddmlib_26_0_1',
+      artifact = 'com.android.tools.ddms:ddmlib:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_common_26_0_1//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_config_11_0_0',
       artifact = 'com.google.firebase:firebase-config:11.0.0',
@@ -2249,6 +2451,15 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_26_1_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_core_11_8_0',
+      artifact = 'com.google.firebase:firebase-core:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_analytics_11_8_0//aar',
       ],
     )
 
@@ -2518,11 +2729,28 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-analytics-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_wearable_5_0_77',
       artifact = 'com.google.android.gms:play-services-wearable:5.0.77',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_19_1_0//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha06',
+      artifact = 'com.android.tools.external.com-intellij:intellij-core:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
       ],
     )
 
@@ -2535,6 +2763,33 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_ads_license_11_6_0//aar',
         '@com_google_android_gms_play_services_ads_lite_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha07',
+      artifact = 'com.android.tools.external.com-intellij:intellij-core:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha04',
+      artifact = 'com.android.tools.external.com-intellij:intellij-core:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha05',
+      artifact = 'com.android.tools.external.com-intellij:intellij-core:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
       ],
     )
 
@@ -2601,11 +2856,31 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_ads_11_6_2',
+      artifact = 'com.google.android.gms:play-services-ads:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_gass_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_ads_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_ads_lite_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_exifinterface_26_0_1',
       artifact = 'com.android.support:exifinterface:26.0.1',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_26_0_1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_identity_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-identity-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -2615,6 +2890,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_19_0_1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_espresso_espresso_idling_resource_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso:espresso-idling-resource:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -2847,6 +3130,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_v4_impl_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tagmanager-v4-impl-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_analytics_10_2_6',
       artifact = 'com.google.firebase:firebase-analytics:10.2.6',
       settings = '@gmaven_rules//:settings.xml',
@@ -2854,6 +3145,18 @@ def gmaven_rules():
         '@com_google_firebase_firebase_common_10_2_6//aar',
         '@com_google_android_gms_play_services_basement_10_2_6//aar',
         '@com_google_firebase_firebase_analytics_impl_10_2_6//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_firestore_11_6_2',
+      artifact = 'com.google.firebase:firebase-firestore:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_squareup_okhttp_okhttp_2_7_2
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
       ],
     )
 
@@ -2948,6 +3251,19 @@ def gmaven_rules():
         '@com_google_firebase_firebase_dynamic_links_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_tasks_11_6_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_appinvite_11_6_2',
+      artifact = 'com.google.android.gms:play-services-appinvite:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_appinvite_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_dynamic_links_11_6_2//aar',
       ],
     )
 
@@ -3095,6 +3411,17 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_iid_11_6_2',
+      artifact = 'com.google.android.gms:play-services-iid:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_iid_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_preference_v14_24_0_0_alpha1',
       artifact = 'com.android.support:preference-v14:24.0.0-alpha1',
       settings = '@gmaven_rules//:settings.xml',
@@ -3222,12 +3549,31 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_api_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tagmanager-api:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_tagmanager_api_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_dvlib_26_0_0_beta5',
       artifact = 'com.android.tools:dvlib:26.0.0-beta5',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_common_26_0_0_beta5//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_awareness_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-awareness-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -3522,6 +3868,17 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_vision_common_11_6_2',
+      artifact = 'com.google.android.gms:play-services-vision-common:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_vision_common_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_base_9_2_1',
       artifact = 'com.google.android.gms:play-services-base:9.2.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -3573,6 +3930,24 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_basement_10_0_0//aar',
         '@com_google_android_gms_play_services_cast_10_0_0//aar',
         '@com_google_android_gms_play_services_base_10_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_test_api_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:builder-test-api:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_test_api_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:builder-test-api:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha05//jar',
       ],
     )
 
@@ -3662,6 +4037,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_database_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-database-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_dynamic_links_11_4_2',
       artifact = 'com.google.firebase:firebase-dynamic-links:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -3721,6 +4104,24 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_7_3_0//aar',
         '@com_google_android_gms_play_services_analytics_7_3_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_test_api_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:builder-test-api:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_test_api_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:builder-test-api:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha07//jar',
       ],
     )
 
@@ -3799,6 +4200,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_appindexing_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-appindexing-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_fitness_7_5_0',
       artifact = 'com.google.android.gms:play-services-fitness:7.5.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -3851,6 +4260,14 @@ def gmaven_rules():
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
         '@com_android_tools_common_26_1_0_alpha01//jar',
         '@com_android_tools_sdklib_26_1_0_alpha01//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_fido_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-fido-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -3949,6 +4366,30 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_databinding_baseLibrary_3_1_0_alpha06',
+      artifact = 'com.android.databinding:baseLibrary:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_baseLibrary_3_1_0_alpha07',
+      artifact = 'com.android.databinding:baseLibrary:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_baseLibrary_3_1_0_alpha04',
+      artifact = 'com.android.databinding:baseLibrary:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_support_v13_20_0_0',
       artifact = 'com.android.support:support-v13:20.0.0',
@@ -3966,6 +4407,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_analytics_impl_9_6_1//aar',
         '@com_google_android_gms_play_services_basement_9_6_1//aar',
         '@com_google_android_gms_play_services_tagmanager_api_9_6_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_baseLibrary_3_1_0_alpha05',
+      artifact = 'com.android.databinding:baseLibrary:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -4197,6 +4646,15 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_percent_27_0_2',
+      artifact = 'com.android.support:percent:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_preference_leanback_v17_25_3_0',
       artifact = 'com.android.support:preference-leanback-v17:25.3.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -4305,6 +4763,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_gcm_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-gcm-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_measurement_8_1_0',
       artifact = 'com.google.android.gms:play-services-measurement:8.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -4363,6 +4829,18 @@ def gmaven_rules():
         '@com_google_firebase_firebase_analytics_11_2_0//aar',
         '@com_google_android_gms_play_services_basement_11_2_0//aar',
         '@com_google_firebase_firebase_common_11_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_instantapps_11_8_0',
+      artifact = 'com.google.android.gms:play-services-instantapps:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_instantapps_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
       ],
     )
 
@@ -4858,6 +5336,19 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_firebase_firebase_appindexing_11_8_0',
+      artifact = 'com.google.firebase:firebase-appindexing:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_appindexing_license_11_8_0//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_annotations_26_0_0_alpha8',
       artifact = 'com.android.tools:annotations:26.0.0-alpha8',
@@ -4996,12 +5487,56 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_devicelib_26_1_0_alpha07',
+      artifact = 'com.android.tools:devicelib:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_core_9_6_1',
       artifact = 'com.google.firebase:firebase-core:9.6.1',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_firebase_firebase_analytics_9_6_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_devicelib_26_1_0_alpha06',
+      artifact = 'com.android.tools:devicelib:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_devicelib_26_1_0_alpha05',
+      artifact = 'com.android.tools:devicelib:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_devicelib_26_1_0_alpha04',
+      artifact = 'com.android.tools:devicelib:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_common_26_1_0_alpha04//jar',
       ],
     )
 
@@ -5039,6 +5574,75 @@ def gmaven_rules():
         '@com_android_tools_common_26_1_0_alpha02//jar',
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
         '@com_android_tools_sdklib_26_1_0_alpha02//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_manifest_merger_26_1_0_alpha05',
+      artifact = 'com.android.tools.build:manifest-merger:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_sdklib_26_1_0_alpha05//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdk_common_26_1_0_alpha05//jar',
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_manifest_merger_26_1_0_alpha04',
+      artifact = 'com.android.tools.build:manifest-merger:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_sdk_common_26_1_0_alpha04//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdklib_26_1_0_alpha04//jar',
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_manifest_merger_26_1_0_alpha07',
+      artifact = 'com.android.tools.build:manifest-merger:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdk_common_26_1_0_alpha07//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_manifest_merger_26_1_0_alpha06',
+      artifact = 'com.android.tools.build:manifest-merger:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdk_common_26_1_0_alpha06//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha06//jar',
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_code_gson_gson_2_7
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_perf_11_6_2',
+      artifact = 'com.google.firebase:firebase-perf:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_firebase_firebase_perf_license_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_11_6_2//aar',
       ],
     )
 
@@ -5229,6 +5833,14 @@ def gmaven_rules():
         '@com_android_tools_analytics_library_shared_26_0_0_alpha3//jar',
         '@com_android_tools_annotations_26_0_0_alpha3//jar',
         '@com_android_tools_common_26_0_0_alpha3//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tagmanager-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -5504,6 +6116,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_auth_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-auth-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_fitness_11_4_2',
       artifact = 'com.google.android.gms:play-services-fitness:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -5523,6 +6143,18 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_location_11_4_0//aar',
         '@com_google_android_gms_play_services_base_11_4_0//aar',
         '@com_google_android_gms_play_services_basement_11_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_gcm_11_8_0',
+      artifact = 'com.google.android.gms:play-services-gcm:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_iid_11_8_0//aar',
+        '@com_google_android_gms_play_services_gcm_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
       ],
     )
 
@@ -5618,6 +6250,15 @@ def gmaven_rules():
         '@com_android_tools_lint_lint_checks_26_0_0_alpha1//jar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_runtime_1_0_5
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_0_5
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_constraint_constraint_layout_1_1_0_beta4',
+      artifact = 'com.android.support.constraint:constraint-layout:1.1.0-beta4',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_constraint_constraint_layout_solver_1_1_0_beta4//jar',
       ],
     )
 
@@ -6018,6 +6659,24 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_fido_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-fido-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_core_ui_27_0_2',
+      artifact = 'com.android.support:support-core-ui:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_analytics_9_0_2',
       artifact = 'com.google.firebase:firebase-analytics:9.0.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -6224,6 +6883,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_iid_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-iid-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_basement_10_2_6',
       artifact = 'com.google.android.gms:play-services-basement:10.2.6',
       settings = '@gmaven_rules//:settings.xml',
@@ -6307,6 +6974,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'android_arch_paging_runtime_1_0_0_alpha4_1',
+      artifact = 'android.arch.paging:runtime:1.0.0-alpha4-1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@android_arch_core_runtime_1_0_0//aar',
+        '@android_arch_lifecycle_extensions_1_0_0//aar',
+        '@android_arch_paging_common_1_0_0_alpha4_1//jar',
+        '@com_android_support_recyclerview_v7_26_1_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_database_11_0_2',
       artifact = 'com.google.firebase:firebase-database:11.0.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -6315,6 +6995,22 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_tasks_11_0_2//aar',
         '@com_google_firebase_firebase_database_connection_11_0_2//aar',
         '@com_google_firebase_firebase_common_11_0_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05',
+      artifact = 'com.android.tools.external.org-jetbrains:uast:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04',
+      artifact = 'com.android.tools.external.org-jetbrains:uast:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -6331,6 +7027,31 @@ def gmaven_rules():
       artifact = 'com.android.tools.external.org-jetbrains:uast:26.1.0-alpha02',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_impl_11_8_0',
+      artifact = 'com.google.android.gms:play-services-analytics-impl:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_publisher_26_0_1',
+      artifact = 'com.android.tools.analytics-library:publisher:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_0_1//jar',
+        '@com_android_tools_analytics_library_shared_26_0_1//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_annotations_26_0_1//jar',
+        '@com_android_tools_common_26_0_1//jar',
+        # GMaven does not have com_google_guava_guava_22_0
       ],
     )
 
@@ -6359,6 +7080,34 @@ def gmaven_rules():
   maven_aar(
       name = 'com_google_android_gms_play_services_vision_common_license_11_4_2',
       artifact = 'com.google.android.gms:play-services-vision-common-license:11.4.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07',
+      artifact = 'com.android.tools.external.org-jetbrains:uast:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_vision_11_6_2',
+      artifact = 'com.google.android.gms:play-services-vision:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_vision_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_vision_common_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06',
+      artifact = 'com.android.tools.external.org-jetbrains:uast:26.1.0-alpha06',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
       ],
@@ -6540,6 +7289,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_11_2_0//aar',
         '@com_google_android_gms_play_services_basement_11_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_safetynet_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-safetynet-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -6730,6 +7487,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_analytics_impl_11_6_2',
+      artifact = 'com.google.firebase:firebase-analytics-impl:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_impl_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_media_compat_26_0_2',
       artifact = 'com.android.support:support-media-compat:26.0.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -6803,6 +7573,29 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_maps_10_2_4//aar',
         '@com_google_android_gms_play_services_base_10_2_4//aar',
         '@com_google_android_gms_play_services_tasks_10_2_4//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_rules_1_0_2_alpha1',
+      artifact = 'com.android.support.test:rules:1.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_test_runner_1_0_2_alpha1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_wallet_11_8_0',
+      artifact = 'com.google.android.gms:play-services-wallet:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_maps_11_8_0//aar',
+        '@com_google_android_gms_play_services_wallet_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_identity_11_8_0//aar',
       ],
     )
 
@@ -7401,6 +8194,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_v4_impl_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tagmanager-v4-impl-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -8104,6 +8905,18 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_lint_lint_26_0_1',
+      artifact = 'com.android.tools.lint:lint:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_manifest_merger_26_0_1//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3_2
+        # GMaven does not have org_eclipse_jdt_core_compiler_ecj_4_6_1
+        '@com_android_tools_lint_lint_checks_26_0_1//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_lint_lint_26_0_0',
       artifact = 'com.android.tools.lint:lint:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -8191,6 +9004,16 @@ def gmaven_rules():
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
         '@com_android_tools_sdklib_26_0_0_beta1//jar',
         '@com_android_tools_common_26_0_0_beta1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tasks_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tasks:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_license_11_6_2//aar',
       ],
     )
 
@@ -8293,6 +9116,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_invites_11_6_2',
+      artifact = 'com.google.firebase:firebase-invites:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_appinvite_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_ads_11_6_0',
       artifact = 'com.google.firebase:firebase-ads:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -8325,6 +9158,23 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_emoji_27_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_emoji_bundled_27_0_2',
+      artifact = 'com.android.support:support-emoji-bundled:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_emoji_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_impl_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-analytics-impl-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -8458,6 +9308,14 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_support_support_annotations_27_0_2',
+      artifact = 'com.android.support:support-annotations:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_common_26_1_0_alpha02',
       artifact = 'com.android.tools:common:26.1.0-alpha02',
       settings = '@gmaven_rules//:settings.xml',
@@ -8546,6 +9404,16 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_common_26_1_0_alpha06',
+      artifact = 'com.android.tools:common:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_external_com_intellij_intellij_core_26_0_0_beta7',
       artifact = 'com.android.tools.external.com-intellij:intellij-core:26.0.0-beta7',
       settings = '@gmaven_rules//:settings.xml',
@@ -8555,11 +9423,41 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_common_26_1_0_alpha07',
+      artifact = 'com.android.tools:common:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_common_26_1_0_alpha04',
+      artifact = 'com.android.tools:common:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_external_com_intellij_intellij_core_26_0_0_beta5',
       artifact = 'com.android.tools.external.com-intellij:intellij-core:26.0.0-beta5',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_common_26_1_0_alpha05',
+      artifact = 'com.android.tools:common:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
       ],
     )
 
@@ -8737,10 +9635,64 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_iid_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-iid-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_iid_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-iid-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_repository_26_1_0_alpha06',
+      artifact = 'com.android.tools:repository:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_repository_26_1_0_alpha05',
+      artifact = 'com.android.tools:repository:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_repository_26_1_0_alpha04',
+      artifact = 'com.android.tools:repository:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_ads_11_6_2',
+      artifact = 'com.google.firebase:firebase-ads:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_ads_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_11_6_2//aar',
       ],
     )
 
@@ -8762,6 +9714,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_vector_drawable_23_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_cast_11_8_0',
+      artifact = 'com.google.android.gms:play-services-cast:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_cast_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_android_support_mediarouter_v7_25_2_0//aar',
       ],
     )
 
@@ -8851,6 +9816,40 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_gass_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-gass-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_repository_26_1_0_alpha07',
+      artifact = 'com.android.tools:repository:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_preference_leanback_v17_27_0_2',
+      artifact = 'com.android.support:preference-leanback-v17:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_preference_v7_27_0_2//aar',
+        '@com_android_support_appcompat_v7_27_0_2//aar',
+        '@com_android_support_support_v4_27_0_2//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
+        '@com_android_support_preference_v14_27_0_2//aar',
+        '@com_android_support_leanback_v17_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_gass_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-gass-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -8877,6 +9876,20 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_24_0_0_beta1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_awareness_11_8_0',
+      artifact = 'com.google.android.gms:play-services-awareness:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_awareness_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_places_11_8_0//aar',
+        '@com_google_android_gms_play_services_location_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
       ],
     )
 
@@ -8911,6 +9924,18 @@ def gmaven_rules():
         '@com_android_support_preference_v7_25_4_0//aar',
         '@com_android_support_support_v4_25_4_0//aar',
         '@com_android_support_recyclerview_v7_25_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_messaging_11_8_0',
+      artifact = 'com.google.firebase:firebase-messaging:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_firebase_firebase_messaging_license_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_11_8_0//aar',
       ],
     )
 
@@ -8964,6 +9989,24 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_apksig_3_0_1',
+      artifact = 'com.android.tools.build:apksig:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_core_utils_27_0_2',
+      artifact = 'com.android.support:support-core-utils:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_support_core_utils_27_0_1',
       artifact = 'com.android.support:support-core-utils:27.0.1',
@@ -8975,6 +10018,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_api_phone_11_8_0',
+      artifact = 'com.google.android.gms:play-services-auth-api-phone:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_api_phone_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_preference_v7_23_0_0',
       artifact = 'com.android.support:preference-v7:23.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -8982,6 +10037,15 @@ def gmaven_rules():
         '@com_android_support_appcompat_v7_23_0_0//aar',
         '@com_android_support_support_v4_23_0_0//aar',
         '@com_android_support_recyclerview_v7_23_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_experimental_0_11_1',
+      artifact = 'com.android.tools.build:gradle-experimental:0.11.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_gradle_core_3_0_1//jar',
       ],
     )
 
@@ -9185,6 +10249,39 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_base_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-auth-base-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_location_11_6_2',
+      artifact = 'com.google.android.gms:play-services-location:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_location_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_database_11_8_0',
+      artifact = 'com.google.firebase:firebase-database:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_database_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_database_connection_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_compat_26_0_0',
       artifact = 'com.android.support:support-compat:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -9338,6 +10435,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_api_phone_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-auth-api-phone-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'android_arch_persistence_room_rxjava2_1_0_0_beta1',
       artifact = 'android.arch.persistence.room:rxjava2:1.0.0-beta1',
       settings = '@gmaven_rules//:settings.xml',
@@ -9448,6 +10553,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_tasks_9_4_0//aar',
         '@com_google_android_gms_play_services_base_9_4_0//aar',
         '@com_google_firebase_firebase_auth_common_9_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_config_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-config-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -9651,6 +10764,48 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_analytics_library_tracker_26_1_0_alpha05',
+      artifact = 'com.android.tools.analytics-library:tracker:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha05//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha05//jar',
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_tracker_26_1_0_alpha04',
+      artifact = 'com.android.tools.analytics-library:tracker:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha04//jar',
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_tracker_26_1_0_alpha07',
+      artifact = 'com.android.tools.analytics-library:tracker:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha07//jar',
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_mediarouter_v7_25_0_0',
       artifact = 'com.android.support:mediarouter-v7:25.0.0',
@@ -9658,6 +10813,20 @@ def gmaven_rules():
       deps = [
         '@com_android_support_appcompat_v7_25_0_0//aar',
         '@com_android_support_palette_v7_25_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_tracker_26_1_0_alpha06',
+      artifact = 'com.android.tools.analytics-library:tracker:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha06//jar',
       ],
     )
 
@@ -9706,6 +10875,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_database_connection_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-database-connection-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_mediarouter_v7_23_4_0',
       artifact = 'com.android.support:mediarouter-v7:23.4.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -9727,6 +10904,30 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_ads_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-ads-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_apksig_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:apksig:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_apksig_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:apksig:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_build_apksig_3_1_0_alpha02',
       artifact = 'com.android.tools.build:apksig:3.1.0-alpha02',
@@ -9738,6 +10939,22 @@ def gmaven_rules():
   maven_jar(
       name = 'com_android_tools_build_apksig_3_1_0_alpha03',
       artifact = 'com.android.tools.build:apksig:3.1.0-alpha03',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_apksig_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:apksig:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_apksig_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:apksig:3.1.0-alpha07',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
       ],
@@ -9895,6 +11112,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_11_6_2',
+      artifact = 'com.google.android.gms:play-services-auth:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_auth_api_phone_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_appcompat_v7_25_2_0',
       artifact = 'com.android.support:appcompat-v7:25.2.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -9903,6 +11133,14 @@ def gmaven_rules():
         '@com_android_support_support_vector_drawable_25_2_0//aar',
         '@com_android_support_support_annotations_25_2_0//jar',
         '@com_android_support_support_v4_25_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_perf_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-perf-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -9959,6 +11197,23 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_compat_24_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_all_wear_11_8_0',
+      artifact = 'com.google.android.gms:play-services-all-wear:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_11_8_0//aar',
+        '@com_google_android_gms_play_services_location_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_wearable_11_8_0//aar',
+        '@com_google_android_gms_play_services_gcm_11_8_0//aar',
+        '@com_google_android_gms_play_services_fitness_11_8_0//aar',
+        '@com_google_android_gms_play_services_ads_lite_11_8_0//aar',
+        '@com_google_android_gms_play_services_analytics_11_8_0//aar',
       ],
     )
 
@@ -10039,6 +11294,28 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_drive_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-drive-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_inspector_26_1_0_alpha04',
+      artifact = 'com.android.tools.analytics-library:inspector:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_code_gson_gson_2_3
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha04//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha04//jar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_analytics_library_inspector_26_1_0_alpha03',
       artifact = 'com.android.tools.analytics-library:inspector:26.1.0-alpha03',
@@ -10050,6 +11327,93 @@ def gmaven_rules():
         '@com_android_tools_analytics_library_protos_26_1_0_alpha03//jar',
         # GMaven does not have com_google_guava_guava_22_0
         '@com_android_tools_analytics_library_shared_26_1_0_alpha03//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_inspector_26_1_0_alpha06',
+      artifact = 'com.android.tools.analytics-library:inspector:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_inspector_26_1_0_alpha05',
+      artifact = 'com.android.tools.analytics-library:inspector:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha05//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_11_8_0',
+      artifact = 'com.google.android.gms:play-services:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_storage_common_11_8_0//aar',
+        '@com_google_android_gms_play_services_instantapps_11_8_0//aar',
+        '@com_google_android_gms_play_services_auth_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_ads_lite_11_8_0//aar',
+        '@com_google_firebase_firebase_auth_11_8_0//aar',
+        '@com_google_android_gms_play_services_awareness_11_8_0//aar',
+        '@com_google_firebase_firebase_crash_11_8_0//aar',
+        '@com_google_android_gms_play_services_panorama_11_8_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_api_11_8_0//aar',
+        '@com_google_android_gms_play_services_auth_11_8_0//aar',
+        '@com_google_firebase_firebase_messaging_11_8_0//aar',
+        '@com_google_android_gms_play_services_maps_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_android_gms_play_services_plus_11_8_0//aar',
+        '@com_google_android_gms_play_services_auth_api_phone_11_8_0//aar',
+        '@com_google_android_gms_play_services_cast_framework_11_8_0//aar',
+        '@com_google_android_gms_play_services_fido_11_8_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_games_11_8_0//aar',
+        '@com_google_android_gms_play_services_gass_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_11_8_0//aar',
+        '@com_google_android_gms_play_services_gcm_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_appinvite_11_8_0//aar',
+        '@com_google_android_gms_play_services_places_11_8_0//aar',
+        '@com_google_firebase_firebase_appindexing_11_8_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_11_8_0//aar',
+        '@com_google_firebase_firebase_database_connection_11_8_0//aar',
+        '@com_google_android_gms_play_services_fitness_11_8_0//aar',
+        '@com_google_android_gms_play_services_wallet_11_8_0//aar',
+        '@com_google_android_gms_play_services_analytics_11_8_0//aar',
+        '@com_google_android_gms_play_services_nearby_11_8_0//aar',
+        '@com_google_android_gms_play_services_location_11_8_0//aar',
+        '@com_google_android_gms_play_services_vision_common_11_8_0//aar',
+        '@com_google_firebase_firebase_database_11_8_0//aar',
+        '@com_google_android_gms_play_services_identity_11_8_0//aar',
+        '@com_google_android_gms_play_services_safetynet_11_8_0//aar',
+        '@com_google_android_gms_play_services_iid_11_8_0//aar',
+        '@com_google_android_gms_play_services_analytics_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_wearable_11_8_0//aar',
+        '@com_google_firebase_firebase_dynamic_links_11_8_0//aar',
+        '@com_google_android_gms_play_services_ads_11_8_0//aar',
+        '@com_google_android_gms_play_services_cast_11_8_0//aar',
+        '@com_google_android_gms_play_services_vision_11_8_0//aar',
+        '@com_google_firebase_firebase_config_11_8_0//aar',
+        '@com_google_firebase_firebase_storage_11_8_0//aar',
+        '@com_google_android_gms_play_services_drive_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
       ],
     )
 
@@ -10074,6 +11438,20 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_analytics_library_inspector_26_1_0_alpha07',
+      artifact = 'com.android.tools.analytics-library:inspector:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha07//jar',
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_gridlayout_v7_26_0_0_beta1',
       artifact = 'com.android.support:gridlayout-v7:26.0.0-beta1',
@@ -10091,6 +11469,19 @@ def gmaven_rules():
       deps = [
         '@com_android_tools_common_26_0_0_rc1//jar',
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_11_8_0',
+      artifact = 'com.google.android.gms:play-services-analytics:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_analytics_license_11_8_0//aar',
       ],
     )
 
@@ -10219,6 +11610,36 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_sdklib_26_1_0_alpha05',
+      artifact = 'com.android.tools:sdklib:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_repository_26_1_0_alpha05//jar',
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_2_6
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha05//jar',
+        '@com_android_tools_dvlib_26_1_0_alpha05//jar',
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_sdklib_26_1_0_alpha04',
+      artifact = 'com.android.tools:sdklib:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha04//jar',
+        '@com_android_tools_repository_26_1_0_alpha04//jar',
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_2_6
+        '@com_android_tools_dvlib_26_1_0_alpha04//jar',
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_1
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_basement_11_4_2',
       artifact = 'com.google.android.gms:play-services-basement:11.4.2',
@@ -10226,6 +11647,36 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_basement_license_11_4_2//aar',
         '@com_android_support_support_v4_25_2_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_sdklib_26_1_0_alpha07',
+      artifact = 'com.android.tools:sdklib:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha07//jar',
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_2_6
+        '@com_android_tools_repository_26_1_0_alpha07//jar',
+        '@com_android_tools_dvlib_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_sdklib_26_1_0_alpha06',
+      artifact = 'com.android.tools:sdklib:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        '@com_android_tools_repository_26_1_0_alpha06//jar',
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha06//jar',
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_2_6
+        '@com_android_tools_dvlib_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_1
       ],
     )
 
@@ -10430,6 +11881,22 @@ def gmaven_rules():
         '@com_google_firebase_firebase_auth_common_9_8_0//aar',
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
         '@com_google_android_gms_play_services_tasks_9_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_common_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-common-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_annotations_26_0_1',
+      artifact = 'com.android.tools:annotations:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -10694,6 +12161,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_android_support_customtabs_27_0_2',
+      artifact = 'com.android.support:customtabs:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_build_gradle_3_0_0',
       artifact = 'com.android.tools.build:gradle:3.0.0',
@@ -10710,6 +12187,15 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_annotations_27_0_1//jar',
         '@com_android_support_support_compat_27_0_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_3_0_1',
+      artifact = 'com.android.tools.build:gradle:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_gradle_core_3_0_1//jar',
       ],
     )
 
@@ -10847,6 +12333,28 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_crashlytics_sdk_android_crashlytics_2_8_0',
+      artifact = 'com.crashlytics.sdk.android:crashlytics:2.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_crashlytics_sdk_android_crashlytics_core_2_5_0//aar',
+        '@com_crashlytics_sdk_android_answers_1_4_1//aar',
+        '@io_fabric_sdk_android_fabric_1_4_1//aar',
+        '@com_crashlytics_sdk_android_beta_1_2_7//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_storage_common_11_8_0',
+      artifact = 'com.google.firebase:firebase-storage-common:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_storage_common_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_identity_7_8_0',
       artifact = 'com.google.android.gms:play-services-identity:7.8.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -10874,6 +12382,17 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_basement_9_0_1//aar',
         '@com_google_android_gms_play_services_base_9_0_1//aar',
         '@com_google_android_gms_play_services_iid_9_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_recyclerview_v7_27_0_2',
+      artifact = 'com.android.support:recyclerview-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
       ],
     )
 
@@ -11012,6 +12531,19 @@ def gmaven_rules():
         '@com_android_tools_lint_lint_26_0_0//jar',
         '@com_android_tools_layoutlib_layoutlib_api_26_0_0//jar',
         '@com_android_tools_testutils_26_0_0//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_tests_26_0_1',
+      artifact = 'com.android.tools.lint:lint-tests:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_lint_lint_26_0_1//jar',
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        '@com_android_tools_layoutlib_layoutlib_api_26_0_1//jar',
+        '@com_android_tools_testutils_26_0_1//jar',
       ],
     )
 
@@ -11369,6 +12901,24 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_awareness_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-awareness-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_v13_27_0_2',
+      artifact = 'com.android.support:support-v13:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_support_v4_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_awareness_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-awareness-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -11392,6 +12942,15 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_ddms_ddmlib_26_0_0//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_test_api_3_0_1',
+      artifact = 'com.android.tools.build:builder-test-api:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_0_1//jar',
       ],
     )
 
@@ -11469,6 +13028,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_games_11_6_2',
+      artifact = 'com.google.android.gms:play-services-games:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_drive_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_games_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_storage_license_11_4_2',
       artifact = 'com.google.firebase:firebase-storage-license:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -11515,6 +13087,15 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_27_0_1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_cardview_v7_27_0_2',
+      artifact = 'com.android.support:cardview-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_27_0_2//jar',
       ],
     )
 
@@ -11733,6 +13314,17 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_wearable_11_6_2',
+      artifact = 'com.google.android.gms:play-services-wearable:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_wearable_license_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_repository_26_0_0_beta6',
       artifact = 'com.android.tools:repository:26.0.0-beta6',
@@ -11751,6 +13343,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_9_8_0//aar',
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_games_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-games-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -11966,6 +13566,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_nearby_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-nearby-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_dvlib_26_0_0_rc2',
       artifact = 'com.android.tools:dvlib:26.0.0-rc2',
@@ -12006,6 +13614,14 @@ def gmaven_rules():
   maven_aar(
       name = 'com_google_android_gms_play_services_appinvite_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-appinvite-license:11.6.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_appinvite_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-appinvite-license:11.6.2',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
       ],
@@ -12191,6 +13807,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_appinvite_11_8_0',
+      artifact = 'com.google.android.gms:play-services-appinvite:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_appinvite_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_dynamic_links_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_wearable_7_8_0',
       artifact = 'com.google.android.gms:play-services-wearable:7.8.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -12294,6 +13923,29 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_safetynet_11_8_0',
+      artifact = 'com.google.android.gms:play-services-safetynet:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_safetynet_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_iid_11_8_0',
+      artifact = 'com.google.android.gms:play-services-iid:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_iid_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_analytics_11_0_2',
       artifact = 'com.google.android.gms:play-services-analytics:11.0.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -12386,6 +14038,15 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_core_11_6_2',
+      artifact = 'com.google.firebase:firebase-core:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_analytics_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_v13_24_2_1',
       artifact = 'com.android.support:support-v13:24.2.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -12421,6 +14082,30 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_8_3_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_crash_11_8_0',
+      artifact = 'com.google.firebase:firebase-crash:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_firebase_firebase_crash_license_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_panorama_11_6_2',
+      artifact = 'com.google.android.gms:play-services-panorama:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_panorama_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
       ],
     )
 
@@ -12869,6 +14554,22 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_sdk_common_26_1_0_alpha04',
+      artifact = 'com.android.tools:sdk-common:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha04//jar',
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_model_3_1_0_alpha04//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_sdklib_26_1_0_alpha04//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_sdk_common_26_1_0_alpha03',
       artifact = 'com.android.tools:sdk-common:26.1.0-alpha03',
       settings = '@gmaven_rules//:settings.xml',
@@ -12942,6 +14643,23 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_sdk_common_26_1_0_alpha07',
+      artifact = 'com.android.tools:sdk-common:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha07//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha07//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_sdk_common_26_0_0',
       artifact = 'com.android.tools:sdk-common:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -12966,6 +14684,38 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_sdk_common_26_1_0_alpha06',
+      artifact = 'com.android.tools:sdk-common:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha06//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha06//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_sdklib_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_sdk_common_26_1_0_alpha05',
+      artifact = 'com.android.tools:sdk-common:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha05//jar',
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha05//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_sdklib_26_1_0_alpha05//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_annotations_26_0_0_rc1',
       artifact = 'com.android.tools:annotations:26.0.0-rc1',
       settings = '@gmaven_rules//:settings.xml',
@@ -12978,6 +14728,22 @@ def gmaven_rules():
       artifact = 'com.android.tools:annotations:26.0.0-rc2',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_sdk_common_26_0_1',
+      artifact = 'com.android.tools:sdk-common:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_0_1//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_build_builder_model_3_0_1//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3_2
+        '@com_android_tools_sdklib_26_0_1//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_ddms_ddmlib_26_0_1//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
       ],
     )
 
@@ -13193,6 +14959,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_firestore_11_8_0',
+      artifact = 'com.google.firebase:firebase-firestore:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_squareup_okhttp_okhttp_2_7_2
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_fitness_8_1_0',
       artifact = 'com.google.android.gms:play-services-fitness:8.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -13356,6 +15134,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_places_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-places-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_analytics_impl_10_2_1',
       artifact = 'com.google.firebase:firebase-analytics-impl:10.2.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -13429,6 +15215,15 @@ def gmaven_rules():
         '@com_google_firebase_firebase_common_10_2_4//aar',
         '@com_google_android_gms_play_services_basement_10_2_4//aar',
         '@com_google_android_gms_play_services_tasks_10_2_4//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_espresso_idling_idling_concurrent_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso.idling:idling-concurrent:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_test_espresso_espresso_idling_resource_3_0_2_alpha1//aar',
       ],
     )
 
@@ -13689,6 +15484,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_instantapps_11_6_2',
+      artifact = 'com.google.android.gms:play-services-instantapps:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_instantapps_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_instantapps_11_6_0',
       artifact = 'com.google.android.gms:play-services-instantapps:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -13697,6 +15504,18 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_instantapps_license_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_tasks_11_6_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_auth_base_11_6_2',
+      artifact = 'com.google.android.gms:play-services-auth-base:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_base_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
       ],
     )
 
@@ -13897,6 +15716,20 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_compat_26_0_0_beta1//aar',
         '@com_android_support_support_annotations_26_0_0_beta1//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_tracker_26_0_1',
+      artifact = 'com.android.tools.analytics-library:tracker:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_0_1//jar',
+        '@com_android_tools_analytics_library_shared_26_0_1//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_annotations_26_0_1//jar',
+        '@com_android_tools_common_26_0_1//jar',
+        # GMaven does not have com_google_guava_guava_22_0
       ],
     )
 
@@ -14120,6 +15953,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_25_3_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_dynamic_links_11_6_2',
+      artifact = 'com.google.firebase:firebase-dynamic-links:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_dynamic_links_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
       ],
     )
 
@@ -14544,6 +16390,18 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_firebase_firebase_analytics_11_6_2',
+      artifact = 'com.google.firebase:firebase-analytics:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_analytics_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_license_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'android_arch_lifecycle_compiler_1_0_0_alpha9_1',
       artifact = 'android.arch.lifecycle:compiler:1.0.0-alpha9-1',
@@ -14863,6 +16721,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_analytics_impl_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-analytics-impl-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_leanback_v17_21_0_0',
       artifact = 'com.android.support:leanback-v17:21.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -14926,6 +16792,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_location_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-location-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_location_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-location-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -14942,6 +16816,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_10_2_6//aar',
         '@com_google_android_gms_play_services_basement_10_2_6//aar',
         '@com_google_android_gms_play_services_tasks_10_2_6//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_messaging_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-messaging-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -15014,6 +16896,16 @@ def gmaven_rules():
       artifact = 'com.google.android.wearable:wearable:2.1.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_media_compat_27_0_2',
+      artifact = 'com.android.support:support-media-compat:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
       ],
     )
 
@@ -15101,6 +16993,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_analytics_11_8_0',
+      artifact = 'com.google.firebase:firebase-analytics:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_analytics_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_wallet_7_0_0',
       artifact = 'com.google.android.gms:play-services-wallet:7.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -15128,6 +17032,19 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_annotations_25_3_0//jar',
         '@com_android_support_support_compat_25_3_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_appindexing_11_6_2',
+      artifact = 'com.google.firebase:firebase-appindexing:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_appindexing_license_11_6_2//aar',
       ],
     )
 
@@ -15169,6 +17086,17 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_tasks_9_6_1//aar',
         '@com_google_android_gms_play_services_basement_9_6_1//aar',
         '@com_google_firebase_firebase_storage_common_9_6_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_database_connection_11_6_2',
+      artifact = 'com.google.firebase:firebase-database-connection:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_database_connection_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
       ],
     )
 
@@ -15328,6 +17256,14 @@ def gmaven_rules():
       deps = [
         '@com_google_firebase_firebase_analytics_9_6_1//aar',
         '@com_google_android_gms_play_services_basement_9_6_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_vision_common_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-vision-common-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -15797,6 +17733,15 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_0_1',
+      artifact = 'com.android.tools.external.com-intellij:intellij-core:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_iid_11_2_0',
       artifact = 'com.google.firebase:firebase-iid:11.2.0',
@@ -15904,6 +17849,15 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_test_espresso_espresso_intents_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso:espresso-intents:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_test_espresso_espresso_core_3_0_2_alpha1//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_iid_11_2_2',
       artifact = 'com.google.firebase:firebase-iid:11.2.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -15932,6 +17886,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_places_11_6_2',
+      artifact = 'com.google.android.gms:play-services-places:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_maps_11_6_2//aar',
+        '@com_google_android_gms_play_services_places_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_analytics_impl_9_4_0',
       artifact = 'com.google.firebase:firebase-analytics-impl:9.4.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -15952,6 +17919,50 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_maps_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_tasks_11_6_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_core_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:gradle-core:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_compilerCommon_3_1_0_alpha05//jar',
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha05//jar',
+        '@com_android_tools_build_gradle_api_3_1_0_alpha05//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have org_jacoco_org_jacoco_core_0_7_4_201502262128
+        '@com_android_tools_build_builder_3_1_0_alpha05//jar',
+        # GMaven does not have net_sf_proguard_proguard_gradle_5_3_3
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        # GMaven does not have org_jacoco_org_jacoco_report_0_7_4_201502262128
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_core_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:gradle-core:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha04//jar',
+        '@com_android_databinding_compilerCommon_3_1_0_alpha04//jar',
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have org_jacoco_org_jacoco_core_0_7_4_201502262128
+        '@com_android_tools_build_builder_3_1_0_alpha04//jar',
+        # GMaven does not have net_sf_proguard_proguard_gradle_5_3_3
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        '@com_android_tools_build_gradle_api_3_1_0_alpha04//jar',
+        # GMaven does not have org_jacoco_org_jacoco_report_0_7_4_201502262128
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
       ],
     )
 
@@ -16054,6 +18065,48 @@ def gmaven_rules():
         '@android_arch_persistence_room_common_1_0_0_alpha9_1//jar',
         # GMaven does not have commons_codec_commons_codec_1_10
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_core_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:gradle-core:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_build_builder_3_1_0_alpha07//jar',
+        '@com_android_tools_build_gradle_api_3_1_0_alpha07//jar',
+        # GMaven does not have net_sf_proguard_proguard_gradle_5_3_3
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        '@com_android_databinding_compilerCommon_3_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_core_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:gradle-core:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha06//jar',
+        '@com_android_tools_build_gradle_api_3_1_0_alpha06//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_databinding_compilerCommon_3_1_0_alpha06//jar',
+        '@com_android_tools_build_builder_3_1_0_alpha06//jar',
+        # GMaven does not have org_jacoco_org_jacoco_core_0_7_4_201502262128
+        # GMaven does not have net_sf_proguard_proguard_gradle_5_3_3
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        # GMaven does not have org_jacoco_org_jacoco_report_0_7_4_201502262128
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
       ],
     )
 
@@ -16336,6 +18389,15 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_aapt2_proto_0_2_0',
+      artifact = 'com.android.tools.build:aapt2-proto:0.2.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_appcompat_v7_23_0_1',
       artifact = 'com.android.support:appcompat-v7:23.0.1',
@@ -16381,6 +18443,15 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_build_gradle_core_3_0_0_beta5//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_recommendation_27_0_2',
+      artifact = 'com.android.support:recommendation:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_27_0_2//jar',
       ],
     )
 
@@ -16471,6 +18542,18 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_auth_api_phone_11_6_2',
+      artifact = 'com.google.android.gms:play-services-auth-api-phone:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_api_phone_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_build_gradle_experimental_0_11_0_beta3',
       artifact = 'com.android.tools.build:gradle-experimental:0.11.0-beta3',
@@ -16529,6 +18612,19 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_analytics_library_shared_26_0_1',
+      artifact = 'com.android.tools.analytics-library:shared:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_0_1//jar',
+        '@com_android_tools_annotations_26_0_1//jar',
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_common_26_0_1//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_build_gradle_core_3_0_0_alpha7',
       artifact = 'com.android.tools.build:gradle-core:3.0.0-alpha7',
       settings = '@gmaven_rules//:settings.xml',
@@ -16549,6 +18645,14 @@ def gmaven_rules():
         '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
         # GMaven does not have org_ow2_asm_asm_util_5_1
         # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_base_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-base-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -16787,6 +18891,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_support_emoji_appcompat_27_0_2',
+      artifact = 'com.android.support:support-emoji-appcompat:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_appcompat_v7_27_0_2//aar',
+        '@com_android_support_support_emoji_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_test_rules_0_6_alpha',
       artifact = 'com.android.support.test:rules:0.6-alpha',
       settings = '@gmaven_rules//:settings.xml',
@@ -16971,6 +19085,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_vision_11_8_0',
+      artifact = 'com.google.android.gms:play-services-vision:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_vision_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_vision_common_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_analytics_impl_11_2_0',
       artifact = 'com.google.android.gms:play-services-analytics-impl:11.2.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -17000,6 +19126,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_11_2_2//aar',
         '@com_google_android_gms_play_services_basement_11_2_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tagmanager-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -17101,6 +19235,22 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_safetynet_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-safetynet-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_crash_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-crash-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_ads_11_4_2',
       artifact = 'com.google.firebase:firebase-ads:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -17139,6 +19289,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_impl_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-analytics-impl-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_analytics_impl_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-analytics-impl-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -17152,6 +19310,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_9_6_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_wallet_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-wallet-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -17412,6 +19578,20 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_wallet_11_6_2',
+      artifact = 'com.google.android.gms:play-services-wallet:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_maps_11_6_2//aar',
+        '@com_google_android_gms_play_services_wallet_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_identity_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_analytics_impl_11_4_0',
       artifact = 'com.google.firebase:firebase-analytics-impl:11.4.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -17498,6 +19678,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_ads_lite_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-ads-lite-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_auth_license_11_4_2',
       artifact = 'com.google.android.gms:play-services-auth-license:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -17510,6 +19698,19 @@ def gmaven_rules():
       artifact = 'com.google.android.gms:play-services-ads-lite-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_shared_26_1_0_alpha07',
+      artifact = 'com.android.tools.analytics-library:shared:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
       ],
     )
 
@@ -17592,6 +19793,17 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_base_11_6_2',
+      artifact = 'com.google.android.gms:play-services-base:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_analytics_library_shared_26_1_0_alpha01',
       artifact = 'com.android.tools.analytics-library:shared:26.1.0-alpha01',
@@ -17602,6 +19814,45 @@ def gmaven_rules():
         # GMaven does not have com_google_guava_guava_22_0
         '@com_android_tools_analytics_library_protos_26_1_0_alpha01//jar',
         '@com_android_tools_common_26_1_0_alpha01//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_shared_26_1_0_alpha06',
+      artifact = 'com.android.tools.analytics-library:shared:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_code_gson_gson_2_7
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_shared_26_1_0_alpha05',
+      artifact = 'com.android.tools.analytics-library:shared:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha05//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_shared_26_1_0_alpha04',
+      artifact = 'com.android.tools.analytics-library:shared:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_code_gson_gson_2_3
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha04//jar',
+        '@com_android_tools_common_26_1_0_alpha04//jar',
       ],
     )
 
@@ -17797,6 +20048,20 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_awareness_11_6_2',
+      artifact = 'com.google.android.gms:play-services-awareness:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_awareness_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_places_11_6_2//aar',
+        '@com_google_android_gms_play_services_location_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_test_runner_1_0_1_alpha_1',
       artifact = 'com.android.support.test:runner:1.0.1-alpha-1',
       settings = '@gmaven_rules//:settings.xml',
@@ -17804,6 +20069,18 @@ def gmaven_rules():
         # GMaven does not have junit_junit_4_12
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
         '@com_android_support_support_annotations_25_4_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_messaging_11_6_2',
+      artifact = 'com.google.firebase:firebase-messaging:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_firebase_firebase_messaging_license_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_11_6_2//aar',
       ],
     )
 
@@ -17993,6 +20270,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_plus_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-plus-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'android_arch_core_core_testing_1_0_0_alpha5',
       artifact = 'android.arch.core:core-testing:1.0.0-alpha5',
       settings = '@gmaven_rules//:settings.xml',
@@ -18129,6 +20414,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_support_compat_27_0_2',
+      artifact = 'com.android.support:support-compat:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_ads_8_4_0',
       artifact = 'com.google.android.gms:play-services-ads:8.4.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -18180,12 +20475,40 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_nearby_11_6_2',
+      artifact = 'com.google.android.gms:play-services-nearby:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_nearby_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_recyclerview_v7_23_0_0',
       artifact = 'com.android.support:recyclerview-v7:23.0.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_23_0_0//jar',
         '@com_android_support_support_v4_23_0_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_api_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tagmanager-api-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_auth_base_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-auth-base-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -18214,6 +20537,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_fitness_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-fitness-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_fitness_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-fitness-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -18230,8 +20561,32 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-analytics-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_storage_common_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-storage-common-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_analytics_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-analytics-license:11.6.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_maps_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-maps-license:11.8.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
       ],
@@ -18412,6 +20767,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_api_phone_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-auth-api-phone-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_animated_vector_drawable_26_0_0',
       artifact = 'com.android.support:animated-vector-drawable:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -18489,6 +20852,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_tasks_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tasks:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_wallet_8_3_0',
       artifact = 'com.google.android.gms:play-services-wallet:8.3.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -18536,6 +20909,16 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_emoji_26_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_invites_11_8_0',
+      artifact = 'com.google.firebase:firebase-invites:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_appinvite_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_11_8_0//aar',
       ],
     )
 
@@ -18656,6 +21039,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_22_2_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_games_11_8_0',
+      artifact = 'com.google.android.gms:play-services-games:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_drive_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_games_license_11_8_0//aar',
       ],
     )
 
@@ -18785,6 +21181,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_iid_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-iid-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_ads_11_2_0',
       artifact = 'com.google.android.gms:play-services-ads:11.2.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -18805,6 +21209,31 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_wearable_11_8_0',
+      artifact = 'com.google.android.gms:play-services-wearable:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_wearable_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_cast_11_6_2',
+      artifact = 'com.google.android.gms:play-services-cast:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_cast_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_android_support_mediarouter_v7_25_2_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_cast_11_6_0',
       artifact = 'com.google.android.gms:play-services-cast:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -18814,6 +21243,14 @@ def gmaven_rules():
         '@com_android_support_mediarouter_v7_25_2_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_tasks_11_6_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_vision_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-vision-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -18898,6 +21335,19 @@ def gmaven_rules():
         '@com_android_support_preference_v7_26_0_0//aar',
         '@com_android_support_support_v4_26_0_0//aar',
         '@com_android_support_preference_v14_26_0_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_auth_11_8_0',
+      artifact = 'com.google.firebase:firebase-auth:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_auth_license_11_8_0//aar',
       ],
     )
 
@@ -19023,6 +21473,23 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_9_8_0//aar',
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_all_wear_11_6_2',
+      artifact = 'com.google.android.gms:play-services-all-wear:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_11_6_2//aar',
+        '@com_google_android_gms_play_services_location_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_wearable_11_6_2//aar',
+        '@com_google_android_gms_play_services_gcm_11_6_2//aar',
+        '@com_google_android_gms_play_services_fitness_11_6_2//aar',
+        '@com_google_android_gms_play_services_ads_lite_11_6_2//aar',
+        '@com_google_android_gms_play_services_analytics_11_6_2//aar',
       ],
     )
 
@@ -19198,6 +21665,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_common_26_0_0_alpha6//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_appcompat_v7_27_0_2',
+      artifact = 'com.android.support:appcompat-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_animated_vector_drawable_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_support_vector_drawable_27_0_2//aar',
+        '@com_android_support_support_core_utils_27_0_2//aar',
+        '@com_android_support_support_fragment_27_0_2//aar',
       ],
     )
 
@@ -19503,6 +21983,65 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_11_6_2',
+      artifact = 'com.google.android.gms:play-services:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_storage_common_11_6_2//aar',
+        '@com_google_android_gms_play_services_instantapps_11_6_2//aar',
+        '@com_google_android_gms_play_services_auth_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_ads_lite_11_6_2//aar',
+        '@com_google_firebase_firebase_auth_11_6_2//aar',
+        '@com_google_android_gms_play_services_awareness_11_6_2//aar',
+        '@com_google_firebase_firebase_crash_11_6_2//aar',
+        '@com_google_android_gms_play_services_panorama_11_6_2//aar',
+        '@com_google_android_gms_play_services_tagmanager_api_11_6_2//aar',
+        '@com_google_android_gms_play_services_auth_11_6_2//aar',
+        '@com_google_firebase_firebase_messaging_11_6_2//aar',
+        '@com_google_android_gms_play_services_maps_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_android_gms_play_services_plus_11_6_2//aar',
+        '@com_google_android_gms_play_services_auth_api_phone_11_6_2//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_cast_framework_11_6_2//aar',
+        '@com_google_android_gms_play_services_fido_11_6_2//aar',
+        '@com_google_android_gms_play_services_games_11_6_2//aar',
+        '@com_google_android_gms_play_services_gass_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_11_6_2//aar',
+        '@com_google_android_gms_play_services_gcm_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_appinvite_11_6_2//aar',
+        '@com_google_android_gms_play_services_places_11_6_2//aar',
+        '@com_google_firebase_firebase_appindexing_11_6_2//aar',
+        '@com_google_android_gms_play_services_tagmanager_11_6_2//aar',
+        '@com_google_firebase_firebase_database_connection_11_6_2//aar',
+        '@com_google_android_gms_play_services_fitness_11_6_2//aar',
+        '@com_google_android_gms_play_services_wallet_11_6_2//aar',
+        '@com_google_android_gms_play_services_analytics_11_6_2//aar',
+        '@com_google_android_gms_play_services_nearby_11_6_2//aar',
+        '@com_google_android_gms_play_services_location_11_6_2//aar',
+        '@com_google_android_gms_play_services_vision_common_11_6_2//aar',
+        '@com_google_firebase_firebase_database_11_6_2//aar',
+        '@com_google_android_gms_play_services_identity_11_6_2//aar',
+        '@com_google_android_gms_play_services_safetynet_11_6_2//aar',
+        '@com_google_android_gms_play_services_iid_11_6_2//aar',
+        '@com_google_android_gms_play_services_analytics_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_wearable_11_6_2//aar',
+        '@com_google_firebase_firebase_dynamic_links_11_6_2//aar',
+        '@com_google_android_gms_play_services_ads_11_6_2//aar',
+        '@com_google_android_gms_play_services_cast_11_6_2//aar',
+        '@com_google_android_gms_play_services_vision_11_6_2//aar',
+        '@com_google_firebase_firebase_config_11_6_2//aar',
+        '@com_google_firebase_firebase_storage_11_6_2//aar',
+        '@com_google_android_gms_play_services_drive_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_cast_7_3_0',
       artifact = 'com.google.android.gms:play-services-cast:7.3.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -19580,6 +22119,16 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_11_4_0//aar',
         '@com_google_android_gms_play_services_tasks_11_4_0//aar',
         '@com_google_android_gms_play_services_basement_11_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_vector_drawable_27_0_2',
+      artifact = 'com.android.support:support-vector-drawable:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
       ],
     )
 
@@ -19848,6 +22397,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_v4_impl_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tagmanager-v4-impl:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'android_arch_persistence_room_runtime_1_0_0_alpha9_1',
       artifact = 'android.arch.persistence.room:runtime:1.0.0-alpha9-1',
       settings = '@gmaven_rules//:settings.xml',
@@ -20018,6 +22579,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_database_connection_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-database-connection-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_mediarouter_v7_24_0_0',
       artifact = 'com.android.support:mediarouter-v7:24.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -20033,6 +22602,32 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_7_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_kotlin_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint-kotlin:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha06//jar',
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_kotlin_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint-kotlin:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha07//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07//jar',
       ],
     )
 
@@ -20116,6 +22711,32 @@ def gmaven_rules():
         '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha03//jar',
         '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha03//jar',
         '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha03//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_kotlin_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint-kotlin:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha04//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_kotlin_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint-kotlin:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha05//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha05//jar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
       ],
     )
@@ -20364,11 +22985,49 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_plus_11_8_0',
+      artifact = 'com.google.android.gms:play-services-plus:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_plus_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_appstate_7_8_0',
       artifact = 'com.google.android.gms:play-services-appstate:7.8.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_7_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_espresso_espresso_contrib_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso:espresso-contrib:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        # GMaven does not have com_google_android_apps_common_testing_accessibility_framework_accessibility_test_framework_2_0
+        '@com_android_support_design_27_0_2//aar',
+        '@com_android_support_test_espresso_espresso_idling_resource_3_0_2_alpha1//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
+        '@com_android_support_test_espresso_espresso_core_3_0_2_alpha1//aar',
+        '@com_android_support_support_core_utils_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_v4_impl_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tagmanager-v4-impl:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_license_11_8_0//aar',
       ],
     )
 
@@ -20562,6 +23221,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_annotations_26_1_0_alpha04',
+      artifact = 'com.android.tools:annotations:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_location_11_0_4',
       artifact = 'com.google.android.gms:play-services-location:11.0.4',
@@ -20592,6 +23259,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_annotations_26_1_0_alpha06',
+      artifact = 'com.android.tools:annotations:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_cast_10_2_1',
       artifact = 'com.google.android.gms:play-services-cast:10.2.1',
@@ -20600,6 +23275,22 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_10_2_1//aar',
         '@com_google_android_gms_play_services_basement_10_2_1//aar',
         '@com_android_support_mediarouter_v7_24_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_annotations_26_1_0_alpha05',
+      artifact = 'com.android.tools:annotations:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_annotations_26_1_0_alpha07',
+      artifact = 'com.android.tools:annotations:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -20745,6 +23436,16 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_10_2_0//aar',
         '@com_google_android_gms_play_services_places_10_2_0//aar',
         '@com_google_android_gms_play_services_location_10_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_crashlytics_sdk_android_crashlytics_core_2_5_0',
+      artifact = 'com.crashlytics.sdk.android:crashlytics-core:2.5.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_crashlytics_sdk_android_answers_1_4_1//aar',
+        '@io_fabric_sdk_android_fabric_1_4_1//aar',
       ],
     )
 
@@ -21454,6 +24155,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_analytics_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-analytics-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_drive_11_0_0',
       artifact = 'com.google.android.gms:play-services-drive:11.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -21471,6 +24180,16 @@ def gmaven_rules():
         '@com_android_support_support_annotations_26_0_1//jar',
         '@com_android_support_support_compat_26_0_1//aar',
         '@com_android_support_support_core_ui_26_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_storage_common_11_6_2',
+      artifact = 'com.google.firebase:firebase-storage-common:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_storage_common_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
       ],
     )
 
@@ -21605,6 +24324,30 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_gradle_core_3_0_1',
+      artifact = 'com.android.tools.build:gradle-core:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_compilerCommon_3_0_1//jar',
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3_2
+        '@com_android_tools_build_gradle_api_3_0_1//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        # GMaven does not have org_jacoco_org_jacoco_core_0_7_4_201502262128
+        '@com_android_tools_lint_lint_26_0_1//jar',
+        # GMaven does not have net_sf_proguard_proguard_gradle_5_3_3
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        '@com_android_tools_external_org_jetbrains_uast_26_0_1//jar',
+        # GMaven does not have org_jacoco_org_jacoco_report_0_7_4_201502262128
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        '@com_android_tools_build_builder_3_0_1//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_gridlayout_v7_23_0_0',
       artifact = 'com.android.support:gridlayout-v7:23.0.0',
@@ -21620,6 +24363,27 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_23_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_animated_vector_drawable_27_0_2',
+      artifact = 'com.android.support:animated-vector-drawable:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_vector_drawable_27_0_2//aar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_espresso_espresso_web_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso:espresso-web:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ccil_cowan_tagsoup_tagsoup_1_2
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_test_espresso_espresso_core_3_0_2_alpha1//aar',
       ],
     )
 
@@ -21676,6 +24440,14 @@ def gmaven_rules():
         '@com_android_support_preference_v7_23_1_1//aar',
         '@com_android_support_appcompat_v7_23_1_1//aar',
         '@com_android_support_recyclerview_v7_23_1_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_appinvite_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-appinvite-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -21775,6 +24547,39 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_lint_lint_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05//jar',
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_lint_lint_checks_26_1_0_alpha05//jar',
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04//jar',
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha04//jar',
+        '@com_android_tools_lint_lint_checks_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha04//jar',
+        # GMaven does not have org_eclipse_jdt_core_compiler_ecj_4_6_1
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_external_org_jetbrains_uast_26_0_0_beta7',
       artifact = 'com.android.tools.external.org-jetbrains:uast:26.0.0-beta7',
       settings = '@gmaven_rules//:settings.xml',
@@ -21783,10 +24588,42 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_lint_lint_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha07//jar',
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_lint_lint_checks_26_1_0_alpha07//jar',
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_external_org_jetbrains_uast_26_0_0_beta6',
       artifact = 'com.android.tools.external.org-jetbrains:uast:26.0.0-beta6',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha06//jar',
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_lint_lint_checks_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha06//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06//jar',
       ],
     )
 
@@ -21956,6 +24793,14 @@ def gmaven_rules():
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
         '@com_android_tools_common_26_0_0_beta2//jar',
         '@com_android_tools_annotations_26_0_0_beta2//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_instantapps_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-instantapps-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -22272,6 +25117,18 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_safetynet_11_6_2',
+      artifact = 'com.google.android.gms:play-services-safetynet:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_safetynet_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_layoutlib_layoutlib_api_26_0_0_beta1',
       artifact = 'com.android.tools.layoutlib:layoutlib-api:26.0.0-beta1',
@@ -22582,6 +25439,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_storage_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-storage-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_percent_22_2_0',
       artifact = 'com.android.support:percent:22.2.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -22643,6 +25508,16 @@ def gmaven_rules():
         # GMaven does not have com_google_code_gson_gson_2_3
         '@com_android_tools_annotations_26_0_0_alpha8//jar',
         # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_gass_11_8_0',
+      artifact = 'com.google.android.gms:play-services-gass:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_gass_license_11_8_0//aar',
       ],
     )
 
@@ -22970,6 +25845,19 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_build_manifest_merger_26_0_1',
+      artifact = 'com.android.tools.build:manifest-merger:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_common_26_0_1//jar',
+        '@com_android_tools_sdklib_26_0_1//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdk_common_26_0_1//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_build_manifest_merger_26_0_0',
       artifact = 'com.android.tools.build:manifest-merger:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -23009,6 +25897,14 @@ def gmaven_rules():
   maven_aar(
       name = 'com_google_android_gms_play_services_games_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-games-license:11.6.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_games_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-games-license:11.6.2',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
       ],
@@ -23091,6 +25987,42 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_dvlib_26_1_0_alpha04',
+      artifact = 'com.android.tools:dvlib:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_dvlib_26_1_0_alpha05',
+      artifact = 'com.android.tools:dvlib:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_dvlib_26_1_0_alpha06',
+      artifact = 'com.android.tools:dvlib:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_dvlib_26_1_0_alpha07',
+      artifact = 'com.android.tools:dvlib:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_support_fragment_25_3_1',
       artifact = 'com.android.support:support-fragment:25.3.1',
@@ -23139,6 +26071,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_annotations_26_0_0_alpha1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_nearby_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-nearby-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -23337,11 +26277,71 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_places_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-places-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_checks_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint-checks:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha04//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_lint_lint_api_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_checks_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint-checks:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha05//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        '@com_android_tools_lint_lint_api_26_1_0_alpha05//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_appstate_7_0_0',
       artifact = 'com.google.android.gms:play-services-appstate:7.0.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_7_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_checks_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint-checks:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha06//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_lint_lint_api_26_1_0_alpha06//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_checks_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint-checks:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_lint_lint_api_26_1_0_alpha07//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07//jar',
       ],
     )
 
@@ -23519,6 +26519,17 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_identity_11_6_2',
+      artifact = 'com.google.android.gms:play-services-identity:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_identity_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_identity_11_6_0',
       artifact = 'com.google.android.gms:play-services-identity:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -23589,11 +26600,31 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_ddms_ddmlib_26_1_0_alpha04',
+      artifact = 'com.android.tools.ddms:ddmlib:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_gcm_license_11_4_2',
       artifact = 'com.google.android.gms:play-services-gcm-license:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_ddms_ddmlib_26_1_0_alpha05',
+      artifact = 'com.android.tools.ddms:ddmlib:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha05//jar',
       ],
     )
 
@@ -23622,6 +26653,26 @@ def gmaven_rules():
       artifact = 'com.android.support.test:exposed-instrumentation-api-publish:0.6-alpha',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_ddms_ddmlib_26_1_0_alpha06',
+      artifact = 'com.android.tools.ddms:ddmlib:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_ddms_ddmlib_26_1_0_alpha07',
+      artifact = 'com.android.tools.ddms:ddmlib:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
       ],
     )
 
@@ -23734,6 +26785,30 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_crash_11_6_2',
+      artifact = 'com.google.firebase:firebase-crash:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_firebase_firebase_crash_license_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_11_6_2//aar',
+        '@com_google_firebase_firebase_analytics_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_panorama_11_8_0',
+      artifact = 'com.google.android.gms:play-services-panorama:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_panorama_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_ads_8_1_0',
       artifact = 'com.google.android.gms:play-services-ads:8.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -23810,6 +26885,15 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_builder_model_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:builder-model:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_cast_9_0_2',
       artifact = 'com.google.android.gms:play-services-cast:9.0.2',
@@ -23818,6 +26902,15 @@ def gmaven_rules():
         '@com_android_support_mediarouter_v7_23_0_0//aar',
         '@com_google_android_gms_play_services_basement_9_0_2//aar',
         '@com_google_android_gms_play_services_base_9_0_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_model_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:builder-model:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
       ],
     )
 
@@ -23838,6 +26931,24 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_vector_drawable_25_3_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_model_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:builder-model:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_model_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:builder-model:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
       ],
     )
 
@@ -23947,6 +27058,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_wearable_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-wearable-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'android_arch_persistence_room_compiler_1_0_0_rc1',
       artifact = 'android.arch.persistence.room:compiler:1.0.0-rc1',
@@ -24020,6 +27139,23 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_r8_0_2_1_dev',
+      artifact = 'com.android.tools:r8:0.2.1-dev',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_6
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        # GMaven does not have com_google_guava_guava_23_0
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_dynamic_links_license_11_4_2',
       artifact = 'com.google.firebase:firebase-dynamic-links-license:11.4.2',
@@ -24034,6 +27170,18 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_8_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_drive_11_8_0',
+      artifact = 'com.google.android.gms:play-services-drive:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_drive_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
       ],
     )
 
@@ -24177,6 +27325,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_support_tv_provider_27_0_2',
+      artifact = 'com.android.support:support-tv-provider:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_palette_v7_24_1_0',
       artifact = 'com.android.support:palette-v7:24.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -24257,6 +27415,22 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_annotations_24_0_0_alpha1//jar',
         '@com_android_support_support_v4_24_0_0_alpha1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_testutils_26_0_1',
+      artifact = 'com.android.tools:testutils:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        '@com_android_tools_common_26_0_1//jar',
+        # GMaven does not have com_google_truth_truth_0_28
+        # GMaven does not have org_easymock_easymock_3_3
+        # GMaven does not have org_smali_dexlib2_2_2_1
       ],
     )
 
@@ -24349,6 +27523,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_cast_framework_11_6_2',
+      artifact = 'com.google.android.gms:play-services-cast-framework:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_cast_framework_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_cast_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_gridlayout_v7_27_0_1',
       artifact = 'com.android.support:gridlayout-v7:27.0.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -24365,6 +27551,16 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_core_ui_27_0_0//aar',
         '@com_android_support_support_compat_27_0_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_gridlayout_v7_27_0_2',
+      artifact = 'com.android.support:gridlayout-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
       ],
     )
 
@@ -24503,6 +27699,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tagmanager:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_tagmanager_api_11_8_0//aar',
+        '@com_google_android_gms_play_services_analytics_impl_11_8_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_appinvite_11_2_2',
       artifact = 'com.google.android.gms:play-services-appinvite:11.2.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -24517,6 +27725,15 @@ def gmaven_rules():
   maven_jar(
       name = 'com_android_tools_analytics_library_protos_26_1_0_alpha03',
       artifact = 'com.android.tools.analytics-library:protos:26.1.0-alpha03',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_protos_26_1_0_alpha04',
+      artifact = 'com.android.tools.analytics-library:protos:26.1.0-alpha04',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
@@ -24562,6 +27779,27 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_databinding_library_3_1_0_alpha07',
+      artifact = 'com.android.databinding:library:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@com_android_databinding_baseLibrary_3_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_databinding_library_3_1_0_alpha05',
+      artifact = 'com.android.databinding:library:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_1_0_alpha05//jar',
+        '@com_android_support_support_core_utils_26_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_preference_leanback_v17_26_1_0',
       artifact = 'com.android.support:preference-leanback-v17:26.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -24576,11 +27814,31 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_databinding_library_3_1_0_alpha06',
+      artifact = 'com.android.databinding:library:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@com_android_databinding_baseLibrary_3_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_core_10_2_0',
       artifact = 'com.google.firebase:firebase-core:10.2.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_firebase_firebase_analytics_10_2_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_protos_26_1_0_alpha07',
+      artifact = 'com.android.tools.analytics-library:protos:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
       ],
     )
 
@@ -24602,12 +27860,30 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_analytics_library_protos_26_1_0_alpha05',
+      artifact = 'com.android.tools.analytics-library:protos:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_core_10_2_1',
       artifact = 'com.google.firebase:firebase-core:10.2.1',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_firebase_firebase_analytics_10_2_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_protos_26_1_0_alpha06',
+      artifact = 'com.android.tools.analytics-library:protos:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
       ],
     )
 
@@ -24749,6 +28025,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_android_support_transition_27_0_2',
+      artifact = 'com.android.support:transition:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_sdk_common_26_0_0_beta6',
       artifact = 'com.android.tools:sdk-common:26.0.0-beta6',
@@ -24820,6 +28106,14 @@ def gmaven_rules():
         '@com_android_tools_sdklib_26_0_0_beta3//jar',
         '@com_android_tools_build_builder_test_api_3_0_0_beta3//jar',
         # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_analytics_impl_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-analytics-impl-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -24993,6 +28287,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_base_11_8_0',
+      artifact = 'com.google.android.gms:play-services-auth-base:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_base_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_leanback_v17_24_0_0_beta1',
       artifact = 'com.android.support:leanback-v17:24.0.0-beta1',
       settings = '@gmaven_rules//:settings.xml',
@@ -25083,6 +28389,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tasks_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tasks-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'com_android_support_support_annotations_23_3_0',
       artifact = 'com.android.support:support-annotations:23.3.0',
@@ -25149,12 +28463,78 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'android_arch_paging_common_1_0_0_alpha4_1',
+      artifact = 'android.arch.paging:common:1.0.0-alpha4-1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_26_1_0//jar',
+        '@android_arch_core_common_1_0_0//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_gass_11_0_0',
       artifact = 'com.google.android.gms:play-services-gass:11.0.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_11_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_publisher_26_1_0_alpha06',
+      artifact = 'com.android.tools.analytics-library:publisher:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha06//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha06//jar',
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_publisher_26_1_0_alpha07',
+      artifact = 'com.android.tools.analytics-library:publisher:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha07//jar',
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha07//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        '@com_android_tools_annotations_26_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_publisher_26_1_0_alpha04',
+      artifact = 'com.android.tools.analytics-library:publisher:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_annotations_26_1_0_alpha04//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha04//jar',
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_analytics_library_publisher_26_1_0_alpha05',
+      artifact = 'com.android.tools.analytics-library:publisher:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha05//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_annotations_26_1_0_alpha05//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha05//jar',
+        '@com_android_tools_common_26_1_0_alpha05//jar',
       ],
     )
 
@@ -25222,6 +28602,19 @@ def gmaven_rules():
         '@com_android_support_percent_26_1_0//aar',
         '@com_android_support_support_core_ui_26_1_0//aar',
         '@com_android_support_recyclerview_v7_26_1_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_dynamic_links_11_8_0',
+      artifact = 'com.google.firebase:firebase-dynamic-links:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_dynamic_links_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
       ],
     )
 
@@ -25304,6 +28697,20 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_databinding_compilerCommon_3_1_0_alpha05',
+      artifact = 'com.android.databinding:compilerCommon:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have commons_io_commons_io_2_4
+        # GMaven does not have com_android_tools_annotations_24_5_0
+        '@com_android_databinding_baseLibrary_3_1_0_alpha05//jar',
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_ads_10_0_0',
       artifact = 'com.google.firebase:firebase-ads:10.0.0',
@@ -25320,6 +28727,20 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_9_0_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compilerCommon_3_1_0_alpha04',
+      artifact = 'com.android.databinding:compilerCommon:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_1_0_alpha04//jar',
+        # GMaven does not have com_android_tools_annotations_24_5_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
       ],
     )
 
@@ -25429,6 +28850,40 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_basement_9_0_0//aar',
         '@com_google_android_gms_play_services_tasks_9_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compilerCommon_3_1_0_alpha07',
+      artifact = 'com.android.databinding:compilerCommon:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_squareup_javapoet_1_8_0
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_android_tools_annotations_24_5_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+        # GMaven does not have com_google_code_gson_gson_2_7
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compilerCommon_3_1_0_alpha06',
+      artifact = 'com.android.databinding:compilerCommon:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_squareup_javapoet_1_8_0
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_android_tools_annotations_24_5_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+        # GMaven does not have com_google_code_gson_gson_2_7
       ],
     )
 
@@ -25555,6 +29010,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_basement_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-basement-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_appindexing_7_8_0',
       artifact = 'com.google.android.gms:play-services-appindexing:7.8.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -25675,6 +29138,16 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_lint_lint_checks_26_0_1',
+      artifact = 'com.android.tools.lint:lint-checks:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_analysis_5_1
+        '@com_android_tools_lint_lint_api_26_0_1//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_lint_lint_checks_26_0_0',
       artifact = 'com.android.tools.lint:lint-checks:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -25699,6 +29172,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_22_0_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_storage_11_8_0',
+      artifact = 'com.google.firebase:firebase-storage:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_storage_common_11_8_0//aar',
+        '@com_google_firebase_firebase_storage_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
       ],
     )
 
@@ -25729,6 +29215,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_firebase_firebase_messaging_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-messaging-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'com_android_support_support_annotations_22_1_1',
       artifact = 'com.android.support:support-annotations:22.1.1',
@@ -25742,6 +29236,15 @@ def gmaven_rules():
       artifact = 'com.android.support:support-annotations:22.1.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_dvlib_26_0_1',
+      artifact = 'com.android.tools:dvlib:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_common_26_0_1//jar',
       ],
     )
 
@@ -25794,6 +29297,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_fitness_11_4_0//aar',
         '@com_google_android_gms_play_services_ads_lite_11_4_0//aar',
         '@com_google_android_gms_play_services_auth_11_4_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_0_1',
+      artifact = 'com.android.tools.external.org-jetbrains:uast:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -25891,6 +29402,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_11_0_1//aar',
         '@com_google_android_gms_play_services_basement_11_0_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_baseLibrary_3_0_1',
+      artifact = 'com.android.databinding:baseLibrary:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -26028,6 +29547,26 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_crashlytics_sdk_android_crashlytics_ndk_2_0_1',
+      artifact = 'com.crashlytics.sdk.android:crashlytics-ndk:2.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_crashlytics_sdk_android_crashlytics_core_2_5_0//aar',
+        '@io_fabric_sdk_android_fabric_1_4_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_crashlytics_sdk_android_crashlytics_ndk_2_0_0',
+      artifact = 'com.crashlytics.sdk.android:crashlytics-ndk:2.0.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_crashlytics_sdk_android_crashlytics_core_2_5_0//aar',
+        '@io_fabric_sdk_android_fabric_1_4_1//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_compat_25_1_1',
       artifact = 'com.android.support:support-compat:25.1.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -26058,6 +29597,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_11_2_0//aar',
         '@com_google_android_gms_play_services_basement_11_2_0//aar',
         '@com_google_firebase_firebase_common_11_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_oss_licenses_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-oss-licenses-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -26385,6 +29932,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_ads_lite_11_6_2',
+      artifact = 'com.google.android.gms:play-services-ads-lite:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_ads_lite_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_v13_23_1_0',
       artifact = 'com.android.support:support-v13:23.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -26431,6 +29988,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_crash_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-crash-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_cardview_v7_25_3_1',
       artifact = 'com.android.support:cardview-v7:25.3.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -26468,6 +30033,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_wallet_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-wallet-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_design_26_0_0_alpha1',
       artifact = 'com.android.support:design:26.0.0-alpha1',
       settings = '@gmaven_rules//:settings.xml',
@@ -26476,6 +30049,18 @@ def gmaven_rules():
         '@com_android_support_support_v4_26_0_0_alpha1//aar',
         '@com_android_support_appcompat_v7_26_0_0_alpha1//aar',
         '@com_android_support_transition_26_0_0_alpha1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_fido_11_6_2',
+      artifact = 'com.google.android.gms:play-services-fido:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_fido_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
       ],
     )
 
@@ -26716,6 +30301,18 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_android_support_preference_v14_27_0_2',
+      artifact = 'com.android.support:preference-v14:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_preference_v7_27_0_2//aar',
+        '@com_android_support_appcompat_v7_27_0_2//aar',
+        '@com_android_support_support_v4_27_0_2//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'android_arch_persistence_room_compiler_1_0_0_beta2',
       artifact = 'android.arch.persistence.room:compiler:1.0.0-beta2',
@@ -26729,6 +30326,18 @@ def gmaven_rules():
         '@android_arch_persistence_room_migration_1_0_0_beta2//jar',
         # GMaven does not have commons_codec_commons_codec_1_10
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_iid_11_8_0',
+      artifact = 'com.google.firebase:firebase-iid:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_license_11_8_0//aar',
       ],
     )
 
@@ -26884,6 +30493,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_wearable_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-wearable-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_leanback_v17_24_1_0',
       artifact = 'com.android.support:leanback-v17:24.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -26958,6 +30575,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_panorama_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-panorama-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_crashlytics_sdk_android_beta_1_2_6',
       artifact = 'com.crashlytics.sdk.android:beta:1.2.6',
       settings = '@gmaven_rules//:settings.xml',
@@ -26981,6 +30606,25 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@io_fabric_sdk_android_fabric_1_4_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_base_11_8_0',
+      artifact = 'com.google.android.gms:play-services-base:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_installreferrer_installreferrer_1_0',
+      artifact = 'com.android.installreferrer:installreferrer:1.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -27115,6 +30759,17 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_basement_10_2_4//aar',
         '@com_google_android_gms_play_services_base_10_2_4//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_maps_11_8_0',
+      artifact = 'com.google.android.gms:play-services-maps:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_maps_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
       ],
     )
 
@@ -27295,6 +30950,44 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_base_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-base-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_databinding_adapters_3_1_0_alpha05',
+      artifact = 'com.android.databinding:adapters:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_1_0_alpha05//jar',
+        '@com_android_databinding_library_3_1_0_alpha05//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_databinding_adapters_3_1_0_alpha06',
+      artifact = 'com.android.databinding:adapters:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_1_0_alpha06//jar',
+        '@com_android_databinding_library_3_1_0_alpha06//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_databinding_adapters_3_1_0_alpha07',
+      artifact = 'com.android.databinding:adapters:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_1_0_alpha07//jar',
+        '@com_android_databinding_library_3_1_0_alpha07//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_core_ui_26_0_0_beta2',
       artifact = 'com.android.support:support-core-ui:26.0.0-beta2',
       settings = '@gmaven_rules//:settings.xml',
@@ -27410,6 +31103,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_oss_licenses_11_6_2',
+      artifact = 'com.google.android.gms:play-services-oss-licenses:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_oss_licenses_license_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_devicelib_26_0_0_alpha5',
       artifact = 'com.android.tools:devicelib:26.0.0-alpha5',
@@ -27418,6 +31121,19 @@ def gmaven_rules():
         # GMaven does not have com_google_guava_guava_22_0
         '@com_android_tools_annotations_26_0_0_alpha5//jar',
         '@com_android_tools_common_26_0_0_alpha5//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_fitness_11_8_0',
+      artifact = 'com.google.android.gms:play-services-fitness:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_location_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_fitness_license_11_8_0//aar',
       ],
     )
 
@@ -27591,6 +31307,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_fitness_10_2_1//aar',
         '@com_google_android_gms_play_services_auth_10_2_1//aar',
         '@com_google_android_gms_play_services_location_10_2_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_api_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tagmanager-api-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -27842,6 +31566,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'android_arch_paging_common_1_0_0_alpha4',
+      artifact = 'android.arch.paging:common:1.0.0-alpha4',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_26_1_0//jar',
+        '@android_arch_core_common_1_0_0//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_support_emoji_appcompat_26_0_0_beta2',
       artifact = 'com.android.support:support-emoji-appcompat:26.0.0-beta2',
@@ -28013,6 +31747,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_leanback_v17_27_0_2',
+      artifact = 'com.android.support:leanback-v17:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_media_compat_27_0_2//aar',
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
+        '@com_android_support_support_fragment_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_leanback_v17_27_0_0',
       artifact = 'com.android.support:leanback-v17:27.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -28068,10 +31815,27 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_cast_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-cast-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_cast_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-cast-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_emoji_27_0_2',
+      artifact = 'com.android.support:support-emoji:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
       ],
     )
 
@@ -28246,6 +32010,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_tools_ddms_ddmlib_26_0_0_alpha3//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_ads_lite_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-ads-lite-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -28516,6 +32288,17 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_android_support_mediarouter_v7_27_0_2',
+      artifact = 'com.android.support:mediarouter-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_media_compat_27_0_2//aar',
+        '@com_android_support_appcompat_v7_27_0_2//aar',
+        '@com_android_support_palette_v7_27_0_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'android_arch_persistence_room_compiler_1_0_0_alpha3',
       artifact = 'android.arch.persistence.room:compiler:1.0.0-alpha3',
@@ -28576,6 +32359,14 @@ def gmaven_rules():
         '@android_arch_lifecycle_common_1_0_3//jar',
         '@com_android_support_support_annotations_26_1_0//jar',
         '@android_arch_core_common_1_0_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_vision_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-vision-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -28843,6 +32634,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_9_8_0//aar',
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_plus_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-plus-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -29175,6 +32974,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_support_content_27_0_2',
+      artifact = 'com.android.support:support-content:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_content_27_0_1',
       artifact = 'com.android.support:support-content:27.0.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -29190,6 +32999,18 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_8_1_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_nearby_11_8_0',
+      artifact = 'com.google.android.gms:play-services-nearby:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_nearby_license_11_8_0//aar',
       ],
     )
 
@@ -29228,6 +33049,14 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_annotations_26_1_0//jar',
         '@android_arch_core_common_1_0_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_fitness_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-fitness-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -29335,6 +33164,16 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_compat_26_0_0_alpha1//aar',
         '@com_android_support_support_annotations_26_0_0_alpha1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_basement_11_8_0',
+      artifact = 'com.google.android.gms:play-services-basement:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_v4_25_2_0//aar',
+        '@com_google_android_gms_play_services_basement_license_11_8_0//aar',
       ],
     )
 
@@ -29491,6 +33330,17 @@ def gmaven_rules():
       deps = [
         '@com_android_tools_common_26_0_0//jar',
         '@com_android_tools_annotations_26_0_0//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_devicelib_26_0_1',
+      artifact = 'com.android.tools:devicelib:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_0_1//jar',
+        '@com_android_tools_common_26_0_1//jar',
         # GMaven does not have com_google_guava_guava_22_0
       ],
     )
@@ -29698,6 +33548,19 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_10_2_6//aar',
         '@com_google_android_gms_play_services_maps_10_2_6//aar',
         '@com_google_android_gms_play_services_basement_10_2_6//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_places_11_8_0',
+      artifact = 'com.google.android.gms:play-services-places:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_maps_11_8_0//aar',
+        '@com_google_android_gms_play_services_places_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
       ],
     )
 
@@ -29938,6 +33801,15 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_build_builder_model_3_0_1',
+      artifact = 'com.android.tools.build:builder-model:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_0_1//jar',
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_build_builder_model_3_0_0',
       artifact = 'com.android.tools.build:builder-model:3.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -30013,6 +33885,19 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_11_0_1//aar',
         '@com_google_android_gms_play_services_basement_11_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_auth_11_6_2',
+      artifact = 'com.google.firebase:firebase-auth:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_auth_license_11_6_2//aar',
       ],
     )
 
@@ -30248,6 +34133,25 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint-gradle:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha07//jar',
+        '@com_android_tools_build_builder_3_1_0_alpha07//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha07//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha07//jar',
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_12
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha07//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_storage_common_9_2_1',
       artifact = 'com.google.firebase:firebase-storage-common:9.2.1',
@@ -30255,6 +34159,63 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_9_2_1//aar',
         '@com_google_android_gms_play_services_basement_9_2_1//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint-gradle:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_3_1_0_alpha06//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha06//jar',
+        '@com_android_tools_build_builder_model_3_1_0_alpha06//jar',
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha06//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_11
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha06//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint-gradle:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha05//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha05//jar',
+        '@com_android_tools_build_builder_3_1_0_alpha05//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha05//jar',
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha05//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha05//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha05//jar',
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_11
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint-gradle:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_model_3_1_0_alpha04//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04//jar',
+        '@com_android_tools_lint_lint_gradle_api_26_1_0_alpha04//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha04//jar',
+        '@com_android_tools_build_builder_3_1_0_alpha04//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha04//jar',
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha04//jar',
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_11
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+        '@com_android_tools_lint_lint_26_1_0_alpha04//jar',
       ],
     )
 
@@ -30485,6 +34446,17 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_firebase_firebase_database_connection_11_8_0',
+      artifact = 'com.google.firebase:firebase-database-connection:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_database_connection_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+      ],
+    )
+
   maven_jar(
       name = 'android_arch_lifecycle_common_1_0_0_alpha4',
       artifact = 'android.arch.lifecycle:common:1.0.0-alpha4',
@@ -30622,6 +34594,22 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_storage_common_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-storage-common-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_vision_common_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-vision-common-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_cardview_v7_26_0_0_beta2',
       artifact = 'com.android.support:cardview-v7:26.0.0-beta2',
       settings = '@gmaven_rules//:settings.xml',
@@ -30636,6 +34624,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_22_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_maps_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-maps-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -30698,6 +34694,20 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_config_11_6_2',
+      artifact = 'com.google.firebase:firebase-config:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_11_6_2//aar',
+        '@com_google_firebase_firebase_config_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_config_11_6_0',
       artifact = 'com.google.firebase:firebase-config:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -30714,6 +34724,14 @@ def gmaven_rules():
   maven_aar(
       name = 'com_google_android_gms_play_services_maps_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-maps-license:11.6.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_cast_framework_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-cast-framework-license:11.8.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
       ],
@@ -30944,6 +34962,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_storage_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-storage-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_crash_10_2_4',
       artifact = 'com.google.firebase:firebase-crash:10.2.4',
       settings = '@gmaven_rules//:settings.xml',
@@ -31127,6 +35153,15 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_analytics_library_protos_26_0_1',
+      artifact = 'com.android.tools.analytics-library:protos:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_0_0
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_lint_lint_tests_26_1_0_alpha01',
       artifact = 'com.android.tools.lint:lint-tests:26.1.0-alpha01',
       settings = '@gmaven_rules//:settings.xml',
@@ -31213,6 +35248,66 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_25_0_1//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_tests_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint-tests:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha07//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha07//jar',
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        '@com_android_tools_testutils_26_1_0_alpha07//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha07//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_tests_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint-tests:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha06//jar',
+        '@com_android_tools_testutils_26_1_0_alpha06//jar',
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha06//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha06//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_tests_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint-tests:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05//jar',
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha05//jar',
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha05//jar',
+        '@com_android_tools_testutils_26_1_0_alpha05//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_tests_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint-tests:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha04//jar',
+        '@com_android_tools_layoutlib_layoutlib_api_26_1_0_alpha04//jar',
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        '@com_android_tools_testutils_26_1_0_alpha04//jar',
+        '@com_android_tools_lint_lint_26_1_0_alpha04//jar',
       ],
     )
 
@@ -31344,6 +35439,34 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_build_bundletool_0_1_0_alpha01',
+      artifact = 'com.android.tools.build:bundletool:0.1.0-alpha01',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_build_aapt2_proto_0_1_0//jar',
+        # GMaven does not have com_google_errorprone_error_prone_annotations_2_1_2
+        # GMaven does not have com_google_auto_value_auto_value_1_5_2
+        # GMaven does not have com_google_protobuf_protobuf_java_util_3_4_0
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_bundletool_0_1_0_alpha02',
+      artifact = 'com.android.tools.build:bundletool:0.1.0-alpha02',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_build_aapt2_proto_0_1_0//jar',
+        # GMaven does not have com_google_errorprone_error_prone_annotations_2_1_2
+        # GMaven does not have com_google_auto_value_auto_value_1_5_2
+        # GMaven does not have com_google_protobuf_protobuf_java_util_3_4_0
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_testutils_26_0_0_beta7',
       artifact = 'com.android.tools:testutils:26.0.0-beta7',
       settings = '@gmaven_rules//:settings.xml',
@@ -31356,6 +35479,18 @@ def gmaven_rules():
         # GMaven does not have com_google_truth_truth_0_28
         # GMaven does not have org_easymock_easymock_3_3
         # GMaven does not have org_smali_dexlib2_2_2_1
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_ads_11_8_0',
+      artifact = 'com.google.android.gms:play-services-ads:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_gass_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_ads_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_ads_lite_11_8_0//aar',
       ],
     )
 
@@ -31417,6 +35552,14 @@ def gmaven_rules():
         '@com_android_tools_common_26_0_0_alpha9//jar',
         # GMaven does not have org_apache_commons_commons_compress_1_12
         # GMaven does not have com_google_jimfs_jimfs_1_1
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_analytics_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-analytics-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -32380,6 +36523,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_gass_11_6_2',
+      artifact = 'com.google.android.gms:play-services-gass:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_gass_license_11_6_2//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_build_manifest_merger_26_0_0_alpha7',
       artifact = 'com.android.tools.build:manifest-merger:26.0.0-alpha7',
@@ -32584,6 +36737,26 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_android_support_design_27_0_2',
+      artifact = 'com.android.support:design:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_appcompat_v7_27_0_2//aar',
+        '@com_android_support_transition_27_0_2//aar',
+        '@com_android_support_support_v4_27_0_2//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_database_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-database-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_lint_lint_api_26_0_0',
       artifact = 'com.android.tools.lint:lint-api:26.0.0',
@@ -32598,6 +36771,24 @@ def gmaven_rules():
         # GMaven does not have org_ow2_asm_asm_tree_5_1
         '@com_android_tools_sdk_common_26_0_0//jar',
         '@com_android_tools_external_org_jetbrains_uast_26_0_0//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_3_2
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_api_26_0_1',
+      artifact = 'com.android.tools.lint:lint-api:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_external_com_intellij_intellij_core_26_0_1//jar',
+        # GMaven does not have com_android_tools_external_lombok_lombok_ast_0_2_3
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_build_builder_model_3_0_1//jar',
+        '@com_android_tools_build_manifest_merger_26_0_1//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3_2
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        '@com_android_tools_external_org_jetbrains_uast_26_0_1//jar',
+        '@com_android_tools_sdk_common_26_0_1//jar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_3_2
       ],
     )
@@ -32744,6 +36935,17 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_11_4_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_plus_11_6_2',
+      artifact = 'com.google.android.gms:play-services-plus:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_plus_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
       ],
     )
 
@@ -32999,6 +37201,18 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_repository_26_0_1',
+      artifact = 'com.android.tools:repository:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_1_3_2
+        '@com_android_tools_common_26_0_1//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_identity_9_0_0',
       artifact = 'com.google.android.gms:play-services-identity:9.0.0',
@@ -33054,6 +37268,21 @@ def gmaven_rules():
     )
 
   maven_jar(
+      name = 'com_android_tools_sdklib_26_0_1',
+      artifact = 'com.android.tools:sdklib:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_code_gson_gson_2_3
+        '@com_android_tools_repository_26_0_1//jar',
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_2_6
+        '@com_android_tools_layoutlib_layoutlib_api_26_0_1//jar',
+        '@com_android_tools_dvlib_26_0_1//jar',
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_1
+      ],
+    )
+
+  maven_jar(
       name = 'com_android_tools_sdklib_26_0_0',
       artifact = 'com.android.tools:sdklib:26.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -33101,6 +37330,15 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_core_utils_27_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_dynamic_animation_27_0_2',
+      artifact = 'com.android.support:support-dynamic-animation:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_core_utils_27_0_2//aar',
       ],
     )
 
@@ -33177,6 +37415,34 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_annotations_23_1_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tasks_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tasks-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_espresso_idling_idling_net_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso.idling:idling-net:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_test_espresso_espresso_idling_resource_3_0_2_alpha1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_espresso_espresso_accessibility_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso:espresso-accessibility:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_google_android_apps_common_testing_accessibility_framework_accessibility_test_framework_2_0
+        '@com_android_support_test_espresso_espresso_core_3_0_2_alpha1//aar',
       ],
     )
 
@@ -33311,12 +37577,44 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_vision_common_11_8_0',
+      artifact = 'com.google.android.gms:play-services-vision-common:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_vision_common_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_location_7_0_0',
       artifact = 'com.google.android.gms:play-services-location:7.0.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_7_0_0//aar',
         '@com_google_android_gms_play_services_maps_7_0_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_dynamic_links_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-dynamic-links-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_perf_11_8_0',
+      artifact = 'com.google.firebase:firebase-perf:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_firebase_firebase_perf_license_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_11_8_0//aar',
       ],
     )
 
@@ -33358,6 +37656,26 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_8_1_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_runner_1_0_2_alpha1',
+      artifact = 'com.android.support.test:runner:1.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_test_monitor_1_0_2_alpha1//aar',
+        # GMaven does not have junit_junit_4_12
+        '@com_android_support_support_annotations_27_0_2//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_identity_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-identity-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -33625,6 +37943,18 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_11_0_4//aar',
         '@com_google_android_gms_play_services_tasks_11_0_4//aar',
         '@com_google_android_gms_play_services_basement_11_0_4//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_cast_framework_11_8_0',
+      artifact = 'com.google.android.gms:play-services-cast-framework:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_cast_framework_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_cast_11_8_0//aar',
       ],
     )
 
@@ -34255,6 +38585,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_android_gms_play_services_gcm_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-gcm-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_analytics_library_protos_26_0_0_alpha8',
       artifact = 'com.android.tools.analytics-library:protos:26.0.0-alpha8',
@@ -34414,6 +38752,28 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_compat_25_2_0//aar',
         '@com_android_support_support_annotations_25_2_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_api_11_8_0',
+      artifact = 'com.google.android.gms:play-services-tagmanager-api:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_tagmanager_api_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_common_11_6_2',
+      artifact = 'com.google.firebase:firebase-common:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_license_11_6_2//aar',
       ],
     )
 
@@ -34684,12 +39044,57 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_databinding_compiler_3_1_0_alpha05',
+      artifact = 'com.android.databinding:compiler:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_compilerCommon_3_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have commons_codec_commons_codec_1_6
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_1_0_alpha05//jar',
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compiler_3_1_0_alpha06',
+      artifact = 'com.android.databinding:compiler:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have commons_codec_commons_codec_1_6
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+        '@com_android_databinding_compilerCommon_3_1_0_alpha06//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_firebase_firebase_core_9_4_0',
       artifact = 'com.google.firebase:firebase-core:9.4.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_firebase_firebase_analytics_9_4_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compiler_3_1_0_alpha07',
+      artifact = 'com.android.databinding:compiler:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have commons_codec_commons_codec_1_6
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+        '@com_android_databinding_compilerCommon_3_1_0_alpha07//jar',
       ],
     )
 
@@ -34740,6 +39145,16 @@ def gmaven_rules():
       deps = [
         # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
         '@com_android_databinding_baseLibrary_3_1_0_alpha03//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compiler_3_1_0_alpha04',
+      artifact = 'com.android.databinding:compiler:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_1_0_alpha04//jar',
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
       ],
     )
 
@@ -34857,6 +39272,18 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_annotations_25_3_0//jar',
         '@com_android_support_support_compat_25_3_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_drive_11_6_2',
+      artifact = 'com.google.android.gms:play-services-drive:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_drive_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
       ],
     )
 
@@ -35307,6 +39734,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_tagmanager_11_6_2',
+      artifact = 'com.google.android.gms:play-services-tagmanager:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_tagmanager_api_11_6_2//aar',
+        '@com_google_android_gms_play_services_analytics_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_tagmanager_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_invites_9_4_0',
       artifact = 'com.google.firebase:firebase-invites:9.4.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -35456,6 +39895,17 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_identity_11_8_0',
+      artifact = 'com.google.android.gms:play-services-identity:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_identity_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_preference_leanback_v17_25_1_0',
       artifact = 'com.android.support:preference-leanback-v17:25.1.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -35483,6 +39933,20 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_databinding_compilerCommon_3_0_1',
+      artifact = 'com.android.databinding:compilerCommon:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have com_google_guava_guava_22_0
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_0_1//jar',
+        # GMaven does not have com_android_tools_annotations_24_5_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_safetynet_10_2_0',
       artifact = 'com.google.android.gms:play-services-safetynet:10.2.0',
@@ -35491,6 +39955,18 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_basement_10_2_0//aar',
         '@com_google_android_gms_play_services_tasks_10_2_0//aar',
         '@com_google_android_gms_play_services_base_10_2_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_0_1',
+      artifact = 'com.android.tools.layoutlib:layoutlib-api:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_0_1//jar',
+        '@com_android_tools_common_26_0_1//jar',
+        # GMaven does not have com_intellij_annotations_12_0
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
       ],
     )
 
@@ -35611,6 +40087,17 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_maps_11_6_2',
+      artifact = 'com.google.android.gms:play-services-maps:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_maps_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_maps_11_6_0',
       artifact = 'com.google.android.gms:play-services-maps:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -35618,6 +40105,19 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_11_6_0//aar',
         '@com_google_android_gms_play_services_maps_license_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_v4_27_0_2',
+      artifact = 'com.android.support:support-v4:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_media_compat_27_0_2//aar',
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
+        '@com_android_support_support_core_utils_27_0_2//aar',
+        '@com_android_support_support_fragment_27_0_2//aar',
       ],
     )
 
@@ -35777,6 +40277,16 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_common_26_0_1',
+      artifact = 'com.android.tools:common:26.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_annotations_26_0_1//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_preference_v7_25_3_1',
       artifact = 'com.android.support:preference-v7:25.3.1',
@@ -35894,11 +40404,42 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_fitness_11_6_2',
+      artifact = 'com.google.android.gms:play-services-fitness:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_location_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_android_gms_play_services_fitness_license_11_6_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:gradle:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_gradle_core_3_1_0_alpha05//jar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_oss_licenses_11_0_2',
       artifact = 'com.google.android.gms:play-services-oss-licenses:11.0.2',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_11_0_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:gradle:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_gradle_core_3_1_0_alpha04//jar',
       ],
     )
 
@@ -35911,12 +40452,32 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_gradle_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:gradle:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_gradle_core_3_1_0_alpha07//jar',
+        '@com_android_tools_build_bundletool_0_1_0_alpha01//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_oss_licenses_11_0_4',
       artifact = 'com.google.android.gms:play-services-oss-licenses:11.0.4',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_basement_11_0_4//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_gradle_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:gradle:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_gradle_core_3_1_0_alpha06//jar',
+        '@com_android_tools_build_bundletool_0_1_0_alpha01//jar',
       ],
     )
 
@@ -35968,6 +40529,70 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_testutils_26_1_0_alpha06',
+      artifact = 'com.android.tools:testutils:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        # GMaven does not have com_google_truth_truth_0_28
+        # GMaven does not have org_easymock_easymock_3_3
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        # GMaven does not have org_smali_dexlib2_2_2_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_testutils_26_1_0_alpha07',
+      artifact = 'com.android.tools:testutils:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        # GMaven does not have com_google_truth_truth_0_28
+        # GMaven does not have org_easymock_easymock_3_3
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        # GMaven does not have org_smali_dexlib2_2_2_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_testutils_26_1_0_alpha04',
+      artifact = 'com.android.tools:testutils:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        # GMaven does not have com_google_truth_truth_0_28
+        # GMaven does not have org_easymock_easymock_3_3
+        # GMaven does not have org_smali_dexlib2_2_2_1
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_testutils_26_1_0_alpha05',
+      artifact = 'com.android.tools:testutils:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_mockito_mockito_core_2_7_1
+        # GMaven does not have com_google_truth_truth_0_28
+        # GMaven does not have org_easymock_easymock_3_3
+        # GMaven does not have org_smali_dexlib2_2_2_1
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_appinvite_10_0_0',
       artifact = 'com.google.android.gms:play-services-appinvite:10.0.0',
@@ -36015,6 +40640,17 @@ def gmaven_rules():
         '@com_android_tools_analytics_library_shared_26_0_0_rc2//jar',
         '@com_android_tools_analytics_library_protos_26_0_0_rc2//jar',
         '@com_android_tools_annotations_26_0_0_rc2//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_impl_11_6_2',
+      artifact = 'com.google.android.gms:play-services-analytics-impl:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
       ],
     )
 
@@ -36089,6 +40725,14 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_basement_11_0_1//aar',
         '@com_google_android_gms_play_services_tasks_11_0_1//aar',
         '@com_google_android_gms_play_services_auth_base_11_0_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_oss_licenses_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-oss-licenses-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -36330,6 +40974,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_testlab_instr_lib_0_1',
+      artifact = 'com.google.firebase:testlab-instr-lib:0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have junit_junit_4_12
+        '@com_android_support_test_runner_1_0_1//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_panorama_11_0_4',
       artifact = 'com.google.android.gms:play-services-panorama:11.0.4',
       settings = '@gmaven_rules//:settings.xml',
@@ -36415,12 +41069,31 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_common_11_8_0',
+      artifact = 'com.google.firebase:firebase-common:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_ads_11_0_4',
       artifact = 'com.google.firebase:firebase-ads:11.0.4',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_ads_11_0_4//aar',
         '@com_google_firebase_firebase_analytics_11_0_4//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_appindexing_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-appindexing-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -36564,6 +41237,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_gcm_11_6_2',
+      artifact = 'com.google.android.gms:play-services-gcm:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_iid_11_6_2//aar',
+        '@com_google_android_gms_play_services_gcm_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_games_9_6_1',
       artifact = 'com.google.android.gms:play-services-games:9.6.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -36591,6 +41276,19 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_v4_21_0_3//aar',
         # GMaven does not have com_android_databinding_baseLibrary_1_0_rc1
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_analytics_impl_11_8_0',
+      artifact = 'com.google.firebase:firebase-analytics-impl:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_license_11_8_0//aar',
       ],
     )
 
@@ -36732,6 +41430,139 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_tasks_11_6_0//aar',
         '@com_google_firebase_firebase_common_11_6_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_3_1_0_alpha06',
+      artifact = 'com.android.tools.build:builder:3.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_build_apksig_3_1_0_alpha06//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha06//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_analytics_library_tracker_26_1_0_alpha06//jar',
+        '@com_android_tools_build_builder_model_3_1_0_alpha06//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha06//jar',
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha06//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha06//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha06//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        '@com_android_tools_common_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha06//jar',
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha06//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_3_1_0_alpha07',
+      artifact = 'com.android.tools.build:builder:3.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha07//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_build_apksig_3_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_analytics_library_tracker_26_1_0_alpha07//jar',
+        '@com_android_tools_build_builder_model_3_1_0_alpha07//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha07//jar',
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha07//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha07//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha07//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_common_26_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_storage_11_6_2',
+      artifact = 'com.google.firebase:firebase-storage:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_storage_common_11_6_2//aar',
+        '@com_google_firebase_firebase_storage_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_3_1_0_alpha04',
+      artifact = 'com.android.tools.build:builder:3.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha04//jar',
+        '@com_android_tools_build_apksig_3_1_0_alpha04//jar',
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha04//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_analytics_library_tracker_26_1_0_alpha04//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha04//jar',
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_model_3_1_0_alpha04//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_sdk_common_26_1_0_alpha04//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha04//jar',
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha04//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        '@com_android_tools_common_26_1_0_alpha04//jar',
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_build_builder_3_1_0_alpha05',
+      artifact = 'com.android.tools.build:builder:3.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_1_0_alpha05//jar',
+        '@com_android_tools_build_apksig_3_1_0_alpha05//jar',
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_5_1
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_analytics_library_tracker_26_1_0_alpha05//jar',
+        '@com_android_tools_analytics_library_shared_26_1_0_alpha05//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_build_builder_model_3_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_ddms_ddmlib_26_1_0_alpha05//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_analytics_library_protos_26_1_0_alpha05//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha05//jar',
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha05//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha05//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        # GMaven does not have org_ow2_asm_asm_util_5_1
+        '@com_android_tools_common_26_1_0_alpha05//jar',
+        # GMaven does not have org_ow2_asm_asm_commons_5_1
       ],
     )
 
@@ -37339,6 +42170,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_iid_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-iid-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_storage_9_2_1',
       artifact = 'com.google.firebase:firebase-storage:9.2.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -37459,6 +42298,15 @@ def gmaven_rules():
         '@com_android_support_support_annotations_26_0_0_beta1//jar',
         '@com_android_support_support_core_ui_26_0_0_beta1//aar',
         '@com_android_support_recyclerview_v7_26_0_0_beta1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_test_monitor_1_0_2_alpha1',
+      artifact = 'com.android.support.test:monitor:1.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_27_0_2//jar',
       ],
     )
 
@@ -37584,6 +42432,22 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_android_support_test_espresso_espresso_core_3_0_2_alpha1',
+      artifact = 'com.android.support.test.espresso:espresso-core:3.0.2-alpha1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_hamcrest_hamcrest_integration_1_3
+        '@com_android_support_test_espresso_espresso_idling_resource_3_0_2_alpha1//aar',
+        # GMaven does not have com_google_code_findbugs_jsr305_2_0_1
+        # GMaven does not have javax_inject_javax_inject_1
+        '@com_android_support_test_rules_1_0_2_alpha1//aar',
+        # GMaven does not have com_squareup_javawriter_2_1_1
+        # GMaven does not have org_hamcrest_hamcrest_library_1_3
+        '@com_android_support_test_runner_1_0_2_alpha1//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_plus_9_2_1',
       artifact = 'com.google.android.gms:play-services-plus:9.2.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -37676,6 +42540,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_fido_11_8_0',
+      artifact = 'com.google.android.gms:play-services-fido:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_fido_license_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_firestore_11_4_2',
       artifact = 'com.google.firebase:firebase-firestore:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -37685,6 +42561,22 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_tasks_11_4_2//aar',
         # GMaven does not have com_google_guava_guava_20_0
         '@com_google_firebase_firebase_common_11_4_2//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha05',
+      artifact = 'com.android.tools.external.com-intellij:kotlin-compiler:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha04',
+      artifact = 'com.android.tools.external.com-intellij:kotlin-compiler:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -37744,6 +42636,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha07',
+      artifact = 'com.android.tools.external.com-intellij:kotlin-compiler:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_10_0_0',
       artifact = 'com.google.android.gms:play-services:10.0.0',
@@ -37800,6 +42700,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_external_com_intellij_kotlin_compiler_26_1_0_alpha06',
+      artifact = 'com.android.tools.external.com-intellij:kotlin-compiler:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_exifinterface_25_3_0',
       artifact = 'com.android.support:exifinterface:25.3.0',
@@ -37852,6 +42760,18 @@ def gmaven_rules():
       artifact = 'com.android.tools.external.com-intellij:kotlin-compiler:26.1.0-alpha02',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_iid_11_6_2',
+      artifact = 'com.google.firebase:firebase-iid:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+        '@com_google_firebase_firebase_iid_license_11_6_2//aar',
       ],
     )
 
@@ -38035,6 +42955,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_basement_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-basement-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_wearable_license_11_4_2',
       artifact = 'com.google.android.gms:play-services-wearable-license:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -38115,6 +43043,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_dynamic_links_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-dynamic-links-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_percent_23_1_1',
       artifact = 'com.android.support:percent:23.1.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -38132,12 +43068,51 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_api_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint-gradle-api:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_model_3_1_0_alpha04//jar',
+        '@com_android_tools_build_gradle_api_3_1_0_alpha04//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_api_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint-gradle-api:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_gradle_api_3_1_0_alpha05//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+      ],
+    )
+
   maven_aar(
       name = 'com_android_support_appcompat_v7_21_0_0',
       artifact = 'com.android.support:appcompat-v7:21.0.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_21_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_api_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint-gradle-api:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha06//jar',
+        '@com_android_tools_build_gradle_api_3_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_sdklib_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
       ],
     )
 
@@ -38148,6 +43123,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_9_2_1//aar',
         '@com_google_android_gms_play_services_basement_9_2_1//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_panorama_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-panorama-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -38203,6 +43186,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_google_android_gms_play_services_base_7_0_0//aar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_gradle_api_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint-gradle-api:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha07//jar',
+        '@com_android_tools_build_gradle_api_3_1_0_alpha07//jar',
+        '@com_android_tools_sdklib_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
       ],
     )
 
@@ -38314,6 +43310,19 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_auth_11_8_0',
+      artifact = 'com.google.android.gms:play-services-auth:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_auth_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_auth_api_phone_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_appcompat_v7_25_0_1',
       artifact = 'com.android.support:appcompat-v7:25.0.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -38383,6 +43392,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_13_0_0//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_perf_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-perf-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -38571,6 +43588,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_oss_licenses_11_8_0',
+      artifact = 'com.google.android.gms:play-services-oss-licenses:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_oss_licenses_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_appindexing_10_0_1',
       artifact = 'com.google.firebase:firebase-appindexing:10.0.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -38663,6 +43690,18 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_location_11_8_0',
+      artifact = 'com.google.android.gms:play-services-location:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_android_gms_play_services_location_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_exifinterface_27_0_1',
       artifact = 'com.android.support:exifinterface:27.0.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -38678,6 +43717,28 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_core_utils_25_3_1//aar',
         '@com_android_support_support_annotations_25_3_1//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_database_11_6_2',
+      artifact = 'com.google.firebase:firebase-database:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_firebase_firebase_database_license_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_tasks_11_6_2//aar',
+        '@com_google_firebase_firebase_database_connection_11_6_2//aar',
+        '@com_google_firebase_firebase_common_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_exifinterface_27_0_2',
+      artifact = 'com.android.support:exifinterface:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_annotations_27_0_2//jar',
       ],
     )
 
@@ -38825,6 +43886,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_ads_lite_11_8_0',
+      artifact = 'com.google.android.gms:play-services-ads-lite:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_ads_lite_license_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_firebase_firebase_auth_common_9_4_0',
       artifact = 'com.google.firebase:firebase-auth-common:9.4.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -38873,6 +43944,19 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_v4_22_1_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'android_arch_paging_runtime_1_0_0_alpha4',
+      artifact = 'android.arch.paging:runtime:1.0.0-alpha4',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@android_arch_core_runtime_1_0_0//aar',
+        '@android_arch_paging_common_1_0_0_alpha4//jar',
+        '@android_arch_lifecycle_extensions_1_0_0//aar',
+        '@com_android_support_recyclerview_v7_26_1_0//aar',
       ],
     )
 
@@ -38934,6 +44018,26 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_build_gradle_api_3_0_1',
+      artifact = 'com.android.tools.build:gradle-api:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_0_1//jar',
+        # GMaven does not have com_google_guava_guava_22_0
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_databinding_compiler_3_0_1',
+      artifact = 'com.android.databinding:compiler:3.0.1',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_0_1//jar',
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_tagmanager_v4_impl_11_2_2',
       artifact = 'com.google.android.gms:play-services-tagmanager-v4-impl:11.2.2',
@@ -38986,6 +44090,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_cast_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-cast-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_palette_v7_27_0_0',
       artifact = 'com.android.support:palette-v7:27.0.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -39003,6 +44115,16 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_11_2_0//aar',
         '@com_google_android_gms_play_services_basement_11_2_0//aar',
         '@com_google_android_gms_play_services_analytics_impl_11_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_palette_v7_27_0_2',
+      artifact = 'com.android.support:palette-v7:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_core_utils_27_0_2//aar',
       ],
     )
 
@@ -39061,6 +44183,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_instantapps_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-instantapps-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_wallet_11_2_0',
       artifact = 'com.google.android.gms:play-services-wallet:11.2.0',
       settings = '@gmaven_rules//:settings.xml',
@@ -39095,6 +44225,28 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_firebase_firebase_ads_11_8_0',
+      artifact = 'com.google.firebase:firebase-ads:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_ads_11_8_0//aar',
+        '@com_google_firebase_firebase_analytics_11_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_support_fragment_27_0_2',
+      artifact = 'com.android.support:support-fragment:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_compat_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
+        '@com_android_support_support_core_utils_27_0_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_fragment_27_0_1',
       artifact = 'com.android.support:support-fragment:27.0.1',
       settings = '@gmaven_rules//:settings.xml',
@@ -39124,6 +44276,14 @@ def gmaven_rules():
       settings = '@gmaven_rules//:settings.xml',
       deps = [
         '@com_android_support_support_vector_drawable_25_2_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_gass_license_11_8_0',
+      artifact = 'com.google.android.gms:play-services-gass-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -39738,6 +44898,14 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_drive_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-drive-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_aar(
       name = 'com_android_support_support_v4_24_0_0_beta1',
       artifact = 'com.android.support:support-v4:24.0.0-beta1',
       settings = '@gmaven_rules//:settings.xml',
@@ -39764,6 +44932,19 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_analytics_impl_11_6_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_analytics_11_6_2',
+      artifact = 'com.google.android.gms:play-services-analytics:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_11_6_2//aar',
+        '@com_google_android_gms_play_services_base_11_6_2//aar',
+        '@com_google_android_gms_play_services_basement_11_6_2//aar',
+        '@com_google_android_gms_play_services_analytics_license_11_6_2//aar',
       ],
     )
 
@@ -39919,6 +45100,20 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_firebase_firebase_config_11_8_0',
+      artifact = 'com.google.firebase:firebase-config:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_8_0//aar',
+        '@com_google_android_gms_play_services_basement_11_8_0//aar',
+        '@com_google_android_gms_play_services_tasks_11_8_0//aar',
+        '@com_google_firebase_firebase_common_11_8_0//aar',
+        '@com_google_firebase_firebase_iid_11_8_0//aar',
+        '@com_google_firebase_firebase_config_license_11_8_0//aar',
+      ],
+    )
+
   maven_jar(
       name = 'com_android_tools_sdklib_26_0_0_alpha5',
       artifact = 'com.android.tools:sdklib:26.0.0-alpha5',
@@ -40008,6 +45203,16 @@ def gmaven_rules():
     )
 
   maven_aar(
+      name = 'com_google_android_gms_play_services_basement_11_6_2',
+      artifact = 'com.google.android.gms:play-services-basement:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_support_v4_25_2_0//aar',
+        '@com_google_android_gms_play_services_basement_license_11_6_2//aar',
+      ],
+    )
+
+  maven_aar(
       name = 'com_google_android_gms_play_services_maps_license_11_4_2',
       artifact = 'com.google.android.gms:play-services-maps-license:11.4.2',
       settings = '@gmaven_rules//:settings.xml',
@@ -40026,6 +45231,14 @@ def gmaven_rules():
         '@com_android_support_support_annotations_26_1_0//jar',
         '@android_arch_core_common_1_0_0//jar',
         '@android_arch_lifecycle_extensions_1_0_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_cast_framework_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-cast-framework-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -40071,6 +45284,14 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_tasks_license_11_4_2//aar',
         '@com_google_android_gms_play_services_basement_11_4_2//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_firebase_firebase_config_license_11_8_0',
+      artifact = 'com.google.firebase:firebase-config-license:11.8.0',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
       ],
     )
 
@@ -40275,6 +45496,14 @@ def gmaven_rules():
       ],
     )
 
+  maven_aar(
+      name = 'com_google_firebase_firebase_auth_license_11_6_2',
+      artifact = 'com.google.firebase:firebase-auth-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
   maven_jar(
       name = 'android_arch_lifecycle_common_1_0_3',
       artifact = 'android.arch.lifecycle:common:1.0.3',
@@ -40389,11 +45618,49 @@ def gmaven_rules():
       ],
     )
 
+  maven_jar(
+      name = 'com_android_tools_lint_lint_api_26_1_0_alpha05',
+      artifact = 'com.android.tools.lint:lint-api:26.1.0-alpha05',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_build_builder_model_3_1_0_alpha05//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha05//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha05//jar',
+        '@com_android_tools_sdk_common_26_1_0_alpha05//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha05//jar',
+      ],
+    )
+
   maven_aar(
       name = 'com_google_android_gms_play_services_ads_license_11_6_0',
       artifact = 'com.google.android.gms:play-services-ads-license:11.6.0',
       settings = '@gmaven_rules//:settings.xml',
       deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_api_26_1_0_alpha06',
+      artifact = 'com.android.tools.lint:lint-api:26.1.0-alpha06',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha06//jar',
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha06//jar',
+        '@com_android_tools_build_builder_model_3_1_0_alpha06//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_sdk_common_26_1_0_alpha06//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha06//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha06//jar',
       ],
     )
 
@@ -40414,6 +45681,53 @@ def gmaven_rules():
         '@com_android_tools_build_manifest_merger_26_1_0_alpha03//jar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
         '@com_android_tools_lint_lint_kotlin_26_1_0_alpha03//jar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_google_android_gms_play_services_ads_license_11_6_2',
+      artifact = 'com.google.android.gms:play-services-ads-license:11.6.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_api_26_1_0_alpha04',
+      artifact = 'com.android.tools.lint:lint-api:26.1.0-alpha04',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_4_3
+        '@com_android_tools_build_builder_model_3_1_0_alpha04//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha04//jar',
+        # GMaven does not have com_android_tools_external_lombok_lombok_ast_0_2_3
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_sdk_common_26_1_0_alpha04//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha04//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha04//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha04//jar',
+      ],
+    )
+
+  maven_jar(
+      name = 'com_android_tools_lint_lint_api_26_1_0_alpha07',
+      artifact = 'com.android.tools.lint:lint-api:26.1.0-alpha07',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_tools_lint_lint_kotlin_26_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_5_1
+        '@com_android_tools_build_builder_model_3_1_0_alpha07//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_1_0_alpha07//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_5_1
+        # GMaven does not have com_google_guava_guava_22_0
+        '@com_android_tools_sdk_common_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_build_manifest_merger_26_1_0_alpha07//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_org_jetbrains_uast_26_1_0_alpha07//jar',
       ],
     )
 
@@ -40450,6 +45764,19 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_9_8_0//aar',
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
+      ],
+    )
+
+  maven_aar(
+      name = 'com_android_support_wear_27_0_2',
+      artifact = 'com.android.support:wear:27.0.2',
+      settings = '@gmaven_rules//:settings.xml',
+      deps = [
+        '@com_android_support_percent_27_0_2//aar',
+        '@com_android_support_support_annotations_27_0_2//jar',
+        '@com_android_support_support_core_ui_27_0_2//aar',
+        '@com_android_support_recyclerview_v7_27_0_2//aar',
+        '@com_android_support_support_fragment_27_0_2//aar',
       ],
     )
 

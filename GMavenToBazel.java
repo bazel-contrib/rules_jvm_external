@@ -70,10 +70,8 @@ public class GMavenToBazel {
 
 
     PrintWriter bzlWriter = new PrintWriter(new FileWriter(OUTPUT_FILE));
-    // TODO: Get maven_jar and maven_aar from @bazel_tools and delete local copy after bazel 0.9.0
-    // bzlWriter.println(
-    //    "load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')");
-    bzlWriter.println("load('//:maven_rules.bzl', 'maven_jar', 'maven_aar')");
+    bzlWriter.println(
+        "load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')");
     bzlWriter.println("def gmaven_rules():");
     for (String repositoryName : repositoryNameToRuleType.keySet()) {
       String ruleType = repositoryNameToRuleType.get(repositoryName);
@@ -157,9 +155,11 @@ public class GMavenToBazel {
       String groupId = dependency.getElementsByTagName("groupId").item(0).getTextContent();
       String artifactId = dependency.getElementsByTagName("artifactId").item(0).getTextContent();
       String version = getDependencyVersion(dependency);
-      String scope = dependency.getElementsByTagName("scope").item(0).getTextContent();
-      if (scope.equals("test")) {
-        continue;
+      if (dependency.getElementsByTagName("scope").item(0) != null) {
+        String scope = dependency.getElementsByTagName("scope").item(0).getTextContent();
+        if (scope.equals("test")) {
+          continue;
+        }
       }
       result.add(getRepositoryName(groupId, artifactId, version));
     }
