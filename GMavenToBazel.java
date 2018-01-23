@@ -1,7 +1,12 @@
+import java.io.BufferedReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,6 +34,8 @@ public class GMavenToBazel {
       "https://dl.google.com/dl/android/maven2/%s/group-index.xml";
   private static final String POM_TEMPLATE_URL =
       "https://dl.google.com/dl/android/maven2/%s/%s/%s/%s-%s.pom";
+  private static final String SHA1_TEMPLATE_URL =
+      "https://dl.google.com/dl/android/maven2/%s/%s/%s/%s-%s.%s.sha1";
   private static final String OUTPUT_FILE = "gmaven.bzl";
   private static final DocumentBuilderFactory documentBuilderFactory =
       DocumentBuilderFactory.newInstance();
@@ -44,6 +51,7 @@ public class GMavenToBazel {
     List<String> groupIds = getGroupdIds(masterIndex);
     Map<String, String> repositoryNameToRuleType = new HashMap<>();
     Map<String, String> repositoryNameToTargetName = new HashMap<>();
+    Map<String, String> repositoryNameToArtifactSha = new HashMap<>();
     Map<String, String> repositoryNameToArtifactString = new HashMap<>();
     Map<String, Set<String>> repositoryNameToRepositoryNameDeps = new HashMap<>();
     for (String groupId : groupIds) {
@@ -57,13 +65,18 @@ public class GMavenToBazel {
             // We don't support APK packaging yet.
             continue;
           }
-          String repositoryName = getRepositoryName(groupId, artifactId, version);
+          String repositoryName;
+          String sha1 = getArtifactSha1(getSha1Url(groupId, artifactId, version, packaging));
+          repositoryName = getRepositoryName(groupId, artifactId, version);
           repositoryNameToRuleType.put(repositoryName, PACKAGING_TO_RULE.get(packaging));
           repositoryNameToTargetName.put(
               repositoryName, getTargetName(groupId, artifactId, version, packaging));
           repositoryNameToArtifactString.put(
               repositoryName, getArtifactString(groupId, artifactId, version));
           repositoryNameToRepositoryNameDeps.put(repositoryName, getDependencyRepositoryNames(pom));
+          if (sha1 != null) {
+            repositoryNameToArtifactSha.put(repositoryName, sha1);
+          }
         }
       }
     }
@@ -76,10 +89,14 @@ public class GMavenToBazel {
     for (String repositoryName : repositoryNameToRuleType.keySet()) {
       String ruleType = repositoryNameToRuleType.get(repositoryName);
       String artifactString = repositoryNameToArtifactString.get(repositoryName);
+      String sha1 = repositoryNameToArtifactSha.get(repositoryName);
       bzlWriter.println();
       bzlWriter.println(String.format("  %s(", ruleType));
       bzlWriter.println(String.format("      name = '%s',", repositoryName));
       bzlWriter.println(String.format("      artifact = '%s',", artifactString));
+      if (sha1 != null) {
+        bzlWriter.println(String.format("      sha1 = '%s',", sha1));
+      }
       bzlWriter.println("      settings = '@gmaven_rules//:settings.xml',");
       bzlWriter.println("      deps = [");
       for (String repositoryNameDep : repositoryNameToRepositoryNameDeps.get(repositoryName)) {
@@ -97,6 +114,15 @@ public class GMavenToBazel {
     }
 
     bzlWriter.close();
+  }
+
+  private static String getArtifactSha1(URL sha1Url) throws IOException {
+    String sha1 = null;
+    try (InputStream sha1Stream = sha1Url.openStream()) {
+      sha1 = new BufferedReader(new InputStreamReader(sha1Stream)).readLine().trim();
+    } catch (java.io.FileNotFoundException e) {
+    }
+    return sha1;
   }
 
   private static Document parseUrl(URL url) throws Exception {
@@ -140,6 +166,17 @@ public class GMavenToBazel {
             version,
             artifactId,
             version));
+  }
+  private static URL getSha1Url(String groupId, String artifactId, String version, String packaging) throws Exception {
+    return new URL(
+        String.format(
+            SHA1_TEMPLATE_URL,
+            groupId.replaceAll("\\.", "/"),
+            artifactId,
+            version,
+            artifactId,
+            version,
+            packaging));
   }
 
   private static String getPackaging(Element element) throws Exception {
