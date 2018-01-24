@@ -85,7 +85,7 @@ public class GMavenToBazel {
     PrintWriter bzlWriter = new PrintWriter(new FileWriter(OUTPUT_FILE));
     bzlWriter.println(
         "load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')");
-    bzlWriter.println("def gmaven_rules():");
+    bzlWriter.println("def gmaven_rules(maven_settings_file =  '@gmaven_rules//:settings.xml'):");
     for (String repositoryName : repositoryNameToRuleType.keySet()) {
       String ruleType = repositoryNameToRuleType.get(repositoryName);
       String artifactString = repositoryNameToArtifactString.get(repositoryName);
@@ -97,7 +97,7 @@ public class GMavenToBazel {
       if (sha1 != null) {
         bzlWriter.println(String.format("      sha1 = '%s',", sha1));
       }
-      bzlWriter.println("      settings = '@gmaven_rules//:settings.xml',");
+      bzlWriter.println("      settings = maven_settings_file,");
       bzlWriter.println("      deps = [");
       for (String repositoryNameDep : repositoryNameToRepositoryNameDeps.get(repositoryName)) {
         String targetNameDep = repositoryNameToTargetName.get(repositoryNameDep);
