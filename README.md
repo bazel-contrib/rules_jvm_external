@@ -18,10 +18,13 @@ gmaven_rules()
 You can then reference the generated library targets from your `BUILD` files like:
 
 ```
+load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
 android_library(
     ...
     deps = [
-        '@com_android_support_design_27_0_1//aar',
+        gmaven_artifact("com.android.support:design:aar:27.0.2"),
+        gmaven_artifact("com.android.support:support_annotations:jar:27.0.2"),
+        gmaven_artifact("com.android.support.test.espresso:espresso_core:aar:3.0.1"),
     ],
 )
 ```
