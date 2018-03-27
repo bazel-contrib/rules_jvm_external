@@ -5,9 +5,9 @@ def gmaven_artifact(fqn):
   if len(parts) == 3:
     group_id, artifact_id, version = parts
   elif len(parts) == 4:
-    group_id, artifact_id, version, packaging = parts
+    group_id, artifact_id, packaging, version = parts
   elif len(parts) == 5:
-    _, _, _, _, classifier = parts
+    _, _, _, classifier, _ = parts
     fail("Classifiers are currently not supported. Please remove it from the coordinate: %s" % classifier)
   else:
     fail("Invalid qualified name for artifact: %s" % fqn)
@@ -20,4 +20,4 @@ def gmaven_artifact(fqn):
       )
 
 def escape(string):
-  return string.replace(".", "_")
+  return string.replace(".", "_").replace("-", "_")

@@ -22,9 +22,9 @@ load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
 android_library(
     ...
     deps = [
-        gmaven_artifact("com.android.support:design:27.0.2:aar"),
-        gmaven_artifact("com.android.support:support_annotations:27.0.2:jar"),
-        gmaven_artifact("com.android.support.test.espresso:espresso_core:3.0.1:aar"),
+        gmaven_artifact("com.android.support:design:aar:27.0.2"),
+        gmaven_artifact("com.android.support:support_annotations:jar:27.0.2"),
+        gmaven_artifact("com.android.support.test.espresso:espresso_core:aar:3.0.1"),
     ],
 )
 ```
