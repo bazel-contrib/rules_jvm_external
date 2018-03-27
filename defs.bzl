@@ -1,6 +1,6 @@
 def gmaven_artifact(fqn):
   parts = fqn.split(":")
-  packaging = "aar"
+  packaging = "jar"
 
   if len(parts) == 3:
     group_id, artifact_id, version = parts
