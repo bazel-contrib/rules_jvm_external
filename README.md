@@ -18,7 +18,7 @@ gmaven_rules()
 You can then reference the generated library targets from your `BUILD` files like:
 
 ```
-load("//:defs.bzl", "gmaven_artifact")
+load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
 android_library(
     ...
     deps = [
