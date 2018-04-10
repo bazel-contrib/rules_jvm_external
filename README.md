@@ -5,8 +5,8 @@ rules for all artifacts in [https://maven.google.com](https://maven.google.com).
 
 # Support Policy
 
-This project is an **interim solution** during which Google Maven and AAR
-support is added to [bazel-deps](https://github.com/johnynek/bazel-deps).
+This project is an interim solution that is supported until Google Maven and
+AAR support is added to [bazel-deps](https://github.com/johnynek/bazel-deps).
 
 # Usage instructions
 
@@ -38,9 +38,9 @@ android_library(
 
 You can see the full list of generated targets in [`gmaven.bzl`](https://raw.githubusercontent.com/aj-michael/gmaven_rules/master/gmaven.bzl).
 
-# Regenerating targets
+# Updating gmaven.bzl
 
-To regenerate `gmaven.bzl`, run the following command. It will take about 5 minutes.
+To update `gmaven.bzl`, run the following command. It will take about 5 minutes.
 
 ```
 rm gmaven.bzl && javac GMavenToBazel.java && java GMavenToBazel
@@ -49,6 +49,7 @@ rm gmaven.bzl && javac GMavenToBazel.java && java GMavenToBazel
 
 # Known issues
 
-Some of the artifacts depend on other artifacts that are not present on Google
-Maven. These targets do not work as the cross-repository resolution is not
-implemented.
+Currently, cross-repository dependency resolution is not supported. Some of the
+artifacts depend on other artifacts that are not present on Google Maven, and
+these missing dependencies are silently ignored and may cause failures at
+runtime. 
