@@ -43,14 +43,16 @@ public class GMavenToBazel {
       "https://dl.google.com/dl/android/maven2/%s/group-index.xml";
   private static final String POM_TEMPLATE_URL =
       "https://dl.google.com/dl/android/maven2/%s/%s/%s/%s-%s.pom";
+  private static final String ARTIFACT_TEMPLATE_URL =
+      "https://dl.google.com/dl/android/maven2/%s/%s/%s/%s-%s.%s";
   private static final String OUTPUT_FILE = "gmaven.bzl";
   private static final DocumentBuilderFactory documentBuilderFactory =
       DocumentBuilderFactory.newInstance();
   private static final Map<String, String> PACKAGING_TO_RULE = new HashMap<>();
 
   static {
-    PACKAGING_TO_RULE.put("jar", "maven_jar");
-    PACKAGING_TO_RULE.put("aar", "maven_aar");
+    PACKAGING_TO_RULE.put("jar", "java_import_external");
+    PACKAGING_TO_RULE.put("aar", "aar_import_external");
   }
 
   public static void main(String[] args) throws Exception {
@@ -58,7 +60,7 @@ public class GMavenToBazel {
     List<String> groupIds = getGroupdIds(masterIndex);
     Map<String, String> repositoryNameToRuleType = new HashMap<>();
     Map<String, String> repositoryNameToTargetName = new HashMap<>();
-    Map<String, String> repositoryNameToArtifactString = new HashMap<>();
+    Map<String, String> repositoryNameToUrl = new HashMap<>();
     Map<String, Set<String>> repositoryNameToRepositoryNameDeps = new HashMap<>();
     for (String groupId : groupIds) {
       Map<String, Set<String>> artifactsToVersions = getArtifactsToVersions(groupId);
@@ -75,8 +77,7 @@ public class GMavenToBazel {
           repositoryNameToRuleType.put(repositoryName, PACKAGING_TO_RULE.get(packaging));
           repositoryNameToTargetName.put(
               repositoryName, getTargetName(groupId, artifactId, version, packaging));
-          repositoryNameToArtifactString.put(
-              repositoryName, getArtifactString(groupId, artifactId, version));
+          repositoryNameToUrl.put(repositoryName, getUrl(groupId, artifactId, version, packaging));
           repositoryNameToRepositoryNameDeps.put(repositoryName, getDependencyRepositoryNames(pom));
         }
       }
@@ -84,17 +85,22 @@ public class GMavenToBazel {
 
 
     PrintWriter bzlWriter = new PrintWriter(new FileWriter(OUTPUT_FILE));
-    bzlWriter.println(
-        "load('@bazel_tools//tools/build_defs/repo:maven_rules.bzl', 'maven_jar', 'maven_aar')");
+    bzlWriter.println("load('//:import_external.bzl', 'java_import_external', 'aar_import_external')");
     bzlWriter.println("def gmaven_rules():");
     for (String repositoryName : repositoryNameToRuleType.keySet()) {
       String ruleType = repositoryNameToRuleType.get(repositoryName);
-      String artifactString = repositoryNameToArtifactString.get(repositoryName);
+      String url = repositoryNameToUrl.get(repositoryName);
       bzlWriter.println();
       bzlWriter.println(String.format("  %s(", ruleType));
       bzlWriter.println(String.format("      name = '%s',", repositoryName));
-      bzlWriter.println(String.format("      artifact = '%s',", artifactString));
-      bzlWriter.println("      settings = '@gmaven_rules//:settings.xml',");
+      bzlWriter.println("      licenses = ['notice'], # apache");
+      if (ruleType == "aar_import_external") {
+          bzlWriter.println(String.format("      aar_urls = ['%s'],", url));
+          bzlWriter.println("      aar_sha256 = '',");
+      } else {
+          bzlWriter.println(String.format("      jar_urls = ['%s'],", url));
+          bzlWriter.println("      jar_sha256 = '',");
+      }
       bzlWriter.println("      deps = [");
       for (String repositoryNameDep : repositoryNameToRepositoryNameDeps.get(repositoryName)) {
         String targetNameDep = repositoryNameToTargetName.get(repositoryNameDep);
@@ -180,12 +186,18 @@ public class GMavenToBazel {
     return result;
   }
 
-  private static String getArtifactString(String groupId, String artifactId, String version) {
-    return String.format("%s:%s:%s", groupId, artifactId, version);
-  }
-
   private static String getRepositoryName(String groupId, String artifactId, String version) {
     return escape(String.format("%s_%s_%s", groupId, artifactId, version));
+  }
+
+  private static String getUrl(String groupId, String artifactId, String version, String packaging) {
+      return String.format(ARTIFACT_TEMPLATE_URL,
+                           groupId.replaceAll("\\.", "/"),
+                           artifactId,
+                           version,
+                           artifactId,
+                           version,
+                           packaging);
   }
 
   private static String getTargetName(
