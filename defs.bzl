@@ -25,7 +25,7 @@ def gmaven_artifact(fqn):
     fail("Classifiers are currently not supported. Please remove it from the coordinate: %s" % classifier)
   else:
     fail("Invalid qualified name for artifact: %s" % fqn)
-
+    
   return "@%s_%s_%s//%s" % (
       escape(group_id),
       escape(artifact_id),
