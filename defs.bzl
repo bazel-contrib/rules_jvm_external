@@ -26,7 +26,6 @@ def gmaven_artifact(fqn):
   else:
     fail("Invalid qualified name for artifact: %s" % fqn)
     
-
   return "@%s_%s_%s//%s" % (
       escape(group_id),
       escape(artifact_id),
