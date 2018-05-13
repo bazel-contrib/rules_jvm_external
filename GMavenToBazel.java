@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.import java.io.FileWriter;
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -29,13 +28,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 /**
  * A command line tool for generating Bazel workspace rules for all JARs and AARs on
  * https://maven.google.com.
@@ -64,40 +62,50 @@ public class GMavenToBazel {
 
   public static void main(String[] args) throws Exception {
     Document masterIndex = parseUrl(new URL(MASTER_INDEX_URL));
-    Map<String, Artifact> artifacts = getGroupdIds(masterIndex)
-        .parallelStream()
-        .flatMap(groupId -> {
-          Map<String, Set<String>> artifactsToVersions = getArtifactsToVersions(groupId);
-          return artifactsToVersions.entrySet()
-              .stream()
-              .flatMap(entry -> {
-                String artifactId = entry.getKey();
-                Set<String> versions = entry.getValue();
-                return versions.stream().map(version -> new String[]{groupId, artifactId, version});
-              });
-        })
-        .map(ids -> {
-          String groupId = ids[0], artifactId = ids[1], version = ids[2];
-          try {
-            Document pom = parseUrl(getPomUrl(groupId, artifactId, version));
+    Map<String, Artifact> artifacts =
+        getGroupdIds(masterIndex)
+            .parallelStream()
+            .flatMap(
+                groupId -> {
+                  Map<String, Set<String>> artifactsToVersions = getArtifactsToVersions(groupId);
+                  return artifactsToVersions
+                      .entrySet()
+                      .stream()
+                      .flatMap(
+                          entry -> {
+                            String artifactId = entry.getKey();
+                            Set<String> versions = entry.getValue();
+                            return versions
+                                .stream()
+                                .map(version -> new String[] {groupId, artifactId, version});
+                          });
+                })
+            .map(
+                ids -> {
+                  String groupId = ids[0], artifactId = ids[1], version = ids[2];
+                  try {
+                    Document pom = parseUrl(getPomUrl(groupId, artifactId, version));
 
-            String packaging = getPackaging(pom);
-            // We don't support APK packaging yet.
-            if (!PACKAGING_TO_RULE.containsKey(packaging)) {
-              return null;
-            }
-            Artifact artifact = new Artifact(groupId, artifactId, version, packaging);
-            artifact.dependencies = getDependencyRepositoryNames(pom);
+                    String packaging = getPackaging(pom);
+                    // We don't support APK packaging yet.
+                    if (!PACKAGING_TO_RULE.containsKey(packaging)) {
+                      return null;
+                    }
+                    Artifact artifact = new Artifact(groupId, artifactId, version, packaging);
+                    artifact.dependencies = getDependencyRepositoryNames(pom);
 
-            return artifact;
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        }).filter(Objects::nonNull)
-        .collect(Collectors.toMap(artifact -> artifact.repositoryName, artifact -> artifact));
+                    return artifact;
+                  } catch (Exception e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(artifact -> artifact.repositoryName, artifact -> artifact));
 
-    PrintWriter bzlWriter = new PrintWriter(new BufferedWriter(new FileWriter(OUTPUT_FILE), 32 * 1024));
-    bzlWriter.println("load('//:import_external.bzl', 'java_import_external', 'aar_import_external')");
+    PrintWriter bzlWriter =
+        new PrintWriter(new BufferedWriter(new FileWriter(OUTPUT_FILE), 32 * 1024));
+    bzlWriter.println(
+        "load('//:import_external.bzl', 'java_import_external', 'aar_import_external')");
     bzlWriter.println("def gmaven_rules():");
 
     for (String repositoryName : artifacts.keySet()) {
@@ -109,11 +117,11 @@ public class GMavenToBazel {
       bzlWriter.println(String.format("      name = '%s',", repositoryName));
       bzlWriter.println("      licenses = ['notice'], # apache");
       if ("aar_import_external".equals(ruleType)) {
-          bzlWriter.println(String.format("      aar_urls = ['%s'],", url));
-          bzlWriter.println("      aar_sha256 = '',");
+        bzlWriter.println(String.format("      aar_urls = ['%s'],", url));
+        bzlWriter.println("      aar_sha256 = '',");
       } else {
-          bzlWriter.println(String.format("      jar_urls = ['%s'],", url));
-          bzlWriter.println("      jar_sha256 = '',");
+        bzlWriter.println(String.format("      jar_urls = ['%s'],", url));
+        bzlWriter.println("      jar_sha256 = '',");
       }
       bzlWriter.println("      deps = [");
       for (String repositoryNameDep : artifact.dependencies) {
@@ -170,15 +178,11 @@ public class GMavenToBazel {
     return new URL(String.format(GROUP_INDEX_TEMPLATE_URL, groupId.replace('.', '/')));
   }
 
-  private static URL getPomUrl(String groupId, String artifactId, String version) throws MalformedURLException {
+  private static URL getPomUrl(String groupId, String artifactId, String version)
+      throws MalformedURLException {
     return new URL(
         String.format(
-            POM_TEMPLATE_URL,
-            groupId.replace('.', '/'),
-            artifactId,
-            version,
-            artifactId,
-            version));
+            POM_TEMPLATE_URL, groupId.replace('.', '/'), artifactId, version, artifactId, version));
   }
 
   private static String getPackaging(Document pom) throws Exception {
@@ -228,6 +232,7 @@ public class GMavenToBazel {
     String packaging;
     Set<String> dependencies;
     String repositoryName;
+
     Artifact(String groupId, String artifactId, String version, String packaging) {
       this.groupId = groupId;
       this.artifactId = artifactId;
@@ -237,13 +242,14 @@ public class GMavenToBazel {
     }
 
     String toArtifactUrl() {
-      return String.format(ARTIFACT_TEMPLATE_URL,
-                           groupId.replaceAll("\\.", "/"),
-                           artifactId,
-                           version,
-                           artifactId,
-                           version,
-                           packaging);
+      return String.format(
+          ARTIFACT_TEMPLATE_URL,
+          groupId.replaceAll("\\.", "/"),
+          artifactId,
+          version,
+          artifactId,
+          version,
+          packaging);
     }
 
     String targetName() {
