@@ -10,11 +10,13 @@ AAR support is added to [bazel-deps](https://github.com/johnynek/bazel-deps).
 
 # Usage instructions
 
+Please see the [releases](https://github.com/bazelbuild/gmaven_rules/releases/latest) page for instructions on using the latest snapshot.
+
 To use this from your project, in your `WORKSPACE` file add
 
 ```
 # Google Maven Repository
-GMAVEN_TAG = "0.1.0"
+GMAVEN_TAG = "0.1.0" # or the tag from the latest release
 
 http_archive(
     name = "gmaven_rules",
