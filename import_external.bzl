@@ -190,138 +190,167 @@ _PASS_AAR_PROPS = (
 )
 
 def _java_import_external(repository_ctx):
-  """Implementation of `java_import_external` rule."""
-  is_neverlink = repository_ctx.attr.neverlink if hasattr(repository_ctx.attr, "neverlink") else False
-  if (repository_ctx.attr.generated_linkable_rule_name and not is_neverlink):
-    fail("Only use generated_linkable_rule_name if neverlink is set")
+    """Implementation of `java_import_external` rule."""
+    is_neverlink = repository_ctx.attr.neverlink if hasattr(repository_ctx.attr, "neverlink") else False
+    if (repository_ctx.attr.generated_linkable_rule_name and not is_neverlink):
+        fail("Only use generated_linkable_rule_name if neverlink is set")
 
-  packaging = repository_ctx.attr._packaging
+    packaging = repository_ctx.attr._packaging
 
-  name = repository_ctx.attr.generated_rule_name or repository_ctx.name
+    name = repository_ctx.attr.generated_rule_name or repository_ctx.name
 
-  urls = repository_ctx.attr.jar_urls if packaging == "jar" else repository_ctx.attr.aar_urls
-  sha = repository_ctx.attr.jar_sha256 if packaging == "jar" else repository_ctx.attr.aar_sha256
+    urls = repository_ctx.attr.jar_urls if packaging == "jar" else repository_ctx.attr.aar_urls
+    sha = repository_ctx.attr.jar_sha256 if packaging == "jar" else repository_ctx.attr.aar_sha256
 
-  path = repository_ctx.name + "." + packaging
+    path = repository_ctx.name + "." + packaging
 
-  for url in urls:
-    if url.endswith(".jar") or url.endswith(".aar"):
-      path = url[url.rindex("/") + 1:]
-      break
-  srcurls = repository_ctx.attr.srcjar_urls
-  srcsha = repository_ctx.attr.srcjar_sha256
-  srcpath = repository_ctx.name + "-src.jar" if srcurls else ""
-  for url in srcurls:
-    if url.endswith(".jar"):
-      srcpath = url[url.rindex("/") + 1:].replace("-sources.jar", "-src.jar")
-      break
-  lines = [_HEADER, ""]
-  if repository_ctx.attr.default_visibility:
-    lines.append("package(default_visibility = %s)" % (
-        repository_ctx.attr.default_visibility))
+    for url in urls:
+        if url.endswith(".jar") or url.endswith(".aar"):
+            path = url[url.rindex("/") + 1:]
+            break
+    srcurls = repository_ctx.attr.srcjar_urls
+    srcsha = repository_ctx.attr.srcjar_sha256
+    srcpath = repository_ctx.name + "-src.jar" if srcurls else ""
+    for url in srcurls:
+        if url.endswith(".jar"):
+            srcpath = url[url.rindex("/") + 1:].replace("-sources.jar", "-src.jar")
+            break
+    lines = [_HEADER, ""]
+    if repository_ctx.attr.default_visibility:
+        lines.append("package(default_visibility = %s)" % (
+            repository_ctx.attr.default_visibility
+        ))
+        lines.append("")
+    lines.append("licenses(%s)" % repr(repository_ctx.attr.licenses))
     lines.append("")
-  lines.append("licenses(%s)" % repr(repository_ctx.attr.licenses))
-  lines.append("")
 
-  if packaging == "jar":
-    lines.extend(_make_java_import(
-        name, path, srcpath, repository_ctx.attr, _PASS_JAR_PROPS))
+    if packaging == "jar":
+        lines.extend(_make_java_import(
+            name,
+            path,
+            srcpath,
+            repository_ctx.attr,
+            _PASS_JAR_PROPS,
+        ))
 
-    if (is_neverlink and repository_ctx.attr.generated_linkable_rule_name):
-      lines.extend(_make_java_import(
-          repository_ctx.attr.generated_linkable_rule_name,
-          path,
-          srcpath,
-          repository_ctx.attr,
-          [p for p in _PASS_JAR_PROPS if p != "neverlink"]))
-  elif packaging == "aar":
-    lines.extend(_make_aar_import(
-        name, path, srcpath, repository_ctx.attr, _PASS_AAR_PROPS))
-  else:
-    fail("Unsupported packaging type: %s" % packaging)
+        if (is_neverlink and repository_ctx.attr.generated_linkable_rule_name):
+            lines.extend(_make_java_import(
+                repository_ctx.attr.generated_linkable_rule_name,
+                path,
+                srcpath,
+                repository_ctx.attr,
+                [p for p in _PASS_JAR_PROPS if p != "neverlink"],
+            ))
+    elif packaging == "aar":
+        lines.extend(_make_aar_import(
+            name,
+            path,
+            srcpath,
+            repository_ctx.attr,
+            _PASS_AAR_PROPS,
+        ))
+    else:
+        fail("Unsupported packaging type: %s" % packaging)
 
-  extra = repository_ctx.attr.extra_build_file_content
-  if extra:
-    lines.append(extra)
-    if not extra.endswith("\n"):
-      lines.append("")
-  repository_ctx.download(urls, path, sha)
-  if srcurls:
-    repository_ctx.download(srcurls, srcpath, srcsha)
-  repository_ctx.file("BUILD", "\n".join(lines))
-  repository_ctx.file("%s/BUILD" % packaging, "\n".join([
-      _HEADER,
-      "",
-      "package(default_visibility = %r)" % (
-          repository_ctx.attr.visibility or
-          repository_ctx.attr.default_visibility),
-      "",
-      "alias(",
-      "    name = \"%s\"," % packaging,
-      "    actual = \"@%s\"," % repository_ctx.name,
-      ")",
-      "",
-  ]))
-
+    extra = repository_ctx.attr.extra_build_file_content
+    if extra:
+        lines.append(extra)
+        if not extra.endswith("\n"):
+            lines.append("")
+    repository_ctx.download(urls, path, sha)
+    if srcurls:
+        repository_ctx.download(srcurls, srcpath, srcsha)
+    repository_ctx.file("BUILD", "\n".join(lines))
+    repository_ctx.file("%s/BUILD" % packaging, "\n".join([
+        _HEADER,
+        "",
+        "package(default_visibility = %r)" % (
+            repository_ctx.attr.visibility or
+            repository_ctx.attr.default_visibility
+        ),
+        "",
+        "alias(",
+        "    name = \"%s\"," % packaging,
+        "    actual = \"@%s\"," % repository_ctx.name,
+        ")",
+        "",
+    ]))
 
 def _make_aar_import(name, path, srcpath, attrs, props):
-  lines = [
-      "aar_import(",
-      "    name = %s," % repr(name),
-      "    aar = %s," % repr(path),
-  ]
-  return _append_import_rule(lines, srcpath, attrs, props)
-
+    lines = [
+        "aar_import(",
+        "    name = %s," % repr(name),
+        "    aar = %s," % repr(path),
+    ]
+    return _append_import_rule(lines, srcpath, attrs, props)
 
 def _make_java_import(name, path, srcpath, attrs, props):
-  lines = [
-      "java_import(",
-      "    name = %s," % repr(name),
-      "    jars = [%s]," % repr(path),
-  ]
-  return _append_import_rule(lines, srcpath, attrs, props)
-
+    lines = [
+        "java_import(",
+        "    name = %s," % repr(name),
+        "    jars = [%s]," % repr(path),
+    ]
+    return _append_import_rule(lines, srcpath, attrs, props)
 
 def _append_import_rule(lines, srcpath, attrs, props):
-  if srcpath:
-    lines.append("    srcjar = %s," % repr(srcpath))
-  for prop in props:
-    value = getattr(attrs, prop, None)
-    if value:
-      if prop.endswith("_"):
-        prop = prop[:-1]
-      lines.append("    %s = %s," % (prop, repr(value)))
-  lines.append(")")
-  lines.append("")
-  return lines
+    if srcpath:
+        lines.append("    srcjar = %s," % repr(srcpath))
+    for prop in props:
+        value = getattr(attrs, prop, None)
+        if value:
+            if prop.endswith("_"):
+                prop = prop[:-1]
+            lines.append("    %s = %s," % (prop, repr(value)))
+    lines.append(")")
+    lines.append("")
+    return lines
 
 COMMON_ATTRS = {
-  "licenses": attr.string_list(mandatory=True, allow_empty=False),
-  "srcjar_urls": attr.string_list(),
-  "srcjar_sha256": attr.string(),
-  "deps": attr.string_list(),
-  "testonly_": attr.bool(),
-  "exports": attr.string_list(),
-  "generated_rule_name": attr.string(),
-  "generated_linkable_rule_name": attr.string(),
-  "default_visibility": attr.string_list(default=["//visibility:public"]),
-  "extra_build_file_content": attr.string(),
+    "licenses": attr.string_list(
+        mandatory = True,
+        allow_empty = False,
+    ),
+    "srcjar_urls": attr.string_list(),
+    "srcjar_sha256": attr.string(),
+    "deps": attr.string_list(),
+    "testonly_": attr.bool(),
+    "exports": attr.string_list(),
+    "generated_rule_name": attr.string(),
+    "generated_linkable_rule_name": attr.string(),
+    "default_visibility": attr.string_list(default = ["//visibility:public"]),
+    "extra_build_file_content": attr.string(),
 }
 
-java_import_external = repository_rule(
-  implementation=_java_import_external,
-  attrs={
-    "jar_urls": attr.string_list(mandatory=True, allow_empty=False),
-    "jar_sha256": attr.string(mandatory=True),
-    "_packaging": attr.string(default="jar"),
+JAVA_IMPORT_EXTERNAL_ATTRS = {
+    "jar_urls": attr.string_list(
+        mandatory = True,
+        allow_empty = False,
+    ),
+    "jar_sha256": attr.string(mandatory = True),
+    "_packaging": attr.string(default = "jar"),
     "neverlink": attr.bool(),
     "runtime_deps": attr.string_list(),
-  } + COMMON_ATTRS)
+}
+
+JAVA_IMPORT_EXTERNAL_ATTRS.update(COMMON_ATTRS)
+
+AAR_IMPORT_EXTERNAL_ATTRS = {
+    "aar_urls": attr.string_list(
+        mandatory = True,
+        allow_empty = False,
+    ),
+    "aar_sha256": attr.string(mandatory = True),
+    "_packaging": attr.string(default = "aar"),
+}
+
+AAR_IMPORT_EXTERNAL_ATTRS.update(COMMON_ATTRS)
+
+java_import_external = repository_rule(
+    attrs = JAVA_IMPORT_EXTERNAL_ATTRS,
+    implementation = _java_import_external,
+)
 
 aar_import_external = repository_rule(
-  implementation=_java_import_external,
-  attrs={
-    "aar_urls": attr.string_list(mandatory=True, allow_empty=False),
-    "aar_sha256": attr.string(mandatory=True),
-    "_packaging": attr.string(default="aar"),
-  } + COMMON_ATTRS)
+    attrs = AAR_IMPORT_EXTERNAL_ATTRS,
+    implementation = _java_import_external,
+)
