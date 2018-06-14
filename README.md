@@ -1,22 +1,27 @@
 # gmaven_rules
 
-This project generates `gmaven.bzl`, a file containing `maven_jar` and `maven_aar`
-rules for all artifacts in [https://maven.google.com](https://maven.google.com).
+This project generates `gmaven.bzl`, a file containing external repository
+targets for all artifacts in
+[https://maven.google.com](https://maven.google.com).
 
 # Support Policy
 
 This project is an interim solution that is supported until Google Maven and
 AAR support is added to [bazel-deps](https://github.com/johnynek/bazel-deps).
 
+This is not an officially supported Google product.
+
 # Usage instructions
 
-Please see the [releases](https://github.com/bazelbuild/gmaven_rules/releases/latest) page for instructions on using the latest snapshot.
+Please see the
+[releases](https://github.com/bazelbuild/gmaven_rules/releases/latest) page for
+instructions on using the latest snapshot.
 
 To use this from your project, in your `WORKSPACE` file add
 
 ```
 # Google Maven Repository
-GMAVEN_TAG = "0.1.0" # or the tag from the latest release
+GMAVEN_TAG = "20180607-1" # or the tag from the latest release
 
 http_archive(
     name = "gmaven_rules",
@@ -43,7 +48,8 @@ android_library(
 )
 ```
 
-You can see the full list of generated targets in [`gmaven.bzl`](https://raw.githubusercontent.com/aj-michael/gmaven_rules/master/gmaven.bzl).
+You can see the full list of generated targets in
+[`gmaven.bzl`](https://raw.githubusercontent.com/aj-michael/gmaven_rules/master/gmaven.bzl).
 
 # Updating gmaven.bzl
 
