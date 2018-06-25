@@ -105,6 +105,15 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_ar_core_1_3_0',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/ar/core/1.3.0/core-1.3.0.aar'],
+      aar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  aar_import_external(
       name = 'com_android_support_support_v4_20_0_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/support/support-v4/20.0.0/support-v4-20.0.0.aar'],
@@ -610,6 +619,16 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_v4_23_2_1//aar',
         '@com_android_support_recyclerview_v7_23_2_1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_builder_test_api_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder-test-api/3.2.0-alpha18/builder-test-api-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_2_0_alpha18//jar',
       ],
     )
 
@@ -1239,6 +1258,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'androidx_databinding_databinding_common_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-common/3.2.0-beta01/databinding-common-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_build_aapt2_proto_0_1_0',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2-proto/0.1.0/aapt2-proto-0.1.0.jar'],
@@ -1703,6 +1731,17 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'androidx_databinding_databinding_adapters_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-adapters/3.2.0-alpha18/databinding-adapters-3.2.0-alpha18.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@androidx_databinding_databinding_common_3_2_0_alpha18//jar',
+        '@androidx_databinding_databinding_runtime_3_2_0_alpha18//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_android_support_percent_23_0_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/support/percent/23.0.0/percent-23.0.0.aar'],
@@ -1921,6 +1960,15 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/com-intellij/kotlin-compiler/26.2.0-alpha18/kotlin-compiler-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_databinding_adapters_3_1_2',
       licenses = ['notice'], # apache
@@ -2036,6 +2084,20 @@ def gmaven_rules():
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/com-intellij/kotlin-compiler/26.2.0-alpha16/kotlin-compiler-26.2.0-alpha16.jar'],
       jar_sha256 = '',
       deps = [
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_android_gms_play_services_appinvite_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-appinvite/16.0.1/play-services-appinvite-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_tasks_15_0_1//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+        '@com_google_firebase_firebase_dynamic_links_16_0_1//aar',
       ],
     )
 
@@ -2512,6 +2574,15 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_annotations_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/annotations/26.2.0-beta01/annotations-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_design_textfield_28_0_0_alpha1',
       licenses = ['notice'], # apache
@@ -2727,6 +2798,26 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_core_utils_26_1_0//aar',
         '@com_android_support_support_compat_26_1_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint/26.2.0-beta01/lint-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_analytics_library_tracker_26_2_0_beta01//jar',
+        '@com_android_tools_lint_lint_kotlin_26_2_0_beta01//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_beta01//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_beta01//jar',
+        '@com_android_tools_build_manifest_merger_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_lint_lint_checks_26_2_0_beta01//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -3205,6 +3296,32 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_10_2_1//aar',
         '@com_google_android_gms_play_services_basement_10_2_1//aar',
         '@com_google_android_gms_play_services_location_10_2_1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_builder_model_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder-model/3.2.0-beta01/builder-model-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_firebase_firebase_analytics_impl_16_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-analytics-impl/16.1.1/firebase-analytics-impl-16.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_tasks_15_0_1//aar',
+        '@com_google_android_gms_play_services_stats_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_firebase_firebase_iid_16_0_0//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+        '@com_google_android_gms_play_services_ads_identifier_15_0_1//aar',
       ],
     )
 
@@ -5132,6 +5249,18 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'androidx_databinding_databinding_runtime_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-runtime/3.2.0-alpha18/databinding-runtime-3.2.0-alpha18.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@androidx_databinding_databinding_common_3_2_0_alpha18//jar',
+        '@androidx_lifecycle_lifecycle_runtime_2_0_0_alpha1//aar',
+        '@androidx_collection_collection_1_0_0_alpha1//jar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_google_android_gms_play_services_nearby_10_2_4',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-nearby/10.2.4/play-services-nearby-10.2.4.aar'],
@@ -5578,6 +5707,20 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_firebase_firebase_analytics_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-analytics/16.0.1/firebase-analytics-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_stats_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_16_1_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'androidx_cursoradapter_cursoradapter_1_0_0_alpha3',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/androidx/cursoradapter/cursoradapter/1.0.0-alpha3/cursoradapter-1.0.0-alpha3.aar'],
@@ -5616,6 +5759,32 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@androidx_annotation_annotation_1_0_0_alpha1//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_gradle_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/3.2.0-beta01/gradle-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_lint_lint_gradle_api_26_2_0_beta01//jar',
+        '@com_android_tools_build_gradle_api_3_2_0_beta01//jar',
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have net_sf_proguard_proguard_gradle_6_0_3
+        '@com_android_tools_build_jetifier_jetifier_core_1_0_0_alpha07//jar',
+        '@com_android_tools_analytics_library_crash_26_2_0_beta01//jar',
+        '@androidx_databinding_databinding_compiler_common_3_2_0_beta01//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_build_bundletool_0_4_2//jar',
+        '@com_android_tools_build_builder_3_2_0_beta01//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        '@com_android_tools_build_jetifier_jetifier_processor_1_0_0_alpha07//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
       ],
     )
 
@@ -5956,6 +6125,16 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/com-intellij/intellij-core/26.2.0-alpha18/intellij-core-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
+      ],
+    )
+
+  java_import_external(
       name = 'android_arch_persistence_room_migration_1_0_0_alpha4',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/migration/1.0.0-alpha4/migration-1.0.0-alpha4.jar'],
@@ -6218,6 +6397,17 @@ def gmaven_rules():
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/3.1.0/apksig-3.1.0.jar'],
       jar_sha256 = '',
       deps = [
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_firebase_firebase_invites_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-invites/16.0.1/firebase-invites-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_firebase_firebase_analytics_16_0_1//aar',
+        '@com_google_android_gms_play_services_appinvite_16_0_1//aar',
       ],
     )
 
@@ -7133,6 +7323,21 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_lint_lint_gradle_api_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-gradle-api/26.2.0-beta01/lint-gradle-api-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_gradle_api_3_2_0_beta01//jar',
+        '@com_android_tools_sdklib_26_2_0_beta01//jar',
+        '@com_android_tools_build_builder_model_3_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_gridlayout_v7_21_0_0',
       licenses = ['notice'], # apache
@@ -7238,6 +7443,15 @@ def gmaven_rules():
         '@com_android_support_design_card_28_0_0_alpha1//aar',
         '@com_android_support_design_widget_28_0_0_alpha1//aar',
         '@com_android_support_appcompat_v7_28_0_0_alpha1//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_android_gms_play_services_measurement_base_16_0_0',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-measurement-base/16.0.0/play-services-measurement-base-16.0.0.aar'],
+      aar_sha256 = '',
+      deps = [
       ],
     )
 
@@ -7376,6 +7590,16 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_compat_26_0_2//aar',
         '@com_android_support_support_core_utils_26_0_2//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_firebase_firebase_measurement_connector_17_0_0',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-measurement-connector/17.0.0/firebase-measurement-connector-17.0.0.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
       ],
     )
 
@@ -8048,6 +8272,20 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_build_apkzlib_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/apkzlib/3.2.0-beta01/apkzlib-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_code_findbugs_jsr305_1_3_9
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_build_apksig_3_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'android_arch_persistence_db_framework_1_1_0',
       licenses = ['notice'], # apache
@@ -8056,6 +8294,17 @@ def gmaven_rules():
       deps = [
         '@android_arch_persistence_db_1_1_0//aar',
         '@com_android_support_support_annotations_26_1_0//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_persistence_db_framework_1_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/db-framework/1.1.1/db-framework-1.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_annotations_26_1_0//jar',
+        '@android_arch_persistence_db_1_1_1//aar',
       ],
     )
 
@@ -8116,6 +8365,24 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_testutils_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/testutils/26.2.0-alpha18/testutils-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have org_mockito_mockito_core_2_11_0
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have junit_junit_4_12
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        # GMaven does not have org_easymock_easymock_3_3
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_truth_truth_0_34
+        # GMaven does not have org_smali_dexlib2_2_2_1
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_support_core_utils_25_4_0',
       licenses = ['notice'], # apache
@@ -8124,6 +8391,21 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_compat_25_4_0//aar',
         '@com_android_support_support_annotations_25_4_0//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_analytics_library_tracker_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/tracker/26.2.0-beta01/tracker-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_protos_26_2_0_beta01//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_beta01//jar',
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        '@com_android_tools_common_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -8716,6 +8998,19 @@ def gmaven_rules():
         # GMaven does not have org_jetbrains_annotations_13_0
         '@com_android_tools_annotations_26_2_0_alpha17//jar',
         '@com_android_tools_common_26_2_0_alpha17//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/layoutlib/layoutlib-api/26.2.0-alpha18/layoutlib-api-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_annotations_13_0
+        '@com_android_tools_common_26_2_0_alpha18//jar',
         # GMaven does not have net_sf_kxml_kxml2_2_3_0
       ],
     )
@@ -9496,6 +9791,16 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_external_com_intellij_intellij_core_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/com-intellij/intellij-core/26.2.0-beta01/intellij-core-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_jetbrains_trove4j_trove4j_20160824
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_appindexing_9_8_0',
       licenses = ['notice'], # apache
@@ -9654,6 +9959,18 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'android_arch_work_work_testing_1_0_0_alpha03',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/work/work-testing/1.0.0-alpha03/work-testing-1.0.0-alpha03.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@android_arch_work_work_runtime_1_0_0_alpha03//aar',
+        '@android_arch_lifecycle_livedata_core_1_1_0//aar',
+        '@android_arch_persistence_room_runtime_1_0_0//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'android_arch_work_work_testing_1_0_0_alpha01',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/work/work-testing/1.0.0-alpha01/work-testing-1.0.0-alpha01.aar'],
@@ -9722,6 +10039,20 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_android_support_support_v4_23_2_1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_kotlin_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-kotlin/26.2.0-beta01/lint-kotlin-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_beta01//jar',
       ],
     )
 
@@ -10452,6 +10783,26 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_android_support_support_v4_21_0_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_gradle_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-gradle/26.2.0-beta01/lint-gradle-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_beta01//jar',
+        '@com_android_tools_lint_lint_gradle_api_26_2_0_beta01//jar',
+        '@com_android_tools_build_builder_3_2_0_beta01//jar',
+        '@com_android_tools_build_builder_model_3_2_0_beta01//jar',
+        '@com_android_tools_build_manifest_merger_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_sdk_common_26_2_0_beta01//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_12
+        '@com_android_tools_lint_lint_26_2_0_beta01//jar',
       ],
     )
 
@@ -11501,6 +11852,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_build_aapt2_3_2_0_beta01_4818971',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2/3.2.0-beta01-4818971/aapt2-3.2.0-beta01-4818971.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_annotations_26_0_0_beta1',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/annotations/26.0.0-beta1/annotations-26.0.0-beta1.jar'],
@@ -12274,6 +12634,22 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'androidx_databinding_databinding_compiler_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-compiler/3.2.0-beta01/databinding-compiler-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have commons_codec_commons_codec_1_9
+        '@androidx_databinding_databinding_compiler_common_3_2_0_beta01//jar',
+        '@androidx_databinding_databinding_common_3_2_0_beta01//jar',
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_firebase_firebase_database_connection_9_6_1',
       licenses = ['notice'], # apache
@@ -13010,6 +13386,25 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_sdk_common_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/sdk-common/26.2.0-alpha18/sdk-common-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_2_0_alpha18//jar',
+        '@com_android_tools_ddms_ddmlib_26_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_model_3_2_0_alpha18//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_sdklib_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have javax_inject_javax_inject_1
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_gridlayout_v7_26_0_1',
       licenses = ['notice'], # apache
@@ -13407,6 +13802,17 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@android_arch_work_work_runtime_1_0_0_alpha02//aar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_2_41
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_work_work_runtime_ktx_1_0_0_alpha03',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/work/work-runtime-ktx/1.0.0-alpha03/work-runtime-ktx-1.0.0-alpha03.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@android_arch_work_work_runtime_1_0_0_alpha03//aar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_2_41
       ],
     )
@@ -15168,6 +15574,35 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_analytics_library_inspector_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/inspector/26.2.0-beta01/inspector-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_protos_26_2_0_beta01//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_beta01//jar',
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_persistence_room_runtime_1_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/runtime/1.1.1/runtime-1.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        '@android_arch_persistence_db_1_1_1//aar',
+        '@android_arch_core_runtime_1_1_1//aar',
+        '@android_arch_persistence_db_framework_1_1_1//aar',
+        '@android_arch_persistence_room_common_1_1_1//jar',
+      ],
+    )
+
   aar_import_external(
       name = 'android_arch_persistence_room_runtime_1_1_0',
       licenses = ['notice'], # apache
@@ -16204,6 +16639,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_build_apksig_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/3.2.0-beta01/apksig-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'androidx_databinding_databinding_common_3_2_0_alpha14',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-common/3.2.0-alpha14/databinding-common-3.2.0-alpha14.jar'],
@@ -16225,6 +16669,15 @@ def gmaven_rules():
       name = 'androidx_databinding_databinding_common_3_2_0_alpha12',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-common/3.2.0-alpha12/databinding-common-3.2.0-alpha12.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
+      name = 'androidx_databinding_databinding_common_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-common/3.2.0-alpha18/databinding-common-3.2.0-alpha18.jar'],
       jar_sha256 = '',
       deps = [
       ],
@@ -16921,6 +17374,20 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'android_arch_persistence_room_rxjava2_1_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/rxjava2/1.1.1/rxjava2-1.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        # GMaven does not have io_reactivex_rxjava2_rxjava_2_0_6
+        '@android_arch_core_runtime_1_1_1//aar',
+        '@android_arch_persistence_room_runtime_1_1_1//aar',
+        '@android_arch_persistence_room_common_1_1_1//jar',
+      ],
+    )
+
+  aar_import_external(
       name = 'android_arch_persistence_room_rxjava2_1_1_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/rxjava2/1.1.0/rxjava2-1.1.0.aar'],
@@ -17495,6 +17962,21 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_analytics_library_publisher_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/publisher/26.2.0-beta01/publisher-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_protos_26_2_0_beta01//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_beta01//jar',
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        '@com_android_tools_common_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_tasks_15_0_0',
       licenses = ['notice'], # apache
@@ -17565,6 +18047,21 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_google_android_gms_play_services_base_7_3_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_repository_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/repository/26.2.0-beta01/repository-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have org_glassfish_jaxb_jaxb_runtime_2_2_11
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_common_26_2_0_beta01//jar',
+        # GMaven does not have com_sun_activation_javax_activation_1_2_0
       ],
     )
 
@@ -19062,6 +19559,21 @@ def gmaven_rules():
         # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
         '@com_android_tools_analytics_library_shared_26_2_0_alpha17//jar',
         '@com_android_tools_analytics_library_protos_26_2_0_alpha17//jar',
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_analytics_library_inspector_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/inspector/26.2.0-alpha18/inspector-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_shared_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_alpha18//jar',
         # GMaven does not have com_google_code_gson_gson_2_8_0
         # GMaven does not have com_google_guava_guava_23_0
       ],
@@ -22163,6 +22675,20 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_analytics_library_shared_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/shared/26.2.0-beta01/shared-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_analytics_library_protos_26_2_0_beta01//jar',
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        '@com_android_tools_common_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_drive_15_0_1',
       licenses = ['notice'], # apache
@@ -22768,6 +23294,16 @@ def gmaven_rules():
         '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
         # GMaven does not have org_ow2_asm_asm_util_5_1
         # GMaven does not have org_ow2_asm_asm_commons_5_1
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_analytics_library_protos_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/protos/26.2.0-alpha18/protos-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
       ],
     )
 
@@ -24114,6 +24650,21 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_analytics_library_publisher_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/publisher/26.2.0-alpha18/publisher-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_shared_26_2_0_alpha18//jar',
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_analytics_library_publisher_26_1_0_alpha05',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/publisher/26.1.0-alpha05/publisher-26.1.0-alpha05.jar'],
@@ -24299,6 +24850,16 @@ def gmaven_rules():
       jar_sha256 = '',
       deps = [
         '@com_android_tools_ddms_ddmlib_26_1_0_beta3//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_persistence_db_1_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/db/1.1.1/db-1.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_annotations_26_1_0//jar',
       ],
     )
 
@@ -24583,6 +25144,20 @@ def gmaven_rules():
       deps = [
         '@com_google_firebase_firebase_analytics_10_0_1//aar',
         '@com_google_android_gms_play_services_ads_10_0_1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_analytics_library_shared_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/shared/26.2.0-alpha18/shared-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -25801,6 +26376,15 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'androidx_constraintlayout_constraintlayout_solver_1_1_2',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/constraintlayout/constraintlayout-solver/1.1.2/constraintlayout-solver-1.1.2.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_fido_11_6_2',
       licenses = ['notice'], # apache
@@ -26110,6 +26694,21 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_firebase_firebase_crash_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-crash/16.0.1/firebase-crash-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_flags_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_firebase_firebase_iid_16_0_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_16_1_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_crashlytics_sdk_android_crashlytics_core_2_6_2',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/crashlytics/sdk/android/crashlytics-core/2.6.2/crashlytics-core-2.6.2.aar'],
@@ -26240,6 +26839,26 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_lint_lint_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint/26.2.0-alpha18/lint-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_tracker_26_2_0_alpha18//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_alpha18//jar',
+        '@com_android_tools_lint_lint_kotlin_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_alpha18//jar',
+        '@com_android_tools_lint_lint_checks_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_build_manifest_merger_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_gridlayout_v7_24_0_0_alpha2',
       licenses = ['notice'], # apache
@@ -26348,6 +26967,16 @@ def gmaven_rules():
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
         '@com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_alpha17//jar',
         # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_crashlytics_sdk_android_beta_1_2_9',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/crashlytics/sdk/android/beta/1.2.9/beta-1.2.9.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@io_fabric_sdk_android_fabric_1_4_3//aar',
       ],
     )
 
@@ -27253,6 +27882,20 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_lint_lint_checks_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-checks/26.2.0-beta01/lint-checks-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_beta01//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_beta01//jar',
+        '@com_android_tools_lint_lint_api_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_percent_26_0_0_alpha1',
       licenses = ['notice'], # apache
@@ -27955,6 +28598,22 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'androidx_databinding_databinding_compiler_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-compiler/3.2.0-alpha18/databinding-compiler-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@androidx_databinding_databinding_common_3_2_0_alpha18//jar',
+        # GMaven does not have commons_codec_commons_codec_1_9
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        '@androidx_databinding_databinding_compiler_common_3_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+      ],
+    )
+
+  java_import_external(
       name = 'androidx_databinding_databinding_compiler_3_2_0_alpha17',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-compiler/3.2.0-alpha17/databinding-compiler-3.2.0-alpha17.jar'],
@@ -28017,6 +28676,21 @@ def gmaven_rules():
       jar_sha256 = '',
       deps = [
         '@com_android_tools_ddms_ddmlib_26_0_0_beta1//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_firebase_firebase_auth_16_0_2',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-auth/16.0.2/firebase-auth-16.0.2.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_flags_15_0_1//aar',
+        '@com_google_android_gms_play_services_tasks_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_firebase_firebase_auth_interop_16_0_0//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
       ],
     )
 
@@ -28951,6 +29625,38 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_build_builder_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder/3.2.0-alpha18/builder-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_apksig_3_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_test_api_3_2_0_alpha18//jar',
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_6_0
+        '@com_android_tools_analytics_library_shared_26_2_0_alpha18//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        '@com_android_tools_sdklib_26_2_0_alpha18//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_ddms_ddmlib_26_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_model_3_2_0_alpha18//jar',
+        '@com_android_tools_sdk_common_26_2_0_alpha18//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_analytics_library_tracker_26_2_0_alpha18//jar',
+        '@com_android_tools_build_apkzlib_3_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_alpha18//jar',
+        '@com_android_tools_build_manifest_merger_26_2_0_alpha18//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_build_builder_3_2_0_alpha16',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder/3.2.0-alpha16/builder-3.2.0-alpha16.jar'],
@@ -29088,6 +29794,26 @@ def gmaven_rules():
       deps = [
         '@com_android_support_palette_v7_24_2_0//aar',
         '@com_android_support_appcompat_v7_24_2_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_api_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-api/26.2.0-alpha18/lint-api-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_6_0
+        '@com_android_tools_build_builder_model_3_2_0_alpha18//jar',
+        '@com_android_tools_sdk_common_26_2_0_alpha18//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18//jar',
+        '@com_android_tools_lint_lint_kotlin_26_2_0_alpha18//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_build_manifest_merger_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -29758,6 +30484,20 @@ def gmaven_rules():
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
         '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha16//jar',
         '@com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_alpha16//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_kotlin_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-kotlin/26.2.0-alpha18/lint-kotlin-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_alpha18//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha18//jar',
       ],
     )
 
@@ -31988,6 +32728,21 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_repository_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/repository/26.2.0-alpha18/repository-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have org_glassfish_jaxb_jaxb_runtime_2_2_11
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_sun_activation_javax_activation_1_2_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_safetynet_7_8_0',
       licenses = ['notice'], # apache
@@ -32416,6 +33171,16 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'android_arch_persistence_room_common_1_1_1',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/common/1.1.1/common-1.1.1.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_support_support_annotations_26_1_0//jar',
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_repository_26_2_0_alpha03',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/repository/26.2.0-alpha03/repository-26.2.0-alpha03.jar'],
@@ -32526,6 +33291,18 @@ def gmaven_rules():
       deps = [
         '@androidx_annotation_annotation_1_0_0_alpha1//jar',
         '@androidx_arch_core_core_common_2_0_0_alpha1//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_android_databinding_library_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/databinding/library/3.2.0-beta01/library-3.2.0-beta01.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@com_android_databinding_baseLibrary_3_2_0_beta01//jar',
       ],
     )
 
@@ -33333,6 +34110,23 @@ def gmaven_rules():
         # GMaven does not have org_codehaus_groovy_groovy_all_2_4_12
         '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha17//jar',
         '@com_android_tools_layoutlib_layoutlib_api_26_2_0_alpha17//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_tests_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-tests/26.2.0-alpha18/lint-tests-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_mockito_mockito_core_2_11_0
+        # GMaven does not have junit_junit_4_12
+        '@com_android_tools_lint_lint_26_2_0_alpha18//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha18//jar',
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_12
+        '@com_android_tools_testutils_26_2_0_alpha18//jar',
+        '@com_android_tools_layoutlib_layoutlib_api_26_2_0_alpha18//jar',
       ],
     )
 
@@ -38197,6 +38991,20 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_build_apkzlib_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/apkzlib/3.2.0-alpha18/apkzlib-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_apksig_3_2_0_alpha18//jar',
+        # GMaven does not have com_google_code_findbugs_jsr305_1_3_9
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_build_apkzlib_3_2_0_alpha17',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/apkzlib/3.2.0-alpha17/apkzlib-3.2.0-alpha17.jar'],
@@ -38270,6 +39078,19 @@ def gmaven_rules():
         '@com_android_tools_build_builder_test_api_3_2_0_alpha17//jar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
         '@com_android_tools_build_builder_model_3_2_0_alpha17//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_gradle_api_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle-api/3.2.0-alpha18/gradle-api-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_builder_test_api_3_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_model_3_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
         # GMaven does not have com_google_guava_guava_23_0
       ],
     )
@@ -38488,6 +39309,20 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_android_gms_play_services_analytics_impl_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-analytics-impl/16.0.1/play-services-analytics-impl-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_stats_15_0_1//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+        '@com_google_android_gms_play_services_ads_identifier_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_android_support_palette_v7_27_0_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/support/palette-v7/27.0.0/palette-v7-27.0.0.aar'],
@@ -38670,6 +39505,15 @@ def gmaven_rules():
         '@android_arch_persistence_db_1_1_0_alpha3//aar',
         '@android_arch_persistence_db_framework_1_1_0_alpha3//aar',
         '@android_arch_persistence_room_common_1_1_0_alpha3//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/org-jetbrains/uast/26.2.0-beta01/uast-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
       ],
     )
 
@@ -39288,6 +40132,22 @@ def gmaven_rules():
         '@com_google_firebase_firebase_common_9_2_1//aar',
         '@com_google_firebase_firebase_analytics_impl_9_2_1//aar',
         '@com_google_android_gms_play_services_basement_9_2_1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_sdklib_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/sdklib/26.2.0-alpha18/sdklib-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_apache_httpcomponents_httpcore_4_4_5
+        '@com_android_tools_repository_26_2_0_alpha18//jar',
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        '@com_android_tools_dvlib_26_2_0_alpha18//jar',
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_5_2
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        '@com_android_tools_layoutlib_layoutlib_api_26_2_0_alpha18//jar',
       ],
     )
 
@@ -40290,6 +41150,21 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_analytics_library_tracker_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/tracker/26.2.0-alpha18/tracker-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        '@com_android_tools_analytics_library_shared_26_2_0_alpha18//jar',
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        '@com_android_tools_analytics_library_protos_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_lint_lint_gradle_26_2_0_alpha05',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-gradle/26.2.0-alpha05/lint-gradle-26.2.0-alpha05.jar'],
@@ -40572,6 +41447,26 @@ def gmaven_rules():
         '@com_android_tools_build_manifest_merger_26_1_0_alpha04//jar',
         # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_1_4_3
         '@com_android_tools_lint_lint_kotlin_26_1_0_alpha04//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'androidx_databinding_databinding_compiler_common_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-compiler-common/3.2.0-alpha18/databinding-compiler-common-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_jetifier_jetifier_core_1_0_0_alpha05//jar',
+        # GMaven does not have com_squareup_javapoet_1_8_0
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        '@androidx_databinding_databinding_common_3_2_0_alpha18//jar',
+        '@com_android_databinding_baseLibrary_3_2_0_alpha18//jar',
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -40912,6 +41807,26 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_lint_lint_gradle_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-gradle/26.2.0-alpha18/lint-gradle-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_lint_lint_gradle_api_26_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_model_3_2_0_alpha18//jar',
+        '@com_android_tools_sdk_common_26_2_0_alpha18//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18//jar',
+        '@com_android_tools_lint_lint_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_build_manifest_merger_26_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_3_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha18//jar',
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_12
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_analytics_library_tracker_26_2_0_alpha08',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/tracker/26.2.0-alpha08/tracker-26.2.0-alpha08.jar'],
@@ -41110,6 +42025,25 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_android_support_support_v4_22_1_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_sdk_common_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/sdk-common/26.2.0-beta01/sdk-common-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_sdklib_26_2_0_beta01//jar',
+        '@com_android_tools_ddms_ddmlib_26_2_0_beta01//jar',
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_build_builder_model_3_2_0_beta01//jar',
+        '@com_android_tools_build_builder_test_api_3_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have javax_inject_javax_inject_1
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
       ],
     )
 
@@ -43665,6 +44599,24 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_r8_1_0_33',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/r8/1.0.33/r8-1.0.33.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_6
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        # GMaven does not have com_google_guava_guava_23_0
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_r8_1_0_31',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/r8/1.0.31/r8-1.0.31.jar'],
@@ -43690,6 +44642,24 @@ def gmaven_rules():
       deps = [
         # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_2_41
         '@androidx_sqlite_sqlite_2_0_0_alpha1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_r8_1_0_32',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/r8/1.0.32/r8-1.0.32.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_6
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        # GMaven does not have com_google_guava_guava_23_0
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
       ],
     )
 
@@ -44031,6 +45001,32 @@ def gmaven_rules():
         '@androidx_appcompat_appcompat_1_0_0_alpha3//aar',
         '@androidx_palette_palette_1_0_0_alpha3//aar',
         '@androidx_media_media_1_0_0_alpha3//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_gradle_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/3.2.0-alpha18/gradle-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_lint_lint_gradle_api_26_2_0_alpha18//jar',
+        '@com_android_tools_build_jetifier_jetifier_core_1_0_0_alpha05//jar',
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have net_sf_proguard_proguard_gradle_6_0_3
+        '@com_android_tools_analytics_library_shared_26_2_0_alpha18//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_analytics_library_crash_26_2_0_alpha18//jar',
+        '@com_android_tools_build_gradle_api_3_2_0_alpha18//jar',
+        '@com_android_tools_build_jetifier_jetifier_processor_1_0_0_alpha05//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        '@com_android_tools_build_bundletool_0_4_1//jar',
+        '@androidx_databinding_databinding_compiler_common_3_2_0_alpha18//jar',
+        '@com_android_tools_build_builder_3_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_transform_api_2_0_0_deprecated_use_gradle_api//jar',
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
       ],
     )
 
@@ -45660,6 +46656,21 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_build_manifest_merger_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/manifest-merger/26.2.0-alpha18/manifest-merger-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_sdk_common_26_2_0_alpha18//jar',
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdklib_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_build_manifest_merger_26_2_0_alpha13',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/manifest-merger/26.2.0-alpha13/manifest-merger-26.2.0-alpha13.jar'],
@@ -46389,6 +47400,21 @@ def gmaven_rules():
       ],
     )
 
+  aar_import_external(
+      name = 'com_google_firebase_firebase_dynamic_links_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-dynamic-links/16.0.1/firebase-dynamic-links-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_tasks_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_16_1_1//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+      ],
+    )
+
   java_import_external(
       name = 'com_android_tools_devicelib_26_2_0_alpha17',
       licenses = ['notice'], # apache
@@ -46397,6 +47423,18 @@ def gmaven_rules():
       deps = [
         '@com_android_tools_annotations_26_2_0_alpha17//jar',
         '@com_android_tools_common_26_2_0_alpha17//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_devicelib_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/devicelib/26.2.0-alpha18/devicelib-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        '@com_android_tools_common_26_2_0_alpha18//jar',
         # GMaven does not have com_google_guava_guava_23_0
       ],
     )
@@ -46565,6 +47603,24 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'android_arch_persistence_room_compiler_1_1_1',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/compiler/1.1.1/compiler-1.1.1.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have me_eugeniomarletti_kotlin_metadata_kotlin_metadata_1_4_0
+        # GMaven does not have com_squareup_javapoet_1_8_0
+        '@android_arch_persistence_room_migration_1_1_1//jar',
+        # GMaven does not have com_google_auto_auto_common_0_6
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_2_41
+        # GMaven does not have org_xerial_sqlite_jdbc_3_20_1
+        '@android_arch_persistence_room_common_1_1_1//jar',
+        # GMaven does not have commons_codec_commons_codec_1_10
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_instantapps_15_0_0',
       licenses = ['notice'], # apache
@@ -46674,6 +47730,15 @@ def gmaven_rules():
         '@com_google_firebase_firebase_iid_9_6_0//aar',
         '@com_google_firebase_firebase_common_9_6_0//aar',
         '@com_google_android_gms_play_services_basement_9_6_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_databinding_baseLibrary_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/databinding/baseLibrary/3.2.0-alpha18/baseLibrary-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
       ],
     )
 
@@ -47590,6 +48655,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_build_aapt2_3_2_0_alpha18_4804415',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2/3.2.0-alpha18-4804415/aapt2-3.2.0-alpha18-4804415.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_annotations_26_1_1',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/annotations/26.1.1/annotations-26.1.1.jar'],
@@ -48127,6 +49201,21 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_tasks_15_0_0//aar',
         '@com_google_android_gms_play_services_base_15_0_0//aar',
         '@com_google_android_gms_play_services_basement_15_0_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_gradle_api_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-gradle-api/26.2.0-alpha18/lint-gradle-api-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_builder_model_3_2_0_alpha18//jar',
+        '@com_android_tools_sdklib_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_build_gradle_api_3_2_0_alpha18//jar',
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -50268,6 +51357,17 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_android_databinding_adapters_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/databinding/adapters/3.2.0-beta01/adapters-3.2.0-beta01.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_databinding_library_3_2_0_beta01//aar',
+        '@com_android_databinding_baseLibrary_3_2_0_beta01//jar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_android_support_drawerlayout_28_0_0_alpha1',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/support/drawerlayout/28.0.0-alpha1/drawerlayout-28.0.0-alpha1.aar'],
@@ -50417,6 +51517,20 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_android_support_support_annotations_26_0_1//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_persistence_room_guava_1_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/guava/1.1.1/guava-1.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_guava_guava_23_6_android
+        '@android_arch_core_runtime_1_1_1//aar',
+        '@com_android_support_support_annotations_26_1_0//jar',
+        '@android_arch_persistence_room_runtime_1_1_1//aar',
+        '@android_arch_persistence_room_common_1_1_1//jar',
       ],
     )
 
@@ -51295,6 +52409,17 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_base_11_4_0//aar',
         '@com_google_android_gms_play_services_basement_11_4_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_ddms_ddmlib_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/ddms/ddmlib/26.2.0-beta01/ddmlib-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_common_26_2_0_beta01//jar',
       ],
     )
 
@@ -52470,6 +53595,17 @@ def gmaven_rules():
         # GMaven does not have org_mockito_mockito_core_2_7_1
         '@com_android_tools_layoutlib_layoutlib_api_26_0_1//jar',
         '@com_android_tools_testutils_26_0_1//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_firebase_firebase_core_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-core/16.0.1/firebase-core-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_firebase_firebase_analytics_16_0_1//aar',
+        '@com_google_firebase_firebase_measurement_connector_impl_16_0_1//aar',
       ],
     )
 
@@ -55173,6 +56309,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/org-jetbrains/uast/26.2.0-alpha18/uast-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_lint_lint_tests_26_1_0_beta4',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-tests/26.1.0-beta4/lint-tests-26.1.0-beta4.jar'],
@@ -55731,6 +56876,19 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_firebase_firebase_appindexing_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-appindexing/16.0.1/firebase-appindexing-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_tasks_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_google_android_gms_play_services_auth_base_11_6_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-auth-base/11.6.0/play-services-auth-base-11.6.0.aar'],
@@ -55740,6 +56898,23 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_auth_base_license_11_6_0//aar',
         '@com_google_android_gms_play_services_basement_11_6_0//aar',
         '@com_google_android_gms_play_services_tasks_11_6_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_tests_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-tests/26.2.0-beta01/lint-tests-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_beta01//jar',
+        # GMaven does not have org_mockito_mockito_core_2_11_0
+        # GMaven does not have junit_junit_4_12
+        '@com_android_tools_layoutlib_layoutlib_api_26_2_0_beta01//jar',
+        '@com_android_tools_testutils_26_2_0_beta01//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_beta01//jar',
+        # GMaven does not have org_codehaus_groovy_groovy_all_2_4_12
+        '@com_android_tools_lint_lint_26_2_0_beta01//jar',
       ],
     )
 
@@ -56159,6 +57334,21 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_build_manifest_merger_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/manifest-merger/26.2.0-beta01/manifest-merger-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_sdklib_26_2_0_beta01//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_sdk_common_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        '@com_android_tools_common_26_2_0_beta01//jar',
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_firebase_firebase_analytics_11_6_0',
       licenses = ['notice'], # apache
@@ -56414,6 +57604,17 @@ def gmaven_rules():
       jar_sha256 = '',
       deps = [
         '@androidx_annotation_annotation_1_0_0_alpha1//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_work_work_runtime_1_0_0_alpha03',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/work/work-runtime/1.0.0-alpha03/work-runtime-1.0.0-alpha03.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@android_arch_persistence_room_runtime_1_1_1_rc1//aar',
+        '@android_arch_lifecycle_extensions_1_1_0//aar',
       ],
     )
 
@@ -56997,6 +58198,18 @@ def gmaven_rules():
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-basement-license/11.4.2/play-services-basement-license-11.4.2.aar'],
       aar_sha256 = '',
       deps = [
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_android_databinding_library_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/databinding/library/3.2.0-alpha18/library-3.2.0-alpha18.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        '@android_arch_lifecycle_runtime_1_0_3//aar',
+        '@com_android_databinding_baseLibrary_3_2_0_alpha18//jar',
       ],
     )
 
@@ -57848,6 +59061,16 @@ def gmaven_rules():
       ],
     )
 
+  aar_import_external(
+      name = 'androidx_constraintlayout_constraintlayout_1_1_2',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/androidx/constraintlayout/constraintlayout/1.1.2/constraintlayout-1.1.2.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@androidx_constraintlayout_constraintlayout_solver_1_1_2//jar',
+      ],
+    )
+
   java_import_external(
       name = 'com_android_tools_lint_lint_gradle_26_1_0',
       licenses = ['notice'], # apache
@@ -58024,6 +59247,20 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'android_arch_work_work_firebase_1_0_0_alpha03',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/work/work-firebase/1.0.0-alpha03/work-firebase-1.0.0-alpha03.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_base_11_6_0//aar',
+        '@android_arch_work_work_runtime_1_0_0_alpha03//aar',
+        '@android_arch_persistence_room_runtime_1_0_0//aar',
+        # GMaven does not have com_firebase_firebase_jobdispatcher_0_8_5
+        '@com_android_support_support_v4_26_1_0//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_google_android_gms_play_services_panorama_11_4_2',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-panorama/11.4.2/play-services-panorama-11.4.2.aar'],
@@ -58187,6 +59424,20 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_analytics_library_crash_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/crash/26.2.0-beta01/crash-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_apache_httpcomponents_httpcore_4_4_5
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_5_2
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_5_2
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_firebase_firebase_common_9_2_1',
       licenses = ['notice'], # apache
@@ -58256,6 +59507,22 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_android_support_support_core_utils_26_1_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_sdklib_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/sdklib/26.2.0-beta01/sdklib-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_apache_httpcomponents_httpcore_4_4_5
+        # GMaven does not have org_apache_commons_commons_compress_1_12
+        '@com_android_tools_layoutlib_layoutlib_api_26_2_0_beta01//jar',
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_5_2
+        '@com_android_tools_dvlib_26_2_0_beta01//jar',
+        '@com_android_tools_repository_26_2_0_beta01//jar',
+        # GMaven does not have com_google_code_gson_gson_2_8_0
       ],
     )
 
@@ -59870,6 +61137,20 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_android_gms_play_services_tagmanager_v4_impl_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-tagmanager-v4-impl/16.0.1/play-services-tagmanager-v4-impl-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_analytics_impl_16_0_1//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+        '@com_google_android_gms_play_services_ads_identifier_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_google_android_gms_play_services_auth_11_4_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-auth/11.4.0/play-services-auth-11.4.0.aar'],
@@ -59998,6 +61279,18 @@ def gmaven_rules():
         '@androidx_slidingpanelayout_slidingpanelayout_1_0_0_alpha1//aar',
         '@androidx_annotation_annotation_1_0_0_alpha1//jar',
         '@androidx_interpolator_interpolator_1_0_0_alpha1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'android_arch_persistence_room_migration_1_1_1',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/migration/1.1.1/migration-1.1.1.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_1_2_41
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        '@android_arch_persistence_room_common_1_1_1//jar',
       ],
     )
 
@@ -60861,6 +62154,17 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_google_android_gms_play_services_base_8_4_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_ddms_ddmlib_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/ddms/ddmlib/26.2.0-alpha18/ddmlib-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
       ],
     )
 
@@ -62183,6 +63487,38 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_build_builder_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder/3.2.0-beta01/builder-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_squareup_javawriter_2_5_0
+        # GMaven does not have org_ow2_asm_asm_6_0
+        '@com_android_tools_sdklib_26_2_0_beta01//jar',
+        '@com_android_tools_ddms_ddmlib_26_2_0_beta01//jar',
+        # GMaven does not have org_bouncycastle_bcprov_jdk15on_1_56
+        '@com_android_tools_analytics_library_protos_26_2_0_beta01//jar',
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        '@com_android_tools_build_builder_model_3_2_0_beta01//jar',
+        '@com_android_tools_sdk_common_26_2_0_beta01//jar',
+        # GMaven does not have net_sf_jopt_simple_jopt_simple_4_9
+        '@com_android_tools_build_apksig_3_2_0_beta01//jar',
+        # GMaven does not have org_bouncycastle_bcpkix_jdk15on_1_56
+        '@com_android_tools_analytics_library_tracker_26_2_0_beta01//jar',
+        # GMaven does not have com_googlecode_json_simple_json_simple_1_1
+        '@com_android_tools_build_builder_test_api_3_2_0_beta01//jar',
+        '@com_android_tools_build_manifest_merger_26_2_0_beta01//jar',
+        '@com_android_tools_analytics_library_shared_26_2_0_beta01//jar',
+        '@com_android_tools_build_apkzlib_3_2_0_beta01//jar',
+        # GMaven does not have it_unimi_dsi_fastutil_7_2_0
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have org_ow2_asm_asm_util_6_0
+        '@com_android_tools_common_26_2_0_beta01//jar',
+        # GMaven does not have org_ow2_asm_asm_commons_6_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_identity_12_0_0',
       licenses = ['notice'], # apache
@@ -62418,6 +63754,16 @@ def gmaven_rules():
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-awareness-license/11.4.2/play-services-awareness-license-11.4.2.aar'],
       aar_sha256 = '',
       deps = [
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_builder_test_api_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder-test-api/3.2.0-beta01/builder-test-api-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_ddms_ddmlib_26_2_0_beta01//jar',
       ],
     )
 
@@ -63166,6 +64512,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_support_constraint_constraint_layout_solver_1_1_2',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/support/constraint/constraint-layout-solver/1.1.2/constraint-layout-solver-1.1.2.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_dvlib_26_2_0_alpha04',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/dvlib/26.2.0-alpha04/dvlib-26.2.0-alpha04.jar'],
@@ -63690,6 +65045,16 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_dvlib_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/dvlib/26.2.0-alpha18/dvlib-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_common_26_2_0_alpha18//jar',
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_firebase_firebase_common_9_8_0',
       licenses = ['notice'], # apache
@@ -63997,6 +65362,15 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_annotations_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/annotations/26.2.0-alpha18/annotations-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_annotations_26_2_0_alpha17',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/annotations/26.2.0-alpha17/annotations-26.2.0-alpha17.jar'],
@@ -64022,6 +65396,16 @@ def gmaven_rules():
       aar_sha256 = '',
       deps = [
         '@com_android_support_constraint_constraint_layout_solver_1_1_1//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_android_support_constraint_constraint_layout_1_1_2',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/support/constraint/constraint-layout/1.1.2/constraint-layout-1.1.2.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_constraint_constraint_layout_solver_1_1_2//jar',
       ],
     )
 
@@ -64406,6 +65790,18 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_basement_11_0_2//aar',
         '@com_google_android_gms_play_services_tasks_11_0_2//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'androidx_databinding_databinding_runtime_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-runtime/3.2.0-beta01/databinding-runtime-3.2.0-beta01.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@androidx_databinding_databinding_common_3_2_0_beta01//jar',
+        '@androidx_lifecycle_lifecycle_runtime_2_0_0_alpha1//aar',
+        '@androidx_collection_collection_1_0_0_alpha1//jar',
       ],
     )
 
@@ -65188,6 +66584,24 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_testutils_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/testutils/26.2.0-beta01/testutils-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have org_mockito_mockito_core_2_11_0
+        # GMaven does not have com_google_jimfs_jimfs_1_1
+        # GMaven does not have org_smali_dexlib2_2_2_4
+        # GMaven does not have junit_junit_4_12
+        # GMaven does not have org_easymock_easymock_3_3
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_truth_truth_0_34
+        '@com_android_tools_common_26_2_0_beta01//jar',
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_firebase_firebase_core_10_2_1',
       licenses = ['notice'], # apache
@@ -65731,6 +67145,20 @@ def gmaven_rules():
     )
 
   java_import_external(
+      name = 'com_android_tools_analytics_library_crash_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/crash/26.2.0-alpha18/crash-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_apache_httpcomponents_httpcore_4_4_5
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        # GMaven does not have org_apache_httpcomponents_httpmime_4_5_2
+        # GMaven does not have org_apache_httpcomponents_httpclient_4_5_2
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
+  java_import_external(
       name = 'com_android_tools_analytics_library_crash_26_2_0_alpha17',
       licenses = ['notice'], # apache
       jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/crash/26.2.0-alpha17/crash-26.2.0-alpha17.jar'],
@@ -65793,6 +67221,20 @@ def gmaven_rules():
         '@com_android_support_percent_26_1_0//aar',
         '@com_android_support_support_core_ui_26_1_0//aar',
         '@com_android_support_recyclerview_v7_26_1_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_checks_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-checks/26.2.0-alpha18/lint-checks-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_alpha18//jar',
+        # GMaven does not have org_ow2_asm_asm_analysis_6_0
+        '@com_android_tools_lint_lint_api_26_2_0_alpha18//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_alpha18//jar',
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -65978,6 +67420,16 @@ def gmaven_rules():
         '@androidx_collection_collection_1_0_0_alpha3//jar',
         '@androidx_lifecycle_lifecycle_runtime_2_0_0_alpha1//aar',
         '@androidx_annotation_annotation_1_0_0_alpha3//jar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_analytics_library_protos_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/analytics-library/protos/26.2.0-beta01/protos-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_google_protobuf_protobuf_java_3_4_0
       ],
     )
 
@@ -66458,6 +67910,19 @@ def gmaven_rules():
         '@com_crashlytics_sdk_android_answers_1_4_1//aar',
         '@io_fabric_sdk_android_fabric_1_4_2//aar',
         '@com_crashlytics_sdk_android_beta_1_2_7//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_crashlytics_sdk_android_crashlytics_2_9_4',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/crashlytics/sdk/android/crashlytics/2.9.4/crashlytics-2.9.4.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@io_fabric_sdk_android_fabric_1_4_3//aar',
+        '@com_crashlytics_sdk_android_crashlytics_core_2_6_3//aar',
+        '@com_crashlytics_sdk_android_answers_1_4_2//aar',
+        '@com_crashlytics_sdk_android_beta_1_2_9//aar',
       ],
     )
 
@@ -67849,6 +69314,18 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_common_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/common/26.2.0-beta01/common-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_9_2_0',
       licenses = ['notice'], # apache
@@ -67980,6 +69457,15 @@ def gmaven_rules():
         '@com_android_support_support_core_utils_28_0_0_alpha1//aar',
         '@com_android_support_customview_28_0_0_alpha1//aar',
         '@com_android_support_coordinatorlayout_28_0_0_alpha1//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_databinding_baseLibrary_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/databinding/baseLibrary/3.2.0-beta01/baseLibrary-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
       ],
     )
 
@@ -68264,6 +69750,17 @@ def gmaven_rules():
       deps = [
         '@com_google_android_gms_play_services_basement_9_4_0//aar',
         '@com_google_android_gms_play_services_base_9_4_0//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'androidx_databinding_databinding_adapters_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-adapters/3.2.0-beta01/databinding-adapters-3.2.0-beta01.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@androidx_databinding_databinding_runtime_3_2_0_beta01//aar',
+        '@androidx_databinding_databinding_common_3_2_0_beta01//jar',
       ],
     )
 
@@ -69092,6 +70589,18 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_devicelib_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/devicelib/26.2.0-beta01/devicelib-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        '@com_android_tools_common_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_support_appcompat_v7_23_2_0',
       licenses = ['notice'], # apache
@@ -69759,6 +71268,23 @@ def gmaven_rules():
       deps = [
         '@com_google_firebase_firebase_analytics_11_2_2//aar',
         '@com_google_android_gms_play_services_appinvite_11_2_2//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'android_arch_persistence_room_testing_1_1_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/android/arch/persistence/room/testing/1.1.1/testing-1.1.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_support_support_core_utils_26_1_0//aar',
+        # GMaven does not have junit_junit_4_12
+        '@android_arch_persistence_room_migration_1_1_1//jar',
+        '@android_arch_persistence_db_1_1_1//aar',
+        '@android_arch_core_runtime_1_1_1//aar',
+        '@android_arch_persistence_room_runtime_1_1_1//aar',
+        '@android_arch_persistence_db_framework_1_1_1//aar',
+        '@android_arch_persistence_room_common_1_1_1//jar',
       ],
     )
 
@@ -71644,6 +73170,15 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_external_com_intellij_kotlin_compiler_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/external/com-intellij/kotlin-compiler/26.2.0-beta01/kotlin-compiler-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_wearable_9_0_0',
       licenses = ['notice'], # apache
@@ -72244,6 +73779,26 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'androidx_databinding_databinding_compiler_common_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/androidx/databinding/databinding-compiler-common/3.2.0-beta01/databinding-compiler-common-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have com_squareup_javapoet_1_8_0
+        '@com_android_tools_build_jetifier_jetifier_core_1_0_0_alpha07//jar',
+        '@androidx_databinding_databinding_common_3_2_0_beta01//jar',
+        # GMaven does not have org_antlr_antlr4_4_5_3
+        # GMaven does not have commons_io_commons_io_2_4
+        '@com_android_databinding_baseLibrary_3_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_googlecode_juniversalchardet_juniversalchardet_1_0_3
+        # GMaven does not have com_google_code_gson_gson_2_8_0
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'android_arch_lifecycle_runtime_1_0_0_alpha5',
       licenses = ['notice'], # apache
@@ -72800,6 +74355,16 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_dvlib_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/dvlib/26.2.0-beta01/dvlib-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_common_26_2_0_beta01//jar',
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_basement_9_8_0',
       licenses = ['notice'], # apache
@@ -73032,6 +74597,21 @@ def gmaven_rules():
         '@com_google_firebase_firebase_analytics_9_8_0//aar',
         '@com_google_firebase_firebase_iid_9_8_0//aar',
         '@com_google_android_gms_play_services_basement_9_8_0//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_android_gms_play_services_tagmanager_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-tagmanager/16.0.1/play-services-tagmanager-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_stats_15_0_1//aar',
+        '@com_google_android_gms_play_services_analytics_impl_16_0_1//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_api_16_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+        '@com_google_android_gms_play_services_ads_identifier_15_0_1//aar',
       ],
     )
 
@@ -73486,6 +75066,21 @@ def gmaven_rules():
       deps = [
         '@com_android_support_support_annotations_22_1_1//jar',
         '@com_android_support_support_v4_22_1_1//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_firebase_firebase_measurement_connector_impl_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-measurement-connector-impl/16.0.1/firebase-measurement-connector-impl-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_firebase_firebase_analytics_16_0_1//aar',
+        '@com_google_firebase_firebase_measurement_connector_16_0_0//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_16_1_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
       ],
     )
 
@@ -75282,6 +76877,25 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_firebase_firebase_firestore_17_0_2',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-firestore/17.0.2/firebase-firestore-17.0.2.aar'],
+      aar_sha256 = '',
+      deps = [
+        # GMaven does not have com_squareup_okhttp_okhttp_2_7_2
+        '@com_google_android_gms_play_services_tasks_15_0_1//aar',
+        '@com_google_firebase_firebase_common_16_0_0//aar',
+        '@com_google_firebase_protolite_well_known_types_15_0_0//aar',
+        '@com_google_firebase_firebase_database_collection_15_0_1//aar',
+        # GMaven does not have io_grpc_grpc_okhttp_1_12_0
+        # GMaven does not have io_grpc_grpc_stub_1_12_0
+        '@android_arch_lifecycle_runtime_1_0_0//aar',
+        # GMaven does not have io_grpc_grpc_protobuf_lite_1_12_0
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_google_firebase_firebase_firestore_17_0_1',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-firestore/17.0.1/firebase-firestore-17.0.1.aar'],
@@ -75590,6 +77204,18 @@ def gmaven_rules():
       jar_sha256 = '',
       deps = [
         '@com_android_tools_build_gradle_core_3_1_0_alpha01//jar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_google_android_gms_play_services_tagmanager_api_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-tagmanager-api/16.0.1/play-services-tagmanager-api-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_firebase_firebase_analytics_impl_16_1_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
       ],
     )
 
@@ -76454,6 +78080,18 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_common_26_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/common/26.2.0-alpha18/common-26.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_android_gms_play_services_appindexing_9_2_1',
       licenses = ['notice'], # apache
@@ -77001,6 +78639,16 @@ def gmaven_rules():
         '@com_android_support_appcompat_v7_24_0_0//aar',
         '@com_android_support_recyclerview_v7_24_0_0//aar',
         '@com_android_support_support_v4_24_0_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_builder_model_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/builder-model/3.2.0-alpha18/builder-model-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_annotations_26_2_0_alpha18//jar',
       ],
     )
 
@@ -78124,6 +79772,19 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_build_gradle_api_3_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle-api/3.2.0-beta01/gradle-api-3.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_build_builder_model_3_2_0_beta01//jar',
+        '@com_android_tools_build_builder_test_api_3_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_guava_guava_23_0
+      ],
+    )
+
   aar_import_external(
       name = 'com_android_databinding_adapters_3_2_0_alpha10',
       licenses = ['notice'], # apache
@@ -78307,6 +79968,17 @@ def gmaven_rules():
         '@com_android_support_interpolator_28_0_0_alpha3//aar',
         '@com_android_support_support_annotations_28_0_0_alpha3//jar',
         '@com_android_support_support_compat_28_0_0_alpha3//aar',
+      ],
+    )
+
+  aar_import_external(
+      name = 'com_android_databinding_adapters_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/android/databinding/adapters/3.2.0-alpha18/adapters-3.2.0-alpha18.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_android_databinding_baseLibrary_3_2_0_alpha18//jar',
+        '@com_android_databinding_library_3_2_0_alpha18//aar',
       ],
     )
 
@@ -79002,6 +80674,19 @@ def gmaven_rules():
       ],
     )
 
+  java_import_external(
+      name = 'com_android_tools_layoutlib_layoutlib_api_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/layoutlib/layoutlib-api/26.2.0-beta01/layoutlib-api-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        # GMaven does not have org_jetbrains_annotations_13_0
+        # GMaven does not have net_sf_kxml_kxml2_2_3_0
+        '@com_android_tools_annotations_26_2_0_beta01//jar',
+        '@com_android_tools_common_26_2_0_beta01//jar',
+      ],
+    )
+
   aar_import_external(
       name = 'com_google_firebase_firebase_config_15_0_2',
       licenses = ['notice'], # apache
@@ -79033,6 +80718,26 @@ def gmaven_rules():
         '@com_google_android_gms_play_services_base_15_0_0//aar',
         '@com_google_android_gms_play_services_basement_15_0_0//aar',
         '@com_google_firebase_firebase_abt_15_0_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_lint_lint_api_26_2_0_beta01',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/lint/lint-api/26.2.0-beta01/lint-api-26.2.0-beta01.jar'],
+      jar_sha256 = '',
+      deps = [
+        '@com_android_tools_lint_lint_kotlin_26_2_0_beta01//jar',
+        '@com_android_tools_external_org_jetbrains_uast_26_2_0_beta01//jar',
+        # GMaven does not have org_ow2_asm_asm_6_0
+        # GMaven does not have org_ow2_asm_asm_tree_6_0
+        '@com_android_tools_build_builder_model_3_2_0_beta01//jar',
+        '@com_android_tools_build_manifest_merger_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_reflect_1_2_0
+        '@com_android_tools_sdk_common_26_2_0_beta01//jar',
+        '@com_android_tools_external_com_intellij_intellij_core_26_2_0_beta01//jar',
+        # GMaven does not have org_jetbrains_kotlin_kotlin_stdlib_jre8_1_2_0
+        # GMaven does not have com_google_guava_guava_23_0
       ],
     )
 
@@ -79601,6 +81306,21 @@ def gmaven_rules():
     )
 
   aar_import_external(
+      name = 'com_google_android_gms_play_services_analytics_16_0_1',
+      licenses = ['notice'], # apache
+      aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-analytics/16.0.1/play-services-analytics-16.0.1.aar'],
+      aar_sha256 = '',
+      deps = [
+        '@com_google_android_gms_play_services_stats_15_0_1//aar',
+        '@com_google_android_gms_play_services_analytics_impl_16_0_1//aar',
+        '@com_google_android_gms_play_services_measurement_base_16_0_0//aar',
+        '@com_google_android_gms_play_services_tagmanager_v4_impl_16_0_1//aar',
+        '@com_google_android_gms_play_services_base_15_0_1//aar',
+        '@com_google_android_gms_play_services_basement_15_0_1//aar',
+      ],
+    )
+
+  aar_import_external(
       name = 'com_google_firebase_firebase_invites_11_4_0',
       licenses = ['notice'], # apache
       aar_urls = ['https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-invites/11.4.0/firebase-invites-11.4.0.aar'],
@@ -79608,6 +81328,15 @@ def gmaven_rules():
       deps = [
         '@com_google_firebase_firebase_analytics_11_4_0//aar',
         '@com_google_android_gms_play_services_appinvite_11_4_0//aar',
+      ],
+    )
+
+  java_import_external(
+      name = 'com_android_tools_build_apksig_3_2_0_alpha18',
+      licenses = ['notice'], # apache
+      jar_urls = ['https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/3.2.0-alpha18/apksig-3.2.0-alpha18.jar'],
+      jar_sha256 = '',
+      deps = [
       ],
     )
 
