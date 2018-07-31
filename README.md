@@ -3,7 +3,7 @@
 This project provides support for easily depending on common Android libraries in Bazel.
 
 It hosts `gmaven.bzl`, a file containing external repository
-targets for all artifacts in [https://maven.google.com](https://maven.google.com) plus their
+targets for all artifacts in [Google Maven Repository](https://maven.google.com) plus their
 dependencies, and the supporting tools for generating it.
 
 This project is an interim solution until Google Maven and AAR support is added to
