@@ -1,14 +1,14 @@
 # gmaven_rules
 
-This project provides support for easily depening on common Android libraries in Bazel.
+This project provides support for easily depending on common Android libraries in Bazel.
 
-It provides `gmaven.bzl`, a file containing external repository
+It hosts `gmaven.bzl`, a file containing external repository
 targets for all artifacts in [https://maven.google.com](https://maven.google.com) plus their
 dependencies, and the supporting tools for generating it.
 
 This project is an interim solution until Google Maven and AAR support is added to
 [bazel-deps](https://github.com/johnynek/bazel-deps). See also 
-Bazel External Deps Roadmap](https://www.bazel.build/roadmaps/external-deps.html).
+[Bazel External Deps Roadmap](https://www.bazel.build/roadmaps/external-deps.html).
 
 # Usage instructions
 
