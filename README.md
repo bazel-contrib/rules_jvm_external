@@ -52,12 +52,11 @@ You can see the full list of generated targets in
 
 # Updating gmaven.bzl
 
-To update `gmaven.bzl`, run the following command. It will take about 5 minutes.
+To update `gmaven.bzl`, run the following command. It will take about 3 minutes.
 
 ```
-rm gmaven.bzl && javac GMavenToBazel.java && java GMavenToBazel
+bazel build //:gmaven_to_bazel_deploy.jar && java -jar bazel-bin/gmaven_to_bazel_deploy.jar
 ```
-
 
 # Known issues
 

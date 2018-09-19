@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.import java.io.FileWriter;
 
+package com.google.gmaven;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
