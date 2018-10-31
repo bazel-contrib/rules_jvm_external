@@ -55,7 +55,7 @@ You can see the full list of generated targets in
 To update `gmaven.bzl`, run the following command. It will take about 3 minutes.
 
 ```
-bazel build //:gmaven_to_bazel_deploy.jar && java -jar bazel-bin/gmaven_to_bazel_deploy.jar
+bazel run //:gmaven_to_bazel && cp bazel-bin/gmaven_to_bazel.runfiles/__main__/gmaven.bzl .
 ```
 
 # Known issues
