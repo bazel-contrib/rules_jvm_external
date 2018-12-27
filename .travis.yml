@@ -1,0 +1,54 @@
+# from rules_go
+# trusty beta image has jdk8, gcc4.8.4
+dist: trusty
+sudo: required
+# xcode8 has jdk8
+# osx_image: xcode8.3
+language: android
+
+android:
+  components:
+    # Uncomment the lines below if you want to
+    # use the latest revision of Android SDK Tools
+    - tools
+    - platform-tools
+
+    # The BuildTools version used by your project
+    - build-tools-28.0.3
+
+    # The SDK version used to compile your project
+    - android-28
+
+os:
+  - linux
+  # TODO make these work
+  # - windows 
+  # - osx
+
+env:
+  - V=0.21.0
+
+before_install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      OS=windows
+    else
+      OS=linux
+    fi
+    URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+    wget -O install.sh "${URL}"
+    chmod +x install.sh
+    ./install.sh --user
+    rm -f install.sh
+script:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+      bazel build //tests:java_binary_test
+    else
+      export ANDROID_HOME=/usr/local/android-sdk
+      bazel test //tests/unit/... && \
+        ./tests/integration/simple_integration_test.sh
+    fi
+
+notifications:
+  email: false
