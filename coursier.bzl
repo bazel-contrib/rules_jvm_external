@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
+load("//:specs.bzl", "parse", "utils")
 
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
@@ -232,15 +233,28 @@ def _coursier_fetch_impl(repository_ctx):
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
 
+    # Deserialize the spec blobs
+    repositories = []
+    for repository in repository_ctx.attr.repositories:
+        repositories.append(json_parse(repository))
+
+    artifacts = []
+    for a in repository_ctx.attr.artifacts:
+        artifacts.append(json_parse(a))
+
+    artifact_coordinates = []
+    for a in artifacts:
+        artifact_coordinates.append(utils.artifact_coordinate(a))
+
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
-    cmd.extend(repository_ctx.attr.artifacts)
+    cmd.extend(artifact_coordinates)
     cmd.extend(["--artifact-type", "jar,aar,bundle"])
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
-    for repository in repository_ctx.attr.repositories:
-        cmd.extend(["--repository", repository])
+    for repository in repositories:
+        cmd.extend(["--repository", utils.repo_url(repository)])
     if _is_windows(repository_ctx):
         # Unfortunately on Windows, coursier crashes while trying to acquire the
         # cache's .structure.lock file while running in parallel. This does not
@@ -260,14 +274,14 @@ def _coursier_fetch_impl(repository_ctx):
     if repository_ctx.attr.fetch_sources:
         cmd = _generate_coursier_command(repository_ctx)
         cmd.extend(["fetch"])
-        cmd.extend(repository_ctx.attr.artifacts)
+        cmd.extend(artifact_coordinates)
         cmd.extend(["--artifact-type", "jar,aar,bundle,src"])
         cmd.append("--quiet")
         cmd.append("--no-default")
         cmd.extend(["--sources", "true"])
         cmd.extend(["--json-output-file", "src-dep-tree.json"])
-        for repository in repository_ctx.attr.repositories:
-            cmd.extend(["--repository", repository])
+        for repository in repositories:
+            cmd.extend(["--repository", utils.repo_url(repository)])
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
             fail("Error while fetching artifact sources with coursier: "
@@ -299,8 +313,8 @@ def _coursier_fetch_impl(repository_ctx):
 coursier_fetch = repository_rule(
     attrs = {
         "_coursier": attr.label(default = "//:third_party/coursier/coursier"),  # vendor coursier, it's just a jar
-        "repositories": attr.string_list(),  # list of repositories
-        "artifacts": attr.string_list(),
+        "repositories": attr.string_list(),     # list of repository objects, each as json
+        "artifacts": attr.string_list(),        # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
         "_verify_checksums": attr.bool(default = False),
     },
