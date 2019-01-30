@@ -1,5 +1,7 @@
 # gmaven_rules
 
+__*This project is deprecated. For new projects, consider [rules_maven](https://github.com/jin/rules_maven).*__
+
 This project provides support for easily depending on common Android libraries in Bazel.
 
 It hosts `gmaven.bzl`, a file containing external repository
