@@ -1,8 +1,9 @@
 # gmaven_rules
 
-Transitive Maven artifact resolver as a repository rule for Bazel Android projects. 
+Transitive Maven artifact resolver as a repository rule.
 
-Support is on a best-effort basis.
+**Note**: This is an interim solution for Bazel Android projects and support is
+on a best-effort basis.
 
 ## Features
 
