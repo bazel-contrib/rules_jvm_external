@@ -1,7 +1,6 @@
 # gmaven_rules
 
-Transitive Maven artifact repository rule implementation that just depends on
-the `coursier` CLI tool.
+Transitive Maven artifact resolver as a repository rule for Bazel Android projects. 
 
 Support is on a best-effort basis.
 

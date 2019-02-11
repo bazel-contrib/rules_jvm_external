@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_maven//:coursier.bzl", "coursier_fetch")
-load("@rules_maven//:specs.bzl", "maven", "parse", "json")
+load("@gmaven_rules//:coursier.bzl", "coursier_fetch")
+load("@gmaven_rules//:specs.bzl", "maven", "parse", "json")
 
 def gmaven_artifact(fqn):
   parts = fqn.split(":")
@@ -85,4 +85,3 @@ def _parse_artifact_str(artifact_str):
         return { "group": pieces[0], "artifact": pieces[1] }
     else:
         return parse.parse_maven_coordinate(artifact_str)
-

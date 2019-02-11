@@ -1,4 +1,4 @@
-load("@rules_maven//:coursier.bzl", "coursier_fetch")
+load("@gmaven_rules//:coursier.bzl", "coursier_fetch")
 
 def maven_install(repositories = [], artifacts = {}):
     for requested_artifact in artifacts.items():

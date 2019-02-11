@@ -6,11 +6,11 @@ android_sdk_repository(
 )
 
 local_repository(
-    name = "rules_maven",
+    name = "gmaven_rules",
     path = "../../",
 )
 
-load("@rules_maven//:defs.bzl", "maven_install")
+load("@gmaven_rules//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
@@ -19,29 +19,21 @@ maven_install(
         "org.hamcrest:java-hamcrest:2.0.0.0",
         "androidx.test.espresso:espresso-core:3.1.1",
         "androidx.test:runner:1.1.1",
+        "androidx.test:rules:1.1.1",
         "androidx.test.ext:junit:1.1.0",
     ],
     repositories = [
         "https://maven.google.com",
-        "https://repo1.maven.org",
+        "https://repo1.maven.org/maven2",
     ],
-)
-
-# Everything below this line is used for the Android testing tools and their dependencies
-# ---------------------------------------------------------------------------------------
-
-# Google Maven Repository
-GMAVEN_TAG = "20181206-1"
-
-http_archive(
-    name = "gmaven_rules",
-    strip_prefix = "gmaven_rules-%s" % GMAVEN_TAG,
-    url = "https://github.com/bazelbuild/gmaven_rules/archive/%s.tar.gz" % GMAVEN_TAG,
 )
 
 load("@gmaven_rules//:gmaven.bzl", "gmaven_rules")
 
 gmaven_rules()
+
+# Everything below this line is used for the Android testing tools and their dependencies
+# ---------------------------------------------------------------------------------------
 
 ATS_RELEASE = "1.1.0-beta01"
 

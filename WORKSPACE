@@ -1,19 +1,14 @@
-workspace(name = "rules_maven")
-android_sdk_repository(
-    name = 'androidsdk',
-)
+workspace(name = "gmaven_rules")
+
+android_sdk_repository(name = 'androidsdk')
 
 local_repository(
     name = 'gmaven_rules',
     path = '.',
 )
+
 load('@gmaven_rules//:gmaven.bzl', 'gmaven_rules')
 gmaven_rules()
-
-local_repository(
-    name = "rules_maven",
-    path = "/usr/local/google/home/jingwen/code/coursier/rules_maven/",
-)
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -24,6 +19,7 @@ load("//:defs.bzl", "maven_install")
 maven_install(
     artifacts = [
         "androidx.test.espresso:espresso-core:3.1.1",
+        "androidx.test.espresso:espresso-web:3.1.1",
         "androidx.test.ext:junit:1.1.0",
         "androidx.test:runner:1.1.1",
         "com.android.support:design:28.0.0",
@@ -57,8 +53,6 @@ maven_install(
     ],
 )
 
-android_sdk_repository(name = "androidsdk")
-
 BAZEL_SKYLIB_TAG = "0.6.0"
 
 http_archive(
@@ -66,8 +60,5 @@ http_archive(
     strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
     url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
 )
-
-# load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-# bazel_skylib_workspace()
 
 # End test dependencies

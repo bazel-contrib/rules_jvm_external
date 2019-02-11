@@ -1,5 +1,4 @@
-#load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
-load("@rules_maven//:defs.bzl", "artifact")
+load("@gmaven_rules//:defs.bzl", "library", "artifact")
 
 android_library(
     name = "greeter_test_lib",
@@ -15,11 +14,7 @@ android_library(
 android_library(
     name = "test_deps",
     exports = [
-        artifact("androidx.test.espresso:espresso-core:3.1.1"),
-        artifact("androidx.test:runner:1.1.1"),
-        artifact("androidx.test.ext:junit:1.1.0"),
-        artifact("junit:junit:4.12"),
-        artifact("com.google.inject:guice:4.0"),
-        artifact("org.hamcrest:java-hamcrest:2.0.0.0"),
+        library("androidx.test.espresso:espresso-core"),
+        artifact("androidx.test.ext:junit"),
     ],
 )

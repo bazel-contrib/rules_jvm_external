@@ -1,4 +1,4 @@
-load("@rules_maven//:defs.bzl", "artifact")
+load("@gmaven_rules//:defs.bzl", "artifact")
 
 exports_files(["defs.bzl"])
 
@@ -26,9 +26,4 @@ android_binary(
     custom_package = "com.example.bazel",
     manifest = "AndroidManifest.xml",
     deps = [":my_lib"],
-)
-
-alias(
-    name = "rules_maven",
-    actual = ":defs.bzl",
 )
