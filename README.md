@@ -207,6 +207,50 @@ android_binary(
 )
 ```
 
+### Detailed dependency information specifications
+
+Although you can always give a dependency as a Maven coordinate string, occasionally special
+handling is required in the form of additional directives to properly situate the artifact
+in the dependency tree. For example, a given artifact may need to have one of its dependencies
+excluded to prevent a conflict. 
+
+This situation is provided for by allowing the artifact to be specified as a map containing
+all of the required information. This map can express more information than the coordinate
+strings can, so internally the coordinate strings are parsed into the artifact map with default
+values for the additional items. To assist in generating the maps, you can pull in the file 
+`specs.bzl` alongside `defs.bzl` and import the `maven` struct, which provides several helper
+functions to assist in creating these maps. An example: 
+
+```python
+load("@rules_maven//:defs.bzl", "artifact")
+load("@rules_maven//:specs.bzl", "maven")
+
+maven_install(
+    artifacts = [
+        maven.artifact(
+            group = "com.google.guava",
+            artifact = "guava",
+            version = "27.0-android",
+            exclusions = [
+                ...
+            ]
+        ),
+        "junit:junit:4.12",
+        ...
+    ],
+    repositories = [
+        maven.repository(
+            "https://some.private.maven.re/po",
+            user = "bob",
+            password = "l0bl4w"
+        ),
+        "https://repo1.maven.org/maven2",
+        ...
+    ],
+)
+```
+
+
 ## How it works
 
 Note the lack of explicit packaging type (a la gmaven_rules). `coursier`
@@ -218,13 +262,19 @@ The repository rule then..
 1. creates the repository "@maven"
 1. symlinks the transitive artifacts from the central cache to the repository's
    directory in the output_base
-1. creates a single BUILD file with `java_import`/`aar_import` targets for each
-   transitive artifact (including the top level ones), and their respective deps
-   matching the `<dependencies>` element in the artifact's POM file.
+1. creates a single BUILD file with `java_import`/`aar_import` and `java_library` 
+   transitive library targets for each transitive artifact (including the top level 
+   ones), and their respective deps matching the `<dependencies>` element in the 
+   artifact's POM file.
 
 The `artifact` macro used in the BUILD file translates the artifact fully
 qualified name to the label of the top level `java_import`/`aar_import` target
-in the `@maven` repository.
+in the `@maven` repository. This macro will depend directly on the referenced jar, and
+nothing else. 
+
+The `library` macro accepts the same arguments, but references the `java_library` target
+for the arguments. The library target will contain the referenced jar *and* all of its
+transitive dependencies. 
 
 For example, the generated BUILD file for `com.google.inject:guice:4.0` looks like this:
 
