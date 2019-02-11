@@ -1,84 +1,7 @@
 # gmaven_rules
 
-This project provides support for easily depending on common Android libraries in Bazel.
-
-It hosts `gmaven.bzl`, a file containing external repository
-targets for all artifacts in [Google Maven Repository](https://maven.google.com) plus their
-dependencies, and the supporting tools for generating it.
-
-This project is an interim solution until Google Maven and AAR support is added to
-[bazel-deps](https://github.com/johnynek/bazel-deps). See also 
-[Bazel External Deps Roadmap](https://www.bazel.build/roadmaps/external-deps.html).
-
-# Usage instructions
-
-Please see the
-[releases](https://github.com/bazelbuild/gmaven_rules/releases/latest) page for
-instructions on using the latest snapshot.
-
-To use this from your project, in your `WORKSPACE` file add
-
-```
-# Google Maven Repository
-GMAVEN_TAG = "20180607-1" # or the tag from the latest release
-
-http_archive(
-    name = "gmaven_rules",
-    strip_prefix = "gmaven_rules-%s" % GMAVEN_TAG,
-    url = "https://github.com/bazelbuild/gmaven_rules/archive/%s.tar.gz" % GMAVEN_TAG,
-)
-
-load("@gmaven_rules//:gmaven.bzl", "gmaven_rules")
-
-gmaven_rules()
-```
-
-You can then reference the generated library targets from your `BUILD` files like:
-
-```
-load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
-android_library(
-    ...
-    deps = [
-        gmaven_artifact("com.android.support:design:aar:27.0.2"),
-        gmaven_artifact("com.android.support:support_annotations:jar:27.0.2"),
-        gmaven_artifact("com.android.support.test.espresso:espresso_core:aar:3.0.1"),
-    ],
-)
-```
-
-You can see the full list of generated targets in
-[`gmaven.bzl`](https://raw.githubusercontent.com/aj-michael/gmaven_rules/master/gmaven.bzl).
-
-# Updating gmaven.bzl
-
-To update `gmaven.bzl`, run the following command. It will take about 3 minutes.
-
-```
-bazel run //:gmaven_to_bazel && cp bazel-bin/gmaven_to_bazel.runfiles/__main__/gmaven.bzl .
-```
-
-# Known issues
-
-Currently, cross-repository dependency resolution is not supported. Some of the
-artifacts depend on other artifacts that are not present on Google Maven, and
-these missing dependencies are silently ignored and may cause failures at
-runtime. 
-
-# rules_maven
-
-| Travis CI                                                                                                         |
-| -----                                                                                                             |
-| [![Build Status](https://travis-ci.org/jin/rules_maven.svg?branch=master)](https://travis-ci.org/jin/rules_maven) |
-
 Transitive Maven artifact repository rule implementation that just depends on
 the `coursier` CLI tool.
-
-> This was made to be a proof of concept to demonstrate how Maven dependency
-resolution can be done in a [Bazel Android
-project](https://github.com/jaredsburrows/android-bazel-java-app-template), and
-to be a possible replacement for
-[gmaven_rules](https://github.com/bazelbuild/gmaven_rules).
 
 Support is on a best-effort basis.
 
@@ -101,15 +24,15 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_MAVEN_TAG = "0.1.0" # or latest tag
+GMAVEN_RULES_TAG = "0.1.0" # or latest tag
 
 http_archive(
-    name = "rules_maven",
-    strip_prefix = "rules_maven-%s" % RULES_MAVEN_TAG,
-    url = "https://github.com/jin/rules_maven/archive/%s.zip" % RULES_MAVEN_TAG,
+    name = "gmaven_rules",
+    strip_prefix = "gmaven_rules-%s" % GMAVEN_RULES_TAG,
+    url = "https://github.com/bazelbuild/gmaven_rules/archive/%s.zip" % GMAVEN_RULES_TAG,
 )
 
-load("@rules_maven//:defs.bzl", "maven_install")
+load("@gmaven_rules//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
@@ -131,7 +54,7 @@ maven_install(
 and use them directly in the BUILD file by specifying the versionless target alias label:
 
 ```python
-load("@rules_maven//:defs.bzl", "artifact")
+load("@gmaven_rules//:defs.bzl", "artifact")
 
 android_library(
     name = "test_deps",
@@ -178,13 +101,13 @@ maven_install(
 )
 ```
 
-This way, `rules_maven` will invoke coursier to resolve artifact versions for
+This way, `gmaven_rules` will invoke coursier to resolve artifact versions for
 both repositories independent of each other. Coursier will fail if it encounters
 version conflicts that it cannot resolve. The two Guava targets can then be used
 in BUILD files like so:
 
 ```python
-load("@rules_maven//:defs.bzl", "artifact")
+load("@gmaven_rules//:defs.bzl", "artifact")
 
 java_binary(
     name = "my_server_app",
@@ -209,21 +132,23 @@ android_binary(
 
 ### Detailed dependency information specifications
 
-Although you can always give a dependency as a Maven coordinate string, occasionally special
-handling is required in the form of additional directives to properly situate the artifact
-in the dependency tree. For example, a given artifact may need to have one of its dependencies
-excluded to prevent a conflict. 
+Although you can always give a dependency as a Maven coordinate string,
+occasionally special handling is required in the form of additional directives
+to properly situate the artifact in the dependency tree. For example, a given
+artifact may need to have one of its dependencies excluded to prevent a
+conflict.
 
-This situation is provided for by allowing the artifact to be specified as a map containing
-all of the required information. This map can express more information than the coordinate
-strings can, so internally the coordinate strings are parsed into the artifact map with default
-values for the additional items. To assist in generating the maps, you can pull in the file 
-`specs.bzl` alongside `defs.bzl` and import the `maven` struct, which provides several helper
-functions to assist in creating these maps. An example: 
+This situation is provided for by allowing the artifact to be specified as a map
+containing all of the required information. This map can express more
+information than the coordinate strings can, so internally the coordinate
+strings are parsed into the artifact map with default values for the additional
+items. To assist in generating the maps, you can pull in the file `specs.bzl`
+alongside `defs.bzl` and import the `maven` struct, which provides several
+helper functions to assist in creating these maps. An example:
 
 ```python
-load("@rules_maven//:defs.bzl", "artifact")
-load("@rules_maven//:specs.bzl", "maven")
+load("@gmaven_rules//:defs.bzl", "artifact")
+load("@gmaven_rules//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
@@ -269,14 +194,15 @@ The repository rule then..
 
 The `artifact` macro used in the BUILD file translates the artifact fully
 qualified name to the label of the top level `java_import`/`aar_import` target
-in the `@maven` repository. This macro will depend directly on the referenced jar, and
-nothing else. 
+in the `@maven` repository. This macro will depend directly on the referenced
+jar, and nothing else.
 
-The `library` macro accepts the same arguments, but references the `java_library` target
-for the arguments. The library target will contain the referenced jar *and* all of its
-transitive dependencies. 
+The `library` macro accepts the same arguments, but references the
+`java_library` target for the arguments. The library target will contain the
+referenced jar *and* all of its transitive dependencies.
 
-For example, the generated BUILD file for `com.google.inject:guice:4.0` looks like this:
+For example, the generated BUILD file for `com.google.inject:guice:4.0` looks
+like this:
 
 ```python
 package(default_visibility = ["//visibility:public"])
@@ -310,7 +236,7 @@ java_import(
 ```
 
 For a more complex BUILD file example, [check out the one for
-`com.android.support:design:28.0.0`](https://gist.github.com/jin/54f19e344db2ba930789bc3700b2838c).
+`com.android.support:design:28.0.0`](https://gist.github.com/bazelbuild/54f19e344db2ba930789bc3700b2838c).
 
 The `artifact("com.google.inject:guice:4.0")` macro translates to
 `@maven//:com_google_inject_guice_4_0`.
@@ -346,35 +272,34 @@ maven/
 └── WORKSPACE
 ```
 
-For more information, see the [unit test
-data](https://github.com/jin/rules_maven/blob/master/tests/unit/coursier_testdata.bzl)
-for the BUILD file generator.
-
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
 
-## Design philosophy
+---
 
-- Use Starlark wherever possible (even the [JSON parser](https://github.com/erickj/bazel_json)!)
-- Keep each artifact's transitive closure contained in a single repository_rule
-- Cache artifacts as much as possible
-- Don't reimplement the artifact resolver's semantics; reuse it
-- No need to specify any transitive dependency of the top level artifact
+# (DEPRECATED) gmaven_rules
 
-## TODO
+This repository also hosts the previous implementation of gmaven_rules, a set of
+reposittory rules to provide support for easily depending on common Android
+libraries in Bazel. The previous implementation is now deprecated.
 
-- [x] don't symlink to the basename; symlink to the fqn-derived path
-- [x] maven server configuration
-- [x] windows support
-- [x] don't reexport the entire transitive closure; create the internal tree of java/aar_import based on the pom deps
-- [x] [load test with different artifacts](./WORKSPACE)
-- [x] more tests
-- [x] srcjar support
-- [x] support more packaging types than just aar, jar, and bundle
-- [x] authentication to private repositories
-- [x] version resolution
-- [x] one version per artifact per `@repository`
-- [x] declare multiple `maven_install` to isolate artifact version trees
-- [ ] java_plugin / annotation processor support
-- [ ] migration script from gmaven_rules 
+The core of it is `gmaven.bzl`, a file containing external repository targets
+for all artifacts in [Google Maven Repository](https://maven.google.com) plus
+their dependencies, and the supporting tools for generating it.
+
+We no longer recommend using the previous implementation due to its limitations,
+such as not having support for cross-repository dependency resolution. Some of
+the artifacts depend on other artifacts that are not present on Google Maven,
+and these missing dependencies are silently ignored and may cause failures at
+runtime.
+
+However, if you are still depending on it, please see the
+[releases](https://github.com/bazelbuild/gmaven_rules/releases/latest) page for
+instructions on using the latest snapshot.
+
+To update `gmaven.bzl`, run the following command. It will take about 3 minutes.
+
+```
+bazel run //:gmaven_to_bazel && cp bazel-bin/gmaven_to_bazel.runfiles/__main__/gmaven.bzl .
+```
