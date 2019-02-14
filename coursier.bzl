@@ -312,6 +312,7 @@ def _coursier_fetch_impl(repository_ctx):
         # happen on *nix.
         cmd.extend(["--parallel", "1"])
 
+    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
     exec_result = repository_ctx.execute(cmd)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
@@ -339,6 +340,7 @@ def _coursier_fetch_impl(repository_ctx):
                  + exec_result.stderr)
         srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
 
+    repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, checksums) = generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
