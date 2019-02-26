@@ -306,6 +306,8 @@ def _coursier_fetch_impl(repository_ctx):
     cmd.extend(["--json-output-file", "dep-tree.json"])
     for repository in repositories:
         cmd.extend(["--repository", utils.repo_url(repository)])
+    if not repository_ctx.attr.use_unsafe_shared_cache:
+        cmd.extend(["--cache", "v1"]) # Download into $output_base/external/$maven_repo_name/v1
     if _is_windows(repository_ctx):
         # Unfortunately on Windows, coursier crashes while trying to acquire the
         # cache's .structure.lock file while running in parallel. This does not
@@ -334,6 +336,8 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--json-output-file", "src-dep-tree.json"])
         for repository in repositories:
             cmd.extend(["--repository", utils.repo_url(repository)])
+        if not repository_ctx.attr.use_unsafe_shared_cache:
+            cmd.extend(["--cache", "v1"]) # Download into $output_base/external/$maven_repo_name/v1
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
             fail("Error while fetching artifact sources with coursier: "
@@ -369,6 +373,7 @@ coursier_fetch = repository_rule(
         "repositories": attr.string_list(),     # list of repository objects, each as json
         "artifacts": attr.string_list(),        # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
+        "use_unsafe_shared_cache": attr.bool(default = False),
         "_verify_checksums": attr.bool(default = False),
     },
     environ = ["JAVA_HOME"],

@@ -69,6 +69,32 @@ android_library(
 
 ## Advanced usage
 
+### Using a persistent artifact cache
+
+To download artifacts into a shared and persistent directory in your home
+directory, specify `use_unsafe_shared_cache = True` in `maven_install`:
+
+```python
+maven_install(
+    name = "maven",
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    use_unsafe_shared_cache = True,
+)
+```
+
+This is **not safe** as Bazel is currently not able to detect changes in the
+shared cache. For example, if an artifact is deleted from the shared cache,
+Bazel will not re-run the repository rule automatically.
+
+The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
+will create independent caches for each `maven_install` repository, located at
+`$(bazel info output_base)/external/@repository_name/v1`.
+
 ### Multiple `maven_install` declarations for isolated artifact version trees
 
 If your WORKSPACE contains several projects that use different versions of the
