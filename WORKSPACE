@@ -15,6 +15,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Begin test dependencies
 
 load("//:defs.bzl", "maven_install")
+load("//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
@@ -46,6 +47,25 @@ maven_install(
     name = "other_maven",
     artifacts = [
         "com.google.guava:guava:27.0-jre",
+    ],
+    fetch_sources = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
+    name = "other_maven_with_exclusions",
+    artifacts = [
+        maven.artifact(
+            group = "com.google.guava",
+            artifact = "guava",
+            version = "27.0-jre",
+            exclusions = [
+                maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+                "com.google.j2objc:j2objc-annotations",
+            ]
+        ),
     ],
     fetch_sources = True,
     repositories = [

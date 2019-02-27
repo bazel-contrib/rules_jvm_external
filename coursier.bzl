@@ -294,8 +294,21 @@ def _coursier_fetch_impl(repository_ctx):
         artifacts.append(json_parse(a))
 
     artifact_coordinates = []
+
+    # Set up artifact exclusion, if any. From coursier fetch --help:
+    #
+    # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
+    # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
+    # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
+    # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
+    exclusion_lines = []
     for a in artifacts:
         artifact_coordinates.append(utils.artifact_coordinate(a))
+        if "exclusions" in a:
+            for e in a["exclusions"]:
+                exclusion_lines.append(":".join([a["group"], a["artifact"]]) + \
+                                       "--" + \
+                                       ":".join([e["group"], e["artifact"]]))
 
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
@@ -304,6 +317,9 @@ def _coursier_fetch_impl(repository_ctx):
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
+    if len(exclusion_lines) > 0:
+        repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
+        cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
     for repository in repositories:
         cmd.extend(["--repository", utils.repo_url(repository)])
     if not repository_ctx.attr.use_unsafe_shared_cache:
@@ -334,6 +350,9 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.append("--no-default")
         cmd.extend(["--sources", "true"])
         cmd.extend(["--json-output-file", "src-dep-tree.json"])
+        if len(exclusion_lines) > 0:
+            cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+            repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         for repository in repositories:
             cmd.extend(["--repository", utils.repo_url(repository)])
         if not repository_ctx.attr.use_unsafe_shared_cache:

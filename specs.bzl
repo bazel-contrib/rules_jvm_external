@@ -197,6 +197,14 @@ def _artifact_spec_to_json(artifact_spec):
     """
     maybe_exclusion_specs_jsons = []
     for exclusion_spec in artifact_spec.get("exclusions") or []:
+        if type(exclusion_spec) == "string":
+          pieces = exclusion_spec.split(":")
+          if len(pieces) == 2:
+              exclusion_spec = { "group": pieces[0], "artifact": pieces[1] }
+          else:
+              fail(("Invalid exclusion: %s. Exclusions are specified as " + \
+                   "group-id:artifact-id, without the version, packaging or " + \
+                   "classifier.") % exclusion_spec)
         maybe_exclusion_specs_jsons.append(_exclusion_spec_to_json(exclusion_spec))
     exclusion_specs_json = (("[" + ", ".join(maybe_exclusion_specs_jsons) + "]") if len(maybe_exclusion_specs_jsons) > 0 else None)
 

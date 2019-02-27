@@ -201,6 +201,40 @@ maven_install(
 )
 ```
 
+### Artifact exclusion
+
+If you want to exclude an artifact from the transitive closure of a top level
+artifact, specify its `group-id:artifact-id` in the `exclusions` attribute of
+the `maven.artifact` helper:
+
+```python
+load("@rules_maven//:defs.bzl", "artifact")
+load("@rules_maven//:specs.bzl", "maven")
+
+maven_install(
+    artifacts = [
+        maven.artifact(
+            group = "com.google.guava",
+            artifact = "guava",
+            version = "27.0-jre",
+            exclusions = [
+                maven.exclusion(
+                    group = "org.codehaus.mojo",
+                    artifact = "animal-sniffer-annotations"
+                ),
+                "com.google.j2objc:j2objc-annotations",
+            ]
+        ),
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+)
+```
+
+You can specify the exclusion using either the `maven.exclusion` helper or the
+`group-id:artifact-id` string directly.
 
 ## How it works
 
