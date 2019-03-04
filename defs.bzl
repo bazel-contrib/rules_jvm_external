@@ -71,13 +71,6 @@ def artifact(a, repository_name = REPOSITORY_NAME):
 def maven_artifact(a):
     return artifact(a, repository_name = REPOSITORY_NAME)
 
-def library(a, repository_name = REPOSITORY_NAME):
-    artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
-    return "@%s//:%s" % (repository_name, _escape(artifact_obj["group"] + ":" + artifact_obj["artifact"] + "_lib"))
-
-def maven_library(a):
-    return library(a, repository_name = REPOSITORY_NAME)
-
 def _escape(string):
     return string.replace(".", "_").replace("-", "_").replace(":", "_")
 

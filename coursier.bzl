@@ -203,38 +203,6 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
-            # 7. Create java_library rule (includes transitive dependencies)
-            #
-            # java_library(
-            #   name = "org_hamcrest_hamcrest_library_lib",
-            #   exports = [
-            #       ":org_hamcrest_hamcrest_core_1_3",
-            #       ":org_hamcrest_hamcrest_library_1_3",
-            #   ]
-            # )
-            transitive_dep_aliases = ["\t\t\":" + versionless_target_alias_label + "\""]
-            for transitive_dep_coord in artifact["dependencies"]:
-                transitive_dep = _find_dependency_by_coord(dep_tree, transitive_dep_coord)
-                if transitive_dep == None:
-                    fail("Could not find transitive dependency of " + artifact["coord"] + ": " + transitive_dep_coord + "\n" +
-                         "Parsed artifact data:" + repr(artifact) + "\n" +
-                         "Parsed dependency output:" + repr(dep_tree))
-
-                transitive_dep_aliases.append("\t\t\":" + _escape(_strip_packaging_and_classifier_and_version(transitive_dep["coord"])) + "\"")
-
-            target_library = \
-"""
-java_library(
-    name = "{}",
-    exports = [
-{}
-    ]
-)
-""".lstrip()
-            transitive_dep_aliases = _deduplicate_list(transitive_dep_aliases)
-            all_imports.append(target_library.format(versionless_target_alias_label + "_lib", ",\n".join(transitive_dep_aliases)))
-
-
         elif artifact_path == None:
             fail("The artifact for " +
                  artifact["coord"] +
@@ -251,12 +219,6 @@ def _deduplicate_list(items):
             seen_items[item] = True
             unique_items.append(item)
     return unique_items
-
-def _find_dependency_by_coord(coursier_report, dep_coord):
-    for artifact in coursier_report["dependencies"]:
-        if artifact["coord"] == dep_coord:
-            return artifact
-    return None
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
