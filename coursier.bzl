@@ -56,7 +56,7 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     else:
         # Make a symlink from the absolute path of the artifact to the relative
         # path within the output_base/external.
-        artifact_relative_path = absolute_path_parts[1]
+        artifact_relative_path = "v1/" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
 
@@ -78,25 +78,30 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
     # seen_imports :: string -> bool
     seen_imports = {}
 
-    # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars.
+    # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
     srcjar_paths = None
     if srcs_dep_tree != None:
         srcjar_paths = {}
         for artifact in srcs_dep_tree["dependencies"]:
-            absolute_path_to_artifact = artifact["file"]
-            if absolute_path_to_artifact != None and absolute_path_to_artifact not in seen_imports:
-                seen_imports[absolute_path_to_artifact] = True
-                artifact_relative_path = _relativize_and_symlink_file(repository_ctx, absolute_path_to_artifact)
+            artifact_path = artifact["file"]
+            if artifact_path != None and artifact_path not in seen_imports:
+                seen_imports[artifact_path] = True
+                if repository_ctx.attr.use_unsafe_shared_cache:
+                  # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
+                  artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
+                else:
+                  # If not, it's a relative path to the one in output_base/external/$maven/v1/...
+                  artifact_relative_path = artifact_path
                 target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
                 srcjar_paths[target_label] = artifact_relative_path
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
-        absolute_path_to_artifact = artifact["file"]
+        artifact_path = artifact["file"]
         # Skip if we've seen this absolute path before.
-        if absolute_path_to_artifact not in seen_imports and absolute_path_to_artifact != None:
-            seen_imports[absolute_path_to_artifact] = True
+        if artifact_path not in seen_imports and artifact_path != None:
+            seen_imports[artifact_path] = True
 
             # We don't set the path of the artifact in resolved.bzl because it's different on everyone's machines
             checksums[artifact["coord"]] = {}
@@ -110,7 +115,12 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                 ]).stdout
                 checksums[artifact["coord"]]["sha256"] = sha256
 
-            artifact_relative_path = _relativize_and_symlink_file(repository_ctx, absolute_path_to_artifact)
+            if repository_ctx.attr.use_unsafe_shared_cache:
+                # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
+                artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
+            else:
+                # If not, it's a relative path to the one in output_base/external/$maven/v1/...
+                artifact_relative_path = artifact_path
 
             # 1. Generate the rule class.
             #
@@ -225,7 +235,7 @@ java_library(
             all_imports.append(target_library.format(versionless_target_alias_label + "_lib", ",\n".join(transitive_dep_aliases)))
 
 
-        elif absolute_path_to_artifact == None:
+        elif artifact_path == None:
             fail("The artifact for " +
                  artifact["coord"] +
                  " was not downloaded. Perhaps the packaging type is not one of: jar, aar, bundle?\n" +

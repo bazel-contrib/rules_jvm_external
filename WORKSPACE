@@ -73,6 +73,18 @@ maven_install(
     ],
 )
 
+maven_install(
+    name = "unsafe_shared_cache",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
+    ],
+    fetch_sources = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    use_unsafe_shared_cache = True,
+)
+
 BAZEL_SKYLIB_TAG = "0.6.0"
 
 http_archive(
