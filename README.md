@@ -2,9 +2,6 @@
 
 Transitive Maven artifact resolver as a repository rule.
 
-**Note**: This is an interim solution for Bazel Android projects and support is
-on a best-effort basis.
-
 ## Features
 
 * WORKSPACE configuration
