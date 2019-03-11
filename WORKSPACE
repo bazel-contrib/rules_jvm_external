@@ -1,14 +1,15 @@
 workspace(name = "rules_jvm_external")
 
-android_sdk_repository(name = 'androidsdk')
+android_sdk_repository(name = "androidsdk")
 
 local_repository(
-    name = 'rules_jvm_external',
-    path = '.',
+    name = "rules_jvm_external",
+    path = ".",
 )
 
-load('@rules_jvm_external//:gmaven.bzl', 'rules_jvm_external')
-rules_jvm_external()
+load("@rules_jvm_external//:gmaven.bzl", "gmaven_rules")
+
+gmaven_rules()
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -62,9 +63,12 @@ maven_install(
             artifact = "guava",
             version = "27.0-jre",
             exclusions = [
-                maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+                maven.exclusion(
+                    group = "org.codehaus.mojo",
+                    artifact = "animal-sniffer-annotations",
+                ),
                 "com.google.j2objc:j2objc-annotations",
-            ]
+            ],
         ),
     ],
     fetch_sources = True,
