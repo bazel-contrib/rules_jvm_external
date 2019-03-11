@@ -6,11 +6,11 @@ android_sdk_repository(
 )
 
 local_repository(
-    name = "gmaven_rules",
+    name = "rules_jvm_external",
     path = "../../",
 )
 
-load("@gmaven_rules//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
@@ -28,9 +28,9 @@ maven_install(
     ],
 )
 
-load("@gmaven_rules//:gmaven.bzl", "gmaven_rules")
+load("@rules_jvm_external//:gmaven.bzl", "rules_jvm_external")
 
-gmaven_rules()
+rules_jvm_external()
 
 # Everything below this line is used for the Android testing tools and their dependencies
 # ---------------------------------------------------------------------------------------

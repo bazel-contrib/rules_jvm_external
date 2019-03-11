@@ -1,4 +1,4 @@
-load("@gmaven_rules//:defs.bzl", "artifact")
+load("@rules_jvm_external//:defs.bzl", "artifact")
 
 android_library(
     name = "my_lib",

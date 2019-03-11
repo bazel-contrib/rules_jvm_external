@@ -1,4 +1,4 @@
-load("@gmaven_rules//:defs.bzl", "library", "artifact")
+load("@rules_jvm_external//:defs.bzl", "library", "artifact")
 
 android_library(
     name = "greeter_test_lib",

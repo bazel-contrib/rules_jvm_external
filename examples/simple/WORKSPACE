@@ -3,11 +3,11 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 android_sdk_repository(name = "androidsdk")
 
 local_repository(
-    name = "gmaven_rules",
+    name = "rules_jvm_external",
     path = "../../",
 )
 
-load("@gmaven_rules//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
