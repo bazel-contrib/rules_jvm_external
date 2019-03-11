@@ -242,12 +242,24 @@ def _generate_coursier_command(repository_ctx):
     return cmd
 
 def _cat_file(repository_ctx, filepath):
-    # For Windows, use cat from msys.
-    # TODO(jin): figure out why we can't just use "type". CreateProcessW complains that "type" can't be found.
-    cat = "C:\\msys64\\usr\\bin\\cat" if (_is_windows(repository_ctx)) else repository_ctx.which("cat")
-    exec_result = repository_ctx.execute([cat, repository_ctx.path(filepath)])
+    if (_is_windows(repository_ctx)):
+      bash = repository_ctx.os.environ.get("BAZEL_SH")
+      if (bash == None):
+        fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
+             "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+             "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+      exec_result = repository_ctx.execute([
+          bash,
+          "-lc",
+          "cat " + str(repository_ctx.path(filepath)),
+      ])
+    else:
+      exec_result = repository_ctx.execute([
+          repository_ctx.which("cat"),
+          repository_ctx.path(filepath)
+      ])
     if (exec_result.return_code != 0):
-        fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
+      fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
     return exec_result.stdout
 
 def _coursier_fetch_impl(repository_ctx):
