@@ -1,0 +1,49 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+android_sdk_repository(
+    name = "androidsdk",
+)
+
+local_repository(
+    name = "gmaven_rules",
+    path = "../../",
+)
+
+load("@gmaven_rules//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        "junit:junit:4.12",
+        "com.google.inject:guice:4.0",
+        "org.hamcrest:java-hamcrest:2.0.0.0",
+        "androidx.test.espresso:espresso-core:3.1.1",
+        "androidx.test:runner:1.1.1",
+        "androidx.test:rules:1.1.1",
+        "androidx.test.ext:junit:1.1.0",
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@gmaven_rules//:gmaven.bzl", "gmaven_rules")
+
+gmaven_rules()
+
+# Everything below this line is used for the Android testing tools and their dependencies
+# ---------------------------------------------------------------------------------------
+
+ATS_RELEASE = "1.1.0-beta01"
+
+http_archive(
+    name = "android_test_support",
+    sha256 = "2bbcc91195963d154cba1f062d958eb242d4a6a62cf7bb1e95823af8e351e504",
+    strip_prefix = "android-test-androidx-test-%s" % ATS_RELEASE,
+    urls = ["https://github.com/android/android-test/archive/androidx-test-%s.tar.gz" % ATS_RELEASE],
+)
+
+load("@android_test_support//:repo.bzl", "android_test_repositories")
+
+android_test_repositories()

@@ -1,0 +1,24 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+android_sdk_repository(name = "androidsdk")
+
+local_repository(
+    name = "gmaven_rules",
+    path = "../../",
+)
+
+load("@gmaven_rules//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        "junit:junit:4.12",
+        "android.arch.lifecycle:common:1.1.1",
+        "android.arch.lifecycle:viewmodel:1.1.1",
+        "androidx.test.espresso:espresso-web:3.1.1",
+        "com.android.support:design:27.0.2",
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org",
+    ],
+)
