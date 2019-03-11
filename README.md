@@ -21,12 +21,12 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-GMAVEN_RULES_TAG = "0.1.0" # or latest tag
+RULES_JVM_EXTERNAL_TAG = "0.1.0" # or latest tag
 
 http_archive(
     name = "rules_jvm_external",
-    strip_prefix = "rules_jvm_external-%s" % GMAVEN_RULES_TAG,
-    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % GMAVEN_RULES_TAG,
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
