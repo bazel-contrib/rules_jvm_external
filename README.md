@@ -1,4 +1,4 @@
-# gmaven_rules
+# rules_jvm_external
 
 Transitive Maven artifact resolver as a repository rule.
 
@@ -24,12 +24,12 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 GMAVEN_RULES_TAG = "0.1.0" # or latest tag
 
 http_archive(
-    name = "gmaven_rules",
-    strip_prefix = "gmaven_rules-%s" % GMAVEN_RULES_TAG,
-    url = "https://github.com/bazelbuild/gmaven_rules/archive/%s.zip" % GMAVEN_RULES_TAG,
+    name = "rules_jvm_external",
+    strip_prefix = "rules_jvm_external-%s" % GMAVEN_RULES_TAG,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % GMAVEN_RULES_TAG,
 )
 
-load("@gmaven_rules//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
@@ -51,7 +51,7 @@ maven_install(
 and use them directly in the BUILD file by specifying the versionless target alias label:
 
 ```python
-load("@gmaven_rules//:defs.bzl", "artifact")
+load("@rules_jvm_external//:defs.bzl", "artifact")
 
 android_library(
     name = "test_deps",
@@ -154,13 +154,13 @@ maven_install(
 )
 ```
 
-This way, `gmaven_rules` will invoke coursier to resolve artifact versions for
+This way, `rules_jvm_external` will invoke coursier to resolve artifact versions for
 both repositories independent of each other. Coursier will fail if it encounters
 version conflicts that it cannot resolve. The two Guava targets can then be used
 in BUILD files like so:
 
 ```python
-load("@gmaven_rules//:defs.bzl", "artifact")
+load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_binary(
     name = "my_server_app",
@@ -200,8 +200,8 @@ alongside `defs.bzl` and import the `maven` struct, which provides several
 helper functions to assist in creating these maps. An example:
 
 ```python
-load("@gmaven_rules//:defs.bzl", "artifact")
-load("@gmaven_rules//:specs.bzl", "maven")
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_jvm_external//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
@@ -265,7 +265,7 @@ You can specify the exclusion using either the `maven.exclusion` helper or the
 
 ## How it works
 
-Note the lack of explicit packaging type (a la gmaven_rules). `coursier`
+Note the lack of explicit packaging type (a la rules_jvm_external). `coursier`
 resolves that automatically, fetches the transitive jars using the transitive
 pom files, and saves them into a central cache `~/.cache/coursier`.
 
@@ -368,7 +368,7 @@ You can find demos in the [`examples/`](./examples/) directory.
 # (DEPRECATED) gmaven_rules
 
 This repository also hosts the previous implementation of gmaven_rules, a set of
-reposittory rules to provide support for easily depending on common Android
+repository rules to provide support for easily depending on common Android
 libraries in Bazel. The previous implementation is now deprecated.
 
 The core of it is `gmaven.bzl`, a file containing external repository targets
@@ -382,7 +382,7 @@ and these missing dependencies are silently ignored and may cause failures at
 runtime.
 
 However, if you are still depending on it, please see the
-[releases](https://github.com/bazelbuild/gmaven_rules/releases/latest) page for
+[releases](https://github.com/bazelbuild/rules_jvm_external/releases/latest) page for
 instructions on using the latest snapshot.
 
 To update `gmaven.bzl`, run the following command. It will take about 3 minutes.

@@ -1,4 +1,4 @@
-load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
+load("@rules_jvm_external//:defs.bzl", "gmaven_artifact")
 
 android_binary(
     name = 'app',

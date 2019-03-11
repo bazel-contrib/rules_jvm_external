@@ -1,4 +1,4 @@
-load("@gmaven_rules//:defs.bzl", "artifact")
+load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_binary(
     name = "java_binary_test",

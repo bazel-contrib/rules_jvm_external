@@ -1,14 +1,14 @@
-workspace(name = "gmaven_rules")
+workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = 'androidsdk')
 
 local_repository(
-    name = 'gmaven_rules',
+    name = 'rules_jvm_external',
     path = '.',
 )
 
-load('@gmaven_rules//:gmaven.bzl', 'gmaven_rules')
-gmaven_rules()
+load('@rules_jvm_external//:gmaven.bzl', 'rules_jvm_external')
+rules_jvm_external()
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
