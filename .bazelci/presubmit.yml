@@ -1,16 +1,29 @@
 ---
 platforms:
   ubuntu1404:
+    # TODO(jingwen): switch these to sh_test and port them to macos and windows
+    shell_commands:
+    - ./tests/integration/simple_integration_test.sh
+    - ./tests/integration/artifact_exclusions_integration_test.sh
+    - ./tests/integration/unsafe_shared_cache_integration_test.sh
     build_targets:
     - "//examples:app"
     test_targets:
     - "//tests/unit/..."
   ubuntu1604:
+    shell_commands:
+    - ./tests/integration/simple_integration_test.sh
+    - ./tests/integration/artifact_exclusions_integration_test.sh
+    - ./tests/integration/unsafe_shared_cache_integration_test.sh
     build_targets:
     - "//examples:app"
     test_targets:
     - "//tests/unit/..."
   ubuntu1804:
+    shell_commands:
+    - ./tests/integration/simple_integration_test.sh
+    - ./tests/integration/artifact_exclusions_integration_test.sh
+    - ./tests/integration/unsafe_shared_cache_integration_test.sh
     build_targets:
     - "//examples:app"
     test_targets:
