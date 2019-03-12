@@ -63,7 +63,7 @@ tasks:
     working_directory: examples/android_instrumentation_test
     test_targets:
     - "//src/test:greeter_test"
-  android-instrumentation-test-mac:
+  android-instrumentation-test-macos:
     name: "Android instrumentation test example"
     platform: macos
     working_directory: examples/android_instrumentation_test
