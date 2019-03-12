@@ -21,11 +21,13 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "0.1.0" # or latest tag
+RULES_JVM_EXTERNAL_TAG = "1.0"
+RULES_JVM_EXTERNAL_SHA = "48e0f1aab74fabba98feb8825459ef08dcc75618d381dff63ec9d4dd9860deaa"
 
 http_archive(
     name = "rules_jvm_external",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    sha256 = RULES_JVM_EXTERNAL_SHA,
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
@@ -235,8 +237,7 @@ artifact, specify its `group-id:artifact-id` in the `exclusions` attribute of
 the `maven.artifact` helper:
 
 ```python
-load("@rules_maven//:defs.bzl", "artifact")
-load("@rules_maven//:specs.bzl", "maven")
+load("@rules_jvm_external//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
