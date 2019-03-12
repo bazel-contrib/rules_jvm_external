@@ -3,9 +3,65 @@ platforms:
   ubuntu1404:
     build_targets:
     - "//examples:app"
+    test_targets:
+    - "//tests/unit/..."
   ubuntu1604:
     build_targets:
     - "//examples:app"
+    test_targets:
+    - "//tests/unit/..."
+  ubuntu1804:
+    build_targets:
+    - "//examples:app"
+    test_targets:
+    - "//tests/unit/..."
   macos:
     build_targets:
     - "//examples:app"
+    test_targets:
+    - "//tests/unit/..."
+  windows:
+    build_targets:
+    - "//examples:app"
+    test_targets:
+    - "//tests/unit/..."
+tasks:
+  simple-linux:
+    name: "Simple example"
+    platform: ubuntu1804
+    working_directory: examples/simple
+    build_targets:
+    - "..."
+  simple-macos:
+    name: "Simple example"
+    platform: macos
+    working_directory: examples/simple
+    build_targets:
+    - "..."
+  simple-windows:
+    name: "Simple example"
+    platform: windows
+    working_directory: examples/simple
+    build_targets:
+      - "..."
+  android-instrumentation-test-linux:
+    name: "Android instrumentation test example"
+    platform: ubuntu1804
+    working_directory: examples/android_instrumentation_test
+    test_targets:
+    - "//src/test:greeter_test"
+  android-instrumentation-test-mac:
+    name: "Android instrumentation test example"
+    platform: macos
+    working_directory: examples/android_instrumentation_test
+    build_targets:
+    - "//src/test:greeter_app"
+    - "//src/test:greeter_test_app"
+  android-instrumentation-test-windows:
+    name: "Android instrumentation test example"
+    platform: windows
+    working_directory: examples/android_instrumentation_test
+    build_targets:
+    - "//src/test:greeter_app"
+    - "//src/test:greeter_test_app"
+
