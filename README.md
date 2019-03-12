@@ -2,6 +2,8 @@
 
 Transitive Maven artifact resolver as a repository rule.
 
+> If you're looking for documentation on gmaven_rules, [go here](#deprecated-gmaven_rules).
+
 ## Features
 
 * WORKSPACE configuration
@@ -371,6 +373,43 @@ You can find demos in the [`examples/`](./examples/) directory.
 This repository also hosts the previous implementation of gmaven_rules, a set of
 repository rules to provide support for easily depending on common Android
 libraries in Bazel. The previous implementation is now deprecated.
+
+If you were previously depending on `gmaven_rules` using an `http_archive` in
+the WORKSPACE function, you may see this error:
+
+```
+ERROR: error loading package '': Encountered error while reading extension file 'gmaven.bzl': no such package '@gmaven_rules//': 
+java.io.IOException: Prefix gmaven_rules-20180625-1 was given, but not found in the archive
+```
+
+To fix this, replace this snippet:
+
+```python
+# Google Maven Repository
+GMAVEN_TAG = "20181212-2"
+
+http_archive(
+    name = "gmaven_rules",
+    strip_prefix = "gmaven_rules-%s" % GMAVEN_TAG,
+    url = "https://github.com/bazelbuild/gmaven_rules/archive/%s.tar.gz" % GMAVEN_TAG,
+)
+```
+
+with this snippet:
+
+```python
+RULES_JVM_EXTERNAL_TAG = "1.0"
+RULES_JVM_EXTERNAL_SHA = "48e0f1aab74fabba98feb8825459ef08dcc75618d381dff63ec9d4dd9860deaa"
+
+http_archive(
+    name = "gmaven_rules",
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    sha256 = RULES_JVM_EXTERNAL_SHA,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
+)
+```
+
+## Using gmaven_rules
 
 The core of it is `gmaven.bzl`, a file containing external repository targets
 for all artifacts in [Google Maven Repository](https://maven.google.com) plus
