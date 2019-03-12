@@ -77,4 +77,3 @@ tasks:
     build_targets:
     - "//src/test:greeter_app"
     - "//src/test:greeter_test_app"
-
