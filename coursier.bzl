@@ -88,17 +88,18 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             if artifact_path != None and artifact_path not in seen_imports:
                 seen_imports[artifact_path] = True
                 if repository_ctx.attr.use_unsafe_shared_cache:
-                  # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
-                  artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
+                    # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
+                    artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
                 else:
-                  # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                  artifact_relative_path = artifact_path
+                    # If not, it's a relative path to the one in output_base/external/$maven/v1/...
+                    artifact_relative_path = artifact_path
                 target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
                 srcjar_paths[target_label] = artifact_relative_path
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
+
         # Skip if we've seen this absolute path before.
         if artifact_path not in seen_imports and artifact_path != None:
             seen_imports[artifact_path] = True
@@ -108,10 +109,11 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
             if _is_macos(repository_ctx):
                 sha256 = repository_ctx.execute([
-                    "bash", "-c",
-                    "shasum -a256 "
-                    + artifact["file"]
-                    + "| cut -d\" \" -f1 | tr -d '\n'"
+                    "bash",
+                    "-c",
+                    "shasum -a256 " +
+                    artifact["file"] +
+                    "| cut -d\" \" -f1 | tr -d '\n'",
                 ]).stdout
                 checksums[artifact["coord"]]["sha256"] = sha256
 
@@ -170,6 +172,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             #
             target_import_string.append("\tdeps = [")
             artifact_deps = artifact["dependencies"]
+
             # Dedupe dependencies here. Sometimes coursier will return "x.y:z:aar:version" and "x.y:z:version" in the
             # same list of dependencies.
             target_import_labels = []
@@ -242,10 +245,24 @@ def _generate_coursier_command(repository_ctx):
     return cmd
 
 def _cat_file(repository_ctx, filepath):
-    # For Windows, use cat from msys.
-    # TODO(jin): figure out why we can't just use "type". CreateProcessW complains that "type" can't be found.
-    cat = "C:\\msys64\\usr\\bin\\cat" if (_is_windows(repository_ctx)) else repository_ctx.which("cat")
-    exec_result = repository_ctx.execute([cat, repository_ctx.path(filepath)])
+    if (_is_windows(repository_ctx)):
+        # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
+        # will not be around for long.
+        bash = repository_ctx.os.environ.get("BAZEL_SH")
+        if (bash == None):
+            fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
+                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+        exec_result = repository_ctx.execute([
+            bash,
+            "-lc",
+            "cat " + str(repository_ctx.path(filepath)),
+        ])
+    else:
+        exec_result = repository_ctx.execute([
+            repository_ctx.which("cat"),
+            repository_ctx.path(filepath),
+        ])
     if (exec_result.return_code != 0):
         fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
     return exec_result.stdout
@@ -278,8 +295,8 @@ def _coursier_fetch_impl(repository_ctx):
         artifact_coordinates.append(utils.artifact_coordinate(a))
         if "exclusions" in a:
             for e in a["exclusions"]:
-                exclusion_lines.append(":".join([a["group"], a["artifact"]]) + \
-                                       "--" + \
+                exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
+                                       "--" +
                                        ":".join([e["group"], e["artifact"]]))
 
     cmd = _generate_coursier_command(repository_ctx)
@@ -295,7 +312,7 @@ def _coursier_fetch_impl(repository_ctx):
     for repository in repositories:
         cmd.extend(["--repository", utils.repo_url(repository)])
     if not repository_ctx.attr.use_unsafe_shared_cache:
-        cmd.extend(["--cache", "v1"]) # Download into $output_base/external/$maven_repo_name/v1
+        cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
     if _is_windows(repository_ctx):
         # Unfortunately on Windows, coursier crashes while trying to acquire the
         # cache's .structure.lock file while running in parallel. This does not
@@ -328,11 +345,11 @@ def _coursier_fetch_impl(repository_ctx):
         for repository in repositories:
             cmd.extend(["--repository", utils.repo_url(repository)])
         if not repository_ctx.attr.use_unsafe_shared_cache:
-            cmd.extend(["--cache", "v1"]) # Download into $output_base/external/$maven_repo_name/v1
+            cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
-            fail("Error while fetching artifact sources with coursier: "
-                 + exec_result.stderr)
+            fail("Error while fetching artifact sources with coursier: " +
+                 exec_result.stderr)
         srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
 
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -361,8 +378,8 @@ def _coursier_fetch_impl(repository_ctx):
 coursier_fetch = repository_rule(
     attrs = {
         "_coursier": attr.label(default = "//:third_party/coursier/coursier"),  # vendor coursier, it's just a jar
-        "repositories": attr.string_list(),     # list of repository objects, each as json
-        "artifacts": attr.string_list(),        # list of artifact objects, each as json
+        "repositories": attr.string_list(),  # list of repository objects, each as json
+        "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
         "_verify_checksums": attr.bool(default = False),
