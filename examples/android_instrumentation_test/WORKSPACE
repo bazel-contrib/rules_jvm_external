@@ -28,9 +28,9 @@ maven_install(
     ],
 )
 
-load("@rules_jvm_external//:gmaven.bzl", "rules_jvm_external")
+load("@rules_jvm_external//:gmaven.bzl", "gmaven_rules")
 
-rules_jvm_external()
+gmaven_rules()
 
 # Everything below this line is used for the Android testing tools and their dependencies
 # ---------------------------------------------------------------------------------------
