@@ -34,8 +34,9 @@ platforms:
     test_targets:
     - "//tests/unit/..."
   windows:
-    build_targets:
-    - "//examples:app"
+    # build_targets:
+    # TODO(jin): fix long paths issue on Windows 
+    # - "//examples:app"
     test_targets:
     - "//tests/unit/..."
 tasks:
