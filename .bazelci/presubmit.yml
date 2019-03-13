@@ -29,12 +29,18 @@ platforms:
     test_targets:
     - "//tests/unit/..."
   macos:
+    shell_commands:
+    - "bazel fetch @maven//:all"
+    - "bazel fetch @other_maven//:all"
     build_targets:
     - "//tests/integration:all"
     - "//examples:app"
     test_targets:
     - "//tests/unit/..."
   windows:
+    shell_commands:
+    - "bazel fetch @maven//:all"
+    - "bazel fetch @other_maven//:all"
     build_targets:
     - "//tests/integration:all"
     # TODO(jin): fix long paths issue on Windows 
