@@ -37,7 +37,7 @@ platforms:
     test_targets:
     - "//tests/unit/..."
   windows:
-    build_targets:
+    # build_targets:
     # TODO(jin): Fix JSON parsing error on Windows
     # https://github.com/bazelbuild/rules_jvm_external/issues/53
     # - "//tests/integration:all"
