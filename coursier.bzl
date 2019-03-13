@@ -181,6 +181,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             target_import_string.append("".join(target_import_labels) + "\t],")
 
             # 5. Add a tag with the original maven coordinates for use generating pom files
+            # For use with this rule https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177
             #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library_1_3",
