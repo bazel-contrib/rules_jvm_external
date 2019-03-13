@@ -30,14 +30,18 @@ platforms:
     - "//tests/unit/..."
   macos:
     build_targets:
-    - "//tests/integration:all"
+    # TODO(jin): Fix concurrent download failure on macOS
+    # https://github.com/bazelbuild/rules_jvm_external/issues/54
+    # - "//tests/integration:all"
     - "//examples:app"
     test_targets:
     - "//tests/unit/..."
   windows:
     build_targets:
-    - "//tests/integration:all"
-    # TODO(jin): fix long paths issue on Windows 
+    # TODO(jin): Fix JSON parsing error on Windows
+    # https://github.com/bazelbuild/rules_jvm_external/issues/53
+    # - "//tests/integration:all"
+    # TODO(jin): fix long paths issue on Windows
     # - "//examples:app"
     test_targets:
     - "//tests/unit/..."
