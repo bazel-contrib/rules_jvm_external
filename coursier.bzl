@@ -38,6 +38,11 @@ def _is_linux(repository_ctx):
 def _is_macos(repository_ctx):
     return repository_ctx.os.name.find("mac") != -1
 
+# The representation of a Windows path when read from the parsed Coursier JSON
+# is delimited by 4 back slashes. Replace them with 1 forward slash.
+def _normalize_to_unix_path(path):
+    return path.replace("\\\\", "/")
+
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
@@ -50,7 +55,7 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     #
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
-    absolute_path_parts = absolute_path.replace("\\\\", "/").split("v1/")
+    absolute_path_parts = _normalize_to_unix_path(absolute_path).split("v1/")
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
@@ -92,7 +97,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                     artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
                 else:
                     # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                    artifact_relative_path = artifact_path
+                    artifact_relative_path = _normalize_to_unix_path(artifact_path)
                 target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
                 srcjar_paths[target_label] = artifact_relative_path
 
@@ -122,7 +127,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                 artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
             else:
                 # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                artifact_relative_path = artifact_path
+                artifact_relative_path = _normalize_to_unix_path(artifact_path)
 
             # 1. Generate the rule class.
             #

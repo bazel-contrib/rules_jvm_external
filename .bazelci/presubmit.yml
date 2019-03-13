@@ -30,11 +30,13 @@ platforms:
     - "//tests/unit/..."
   macos:
     build_targets:
+    - "//tests/integration:all"
     - "//examples:app"
     test_targets:
     - "//tests/unit/..."
   windows:
-    # build_targets:
+    build_targets:
+    - "//tests/integration:all"
     # TODO(jin): fix long paths issue on Windows 
     # - "//examples:app"
     test_targets:
