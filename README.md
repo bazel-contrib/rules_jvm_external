@@ -43,7 +43,7 @@ maven_install(
     repositories = [
         # Private repositories are supported through HTTP Basic auth
         "http://username:password@localhost:8081/artifactory/my-repository",
-        "http://jcenter.bintray.com/",
+        "https://jcenter.bintray.com/",
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
