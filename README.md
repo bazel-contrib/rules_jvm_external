@@ -103,7 +103,8 @@ java_import(
 The generated `tags` attribute value also contains the original coordinates of
 the artifact, which integrates with rules like [bazel-common's
 `pom_file`](https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177)
-for generating POM files.
+for generating POM files. See the [`pom_file_generation`
+example](examples/pom_file_generation/) for more information.
 
 ## Advanced usage
 

@@ -1,6 +1,6 @@
 exports_files(["defs.bzl"])
 
-licenses(["notice"]) # Apache 2.0
+licenses(["notice"])  # Apache 2.0
 
 java_binary(
     name = "gmaven_to_bazel",
