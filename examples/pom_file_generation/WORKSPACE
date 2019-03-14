@@ -8,10 +8,11 @@ local_repository(
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
-    artifacts=[
-        "com.google.inject:guice:4.0", "com.google.guava:guava:27.1-jre"
+    artifacts = [
+        "com.google.inject:guice:4.0",
+        "com.google.guava:guava:27.1-jre",
     ],
-    repositories=[
+    repositories = [
         "https://repo1.maven.org/maven2",
     ],
 )
@@ -25,8 +26,8 @@ http_archive(
 BAZEL_SKYLIB_TAG = "0.6.0"
 
 http_archive(
-    name="bazel_skylib",
-    strip_prefix="bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
-    url="https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" %
-    BAZEL_SKYLIB_TAG,
+    name = "bazel_skylib",
+    strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
+    url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" %
+          BAZEL_SKYLIB_TAG,
 )

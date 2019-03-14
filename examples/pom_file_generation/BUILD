@@ -22,7 +22,7 @@ java_binary(
 pom_file(
     name = "my_binary_pom",
     targets = [
-      "//:my_binary"
+        "//:my_binary",
     ],
     template_file = "pom_template.xml",
 )
