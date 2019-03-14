@@ -1,4 +1,4 @@
-load("@rules_jvm_external//:defs.bzl", "library", "artifact")
+load("@rules_jvm_external//:defs.bzl", "artifact")
 
 android_library(
     name = "greeter_test_lib",
@@ -14,7 +14,9 @@ android_library(
 android_library(
     name = "test_deps",
     exports = [
-        library("androidx.test.espresso:espresso-core"),
+        artifact("androidx.test.espresso:espresso-core"),
         artifact("androidx.test.ext:junit"),
+        artifact("junit:junit"),
+        artifact("androidx.test:runner"),
     ],
 )

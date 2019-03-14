@@ -28,20 +28,16 @@ maven_install(
     ],
 )
 
-load("@rules_jvm_external//:gmaven.bzl", "rules_jvm_external")
-
-rules_jvm_external()
-
 # Everything below this line is used for the Android testing tools and their dependencies
 # ---------------------------------------------------------------------------------------
 
-ATS_RELEASE = "1.1.0-beta01"
+ATS_TAG = "66e4740af2b27dedf30a145fc60653bf19586424"
 
 http_archive(
     name = "android_test_support",
-    sha256 = "2bbcc91195963d154cba1f062d958eb242d4a6a62cf7bb1e95823af8e351e504",
-    strip_prefix = "android-test-androidx-test-%s" % ATS_RELEASE,
-    urls = ["https://github.com/android/android-test/archive/androidx-test-%s.tar.gz" % ATS_RELEASE],
+    sha256 = "8696f228aa4b9ce9c0b77de764909e638b509aa25d5b6bf16bb45963f6591506",
+    strip_prefix = "android-test-%s" % ATS_TAG,
+    urls = ["https://github.com/android/android-test/archive/%s.tar.gz" % ATS_TAG],
 )
 
 load("@android_test_support//:repo.bzl", "android_test_repositories")
