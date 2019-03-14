@@ -88,6 +88,7 @@ java_import(
   jars = ["@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar",
   deps = ["@maven//:org_hamcrest_hamcrest_core_1_3"],
+  tags = ["maven_coordinates=junit:junit:4.12"],
 )
 
 java_import(
@@ -95,6 +96,7 @@ java_import(
   jars = ["@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
   deps = [],
+  tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
 )
 ```
 

@@ -188,7 +188,20 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
             target_import_string.append("".join(target_import_labels) + "\t],")
 
-            # 5. Finish the java_import rule.
+            # 5. Add a tag with the original maven coordinates for use generating pom files
+            # For use with this rule https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177
+            #
+            # java_import(
+            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
+            # 	deps = [
+            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 	],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+
+            # 6. Finish the java_import rule.
             #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library_1_3",
@@ -202,7 +215,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
             all_imports.append("\n".join(target_import_string))
 
-            # 6. Create a versionless alias target
+            # 7. Create a versionless alias target
             #
             # alias(
             #   name = "org_hamcrest_hamcrest_library",
