@@ -1,4 +1,4 @@
-# Generating <dependency> nodes for a POM file
+# Generating `<dependency>` nodes for a POM file
 
 This example shows how you can generate the `<dependencies>` section of a POM
 file using `rules_jvm_external`'s generated targets and the `pom_file` rule from
