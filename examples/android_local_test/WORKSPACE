@@ -1,0 +1,25 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+android_sdk_repository(name = "androidsdk")
+
+local_repository(
+    name = "rules_jvm_external",
+    path = "../../",
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        "androidx.appcompat:appcompat:1.0.2",
+        "androidx.annotation:annotation:1.0.2",
+        "androidx.test.ext:junit:1.1.0",
+        "org.robolectric:robolectric:4.1",
+        "org.robolectric:android-all:8.1.0-robolectric-4611349",
+        "org.assertj:assertj-core:3.12.1"
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
