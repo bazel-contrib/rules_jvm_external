@@ -29,7 +29,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## artifact
 
 <pre>
-artifact(<a href="#artifact-a">a</a>, <a href="#artifact-repository_name">repository_name</a>)
+artifact(<a href="#artifact-coordinates">coordinates</a>, <a href="#artifact-repository_name">repository_name</a>)
 </pre>
 
 A helper macro to translate Maven coordinates into a Bazel target label.
@@ -49,8 +49,8 @@ For example:
     <col class="col-description" />
   </colgroup>
   <tbody>
-    <tr id="artifact-a">
-      <td><code>a</code></td>
+    <tr id="artifact-coordinates">
+      <td><code>coordinates</code></td>
       <td>
         required.
       </td>
