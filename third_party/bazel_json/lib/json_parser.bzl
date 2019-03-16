@@ -239,7 +239,7 @@ _STATE_TRANSITION_TABLE = [
 
 
 _MAX_DEPTH = 20
-_DEBUG = False
+_DEBUG = True
 
 def _reject(checker, reason = "unknown reason"):
     if (checker["rejected"]):
