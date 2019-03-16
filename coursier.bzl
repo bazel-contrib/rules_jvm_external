@@ -337,11 +337,11 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--repository", utils.repo_url(repository)])
     if not repository_ctx.attr.use_unsafe_shared_cache:
         cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-    if _is_windows(repository_ctx):
+    # if _is_windows(repository_ctx):
         # Unfortunately on Windows, coursier crashes while trying to acquire the
         # cache's .structure.lock file while running in parallel. This does not
         # happen on *nix.
-        cmd.extend(["--parallel", "1"])
+        # cmd.extend(["--parallel", "1"])
 
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
     exec_result = repository_ctx.execute(cmd)
