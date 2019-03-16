@@ -345,7 +345,9 @@ def _coursier_fetch_impl(repository_ctx):
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
     # to generate the repository's BUILD file.
-    dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+    dep_tree_str = _cat_file(repository_ctx, "dep-tree.json")
+    print(dep_tree_str)
+    dep_tree = json_parse(dep_tree_str)
 
     srcs_dep_tree = None
     if repository_ctx.attr.fetch_sources:
