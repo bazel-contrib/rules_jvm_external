@@ -100,6 +100,10 @@ java_import(
 )
 ```
 
+## API Reference
+
+You can find the complete API reference at [docs/api.md](docs/api.md).
+
 ## Advanced usage
 
 ### Using a persistent artifact cache
