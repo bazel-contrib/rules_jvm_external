@@ -264,15 +264,8 @@ def _generate_coursier_command(repository_ctx):
 
 def _cat_file(repository_ctx, filepath):
     if (_is_windows(repository_ctx)):
-        # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
-        # will not be around for long.
-        bash = repository_ctx.os.environ.get("BAZEL_SH")
-        if (bash == None):
-            fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
         exec_result = repository_ctx.execute([
-            bash,
+            repository_ctx.os.environ.get("BAZEL_SH"),
             "-lc",
             "cat " + str(repository_ctx.path(filepath)),
         ])
@@ -290,6 +283,19 @@ def _coursier_fetch_impl(repository_ctx):
     exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
+
+    # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
+    # will not be around for long.
+    #
+    # On Windows, run msys once to bootstrap it
+    # https://github.com/bazelbuild/rules_jvm_external/issues/53
+    if (_is_windows(repository_ctx)):
+        bash = repository_ctx.os.environ.get("BAZEL_SH")
+        if (bash == None):
+            fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
+                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+        exec_result = repository_ctx.execute([bash])
 
     # Deserialize the spec blobs
     repositories = []
@@ -345,11 +351,7 @@ def _coursier_fetch_impl(repository_ctx):
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
     # to generate the repository's BUILD file.
-    dep_tree_str = _cat_file(repository_ctx, "dep-tree.json")
-    print(dep_tree_str)
-    dep_tree_str = _cat_file(repository_ctx, "dep-tree.json")
-    print(dep_tree_str)
-    dep_tree = json_parse(dep_tree_str)
+    dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
 
     srcs_dep_tree = None
     if repository_ctx.attr.fetch_sources:
