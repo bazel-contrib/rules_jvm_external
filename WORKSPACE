@@ -13,6 +13,30 @@ gmaven_rules()
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Begin Stardoc dependencies
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "io_bazel_skydoc",
+    remote = "https://github.com/bazelbuild/skydoc.git",
+    commit = "f57c9880b9033241ad341ffc17a88d804cdfde3a",
+)
+
+load("@io_bazel_skydoc//:setup.bzl", "skydoc_repositories")
+skydoc_repositories()
+
+load("@io_bazel_rules_sass//:package.bzl", "rules_sass_dependencies")
+rules_sass_dependencies()
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
+node_repositories()
+
+load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
+sass_repositories()
+
+# End Stardoc dependencies
+
 # Begin test dependencies
 
 load("//:defs.bzl", "maven_install")
@@ -92,7 +116,7 @@ maven_install(
 BAZEL_SKYLIB_TAG = "0.6.0"
 
 http_archive(
-    name = "bazel_skylib",
+    name = "bazel_skylib_local",
     strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
     url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
 )

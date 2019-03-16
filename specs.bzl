@@ -4,26 +4,27 @@
 #
 
 def _maven_repository(url, user = None, password = None):
-    """
-    Generates the data map for a Maven repository specifier given the available information. If both a user
-    and password are given as arguments, it will include the access credentials in the repository spec. If one or
-    both are missing, it will just generate the repository url.
+    """Generates the data map for a Maven repository specifier given the available information.
+
+    If both a user and password are given as arguments, it will include the
+    access credentials in the repository spec. If one or both are missing, it
+    will just generate the repository url.
 
     Args:
-        url: *Required* A string containing the repository url (ex: `"https://maven.google.com/"`)
-        user: *Optional* A username for this Maven repository, if it requires authentication (ex: `"bob"`)
-        password: *Optional* A password for this Maven repository, if it requires authentication (ex: `"l0bl4w"`)
-
-    Output Schema:
-        {
-            "repo_url": String
-            "credentials: Optional Map
-                {
-                    "username": String
-                    "password": String
-                }
-        }
+        url: A string containing the repository url (ex: `"https://maven.google.com/"`).
+        user: A username for this Maven repository, if it requires authentication (ex: `"bob"`).
+        password: A password for this Maven repository, if it requires authentication (ex: `"l0bl4w"`).
     """
+
+    # Output Schema:
+    #     {
+    #         "repo_url": String
+    #         "credentials: Optional Map
+    #             {
+    #                 "username": String
+    #                 "password": String
+    #             }
+    #     }
     if user == None and password == None:
         return { "repo_url": url }
     elif user == None or password == None:
@@ -33,30 +34,28 @@ def _maven_repository(url, user = None, password = None):
         return { "repo_url": url, "credentials": credentials }
 
 def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None):
-    """
-    Generates the data map for a Maven artifact given the available information about its coordinates.
+    """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
-        group: *Required* The Maven artifact coordinate group name (ex: `"com.google.guava"`)
-        artifact: *Required* The Maven artifact coordinate artifact name (ex: `"guava"`)
-        version: *Required* The Maven artifact coordinate version name (ex: `"27.0-jre"`)
-
-        packaging: *Optional* The Maven packaging specifier (ex: `"jar"`)
-        classifier: *Optional* The Maven artifact classifier (ex: `"javadoc"`)
-        override_license_types: *Optional* An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: `["notify"]`)
-        exclusions: *Optional* An array of exclusion objects to create exclusion specifiers for this artifact (ex: `maven.exclusion("junit", "junit")`)
-
-    Output Schema:
-        {
-            "group": String
-            "artifact": String
-            "version": String
-            "packaging": Optional String
-            "classifier": Optional String
-            "override_license_types": Optional Array of String
-            "exclusions": Optional Array of exclusions (see below)
-        }
+        group: The Maven artifact coordinate group name (ex: `"com.google.guava"`).
+        artifact: The Maven artifact coordinate artifact name (ex: `"guava"`).
+        version: The Maven artifact coordinate version name (ex: `"27.0-jre"`).
+        packaging: The Maven packaging specifier (ex: `"jar"`).
+        classifier: The Maven artifact classifier (ex: `"javadoc"`).
+        override_license_types: An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: `["notify"]`).
+        exclusions: An array of exclusion objects to create exclusion specifiers for this artifact (ex: `maven.exclusion("junit", "junit")`).
     """
+
+    # Output Schema:
+    #     {
+    #         "group": String
+    #         "artifact": String
+    #         "version": String
+    #         "packaging": Optional String
+    #         "classifier": Optional String
+    #         "override_license_types": Optional Array of String
+    #         "exclusions": Optional Array of exclusions (see below)
+    #     }
     maven_artifact = {}
     maven_artifact["group"] = group
     maven_artifact["artifact"] = artifact
@@ -74,19 +73,18 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
     return maven_artifact
 
 def _maven_exclusion(group, artifact):
-    """
-    Generates the data map for a Maven artifact exclusion.
+    """Generates the data map for a Maven artifact exclusion.
 
     Args:
-        group: *Required* The Maven artifact coordinate group name of the dependency to exclude (ex: `"com.google.guava"`)
-        artifact: *Required* The Maven artifact coordinate artifact name of the dependency to exclude (ex: `"guava"`)
-
-    Output Schema:
-        {
-            "group": String
-            "artifact": String
-        }
+        group: The Maven group name of the dependency to exclude, e.g. "com.google.guava".
+        artifact: The Maven artifact name of the dependency to exclude, e.g. "guava".
     """
+
+    # Output Schema:
+    # {
+    #     "group": String
+    #     "artifact": String
+    # }
     return { "group": group, "artifact": artifact }
 
 maven = struct(
@@ -158,8 +156,8 @@ parse = struct(
 
 def _repository_credentials_spec_to_json(credentials_spec):
     """
-    Given a repository credential spec or None, returns the json serialization of the object,
-    or None if the object wasn't given.
+    Given a repository credential spec or None, returns the json serialization of the object, or None if the object wasn't given.
+
     """
     if credentials_spec != None:
         return "{ \"user\": \"" + credentials_spec["user"] + "\", \"password\": \"" + credentials_spec["password"] + "\" }"

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_jvm_external//:coursier.bzl", "coursier_fetch")
-load("@rules_jvm_external//:specs.bzl", "maven", "parse", "json")
+load("//:coursier.bzl", "coursier_fetch")
+load("//:specs.bzl", "maven", "parse", "json")
 
 def gmaven_artifact(fqn):
   parts = fqn.split(":")
@@ -47,6 +47,21 @@ def maven_install(
         artifacts = [],
         fetch_sources = False,
         use_unsafe_shared_cache = False):
+    """Resolves and fetches artifacts transitively from Maven repositories.
+
+    This macro runs a repository rule that invokes the Coursier CLI to resolve
+    and fetch Maven artifacts transitively.
+
+    Args:
+      name: A unique name for this Bazel external repository.
+      repositories: A list of Maven repository URLs, specified in lookup order.
+
+        Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
+      artifacts: A list of Maven artifact coordinates in the form of `group-id:artifact-id:version`.
+      fetch_sources: Additionally fetch source JARs.
+      use_unsafe_shared_cache: Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is
+        currently unable to detect modifications to the cache.
+    """
 
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -65,6 +80,18 @@ def maven_install(
     )
 
 def artifact(a, repository_name = REPOSITORY_NAME):
+    """A helper macro to translate Maven coordinates into a Bazel target label.
+
+    For example:
+
+    `artifact("com.google.guava:guava")` translates into `@maven//:com_google_guava_guava`
+
+    `artifact("com.google.guava:guava", repository_name = "custom_maven")` translates into `@custom_maven//:com_google_guava_guava`
+
+    Args:
+      name: The coordinates of a Maven artifact in the form of `group:artifact`. The version is not needed.
+      repository_name: The name of the `maven_install` declaration in the WORKSPACE file containing this artifact.
+    """
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
     return "@%s//:%s" % (repository_name, _escape(artifact_obj["group"] + ":" + artifact_obj["artifact"]))
 
