@@ -295,7 +295,7 @@ def _coursier_fetch_impl(repository_ctx):
             fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
                  "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
                  "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
-        exec_result = repository_ctx.execute([bash])
+        repository_ctx.execute([bash])
 
     # Deserialize the spec blobs
     repositories = []
