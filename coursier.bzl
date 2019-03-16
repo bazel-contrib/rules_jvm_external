@@ -347,6 +347,8 @@ def _coursier_fetch_impl(repository_ctx):
     # to generate the repository's BUILD file.
     dep_tree_str = _cat_file(repository_ctx, "dep-tree.json")
     print(dep_tree_str)
+    dep_tree_str = _cat_file(repository_ctx, "dep-tree.json")
+    print(dep_tree_str)
     dep_tree = json_parse(dep_tree_str)
 
     srcs_dep_tree = None
