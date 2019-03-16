@@ -176,7 +176,7 @@ will just generate the repository url.
       <td>
         required.
         <p>
-          A string containing the repository url (ex: `"https://maven.google.com/"`).
+          A string containing the repository url (ex: "https://maven.google.com/").
         </p>
       </td>
     </tr>
@@ -185,7 +185,7 @@ will just generate the repository url.
       <td>
         optional. default is <code>None</code>
         <p>
-          A username for this Maven repository, if it requires authentication (ex: `"bob"`).
+          A username for this Maven repository, if it requires authentication (ex: "johndoe").
         </p>
       </td>
     </tr>
@@ -194,7 +194,7 @@ will just generate the repository url.
       <td>
         optional. default is <code>None</code>
         <p>
-          A password for this Maven repository, if it requires authentication (ex: `"l0bl4w"`).
+          A password for this Maven repository, if it requires authentication (ex: "example-password").
         </p>
       </td>
     </tr>
@@ -223,7 +223,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         required.
         <p>
-          The Maven artifact coordinate group name (ex: `"com.google.guava"`).
+          The Maven artifact coordinate group name (ex: "com.google.guava").
         </p>
       </td>
     </tr>
@@ -232,7 +232,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         required.
         <p>
-          The Maven artifact coordinate artifact name (ex: `"guava"`).
+          The Maven artifact coordinate artifact name (ex: "guava").
         </p>
       </td>
     </tr>
@@ -241,7 +241,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         required.
         <p>
-          The Maven artifact coordinate version name (ex: `"27.0-jre"`).
+          The Maven artifact coordinate version name (ex: "27.0-jre").
         </p>
       </td>
     </tr>
@@ -250,7 +250,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         optional. default is <code>None</code>
         <p>
-          The Maven packaging specifier (ex: `"jar"`).
+          The Maven packaging specifier (ex: "jar").
         </p>
       </td>
     </tr>
@@ -259,7 +259,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         optional. default is <code>None</code>
         <p>
-          The Maven artifact classifier (ex: `"javadoc"`).
+          The Maven artifact classifier (ex: "javadoc").
         </p>
       </td>
     </tr>
@@ -268,7 +268,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         optional. default is <code>None</code>
         <p>
-          An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: `["notify"]`).
+          An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: ["notify"]).
         </p>
       </td>
     </tr>
@@ -277,7 +277,7 @@ Generates the data map for a Maven artifact given the available information abou
       <td>
         optional. default is <code>None</code>
         <p>
-          An array of exclusion objects to create exclusion specifiers for this artifact (ex: `maven.exclusion("junit", "junit")`).
+          An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).
         </p>
       </td>
     </tr>

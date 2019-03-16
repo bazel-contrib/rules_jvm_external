@@ -11,9 +11,9 @@ def _maven_repository(url, user = None, password = None):
     will just generate the repository url.
 
     Args:
-        url: A string containing the repository url (ex: `"https://maven.google.com/"`).
-        user: A username for this Maven repository, if it requires authentication (ex: `"bob"`).
-        password: A password for this Maven repository, if it requires authentication (ex: `"l0bl4w"`).
+        url: A string containing the repository url (ex: "https://maven.google.com/").
+        user: A username for this Maven repository, if it requires authentication (ex: "johndoe").
+        password: A password for this Maven repository, if it requires authentication (ex: "example-password").
     """
 
     # Output Schema:
@@ -37,13 +37,13 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
     """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
-        group: The Maven artifact coordinate group name (ex: `"com.google.guava"`).
-        artifact: The Maven artifact coordinate artifact name (ex: `"guava"`).
-        version: The Maven artifact coordinate version name (ex: `"27.0-jre"`).
-        packaging: The Maven packaging specifier (ex: `"jar"`).
-        classifier: The Maven artifact classifier (ex: `"javadoc"`).
-        override_license_types: An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: `["notify"]`).
-        exclusions: An array of exclusion objects to create exclusion specifiers for this artifact (ex: `maven.exclusion("junit", "junit")`).
+        group: The Maven artifact coordinate group name (ex: "com.google.guava").
+        artifact: The Maven artifact coordinate artifact name (ex: "guava").
+        version: The Maven artifact coordinate version name (ex: "27.0-jre").
+        packaging: The Maven packaging specifier (ex: "jar").
+        classifier: The Maven artifact classifier (ex: "javadoc").
+        override_license_types: An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: ["notify"]).
+        exclusions: An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).
     """
 
     # Output Schema:

@@ -229,8 +229,8 @@ maven_install(
     repositories = [
         maven.repository(
             "https://some.private.maven.re/po",
-            user = "bob",
-            password = "l0bl4w"
+            user = "johndoe",
+            password = "example-password"
         ),
         "https://repo1.maven.org/maven2",
         ...
