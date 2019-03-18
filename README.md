@@ -97,6 +97,10 @@ the artifact, which integrates with rules like [bazel-common's
 for generating POM files. See the [`pom_file_generation`
 example](examples/pom_file_generation/) for more information.
 
+## API Reference
+
+ You can find the complete API reference at [docs/api.md](docs/api.md).
+
 ## Advanced usage
 
 ### Using a persistent artifact cache
@@ -243,8 +247,8 @@ maven_install(
     repositories = [
         maven.repository(
             "https://some.private.maven.re/po",
-            user = "bob",
-            password = "l0bl4w"
+            user = "johndoe",
+            password = "example-password"
         ),
         "https://repo1.maven.org/maven2",
         ...
