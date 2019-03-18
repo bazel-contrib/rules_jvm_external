@@ -97,6 +97,10 @@ the artifact, which integrates with rules like [bazel-common's
 for generating POM files. See the [`pom_file_generation`
 example](examples/pom_file_generation/) for more information.
 
+## API Reference
+
+ You can find the complete API reference at [docs/api.md](docs/api.md).
+
 ## Advanced usage
 
 ### Using a persistent artifact cache
@@ -184,15 +188,12 @@ version conflicts that it cannot resolve. The two Guava targets can then be used
 in BUILD files like so:
 
 ```python
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 java_binary(
     name = "my_server_app",
     srcs = ...
     deps = [
         # a versionless alias to @server_app//:com_google_guava_guava_27_0_jre
         "@server_app//:com_google_guava_guava",
-        # or artifact("com.google.guava:guava", repository_name = "server_app")
     ]
 )
 
@@ -202,7 +203,6 @@ android_binary(
     deps = [
         # a versionless alias to @android_app//:com_google_guava_guava_27_0_android
         "@android_app//:com_google_guava_guava",
-        # or artifact("com.google.guava:guava", repository_name = "android_app")
     ]
 )
 ```
@@ -243,8 +243,8 @@ maven_install(
     repositories = [
         maven.repository(
             "https://some.private.maven.re/po",
-            user = "bob",
-            password = "l0bl4w"
+            user = "johndoe",
+            password = "example-password"
         ),
         "https://repo1.maven.org/maven2",
         ...

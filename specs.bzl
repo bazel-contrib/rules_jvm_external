@@ -11,8 +11,8 @@ def _maven_repository(url, user = None, password = None):
 
     Args:
         url: *Required* A string containing the repository url (ex: `"https://maven.google.com/"`)
-        user: *Optional* A username for this Maven repository, if it requires authentication (ex: `"bob"`)
-        password: *Optional* A password for this Maven repository, if it requires authentication (ex: `"l0bl4w"`)
+        user: *Optional* A username for this Maven repository, if it requires authentication (ex: `"johndoe"`)
+        password: *Optional* A password for this Maven repository, if it requires authentication (ex: `"example-password"`)
 
     Output Schema:
         {
