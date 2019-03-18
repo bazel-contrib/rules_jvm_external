@@ -55,25 +55,16 @@ maven_install(
 and use them directly in the BUILD file by specifying the versionless target alias label:
 
 ```python
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 android_library(
     name = "test_deps",
     exports = [
         "@maven//:androidx_test_espresso_espresso_core",
-        # or artifact("androidx.test.espresso:espresso-core"),
         "@maven//:junit_junit",
-        # or artifact("junit:junit"),
     ],
 )
 ```
 
-The `artifact` macro translates the artifact's `group-id:artifact:id` to the
-label of the versionless target. This target is an
-[alias](https://docs.bazel.build/versions/master/be/general.html#alias) that
-points to the `java_import`/`aar_import` target in the `@maven` repository,
-which includes the transitive dependencies specified in the top level artifact's
-POM file.
+### Generated targets
 
 For the `junit:junit` example, the following targets will be generated:
 
@@ -127,6 +118,27 @@ Bazel will not re-run the repository rule automatically.
 The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
 will create independent caches for each `maven_install` repository, located at
 `$(bazel info output_base)/external/@repository_name/v1`.
+
+### `artifact` helper macro
+
+The `artifact` macro translates the artifact's `group:artifact` coordinates to
+the label of the versionless target. This target is an
+[alias](https://docs.bazel.build/versions/master/be/general.html#alias) that
+points to the `java_import`/`aar_import` target in the `@maven` repository,
+which includes the transitive dependencies specified in the top level artifact's
+POM file.
+
+For example, `@maven//:junit_junit` is equivalent to `artifact("junit:junit")`.
+
+To use it, add the load statement to the top of your BUILD file:
+
+```python
+load("@rules_jvm_external//:defs.bzl", "artifact")
+```
+
+Note that usage of this macro makes BUILD file refactoring with tools like
+`buildozer` more difficult, because the macro hides the actual target label at
+the syntax level.
 
 ### Multiple `maven_install` declarations for isolated artifact version trees
 
