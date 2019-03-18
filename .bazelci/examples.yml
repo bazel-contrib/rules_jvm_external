@@ -64,15 +64,21 @@ tasks:
     working_directory: examples/android_kotlin_app
     build_targets:
     - "//:app"
+    test_targets:
+    - "//src:all"
   android-kotlin-macos:
     name: "Android Kotlin example"
     platform: macos
     working_directory: examples/android_kotlin_app
     build_targets:
     - "//:app"
+    test_targets:
+    - "//src:all"
   android-kotlin-windows:
     name: "Android Kotlin example"
     platform: windows
     working_directory: examples/android_kotlin_app
     build_targets:
     - "//:app"
+    test_targets:
+    - "//src:all"
