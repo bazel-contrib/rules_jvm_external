@@ -29,12 +29,12 @@ tasks:
     platform: macos
     working_directory: examples/android_instrumentation_test
     build_targets:
-    - "//src/test:greeter_app"
+    - "//src/main:greeter_app"
     - "//src/test:greeter_test_app"
   android-instrumentation-test-windows:
     name: "Android instrumentation test example"
     platform: windows
     working_directory: examples/android_instrumentation_test
     build_targets:
-    - "//src/test:greeter_app"
+    - "//src/main:greeter_app"
     - "//src/test:greeter_test_app"
