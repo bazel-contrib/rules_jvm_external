@@ -1,4 +1,4 @@
-load("@bazel_skylib_local//lib:unittest.bzl", "asserts", "unittest")
+load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("//:specs.bzl", "maven", "parse", "json", "utils")
 
 #
