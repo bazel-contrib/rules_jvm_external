@@ -1,12 +1,11 @@
 load("@bazel_common//tools/maven:pom_file.bzl", "pom_file")
-load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
     name = "my_library",
     srcs = ["java/com/example/bazel/Main.java"],
     deps = [
-        artifact("com.google.inject:guice"),
-        artifact("com.google.guava:guava"),
+        "@maven//:com_google_inject_guice",
+        "@maven//:com_google_guava_guava",
     ],
 )
 

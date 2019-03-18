@@ -9,13 +9,6 @@ target:
 
 ```
 $ bazel build //:my_library_pom
-INFO: Analysed target //:my_library_pom (13 packages loaded, 444 targets configured).
-INFO: Found 1 target...
-Target //:my_library_pom up-to-date:
-  bazel-bin/my_library_pom.xml
-INFO: Elapsed time: 8.301s, Critical Path: 0.01s
-INFO: 0 processes.
-INFO: Build completed successfully, 2 total actions
 ```
 
 The generated `my_library_pom.xml` will then contain the dependency nodes for
