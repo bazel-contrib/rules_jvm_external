@@ -485,7 +485,7 @@ def _coursier_fetch_impl(repository_ctx):
 coursier_fetch = repository_rule(
     attrs = {
         "_coursier": attr.label(default = "//:third_party/coursier/coursier"),  # vendor coursier, it's just a jar
-        "_no_ijar_java_import": attr.label(default = "//:private/no_ijar_java_import.bzl"),  # vendor coursier, it's just a jar
+        "_no_ijar_java_import": attr.label(default = "//:private/no_ijar_java_import.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_android_library", "kt_jvm_test")
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_android_library")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 kt_android_library(
@@ -17,14 +17,4 @@ kt_android_library(
         "@maven//:androidx_lifecycle_lifecycle_viewmodel",
     ],
     visibility = ["//:__pkg__"]
-)
-
-kt_jvm_test(
-    name = "inline_function_test",
-    srcs = ["javatests/com/example/bazel/InlineFunctionTest.kt"],
-    test_class = "com.example.bazel.InlineFunctionTest",
-    deps = [
-        "@maven//:junit_junit",
-        "@maven//:org_jetbrains_kotlin_kotlin_test",
-    ]
 )
