@@ -47,7 +47,12 @@ def _is_macos(repository_ctx):
     return repository_ctx.os.name.find("mac") != -1
 
 def _contains_kotlin_module(repository_ctx, artifact_relative_path):
-    exec_result = repository_ctx.execute(["jar", "tf", artifact_relative_path])
+    java_home = repository_ctx.os.environ.get("JAVA_HOME")
+    if java_home != None:
+      jar = repository_ctx.path(java_home + "/bin/jar")
+    else:
+      jar = repository_ctx.which("jar") or "jar"
+    exec_result = repository_ctx.execute([jar, "tf", artifact_relative_path])
     if exec_result.return_code != 0:
         fail("Error trying to read the contents of " + artifact_relative_path)
     return exec_result.stdout.find("kotlin_module") != -1
