@@ -70,9 +70,12 @@ tasks:
     working_directory: examples/android_kotlin_app
     build_targets:
     - "//:app"
-  android-kotlin-windows:
-    name: "Android Kotlin example"
-    platform: windows
-    working_directory: examples/android_kotlin_app
-    build_targets:
-    - "//:app"
+  # rules_kotlin does not work on Windows.
+  # https://github.com/bazelbuild/rules_kotlin/issues/179
+  # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
+  # android-kotlin-windows:
+  #   name: "Android Kotlin example"
+  #   platform: windows
+  #   working_directory: examples/android_kotlin_app
+  #   build_targets:
+  #   - "//:app"
