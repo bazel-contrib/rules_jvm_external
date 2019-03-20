@@ -24,7 +24,7 @@ package(default_visibility = ["//visibility:public"])
 # download them if it's not asked to to resolve "eclipse-plugin".
 #
 # Also see: https://github.com/bazelbuild/rules_jvm_external/issues/74
-_COURSIER_ARTIFACT_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
+_COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
 
 # Super hacky :(
 def _strip_packaging_and_classifier(coord):
@@ -245,22 +245,37 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                     # If this artifact depends on the missing artifact,
                     if coord == artifact["coord"]:
                         # This artifact is an rdep :-)
-                        reverse_deps.append(maybe_rdep["coord"])
+                        reverse_deps.append(maybe_rdep)
+
+            reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
+            reverse_dep_pom_paths = [
+                repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
+                for reverse_dep in reverse_deps]
 
             error_message = """
-The artifact for {artifact} was not downloaded. Perhaps its packaging type is not one of: {packaging_types}?
+The artifact for {artifact} was not downloaded. Perhaps its packaging type is
+not one of: {packaging_types}?
 
-These artifact(s) depend on {artifact}:
+It is also possible that the packaging type of {artifact} is specified
+incorrectly in the POM file of an artifact that depends on it. For example,
+{artifact} may be an AAR, but the dependent's POM file specified its `<type>`
+value to be a JAR.
 
-{reverse_deps}
+The artifact(s) depending on {artifact} are:
 
-It is also possible that the type of {artifact} is specified incorrectly in the POM file of the artifact that depends on it. For example, {artifact} may be an AAR, but the dependent's POM file specified its `<type>` value to be a JAR.
+{reverse_dep_coords}
 
-Parsed artifact data: {parsed_artifact}
-            """.format(
+and their POM files are located at:
+
+{reverse_dep_pom_paths}
+
+---
+
+Parsed artifact data: {parsed_artifact}""".format(
                 artifact = artifact["coord"],
-                packaging_types = ",".join(_COURSIER_ARTIFACT_TYPES),
-                reverse_deps = "\n".join(reverse_deps),
+                packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
+                reverse_dep_coords = "\n".join(reverse_dep_coords),
+                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
                 parsed_artifact = repr(artifact),
             )
 
@@ -362,7 +377,7 @@ def _coursier_fetch_impl(repository_ctx):
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
     cmd.extend(artifact_coordinates)
-    cmd.extend(["--artifact-type", ",".join(_COURSIER_ARTIFACT_TYPES)])
+    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES)])
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -394,7 +409,7 @@ def _coursier_fetch_impl(repository_ctx):
         cmd = _generate_coursier_command(repository_ctx)
         cmd.extend(["fetch"])
         cmd.extend(artifact_coordinates)
-        cmd.extend(["--artifact-type", ",".join(_COURSIER_ARTIFACT_TYPES + ["src"])])
+        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
         cmd.append("--quiet")
         cmd.append("--no-default")
         cmd.extend(["--sources", "true"])
