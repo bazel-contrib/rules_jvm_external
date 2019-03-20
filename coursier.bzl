@@ -208,7 +208,8 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
 
-            # 6. Finish the java_import rule. #
+            # 6. Finish the java_import rule.
+            #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library_1_3",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
@@ -239,13 +240,13 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             # Get the reverse deps of the missing artifact.
             reverse_deps = []
 
-            # For all potential artifacts, which may be an rdep,
+            # For all potential reverse dep artifacts,
             for maybe_rdep in dep_tree["dependencies"]:
                 # For all dependencies of this artifact,
                 for coord in maybe_rdep["dependencies"]:
                     # If this artifact depends on the missing artifact,
                     if coord == artifact["coord"]:
-                        # This artifact is an rdep :-)
+                        # Then this artifact is an rdep :-)
                         reverse_deps.append(maybe_rdep)
 
             reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
