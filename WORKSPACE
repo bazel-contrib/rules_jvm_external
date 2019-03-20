@@ -20,7 +20,6 @@ load("//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
-        "com.google.firebase:firebase-firestore:18.1.0",
         "androidx.test.espresso:espresso-core:3.1.1",
         "androidx.test.espresso:espresso-web:3.1.1",
         "androidx.test.ext:junit:1.1.0",
@@ -49,16 +48,6 @@ maven_install(
     name = "other_maven",
     artifacts = [
         "com.google.guava:guava:27.0-jre",
-    ],
-    fetch_sources = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-)
-
-maven_install(
-    name = "other_maven",
-    artifacts = [
     ],
     fetch_sources = True,
     repositories = [

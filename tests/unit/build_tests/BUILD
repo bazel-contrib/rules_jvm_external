@@ -4,6 +4,6 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 # project.
 
 build_test(
-    name = "org_pantsbuild_jarjar",
+    name = "all_artifacts",
     targets = ["@regression_testing//:org_pantsbuild_jarjar_1_6_6"],
 )
