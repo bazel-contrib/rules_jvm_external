@@ -238,6 +238,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
             # Get the reverse deps of the missing artifact.
             reverse_deps = []
+
             # For all potential artifacts, which may be an rdep,
             for maybe_rdep in dep_tree["dependencies"]:
                 # For all dependencies of this artifact,
@@ -250,7 +251,8 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
             reverse_dep_pom_paths = [
                 repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
-                for reverse_dep in reverse_deps]
+                for reverse_dep in reverse_deps
+            ]
 
             error_message = """
 The artifact for {artifact} was not downloaded. Perhaps its packaging type is
