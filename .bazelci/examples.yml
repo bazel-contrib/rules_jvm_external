@@ -5,36 +5,58 @@ tasks:
     platform: ubuntu1804
     working_directory: examples/simple
     build_targets:
-    - "..."
+      - "//..."
   simple-macos:
     name: "Simple example"
     platform: macos
     working_directory: examples/simple
     build_targets:
-    - "..."
+      - "//..."
   simple-windows:
     name: "Simple example"
     platform: windows
     working_directory: examples/simple
     build_targets:
-      - "..."
+      - "//..."
   android-instrumentation-test-linux:
     name: "Android instrumentation test example"
     platform: ubuntu1804
     working_directory: examples/android_instrumentation_test
     test_targets:
-    - "//src/test:greeter_test"
+      - "//src/test:greeter_test"
   android-instrumentation-test-macos:
     name: "Android instrumentation test example"
     platform: macos
     working_directory: examples/android_instrumentation_test
+    # Android instrumentation tests don't work on macOS yet.
     build_targets:
-    - "//src/main:greeter_app"
-    - "//src/test:greeter_test_app"
+      - "//src/main:greeter_app"
+      - "//src/test:greeter_test_app"
   android-instrumentation-test-windows:
     name: "Android instrumentation test example"
     platform: windows
     working_directory: examples/android_instrumentation_test
+    # Android instrumentation tests don't work on Windows yet.
     build_targets:
-    - "//src/main:greeter_app"
-    - "//src/test:greeter_test_app"
+      - "//src/main:greeter_app"
+      - "//src/test:greeter_test_app"
+  android-local-test-linux:
+    name: "Android Robolectric test example"
+    platform: ubuntu1804
+    working_directory: examples/android_local_test
+    test_targets:
+      - "//..."
+  android-local-test-macos:
+    name: "Android Robolectric test example"
+    platform: macos
+    working_directory: examples/android_local_test
+    test_targets:
+      - "//..."
+  android-local-test-windows:
+    name: "Android Robolectric test example"
+    platform: windows
+    working_directory: examples/android_local_test
+    # Testing Robolectric targets don't work on Windows yet.
+    # See https://github.com/bazelbuild/bazel/issues/7809
+    build_targets:
+      - "//..."
