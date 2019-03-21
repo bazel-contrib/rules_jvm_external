@@ -2,9 +2,10 @@
 
 Transitive Maven artifact resolver as a repository rule.
 
-> If you're looking for documentation on gmaven_rules, [go here](#deprecated-gmaven_rules).
+[![Build
+Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg)](https://buildkite.com/bazel/rules-jvm-external)
 
-[![Build Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg)](https://buildkite.com/bazel/rules-jvm-external) 
+> If you're looking for documentation on gmaven_rules, [go here](#deprecated-gmaven_rules).
 
 ## Features
 
