@@ -22,8 +22,6 @@ package(default_visibility = ["//visibility:public"])
 # Coursier uses these types to determine what files it should resolve and fetch.
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
-#
-# Also see: https://github.com/bazelbuild/rules_jvm_external/issues/74
 _COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
 
 # Super hacky :(
@@ -71,6 +69,20 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
         artifact_relative_path = "v1/" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
+
+# Get the reverse dependencies of an artifact from the Coursier parsed
+# dependency tree.
+def _get_reverse_deps(coord, dep_tree):
+  reverse_deps = []
+  # For all potential reverse dep artifacts,
+  for maybe_rdep in dep_tree["dependencies"]:
+      # For all dependencies of this artifact,
+      for maybe_rdep_coord in maybe_rdep["dependencies"]:
+          # If this artifact depends on the missing artifact,
+          if maybe_rdep_coord == coord:
+              # Then this artifact is an rdep :-)
+              reverse_deps.append(maybe_rdep)
+  return reverse_deps
 
 # Generate BUILD file with java_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
@@ -238,17 +250,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             # https://github.com/bazelbuild/rules_jvm_external/issues/74
 
             # Get the reverse deps of the missing artifact.
-            reverse_deps = []
-
-            # For all potential reverse dep artifacts,
-            for maybe_rdep in dep_tree["dependencies"]:
-                # For all dependencies of this artifact,
-                for coord in maybe_rdep["dependencies"]:
-                    # If this artifact depends on the missing artifact,
-                    if coord == artifact["coord"]:
-                        # Then this artifact is an rdep :-)
-                        reverse_deps.append(maybe_rdep)
-
+            reverse_deps = _get_reverse_deps(artifact["coord"], dep_tree)
             reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
             reverse_dep_pom_paths = [
                 repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
