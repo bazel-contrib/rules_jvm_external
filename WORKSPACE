@@ -89,12 +89,29 @@ maven_install(
     use_unsafe_shared_cache = True,
 )
 
-BAZEL_SKYLIB_TAG = "0.6.0"
+# These artifacts helped discover limitations by the Maven resolver. Each
+# artifact listed here *must have* an accompanying issue. We build_test these
+# targets to ensure that they remain supported by the rule.
+maven_install(
+    name = "regression_testing",
+    artifacts = [
+        # https://github.com/bazelbuild/rules_jvm_external/issues/74
+        "org.pantsbuild:jarjar:1.6.6",
+    ],
+    fetch_sources = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
 
+BAZEL_SKYLIB_TAG = "0.7.0"
 http_archive(
     name = "bazel_skylib",
     strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
     url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
+    sha256 = "2c62d8cd4ab1e65c08647eb4afe38f51591f43f7f0885e7769832fa137633dcb",
 )
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+bazel_skylib_workspace()
 
 # End test dependencies

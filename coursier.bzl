@@ -19,6 +19,11 @@ package(default_visibility = ["//visibility:public"])
 {imports}
 """
 
+# Coursier uses these types to determine what files it should resolve and fetch.
+# For example, some jars have the type "eclipse-plugin", and Coursier would not
+# download them if it's not asked to to resolve "eclipse-plugin".
+_COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
+
 # Super hacky :(
 def _strip_packaging_and_classifier(coord):
     return coord.replace(":jar:", ":").replace(":aar:", ":").replace(":sources:", ":")
@@ -64,6 +69,20 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
         artifact_relative_path = "v1/" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
+
+# Get the reverse dependencies of an artifact from the Coursier parsed
+# dependency tree.
+def _get_reverse_deps(coord, dep_tree):
+  reverse_deps = []
+  # For all potential reverse dep artifacts,
+  for maybe_rdep in dep_tree["dependencies"]:
+      # For all dependencies of this artifact,
+      for maybe_rdep_coord in maybe_rdep["dependencies"]:
+          # If this artifact depends on the missing artifact,
+          if maybe_rdep_coord == coord:
+              # Then this artifact is an rdep :-)
+              reverse_deps.append(maybe_rdep)
+  return reverse_deps
 
 # Generate BUILD file with java_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
@@ -225,10 +244,47 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
         elif artifact_path == None:
-            fail("The artifact for " +
-                 artifact["coord"] +
-                 " was not downloaded. Perhaps the packaging type is not one of: jar, aar, bundle?\n" +
-                 "Parsed artifact data:" + repr(artifact))
+            # Possible reasons that the artifact_path is None:
+            #
+            # https://github.com/bazelbuild/rules_jvm_external/issues/70
+            # https://github.com/bazelbuild/rules_jvm_external/issues/74
+
+            # Get the reverse deps of the missing artifact.
+            reverse_deps = _get_reverse_deps(artifact["coord"], dep_tree)
+            reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
+            reverse_dep_pom_paths = [
+                repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
+                for reverse_dep in reverse_deps
+            ]
+
+            error_message = """
+The artifact for {artifact} was not downloaded. Perhaps its packaging type is
+not one of: {packaging_types}?
+
+It is also possible that the packaging type of {artifact} is specified
+incorrectly in the POM file of an artifact that depends on it. For example,
+{artifact} may be an AAR, but the dependent's POM file specified its `<type>`
+value to be a JAR.
+
+The artifact(s) depending on {artifact} are:
+
+{reverse_dep_coords}
+
+and their POM files are located at:
+
+{reverse_dep_pom_paths}
+
+---
+
+Parsed artifact data: {parsed_artifact}""".format(
+                artifact = artifact["coord"],
+                packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
+                reverse_dep_coords = "\n".join(reverse_dep_coords),
+                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
+                parsed_artifact = repr(artifact),
+            )
+
+            fail(error_message)
 
     return ("\n".join(all_imports), checksums)
 
@@ -326,7 +382,7 @@ def _coursier_fetch_impl(repository_ctx):
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
     cmd.extend(artifact_coordinates)
-    cmd.extend(["--artifact-type", "jar,aar,bundle"])
+    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES)])
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -358,7 +414,7 @@ def _coursier_fetch_impl(repository_ctx):
         cmd = _generate_coursier_command(repository_ctx)
         cmd.extend(["fetch"])
         cmd.extend(artifact_coordinates)
-        cmd.extend(["--artifact-type", "jar,aar,bundle,src"])
+        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
         cmd.append("--quiet")
         cmd.append("--no-default")
         cmd.extend(["--sources", "true"])
