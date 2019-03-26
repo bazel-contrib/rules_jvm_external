@@ -17,7 +17,7 @@ load("//:specs.bzl", "parse", "utils")
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
 
-load("@{repository_name}//:no_ijar_java_import.bzl", "no_ijar_java_import")
+load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
 {imports}
 """
@@ -29,60 +29,49 @@ _COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
 
 # Super hacky :(
 def _strip_packaging_and_classifier(coord):
-    return coord.replace(":jar:", ":").replace(":aar:", ":").replace(":sources:", ":")
+  return coord.replace(":jar:", ":").replace(":aar:", ":").replace(":sources:", ":")
 
 def _strip_packaging_and_classifier_and_version(coord):
-    return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
+  return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
 
 def _escape(string):
-    return string.replace(".", "_").replace("-", "_").replace(":", "_").replace("/", "_").replace("[", "").replace("]", "").split(",")[0]
+  return string.replace(".", "_").replace("-", "_").replace(":", "_").replace("/", "_").replace("[", "").replace("]", "").split(",")[0]
 
 def _is_windows(repository_ctx):
-    return repository_ctx.os.name.find("windows") != -1
+  return repository_ctx.os.name.find("windows") != -1
 
 def _is_linux(repository_ctx):
-    return repository_ctx.os.name.find("linux") != -1
+  return repository_ctx.os.name.find("linux") != -1
 
 def _is_macos(repository_ctx):
-    return repository_ctx.os.name.find("mac") != -1
-
-def _contains_kotlin_module(repository_ctx, artifact_relative_path):
-    java_home = repository_ctx.os.environ.get("JAVA_HOME")
-    if java_home != None:
-      jar = repository_ctx.path(java_home + "/bin/jar")
-    else:
-      jar = repository_ctx.which("jar") or "jar"
-    exec_result = repository_ctx.execute([jar, "tf", artifact_relative_path])
-    if exec_result.return_code != 0:
-        fail("Error trying to read the contents of " + artifact_relative_path)
-    return exec_result.stdout.find("kotlin_module") != -1
+  return repository_ctx.os.name.find("mac") != -1
 
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
-    return path.replace("\\\\", "/")
+  return path.replace("\\\\", "/")
 
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
 def _relativize_and_symlink_file(repository_ctx, absolute_path):
-    # The path manipulation from here on out assumes *nix paths, not Windows.
-    # for artifact_absolute_path in artifact_absolute_paths:
-    #
-    # Also replace '\' with '/` to normalize windows paths to *nix style paths
-    # BUILD files accept only *nix paths, so we normalize them here.
-    #
-    # We assume that coursier uses the default cache location
-    # TODO(jin): allow custom cache locations
-    absolute_path_parts = _normalize_to_unix_path(absolute_path).split("v1/")
-    if len(absolute_path_parts) != 2:
-        fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
-    else:
-        # Make a symlink from the absolute path of the artifact to the relative
-        # path within the output_base/external.
-        artifact_relative_path = "v1/" + absolute_path_parts[1]
-        repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
-    return artifact_relative_path
+  # The path manipulation from here on out assumes *nix paths, not Windows.
+  # for artifact_absolute_path in artifact_absolute_paths:
+  #
+  # Also replace '\' with '/` to normalize windows paths to *nix style paths
+  # BUILD files accept only *nix paths, so we normalize them here.
+  #
+  # We assume that coursier uses the default cache location
+  # TODO(jin): allow custom cache locations
+  absolute_path_parts = _normalize_to_unix_path(absolute_path).split("v1/")
+  if len(absolute_path_parts) != 2:
+    fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
+  else:
+    # Make a symlink from the absolute path of the artifact to the relative
+    # path within the output_base/external.
+    artifact_relative_path = "v1/" + absolute_path_parts[1]
+    repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
+  return artifact_relative_path
 
 # Get the reverse dependencies of an artifact from the Coursier parsed
 # dependency tree.
@@ -168,16 +157,10 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             #
             packaging = artifact_relative_path.split(".").pop()
             if packaging == "jar":
-                # Check if this JAR contains a Kotlin module. If it does, use a
-                # version of java_import that does not invoke ijar. ijar
-                # removes Kotlin metadata on inlined functions aggressively,
-                # resulting in bad builds.
-                #
-                # See: https://github.com/bazelbuild/bazel/issues/4549
-                if _contains_kotlin_module(repository_ctx, artifact_relative_path):
-                    target_import_string = ["no_ijar_java_import("]
-                else:
-                    target_import_string = ["java_import("]
+                # Regular `java_import` invokes ijar on all JARs, causing some Scala and
+                # Kotlin compile interface JARs to be incorrect. We replace java_import
+                # with a simple jvm_import Starlark rule that skips ijar.
+                target_import_string = ["jvm_import("]
             elif packaging == "aar":
                 target_import_string = ["aar_import("]
             else:
@@ -312,117 +295,143 @@ Parsed artifact data: {parsed_artifact}""".format(
     return ("\n".join(all_imports), checksums)
 
 def _deduplicate_list(items):
-    seen_items = {}
-    unique_items = []
-    for item in items:
-        if item not in seen_items:
-            seen_items[item] = True
-            unique_items.append(item)
-    return unique_items
+  seen_items = {}
+  unique_items = []
+  for item in items:
+    if item not in seen_items:
+      seen_items[item] = True
+      unique_items.append(item)
+  return unique_items
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
 def _generate_coursier_command(repository_ctx):
-    coursier = repository_ctx.path(repository_ctx.attr._coursier)
-    java_home = repository_ctx.os.environ.get("JAVA_HOME")
+  coursier = repository_ctx.path(repository_ctx.attr._coursier)
+  java_home = repository_ctx.os.environ.get("JAVA_HOME")
 
-    if java_home != None:
-        # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
-        # The -noverify option seems to be required after the proguarding step
-        # of the main JAR of coursier.
-        java = repository_ctx.path(java_home + "/bin/java")
-        cmd = [java, "-noverify", "-jar", coursier]
-    elif repository_ctx.which("java") != None:
-        # Use 'java' from $PATH
-        cmd = [repository_ctx.which("java"), "-noverify", "-jar", coursier]
-    else:
-        # Try to execute coursier directly
-        cmd = [coursier]
+  if java_home != None:
+    # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
+    # The -noverify option seems to be required after the proguarding step
+    # of the main JAR of coursier.
+    java = repository_ctx.path(java_home + "/bin/java")
+    cmd = [java, "-noverify", "-jar", coursier]
+  elif repository_ctx.which("java") != None:
+    # Use 'java' from $PATH
+    cmd = [repository_ctx.which("java"), "-noverify", "-jar", coursier]
+  else:
+    # Try to execute coursier directly
+    cmd = [coursier]
 
-    return cmd
+  return cmd
 
 def _cat_file(repository_ctx, filepath):
-    if (_is_windows(repository_ctx)):
-        exec_result = repository_ctx.execute([
-            repository_ctx.os.environ.get("BAZEL_SH"),
-            "-lc",
-            "cat " + str(repository_ctx.path(filepath)),
-        ])
-    else:
-        exec_result = repository_ctx.execute([
-            repository_ctx.which("cat"),
-            repository_ctx.path(filepath),
-        ])
-    if (exec_result.return_code != 0):
-        fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
-    return exec_result.stdout
+  if (_is_windows(repository_ctx)):
+    exec_result = repository_ctx.execute([
+        repository_ctx.os.environ.get("BAZEL_SH"),
+        "-lc",
+        "cat " + str(repository_ctx.path(filepath)),
+    ])
+  else:
+    exec_result = repository_ctx.execute([
+        repository_ctx.which("cat"),
+        repository_ctx.path(filepath),
+    ])
+  if (exec_result.return_code != 0):
+    fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
+  return exec_result.stdout
 
 def _coursier_fetch_impl(repository_ctx):
-    # Try running coursier once
-    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
-    if exec_result.return_code != 0:
-        fail("Unable to run coursier: " + exec_result.stderr)
+  # Try running coursier once
+  exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
+  if exec_result.return_code != 0:
+    fail("Unable to run coursier: " + exec_result.stderr)
 
-    # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
-    # will not be around for long.
-    #
-    # On Windows, run msys once to bootstrap it
-    # https://github.com/bazelbuild/rules_jvm_external/issues/53
-    if (_is_windows(repository_ctx)):
-        bash = repository_ctx.os.environ.get("BAZEL_SH")
-        if (bash == None):
-            fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
-        repository_ctx.execute([bash, "-lc", "echo", "works"])
+  # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
+  # will not be around for long.
+  #
+  # On Windows, run msys once to bootstrap it
+  # https://github.com/bazelbuild/rules_jvm_external/issues/53
+  if (_is_windows(repository_ctx)):
+    bash = repository_ctx.os.environ.get("BAZEL_SH")
+    if (bash == None):
+      fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
+           "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+           "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+    repository_ctx.execute([bash, "-lc", "echo", "works"])
 
-    # Deserialize the spec blobs
-    repositories = []
-    for repository in repository_ctx.attr.repositories:
-        repositories.append(json_parse(repository))
+  # Deserialize the spec blobs
+  repositories = []
+  for repository in repository_ctx.attr.repositories:
+    repositories.append(json_parse(repository))
 
-    artifacts = []
-    for a in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(a))
+  artifacts = []
+  for a in repository_ctx.attr.artifacts:
+    artifacts.append(json_parse(a))
 
-    artifact_coordinates = []
+  artifact_coordinates = []
 
-    # Set up artifact exclusion, if any. From coursier fetch --help:
-    #
-    # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
-    # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
-    # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
-    # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
-    exclusion_lines = []
-    for a in artifacts:
-        artifact_coordinates.append(utils.artifact_coordinate(a))
-        if "exclusions" in a:
-            for e in a["exclusions"]:
-                exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
-                                       "--" +
-                                       ":".join([e["group"], e["artifact"]]))
+  # Set up artifact exclusion, if any. From coursier fetch --help:
+  #
+  # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
+  # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
+  # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
+  # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
+  exclusion_lines = []
+  for a in artifacts:
+    artifact_coordinates.append(utils.artifact_coordinate(a))
+    if "exclusions" in a:
+      for e in a["exclusions"]:
+        exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
+                               "--" +
+                               ":".join([e["group"], e["artifact"]]))
 
+  cmd = _generate_coursier_command(repository_ctx)
+  cmd.extend(["fetch"])
+  cmd.extend(artifact_coordinates)
+  cmd.extend(["--artifact-type", "jar,aar,bundle"])
+  cmd.append("--quiet")
+  cmd.append("--no-default")
+  cmd.extend(["--json-output-file", "dep-tree.json"])
+  if len(exclusion_lines) > 0:
+    repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
+    cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+  for repository in repositories:
+    cmd.extend(["--repository", utils.repo_url(repository)])
+  if not repository_ctx.attr.use_unsafe_shared_cache:
+    cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+  if _is_windows(repository_ctx):
+    # Unfortunately on Windows, coursier crashes while trying to acquire the
+    # cache's .structure.lock file while running in parallel. This does not
+    # happen on *nix.
+    cmd.extend(["--parallel", "1"])
+
+  repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
+  exec_result = repository_ctx.execute(cmd)
+  if (exec_result.return_code != 0):
+    fail("Error while fetching artifact with coursier: " + exec_result.stderr)
+
+  # Once coursier finishes a fetch, it generates a tree of artifacts and their
+  # transitive dependencies in a JSON file. We use that as the source of truth
+  # to generate the repository's BUILD file.
+  dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+
+  srcs_dep_tree = None
+  if repository_ctx.attr.fetch_sources:
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
     cmd.extend(artifact_coordinates)
     cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES)])
     cmd.append("--quiet")
     cmd.append("--no-default")
-    cmd.extend(["--json-output-file", "dep-tree.json"])
+    cmd.extend(["--sources", "true"])
+    cmd.extend(["--json-output-file", "src-dep-tree.json"])
     if len(exclusion_lines) > 0:
-        repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-        cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+      cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+      repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
     for repository in repositories:
-        cmd.extend(["--repository", utils.repo_url(repository)])
+      cmd.extend(["--repository", utils.repo_url(repository)])
     if not repository_ctx.attr.use_unsafe_shared_cache:
-        cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-    if _is_windows(repository_ctx):
-        # Unfortunately on Windows, coursier crashes while trying to acquire the
-        # cache's .structure.lock file while running in parallel. This does not
-        # happen on *nix.
-        cmd.extend(["--parallel", "1"])
-
-    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
+      cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
     exec_result = repository_ctx.execute(cmd)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
@@ -463,9 +472,9 @@ def _coursier_fetch_impl(repository_ctx):
     )
 
     repository_ctx.template(
-        "no_ijar_java_import.bzl",
-        repository_ctx.attr._no_ijar_java_import,
-        executable = False,
+        "jvm_import.bzl",
+        repository_ctx.attr._jvm_import,
+        executable=False,
     )
 
     repository_ctx.file(
@@ -488,15 +497,18 @@ def _coursier_fetch_impl(repository_ctx):
         }
 
 coursier_fetch = repository_rule(
-    attrs = {
-        "_coursier": attr.label(default = "//:third_party/coursier/coursier"),  # vendor coursier, it's just a jar
-        "_no_ijar_java_import": attr.label(default = "//:private/no_ijar_java_import.bzl"),
-        "repositories": attr.string_list(),  # list of repository objects, each as json
-        "artifacts": attr.string_list(),  # list of artifact objects, each as json
-        "fetch_sources": attr.bool(default = False),
-        "use_unsafe_shared_cache": attr.bool(default = False),
-        "_verify_checksums": attr.bool(default = False),
+    attrs={
+        "_coursier": attr.label(default="//:third_party/coursier/coursier"
+                               ),  # vendor coursier, it's just a jar
+        "_jvm_import": attr.label(default="//:private/jvm_import.bzl"),
+        "repositories":
+            attr.string_list(),  # list of repository objects, each as json
+        "artifacts":
+            attr.string_list(),  # list of artifact objects, each as json
+        "fetch_sources": attr.bool(default=False),
+        "use_unsafe_shared_cache": attr.bool(default=False),
+        "_verify_checksums": attr.bool(default=False),
     },
-    environ = ["JAVA_HOME"],
-    implementation = _coursier_fetch_impl,
+    environ=["JAVA_HOME"],
+    implementation=_coursier_fetch_impl,
 )
