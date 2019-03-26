@@ -6,8 +6,6 @@ platforms:
     - ./tests/integration/simple_integration_test.sh
     - ./tests/integration/artifact_exclusions_integration_test.sh
     - ./tests/integration/unsafe_shared_cache_integration_test.sh
-    build_targets:
-    - "//examples:app"
     test_targets:
     - "//..."
   ubuntu1604:
@@ -15,8 +13,6 @@ platforms:
     - ./tests/integration/simple_integration_test.sh
     - ./tests/integration/artifact_exclusions_integration_test.sh
     - ./tests/integration/unsafe_shared_cache_integration_test.sh
-    build_targets:
-    - "//examples:app"
     test_targets:
     - "//..."
   ubuntu1804:
@@ -24,16 +20,13 @@ platforms:
     - ./tests/integration/simple_integration_test.sh
     - ./tests/integration/artifact_exclusions_integration_test.sh
     - ./tests/integration/unsafe_shared_cache_integration_test.sh
-    build_targets:
-    - "//examples:app"
     test_targets:
     - "//..."
   macos:
-    build_targets:
+    # build_targets:
     # TODO(jin): Fix concurrent download failure on macOS
     # https://github.com/bazelbuild/rules_jvm_external/issues/54
     # - "//tests/integration:all"
-    - "//examples:app"
     test_targets:
     - "//..."
   windows:
