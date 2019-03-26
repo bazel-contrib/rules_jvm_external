@@ -39,10 +39,10 @@ def gmaven_artifact(fqn):
 def escape(string):
   return string.replace(".", "_").replace("-", "_")
 
-REPOSITORY_NAME = "maven"
+DEFAULT_REPOSITORY_NAME = "maven"
 
 def maven_install(
-        name = REPOSITORY_NAME,
+        name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
         artifacts = [],
         fetch_sources = False,
@@ -64,12 +64,12 @@ def maven_install(
         use_unsafe_shared_cache = use_unsafe_shared_cache,
     )
 
-def artifact(a, repository_name = REPOSITORY_NAME):
+def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
     return "@%s//:%s" % (repository_name, _escape(artifact_obj["group"] + ":" + artifact_obj["artifact"]))
 
 def maven_artifact(a):
-    return artifact(a, repository_name = REPOSITORY_NAME)
+    return artifact(a, repository_name = DEFAULT_REPOSITORY_NAME)
 
 def _escape(string):
     return string.replace(".", "_").replace("-", "_").replace(":", "_")
