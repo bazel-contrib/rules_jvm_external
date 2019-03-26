@@ -35,11 +35,7 @@ platforms:
     # - "//tests/integration:all"
     - "//examples:app"
     test_targets:
-    - "--"
     - "//tests/unit/..."
-    # TODO(jin): Concurrent download problems on macOS
-    # https://github.com/bazelbuild/rules_jvm_external/issues/54
-    - "-//tests/unit/kotlin/..."
   windows:
     # build_targets:
     # TODO(jin): Fix JSON parsing error on Windows
