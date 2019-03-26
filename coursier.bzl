@@ -449,7 +449,8 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.template(
         "jvm_import.bzl",
         repository_ctx.attr._jvm_import,
-        False,  # not executable
+        substitutions = {},
+        executable = False,  # not executable
     )
 
     repository_ctx.file(
