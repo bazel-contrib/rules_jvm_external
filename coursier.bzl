@@ -389,7 +389,7 @@ def _coursier_fetch_impl(repository_ctx):
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
     cmd.extend(artifact_coordinates)
-    cmd.extend(["--artifact-type", "jar,aar,bundle"])
+    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -421,7 +421,7 @@ def _coursier_fetch_impl(repository_ctx):
         cmd = _generate_coursier_command(repository_ctx)
         cmd.extend(["fetch"])
         cmd.extend(artifact_coordinates)
-        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES)])
+        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
         cmd.append("--quiet")
         cmd.append("--no-default")
         cmd.extend(["--sources", "true"])
@@ -435,67 +435,41 @@ def _coursier_fetch_impl(repository_ctx):
             cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
-            fail("Error while fetching artifact with coursier: " + exec_result.stderr)
+            fail("Error while fetching artifact sources with coursier: " +
+                 exec_result.stderr)
+        srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
 
-        # Once coursier finishes a fetch, it generates a tree of artifacts and their
-        # transitive dependencies in a JSON file. We use that as the source of truth
-        # to generate the repository's BUILD file.
-        dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+    repository_ctx.report_progress("Generating BUILD targets..")
+    (generated_imports, checksums) = generate_imports(
+        repository_ctx = repository_ctx,
+        dep_tree = dep_tree,
+        srcs_dep_tree = srcs_dep_tree,
+    )
 
-        srcs_dep_tree = None
-        if repository_ctx.attr.fetch_sources:
-            cmd = _generate_coursier_command(repository_ctx)
-            cmd.extend(["fetch"])
-            cmd.extend(artifact_coordinates)
-            cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
-            cmd.append("--quiet")
-            cmd.append("--no-default")
-            cmd.extend(["--sources", "true"])
-            cmd.extend(["--json-output-file", "src-dep-tree.json"])
-            if len(exclusion_lines) > 0:
-                cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-                repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-            for repository in repositories:
-                cmd.extend(["--repository", utils.repo_url(repository)])
-            if not repository_ctx.attr.use_unsafe_shared_cache:
-                cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-            exec_result = repository_ctx.execute(cmd)
-            if (exec_result.return_code != 0):
-                fail("Error while fetching artifact sources with coursier: " +
-                     exec_result.stderr)
-            srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
+    repository_ctx.template(
+        "jvm_import.bzl",
+        repository_ctx.attr._jvm_import,
+        False,  # not executable
+    )
 
-        repository_ctx.report_progress("Generating BUILD targets..")
-        (generated_imports, checksums) = generate_imports(
-            repository_ctx = repository_ctx,
-            dep_tree = dep_tree,
-            srcs_dep_tree = srcs_dep_tree,
-        )
+    repository_ctx.file(
+        "BUILD",
+        _BUILD.format(
+            repository_name = repository_ctx.name,
+            imports = generated_imports,
+        ),
+        False,  # not executable
+    )
 
-        repository_ctx.template(
-            "jvm_import.bzl",
-            repository_ctx.attr._jvm_import,
-            executable = False,
-        )
-
-        repository_ctx.file(
-            "BUILD",
-            _BUILD.format(
-                repository_name = repository_ctx.name,
-                imports = generated_imports,
-            ),
-            False,  # not executable
-        )
-
-        # Disable repository resolution behind a private feature flag
-        if repository_ctx.attr._verify_checksums:
-            return {
-                "name": repository_ctx.attr.name,
-                "repositories": repository_ctx.attr.repositories,
-                "artifacts": repository_ctx.attr.artifacts,
-                "fetch_sources": repository_ctx.attr.fetch_sources,
-                "checksums": checksums,
-            }
+    # Disable repository resolution behind a private feature flag
+    if repository_ctx.attr._verify_checksums:
+        return {
+            "name": repository_ctx.attr.name,
+            "repositories": repository_ctx.attr.repositories,
+            "artifacts": repository_ctx.attr.artifacts,
+            "fetch_sources": repository_ctx.attr.fetch_sources,
+            "checksums": checksums,
+        }
 
 coursier_fetch = repository_rule(
     attrs = {
