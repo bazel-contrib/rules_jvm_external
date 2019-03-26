@@ -5,14 +5,11 @@ set -euo pipefail
 # Replace the load statements
 find ./ -type f -name BUILD* -exec sed -i 's/gmaven_rules/rules_jvm_external/g' {} \;
 
-# Replace the loaded gmaven_artifact symbol with maven_artifact
-find ./ -type f -name BUILD* -exec sed -i 's/"gmaven_artifact"/maven_artifact = "artifact"/g' {} \;
-
-# Replace the gmaven_artifact macro with maven_artifact
-find ./ -type f -name BUILD* -exec sed -i 's/gmaven_artifact(/maven_artifact(/g' {} \;
-
 # Remove the explicit packaging type from the coordinates
-find ./ -type f -name BUILD* -exec sed -i '/maven_artifact(/s/:aar//g; /maven_artifact(/s/:jar//g;' {} \;
+find ./ -type f -name BUILD* -exec sed -i '/gmaven_artifact(/s/:aar//g; /gmaven_artifact(/s/:jar//g;' {} \;
+
+# Replace all occurrences of gmaven_artifact with artifact
+find ./ -type f -name BUILD* -exec sed -i 's/gmaven_artifact(/artifact(/g' {} \;
 
 echo ""
 echo "Paste this into your WORKSPACE file:"
@@ -66,3 +63,5 @@ EOF
 
 echo ""
 echo "-------------------------"
+echo ""
+echo "Note that gmaven_rules only handled artifacts hosted on Google Maven, so you may need to add more repositories into `maven_install.repositories`."
