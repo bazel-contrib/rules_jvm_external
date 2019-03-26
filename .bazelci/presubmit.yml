@@ -9,7 +9,7 @@ platforms:
     build_targets:
     - "//examples:app"
     test_targets:
-    - "//tests/unit/..."
+    - "//..."
   ubuntu1604:
     shell_commands:
     - ./tests/integration/simple_integration_test.sh
@@ -18,7 +18,7 @@ platforms:
     build_targets:
     - "//examples:app"
     test_targets:
-    - "//tests/unit/..."
+    - "//..."
   ubuntu1804:
     shell_commands:
     - ./tests/integration/simple_integration_test.sh
@@ -27,7 +27,7 @@ platforms:
     build_targets:
     - "//examples:app"
     test_targets:
-    - "//tests/unit/..."
+    - "//..."
   macos:
     build_targets:
     # TODO(jin): Fix concurrent download failure on macOS
@@ -35,7 +35,7 @@ platforms:
     # - "//tests/integration:all"
     - "//examples:app"
     test_targets:
-    - "//tests/unit/..."
+    - "//..."
   windows:
     # build_targets:
     # TODO(jin): Fix JSON parsing error on Windows
@@ -44,4 +44,4 @@ platforms:
     # TODO(jin): fix long paths issue on Windows
     # - "//examples:app"
     test_targets:
-    - "//tests/unit/..."
+    - "//..."
