@@ -89,17 +89,6 @@ maven_install(
     use_unsafe_shared_cache = True,
 )
 
-maven_install(
-    name = "kotlin_tests",
-    artifacts = [
-        "junit:junit:4.12",
-        "org.jetbrains.kotlin:kotlin-test:1.3.21",
-    ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-)
-
 # These artifacts helped discover limitations by the Maven resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.
@@ -108,6 +97,9 @@ maven_install(
     artifacts = [
         # https://github.com/bazelbuild/rules_jvm_external/issues/74
         "org.pantsbuild:jarjar:1.6.6",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/59
+        "junit:junit:4.12",
+        "org.jetbrains.kotlin:kotlin-test:1.3.21",
     ],
     fetch_sources = True,
     repositories = [
