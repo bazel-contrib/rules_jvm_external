@@ -38,8 +38,6 @@ tasks:
     working_directory: examples/android_instrumentation_test
     # Android instrumentation tests don't work on Windows yet.
     build_targets:
-      - "//src/main:greeter_app"
-      - "//src/test:greeter_test_app"
   android-local-test-linux:
     name: "Android Robolectric test example"
     platform: ubuntu1804
@@ -60,3 +58,24 @@ tasks:
     # See https://github.com/bazelbuild/bazel/issues/7809
     build_targets:
       - "//..."
+  android-kotlin-linux:
+    name: "Android Kotlin example"
+    platform: ubuntu1804
+    working_directory: examples/android_kotlin_app
+    build_targets:
+    - "//:app"
+  android-kotlin-macos:
+    name: "Android Kotlin example"
+    platform: macos
+    working_directory: examples/android_kotlin_app
+    build_targets:
+    - "//:app"
+  # rules_kotlin does not work on Windows.
+  # https://github.com/bazelbuild/rules_kotlin/issues/179
+  # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
+  # android-kotlin-windows:
+  #   name: "Android Kotlin example"
+  #   platform: windows
+  #   working_directory: examples/android_kotlin_app
+  #   build_targets:
+  #   - "//:app"

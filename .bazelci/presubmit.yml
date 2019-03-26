@@ -44,4 +44,9 @@ platforms:
     # TODO(jin): fix long paths issue on Windows
     # - "//examples:app"
     test_targets:
+    - "--"
     - "//tests/unit/..."
+    # rules_kotlin is not tested / does not work on Windows.
+    # https://github.com/bazelbuild/rules_kotlin/issues/179
+    # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
+    - "-//tests/unit/kotlin/..."

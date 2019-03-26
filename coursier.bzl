@@ -16,6 +16,9 @@ load("//:specs.bzl", "parse", "utils")
 
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
+
+load("@{repository_name}//:jvm_import.bzl", "jvm_import")
+
 {imports}
 """
 
@@ -73,16 +76,17 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
 # Get the reverse dependencies of an artifact from the Coursier parsed
 # dependency tree.
 def _get_reverse_deps(coord, dep_tree):
-  reverse_deps = []
-  # For all potential reverse dep artifacts,
-  for maybe_rdep in dep_tree["dependencies"]:
-      # For all dependencies of this artifact,
-      for maybe_rdep_coord in maybe_rdep["dependencies"]:
-          # If this artifact depends on the missing artifact,
-          if maybe_rdep_coord == coord:
-              # Then this artifact is an rdep :-)
-              reverse_deps.append(maybe_rdep)
-  return reverse_deps
+    reverse_deps = []
+
+    # For all potential reverse dep artifacts,
+    for maybe_rdep in dep_tree["dependencies"]:
+        # For all dependencies of this artifact,
+        for maybe_rdep_coord in maybe_rdep["dependencies"]:
+            # If this artifact depends on the missing artifact,
+            if maybe_rdep_coord == coord:
+                # Then this artifact is an rdep :-)
+                reverse_deps.append(maybe_rdep)
+    return reverse_deps
 
 # Generate BUILD file with java_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
@@ -154,7 +158,10 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             #
             packaging = artifact_relative_path.split(".").pop()
             if packaging == "jar":
-                target_import_string = ["java_import("]
+                # Regular `java_import` invokes ijar on all JARs, causing some Scala and
+                # Kotlin compile interface JARs to be incorrect. We replace java_import
+                # with a simple jvm_import Starlark rule that skips ijar.
+                target_import_string = ["jvm_import("]
             elif packaging == "aar":
                 target_import_string = ["aar_import("]
             else:
@@ -382,7 +389,7 @@ def _coursier_fetch_impl(repository_ctx):
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
     cmd.extend(artifact_coordinates)
-    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES)])
+    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -439,9 +446,19 @@ def _coursier_fetch_impl(repository_ctx):
         srcs_dep_tree = srcs_dep_tree,
     )
 
+    repository_ctx.template(
+        "jvm_import.bzl",
+        repository_ctx.attr._jvm_import,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
     repository_ctx.file(
         "BUILD",
-        _BUILD.format(imports = generated_imports),
+        _BUILD.format(
+            repository_name = repository_ctx.name,
+            imports = generated_imports,
+        ),
         False,  # not executable
     )
 
@@ -457,7 +474,10 @@ def _coursier_fetch_impl(repository_ctx):
 
 coursier_fetch = repository_rule(
     attrs = {
-        "_coursier": attr.label(default = "//:third_party/coursier/coursier"),  # vendor coursier, it's just a jar
+        "_coursier": attr.label(
+            default = "//:third_party/coursier/coursier",
+        ),  # vendor coursier, it's just a jar
+        "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
