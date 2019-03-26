@@ -308,15 +308,48 @@ def _generate_coursier_command(repository_ctx):
         # The -noverify option seems to be required after the proguarding step
         # of the main JAR of coursier.
         java = repository_ctx.path(java_home + "/bin/java")
-        cmd = [java, "-noverify", "-jar", coursier]
+        cmd = [java, "-noverify", "-jar"] + _get_java_proxy_args(repository_ctx) + [coursier]
     elif repository_ctx.which("java") != None:
         # Use 'java' from $PATH
-        cmd = [repository_ctx.which("java"), "-noverify", "-jar", coursier]
+        cmd = [repository_ctx.which("java"), "-noverify", "-jar"] + _get_java_proxy_args(repository_ctx) + [coursier]
     else:
         # Try to execute coursier directly
-        cmd = [coursier]
+        cmd = [coursier] + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
 
     return cmd
+
+# Extract the well-known environment variables http_proxy, https_proxy and
+# no_proxy and convert them to java.net-compatible property arguments.
+def _get_java_proxy_args(repository_ctx):
+    # Check both lower- and upper-case versions of the environment variables, preferring the former
+    http_proxy = repository_ctx.os.environ.get("http_proxy", repository_ctx.os.environ.get("HTTP_PROXY"))
+    https_proxy = repository_ctx.os.environ.get("https_proxy", repository_ctx.os.environ.get("HTTPS_PROXY"))
+    no_proxy = repository_ctx.os.environ.get("no_proxy", repository_ctx.os.environ.get("NO_PROXY"))
+
+    proxy_args = []
+
+    # Extract the host and port from a standard proxy URL:
+    # http://proxy.example.com:3128 -> ["proxy.example.com", "3128"]
+    if http_proxy != None:
+        proxy = http_proxy.split("://", 1)[1].split(":", 1)
+        proxy_args.extend([
+            "-Dhttp.proxyHost=%s" % proxy[0],
+            "-Dhttp.proxyPort=%s" % proxy[1],
+        ])
+
+    if https_proxy != None:
+        proxy = https_proxy.split("://", 1)[1].split(":", 1)
+        proxy_args.extend([
+            "-Dhttps.proxyHost=%s" % proxy[0],
+            "-Dhttps.proxyPort=%s" % proxy[1],
+        ])
+
+    # Convert no_proxy-style exclusions, including base domain matching, into java.net nonProxyHosts:
+    # localhost,example.com,foo.example.com,.otherexample.com -> "localhost|example.com|foo.example.com|*.otherexample.com"
+    if no_proxy != None:
+        proxy_args.append("-Dhttp.nonProxyHosts=%s" % no_proxy.replace(",", "|").replace("|.", "|*."))
+
+    return proxy_args
 
 def _cat_file(repository_ctx, filepath):
     if (_is_windows(repository_ctx)):
@@ -464,6 +497,14 @@ coursier_fetch = repository_rule(
         "use_unsafe_shared_cache": attr.bool(default = False),
         "_verify_checksums": attr.bool(default = False),
     },
-    environ = ["JAVA_HOME"],
+    environ = [
+        "JAVA_HOME",
+        "http_proxy",
+        "HTTP_PROXY",
+        "https_proxy",
+        "HTTPS_PROXY",
+        "no_proxy",
+        "NO_PROXY",
+    ],
     implementation = _coursier_fetch_impl,
 )

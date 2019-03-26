@@ -292,6 +292,12 @@ maven_install(
 You can specify the exclusion using either the `maven.exclusion` helper or the
 `group-id:artifact-id` string directly.
 
+### Proxies
+
+As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`
+and `no_proxy` environment variables (and their uppercase counterparts) are
+supported.
+
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
