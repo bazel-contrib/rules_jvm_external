@@ -38,6 +38,8 @@ tasks:
     working_directory: examples/android_instrumentation_test
     # Android instrumentation tests don't work on Windows yet.
     build_targets:
+      - "//src/main:greeter_app"
+      - "//src/test:greeter_test_app"
   android-local-test-linux:
     name: "Android Robolectric test example"
     platform: ubuntu1804
