@@ -6,6 +6,7 @@ http_archive(
     name = "robolectric",
     urls = ["https://github.com/robolectric/robolectric-bazel/archive/4.1.tar.gz"],
     strip_prefix = "robolectric-bazel-4.1",
+    sha256 = "2ee850ca521288db72b0dedb9ecbda55b64d11c470435a882f8daf615091253d",
 )
 load("@robolectric//bazel:robolectric.bzl", "robolectric_repositories")
 robolectric_repositories()
