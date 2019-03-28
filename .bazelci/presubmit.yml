@@ -2,37 +2,21 @@
 platforms:
   ubuntu1404:
     # TODO(jingwen): switch these to sh_test and port them to macos and windows
-    shell_commands:
-    - ./tests/integration/simple_integration_test.sh
-    - ./tests/integration/artifact_exclusions_integration_test.sh
-    - ./tests/integration/unsafe_shared_cache_integration_test.sh
     test_targets:
-    - "//tests/unit/..."
+    - "//tests/..."
   ubuntu1604:
-    shell_commands:
-    - ./tests/integration/simple_integration_test.sh
-    - ./tests/integration/artifact_exclusions_integration_test.sh
-    - ./tests/integration/unsafe_shared_cache_integration_test.sh
     test_targets:
-    - "//tests/unit/..."
+    - "//tests/..."
   ubuntu1804:
-    shell_commands:
-    - ./tests/integration/simple_integration_test.sh
-    - ./tests/integration/artifact_exclusions_integration_test.sh
-    - ./tests/integration/unsafe_shared_cache_integration_test.sh
     test_targets:
-    - "//tests/unit/..."
+    - "//tests/..."
   macos:
     test_targets:
-    - "//tests/unit/..."
+    - "//tests/..."
   windows:
-    # build_targets:
-    # TODO(jin): Fix JSON parsing error on Windows
-    # https://github.com/bazelbuild/rules_jvm_external/issues/53
-    # - "//tests/integration:all"
     test_targets:
     - "--"
-    - "//tests/unit/..."
+    - "//tests/..."
     # rules_kotlin is not tested / does not work on Windows.
     # https://github.com/bazelbuild/rules_kotlin/issues/179
     # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
