@@ -13,6 +13,10 @@
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "parse", "utils")
+load("//:private/versions.bzl",
+     "COURSIER_CLI_MAVEN_PATH",
+     "COURSIER_CLI_SHA256",
+)
 
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
@@ -307,7 +311,7 @@ def _deduplicate_list(items):
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
 def _generate_coursier_command(repository_ctx):
-    coursier = repository_ctx.path(repository_ctx.attr._coursier)
+    coursier = repository_ctx.path("coursier")
     java_home = repository_ctx.os.environ.get("JAVA_HOME")
 
     if java_home != None:
@@ -375,6 +379,12 @@ def _cat_file(repository_ctx, filepath):
     return exec_result.stdout
 
 def _coursier_fetch_impl(repository_ctx):
+    # Download Coursier's standalone (deploy) jar from Maven repositories.
+    repository_ctx.download([
+        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
+        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH
+    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+
     # Try running coursier once
     exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
     if exec_result.return_code != 0:
@@ -507,9 +517,6 @@ def _coursier_fetch_impl(repository_ctx):
 
 coursier_fetch = repository_rule(
     attrs = {
-        "_coursier": attr.label(
-            default = "//:third_party/coursier/coursier",
-        ),  # vendor coursier, it's just a jar
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
