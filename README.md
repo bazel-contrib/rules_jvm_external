@@ -295,7 +295,7 @@ You can specify the exclusion using either the `maven.exclusion` helper or the
 ### Proxies
 
 As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`
-and `no_proxy` environment variables (and their uppercase counterparts** are
+and `no_proxy` environment variables (and their uppercase counterparts are
 supported.
 
 ### Generators
