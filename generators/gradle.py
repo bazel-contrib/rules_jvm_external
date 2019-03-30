@@ -10,7 +10,7 @@ GRADLE_CONFIGURATIONS = [
     "testImplementation",
     "androidTestImplementation",
     "kapt",
-    "annotationProcessor"
+    "annotationProcessor",
 ]
 
 MAVEN_INSTALL_PREFIX = """
@@ -50,6 +50,9 @@ def main():
                 os.system("""cd {directory} && \
                 ./gradlew {module}:dependencies --console plain --configuration {configuration} \
                 | grep "\-\-\-\ " \
+                | grep -v " |" \
+                | grep -v " +" \
+                | grep -v " \\\\\\\\" \
                 | cut -d' ' -f2 \
                 | sort \
                 | uniq \
@@ -64,6 +67,9 @@ def main():
             os.system("""cd {directory} && \
             ./gradlew {module}:dependencies --console plain \
             | grep "\-\-\-\ " \
+            | grep -v " |" \
+            | grep -v " +" \
+            | grep -v " \\\\\\\\" \
             | cut -d' ' -f2 \
             | sort \
             | uniq \
