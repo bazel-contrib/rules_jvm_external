@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import re
 import os
+import sys
 from collections import OrderedDict
 
 GRADLE_CONFIGURATIONS = [
@@ -42,13 +43,17 @@ def generate_gradle(directory, modules, configurations):
             for configuration in configurations:
                 configured_cmd = cmd + ["--configuration", configuration]
                 artifacts.append("# " + module + ":" + configuration)
+                try:
+                    raw_gradle_output = subprocess.check_output(configured_cmd, cwd=directory)
+                except subprocess.CalledProcessError as e:
+                    print("Execution of \"gradlew dependencies\" failed: ", e)
+                    sys.exit(1)
                 artifacts.extend(
                     map(
                         lambda line: line.split()[1],
                         filter(
                             lambda line: artifact_regexp.search(line),
-                            # subprocess.check_output(" ".join(configured_cmd), cwd=directory, shell=True).splitlines())
-                            subprocess.check_output(configured_cmd, cwd=directory).splitlines()
+                            raw_gradle_output.splitlines()
                         )
                     )
                 )
