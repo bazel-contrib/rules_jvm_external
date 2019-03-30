@@ -1,4 +1,4 @@
-sh_binary(
+py_binary(
     name = "gradle",
-    srcs = ["gradle.sh"],
+    srcs = ["gradle.py"],
 )
