@@ -48,7 +48,8 @@ def generate_gradle(directory, modules, configurations):
                         filter(
                             lambda line: artifact_regexp.search(line),
                             # subprocess.check_output(" ".join(configured_cmd), cwd=directory, shell=True).splitlines())
-                            subprocess.check_output(configured_cmd, cwd=directory).splitlines())
+                            subprocess.check_output(configured_cmd, cwd=directory).splitlines()
+                        )
                     )
                 )
         else:
@@ -58,12 +59,13 @@ def generate_gradle(directory, modules, configurations):
                     lambda line: line.split()[1],
                     filter(
                         lambda line: artifact_regexp.search(line),
-                            subprocess.check_output(cmd, cwd=directory).splitlines())
+                        subprocess.check_output(cmd, cwd=directory).splitlines())
                 )
             )
+            # Dedupe the list
             artifacts = OrderedDict((x, True) for x in artifacts).keys()
 
-        print("\n".join(map(lambda a: "        " + a if a.startswith("#") else "        \"%s\"" % a, artifacts)))
+        print("\n".join(map(lambda a: "        " + a if a.startswith("#") else "        \"%s\"," % a, artifacts)))
 
     print(MAVEN_INSTALL_SUFFIX)
 
