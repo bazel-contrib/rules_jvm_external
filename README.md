@@ -303,7 +303,7 @@ supported.
 Generators provide a way to generate the list of artifacts using build
 configuration files of other build systems like Gradle.
 
-**Gradle Android**
+**Gradle**
 
 First, create a WORKSPACE file in your Gradle project:
 
@@ -321,7 +321,15 @@ http_archive(
 )
 ```
 
-Then, run the Gradle generator and pass the current directory path to it:
+Then, run the Gradle generator, and pass the current directory path and the name
+of the project module (e.g. `app`) to it:
+
+```
+$ bazel run @rules_jvm_external//generators:gradle -- $(pwd) app
+```
+
+If there isn't a project module and build.gradle is at the project root, pass
+just the directory path:
 
 ```
 $ bazel run @rules_jvm_external//generators:gradle -- $(pwd)
