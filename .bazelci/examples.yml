@@ -81,3 +81,27 @@ tasks:
   #   working_directory: examples/android_kotlin_app
   #   build_targets:
   #   - "//:app"
+  spring-boot-linux:
+    name: "Spring boot example"
+    platform: ubuntu1804
+    working_directory: examples/spring_boot
+    build_targets:
+    - "//src/main/java/hello:app"
+    test_targets:
+    - "//src/test/java/hello:test"
+  spring-boot-macos:
+    name: "Spring boot example"
+    platform: macos
+    working_directory: examples/spring_boot
+    build_targets:
+    - "//src/main/java/hello:app"
+    test_targets:
+    - "//src/test/java/hello:test"
+  spring-boot-windows:
+    name: "Spring boot example"
+    platform: windows 
+    working_directory: examples/spring_boot
+    build_targets:
+    - "//src/main/java/hello:app"
+    test_targets:
+    - "//src/test/java/hello:test"

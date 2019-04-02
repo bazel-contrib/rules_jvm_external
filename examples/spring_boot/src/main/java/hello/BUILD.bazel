@@ -1,0 +1,20 @@
+java_library(
+    name = "lib",
+    srcs = glob(["*.java"]),
+    deps = [
+        "@maven//:org_springframework_boot_spring_boot_starter_web",
+        "@maven//:org_springframework_spring_web",
+        "@maven//:org_springframework_spring_context",
+        "@maven//:org_springframework_boot_spring_boot",
+        "@maven//:org_springframework_boot_spring_boot_autoconfigure",
+    ],
+    visibility = ["//src/test:__subpackages__"]
+)
+
+java_binary(
+    name = "app",
+    main_class = "hello.Application",
+    runtime_deps = [
+        ":lib",
+    ]
+)
