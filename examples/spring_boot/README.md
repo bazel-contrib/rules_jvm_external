@@ -15,10 +15,10 @@ To run the Spring Boot application:
 $ bazel run //src/main/java/hello:app
 ```
 
-To run the test:
+To run the tests:
 
 ```
-$ bazel test //src/test/java/hello:test
+$ bazel test //src/test/...
 ```
 
 This tutorial code is [licensed under Apache 2.0, copyright GoPivotal
