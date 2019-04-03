@@ -26,6 +26,7 @@ def _jvm_import_impl(ctx):
               in ctx.attr.deps
               if JavaInfo in dep
           ],
+          neverlink = ctx.attr.neverlink,
       )
   ]
 
@@ -49,6 +50,9 @@ jvm_import = rule(
                 default=[],
                 providers=[JavaInfo],
             ),
+        "neverlink": attr.bool(
+            default = False
+        ),
     },
     implementation=_jvm_import_impl,
     provides=[JavaInfo],
