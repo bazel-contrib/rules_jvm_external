@@ -35,6 +35,11 @@ def _maven_artifact_test_impl(ctx):
         { "group": "junit", "artifact": "junit", "version": "4.12", "packaging": "jar" },
         maven.artifact("junit", "junit", "4.12", packaging = "jar")
     )
+    asserts.equals(
+        env,
+        { "group": "junit", "artifact": "junit", "version": "4.12", "packaging": "jar", "neverlink": True },
+        maven.artifact("junit", "junit", "4.12", packaging = "jar", neverlink = True)
+    )
     return unittest.end(env)
 maven_artifact_test = unittest.make(_maven_artifact_test_impl)
 
@@ -119,11 +124,11 @@ def _parse_artifact_spec_list_test_impl(ctx):
         env,
         [
             { "group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0" },
-            { "group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar", "classifier": "javadoc" },
+            { "group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar", "classifier": "javadoc", "neverlink": True },
         ],
         parse.parse_artifact_spec_list([
             "org.eclipse.aether:aether-api:1.1.0",
-            maven.artifact("org.eclipse.aether", "aether-api", "1.1.0", packaging = "jar", classifier = "javadoc")
+            maven.artifact("org.eclipse.aether", "aether-api", "1.1.0", packaging = "jar", classifier = "javadoc", neverlink = True)
         ])
     )
     return unittest.end(env)

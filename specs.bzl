@@ -32,7 +32,7 @@ def _maven_repository(url, user = None, password = None):
         credentials = { "user": user, "password": password }
         return { "repo_url": url, "credentials": credentials }
 
-def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = False):
+def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None):
     """
     Generates the data map for a Maven artifact given the available information about its coordinates.
 
@@ -63,7 +63,6 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
     maven_artifact["group"] = group
     maven_artifact["artifact"] = artifact
     maven_artifact["version"] = version
-    maven_artifact["neverlink"] = neverlink
 
     if packaging != None:
         maven_artifact["packaging"] = packaging
@@ -73,6 +72,8 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         maven_artifact["override_license_types"] = override_license_types
     if exclusions != None:
         maven_artifact["exclusions"] = exclusions
+    if neverlink != None:
+        maven_artifact["neverlink"] = neverlink
 
     return maven_artifact
 
@@ -219,7 +220,7 @@ def _artifact_spec_to_json(artifact_spec):
     with_classifier = with_packaging + ((", \"classifier\": \"" + artifact_spec["classifier"] + "\"") if artifact_spec.get("classifier") != None else "")
     with_override_license_types = with_classifier + ((", " + _override_license_types_spec_to_json(artifact_spec["override_license_types"])) if artifact_spec.get("override_license_types") != None else "")
     with_exclusions = with_override_license_types + ((", \"exclusions\": " + exclusion_specs_json) if artifact_spec.get("exclusions") != None else "")
-    with_neverlink = with_exclusions + ", \"neverlink\": " + str(artifact_spec.get("neverlink", False)).lower()
+    with_neverlink = with_exclusions + ((", \"neverlink\": " + str(artifact_spec.get("neverlink")).lower()) if artifact_spec.get("neverlink") != None else "")
 
     return with_neverlink + " }"
 
