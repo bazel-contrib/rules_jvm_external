@@ -3,13 +3,13 @@
 set -euo pipefail
 
 # Replace the load statements
-find ./ -type f -name BUILD* -exec sed -i 's/gmaven_rules/rules_jvm_external/g' {} \;
+find ./ -type f -name BUILD* -exec sed -i '' -e 's/gmaven_rules/rules_jvm_external/g' {} \;
 
 # Remove the explicit packaging type from the coordinates
-find ./ -type f -name BUILD* -exec sed -i '/gmaven_artifact(/s/:aar//g; /gmaven_artifact(/s/:jar//g;' {} \;
+find ./ -type f -name BUILD* -exec sed -i '' -e '/gmaven_artifact(/s/:aar//g; /gmaven_artifact(/s/:jar//g;' {} \;
 
 # Replace all occurrences of gmaven_artifact with artifact
-find ./ -type f -name BUILD* -exec sed -i 's/gmaven_artifact(/artifact(/g' {} \;
+find ./ -type f -name BUILD* -exec sed -i '' -e 's/gmaven_artifact/artifact/g' {} \;
 
 echo ""
 echo "Paste this into your WORKSPACE file:"
@@ -19,8 +19,8 @@ echo ""
 cat <<-EOF
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "1.0"
-RULES_JVM_EXTERNAL_SHA = "48e0f1aab74fabba98feb8825459ef08dcc75618d381dff63ec9d4dd9860deaa"
+RULES_JVM_EXTERNAL_TAG = "1.2"
+RULES_JVM_EXTERNAL_SHA = "e5c68b87f750309a79f59c2b69ead5c3221ffa54ff9496306937bfa1c9c8c86b"
 
 http_archive(
     name = "rules_jvm_external",
@@ -44,7 +44,7 @@ EOF
 # 4. Get the string to the right of the left bracket
 # 5. Sort and de-duplicate
 # 6. Format for WORKSPACE
-find ./ -type f -name BUILD* -exec grep "maven_artifact(.*)" {} \; \
+find ./ -type f -name BUILD* -exec grep "artifact(.*)" {} \; \
   | sed -e "s/:aar//; s/:jar//" \
   | cut -d')' -f1 \
   | cut -d'(' -f2 \
