@@ -1,0 +1,30 @@
+java_test(
+    name = "HelloControllerTest",
+    srcs = ["HelloControllerTest.java"],
+    deps = [
+        "//src/main/java/hello:lib",
+        "@maven//:org_springframework_boot_spring_boot_test_autoconfigure",
+        "@maven//:org_hamcrest_hamcrest_library",
+        "@maven//:org_springframework_boot_spring_boot_test",
+        "@maven//:org_springframework_spring_test",
+        "@maven//:org_springframework_spring_beans",
+        "@maven//:org_springframework_spring_web",
+    ],
+    test_class = "hello.HelloControllerTest",
+)
+
+
+java_test(
+    name = "HelloControllerIntegrationTest",
+    srcs = ["HelloControllerIT.java"],
+    deps = [
+        "//src/main/java/hello:lib",
+        "@maven//:org_hamcrest_hamcrest_library",
+        "@maven//:org_springframework_boot_spring_boot_test",
+        "@maven//:org_springframework_spring_test",
+        "@maven//:org_springframework_spring_beans",
+        "@maven//:org_springframework_spring_web",
+        "@maven//:org_springframework_boot_spring_boot",
+    ],
+    test_class = "hello.HelloControllerIT",
+)
