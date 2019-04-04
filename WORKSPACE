@@ -20,60 +20,10 @@ load("//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
-        "androidx.test.espresso:espresso-core:3.1.1",
-        "androidx.test.espresso:espresso-web:3.1.1",
-        "androidx.test.ext:junit:1.1.0",
-        "androidx.test:runner:1.1.1",
-        "com.android.support:design:28.0.0",
-        "com.google.android.gms:play-services-maps:16.0.0",
-        "com.google.code.gson:gson:2.8.5",
-        "com.google.guava:guava:27.0-android",
-        "com.google.inject:guice:4.0",
-        "commons-io:commons-io:2.6",
-        "io.reactivex.rxjava2:rxjava:2.2.4",
-        "junit:junit:4.12",
-        "org.hamcrest:java-hamcrest:2.0.0.0",
-        "org.mockito:mockito-core:2.22.0",
-        "org.springframework:spring-core:5.1.3.RELEASE",
+        "org.hamcrest:hamcrest-core:2.1",
     ],
-    fetch_sources = True,
     repositories = [
         "https://jcenter.bintray.com/",
-        "https://maven.google.com",
-        "https://repo1.maven.org/maven2",
-    ],
-)
-
-maven_install(
-    name = "other_maven",
-    artifacts = [
-        "com.google.guava:guava:27.0-jre",
-    ],
-    fetch_sources = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-)
-
-maven_install(
-    name = "other_maven_with_exclusions",
-    artifacts = [
-        maven.artifact(
-            group = "com.google.guava",
-            artifact = "guava",
-            version = "27.0-jre",
-            exclusions = [
-                maven.exclusion(
-                    group = "org.codehaus.mojo",
-                    artifact = "animal-sniffer-annotations",
-                ),
-                "com.google.j2objc:j2objc-annotations",
-            ],
-        ),
-    ],
-    fetch_sources = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -100,8 +50,17 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/59
         "junit:junit:4.12",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
+        # For artifact exclusion testing
+        maven.artifact(
+            group = "com.google.guava",
+            artifact = "guava",
+            version = "27.0-jre",
+            exclusions = [
+                maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+                "com.google.j2objc:j2objc-annotations",
+            ],
+        ),
     ],
-    fetch_sources = True,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
