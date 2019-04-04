@@ -231,11 +231,9 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
 
-            if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
-                target_import_string.append("\tneverlink = True,")
 
-
-            # 6. Finish the java_import rule.
+            # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
+            #    available only as a compile time dependency.
             #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library_1_3",
@@ -244,12 +242,28 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core_1_3",
             # 	],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   neverlink = True,
+            if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
+                target_import_string.append("\tneverlink = True,")
+
+
+            # 7. Finish the java_import rule.
+            #
+            # java_import(
+            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
+            # 	deps = [
+            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 	],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             # )
             target_import_string.append(")")
 
             all_imports.append("\n".join(target_import_string))
 
-            # 7. Create a versionless alias target
+            # 8. Create a versionless alias target
             #
             # alias(
             #   name = "org_hamcrest_hamcrest_library",
