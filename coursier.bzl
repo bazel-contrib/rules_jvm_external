@@ -501,7 +501,7 @@ def _coursier_fetch_impl(repository_ctx):
         srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
 
 
-        neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
+    neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, checksums) = generate_imports(
         repository_ctx = repository_ctx,
