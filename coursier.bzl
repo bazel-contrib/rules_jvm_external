@@ -258,6 +258,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # 		":org_hamcrest_hamcrest_core_1_3",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   neverlink = True,
             # )
             target_import_string.append(")")
 
