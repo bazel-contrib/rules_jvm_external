@@ -255,8 +255,8 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
                 target_import_labels = []
                 for dep in artifact["dependencies"]:
-                  dep_target_label = _escape(_strip_packaging_classifier(dep))
-                  target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+                    dep_target_label = _escape(_strip_packaging_classifier(dep))
+                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
                 target_import_labels = _deduplicate_list(target_import_labels)
 
                 target_import_string.append("".join(target_import_labels) + "\t],")
