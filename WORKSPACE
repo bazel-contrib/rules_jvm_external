@@ -100,6 +100,7 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/59
         "junit:junit:4.12",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
+        "com.github.fommil.netlib:all:1.1.2",
     ],
     fetch_sources = True,
     repositories = [
