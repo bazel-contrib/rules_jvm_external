@@ -104,8 +104,6 @@ def _get_reverse_deps(coord, dep_tree):
 # tree.
 #
 # Made function public for testing.
-#
-# TODO(jin): refactor this into a separate bzl.
 def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
@@ -246,10 +244,10 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             versionless_target_alias_label = _escape(_strip_packaging_classifier_version(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
-        elif artifact_path == None:
+        elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_classifier_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
             # so they don't have a JAR for download.
-            if target_label not in seen_imports and POM_ONLY_ARTIFACTS.get(_strip_packaging_classifier_version(artifact["coord"])):
+            if target_label not in seen_imports:
                 seen_imports[target_label] = True
                 target_import_string = ["java_library("]
                 target_import_string.append("\tname = \"%s\"," % target_label)
@@ -270,21 +268,21 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                 versionless_target_alias_label = _escape(_strip_packaging_classifier_version(artifact["coord"]))
                 all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
-            else:
-                # Possible reasons that the artifact_path is None:
-                #
-                # https://github.com/bazelbuild/rules_jvm_external/issues/70
-                # https://github.com/bazelbuild/rules_jvm_external/issues/74
+        elif artifact_path == None:
+            # Possible reasons that the artifact_path is None:
+            #
+            # https://github.com/bazelbuild/rules_jvm_external/issues/70
+            # https://github.com/bazelbuild/rules_jvm_external/issues/74
 
-                # Get the reverse deps of the missing artifact.
-                reverse_deps = _get_reverse_deps(artifact["coord"], dep_tree)
-                reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
-                reverse_dep_pom_paths = [
-                    repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
-                    for reverse_dep in reverse_deps if reverse_dep["file"]
-                ]
+            # Get the reverse deps of the missing artifact.
+            reverse_deps = _get_reverse_deps(artifact["coord"], dep_tree)
+            reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
+            reverse_dep_pom_paths = [
+                repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
+                for reverse_dep in reverse_deps if reverse_dep["file"]
+            ]
 
-                error_message = """
+            error_message = """
 The artifact for {artifact} was not downloaded. Perhaps its packaging type is
 not one of: {packaging_types}?
 
@@ -304,14 +302,14 @@ and their POM files are located at:
 ---
 
 Parsed artifact data: {parsed_artifact}""".format(
-                    artifact = artifact["coord"],
-                    packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
-                    reverse_dep_coords = "\n".join(reverse_dep_coords),
-                    reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
-                    parsed_artifact = repr(artifact),
-                )
+                artifact = artifact["coord"],
+                packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
+                reverse_dep_coords = "\n".join(reverse_dep_coords),
+                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
+                parsed_artifact = repr(artifact),
+            )
 
-                fail(error_message)
+            fail(error_message)
 
     return "\n".join(all_imports)
 
