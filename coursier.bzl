@@ -36,7 +36,7 @@ _COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
 
 # Super hacky :(
 def _strip_packaging_classifier(coord):
-    return coord.replace(":jar:", ":").replace(":aar:", ":").replace(":sources:", ":").replace(":natives:", ":")
+    return coord.replace(":jar:", ":").replace(":aar:", ":").replace(":pom:", ":").replace(":sources:", ":").replace(":natives:", ":")
 
 def _strip_packaging_classifier_version(coord):
     return ":".join(_strip_packaging_classifier(coord).split(":")[:-1])
