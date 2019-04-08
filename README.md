@@ -72,7 +72,7 @@ android_library(
 
 ### Generated targets
 
-For the `junit:junit` example, the following targets will be generated:
+For the `junit:junit` example, using `bazel query @maven//:all --output=build`, we can see that the rule generated these targets:
 
 ```python
 alias(

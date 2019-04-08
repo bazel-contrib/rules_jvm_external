@@ -232,12 +232,14 @@ json = struct(
 # Accessors
 #
 
+#
+# Couriser expects artifacts to be defined in the form `group:artifact:version`, but it also supports two attributes: classifier and url.
+# In contrast with group, artifact and version, the attributes are a key=value comma-separated string appended at the end,
+# For example: `coursier fetch group:artifact:version,classifier=xxx,url=yyy`
+#
 def _artifact_to_coord(artifact):
-    return artifact["group"] + ":" + \
-        artifact["artifact"] + ":" + \
-        ((artifact["packaging"] + ":") if artifact.get("packaging") != None else "") + \
-        ((artifact["classifier"] + ":") if artifact.get("classifier") != None else "") + \
-        artifact["version"]
+    classifier = (",classifier=" + artifact["classifier"]) if artifact.get("classifier") != None else ""
+    return artifact["group"] + ":" + artifact["artifact"] + ":" + artifact["version"] + classifier
 
 def _repository_url(repository_spec):
     (protocol, remainder) = repository_spec["repo_url"].split("//")

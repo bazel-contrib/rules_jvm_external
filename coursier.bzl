@@ -131,7 +131,6 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                     artifact_relative_path = _normalize_to_unix_path(artifact_path)
                 target_label = _escape(_strip_packaging_classifier(artifact["coord"]))
                 srcjar_paths[target_label] = artifact_relative_path
-
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
@@ -478,7 +477,6 @@ def _coursier_fetch_impl(repository_ctx):
         cmd = _generate_coursier_command(repository_ctx)
         cmd.extend(["fetch"])
         cmd.extend(artifact_coordinates)
-        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
         cmd.append("--quiet")
         cmd.append("--no-default")
         cmd.extend(["--sources", "true"])
