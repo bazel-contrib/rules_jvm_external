@@ -105,7 +105,6 @@ tasks:
     - "//..."
     test_targets:
     - "//..."
-
   scala-akka-linux:
     name: "Scala example"
     platform: ubuntu1804
@@ -128,5 +127,6 @@ tasks:
     working_directory: examples/scala_akka
     build_targets:
     - "//..."
-    test_targets:
-    - "//..."
+    # test_targets:
+    # https://github.com/bazelbuild/rules_jvm_external/issues/103
+    # - "//..."
