@@ -233,11 +233,9 @@ json = struct(
 #
 
 def _artifact_to_coord(artifact):
-    return artifact["group"] + ":" + \
-        artifact["artifact"] + ":" + \
-        ((artifact["packaging"] + ":") if artifact.get("packaging") != None else "") + \
-        ((artifact["classifier"] + ":") if artifact.get("classifier") != None else "") + \
-        artifact["version"]
+    packaging = (artifact["packaging"] + ":") if artifact.get("packaging") != None else ""
+    classifier = (",classifier=" + artifact["classifier"]) if artifact.get("classifier") != None else ""
+    return artifact["group"] + ":" + artifact["artifact"] + ":" + packaging + artifact["version"] + classifier
 
 def _repository_url(repository_spec):
     (protocol, remainder) = repository_spec["repo_url"].split("//")
