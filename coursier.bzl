@@ -310,7 +310,7 @@ def _deduplicate_list(items):
 # location of `java`.
 def _generate_coursier_command(repository_ctx):
     coursier = repository_ctx.path("coursier")
-    java_home = repository_ctx.os.environ.get("JAVA_HOME")
+    java_home = repository_ctx.os.environ.get("JAVA_HOME") or str(repository_ctx.path("../bazel_tools/jdk"))
 
     if java_home != None:
         # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
