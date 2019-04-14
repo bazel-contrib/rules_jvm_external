@@ -99,9 +99,34 @@ tasks:
     - "//..."
   spring-boot-windows:
     name: "Spring boot example"
-    platform: windows 
+    platform: windows
     working_directory: examples/spring_boot
     build_targets:
     - "//..."
     test_targets:
     - "//..."
+  scala-akka-linux:
+    name: "Scala example"
+    platform: ubuntu1804
+    working_directory: examples/scala_akka
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+  scala-akka-macos:
+    name: "Scala example"
+    platform: macos
+    working_directory: examples/scala_akka
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+  scala-akka-windows:
+    name: "Scala example"
+    platform: windows
+    working_directory: examples/scala_akka
+    build_targets:
+    - "//..."
+    # test_targets:
+    # https://github.com/bazelbuild/rules_jvm_external/issues/103
+    # - "//..."
