@@ -1,7 +1,6 @@
 ---
 platforms:
   ubuntu1404:
-    # TODO(jingwen): switch these to sh_test and port them to macos and windows
     test_targets:
     - "//tests/..."
   ubuntu1604:
