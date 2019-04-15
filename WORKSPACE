@@ -7,10 +7,6 @@ local_repository(
     path = ".",
 )
 
-load("@rules_jvm_external//:gmaven.bzl", "gmaven_rules")
-
-gmaven_rules()
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Begin test dependencies
@@ -49,6 +45,8 @@ maven_install(
         "org.pantsbuild:jarjar:1.6.6",
         # https://github.com/bazelbuild/rules_jvm_external/issues/59
         "junit:junit:4.12",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/101
+        "com.digitalasset:damlc:jar:osx:100.12.1",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
         # For artifact exclusion testing
         maven.artifact(
@@ -60,9 +58,13 @@ maven_install(
                 "com.google.j2objc:j2objc-annotations",
             ],
         ),
+        # https://github.com/bazelbuild/rules_jvm_external/issues/98
+        "com.github.fommil.netlib:all:1.1.2",
+        "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
+        "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
     ],
 )
 
