@@ -280,7 +280,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
             reverse_dep_pom_paths = [
                 repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
-                for reverse_dep in reverse_deps if reverse_dep["file"]
+                for reverse_dep in reverse_deps
             ]
 
             error_message = """
