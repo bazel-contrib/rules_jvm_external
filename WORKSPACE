@@ -98,6 +98,9 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/101
         "com.digitalasset:damlc:jar:osx:100.12.1",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/98
+        "com.github.fommil.netlib:all:1.1.2",
+        "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
     ],
     fetch_sources = True,
     repositories = [
