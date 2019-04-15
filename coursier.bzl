@@ -35,6 +35,8 @@ load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 _COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
 
 def _strip_packaging_and_classifier(coord):
+    # We add "pom" into _COURSIER_PACKAGING_TYPES here because "pom" is not a
+    # packaging type that Coursier CLI accepts.
     for packaging_type in _COURSIER_PACKAGING_TYPES + ["pom"]:
         coord = coord.replace(":%s:" % packaging_type, ":")
     for classifier_type in ["sources", "natives"]:
