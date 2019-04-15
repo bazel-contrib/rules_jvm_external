@@ -21,7 +21,7 @@ public class UnsafeSharedCacheTest {
   @Test
   public void test_jarsOnClassPath_areInTheSharedCache() throws IOException, URISyntaxException {
     // No support for symlinks on Windows. Let's skip that.
-      if (OS.indexOf("win") == -1) {
+      if (OS.indexOf("win") != -1) {
           return;
       }
       ClassLoader cl = ClassLoader.getSystemClassLoader();
