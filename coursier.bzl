@@ -311,6 +311,18 @@ Parsed artifact data: {parsed_artifact}""".format(
             )
 
             fail(error_message)
+        else:
+            error_message = """Unable to generate a target for this artifact.
+
+Please file an issue on https://github.com/bazelbuild/rules_jvm_external/issues/new
+and include the following snippet:
+
+Artifact coordinates: {artifact}
+Parsed data: {parsed_artifact}""".format(
+                artifact = artifact["coord"],
+                parsed_artifact = repr(artifact)
+            )
+            fail(error_message)
 
     return "\n".join(all_imports)
 
