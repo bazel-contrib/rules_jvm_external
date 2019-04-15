@@ -34,7 +34,7 @@ load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 # download them if it's not asked to to resolve "eclipse-plugin".
 _COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin"]
 
-def _strip_packaging_classifier(coord):
+def _strip_packaging_and_classifier(coord):
     for packaging_type in _COURSIER_PACKAGING_TYPES + ["pom"]:
         coord = coord.replace(":%s:" % packaging_type, ":")
     for classifier_type in ["sources", "natives"]:
@@ -42,8 +42,8 @@ def _strip_packaging_classifier(coord):
 
     return coord
 
-def _strip_packaging_classifier_version(coord):
-    return ":".join(_strip_packaging_classifier(coord).split(":")[:-1])
+def _strip_packaging_and_classifier_and_version(coord):
+    return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
 
 def _escape(string):
     return string.replace(".", "_").replace("-", "_").replace(":", "_").replace("/", "_").replace("[", "").replace("]", "").split(",")[0]
@@ -129,12 +129,12 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
                 else:
                     # If not, it's a relative path to the one in output_base/external/$maven/v1/...
                     artifact_relative_path = _normalize_to_unix_path(artifact_path)
-                target_label = _escape(_strip_packaging_classifier(artifact["coord"]))
+                target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
                 srcjar_paths[target_label] = artifact_relative_path
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        target_label = _escape(_strip_packaging_classifier(artifact["coord"]))
+        target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
 
         # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
         if target_label not in seen_imports and artifact_path != None:
@@ -201,7 +201,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                dep_target_label = _escape(_strip_packaging_classifier(dep))
+                dep_target_label = _escape(_strip_packaging_and_classifier(dep))
                 target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
@@ -240,10 +240,10 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             #   name = "org_hamcrest_hamcrest_library",
             #   actual = "org_hamcrest_hamcrest_library_1_3",
             # )
-            versionless_target_alias_label = _escape(_strip_packaging_classifier_version(artifact["coord"]))
+            versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
-        elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_classifier_version(artifact["coord"])):
+        elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
             # so they don't have a JAR for download.
             if target_label not in seen_imports:
@@ -254,7 +254,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
                 target_import_labels = []
                 for dep in artifact["dependencies"]:
-                    dep_target_label = _escape(_strip_packaging_classifier(dep))
+                    dep_target_label = _escape(_strip_packaging_and_classifier(dep))
                     target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
                 target_import_labels = _deduplicate_list(target_import_labels)
 
@@ -264,7 +264,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
 
                 all_imports.append("\n".join(target_import_string))
 
-                versionless_target_alias_label = _escape(_strip_packaging_classifier_version(artifact["coord"]))
+                versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                 all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
         elif artifact_path == None:
