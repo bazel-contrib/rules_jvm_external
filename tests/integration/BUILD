@@ -19,6 +19,7 @@ java_test(
         "@regression_testing//:com_squareup_javapoet",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
+
     ],
 )
 
