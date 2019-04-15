@@ -290,6 +290,26 @@ maven_install(
 You can specify the exclusion using either the `maven.exclusion` helper or the
 `group-id:artifact-id` string directly.
 
+### Compile-only dependencies
+
+If you want to mark certain artifacts as compile-only dependencies, use the
+`neverlink` attribute in the `maven.artifact` helper:
+
+```python
+load("@rules_jvm_external//:specs.bzl", "maven")
+
+maven_install(
+    artifacts = [
+        maven.artifact("com.squareup", "javapoet", "1.11.0", neverlink = True),
+    ],
+    # ...
+)
+```
+
+This instructs `rules_jvm_external` to mark the generated target for
+`com.squareup:javapoet` with the `neverlink = True` attribute, making the
+artifact available only for compilation and not at runtime.
+
 ### Proxies
 
 As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`

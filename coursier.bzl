@@ -106,7 +106,7 @@ def _get_reverse_deps(coord, dep_tree):
 # tree.
 #
 # Made function public for testing.
-def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
+def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_artifacts = {}):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -222,7 +222,9 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
 
-            # 6. Finish the java_import rule.
+
+            # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
+            #    available only as a compile time dependency.
             #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library_1_3",
@@ -231,12 +233,29 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None):
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core_1_3",
             # 	],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   neverlink = True,
+            if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
+                target_import_string.append("\tneverlink = True,")
+
+
+            # 7. Finish the java_import rule.
+            #
+            # java_import(
+            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
+            # 	deps = [
+            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 	],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   neverlink = True,
             # )
             target_import_string.append(")")
 
             all_imports.append("\n".join(target_import_string))
 
-            # 7. Create a versionless alias target
+            # 8. Create a versionless alias target
             #
             # alias(
             #   name = "org_hamcrest_hamcrest_library",
@@ -496,11 +515,14 @@ def _coursier_fetch_impl(repository_ctx):
                  exec_result.stderr)
         srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
 
+
+    neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
     generated_imports = generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         srcs_dep_tree = srcs_dep_tree,
+        neverlink_artifacts = neverlink_artifacts,
     )
 
     repository_ctx.template(

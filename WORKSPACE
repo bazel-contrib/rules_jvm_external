@@ -58,6 +58,8 @@ maven_install(
                 "com.google.j2objc:j2objc-annotations",
             ],
         ),
+        # https://github.com/bazelbuild/rules_jvm_external/issues/92#issuecomment-478430167
+        maven.artifact("com.squareup", "javapoet", "1.11.1", neverlink = True),
         # https://github.com/bazelbuild/rules_jvm_external/issues/98
         "com.github.fommil.netlib:all:1.1.2",
         "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
