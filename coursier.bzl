@@ -138,8 +138,11 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
         artifact_path = artifact["file"]
         target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
 
-        # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
-        if target_label not in seen_imports and artifact_path != None:
+        if target_label in seen_imports:
+            # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
+            pass
+
+        elif target_label not in seen_imports and artifact_path != None:
             seen_imports[target_label] = True
 
             if repository_ctx.attr.use_unsafe_shared_cache:
@@ -330,10 +333,6 @@ Parsed artifact data: {parsed_artifact}""".format(
             )
 
             fail(error_message)
-
-        elif target_label in seen_imports:
-          # Do nothing if the target for this artifact has been generated
-            pass
 
         else:
             error_message = """Unable to generate a target for this artifact.
