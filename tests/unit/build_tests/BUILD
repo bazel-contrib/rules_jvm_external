@@ -10,5 +10,6 @@ build_test(
         "@regression_testing//:com_github_fommil_netlib_all_1_1_2",
         "@regression_testing//:nz_ac_waikato_cms_weka_weka_stable_3_8_1",
         "@regression_testing//:com_digitalasset_damlc_osx_100_12_1",
+        "@regression_testing//:com_android_support_appcompat_v7",
     ],
 )
