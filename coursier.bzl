@@ -330,6 +330,11 @@ Parsed artifact data: {parsed_artifact}""".format(
             )
 
             fail(error_message)
+
+        elif target_label in seen_imports:
+          # Do nothing if the target for this artifact has been generated
+          pass
+
         else:
             error_message = """Unable to generate a target for this artifact.
 
