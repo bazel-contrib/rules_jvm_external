@@ -333,7 +333,6 @@ Parsed artifact data: {parsed_artifact}""".format(
             )
 
             fail(error_message)
-
         else:
             error_message = """Unable to generate a target for this artifact.
 
