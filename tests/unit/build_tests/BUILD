@@ -11,5 +11,6 @@ build_test(
         "@regression_testing//:nz_ac_waikato_cms_weka_weka_stable_3_8_1",
         "@regression_testing//:com_digitalasset_damlc_osx_100_12_1",
         "@regression_testing//:org_eclipse_jetty_orbit_javax_servlet_3_0_0_v201112011016",
+        "@regression_testing//:org_apache_flink_flink_test_utils_2_12_1_8_0",
     ],
 )
