@@ -267,29 +267,31 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
-        elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
+        elif artifact_path == None and (
+                artifact["coord"].find(":pom") or
+                POM_ONLY_ARTIFACTS.get(
+                    _strip_packaging_and_classifier_and_version(artifact["coord"]))):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
             # so they don't have a JAR for download.
-            if target_label not in seen_imports:
-                seen_imports[target_label] = True
-                target_import_string = ["java_library("]
-                target_import_string.append("\tname = \"%s\"," % target_label)
-                target_import_string.append("\texports = [")
+            seen_imports[target_label] = True
+            target_import_string = ["java_library("]
+            target_import_string.append("\tname = \"%s\"," % target_label)
+            target_import_string.append("\texports = [")
 
-                target_import_labels = []
-                for dep in artifact["dependencies"]:
-                    dep_target_label = _escape(_strip_packaging_and_classifier(dep))
-                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
-                target_import_labels = _deduplicate_list(target_import_labels)
+            target_import_labels = []
+            for dep in artifact["dependencies"]:
+                dep_target_label = _escape(_strip_packaging_and_classifier(dep))
+                target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+            target_import_labels = _deduplicate_list(target_import_labels)
 
-                target_import_string.append("".join(target_import_labels) + "\t],")
-                target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
-                target_import_string.append(")")
+            target_import_string.append("".join(target_import_labels) + "\t],")
+            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+            target_import_string.append(")")
 
-                all_imports.append("\n".join(target_import_string))
+            all_imports.append("\n".join(target_import_string))
 
-                versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
-                all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
+            versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
         elif artifact_path == None:
             # Possible reasons that the artifact_path is None:
