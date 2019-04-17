@@ -268,7 +268,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
         elif artifact_path == None and (
-                artifact["coord"].find(":pom") or
+                artifact["coord"].find(":pom") != -1 or
                 POM_ONLY_ARTIFACTS.get(
                     _strip_packaging_and_classifier_and_version(artifact["coord"]))):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
