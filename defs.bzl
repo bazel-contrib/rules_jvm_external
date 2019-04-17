@@ -15,6 +15,7 @@
 load("@rules_jvm_external//:coursier.bzl", "coursier_fetch")
 load("@rules_jvm_external//:specs.bzl", "maven", "parse", "json")
 
+
 DEFAULT_REPOSITORY_NAME = "maven"
 
 def maven_install(
