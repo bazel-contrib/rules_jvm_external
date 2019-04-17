@@ -48,6 +48,8 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/101
         "com.digitalasset:damlc:jar:osx:100.12.1",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/116
+        "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
         # For artifact exclusion testing
         maven.artifact(
             group = "com.google.guava",
