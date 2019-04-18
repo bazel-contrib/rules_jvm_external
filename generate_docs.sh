@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Prerequisites:
-#   - https://github.com/thlorenz/doctoc
+#   - https://github.com/thlorenz/doctoc - install with `npm -g install doctoc`
 
 set -euo pipefail
 
