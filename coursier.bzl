@@ -515,7 +515,7 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(artifact_coordinates)
         cmd.append("--quiet")
         cmd.append("--no-default")
-        cmd.extend(["--sources", "true"])
+        cmd.extend(["--sources"])
         cmd.extend(["--json-output-file", "src-dep-tree.json"])
         if len(exclusion_lines) > 0:
             cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
