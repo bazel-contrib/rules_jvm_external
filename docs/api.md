@@ -321,5 +321,3 @@ Generates the data map for a Maven artifact exclusion.
     </tr>
   </tbody>
 </table>
-
-

@@ -1,0 +1,53 @@
+local_repository(
+    name = "rules_jvm_external",
+    path = "../../",
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+RULES_SCALA_VERSION = "88ad68b3b9d2b533099cdd3d88a41d106edfeecb"
+
+http_archive(
+    name = "io_bazel_rules_scala",
+    sha256 = "96b79ceec705bf6e81c4099bb9dcf0aec15747e658dc9406cb4bbf8b108ca38a",
+    strip_prefix = "rules_scala-%s" % RULES_SCALA_VERSION,
+    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % RULES_SCALA_VERSION,
+)
+
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
+
+scala_repositories((
+    "2.12.8",
+    {
+        "scala_compiler": "f34e9119f45abd41e85b9e121ba19dd9288b3b4af7f7047e86dc70236708d170",
+        "scala_library": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
+        "scala_reflect": "4d6405395c4599ce04cea08ba082339e3e42135de9aae2923c9f5367e957315a",
+    },
+))
+
+load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
+
+scala_register_toolchains()
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        "com.github.pureconfig:pureconfig_2.12:0.10.2",
+        "com.typesafe.akka:akka-actor_2.12:2.5.22",
+        "com.typesafe.akka:akka-http_2.12:10.1.8",
+        "com.typesafe.akka:akka-http-testkit_2.12:10.1.8",
+        "com.typesafe.akka:akka-stream_2.12:2.5.22",
+        "com.typesafe.akka:akka-stream-testkit_2.12:2.5.22",
+        "com.typesafe.akka:akka-testkit_2.12:2.5.22",
+        "com.typesafe.scala-logging:scala-logging_2.12:3.9.2",
+        "org.mockito:mockito-core:2.26.0",
+        "org.scalaz:scalaz-core_2.12:7.2.27",
+        "org.scalaz:scalaz-concurrent_2.12:7.2.27",
+        "org.slf4j:slf4j-api:1.7.26",
+        "org.slf4j:slf4j-simple:1.7.26",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com",
+    ]
+)

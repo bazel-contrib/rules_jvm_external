@@ -44,6 +44,7 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         classifier: The Maven artifact classifier (ex: "javadoc").
         override_license_types: An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: ["notify"]).
         exclusions: An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).
+        neverlink: Determines if this artifact should be part of the runtime classpath.
     """
 
     # Output Schema:
@@ -55,6 +56,7 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
     #         "classifier": Optional String
     #         "override_license_types": Optional Array of String
     #         "exclusions": Optional Array of exclusions (see below)
+    #         "neverlink": Optional Boolean
     #     }
     maven_artifact = {}
     maven_artifact["group"] = group
@@ -69,6 +71,8 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         maven_artifact["override_license_types"] = override_license_types
     if exclusions != None:
         maven_artifact["exclusions"] = exclusions
+    if neverlink != None:
+        maven_artifact["neverlink"] = neverlink
 
     return maven_artifact
 
@@ -214,8 +218,9 @@ def _artifact_spec_to_json(artifact_spec):
     with_classifier = with_packaging + ((", \"classifier\": \"" + artifact_spec["classifier"] + "\"") if artifact_spec.get("classifier") != None else "")
     with_override_license_types = with_classifier + ((", " + _override_license_types_spec_to_json(artifact_spec["override_license_types"])) if artifact_spec.get("override_license_types") != None else "")
     with_exclusions = with_override_license_types + ((", \"exclusions\": " + exclusion_specs_json) if artifact_spec.get("exclusions") != None else "")
+    with_neverlink = with_exclusions + ((", \"neverlink\": " + str(artifact_spec.get("neverlink")).lower()) if artifact_spec.get("neverlink") != None else "")
 
-    return with_exclusions + " }"
+    return with_neverlink + " }"
 
 json = struct(
     write_repository_credentials_spec = _repository_credentials_spec_to_json,
@@ -230,12 +235,14 @@ json = struct(
 # Accessors
 #
 
+#
+# Couriser expects artifacts to be defined in the form `group:artifact:version`, but it also supports two attributes: classifier and url.
+# In contrast with group, artifact and version, the attributes are a key=value comma-separated string appended at the end,
+# For example: `coursier fetch group:artifact:version,classifier=xxx,url=yyy`
+#
 def _artifact_to_coord(artifact):
-    return artifact["group"] + ":" + \
-        artifact["artifact"] + ":" + \
-        ((artifact["packaging"] + ":") if artifact.get("packaging") != None else "") + \
-        ((artifact["classifier"] + ":") if artifact.get("classifier") != None else "") + \
-        artifact["version"]
+    classifier = (",classifier=" + artifact["classifier"]) if artifact.get("classifier") != None else ""
+    return artifact["group"] + ":" + artifact["artifact"] + ":" + artifact["version"] + classifier
 
 def _repository_url(repository_spec):
     (protocol, remainder) = repository_spec["repo_url"].split("//")

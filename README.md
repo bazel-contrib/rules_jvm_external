@@ -2,7 +2,8 @@
 
 Transitive Maven artifact resolver as a repository rule.
 
-> If you're looking for documentation on gmaven_rules, [go here](#deprecated-gmaven_rules).
+[![Build
+Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg)](https://buildkite.com/bazel/rules-jvm-external)
 
 ## Features
 
@@ -16,6 +17,9 @@ Transitive Maven artifact resolver as a repository rule.
 * Ability to declare multiple sets of versioned artifacts
 * Supported on Windows, macOS, Linux
 
+Get the [latest release
+here](https://github.com/bazelbuild/rules_jvm_external/releases/latest).
+
 ## Usage
 
 List the top-level Maven artifacts and servers in the WORKSPACE:
@@ -23,8 +27,8 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "1.0"
-RULES_JVM_EXTERNAL_SHA = "48e0f1aab74fabba98feb8825459ef08dcc75618d381dff63ec9d4dd9860deaa"
+RULES_JVM_EXTERNAL_TAG = "2.0.1"
+RULES_JVM_EXTERNAL_SHA = "55e8d3951647ae3dffde22b4f7f8dee11b3f70f3f89424713debd7076197eaca"
 
 http_archive(
     name = "rules_jvm_external",
@@ -55,27 +59,18 @@ maven_install(
 and use them directly in the BUILD file by specifying the versionless target alias label:
 
 ```python
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 android_library(
     name = "test_deps",
     exports = [
         "@maven//:androidx_test_espresso_espresso_core",
-        # or artifact("androidx.test.espresso:espresso-core"),
         "@maven//:junit_junit",
-        # or artifact("junit:junit"),
     ],
 )
 ```
 
-The `artifact` macro translates the artifact's `group-id:artifact:id` to the
-label of the versionless target. This target is an
-[alias](https://docs.bazel.build/versions/master/be/general.html#alias) that
-points to the `java_import`/`aar_import` target in the `@maven` repository,
-which includes the transitive dependencies specified in the top level artifact's
-POM file.
+### Generated targets
 
-For the `junit:junit` example, the following targets will be generated:
+For the `junit:junit` example, using `bazel query @maven//:all --output=build`, we can see that the rule generated these targets:
 
 ```python
 alias(
@@ -100,9 +95,15 @@ java_import(
 )
 ```
 
+The generated `tags` attribute value also contains the original coordinates of
+the artifact, which integrates with rules like [bazel-common's
+`pom_file`](https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177)
+for generating POM files. See the [`pom_file_generation`
+example](examples/pom_file_generation/) for more information.
+
 ## API Reference
 
-You can find the complete API reference at [docs/api.md](docs/api.md).
+ You can find the complete API reference at [docs/api.md](docs/api.md).
 
 ## Advanced usage
 
@@ -131,6 +132,27 @@ Bazel will not re-run the repository rule automatically.
 The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
 will create independent caches for each `maven_install` repository, located at
 `$(bazel info output_base)/external/@repository_name/v1`.
+
+### `artifact` helper macro
+
+The `artifact` macro translates the artifact's `group:artifact` coordinates to
+the label of the versionless target. This target is an
+[alias](https://docs.bazel.build/versions/master/be/general.html#alias) that
+points to the `java_import`/`aar_import` target in the `@maven` repository,
+which includes the transitive dependencies specified in the top level artifact's
+POM file.
+
+For example, `@maven//:junit_junit` is equivalent to `artifact("junit:junit")`.
+
+To use it, add the load statement to the top of your BUILD file:
+
+```python
+load("@rules_jvm_external//:defs.bzl", "artifact")
+```
+
+Note that usage of this macro makes BUILD file refactoring with tools like
+`buildozer` more difficult, because the macro hides the actual target label at
+the syntax level.
 
 ### Multiple `maven_install` declarations for isolated artifact version trees
 
@@ -170,15 +192,12 @@ version conflicts that it cannot resolve. The two Guava targets can then be used
 in BUILD files like so:
 
 ```python
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 java_binary(
     name = "my_server_app",
     srcs = ...
     deps = [
         # a versionless alias to @server_app//:com_google_guava_guava_27_0_jre
         "@server_app//:com_google_guava_guava",
-        # or artifact("com.google.guava:guava", repository_name = "server_app")
     ]
 )
 
@@ -188,7 +207,6 @@ android_binary(
     deps = [
         # a versionless alias to @android_app//:com_google_guava_guava_27_0_android
         "@android_app//:com_google_guava_guava",
-        # or artifact("com.google.guava:guava", repository_name = "android_app")
     ]
 )
 ```
@@ -272,71 +290,32 @@ maven_install(
 You can specify the exclusion using either the `maven.exclusion` helper or the
 `group-id:artifact-id` string directly.
 
+### Compile-only dependencies
+
+If you want to mark certain artifacts as compile-only dependencies, use the
+`neverlink` attribute in the `maven.artifact` helper:
+
+```python
+load("@rules_jvm_external//:specs.bzl", "maven")
+
+maven_install(
+    artifacts = [
+        maven.artifact("com.squareup", "javapoet", "1.11.0", neverlink = True),
+    ],
+    # ...
+)
+```
+
+This instructs `rules_jvm_external` to mark the generated target for
+`com.squareup:javapoet` with the `neverlink = True` attribute, making the
+artifact available only for compilation and not at runtime.
+
+### Proxies
+
+As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`
+and `no_proxy` environment variables (and their uppercase counterparts) are
+supported.
+
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
-
----
-
-# (DEPRECATED) gmaven_rules
-
-This repository also hosts the previous implementation of gmaven_rules, a set of
-repository rules to provide support for easily depending on common Android
-libraries in Bazel. The previous implementation is now deprecated.
-
-If you were previously depending on `gmaven_rules` using an `http_archive` in
-the WORKSPACE function, you may see this error:
-
-```
-ERROR: error loading package '': Encountered error while reading extension file 'gmaven.bzl': no such package '@gmaven_rules//': 
-java.io.IOException: Prefix gmaven_rules-20180625-1 was given, but not found in the archive
-```
-
-To fix this, replace this snippet:
-
-```python
-# Google Maven Repository
-GMAVEN_TAG = "20181212-2"
-
-http_archive(
-    name = "gmaven_rules",
-    strip_prefix = "gmaven_rules-%s" % GMAVEN_TAG,
-    url = "https://github.com/bazelbuild/gmaven_rules/archive/%s.tar.gz" % GMAVEN_TAG,
-)
-```
-
-with this snippet:
-
-```python
-RULES_JVM_EXTERNAL_TAG = "1.0"
-RULES_JVM_EXTERNAL_SHA = "48e0f1aab74fabba98feb8825459ef08dcc75618d381dff63ec9d4dd9860deaa"
-
-http_archive(
-    name = "gmaven_rules",
-    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
-    sha256 = RULES_JVM_EXTERNAL_SHA,
-    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
-)
-```
-
-## Using gmaven_rules
-
-The core of it is `gmaven.bzl`, a file containing external repository targets
-for all artifacts in [Google Maven Repository](https://maven.google.com) plus
-their dependencies, and the supporting tools for generating it.
-
-We no longer recommend using the previous implementation due to its limitations,
-such as not having support for cross-repository dependency resolution. Some of
-the artifacts depend on other artifacts that are not present on Google Maven,
-and these missing dependencies are silently ignored and may cause failures at
-runtime.
-
-However, if you are still depending on it, please see the
-[releases](https://github.com/bazelbuild/rules_jvm_external/releases/latest) page for
-instructions on using the latest snapshot.
-
-To update `gmaven.bzl`, run the following command. It will take about 3 minutes.
-
-```
-bazel run //:gmaven_to_bazel && cp bazel-bin/gmaven_to_bazel.runfiles/__main__/gmaven.bzl .
-```
