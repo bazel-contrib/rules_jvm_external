@@ -5,7 +5,7 @@ java_test(
     srcs = ["ArtifactExclusionsTest.java"],
     test_class = "com.jvm.external.ArtifactExclusionsTest",
     deps = [
-        "@regression_testing//:com_google_guava_guava_27_0_jre",
+        "@exclusion_testing//:com_google_guava_guava_27_0_jre",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
     ],

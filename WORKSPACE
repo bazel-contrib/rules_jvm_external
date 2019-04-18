@@ -35,6 +35,24 @@ maven_install(
     use_unsafe_shared_cache = True,
 )
 
+maven_install(
+    name = "exclusion_testing",
+    artifacts = [
+        maven.artifact(
+            group = "com.google.guava",
+            artifact = "guava",
+            version = "27.0-jre",
+            exclusions = [
+                maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+                "com.google.j2objc:j2objc-annotations",
+            ],
+        ),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 # These artifacts helped discover limitations by the Maven resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.
@@ -45,21 +63,11 @@ maven_install(
         "org.pantsbuild:jarjar:1.6.6",
         # https://github.com/bazelbuild/rules_jvm_external/issues/59
         "junit:junit:4.12",
+        "org.jetbrains.kotlin:kotlin-test:1.3.21",
         # https://github.com/bazelbuild/rules_jvm_external/issues/101
         "com.digitalasset:damlc:jar:osx:100.12.1",
-        "org.jetbrains.kotlin:kotlin-test:1.3.21",
         # https://github.com/bazelbuild/rules_jvm_external/issues/116
         "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
-        # For artifact exclusion testing
-        maven.artifact(
-            group = "com.google.guava",
-            artifact = "guava",
-            version = "27.0-jre",
-            exclusions = [
-                maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
-                "com.google.j2objc:j2objc-annotations",
-            ],
-        ),
         # https://github.com/bazelbuild/rules_jvm_external/issues/92#issuecomment-478430167
         maven.artifact("com.squareup", "javapoet", "1.11.1", neverlink = True),
         # https://github.com/bazelbuild/rules_jvm_external/issues/98
@@ -68,6 +76,8 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/111
         "com.android.support:appcompat-v7:aar:28.0.0",
         "com.google.android.gms:play-services-base:16.1.0",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-484278260
+        "org.apache.flink:flink-test-utils_2.12:1.8.0"
     ],
     repositories = [
         "https://repo1.maven.org/maven2",

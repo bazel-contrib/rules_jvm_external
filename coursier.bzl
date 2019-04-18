@@ -32,7 +32,14 @@ load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 # Coursier uses these types to determine what files it should resolve and fetch.
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
-_COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin", "orbit"]
+_COURSIER_PACKAGING_TYPES = [
+    "jar",
+    "aar",
+    "bundle",
+    "eclipse-plugin",
+    "orbit",
+    "test-jar",
+]
 
 def _strip_packaging_and_classifier(coord):
     # We add "pom" into _COURSIER_PACKAGING_TYPES here because "pom" is not a
