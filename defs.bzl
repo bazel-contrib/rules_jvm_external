@@ -55,20 +55,8 @@ def maven_install(
         use_unsafe_shared_cache = use_unsafe_shared_cache,
     )
 
-def artifact(coordinates, repository_name = REPOSITORY_NAME):
-    """A helper macro to translate Maven coordinates into a Bazel target label.
-
-    For example:
-
-    `artifact("com.google.guava:guava")` translates into `@maven//:com_google_guava_guava`
-
-    `artifact("com.google.guava:guava", repository_name = "custom_maven")` translates into `@custom_maven//:com_google_guava_guava`
-
-    Args:
-      name: The coordinates of a Maven artifact in the form of `group:artifact`. The version is not needed.
-      repository_name: The name of the `maven_install` declaration in the WORKSPACE file containing this artifact.
-    """
-    artifact_obj = _parse_artifact_str(coordinates) if type(coordinates) == "string" else coordinates
+def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
+    artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
     return "@%s//:%s" % (repository_name, _escape(artifact_obj["group"] + ":" + artifact_obj["artifact"]))
 
 def maven_artifact(a):

@@ -33,7 +33,7 @@ def _maven_repository(url, user = None, password = None):
         credentials = { "user": user, "password": password }
         return { "repo_url": url, "credentials": credentials }
 
-def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None):
+def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None):
     """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
