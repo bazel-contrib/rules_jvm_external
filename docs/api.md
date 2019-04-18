@@ -3,17 +3,15 @@
 # API Reference
 
 - [Basic functions](#basic-functions)
-  - [artifact](#artifact)
-    - [Parameters](#parameters)
   - [maven_install](#maven_install)
-    - [Parameters](#parameters-1)
+    - [Parameters](#parameters)
 - [Maven specification functions](#maven-specification-functions)
   - [maven.repository](#mavenrepository)
-    - [Parameters](#parameters-2)
+    - [Parameters](#parameters-1)
   - [maven.artifact](#mavenartifact)
-    - [Parameters](#parameters-3)
+    - [Parameters](#parameters-2)
   - [maven.exclusion](#mavenexclusion)
-    - [Parameters](#parameters-4)
+    - [Parameters](#parameters-3)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -27,40 +25,6 @@ To use these functions, load them at the top of your BUILD file. For example:
 load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ```
 <!-- Generated with Stardoc: http://skydoc.bazel.build -->
-
-<a name="#artifact"></a>
-
-## artifact
-
-<pre>
-artifact(<a href="#artifact-a">a</a>, <a href="#artifact-repository_name">repository_name</a>)
-</pre>
-
-
-
-### Parameters
-
-<table class="params-table">
-  <colgroup>
-    <col class="col-param" />
-    <col class="col-description" />
-  </colgroup>
-  <tbody>
-    <tr id="artifact-a">
-      <td><code>a</code></td>
-      <td>
-        required.
-      </td>
-    </tr>
-    <tr id="artifact-repository_name">
-      <td><code>repository_name</code></td>
-      <td>
-        optional. default is <code>"maven"</code>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
 
 <a name="#maven_install"></a>
 
