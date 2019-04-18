@@ -311,10 +311,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
                 for reverse_dep in reverse_deps
             ]
 
-            error_message = """
-The artifact for {artifact} was not downloaded. Perhaps its packaging type is
-not one of: {packaging_types}?
-
+            rdeps_message = """
 It is also possible that the packaging type of {artifact} is specified
 incorrectly in the POM file of an artifact that depends on it. For example,
 {artifact} may be an AAR, but the dependent's POM file specified its `<type>`
@@ -326,16 +323,24 @@ The artifact(s) depending on {artifact} are:
 
 and their POM files are located at:
 
-{reverse_dep_pom_paths}
+{reverse_dep_pom_paths}""".format(
+    artifact = artifact["coord"],
+    reverse_dep_coords = "\n".join(reverse_dep_coords),
+    reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
+    parsed_artifact = repr(artifact),
+)
 
----
+            error_message = """
+The artifact for {artifact} was not downloaded. Perhaps its packaging type is
+not one of: {packaging_types}?
 
-Parsed artifact data: {parsed_artifact}""".format(
+Parsed artifact data: {parsed_artifact}
+
+{rdeps_message}""".format(
                 artifact = artifact["coord"],
                 packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
-                reverse_dep_coords = "\n".join(reverse_dep_coords),
-                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
                 parsed_artifact = repr(artifact),
+                rdeps_message = rdeps_message if len(reverse_dep_coords) > 0 else ""
             )
 
             fail(error_message)
