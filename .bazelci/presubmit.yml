@@ -2,18 +2,23 @@
 platforms:
   ubuntu1604:
     test_targets:
-    - "//tests/..."
+      - "//tests/..."
   ubuntu1804:
     test_targets:
-    - "//tests/..."
+      - "--"
+      - "//tests/..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:ArtifactExclusionsTest"
+      - "-//tests/integration:NeverlinkTest"
+      - "-//tests/integration:UnsafeSharedCacheTest"
   macos:
     test_targets:
-    - "//tests/..."
+      - "//tests/..."
   windows:
     test_targets:
-    - "--"
-    - "//tests/..."
-    # rules_kotlin is not tested / does not work on Windows.
-    # https://github.com/bazelbuild/rules_kotlin/issues/179
-    # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
-    - "-//tests/unit/kotlin/..."
+      - "--"
+      - "//tests/..."
+      # rules_kotlin is not tested / does not work on Windows.
+      # https://github.com/bazelbuild/rules_kotlin/issues/179
+      # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
+      - "-//tests/unit/kotlin/..."
