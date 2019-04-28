@@ -113,7 +113,7 @@ def _get_reverse_deps(coord, dep_tree):
 # tree.
 #
 # Made function public for testing.
-def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_artifacts = {}):
+def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -126,20 +126,21 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
     srcjar_paths = None
-    if srcs_dep_tree != None:
+    if repository_ctx.attr.fetch_sources:
         srcjar_paths = {}
-        for artifact in srcs_dep_tree["dependencies"]:
-            artifact_path = artifact["file"]
-            if artifact_path != None and artifact_path not in seen_imports:
-                seen_imports[artifact_path] = True
-                if repository_ctx.attr.use_unsafe_shared_cache:
-                    # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
-                    artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
-                else:
-                    # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                    artifact_relative_path = _normalize_to_unix_path(artifact_path)
-                target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-                srcjar_paths[target_label] = artifact_relative_path
+        for artifact in dep_tree["dependencies"]:
+            if ":sources:" in artifact["coord"]:
+                artifact_path = artifact["file"]
+                if artifact_path != None and artifact_path not in seen_imports:
+                    seen_imports[artifact_path] = True
+                    if repository_ctx.attr.use_unsafe_shared_cache:
+                        # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
+                        artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
+                    else:
+                        # If not, it's a relative path to the one in output_base/external/$maven/v1/...
+                        artifact_relative_path = _normalize_to_unix_path(artifact_path)
+                    target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+                    srcjar_paths[target_label] = artifact_relative_path
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
@@ -148,7 +149,9 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
             pass
-
+        elif repository_ctx.attr.fetch_sources and ":sources:" in artifact["coord"]:
+            # We already processed the sources above, so skip them here.
+            pass
         elif target_label not in seen_imports and artifact_path != None:
             seen_imports[target_label] = True
 
@@ -503,6 +506,9 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--repository", utils.repo_url(repository)])
     if not repository_ctx.attr.use_unsafe_shared_cache:
         cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+    if repository_ctx.attr.fetch_sources:
+        cmd.append("--sources")
+        cmd.append("--default=true")
     if _is_windows(repository_ctx):
         # Unfortunately on Windows, coursier crashes while trying to acquire the
         # cache's .structure.lock file while running in parallel. This does not
@@ -519,35 +525,11 @@ def _coursier_fetch_impl(repository_ctx):
     # to generate the repository's BUILD file.
     dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
 
-    srcs_dep_tree = None
-    if repository_ctx.attr.fetch_sources:
-        cmd = _generate_coursier_command(repository_ctx)
-        cmd.extend(["fetch"])
-        cmd.extend(artifact_coordinates)
-        cmd.append("--quiet")
-        cmd.append("--no-default")
-        cmd.extend(["--sources"])
-        cmd.extend(["--json-output-file", "src-dep-tree.json"])
-        if len(exclusion_lines) > 0:
-            cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-            repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-        for repository in repositories:
-            cmd.extend(["--repository", utils.repo_url(repository)])
-        if not repository_ctx.attr.use_unsafe_shared_cache:
-            cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-        exec_result = repository_ctx.execute(cmd)
-        if (exec_result.return_code != 0):
-            fail("Error while fetching artifact sources with coursier: " +
-                 exec_result.stderr)
-        srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
-
-
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
     generated_imports = generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
-        srcs_dep_tree = srcs_dep_tree,
         neverlink_artifacts = neverlink_artifacts,
     )
 
