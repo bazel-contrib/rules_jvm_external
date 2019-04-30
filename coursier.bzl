@@ -476,6 +476,10 @@ def _coursier_fetch_impl(repository_ctx):
     for a in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(a))
 
+    excluded_artifacts = []
+    for a in repository_ctx.attr.excluded_artifacts:
+        excluded_artifacts.append(json_parse(a))
+
     artifact_coordinates = []
 
     # Set up artifact exclusion, if any. From coursier fetch --help:
@@ -511,6 +515,8 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
     for repository in repositories:
         cmd.extend(["--repository", utils.repo_url(repository)])
+    for a in excluded_artifacts:
+        cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
     if not repository_ctx.attr.use_unsafe_shared_cache:
         cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
     if repository_ctx.attr.fetch_sources:
@@ -564,6 +570,7 @@ coursier_fetch = repository_rule(
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
+        "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
     },
     environ = [
         "JAVA_HOME",

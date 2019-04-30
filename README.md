@@ -51,6 +51,10 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
+    # Exclude packages from being pulled in by automatic dependency resolution
+    excluded_artifacts = [
+        "com.google.guava:guava",
+    ],
 )
 ```
 
