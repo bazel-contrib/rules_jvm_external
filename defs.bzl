@@ -21,6 +21,7 @@ def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
         artifacts = [],
+        fail_on_missing_checksum = True,
         fetch_sources = False,
         use_unsafe_shared_cache = False):
 
@@ -36,6 +37,7 @@ def maven_install(
         name = name,
         repositories = repositories_json_strings,
         artifacts = artifacts_json_strings,
+        fail_on_missing_checksum = fail_on_missing_checksum,
         fetch_sources = fetch_sources,
         use_unsafe_shared_cache = use_unsafe_shared_cache,
     )

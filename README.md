@@ -51,6 +51,9 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
+    # Fail if a checksum file for the artifact is missing in the repository.
+    # Falls through "SHA-1" and "MD5". Defaults to True.
+    fail_on_missing_checksum = False,
     # Fetch srcjars. Defaults to False.
     fetch_sources = True,
 )

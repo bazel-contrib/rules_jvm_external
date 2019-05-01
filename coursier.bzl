@@ -141,6 +141,7 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                         artifact_relative_path = _normalize_to_unix_path(artifact_path)
                     target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
+
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
@@ -499,6 +500,12 @@ def _coursier_fetch_impl(repository_ctx):
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
+
+    if repository_ctx.attr.fail_on_missing_checksum:
+        cmd.extend(["--checksum", "SHA-1,MD5"])
+    else:
+        cmd.extend(["--checksum", "SHA-1,MD5,None"])
+
     if len(exclusion_lines) > 0:
         repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
@@ -554,6 +561,7 @@ coursier_fetch = repository_rule(
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
+        "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
     },
