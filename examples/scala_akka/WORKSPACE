@@ -5,11 +5,11 @@ local_repository(
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_SCALA_VERSION = "88ad68b3b9d2b533099cdd3d88a41d106edfeecb"
+RULES_SCALA_VERSION = "8f006056990307cbd8320c97a59cd09c821011d8"
 
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "96b79ceec705bf6e81c4099bb9dcf0aec15747e658dc9406cb4bbf8b108ca38a",
+    sha256 = "e85c1d64520554e0dcdfe828e16ff604de0774b0c68dbb0e90ffab1a6b045adf",
     strip_prefix = "rules_scala-%s" % RULES_SCALA_VERSION,
     url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % RULES_SCALA_VERSION,
 )
@@ -30,6 +30,24 @@ load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 scala_register_toolchains()
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+http_archive(
+    name = "com_google_protobuf",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.8.0-rc1.tar.gz"],
+    strip_prefix = "protobuf-3.8.0-rc1",
+    sha256 = "d399f651dbdc5f9116a2da199a808c815c0aeeb8d0b46e3213eee5a41263aeff",
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+http_archive(
+    name = "bazel_skylib",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/0.8.0.tar.gz"],
+    strip_prefix = "bazel-skylib-0.8.0",
+    sha256 = "2ea8a5ed2b448baf4a6855d3ce049c4c452a6470b1efd1504fdb7c1c134d220a",
+)
 
 maven_install(
     artifacts = [
