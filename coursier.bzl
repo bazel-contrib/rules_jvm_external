@@ -139,13 +139,13 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                     else:
                         # If not, it's a relative path to the one in output_base/external/$maven/v1/...
                         artifact_relative_path = _normalize_to_unix_path(artifact_path)
-                    target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+                    target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+        target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
@@ -181,7 +181,7 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 2. Generate the target label.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             #
             target_import_string.append("\tname = \"%s\"," % target_label)
 
@@ -190,7 +190,7 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             #
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
@@ -204,11 +204,11 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 4. Generate the deps attribute with references to other target labels.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #
             target_import_string.append("\tdeps = [")
@@ -217,7 +217,7 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                dep_target_label = _escape(_strip_packaging_and_classifier(dep))
+                dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
                 target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
@@ -227,11 +227,11 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # For use with this rule https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
@@ -241,11 +241,11 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             #    available only as a compile time dependency.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
@@ -256,11 +256,11 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 7. Finish the java_import rule.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
@@ -272,10 +272,10 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 8. Create a versionless alias target
             #
             # alias(
-            #   name = "org_hamcrest_hamcrest_library",
-            #   actual = "org_hamcrest_hamcrest_library_1_3",
+            #   name = "org_hamcrest_hamcrest_library_1_3",
+            #   actual = "org_hamcrest_hamcrest_library",
             # )
-            versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+            versionless_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
 
         elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
