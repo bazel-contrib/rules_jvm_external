@@ -275,8 +275,8 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             #   name = "org_hamcrest_hamcrest_library_1_3",
             #   actual = "org_hamcrest_hamcrest_library",
             # )
-            versionless_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
+            versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
 
         elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
@@ -288,7 +288,7 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
 
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                dep_target_label = _escape(_strip_packaging_and_classifier(dep))
+                dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
                 target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
@@ -298,8 +298,8 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
 
             all_imports.append("\n".join(target_import_string))
 
-            versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
+            versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
 
         elif artifact_path == None:
             # Possible reasons that the artifact_path is None:
