@@ -107,8 +107,8 @@ example](examples/pom_file_generation/) for more information.
 
 ### Fetch source JARs
 
-To download the source JAR alongside the main artifact JAR, specify
-`fetch_sources = True` in `maven_install`:
+To download the source JAR alongside the main artifact JAR, set `fetch_sources =
+True` in `maven_install`:
 
 ```python
 maven_install(
@@ -143,8 +143,7 @@ maven_install(
 ### Using a persistent artifact cache
 
 To download artifacts into a shared and persistent directory in your home
-directory, specify `use_unsafe_shared_cache = True` in `maven_install`. The
-default value is `False`.
+directory, set `use_unsafe_shared_cache = True` in `maven_install`.
 
 ```python
 maven_install(
