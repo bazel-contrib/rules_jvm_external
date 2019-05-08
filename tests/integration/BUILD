@@ -5,7 +5,7 @@ java_test(
     srcs = ["ArtifactExclusionsTest.java"],
     test_class = "com.jvm.external.ArtifactExclusionsTest",
     deps = [
-        "@exclusion_testing//:com_google_guava_guava_27_0_jre",
+        "@exclusion_testing//:com_google_guava_guava",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
     ],
@@ -28,7 +28,7 @@ java_test(
     srcs = ["UnsafeSharedCacheTest.java"],
     test_class = "com.jvm.external.UnsafeSharedCacheTest",
     deps = [
-        "@unsafe_shared_cache//:com_google_guava_guava_27_0_jre",
+        "@unsafe_shared_cache//:com_google_guava_guava",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
     ],
