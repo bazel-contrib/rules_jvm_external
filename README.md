@@ -51,11 +51,6 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
-    # Fail if a checksum file for the artifact is missing in the repository.
-    # Falls through "SHA-1" and "MD5". Defaults to True.
-    fail_on_missing_checksum = False,
-    # Fetch srcjars. Defaults to False.
-    fetch_sources = True,
 )
 ```
 
@@ -77,20 +72,20 @@ For the `junit:junit` example, using `bazel query @maven//:all --output=build`, 
 
 ```python
 alias(
-  name = "junit_junit",
-  actual = "@maven//:junit_junit_4_12",
+  name = "junit_junit_4_12",
+  actual = "@maven//:junit_junit",
 )
 
-java_import(
-  name = "junit_junit_4_12",
+jvm_import(
+  name = "junit_junit",
   jars = ["@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar",
-  deps = ["@maven//:org_hamcrest_hamcrest_core_1_3"],
+  deps = ["@maven//:org_hamcrest_hamcrest_core"],
   tags = ["maven_coordinates=junit:junit:4.12"],
 )
 
-java_import(
-  name = "org_hamcrest_hamcrest_core_1_3",
+jvm_import(
+  name = "org_hamcrest_hamcrest_core",
   jars = ["@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
   deps = [],
@@ -110,14 +105,48 @@ example](examples/pom_file_generation/) for more information.
 
 ## Advanced usage
 
-### Using a persistent artifact cache
+### Fetch source JARs
 
-To download artifacts into a shared and persistent directory in your home
-directory, specify `use_unsafe_shared_cache = True` in `maven_install`:
+To download the source JAR alongside the main artifact JAR, set `fetch_sources =
+True` in `maven_install`:
 
 ```python
 maven_install(
-    name = "maven",
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    fetch_sources = True,
+)
+```
+
+### Checksum verification
+
+Artifact resolution will fail if a `SHA-1` or `MD5` checksum file for the
+artifact is missing in the repository. To disable this behavior, set
+`fail_on_missing_checksum = False` in `maven_install`:
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    fail_on_missing_checksum = False,
+)
+```
+
+### Using a persistent artifact cache
+
+To download artifacts into a shared and persistent directory in your home
+directory, set `use_unsafe_shared_cache = True` in `maven_install`.
+
+```python
+maven_install(
     artifacts = [
         # ...
     ],
