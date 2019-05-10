@@ -72,20 +72,20 @@ For the `junit:junit` example, using `bazel query @maven//:all --output=build`, 
 
 ```python
 alias(
-  name = "junit_junit",
-  actual = "@maven//:junit_junit_4_12",
+  name = "junit_junit_4_12",
+  actual = "@maven//:junit_junit",
 )
 
 jvm_import(
-  name = "junit_junit_4_12",
+  name = "junit_junit",
   jars = ["@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar",
-  deps = ["@maven//:org_hamcrest_hamcrest_core_1_3"],
+  deps = ["@maven//:org_hamcrest_hamcrest_core"],
   tags = ["maven_coordinates=junit:junit:4.12"],
 )
 
 jvm_import(
-  name = "org_hamcrest_hamcrest_core_1_3",
+  name = "org_hamcrest_hamcrest_core",
   jars = ["@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
   deps = [],
