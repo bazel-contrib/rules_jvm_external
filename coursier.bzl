@@ -405,14 +405,14 @@ def _get_java_proxy_args(repository_ctx):
 
     # Extract the host and port from a standard proxy URL:
     # http://proxy.example.com:3128 -> ["proxy.example.com", "3128"]
-    if http_proxy != None:
+    if http_proxy:
         proxy = http_proxy.split("://", 1)[1].split(":", 1)
         proxy_args.extend([
             "-Dhttp.proxyHost=%s" % proxy[0],
             "-Dhttp.proxyPort=%s" % proxy[1],
         ])
 
-    if https_proxy != None:
+    if https_proxy:
         proxy = https_proxy.split("://", 1)[1].split(":", 1)
         proxy_args.extend([
             "-Dhttps.proxyHost=%s" % proxy[0],
