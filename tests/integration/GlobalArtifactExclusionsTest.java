@@ -15,10 +15,8 @@ public class GlobalArtifactExclusionsTest {
 
   @Test
   public void test_globallyExcludedArtifacts_notOnClassPah() throws IOException {
-    ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-    ClassPath classPath = ClassPath.from(classLoader);
-    ImmutableSet<ClassInfo> set = classPath.getTopLevelClasses();
-    for (ClassInfo ci : set) {
+    ClassPath classPath = ClassPath.from(ClassLoader.getSystemClassLoader());
+    for (ClassInfo ci : classPath.getTopLevelClasses()) {
       assertThat(ci.getName(), not(containsString("org.codehaus.mojo.animal_sniffer")));
       assertThat(ci.getName(), not(containsString("com.google.j2objc.annotations")));
     }
