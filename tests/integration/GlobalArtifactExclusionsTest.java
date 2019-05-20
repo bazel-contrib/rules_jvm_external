@@ -11,7 +11,7 @@ import static org.hamcrest.core.StringContains.containsString;
 public class GlobalArtifactExclusionsTest {
 
   @Test
-  public void test_globallyExcludedArtifacts_notOnClassPah() throws IOException {
+  public void test_globallyExcludedArtifacts_notOnClassPath() throws IOException {
     ClassPath classPath = ClassPath.from(ClassLoader.getSystemClassLoader());
     for (ClassInfo ci : classPath.getTopLevelClasses()) {
       assertThat(ci.getName(), not(containsString("org.codehaus.mojo.animal_sniffer")));
