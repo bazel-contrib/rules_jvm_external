@@ -165,6 +165,9 @@ This is **not safe** as Bazel is currently not able to detect changes in the
 shared cache. For example, if an artifact is deleted from the shared cache,
 Bazel will not re-run the repository rule automatically.
 
+To change the location to another directory, set the environment variable
+`COURSIER_CACHE=/absolute/path/to/directory`.
+
 The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
 will create independent caches for each `maven_install` repository, located at
 `$(bazel info output_base)/external/@repository_name/v1`.

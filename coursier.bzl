@@ -517,8 +517,37 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--repository", utils.repo_url(repository)])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
-    if not repository_ctx.attr.use_unsafe_shared_cache:
-        cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+
+    # Coursier supports downloading the artifact into a custom directory on disk. This improves
+    # resolution performance since artifacts can be aggressively cached.
+    #
+    # However, it's not a safe thing to do as Bazel has no knowledge about modifications made
+    # to this directory.
+    #
+    # We support custom absolute cache locations using the COURSIER_CACHE environment variable.
+    # This should not be a WORKSPACE configuration because it varies from user to user. Locations
+    # tend to differ between CI and dev machines, for example.
+    #
+    # We do not support relative paths because they will be relative to Bazel's output base and
+    # not the user's WORKSPACE directory.
+    if repository_ctx.attr.use_unsafe_shared_cache:
+        shared_cache_path = repository_ctx.os.environ.get("COURSIER_CACHE")
+        if shared_cache_path:
+            absolute_shared_cache_path = repository_ctx.path(shared_cache_path)
+            if str(absolute_shared_cache_path).find(str(repository_ctx.path(""))) != -1:
+                fail("Error while creating the artifact cache: " \
+                    + "The path specified by COURSIER_CACHE (%s) " % shared_cache_path \
+                    + "cannot be a relative path. Please use an absolute path instead.")
+            else:
+                cmd.extend(["--cache", absolute_shared_cache_path])
+        else:
+            # Explicit pass here because coursier's default shared cache location is in the user's 
+            # home directory.
+            pass
+    else:
+        # Download into $output_base/external/$maven_repo_name/v1
+        cmd.extend(["--cache", "v1"])
+
     if repository_ctx.attr.fetch_sources:
         cmd.append("--sources")
         cmd.append("--default=true")
@@ -574,6 +603,7 @@ coursier_fetch = repository_rule(
     },
     environ = [
         "JAVA_HOME",
+        "COURSIER_CACHE",
         "http_proxy",
         "HTTP_PROXY",
         "https_proxy",
