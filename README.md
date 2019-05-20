@@ -322,7 +322,8 @@ maven_install(
 You can specify the exclusion using either the `maven.exclusion` helper or the
 `group-id:artifact-id` string directly.
 
-You can also exclude artifacts globally using the `excluded_artifacts` attribute in `maven_install`:
+You can also exclude artifacts globally using the `excluded_artifacts`
+attribute in `maven_install`:
 
 
 ```python
@@ -333,7 +334,6 @@ maven_install(
     repositories = [
         # ...
     ],
-    # Exclude packages from being pulled in by automatic dependency resolution
     excluded_artifacts = [
         "com.google.guava:guava",
     ],
