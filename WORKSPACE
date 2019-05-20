@@ -53,6 +53,18 @@ maven_install(
     ],
 )
 
+maven_install(
+    name = "global_exclusion_testing",
+    artifacts = ["com.google.guava:guava:27.0-jre"],
+    excluded_artifacts = [
+        maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+        "com.google.j2objc:j2objc-annotations",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 # These artifacts helped discover limitations by the Maven resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.

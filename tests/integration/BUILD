@@ -12,6 +12,17 @@ java_test(
 )
 
 java_test(
+    name = "GlobalArtifactExclusionsTest",
+    srcs = ["GlobalArtifactExclusionsTest.java"],
+    test_class = "com.jvm.external.GlobalArtifactExclusionsTest",
+    deps = [
+        "@global_exclusion_testing//:com_google_guava_guava",
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:org_hamcrest_hamcrest",
+    ],
+)
+
+java_test(
     name = "NeverlinkTest",
     srcs = ["NeverlinkTest.java"],
     test_class = "com.jvm.external.NeverlinkTest",
