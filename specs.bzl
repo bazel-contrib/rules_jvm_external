@@ -103,6 +103,23 @@ maven = struct(
 # Parsing tools
 #
 
+def _parse_exclusion_spec_list(exclusion_specs):
+  """
+  Given a string (g:a), returns an exclusion map
+  """
+  exclusions = []
+  for exclusion_spec in exclusion_specs:
+      if type(exclusion_spec) == "string":
+          pieces = exclusion_spec.split(":")
+          if len(pieces) == 2:
+              exclusion_spec = { "group": pieces[0], "artifact": pieces[1] }
+          else:
+              fail(("Invalid exclusion: %s. Exclusions are specified as " + \
+                   "group-id:artifact-id, without the version, packaging or " + \
+                   "classifier.") % exclusion_spec)
+      exclusions.append(exclusion_spec)
+  return exclusions
+
 def _parse_maven_coordinate_string(mvn_coord):
     """
     Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v), returns a maven artifact map (see above).
@@ -154,6 +171,7 @@ parse = struct(
     parse_maven_coordinate = _parse_maven_coordinate_string,
     parse_repository_spec_list = _parse_repository_spec_list,
     parse_artifact_spec_list = _parse_artifact_spec_list,
+    parse_exclusion_spec_list = _parse_exclusion_spec_list,
 )
 
 #
@@ -200,16 +218,8 @@ def _artifact_spec_to_json(artifact_spec):
     Given an artifact spec, returns the json serialization of the object.
     """
     maybe_exclusion_specs_jsons = []
-    for exclusion_spec in artifact_spec.get("exclusions") or []:
-        if type(exclusion_spec) == "string":
-          pieces = exclusion_spec.split(":")
-          if len(pieces) == 2:
-              exclusion_spec = { "group": pieces[0], "artifact": pieces[1] }
-          else:
-              fail(("Invalid exclusion: %s. Exclusions are specified as " + \
-                   "group-id:artifact-id, without the version, packaging or " + \
-                   "classifier.") % exclusion_spec)
-        maybe_exclusion_specs_jsons.append(_exclusion_spec_to_json(exclusion_spec))
+    for spec in _parse_exclusion_spec_list(artifact_spec.get("exclusions") or []):
+        maybe_exclusion_specs_jsons.append(_exclusion_spec_to_json(spec))
     exclusion_specs_json = (("[" + ", ".join(maybe_exclusion_specs_jsons) + "]") if len(maybe_exclusion_specs_jsons) > 0 else None)
 
     required = "{ \"group\": \"" + artifact_spec["group"] + \
