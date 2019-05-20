@@ -84,7 +84,6 @@ maven_install(
         "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
         "https://maven.google.com",
     ],
-    use_unsafe_shared_cache = True,
 )
 
 RULES_KOTLIN_VERSION = "da1232eda2ef90d4375e2d1677b32c7ddf09e8a1"
