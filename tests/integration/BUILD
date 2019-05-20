@@ -17,6 +17,8 @@ java_test(
     test_class = "com.jvm.external.GlobalArtifactExclusionsTest",
     deps = [
         "@global_exclusion_testing//:com_google_guava_guava",
+        "@global_exclusion_testing//:com_squareup_okhttp3_okhttp",
+        "@global_exclusion_testing//:com_diffplug_durian_durian_core",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
     ],

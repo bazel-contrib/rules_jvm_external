@@ -55,7 +55,11 @@ maven_install(
 
 maven_install(
     name = "global_exclusion_testing",
-    artifacts = ["com.google.guava:guava:27.0-jre"],
+    artifacts = [
+        "com.google.guava:guava:27.0-jre", # depends on animal-sniffer-annotations and j2objc-annotations
+        "com.squareup.okhttp3:okhttp:3.14.1", # depends on animal-sniffer-annotations
+        "com.diffplug.durian:durian-core:1.2.0", # depends on animal-sniffer-annotations and j2objc-annotations
+    ],
     excluded_artifacts = [
         maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
         "com.google.j2objc:j2objc-annotations",
