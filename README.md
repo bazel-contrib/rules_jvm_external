@@ -51,10 +51,6 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
-    # Exclude packages from being pulled in by automatic dependency resolution
-    excluded_artifacts = [
-        "com.google.guava:guava",
-    ],
 )
 ```
 
@@ -325,6 +321,24 @@ maven_install(
 
 You can specify the exclusion using either the `maven.exclusion` helper or the
 `group-id:artifact-id` string directly.
+
+You can also exclude artifacts globally using the `excluded_artifacts`
+attribute in `maven_install`:
+
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    excluded_artifacts = [
+        "com.google.guava:guava",
+    ],
+)
+```
 
 ### Compile-only dependencies
 
