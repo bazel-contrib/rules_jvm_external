@@ -11,6 +11,7 @@ load("//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
+        "com.google.guava:guava:27.0-jre",
         "org.hamcrest:hamcrest-core:2.1",
     ],
     repositories = [

@@ -8,8 +8,6 @@ tasks:
       - "--"
       - "//..."
       # These tests are currently incompatible with OpenJDK 11.
-      - "-//tests/integration:ArtifactExclusionsTest"
-      - "-//tests/integration:NeverlinkTest"
       - "-//tests/integration:UnsafeSharedCacheTest"
   macos:
     test_targets:
