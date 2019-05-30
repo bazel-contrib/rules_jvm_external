@@ -1,5 +1,3 @@
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 java_test(
     name = "ArtifactExclusionsTest",
     srcs = ["ArtifactExclusionsTest.java"],

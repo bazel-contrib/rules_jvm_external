@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
-load("//:specs.bzl", "parse", "utils")
+load("//:specs.bzl", "utils")
 load(
     "//:private/versions.bzl",
     "COURSIER_CLI_MAVEN_PATH",
