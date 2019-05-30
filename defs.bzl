@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@rules_jvm_external//:coursier.bzl", "coursier_fetch")
-load("@rules_jvm_external//:specs.bzl", "json", "maven", "parse")
+load("@rules_jvm_external//:specs.bzl", "json", "parse")
 
 DEFAULT_REPOSITORY_NAME = "maven"
 
