@@ -13,12 +13,14 @@
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "parse", "utils")
-load("//:private/versions.bzl",
-     "COURSIER_CLI_MAVEN_PATH",
-     "COURSIER_CLI_SHA256",
+load(
+    "//:private/versions.bzl",
+    "COURSIER_CLI_MAVEN_PATH",
+    "COURSIER_CLI_SHA256",
 )
-load("//:private/special_artifacts.bzl",
-     "POM_ONLY_ARTIFACTS",
+load(
+    "//:private/special_artifacts.bzl",
+    "POM_ONLY_ARTIFACTS",
 )
 
 _BUILD = """
@@ -236,7 +238,6 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
 
-
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
             #    available only as a compile time dependency.
             #
@@ -251,7 +252,6 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             #   neverlink = True,
             if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
                 target_import_string.append("\tneverlink = True,")
-
 
             # 7. Finish the java_import rule.
             #
@@ -328,11 +328,11 @@ The artifact(s) depending on {artifact} are:
 and their POM files are located at:
 
 {reverse_dep_pom_paths}""".format(
-    artifact = artifact["coord"],
-    reverse_dep_coords = "\n".join(reverse_dep_coords),
-    reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
-    parsed_artifact = repr(artifact),
-)
+                artifact = artifact["coord"],
+                reverse_dep_coords = "\n".join(reverse_dep_coords),
+                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
+                parsed_artifact = repr(artifact),
+            )
 
             error_message = """
 The artifact for {artifact} was not downloaded. Perhaps its packaging type is
@@ -344,7 +344,7 @@ Parsed artifact data: {parsed_artifact}
                 artifact = artifact["coord"],
                 packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
                 parsed_artifact = repr(artifact),
-                rdeps_message = rdeps_message if len(reverse_dep_coords) > 0 else ""
+                rdeps_message = rdeps_message if len(reverse_dep_coords) > 0 else "",
             )
 
             fail(error_message)
@@ -357,7 +357,7 @@ and include the following snippet:
 Artifact coordinates: {artifact}
 Parsed data: {parsed_artifact}""".format(
                 artifact = artifact["coord"],
-                parsed_artifact = repr(artifact)
+                parsed_artifact = repr(artifact),
             )
             fail(error_message)
 
@@ -446,7 +446,7 @@ def _coursier_fetch_impl(repository_ctx):
     # Download Coursier's standalone (deploy) jar from Maven repositories.
     repository_ctx.download([
         "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH
+        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
     ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
     # Try running coursier once

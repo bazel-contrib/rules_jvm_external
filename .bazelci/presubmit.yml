@@ -1,5 +1,6 @@
 ---
-platforms:
+buildifier: latest
+tasks:
   ubuntu1604:
     test_targets:
       - "//..."

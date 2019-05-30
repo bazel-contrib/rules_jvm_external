@@ -1,4 +1,3 @@
-
 #
 # Maven specification
 #
@@ -25,12 +24,12 @@ def _maven_repository(url, user = None, password = None):
         }
     """
     if user == None and password == None:
-        return { "repo_url": url }
+        return {"repo_url": url}
     elif user == None or password == None:
         fail("Invalid repository info: Either user and password must both be provided, or neither.")
     else:
-        credentials = { "user": user, "password": password }
-        return { "repo_url": url, "credentials": credentials }
+        credentials = {"user": user, "password": password}
+        return {"repo_url": url, "credentials": credentials}
 
 def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None):
     """
@@ -91,7 +90,7 @@ def _maven_exclusion(group, artifact):
             "artifact": String
         }
     """
-    return { "group": group, "artifact": artifact }
+    return {"group": group, "artifact": artifact}
 
 maven = struct(
     repository = _maven_repository,
@@ -104,21 +103,21 @@ maven = struct(
 #
 
 def _parse_exclusion_spec_list(exclusion_specs):
-  """
-  Given a string (g:a), returns an exclusion map
-  """
-  exclusions = []
-  for exclusion_spec in exclusion_specs:
-      if type(exclusion_spec) == "string":
-          pieces = exclusion_spec.split(":")
-          if len(pieces) == 2:
-              exclusion_spec = { "group": pieces[0], "artifact": pieces[1] }
-          else:
-              fail(("Invalid exclusion: %s. Exclusions are specified as " + \
-                   "group-id:artifact-id, without the version, packaging or " + \
-                   "classifier.") % exclusion_spec)
-      exclusions.append(exclusion_spec)
-  return exclusions
+    """
+    Given a string (g:a), returns an exclusion map
+    """
+    exclusions = []
+    for exclusion_spec in exclusion_specs:
+        if type(exclusion_spec) == "string":
+            pieces = exclusion_spec.split(":")
+            if len(pieces) == 2:
+                exclusion_spec = {"group": pieces[0], "artifact": pieces[1]}
+            else:
+                fail(("Invalid exclusion: %s. Exclusions are specified as " +
+                      "group-id:artifact-id, without the version, packaging or " +
+                      "classifier.") % exclusion_spec)
+        exclusions.append(exclusion_spec)
+    return exclusions
 
 def _parse_maven_coordinate_string(mvn_coord):
     """
@@ -130,16 +129,16 @@ def _parse_maven_coordinate_string(mvn_coord):
 
     if len(pieces) == 3:
         version = pieces[2]
-        return { "group": group, "artifact": artifact, "version": version }
+        return {"group": group, "artifact": artifact, "version": version}
     elif len(pieces) == 4:
         packaging = pieces[2]
         version = pieces[3]
-        return { "group": group, "artifact": artifact, "packaging": packaging, "version": version}
+        return {"group": group, "artifact": artifact, "packaging": packaging, "version": version}
     elif len(pieces) == 5:
         packaging = pieces[2]
         classifier = pieces[3]
         version = pieces[4]
-        return { "group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier, "version": version }
+        return {"group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier, "version": version}
     else:
         fail("Could not parse maven coordinate", attr = mvn_coord)
 
@@ -150,7 +149,7 @@ def _parse_repository_spec_list(repository_specs):
     repos = []
     for repo in repository_specs:
         if type(repo) == "string":
-            repos.append({ "repo_url": repo })
+            repos.append({"repo_url": repo})
         else:
             repos.append(repo)
     return repos
@@ -223,8 +222,8 @@ def _artifact_spec_to_json(artifact_spec):
     exclusion_specs_json = (("[" + ", ".join(maybe_exclusion_specs_jsons) + "]") if len(maybe_exclusion_specs_jsons) > 0 else None)
 
     required = "{ \"group\": \"" + artifact_spec["group"] + \
-        "\", \"artifact\": \"" + artifact_spec["artifact"] + \
-        "\", \"version\": \"" + artifact_spec["version"] + "\""\
+               "\", \"artifact\": \"" + artifact_spec["artifact"] + \
+               "\", \"version\": \"" + artifact_spec["version"] + "\""
 
     with_packaging = required + ((", \"packaging\": \"" + artifact_spec["packaging"] + "\"") if artifact_spec.get("packaging") != None else "")
     with_classifier = with_packaging + ((", \"classifier\": \"" + artifact_spec["classifier"] + "\"") if artifact_spec.get("classifier") != None else "")
@@ -241,7 +240,6 @@ json = struct(
     write_override_license_types_spec = _override_license_types_spec_to_json,
     write_artifact_spec = _artifact_spec_to_json,
 )
-
 
 #
 # Accessors

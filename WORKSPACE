@@ -43,7 +43,10 @@ maven_install(
             artifact = "guava",
             version = "27.0-jre",
             exclusions = [
-                maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+                maven.exclusion(
+                    group = "org.codehaus.mojo",
+                    artifact = "animal-sniffer-annotations",
+                ),
                 "com.google.j2objc:j2objc-annotations",
             ],
         ),
@@ -56,12 +59,15 @@ maven_install(
 maven_install(
     name = "global_exclusion_testing",
     artifacts = [
-        "com.google.guava:guava:27.0-jre", # depends on animal-sniffer-annotations and j2objc-annotations
-        "com.squareup.okhttp3:okhttp:3.14.1", # depends on animal-sniffer-annotations
-        "com.diffplug.durian:durian-core:1.2.0", # depends on animal-sniffer-annotations and j2objc-annotations
+        "com.google.guava:guava:27.0-jre",  # depends on animal-sniffer-annotations and j2objc-annotations
+        "com.squareup.okhttp3:okhttp:3.14.1",  # depends on animal-sniffer-annotations
+        "com.diffplug.durian:durian-core:1.2.0",  # depends on animal-sniffer-annotations and j2objc-annotations
     ],
     excluded_artifacts = [
-        maven.exclusion(group = "org.codehaus.mojo", artifact = "animal-sniffer-annotations"),
+        maven.exclusion(
+            group = "org.codehaus.mojo",
+            artifact = "animal-sniffer-annotations",
+        ),
         "com.google.j2objc:j2objc-annotations",
     ],
     repositories = [
@@ -85,7 +91,12 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/116
         "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
         # https://github.com/bazelbuild/rules_jvm_external/issues/92#issuecomment-478430167
-        maven.artifact("com.squareup", "javapoet", "1.11.1", neverlink = True),
+        maven.artifact(
+            "com.squareup",
+            "javapoet",
+            "1.11.1",
+            neverlink = True,
+        ),
         # https://github.com/bazelbuild/rules_jvm_external/issues/98
         "com.github.fommil.netlib:all:1.1.2",
         "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
@@ -93,7 +104,7 @@ maven_install(
         "com.android.support:appcompat-v7:aar:28.0.0",
         "com.google.android.gms:play-services-base:16.1.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-484278260
-        "org.apache.flink:flink-test-utils_2.12:1.8.0"
+        "org.apache.flink:flink-test-utils_2.12:1.8.0",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",

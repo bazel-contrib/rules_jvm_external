@@ -4,11 +4,13 @@ android_sdk_repository(name = "androidsdk")
 
 http_archive(
     name = "robolectric",
-    urls = ["https://github.com/robolectric/robolectric-bazel/archive/4.1.tar.gz"],
-    strip_prefix = "robolectric-bazel-4.1",
     sha256 = "2ee850ca521288db72b0dedb9ecbda55b64d11c470435a882f8daf615091253d",
+    strip_prefix = "robolectric-bazel-4.1",
+    urls = ["https://github.com/robolectric/robolectric-bazel/archive/4.1.tar.gz"],
 )
+
 load("@robolectric//bazel:robolectric.bzl", "robolectric_repositories")
+
 robolectric_repositories()
 
 local_repository(
@@ -24,7 +26,7 @@ maven_install(
         "androidx.annotation:annotation:1.0.2",
         "androidx.test.ext:junit:1.1.0",
         "org.robolectric:robolectric:4.1",
-        "org.assertj:assertj-core:3.12.1"
+        "org.assertj:assertj-core:3.12.1",
     ],
     repositories = [
         "https://maven.google.com",

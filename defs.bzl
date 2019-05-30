@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@rules_jvm_external//:coursier.bzl", "coursier_fetch")
-load("@rules_jvm_external//:specs.bzl", "maven", "parse", "json")
+load("@rules_jvm_external//:specs.bzl", "json", "maven", "parse")
 
 DEFAULT_REPOSITORY_NAME = "maven"
 
@@ -25,7 +25,6 @@ def maven_install(
         fetch_sources = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = []):
-
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(json.write_repository_spec(repository))
@@ -61,6 +60,6 @@ def _escape(string):
 def _parse_artifact_str(artifact_str):
     pieces = artifact_str.split(":")
     if len(pieces) == 2:
-        return { "group": pieces[0], "artifact": pieces[1] }
+        return {"group": pieces[0], "artifact": pieces[1]}
     else:
         return parse.parse_maven_coordinate(artifact_str)
