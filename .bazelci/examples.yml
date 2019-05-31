@@ -22,6 +22,8 @@ tasks:
     name: "Android instrumentation test example"
     platform: ubuntu1804
     working_directory: examples/android_instrumentation_test
+    test_flags:
+      - "--host_force_python=PY2"
     test_targets:
       - "//src/test:greeter_test"
   android-instrumentation-test-macos:
