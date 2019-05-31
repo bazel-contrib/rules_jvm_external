@@ -7,5 +7,5 @@ kt_jvm_test(
     deps = [
         "@regression_testing//:junit_junit",
         "@regression_testing//:org_jetbrains_kotlin_kotlin_test",
-    ]
+    ],
 )
