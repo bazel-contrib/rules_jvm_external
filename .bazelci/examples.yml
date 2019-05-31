@@ -23,6 +23,8 @@ tasks:
     platform: ubuntu1804
     working_directory: examples/android_instrumentation_test
     test_flags:
+      # Compatibility with --incompatible_use_python_toolchains
+      # https://github.com/bazelbuild/bazel/issues/7899
       - "--host_force_python=PY2"
     test_targets:
       - "//src/test:greeter_test"
