@@ -28,8 +28,7 @@ java_test(
     test_class = "com.jvm.external.NeverlinkTest",
     deps = [
         "@maven//:org_hamcrest_hamcrest",
-        "@maven//:org_hamcrest_hamcrest_core",
-        "@regression_testing//:com_squareup_javapoet",
+        "@maven//:com_google_guava_guava",
     ],
 )
 
