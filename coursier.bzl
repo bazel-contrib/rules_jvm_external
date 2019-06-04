@@ -584,7 +584,7 @@ def _coursier_fetch_impl(repository_ctx):
             compat_repositories_bzl.append("    )")
 
         repository_ctx.file(
-            "repositories.bzl",
+            "compat.bzl",
             "\n".join(compat_repositories_bzl),
             False,  # not executable
         )

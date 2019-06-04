@@ -22,5 +22,5 @@ maven_install(
     generate_compat_repositories = True,
 )
 
-load("@maven//:repositories.bzl", "compat_repositories")
+load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
