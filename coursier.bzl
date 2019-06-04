@@ -572,12 +572,16 @@ def _coursier_fetch_impl(repository_ctx):
     if repository_ctx.attr.generate_compat_repositories:
         compat_repositories_bzl = ["def compat_repositories():"]
         for versionless_target_label in jar_imports:
-            repository_ctx.file(versionless_target_label + "/WORKSPACE",
-                                "",
-                                executable = False)
-            repository_ctx.file(versionless_target_label + "/jar/BUILD",
-                                "alias(name = \"jar\", actual = \"@maven//:%s\")" % versionless_target_label,
-                                executable = False)
+            repository_ctx.file(
+                versionless_target_label + "/WORKSPACE",
+                "",
+                executable = False,
+            )
+            repository_ctx.file(
+                versionless_target_label + "/jar/BUILD",
+                "alias(name = \"jar\", actual = \"@maven//:%s\", visibility = [\"//visibility:public\"])" % versionless_target_label,
+                executable = False,
+            )
             compat_repositories_bzl.append("    native.local_repository(")
             compat_repositories_bzl.append("        name = \"%s\"," % versionless_target_label)
             compat_repositories_bzl.append("        path = \"%s\"," % repository_ctx.path(versionless_target_label))
