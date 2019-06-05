@@ -366,6 +366,33 @@ As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`
 and `no_proxy` environment variables (and their uppercase counterparts) are
 supported.
 
+### Repository aliases
+
+Maven artifact rules like `maven_jar` and `jvm_import_external` generate targets
+labels in the form of `@group_artifact//jar`, like `@com_google_guava_guava//jar`. This 
+is different from the `@maven//:group_artifact` naming style used in this project.
+
+As some Bazel projects depend on the `@group_artifact//jar` style labels, we
+provide a `generate_compat_repositories` attribute in `maven_install`. If
+enabled, JAR artifacts can also be referenced using the `@group_artifact//jar`
+target label. For example, `@maven//:com_google_guava_guava` can also be
+referenced using `@com_google_guava_guava//jar`.
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    generate_compat_repositories = True
+)
+
+load("@maven//:compat.bzl", "compat_repositories")
+compat_repositories()
+```
+
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
