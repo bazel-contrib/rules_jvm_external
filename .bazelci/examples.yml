@@ -22,7 +22,6 @@ tasks:
     name: "Android instrumentation test example"
     platform: ubuntu1804
     working_directory: examples/android_instrumentation_test
-    test_flags:
     test_targets:
       - "//src/test:greeter_test"
   android-instrumentation-test-macos:
