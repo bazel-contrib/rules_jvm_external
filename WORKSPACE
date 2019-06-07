@@ -14,6 +14,8 @@ http_archive(
     strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
     url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
 )
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+bazel_skylib_workspace()
 
 # End Skylib dependencies
 
@@ -26,17 +28,10 @@ git_repository(
     shallow_since = "1554317371 -0400",
 )
 
-load("@io_bazel_skydoc//:setup.bzl", "skydoc_repositories")
-skydoc_repositories()
-
-load("@io_bazel_rules_sass//:package.bzl", "rules_sass_dependencies")
-rules_sass_dependencies()
-
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
-node_repositories()
-
-load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
-sass_repositories()
+# Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
+# usage of Stardoc (scripts/generate_docs) doesn't require any of these
+# dependencies. So, we omit them to keep the WORKSPACE file simpler.
+# https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
 # Begin test dependencies
 
