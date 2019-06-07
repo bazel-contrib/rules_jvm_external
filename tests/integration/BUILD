@@ -1,13 +1,24 @@
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 java_test(
     name = "ArtifactExclusionsTest",
     srcs = ["ArtifactExclusionsTest.java"],
     test_class = "com.jvm.external.ArtifactExclusionsTest",
     deps = [
-        "@regression_testing//:com_google_guava_guava_27_0_jre",
-        "@maven//:org_hamcrest_hamcrest_core",
+        "@exclusion_testing//:com_google_guava_guava",
         "@maven//:org_hamcrest_hamcrest",
+        "@maven//:org_hamcrest_hamcrest_core",
+    ],
+)
+
+java_test(
+    name = "GlobalArtifactExclusionsTest",
+    srcs = ["GlobalArtifactExclusionsTest.java"],
+    test_class = "com.jvm.external.GlobalArtifactExclusionsTest",
+    deps = [
+        "@global_exclusion_testing//:com_diffplug_durian_durian_core",
+        "@global_exclusion_testing//:com_google_guava_guava",
+        "@global_exclusion_testing//:com_squareup_okhttp3_okhttp",
+        "@maven//:org_hamcrest_hamcrest",
+        "@maven//:org_hamcrest_hamcrest_core",
     ],
 )
 
@@ -16,10 +27,8 @@ java_test(
     srcs = ["NeverlinkTest.java"],
     test_class = "com.jvm.external.NeverlinkTest",
     deps = [
-        "@regression_testing//:com_squareup_javapoet",
-        "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
-
+        "@maven//:com_google_guava_guava",
     ],
 )
 
@@ -28,8 +37,8 @@ java_test(
     srcs = ["UnsafeSharedCacheTest.java"],
     test_class = "com.jvm.external.UnsafeSharedCacheTest",
     deps = [
-        "@unsafe_shared_cache//:com_google_guava_guava_27_0_jre",
-        "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:org_hamcrest_hamcrest",
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@unsafe_shared_cache//:com_google_guava_guava",
     ],
 )

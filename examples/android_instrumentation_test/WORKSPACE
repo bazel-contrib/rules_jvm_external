@@ -1,4 +1,3 @@
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 android_sdk_repository(
@@ -31,11 +30,11 @@ maven_install(
 # Everything below this line is used for the Android testing tools and their dependencies
 # ---------------------------------------------------------------------------------------
 
-ATS_TAG = "66e4740af2b27dedf30a145fc60653bf19586424"
+ATS_TAG = "1edfdab3134a7f01b37afabd3eebfd2c5bb05151"
 
 http_archive(
     name = "android_test_support",
-    sha256 = "8696f228aa4b9ce9c0b77de764909e638b509aa25d5b6bf16bb45963f6591506",
+    sha256 = "dcd1ff76aef1a26329d77863972780c8fe1fc8ff625747342239f0489c2837ec",
     strip_prefix = "android-test-%s" % ATS_TAG,
     urls = ["https://github.com/android/android-test/archive/%s.tar.gz" % ATS_TAG],
 )

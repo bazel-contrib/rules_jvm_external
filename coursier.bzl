@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
-load("//:specs.bzl", "parse", "utils")
-load("//:private/versions.bzl",
-     "COURSIER_CLI_MAVEN_PATH",
-     "COURSIER_CLI_SHA256",
+load("//:specs.bzl", "utils")
+load(
+    "//:private/versions.bzl",
+    "COURSIER_CLI_MAVEN_PATH",
+    "COURSIER_CLI_SHA256",
 )
-load("//:private/special_artifacts.bzl",
-     "POM_ONLY_ARTIFACTS",
+load(
+    "//:private/special_artifacts.bzl",
+    "POM_ONLY_ARTIFACTS",
 )
 
 _BUILD = """
@@ -32,7 +34,14 @@ load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 # Coursier uses these types to determine what files it should resolve and fetch.
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
-_COURSIER_PACKAGING_TYPES = ["jar", "aar", "bundle", "eclipse-plugin", "orbit"]
+_COURSIER_PACKAGING_TYPES = [
+    "jar",
+    "aar",
+    "bundle",
+    "eclipse-plugin",
+    "orbit",
+    "test-jar",
+]
 
 def _strip_packaging_and_classifier(coord):
     # We add "pom" into _COURSIER_PACKAGING_TYPES here because "pom" is not a
@@ -106,7 +115,7 @@ def _get_reverse_deps(coord, dep_tree):
 # tree.
 #
 # Made function public for testing.
-def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_artifacts = {}):
+def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -116,32 +125,41 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
     # seen_imports :: string -> bool
     seen_imports = {}
 
+    # A list of versionless target labels for jar artifacts. This is used for
+    # generating a compatibility layer for repositories. For example, if we generate
+    # @maven//:junit_junit, we also generate @junit_junit//jar as an alias to it.
+    jar_versionless_target_labels = []
+
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
     srcjar_paths = None
-    if srcs_dep_tree != None:
+    if repository_ctx.attr.fetch_sources:
         srcjar_paths = {}
-        for artifact in srcs_dep_tree["dependencies"]:
-            artifact_path = artifact["file"]
-            if artifact_path != None and artifact_path not in seen_imports:
-                seen_imports[artifact_path] = True
-                if repository_ctx.attr.use_unsafe_shared_cache:
-                    # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
-                    artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
-                else:
-                    # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                    artifact_relative_path = _normalize_to_unix_path(artifact_path)
-                target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-                srcjar_paths[target_label] = artifact_relative_path
+        for artifact in dep_tree["dependencies"]:
+            if ":sources:" in artifact["coord"]:
+                artifact_path = artifact["file"]
+                if artifact_path != None and artifact_path not in seen_imports:
+                    seen_imports[artifact_path] = True
+                    if repository_ctx.attr.use_unsafe_shared_cache:
+                        # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
+                        artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
+                    else:
+                        # If not, it's a relative path to the one in output_base/external/$maven/v1/...
+                        artifact_relative_path = _normalize_to_unix_path(artifact_path)
+                    target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+                    srcjar_paths[target_label] = artifact_relative_path
+
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        target_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+        target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
             pass
-
+        elif repository_ctx.attr.fetch_sources and ":sources:" in artifact["coord"]:
+            # We already processed the sources above, so skip them here.
+            pass
         elif target_label not in seen_imports and artifact_path != None:
             seen_imports[target_label] = True
 
@@ -162,6 +180,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
                 # Kotlin compile interface JARs to be incorrect. We replace java_import
                 # with a simple jvm_import Starlark rule that skips ijar.
                 target_import_string = ["jvm_import("]
+                jar_versionless_target_labels.append(target_label)
             elif packaging == "aar":
                 target_import_string = ["aar_import("]
             else:
@@ -170,7 +189,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # 2. Generate the target label.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             #
             target_import_string.append("\tname = \"%s\"," % target_label)
 
@@ -179,7 +198,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             #
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
@@ -193,11 +212,11 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # 4. Generate the deps attribute with references to other target labels.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #
             target_import_string.append("\tdeps = [")
@@ -206,7 +225,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                dep_target_label = _escape(_strip_packaging_and_classifier(dep))
+                dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
                 target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
@@ -216,40 +235,38 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # For use with this rule https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
-
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
             #    available only as a compile time dependency.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
             if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
                 target_import_string.append("\tneverlink = True,")
 
-
             # 7. Finish the java_import rule.
             #
             # java_import(
-            # 	name = "org_hamcrest_hamcrest_library_1_3",
+            # 	name = "org_hamcrest_hamcrest_library",
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             # 	deps = [
-            # 		":org_hamcrest_hamcrest_core_1_3",
+            # 		":org_hamcrest_hamcrest_core",
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
@@ -261,35 +278,34 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
             # 8. Create a versionless alias target
             #
             # alias(
-            #   name = "org_hamcrest_hamcrest_library",
-            #   actual = "org_hamcrest_hamcrest_library_1_3",
+            #   name = "org_hamcrest_hamcrest_library_1_3",
+            #   actual = "org_hamcrest_hamcrest_library",
             # )
-            versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
+            versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
 
         elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
             # so they don't have a JAR for download.
-            if target_label not in seen_imports:
-                seen_imports[target_label] = True
-                target_import_string = ["java_library("]
-                target_import_string.append("\tname = \"%s\"," % target_label)
-                target_import_string.append("\texports = [")
+            seen_imports[target_label] = True
+            target_import_string = ["java_library("]
+            target_import_string.append("\tname = \"%s\"," % target_label)
+            target_import_string.append("\texports = [")
 
-                target_import_labels = []
-                for dep in artifact["dependencies"]:
-                    dep_target_label = _escape(_strip_packaging_and_classifier(dep))
-                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
-                target_import_labels = _deduplicate_list(target_import_labels)
+            target_import_labels = []
+            for dep in artifact["dependencies"]:
+                dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
+                target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+            target_import_labels = _deduplicate_list(target_import_labels)
 
-                target_import_string.append("".join(target_import_labels) + "\t],")
-                target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
-                target_import_string.append(")")
+            target_import_string.append("".join(target_import_labels) + "\t],")
+            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+            target_import_string.append(")")
 
-                all_imports.append("\n".join(target_import_string))
+            all_imports.append("\n".join(target_import_string))
 
-                versionless_target_alias_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
-                all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versionless_target_alias_label, target_label))
+            versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
 
         elif artifact_path == None:
             # Possible reasons that the artifact_path is None:
@@ -305,10 +321,7 @@ def generate_imports(repository_ctx, dep_tree, srcs_dep_tree = None, neverlink_a
                 for reverse_dep in reverse_deps
             ]
 
-            error_message = """
-The artifact for {artifact} was not downloaded. Perhaps its packaging type is
-not one of: {packaging_types}?
-
+            rdeps_message = """
 It is also possible that the packaging type of {artifact} is specified
 incorrectly in the POM file of an artifact that depends on it. For example,
 {artifact} may be an AAR, but the dependent's POM file specified its `<type>`
@@ -320,16 +333,24 @@ The artifact(s) depending on {artifact} are:
 
 and their POM files are located at:
 
-{reverse_dep_pom_paths}
-
----
-
-Parsed artifact data: {parsed_artifact}""".format(
+{reverse_dep_pom_paths}""".format(
                 artifact = artifact["coord"],
-                packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
                 reverse_dep_coords = "\n".join(reverse_dep_coords),
                 reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
                 parsed_artifact = repr(artifact),
+            )
+
+            error_message = """
+The artifact for {artifact} was not downloaded. Perhaps its packaging type is
+not one of: {packaging_types}?
+
+Parsed artifact data: {parsed_artifact}
+
+{rdeps_message}""".format(
+                artifact = artifact["coord"],
+                packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
+                parsed_artifact = repr(artifact),
+                rdeps_message = rdeps_message if len(reverse_dep_coords) > 0 else "",
             )
 
             fail(error_message)
@@ -342,11 +363,11 @@ and include the following snippet:
 Artifact coordinates: {artifact}
 Parsed data: {parsed_artifact}""".format(
                 artifact = artifact["coord"],
-                parsed_artifact = repr(artifact)
+                parsed_artifact = repr(artifact),
             )
             fail(error_message)
 
-    return "\n".join(all_imports)
+    return ("\n".join(all_imports), jar_versionless_target_labels)
 
 def _deduplicate_list(items):
     seen_items = {}
@@ -390,14 +411,14 @@ def _get_java_proxy_args(repository_ctx):
 
     # Extract the host and port from a standard proxy URL:
     # http://proxy.example.com:3128 -> ["proxy.example.com", "3128"]
-    if http_proxy != None:
+    if http_proxy:
         proxy = http_proxy.split("://", 1)[1].split(":", 1)
         proxy_args.extend([
             "-Dhttp.proxyHost=%s" % proxy[0],
             "-Dhttp.proxyPort=%s" % proxy[1],
         ])
 
-    if https_proxy != None:
+    if https_proxy:
         proxy = https_proxy.split("://", 1)[1].split(":", 1)
         proxy_args.extend([
             "-Dhttps.proxyHost=%s" % proxy[0],
@@ -431,7 +452,7 @@ def _coursier_fetch_impl(repository_ctx):
     # Download Coursier's standalone (deploy) jar from Maven repositories.
     repository_ctx.download([
         "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH
+        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
     ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
     # Try running coursier once
@@ -461,6 +482,10 @@ def _coursier_fetch_impl(repository_ctx):
     for a in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(a))
 
+    excluded_artifacts = []
+    for a in repository_ctx.attr.excluded_artifacts:
+        excluded_artifacts.append(json_parse(a))
+
     artifact_coordinates = []
 
     # Set up artifact exclusion, if any. From coursier fetch --help:
@@ -485,13 +510,24 @@ def _coursier_fetch_impl(repository_ctx):
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
+
+    if repository_ctx.attr.fail_on_missing_checksum:
+        cmd.extend(["--checksum", "SHA-1,MD5"])
+    else:
+        cmd.extend(["--checksum", "SHA-1,MD5,None"])
+
     if len(exclusion_lines) > 0:
         repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
     for repository in repositories:
         cmd.extend(["--repository", utils.repo_url(repository)])
+    for a in excluded_artifacts:
+        cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
     if not repository_ctx.attr.use_unsafe_shared_cache:
         cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+    if repository_ctx.attr.fetch_sources:
+        cmd.append("--sources")
+        cmd.append("--default=true")
     if _is_windows(repository_ctx):
         # Unfortunately on Windows, coursier crashes while trying to acquire the
         # cache's .structure.lock file while running in parallel. This does not
@@ -508,41 +544,24 @@ def _coursier_fetch_impl(repository_ctx):
     # to generate the repository's BUILD file.
     dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
 
-    srcs_dep_tree = None
-    if repository_ctx.attr.fetch_sources:
-        cmd = _generate_coursier_command(repository_ctx)
-        cmd.extend(["fetch"])
-        cmd.extend(artifact_coordinates)
-        cmd.append("--quiet")
-        cmd.append("--no-default")
-        cmd.extend(["--sources", "true"])
-        cmd.extend(["--json-output-file", "src-dep-tree.json"])
-        if len(exclusion_lines) > 0:
-            cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-            repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-        for repository in repositories:
-            cmd.extend(["--repository", utils.repo_url(repository)])
-        if not repository_ctx.attr.use_unsafe_shared_cache:
-            cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-        exec_result = repository_ctx.execute(cmd)
-        if (exec_result.return_code != 0):
-            fail("Error while fetching artifact sources with coursier: " +
-                 exec_result.stderr)
-        srcs_dep_tree = json_parse(_cat_file(repository_ctx, "src-dep-tree.json"))
-
-
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
-    generated_imports = generate_imports(
+    (generated_imports, jar_versionless_target_labels) = _generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
-        srcs_dep_tree = srcs_dep_tree,
         neverlink_artifacts = neverlink_artifacts,
     )
 
     repository_ctx.template(
         "jvm_import.bzl",
         repository_ctx.attr._jvm_import,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
+    repository_ctx.template(
+        "compat_repository.bzl",
+        repository_ctx.attr._compat_repository,
         substitutions = {},
         executable = False,  # not executable
     )
@@ -556,13 +575,34 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+    # Generate a compatibility layer of external repositories for all jar artifacts.
+    if repository_ctx.attr.generate_compat_repositories:
+        compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
+        compat_repositories_bzl.append("def compat_repositories():")
+        for versionless_target_label in jar_versionless_target_labels:
+            compat_repositories_bzl.extend([
+                "    compat_repository(",
+                "        name = \"%s\"," % versionless_target_label,
+                "        generating_repository = \"%s\"," % repository_ctx.name,
+                "    )",
+            ])
+        repository_ctx.file(
+            "compat.bzl",
+            "\n".join(compat_repositories_bzl) + "\n",
+            False,  # not executable
+        )
+
 coursier_fetch = repository_rule(
     attrs = {
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
+        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
+        "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
+        "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
+        "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
     },
     environ = [
         "JAVA_HOME",

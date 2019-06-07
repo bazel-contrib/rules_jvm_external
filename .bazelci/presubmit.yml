@@ -1,22 +1,22 @@
 ---
-platforms:
-  ubuntu1404:
-    test_targets:
-    - "//tests/..."
+tasks:
   ubuntu1604:
     test_targets:
-    - "//tests/..."
+      - "//..."
   ubuntu1804:
     test_targets:
-    - "//tests/..."
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:UnsafeSharedCacheTest"
   macos:
     test_targets:
-    - "//tests/..."
+      - "//..."
   windows:
     test_targets:
-    - "--"
-    - "//tests/..."
-    # rules_kotlin is not tested / does not work on Windows.
-    # https://github.com/bazelbuild/rules_kotlin/issues/179
-    # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
-    - "-//tests/unit/kotlin/..."
+      - "--"
+      - "//..."
+      # rules_kotlin is not tested / does not work on Windows.
+      # https://github.com/bazelbuild/rules_kotlin/issues/179
+      # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
+      - "-//tests/unit/kotlin/..."

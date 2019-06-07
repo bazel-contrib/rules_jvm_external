@@ -27,8 +27,8 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "2.0.1"
-RULES_JVM_EXTERNAL_SHA = "55e8d3951647ae3dffde22b4f7f8dee11b3f70f3f89424713debd7076197eaca"
+RULES_JVM_EXTERNAL_TAG = "2.2"
+RULES_JVM_EXTERNAL_SHA = "f1203ce04e232ab6fdd81897cf0ff76f2c04c0741424d192f28e65ae752ce2d6"
 
 http_archive(
     name = "rules_jvm_external",
@@ -51,8 +51,6 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
-    # Fetch srcjars. Defaults to False.
-    fetch_sources = True,
 )
 ```
 
@@ -74,20 +72,20 @@ For the `junit:junit` example, using `bazel query @maven//:all --output=build`, 
 
 ```python
 alias(
-  name = "junit_junit",
-  actual = "@maven//:junit_junit_4_12",
+  name = "junit_junit_4_12",
+  actual = "@maven//:junit_junit",
 )
 
-java_import(
-  name = "junit_junit_4_12",
+jvm_import(
+  name = "junit_junit",
   jars = ["@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar",
-  deps = ["@maven//:org_hamcrest_hamcrest_core_1_3"],
+  deps = ["@maven//:org_hamcrest_hamcrest_core"],
   tags = ["maven_coordinates=junit:junit:4.12"],
 )
 
-java_import(
-  name = "org_hamcrest_hamcrest_core_1_3",
+jvm_import(
+  name = "org_hamcrest_hamcrest_core",
   jars = ["@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"],
   srcjar = "@maven//:https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
   deps = [],
@@ -107,14 +105,48 @@ example](examples/pom_file_generation/) for more information.
 
 ## Advanced usage
 
-### Using a persistent artifact cache
+### Fetch source JARs
 
-To download artifacts into a shared and persistent directory in your home
-directory, specify `use_unsafe_shared_cache = True` in `maven_install`:
+To download the source JAR alongside the main artifact JAR, set `fetch_sources =
+True` in `maven_install`:
 
 ```python
 maven_install(
-    name = "maven",
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    fetch_sources = True,
+)
+```
+
+### Checksum verification
+
+Artifact resolution will fail if a `SHA-1` or `MD5` checksum file for the
+artifact is missing in the repository. To disable this behavior, set
+`fail_on_missing_checksum = False` in `maven_install`:
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    fail_on_missing_checksum = False,
+)
+```
+
+### Using a persistent artifact cache
+
+To download artifacts into a shared and persistent directory in your home
+directory, set `use_unsafe_shared_cache = True` in `maven_install`.
+
+```python
+maven_install(
     artifacts = [
         # ...
     ],
@@ -290,6 +322,24 @@ maven_install(
 You can specify the exclusion using either the `maven.exclusion` helper or the
 `group-id:artifact-id` string directly.
 
+You can also exclude artifacts globally using the `excluded_artifacts`
+attribute in `maven_install`:
+
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    excluded_artifacts = [
+        "com.google.guava:guava",
+    ],
+)
+```
+
 ### Compile-only dependencies
 
 If you want to mark certain artifacts as compile-only dependencies, use the
@@ -315,6 +365,33 @@ artifact available only for compilation and not at runtime.
 As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`
 and `no_proxy` environment variables (and their uppercase counterparts) are
 supported.
+
+### Repository aliases
+
+Maven artifact rules like `maven_jar` and `jvm_import_external` generate targets
+labels in the form of `@group_artifact//jar`, like `@com_google_guava_guava//jar`. This 
+is different from the `@maven//:group_artifact` naming style used in this project.
+
+As some Bazel projects depend on the `@group_artifact//jar` style labels, we
+provide a `generate_compat_repositories` attribute in `maven_install`. If
+enabled, JAR artifacts can also be referenced using the `@group_artifact//jar`
+target label. For example, `@maven//:com_google_guava_guava` can also be
+referenced using `@com_google_guava_guava//jar`.
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    generate_compat_repositories = True
+)
+
+load("@maven//:compat.bzl", "compat_repositories")
+compat_repositories()
+```
 
 ## Demo
 

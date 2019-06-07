@@ -1,0 +1,3 @@
+# The unified launcher runs in Python 2 host configuration
+# https://github.com/bazelbuild/bazel/issues/7899
+build --host_force_python=PY2
