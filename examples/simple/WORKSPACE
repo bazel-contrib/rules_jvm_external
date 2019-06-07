@@ -19,4 +19,8 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
+    generate_compat_repositories = True,
 )
+
+load("@maven//:compat.bzl", "compat_repositories")
+compat_repositories()

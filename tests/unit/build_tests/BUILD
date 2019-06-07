@@ -14,3 +14,13 @@ build_test(
         "@regression_testing//:org_apache_flink_flink_test_utils_2_12",
     ],
 )
+
+build_test(
+    name = "compat_repository_alias",
+    targets = [
+        "@org_pantsbuild_jarjar//jar",
+        "@nz_ac_waikato_cms_weka_weka_stable//jar",
+        "@com_digitalasset_damlc_osx//jar",
+        "@org_apache_flink_flink_test_utils_2_12//jar",
+    ],
+)

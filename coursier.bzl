@@ -115,7 +115,7 @@ def _get_reverse_deps(coord, dep_tree):
 # tree.
 #
 # Made function public for testing.
-def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
+def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -124,6 +124,11 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
     #
     # seen_imports :: string -> bool
     seen_imports = {}
+
+    # A list of versionless target labels for jar artifacts. This is used for
+    # generating a compatibility layer for repositories. For example, if we generate
+    # @maven//:junit_junit, we also generate @junit_junit//jar as an alias to it.
+    jar_versionless_target_labels = []
 
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
@@ -175,6 +180,7 @@ def generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                 # Kotlin compile interface JARs to be incorrect. We replace java_import
                 # with a simple jvm_import Starlark rule that skips ijar.
                 target_import_string = ["jvm_import("]
+                jar_versionless_target_labels.append(target_label)
             elif packaging == "aar":
                 target_import_string = ["aar_import("]
             else:
@@ -361,7 +367,7 @@ Parsed data: {parsed_artifact}""".format(
             )
             fail(error_message)
 
-    return "\n".join(all_imports)
+    return ("\n".join(all_imports), jar_versionless_target_labels)
 
 def _deduplicate_list(items):
     seen_items = {}
@@ -540,7 +546,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
-    generated_imports = generate_imports(
+    (generated_imports, jar_versionless_target_labels) = _generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         neverlink_artifacts = neverlink_artifacts,
@@ -549,6 +555,13 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.template(
         "jvm_import.bzl",
         repository_ctx.attr._jvm_import,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
+    repository_ctx.template(
+        "compat_repository.bzl",
+        repository_ctx.attr._compat_repository,
         substitutions = {},
         executable = False,  # not executable
     )
@@ -562,15 +575,34 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+    # Generate a compatibility layer of external repositories for all jar artifacts.
+    if repository_ctx.attr.generate_compat_repositories:
+        compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
+        compat_repositories_bzl.append("def compat_repositories():")
+        for versionless_target_label in jar_versionless_target_labels:
+            compat_repositories_bzl.extend([
+                "    compat_repository(",
+                "        name = \"%s\"," % versionless_target_label,
+                "        generating_repository = \"%s\"," % repository_ctx.name,
+                "    )",
+            ])
+        repository_ctx.file(
+            "compat.bzl",
+            "\n".join(compat_repositories_bzl) + "\n",
+            False,  # not executable
+        )
+
 coursier_fetch = repository_rule(
     attrs = {
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
+        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
+        "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
     },
     environ = [
         "JAVA_HOME",
