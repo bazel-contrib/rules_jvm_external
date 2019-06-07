@@ -107,7 +107,11 @@ maven_install(
         "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
         "https://maven.google.com",
     ],
+    generate_compat_repositories = True,
 )
+
+load("@regression_testing//:compat.bzl", "compat_repositories")
+compat_repositories()
 
 RULES_KOTLIN_VERSION = "da1232eda2ef90d4375e2d1677b32c7ddf09e8a1"
 

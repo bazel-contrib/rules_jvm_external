@@ -580,9 +580,12 @@ def _coursier_fetch_impl(repository_ctx):
         compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
         compat_repositories_bzl.append("def compat_repositories():")
         for versionless_target_label in jar_versionless_target_labels:
-            compat_repositories_bzl.append(
-                "    compat_repository(name = \"" + versionless_target_label + "\")"
-            )
+            compat_repositories_bzl.extend([
+                "    compat_repository(",
+                "        name = \"%s\"," % versionless_target_label,
+                "        generating_repository = \"%s\"," % repository_ctx.name,
+                "    )",
+            ])
         repository_ctx.file(
             "compat.bzl",
             "\n".join(compat_repositories_bzl) + "\n",
