@@ -42,8 +42,8 @@ def maven_install(
         currently unable to detect modifications to the cache.
       excluded_artifacts: A list of Maven artifact coordinates in the form of `group:artifact` to be
         excluded from the transitive dependencies.
-      generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR 
-        artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as 
+      generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
+        artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
         `@com_google_guava_guava//jar`.
     """
     repositories_json_strings = []

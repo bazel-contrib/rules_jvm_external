@@ -31,7 +31,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## maven_install
 
 <pre>
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>)
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -73,8 +73,14 @@ and fetch Maven artifacts transitively.
       <td>
         optional. default is <code>[]</code>
         <p>
-          A list of Maven artifact coordinates in the form of `group-id:artifact-id:version`.
+          A list of Maven artifact coordinates in the form of `group:artifact:version`.
         </p>
+      </td>
+    </tr>
+    <tr id="maven_install-fail_on_missing_checksum">
+      <td><code>fail_on_missing_checksum</code></td>
+      <td>
+        optional. default is <code>True</code>
       </td>
     </tr>
     <tr id="maven_install-fetch_sources">
@@ -93,6 +99,27 @@ and fetch Maven artifacts transitively.
         <p>
           Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is
   currently unable to detect modifications to the cache.
+        </p>
+      </td>
+    </tr>
+    <tr id="maven_install-excluded_artifacts">
+      <td><code>excluded_artifacts</code></td>
+      <td>
+        optional. default is <code>[]</code>
+        <p>
+          A list of Maven artifact coordinates in the form of `group:artifact` to be
+  excluded from the transitive dependencies.
+        </p>
+      </td>
+    </tr>
+    <tr id="maven_install-generate_compat_repositories">
+      <td><code>generate_compat_repositories</code></td>
+      <td>
+        optional. default is <code>False</code>
+        <p>
+          Additionally generate repository aliases in a .bzl file for all JAR
+  artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
+  `@com_google_guava_guava//jar`.
         </p>
       </td>
     </tr>
