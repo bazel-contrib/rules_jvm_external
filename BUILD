@@ -3,33 +3,37 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 exports_files(["defs.bzl"])
 
-licenses(["notice"]) # Apache 2.0
+licenses(["notice"])  # Apache 2.0
 
 stardoc(
     name = "defs",
-    input = "defs.bzl",
     out = "defs.md",
+    input = "defs.bzl",
+    symbol_names = ["maven_install"],
     deps = ["//:implementation"],
-    symbol_names = ["maven_install"]
 )
 
 stardoc(
     name = "specs",
-    input = "specs.bzl",
     out = "specs.md",
+    input = "specs.bzl",
+    symbol_names = [
+        "maven.artifact",
+        "maven.repository",
+        "maven.exclusion",
+    ],
     deps = ["//:implementation"],
-    symbol_names = ["maven.artifact", "maven.repository", "maven.exclusion"]
 )
 
 bzl_library(
     name = "implementation",
     srcs = [
+        ":coursier.bzl",
         ":defs.bzl",
         ":specs.bzl",
-        ":coursier.bzl",
-        "//:private/versions.bzl",
         "//:private/special_artifacts.bzl",
-        "//third_party/bazel_json/lib:json_parser.bzl"
+        "//:private/versions.bzl",
+        "//third_party/bazel_json/lib:json_parser.bzl",
     ],
 )
 
