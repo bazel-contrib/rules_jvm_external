@@ -130,3 +130,21 @@ tasks:
     # test_targets:
     # https://github.com/bazelbuild/rules_jvm_external/issues/103
     # - "//..."
+  artifact-resolution_analysis-linux:
+    name: "Artifact resolution analysis example"
+    platform: ubuntu1804
+    working_directory: examples/artifact_resolution_analysis
+    test_targets:
+      - "//..."
+  artifact-resolution_analysis-macos:
+    name: "Artifact resolution analysis example"
+    platform: macos
+    working_directory: examples/artifact_resolution_analysis
+    test_targets:
+      - "//..."
+  artifact-resolution_analysis-windows:
+    name: "Artifact resolution analysis example"
+    platform: windows
+    working_directory: examples/artifact_resolution_analysis
+    test_targets:
+      - "//..."

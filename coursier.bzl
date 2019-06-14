@@ -26,6 +26,8 @@ load(
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["dep-tree.json", "resolved_artifacts.bzl"])
+
 load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
 {imports}
@@ -573,6 +575,15 @@ def _coursier_fetch_impl(repository_ctx):
             imports = generated_imports,
         ),
         False,  # not executable
+    )
+
+    # Expose the dependency tree dict for users to analyze and build on top of.
+    # Since this is the source of truth of our generated BUILD file, it is safe
+    # to do this.
+    repository_ctx.file(
+        "dependency_tree.bzl", 
+        "dependency_tree = " + repr(dep_tree["dependencies"]), 
+        executable = False,
     )
 
     # Generate a compatibility layer of external repositories for all jar artifacts.

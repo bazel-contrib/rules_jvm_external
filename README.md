@@ -393,6 +393,95 @@ load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
 ```
 
+### Dependency tree analysis
+
+Each `maven_install` repository exposes a `dependency_tree.bzl` file
+containing the source of truth used by `rules_jvm_external` to generate the
+BUILD file. This source of truth comes in the form of a Starlark dictionary
+named `dependency_tree` in `@maven//:dependency_tree.bzl`.
+
+To use it, load it in your `BUILD`, `WORKSPACE` or any `.bzl` file:
+
+```python
+load("@maven//:dependency_tree.bzl", "dependency_tree")
+
+all_artifact_coordinates = [artifact["coord"] for artifact in dependency_tree]
+```
+
+The dictionary has the following schema:
+
+```python
+[
+  {
+    "coord": # Coordinates for this artifact.
+    "file": # Relative path to the artifact file.
+    "dependencies": [
+        # A list of coordinates for the dependencies of this artifact.
+    ]
+  },
+  # Other artifacts..
+]
+```
+
+To get the absolute path to the artifact, prefix the `file` value with the value of `bazel info $(output_base)/external/maven`.
+
+For example, the `dependency_tree` for the Guava artifact looks like this:
+
+```json
+[
+  {
+    "coord": "com.google.code.findbugs:jsr305:3.0.2",
+    "file": "v1/https/jcenter.bintray.com/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+    "dependencies": []
+  },
+  {
+    "coord": "com.google.errorprone:error_prone_annotations:2.2.0",
+    "file": "v1/https/jcenter.bintray.com/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0.jar",
+    "dependencies": []
+  },
+  {
+    "coord": "com.google.guava:failureaccess:1.0",
+    "file": "v1/https/jcenter.bintray.com/com/google/guava/failureaccess/1.0/failureaccess-1.0.jar",
+    "dependencies": []
+  },
+  {
+    "coord": "com.google.guava:guava:27.0-jre",
+    "file": "v1/https/jcenter.bintray.com/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar",
+    "dependencies": [
+      "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+      "com.google.code.findbugs:jsr305:3.0.2",
+      "com.google.guava:failureaccess:1.0",
+      "org.codehaus.mojo:animal-sniffer-annotations:1.17",
+      "com.google.j2objc:j2objc-annotations:1.1",
+      "com.google.errorprone:error_prone_annotations:2.2.0",
+      "org.checkerframework:checker-qual:2.5.2"
+    ]
+  },
+  {
+    "coord": "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+    "file": "v1/https/jcenter.bintray.com/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
+    "dependencies": []
+  },
+  {
+    "coord": "com.google.j2objc:j2objc-annotations:1.1",
+    "file": "v1/https/jcenter.bintray.com/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar",
+    "dependencies": []
+  },
+  {
+    "coord": "org.checkerframework:checker-qual:2.5.2",
+    "file": "v1/https/jcenter.bintray.com/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar",
+    "dependencies": []
+  },
+  {
+    "coord": "org.codehaus.mojo:animal-sniffer-annotations:1.17",
+    "file": "v1/https/jcenter.bintray.com/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar",
+    "dependencies": []
+  }
+]
+```
+
+You can see a full example in [`examples/artifact_resolution_analysis`](examples/artifact_resolution_analysis).
+
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
