@@ -3,17 +3,15 @@
 # API Reference
 
 - [Basic functions](#basic-functions)
-  - [artifact](#artifact)
-    - [Parameters](#parameters)
   - [maven_install](#maven_install)
-    - [Parameters](#parameters-1)
+    - [Parameters](#parameters)
 - [Maven specification functions](#maven-specification-functions)
   - [maven.repository](#mavenrepository)
-    - [Parameters](#parameters-2)
+    - [Parameters](#parameters-1)
   - [maven.artifact](#mavenartifact)
-    - [Parameters](#parameters-3)
+    - [Parameters](#parameters-2)
   - [maven.exclusion](#mavenexclusion)
-    - [Parameters](#parameters-4)
+    - [Parameters](#parameters-3)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -26,52 +24,14 @@ To use these functions, load them at the top of your BUILD file. For example:
 ```python
 load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ```
-## artifact
+<!-- Generated with Stardoc: http://skydoc.bazel.build -->
 
-<pre>
-artifact(<a href="#artifact-coordinates">coordinates</a>, <a href="#artifact-repository_name">repository_name</a>)
-</pre>
-
-A helper macro to translate Maven coordinates into a Bazel target label.
-
-For example:
-
-`artifact("com.google.guava:guava")` translates into `@maven//:com_google_guava_guava`
-
-`artifact("com.google.guava:guava", repository_name = "custom_maven")` translates into `@custom_maven//:com_google_guava_guava`
-
-
-### Parameters
-
-<table class="params-table">
-  <colgroup>
-    <col class="col-param" />
-    <col class="col-description" />
-  </colgroup>
-  <tbody>
-    <tr id="artifact-coordinates">
-      <td><code>coordinates</code></td>
-      <td>
-        required.
-      </td>
-    </tr>
-    <tr id="artifact-repository_name">
-      <td><code>repository_name</code></td>
-      <td>
-        optional. default is <code>"maven"</code>
-        <p>
-          The name of the `maven_install` declaration in the WORKSPACE file containing this artifact.
-        </p>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
+<a name="#maven_install"></a>
 
 ## maven_install
 
 <pre>
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>)
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -113,8 +73,14 @@ and fetch Maven artifacts transitively.
       <td>
         optional. default is <code>[]</code>
         <p>
-          A list of Maven artifact coordinates in the form of `group-id:artifact-id:version`.
+          A list of Maven artifact coordinates in the form of `group:artifact:version`.
         </p>
+      </td>
+    </tr>
+    <tr id="maven_install-fail_on_missing_checksum">
+      <td><code>fail_on_missing_checksum</code></td>
+      <td>
+        optional. default is <code>True</code>
       </td>
     </tr>
     <tr id="maven_install-fetch_sources">
@@ -136,6 +102,27 @@ and fetch Maven artifacts transitively.
         </p>
       </td>
     </tr>
+    <tr id="maven_install-excluded_artifacts">
+      <td><code>excluded_artifacts</code></td>
+      <td>
+        optional. default is <code>[]</code>
+        <p>
+          A list of Maven artifact coordinates in the form of `group:artifact` to be
+  excluded from the transitive dependencies.
+        </p>
+      </td>
+    </tr>
+    <tr id="maven_install-generate_compat_repositories">
+      <td><code>generate_compat_repositories</code></td>
+      <td>
+        optional. default is <code>False</code>
+        <p>
+          Additionally generate repository aliases in a .bzl file for all JAR
+  artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
+  `@com_google_guava_guava//jar`.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -150,6 +137,10 @@ To use these functions, load the `maven` struct at the top of your BUILD file:
 ```python
 load("@rules_jvm_external//:specs.bzl", "maven")
 ```
+<!-- Generated with Stardoc: http://skydoc.bazel.build -->
+
+<a name="#maven.repository"></a>
+
 ## maven.repository
 
 <pre>
@@ -202,10 +193,12 @@ will just generate the repository url.
 </table>
 
 
+<a name="#maven.artifact"></a>
+
 ## maven.artifact
 
 <pre>
-maven.artifact(<a href="#maven.artifact-group">group</a>, <a href="#maven.artifact-artifact">artifact</a>, <a href="#maven.artifact-version">version</a>, <a href="#maven.artifact-packaging">packaging</a>, <a href="#maven.artifact-classifier">classifier</a>, <a href="#maven.artifact-override_license_types">override_license_types</a>, <a href="#maven.artifact-exclusions">exclusions</a>)
+maven.artifact(<a href="#maven.artifact-group">group</a>, <a href="#maven.artifact-artifact">artifact</a>, <a href="#maven.artifact-version">version</a>, <a href="#maven.artifact-packaging">packaging</a>, <a href="#maven.artifact-classifier">classifier</a>, <a href="#maven.artifact-override_license_types">override_license_types</a>, <a href="#maven.artifact-exclusions">exclusions</a>, <a href="#maven.artifact-neverlink">neverlink</a>)
 </pre>
 
 Generates the data map for a Maven artifact given the available information about its coordinates.
@@ -281,9 +274,20 @@ Generates the data map for a Maven artifact given the available information abou
         </p>
       </td>
     </tr>
+    <tr id="maven.artifact-neverlink">
+      <td><code>neverlink</code></td>
+      <td>
+        optional. default is <code>None</code>
+        <p>
+          Determines if this artifact should be part of the runtime classpath.
+        </p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
+
+<a name="#maven.exclusion"></a>
 
 ## maven.exclusion
 
@@ -321,4 +325,5 @@ Generates the data map for a Maven artifact exclusion.
     </tr>
   </tbody>
 </table>
+
 

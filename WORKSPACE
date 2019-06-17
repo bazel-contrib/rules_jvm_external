@@ -4,6 +4,35 @@ android_sdk_repository(name = "androidsdk")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Begin Skylib dependencies
+
+BAZEL_SKYLIB_TAG = "0.8.0"
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "2ea8a5ed2b448baf4a6855d3ce049c4c452a6470b1efd1504fdb7c1c134d220a",
+    strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
+    url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
+)
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+bazel_skylib_workspace()
+
+# End Skylib dependencies
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "io_bazel_skydoc",
+    remote = "https://github.com/bazelbuild/skydoc.git",
+    commit = "e235d7d6dec0241261bdb13d7415f3373920e6fd",
+    shallow_since = "1554317371 -0400",
+)
+
+# Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
+# usage of Stardoc (scripts/generate_docs) doesn't require any of these
+# dependencies. So, we omit them to keep the WORKSPACE file simpler.
+# https://skydoc.bazel.build/docs/getting_started_stardoc.html
+
 # Begin test dependencies
 
 load("//:defs.bzl", "maven_install")
@@ -127,18 +156,5 @@ load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_reg
 kotlin_repositories()
 
 kt_register_toolchains()
-
-BAZEL_SKYLIB_TAG = "0.7.0"
-
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "2c62d8cd4ab1e65c08647eb4afe38f51591f43f7f0885e7769832fa137633dcb",
-    strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
-    url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
-)
-
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-
-bazel_skylib_workspace()
 
 # End test dependencies
