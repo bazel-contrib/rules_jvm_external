@@ -423,7 +423,8 @@ The dictionary has the following schema:
 ]
 ```
 
-To get the absolute path to the artifact, prefix the `file` value with the value of `bazel info $(output_base)/external/maven`.
+To get the absolute path to the artifact, prefix the `file` value with the value
+of `$(bazel info output_base)/external/maven`.
 
 For example, the `dependency_tree` for the Guava artifact looks like this:
 
