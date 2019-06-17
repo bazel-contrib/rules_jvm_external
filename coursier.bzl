@@ -608,25 +608,28 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+    dependency_tree_bzl = "dependency_tree = " + repr(dep_tree)
+    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree) + "}"
+
     # Expose the dependency tree dict for users to analyze and build on top of.
     # Since this is the source of truth of our generated BUILD file, it is safe
     # to do this.
     repository_ctx.file(
         "pinned_maven_install.bzl", 
-        "dependency_tree = " + repr(dep_tree), 
+        dependency_tree_bzl,
         executable = False,
     )
 
     repository_ctx.file(
         "pinned_maven_install.json", 
-        "{ \"dependency_tree\": " + repr(dep_tree) + "}", 
+        dependency_tree_json,
         executable = False,
     )
 
     repository_ctx.file(
         "pin",
         """#!/bin/bash
-echo %s""" % repr(dep_tree).replace("\"", "\"\""),
+echo %s""" % dependency_tree_json.replace("\"", "\\\""),
         executable = True,
     )
 
