@@ -573,7 +573,7 @@ def _coursier_fetch_impl(repository_ctx):
                 else:
                     url.extend(["/", part])
             artifact.update({"url": "".join(url)})
-            if repository_ctx.attr.pinned_maven_install == None:
+            if not repository_ctx.attr.use_unsafe_shared_cache and repository_ctx.attr.pinned_maven_install == None:
                 result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
                 artifact.update({"sha256": result.sha256})
 
