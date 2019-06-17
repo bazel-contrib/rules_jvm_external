@@ -564,17 +564,18 @@ def _coursier_fetch_impl(repository_ctx):
     for artifact in dep_tree["dependencies"]:
         url = []
         protocol = None
-        for part in artifact["file"].split("/"):
-            if protocol == None:
-                if part == "http" or part == "https":
-                    protocol = part
-                    url.extend([protocol, ":/"])
-            else:
-                url.extend(["/", part])
-        artifact.update({"url": "".join(url)})
-        if repository_ctx.attr.pinned_maven_install == None:
-            result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
-            artifact.update({"sha256": result.sha256})
+        if artifact["file"] != None:
+            for part in artifact["file"].split("/"):
+                if protocol == None:
+                    if part == "http" or part == "https":
+                        protocol = part
+                        url.extend([protocol, ":/"])
+                else:
+                    url.extend(["/", part])
+            artifact.update({"url": "".join(url)})
+            if repository_ctx.attr.pinned_maven_install == None:
+                result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
+                artifact.update({"sha256": result.sha256})
 
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -625,8 +626,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "pin",
         """#!/bin/bash
-set -euo pipefail
-cp %s %s""" % (repository_ctx.path("pinned_maven_install.json"), repository_ctx.path(repository_ctx.attr.WORKSPACE_marker).dirname),
+echo %s""" % repr(dep_tree).replace("\"", "\"\""),
         executable = True,
     )
 
