@@ -543,7 +543,9 @@ def _coursier_fetch_impl(repository_ctx):
             repository_ctx.path(repository_ctx.attr.pinned_maven_install), 
             repository_ctx.path("imported_pinned_maven_install.json")
         )
-        dep_tree = json_parse(repository_ctx.read(repository_ctx.path("imported_pinned_maven_install.json")))["dependency_tree"]
+        dep_tree = json_parse(
+            repository_ctx.read(
+                repository_ctx.path("imported_pinned_maven_install.json")))["dependency_tree"]
     else:
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
