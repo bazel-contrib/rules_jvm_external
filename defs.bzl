@@ -49,7 +49,6 @@ def maven_install(
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
         pinned_maven_install = pinned_maven_install,
-        WORKSPACE_marker = "//:WORKSPACE",
     )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):

@@ -650,7 +650,6 @@ coursier_fetch = repository_rule(
     attrs = {
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
-        "WORKSPACE_marker": attr.label(allow_single_file = True),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
