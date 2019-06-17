@@ -561,7 +561,7 @@ def _coursier_fetch_impl(repository_ctx):
         url = []
         protocol = None
         if artifact["file"] != None:
-            for part in artifact["file"].split("/"):
+            for part in _normalize_to_unix_path(artifact["file"]).split("/"):
                 if protocol == None:
                     if part == "http" or part == "https":
                         protocol = part
