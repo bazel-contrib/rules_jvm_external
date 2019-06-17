@@ -156,10 +156,6 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
         artifact_path = artifact["file"]
         target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
 
-        # repository_ctx.delete(artifact_path)
-        # res = repository_ctx.download(artifact["url"], artifact_path)
-        # print(res)
-
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
             pass
