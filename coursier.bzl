@@ -26,7 +26,7 @@ load(
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["resolved_artifacts.bzl"])
+exports_files(["pinned_maven_install.bzl", "pinned_maven_install.json", "pin"])
 
 load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
@@ -155,6 +155,10 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
         target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+
+        # repository_ctx.delete(artifact_path)
+        # res = repository_ctx.download(artifact["url"], artifact_path)
+        # print(res)
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
@@ -537,14 +541,40 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--parallel", "1"])
 
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-    exec_result = repository_ctx.execute(cmd)
-    if (exec_result.return_code != 0):
-        fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
-    # Once coursier finishes a fetch, it generates a tree of artifacts and their
-    # transitive dependencies in a JSON file. We use that as the source of truth
-    # to generate the repository's BUILD file.
-    dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+    if repository_ctx.attr.pinned_maven_install:
+        repository_ctx.symlink(
+            repository_ctx.path(repository_ctx.attr.pinned_maven_install), 
+            repository_ctx.path("imported_pinned_maven_install.json")
+        )
+        dep_tree = json_parse(repository_ctx.read(repository_ctx.path("imported_pinned_maven_install.json")))["dependency_tree"]
+    else:
+        exec_result = repository_ctx.execute(cmd)
+        if (exec_result.return_code != 0):
+            fail("Error while fetching artifact with coursier: " + exec_result.stderr)
+
+        # Once coursier finishes a fetch, it generates a tree of artifacts and their
+        # transitive dependencies in a JSON file. We use that as the source of truth
+        # to generate the repository's BUILD file.
+        dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+
+    # Reconstruct the original URLs from the relative path to the artifact,
+    # which encodes the URL components for the protocol, domain, and path to
+    # the file.
+    for artifact in dep_tree["dependencies"]:
+        url = []
+        protocol = None
+        for part in artifact["file"].split("/"):
+            if protocol == None:
+                if part == "http" or part == "https":
+                    protocol = part
+                    url.extend([protocol, ":/"])
+            else:
+                url.extend(["/", part])
+        artifact.update({"url": "".join(url)})
+        if repository_ctx.attr.pinned_maven_install == None:
+            result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
+            artifact.update({"sha256": result.sha256})
 
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -581,9 +611,23 @@ def _coursier_fetch_impl(repository_ctx):
     # Since this is the source of truth of our generated BUILD file, it is safe
     # to do this.
     repository_ctx.file(
-        "dependency_tree.bzl", 
-        "dependency_tree = " + repr(dep_tree["dependencies"]), 
+        "pinned_maven_install.bzl", 
+        "dependency_tree = " + repr(dep_tree), 
         executable = False,
+    )
+
+    repository_ctx.file(
+        "pinned_maven_install.json", 
+        "{ \"dependency_tree\": " + repr(dep_tree) + "}", 
+        executable = False,
+    )
+
+    repository_ctx.file(
+        "pin",
+        """#!/bin/bash
+set -euo pipefail
+cp %s %s""" % (repository_ctx.path("pinned_maven_install.json"), repository_ctx.path(repository_ctx.attr.WORKSPACE_marker).dirname),
+        executable = True,
     )
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
@@ -607,6 +651,7 @@ coursier_fetch = repository_rule(
     attrs = {
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "WORKSPACE_marker": attr.label(allow_single_file = True),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
@@ -614,6 +659,7 @@ coursier_fetch = repository_rule(
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
+        "pinned_maven_install": attr.label(allow_single_file = True),
     },
     environ = [
         "JAVA_HOME",
