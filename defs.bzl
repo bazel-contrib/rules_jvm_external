@@ -27,6 +27,10 @@ def maven_install(
         excluded_artifacts = [],
         generate_compat_repositories = False,
         pinned_maven_install = None):
+    
+    if pinned_maven_install != None and len(artifacts) > 0:
+        fail("pinned_maven_install and artifacts cannot be specified together.")
+
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(json.write_repository_spec(repository))
