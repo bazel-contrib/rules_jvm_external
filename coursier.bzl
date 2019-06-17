@@ -26,7 +26,7 @@ load(
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["dep-tree.json", "resolved_artifacts.bzl"])
+exports_files(["resolved_artifacts.bzl"])
 
 load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
