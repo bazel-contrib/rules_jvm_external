@@ -26,7 +26,7 @@ load(
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["pinned_maven_install.bzl", "pinned_maven_install.json", "pin"])
+exports_files(["pin"])
 
 load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
