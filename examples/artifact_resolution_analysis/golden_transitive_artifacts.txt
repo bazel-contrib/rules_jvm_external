@@ -1,8 +1,0 @@
-com.google.code.findbugs:jsr305:3.0.2
-com.google.errorprone:error_prone_annotations:2.2.0
-com.google.guava:failureaccess:1.0
-com.google.guava:guava:27.0-jre
-com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-com.google.j2objc:j2objc-annotations:1.1
-org.checkerframework:checker-qual:2.5.2
-org.codehaus.mojo:animal-sniffer-annotations:1.17
