@@ -455,22 +455,6 @@ def _get_java_proxy_args(repository_ctx):
 
     return proxy_args
 
-def _cat_file(repository_ctx, filepath):
-    if (_is_windows(repository_ctx)):
-        exec_result = repository_ctx.execute([
-            repository_ctx.os.environ.get("BAZEL_SH"),
-            "-lc",
-            "cat " + str(repository_ctx.path(filepath)),
-        ])
-    else:
-        exec_result = repository_ctx.execute([
-            repository_ctx.which("cat"),
-            repository_ctx.path(filepath),
-        ])
-    if (exec_result.return_code != 0):
-        fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
-    return exec_result.stdout
-
 def _coursier_fetch_impl(repository_ctx):
     # Download Coursier's standalone (deploy) jar from Maven repositories.
     repository_ctx.download([
@@ -590,7 +574,7 @@ def _coursier_fetch_impl(repository_ctx):
         # Once coursier finishes a fetch, it generates a tree of artifacts and their
         # transitive dependencies in a JSON file. We use that as the source of truth
         # to generate the repository's BUILD file.
-        dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+        dep_tree = json_parse(repository_ctx.read(repository_ctx, "dep-tree.json"))
         sha256_tool = repository_ctx.path(repository_ctx.attr._sha256_tool)
 
         # Reconstruct the original URLs from the relative path to the artifact,
