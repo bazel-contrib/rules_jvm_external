@@ -304,13 +304,12 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             #
             # genrule(
             #     name = "org_hamcrest_hamcrest_library_1_3_extension",
-            #     srcs = ["@org_hamcrest_hamcrest_library_1_3//file:downloaded"],
+            #     srcs = ["@org_hamcrest_hamcrest_library_1_3//file"],
             #     outs = ["@maven//:v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             #     cmd = "cp $< $@",
             # )
             if repository_ctx.attr.maven_install_json:
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
-
 
         elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
