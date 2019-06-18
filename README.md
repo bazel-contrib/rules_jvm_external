@@ -101,7 +101,72 @@ example](examples/pom_file_generation/) for more information.
 
 ## API Reference
 
- You can find the complete API reference at [docs/api.md](docs/api.md).
+You can find the complete API reference at [docs/api.md](docs/api.md).
+
+## Pinning artifacts
+
+`rules_jvm_external` supports pinning artifacts and their SHA-256 checksums into
+a `maven_install.json` file that can be checked into your repository.
+
+By pinning artifact versions, you can get improved artifact resolution and fetch
+speed, since `rules_jvm_external` will use Bazel's download mechanism that
+caches files on their sha256 checksums. It also improves resiliency and
+integrity by tracking the sha256 checksums and original artifact urls in the
+JSON file.
+
+To get started with pinning artifacts, first create an empty
+`maven_install.json` file. Then, specify `maven_install_json` in
+`maven_install`:
+
+```python
+maven_install(
+    # artifacts, repositories, ...
+    maven_install_json = "//:maven_install.json",
+)
+```
+
+By specifying `maven_install_json`, an additional `unpinned_maven` (or
+`unpinned_*`) repo will be created. `unpinned_maven` contains targets fetched by
+Coursier, and is used to generate `maven_install.json` using `bazel run
+@unpinned_maven//:pin`. Next, run:
+
+```
+$ bazel run @unpinned_maven//:pin
+Pinned resolved artifacts for @maven in /path/to/maven_install.json. This file
+should be checked in your version control system. Next, please add the following
+snippet to your WORKSPACE file if you have not done so.
+---
+
+load("@maven//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+
+---
+```
+
+Finally, load `pinned_maven_install` from `@maven//:defs.bzl` in the WORKSPACE
+file:
+
+```python
+maven_install(
+    # artifacts, repositories, ...
+    maven_install_json = "//:maven_install.json",
+)
+
+load("@maven//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+```
+
+Since all artifacts are store locally in Bazel's cache, it means that **fully
+offline builds are possible** after the initial `bazel fetch @maven//...`.
+
+Whenever you make a change to the list of `artifacts` or `repositories`, you
+will have to rerun
+
+```
+$ bazel run @unpinned_maven//:pin
+```
+
+to update the pinned artifacts.
 
 ## Advanced usage
 
@@ -369,7 +434,7 @@ supported.
 ### Repository aliases
 
 Maven artifact rules like `maven_jar` and `jvm_import_external` generate targets
-labels in the form of `@group_artifact//jar`, like `@com_google_guava_guava//jar`. This 
+labels in the form of `@group_artifact//jar`, like `@com_google_guava_guava//jar`. This
 is different from the `@maven//:group_artifact` naming style used in this project.
 
 As some Bazel projects depend on the `@group_artifact//jar` style labels, we
