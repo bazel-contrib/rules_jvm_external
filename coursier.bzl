@@ -665,7 +665,7 @@ def _coursier_fetch_impl(repository_ctx):
         "pin",
         """#!/bin/bash
 maven_install_json=$1; shift;
-echo %s > $maven_install_json""" % dependency_tree_json.replace("\"", "\\\""),
+echo %s | python -m json.tool > $maven_install_json""" % dependency_tree_json.replace("\"", "\\\""),
         executable = True,
     )
 
