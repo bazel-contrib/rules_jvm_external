@@ -20,8 +20,9 @@ DEFAULT_REPOSITORY_NAME = "maven"
 def pinned_maven_install(name = "pinned_maven", maven_install_json = "//:maven_install.json"):
     coursier_fetch(
         name = name,
-        pinned_maven_install = maven_install_json,
+        maven_install_json = maven_install_json,
         fetch_sources = True,
+        generate_compat_repositories = True,
     )
 
 def maven_install(

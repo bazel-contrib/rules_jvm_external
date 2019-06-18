@@ -150,7 +150,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                         artifact_relative_path = _normalize_to_unix_path(artifact_path)
                     target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
-                    if repository_ctx.attr.pinned_maven_install:
+                    if repository_ctx.attr.maven_install_json:
                         http_file_repository = _escape(artifact["coord"])
                         all_imports.append("\n".join([
                             "genrule(",
@@ -214,7 +214,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
-            if repository_ctx.attr.pinned_maven_install:
+            if repository_ctx.attr.maven_install_json:
                 http_file_repository = _escape(artifact["coord"])
                 all_imports.append("\n".join([
                     "genrule(",
@@ -559,14 +559,14 @@ def _coursier_fetch_impl(repository_ctx):
 
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
 
-    if repository_ctx.attr.pinned_maven_install:
+    if repository_ctx.attr.maven_install_json:
         repository_ctx.symlink(
-            repository_ctx.path(repository_ctx.attr.pinned_maven_install), 
-            repository_ctx.path("imported_pinned_maven_install.json")
+            repository_ctx.path(repository_ctx.attr.maven_install_json), 
+            repository_ctx.path("imported_maven_install.json")
         )
         dep_tree = json_parse(
             repository_ctx.read(
-                repository_ctx.path("imported_pinned_maven_install.json")))["dependency_tree"]
+                repository_ctx.path("imported_maven_install.json")))["dependency_tree"]
         http_files = [
             "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
             "def maven_load():",
@@ -651,19 +651,10 @@ def _coursier_fetch_impl(repository_ctx):
     )
 
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "{}") + "}"
-
-    # Expose the dependency tree dict for users to analyze and build on top of.
-    # Since this is the source of truth of our generated BUILD file, it is safe
-    # to do this.
-    repository_ctx.file(
-        "pinned_maven_install.json", 
-        dependency_tree_json,
-        executable = False,
-    )
-
     repository_ctx.file(
         "pin",
         """#!/bin/bash
+set -euo pipefail
 maven_install_json=$1; shift;
 echo %s | python -m json.tool > $maven_install_json""" % dependency_tree_json.replace("\"", "\\\""),
         executable = True,
@@ -698,7 +689,7 @@ coursier_fetch = repository_rule(
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
-        "pinned_maven_install": attr.label(allow_single_file = True),
+        "maven_install_json": attr.label(allow_single_file = True),
     },
     environ = [
         "JAVA_HOME",
