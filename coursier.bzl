@@ -495,7 +495,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     if repository_ctx.attr.maven_install_json:
         repository_ctx.symlink(
-            repository_ctx.path(repository_ctx.attr.maven_install_json), 
+            repository_ctx.path(repository_ctx.attr.maven_install_json),
             repository_ctx.path("imported_maven_install.json")
         )
         dep_tree = json_parse(
@@ -517,7 +517,6 @@ def _coursier_fetch_impl(repository_ctx):
                 ])
         repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     else:
-
         artifact_coordinates = []
 
         # Set up artifact exclusion, if any. From coursier fetch --help:
@@ -606,12 +605,15 @@ def _coursier_fetch_impl(repository_ctx):
                          + exec_result.stderr)
                 artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
-    neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = _generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
-        neverlink_artifacts = neverlink_artifacts,
+        neverlink_artifacts = {
+            a["group"] + ":" + a["artifact"]: True
+            for a in artifacts
+            if a.get("neverlink", False)
+        },
     )
 
     repository_ctx.template(
