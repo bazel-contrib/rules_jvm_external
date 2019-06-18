@@ -1,28 +1,28 @@
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test_suite")
 
 lib_dependencies = [
-    "@pinned_maven//:com_chuusai_shapeless_2_12",
-    "@pinned_maven//:com_github_pureconfig_pureconfig_2_12",
-    "@pinned_maven//:com_github_pureconfig_pureconfig_core_2_12",
-    "@pinned_maven//:com_github_pureconfig_pureconfig_generic_2_12",
-    "@pinned_maven//:com_github_pureconfig_pureconfig_macros_2_12",
-    "@pinned_maven//:com_typesafe_akka_akka_actor_2_12",
-    "@pinned_maven//:com_typesafe_akka_akka_http_2_12",
-    "@pinned_maven//:com_typesafe_akka_akka_http_core_2_12",
-    "@pinned_maven//:com_typesafe_akka_akka_stream_2_12",
-    "@pinned_maven//:com_typesafe_config",
-    "@pinned_maven//:com_typesafe_scala_logging_scala_logging_2_12",
-    "@pinned_maven//:org_scalaz_scalaz_core_2_12",
-    "@pinned_maven//:org_scalaz_scalaz_concurrent_2_12",
-    "@pinned_maven//:org_slf4j_slf4j_api",
-    "@pinned_maven//:org_slf4j_slf4j_simple",
+    "@maven//:com_chuusai_shapeless_2_12",
+    "@maven//:com_github_pureconfig_pureconfig_2_12",
+    "@maven//:com_github_pureconfig_pureconfig_core_2_12",
+    "@maven//:com_github_pureconfig_pureconfig_generic_2_12",
+    "@maven//:com_github_pureconfig_pureconfig_macros_2_12",
+    "@maven//:com_typesafe_akka_akka_actor_2_12",
+    "@maven//:com_typesafe_akka_akka_http_2_12",
+    "@maven//:com_typesafe_akka_akka_http_core_2_12",
+    "@maven//:com_typesafe_akka_akka_stream_2_12",
+    "@maven//:com_typesafe_config",
+    "@maven//:com_typesafe_scala_logging_scala_logging_2_12",
+    "@maven//:org_scalaz_scalaz_core_2_12",
+    "@maven//:org_scalaz_scalaz_concurrent_2_12",
+    "@maven//:org_slf4j_slf4j_api",
+    "@maven//:org_slf4j_slf4j_simple",
 ]
 
 test_dependencies = [
-    "@pinned_maven//:com_typesafe_akka_akka_testkit_2_12",
-    "@pinned_maven//:com_typesafe_akka_akka_http_testkit_2_12",
-    "@pinned_maven//:com_typesafe_akka_akka_stream_testkit_2_12",
-    "@pinned_maven//:org_mockito_mockito_core",
+    "@maven//:com_typesafe_akka_akka_testkit_2_12",
+    "@maven//:com_typesafe_akka_akka_http_testkit_2_12",
+    "@maven//:com_typesafe_akka_akka_stream_testkit_2_12",
+    "@maven//:org_mockito_mockito_core",
 ] + lib_dependencies
 
 scala_library(

@@ -111,7 +111,7 @@ maven_install(
     maven_install_json = "//:regression_testing.json",
 )
 
-load("@pinned_regression_testing//:defs.bzl", "pinned_maven_install")
+load("@regression_testing//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 
 load("@regression_testing//:compat.bzl", "compat_repositories")

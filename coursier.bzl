@@ -456,17 +456,6 @@ def _get_java_proxy_args(repository_ctx):
     return proxy_args
 
 def _coursier_fetch_impl(repository_ctx):
-    # Download Coursier's standalone (deploy) jar from Maven repositories.
-    repository_ctx.download([
-        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
-    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
-
-    # Try running coursier once
-    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
-    if exec_result.return_code != 0:
-        fail("Unable to run coursier: " + exec_result.stderr)
-
     # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
     # will not be around for long.
     #
@@ -494,6 +483,7 @@ def _coursier_fetch_impl(repository_ctx):
         excluded_artifacts.append(json_parse(a))
 
     if repository_ctx.attr.maven_install_json:
+        # Read Coursier state from maven_install.json
         repository_ctx.symlink(
             repository_ctx.path(repository_ctx.attr.maven_install_json),
             repository_ctx.path("imported_maven_install.json")
@@ -517,6 +507,17 @@ def _coursier_fetch_impl(repository_ctx):
                 ])
         repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     else:
+        # Download Coursier's standalone (deploy) jar from Maven repositories.
+        repository_ctx.download([
+            "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
+            "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
+        ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+
+        # Try running coursier once
+        exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
+        if exec_result.return_code != 0:
+            fail("Unable to run coursier: " + exec_result.stderr)
+
         artifact_coordinates = []
 
         # Set up artifact exclusion, if any. From coursier fetch --help:

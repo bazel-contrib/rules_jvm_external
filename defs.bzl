@@ -40,7 +40,7 @@ def maven_install(
         excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
 
     coursier_fetch(
-        name = name,
+        name = name if maven_install_json == None else "unpinned_" + name,
         repositories = repositories_json_strings,
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
@@ -52,7 +52,7 @@ def maven_install(
 
     if maven_install_json != None:
         coursier_fetch(
-            name = "pinned_" + name,
+            name = name,
             artifacts = artifacts_json_strings,
             repositories = repositories_json_strings,
             maven_install_json = maven_install_json,

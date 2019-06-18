@@ -6,12 +6,12 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 build_test(
     name = "all_artifacts",
     targets = [
-        "@pinned_regression_testing//:org_pantsbuild_jarjar",
-        "@pinned_regression_testing//:com_github_fommil_netlib_all",
-        "@pinned_regression_testing//:nz_ac_waikato_cms_weka_weka_stable",
-        "@pinned_regression_testing//:com_digitalasset_damlc_osx",
-        "@pinned_regression_testing//:org_eclipse_jetty_orbit_javax_servlet",
-        "@pinned_regression_testing//:org_apache_flink_flink_test_utils_2_12",
+        "@regression_testing//:org_pantsbuild_jarjar",
+        "@regression_testing//:com_github_fommil_netlib_all",
+        "@regression_testing//:nz_ac_waikato_cms_weka_weka_stable",
+        "@regression_testing//:com_digitalasset_damlc_osx",
+        "@regression_testing//:org_eclipse_jetty_orbit_javax_servlet",
+        "@regression_testing//:org_apache_flink_flink_test_utils_2_12",
     ],
 )
 

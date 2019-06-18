@@ -5,7 +5,7 @@ kt_jvm_test(
     srcs = ["com/example/bazel/InlineFunctionTest.kt"],
     test_class = "com.example.bazel.InlineFunctionTest",
     deps = [
-        "@pinned_regression_testing//:junit_junit",
-        "@pinned_regression_testing//:org_jetbrains_kotlin_kotlin_test",
+        "@regression_testing//:junit_junit",
+        "@regression_testing//:org_jetbrains_kotlin_kotlin_test",
     ],
 )
