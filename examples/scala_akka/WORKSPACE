@@ -68,7 +68,6 @@ maven_install(
     repositories = [
         "https://jcenter.bintray.com",
     ],
-    fetch_sources = True,
 )
 
 pinned_maven_install()

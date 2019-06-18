@@ -608,15 +608,16 @@ def _coursier_fetch_impl(repository_ctx):
                     else:
                         url.extend(["/", part])
                 artifact.update({"url": "".join(url)})
+
+                # Compute the sha256 of the file downloaded by Coursier
                 cmd = ["python", sha256_tool, repository_ctx.path(artifact["file"]), "artifact.sha256"]
                 exec_result = repository_ctx.execute(cmd)
                 if exec_result.return_code != 0:
-                    fail("Error while obtaining the sha256 checksum of " + artifact["file"] + ": " + exec_result.stderr)
+                    fail("Error while obtaining the sha256 checksum of "
+                         + artifact["file"]
+                         + ": "
+                         + exec_result.stderr)
                 artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
-
-            # if not repository_ctx.attr.use_unsafe_shared_cache and repository_ctx.attr.pinned_maven_install == None:
-                # result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
-                # artifact.update({"sha256": result.sha256})
 
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")

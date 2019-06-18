@@ -50,7 +50,7 @@ def maven_install(
         repositories = repositories_json_strings,
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
-        fetch_sources = fetch_sources,
+        fetch_sources = True,
         use_unsafe_shared_cache = use_unsafe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
