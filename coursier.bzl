@@ -574,8 +574,7 @@ def _coursier_fetch_impl(repository_ctx):
         # Once coursier finishes a fetch, it generates a tree of artifacts and their
         # transitive dependencies in a JSON file. We use that as the source of truth
         # to generate the repository's BUILD file.
-        dep_tree = json_parse(repository_ctx.read(repository_ctx, "dep-tree.json"))
-        sha256_tool = repository_ctx.path(repository_ctx.attr._sha256_tool)
+        dep_tree = json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json")))
 
         # Reconstruct the original URLs from the relative path to the artifact,
         # which encodes the URL components for the protocol, domain, and path to
@@ -594,8 +593,12 @@ def _coursier_fetch_impl(repository_ctx):
                 artifact.update({"url": "".join(url)})
 
                 # Compute the sha256 of the file downloaded by Coursier
-                cmd = ["python", sha256_tool, repository_ctx.path(artifact["file"]), "artifact.sha256"]
-                exec_result = repository_ctx.execute(cmd)
+                exec_result = repository_ctx.execute([
+                    "python",
+                    repository_ctx.path(repository_ctx.attr._sha256_tool),
+                    repository_ctx.path(artifact["file"]),
+                    "artifact.sha256",
+                ])
                 if exec_result.return_code != 0:
                     fail("Error while obtaining the sha256 checksum of "
                          + artifact["file"]
