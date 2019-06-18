@@ -129,7 +129,7 @@ By specifying `maven_install_json`, an additional `@unpinned_maven` (or
 `unpinned_<your_maven_install_name>`) repo will be created. For example, if your
 `maven_install` is named `@foo`, `@unpinned_foo` will be created.
 
-The `@unpinned_maven` repository accompanies the main `@maven` repository,
+The `@unpinned_maven` repository accompanies the main `@maven` repositor and
 contains a tool called `pin`. `pin` is used to pin the artifacts resolved by
 Coursier into a `maven_install.json` file.
 
