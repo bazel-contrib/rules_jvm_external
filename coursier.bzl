@@ -493,56 +493,6 @@ def _coursier_fetch_impl(repository_ctx):
     for a in repository_ctx.attr.excluded_artifacts:
         excluded_artifacts.append(json_parse(a))
 
-    artifact_coordinates = []
-
-    # Set up artifact exclusion, if any. From coursier fetch --help:
-    #
-    # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
-    # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
-    # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
-    # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
-    exclusion_lines = []
-    for a in artifacts:
-        artifact_coordinates.append(utils.artifact_coordinate(a))
-        if "exclusions" in a:
-            for e in a["exclusions"]:
-                exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
-                                       "--" +
-                                       ":".join([e["group"], e["artifact"]]))
-
-    cmd = _generate_coursier_command(repository_ctx)
-    cmd.extend(["fetch"])
-    cmd.extend(artifact_coordinates)
-    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
-    cmd.append("--quiet")
-    cmd.append("--no-default")
-    cmd.extend(["--json-output-file", "dep-tree.json"])
-
-    if repository_ctx.attr.fail_on_missing_checksum:
-        cmd.extend(["--checksum", "SHA-1,MD5"])
-    else:
-        cmd.extend(["--checksum", "SHA-1,MD5,None"])
-
-    if len(exclusion_lines) > 0:
-        repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-        cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-    for repository in repositories:
-        cmd.extend(["--repository", utils.repo_url(repository)])
-    for a in excluded_artifacts:
-        cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
-    if not repository_ctx.attr.use_unsafe_shared_cache:
-        cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-    if repository_ctx.attr.fetch_sources:
-        cmd.append("--sources")
-        cmd.append("--default=true")
-    if _is_windows(repository_ctx):
-        # Unfortunately on Windows, coursier crashes while trying to acquire the
-        # cache's .structure.lock file while running in parallel. This does not
-        # happen on *nix.
-        cmd.extend(["--parallel", "1"])
-
-    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-
     if repository_ctx.attr.maven_install_json:
         repository_ctx.symlink(
             repository_ctx.path(repository_ctx.attr.maven_install_json), 
@@ -567,6 +517,56 @@ def _coursier_fetch_impl(repository_ctx):
                 ])
         repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     else:
+
+        artifact_coordinates = []
+
+        # Set up artifact exclusion, if any. From coursier fetch --help:
+        #
+        # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
+        # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
+        # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
+        # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
+        exclusion_lines = []
+        for a in artifacts:
+            artifact_coordinates.append(utils.artifact_coordinate(a))
+            if "exclusions" in a:
+                for e in a["exclusions"]:
+                    exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
+                                        "--" +
+                                        ":".join([e["group"], e["artifact"]]))
+
+        cmd = _generate_coursier_command(repository_ctx)
+        cmd.extend(["fetch"])
+        cmd.extend(artifact_coordinates)
+        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
+        cmd.append("--quiet")
+        cmd.append("--no-default")
+        cmd.extend(["--json-output-file", "dep-tree.json"])
+
+        if repository_ctx.attr.fail_on_missing_checksum:
+            cmd.extend(["--checksum", "SHA-1,MD5"])
+        else:
+            cmd.extend(["--checksum", "SHA-1,MD5,None"])
+
+        if len(exclusion_lines) > 0:
+            repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
+            cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+        for repository in repositories:
+            cmd.extend(["--repository", utils.repo_url(repository)])
+        for a in excluded_artifacts:
+            cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
+        if not repository_ctx.attr.use_unsafe_shared_cache:
+            cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+        if repository_ctx.attr.fetch_sources:
+            cmd.append("--sources")
+            cmd.append("--default=true")
+        if _is_windows(repository_ctx):
+            # Unfortunately on Windows, coursier crashes while trying to acquire the
+            # cache's .structure.lock file while running in parallel. This does not
+            # happen on *nix.
+            cmd.extend(["--parallel", "1"])
+
+        repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
             fail("Error while fetching artifact with coursier: " + exec_result.stderr)

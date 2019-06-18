@@ -53,6 +53,8 @@ def maven_install(
     if maven_install_json != None:
         coursier_fetch(
             name = "pinned_" + name,
+            artifacts = artifacts_json_strings,
+            repositories = repositories_json_strings,
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
             generate_compat_repositories = generate_compat_repositories,

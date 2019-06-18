@@ -1,0 +1,2027 @@
+{
+    "dependency_tree": {
+        "conflict_resolution": {},
+        "dependencies": [
+            {
+                "coord": "android.arch.core:common:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/core/common/1.1.1/common-1.1.1.jar",
+                "sha256": "3a616a32f433e9e23f556b38575c31b013613d3ae85206263b7625fe1f4c151a",
+                "url": "https://maven.google.com/android/arch/core/common/1.1.1/common-1.1.1.jar"
+            },
+            {
+                "coord": "android.arch.core:runtime:aar:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/core/runtime/1.1.1/runtime-1.1.1.aar",
+                "sha256": "c3215aa5873311b3f88a6f4e4a3c25ad89971bc127de8c3e1291c57f93a05c39",
+                "url": "https://maven.google.com/android/arch/core/runtime/1.1.1/runtime-1.1.1.aar"
+            },
+            {
+                "coord": "android.arch.lifecycle:common:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/lifecycle/common/1.1.1/common-1.1.1.jar",
+                "sha256": "8d378e88ebd5189e09eef623414812c868fd90aa519d6160e2311fb8b81cff56",
+                "url": "https://maven.google.com/android/arch/lifecycle/common/1.1.1/common-1.1.1.jar"
+            },
+            {
+                "coord": "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:common:1.1.1",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/lifecycle/livedata-core/1.1.1/livedata-core-1.1.1.aar",
+                "sha256": "d6fdd8b985d6178d7ea2f16986a24e83f1bee936b74d43167c69e08d3cc12c50",
+                "url": "https://maven.google.com/android/arch/lifecycle/livedata-core/1.1.1/livedata-core-1.1.1.aar"
+            },
+            {
+                "coord": "android.arch.lifecycle:livedata:aar:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/lifecycle/livedata/1.1.1/livedata-1.1.1.aar",
+                "sha256": "50ab0490c1ff1a7cfb4e554032998b080888946d0dd424f39900efc4a1bcd750",
+                "url": "https://maven.google.com/android/arch/lifecycle/livedata/1.1.1/livedata-1.1.1.aar"
+            },
+            {
+                "coord": "android.arch.lifecycle:runtime:aar:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:common:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/lifecycle/runtime/1.1.1/runtime-1.1.1.aar",
+                "sha256": "c4e4be66c1b2f0abec593571454e1de14013f7e0f96bf2a9f212931a48cae550",
+                "url": "https://maven.google.com/android/arch/lifecycle/runtime/1.1.1/runtime-1.1.1.aar"
+            },
+            {
+                "coord": "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1.aar",
+                "sha256": "7de29cfaba77d6b5d5be234c57f6812d0150d087e63941af22ba1d1f8e2bc96a",
+                "url": "https://maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1.aar"
+            },
+            {
+                "coord": "com.android.support:animated-vector-drawable:aar:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:support-vector-drawable:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/animated-vector-drawable/28.0.0/animated-vector-drawable-28.0.0.aar",
+                "sha256": "271ecbc906cda8dcd9e655ba0473129c3408a4189c806f616c378e6fd18fb3b7",
+                "url": "https://maven.google.com/com/android/support/animated-vector-drawable/28.0.0/animated-vector-drawable-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:appcompat-v7:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:animated-vector-drawable:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:support-fragment:aar:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:support-vector-drawable:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/appcompat-v7/28.0.0/appcompat-v7-28.0.0.aar",
+                "sha256": "a3a8e5230359746ed91801579b5fbe4668e3b1c4e6a14c7d67c8f58cb0311752",
+                "url": "https://maven.google.com/com/android/support/appcompat-v7/28.0.0/appcompat-v7-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:asynclayoutinflater:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/asynclayoutinflater/28.0.0/asynclayoutinflater-28.0.0.aar",
+                "sha256": "115bde87721f7334579b0c735f60dd7c98af1bb7f34010c5b0553b95dc351aa2",
+                "url": "https://maven.google.com/com/android/support/asynclayoutinflater/28.0.0/asynclayoutinflater-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:collections:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/collections/28.0.0/collections-28.0.0.jar",
+                "sha256": "93c258c8a09f531a267653829742c0f8f6da0e348b11cb8655b0855628f2d4f0",
+                "url": "https://maven.google.com/com/android/support/collections/28.0.0/collections-28.0.0.jar"
+            },
+            {
+                "coord": "com.android.support:coordinatorlayout:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/coordinatorlayout/28.0.0/coordinatorlayout-28.0.0.aar",
+                "sha256": "9dfacd80423dc979048fbaed83c0ee543c46259feb2417377e79a656888d3892",
+                "url": "https://maven.google.com/com/android/support/coordinatorlayout/28.0.0/coordinatorlayout-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:cursoradapter:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/cursoradapter/28.0.0/cursoradapter-28.0.0.aar",
+                "sha256": "87feffe742b8d62ca8a9833abe564838bf6a672e31c7ad1306ec4006adf90d21",
+                "url": "https://maven.google.com/com/android/support/cursoradapter/28.0.0/cursoradapter-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:customview:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/customview/28.0.0/customview-28.0.0.aar",
+                "sha256": "98db03845f994e08248bf701c1ff0ccaa12e70f94251ec9272900f0f694e072b",
+                "url": "https://maven.google.com/com/android/support/customview/28.0.0/customview-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:documentfile:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/documentfile/28.0.0/documentfile-28.0.0.aar",
+                "sha256": "47cdcd3e9302b7b064923f05487a5c03babbd9bbda4726b71e97791fab5d4779",
+                "url": "https://maven.google.com/com/android/support/documentfile/28.0.0/documentfile-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:drawerlayout:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/drawerlayout/28.0.0/drawerlayout-28.0.0.aar",
+                "sha256": "8f6809afae4793550c37461c9810e954ae6a23dbb4d23e5333bf18148df1150a",
+                "url": "https://maven.google.com/com/android/support/drawerlayout/28.0.0/drawerlayout-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:interpolator:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/interpolator/28.0.0/interpolator-28.0.0.aar",
+                "sha256": "7bc7ee86a0db39a4b51956f3e89842d2bd962118d57d779eb6ed6b34ba0677ea",
+                "url": "https://maven.google.com/com/android/support/interpolator/28.0.0/interpolator-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:loader:aar:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/loader/28.0.0/loader-28.0.0.aar",
+                "sha256": "920b85efd72dc33e915b0f88a883fe73b88483c6df8751a741e17611f2460341",
+                "url": "https://maven.google.com/com/android/support/loader/28.0.0/loader-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:localbroadcastmanager:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/localbroadcastmanager/28.0.0/localbroadcastmanager-28.0.0.aar",
+                "sha256": "d287c823af5fdde72c099fcfc5f630efe9687af7a914343ae6fd92de32c8a806",
+                "url": "https://maven.google.com/com/android/support/localbroadcastmanager/28.0.0/localbroadcastmanager-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:print:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/print/28.0.0/print-28.0.0.aar",
+                "sha256": "4be8a812d73e4a80e35b91ceae127def3f0bb9726bf3bc439aa0cc81503f5728",
+                "url": "https://maven.google.com/com/android/support/print/28.0.0/print-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:slidingpanelayout:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/slidingpanelayout/28.0.0/slidingpanelayout-28.0.0.aar",
+                "sha256": "d1d234f66a1b36a9aee9b94fa6c66f97128c0828078c8e889e9037ec898cd600",
+                "url": "https://maven.google.com/com/android/support/slidingpanelayout/28.0.0/slidingpanelayout-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-annotations:28.0.0",
+                "dependencies": [],
+                "file": "v1/https/maven.google.com/com/android/support/support-annotations/28.0.0/support-annotations-28.0.0.jar",
+                "sha256": "5d5b9414f02d3fa0ee7526b8d5ddae0da67c8ecc8c4d63ffa6cf91488a93b927",
+                "url": "https://maven.google.com/com/android/support/support-annotations/28.0.0/support-annotations-28.0.0.jar"
+            },
+            {
+                "coord": "com.android.support:support-compat:28.0.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-compat/28.0.0/support-compat-28.0.0.aar",
+                "sha256": "e17e3b01dbea3f9ea1c86943292f903ca93d2231c6242e456e0b6a9c5817118a",
+                "url": "https://maven.google.com/com/android/support/support-compat/28.0.0/support-compat-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-compat:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-compat/28.0.0/support-compat-28.0.0.aar",
+                "sha256": "e17e3b01dbea3f9ea1c86943292f903ca93d2231c6242e456e0b6a9c5817118a",
+                "url": "https://maven.google.com/com/android/support/support-compat/28.0.0/support-compat-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-core-ui:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-core-ui/28.0.0/support-core-ui-28.0.0.aar",
+                "sha256": "bbc7f65fc95649464733af373361532ab5f9f3b749c3badaa2bbf27e574b6c6f",
+                "url": "https://maven.google.com/com/android/support/support-core-ui/28.0.0/support-core-ui-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-core-ui:aar:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-core-ui/28.0.0/support-core-ui-28.0.0.aar",
+                "sha256": "bbc7f65fc95649464733af373361532ab5f9f3b749c3badaa2bbf27e574b6c6f",
+                "url": "https://maven.google.com/com/android/support/support-core-ui/28.0.0/support-core-ui-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-core-utils:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-core-utils/28.0.0/support-core-utils-28.0.0.aar",
+                "sha256": "c81e1e98ca3cb2edae002c69cf35b22aec364b8cb2f1042c97e206eb5790ac41",
+                "url": "https://maven.google.com/com/android/support/support-core-utils/28.0.0/support-core-utils-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-core-utils:aar:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-core-utils/28.0.0/support-core-utils-28.0.0.aar",
+                "sha256": "c81e1e98ca3cb2edae002c69cf35b22aec364b8cb2f1042c97e206eb5790ac41",
+                "url": "https://maven.google.com/com/android/support/support-core-utils/28.0.0/support-core-utils-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-fragment:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-fragment/28.0.0/support-fragment-28.0.0.aar",
+                "sha256": "3772fc738ada86824ba1a4b3f197c3dbd67b7ddcfe2c9db1de95ef2e3487a915",
+                "url": "https://maven.google.com/com/android/support/support-fragment/28.0.0/support-fragment-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-fragment:aar:28.0.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-fragment/28.0.0/support-fragment-28.0.0.aar",
+                "sha256": "3772fc738ada86824ba1a4b3f197c3dbd67b7ddcfe2c9db1de95ef2e3487a915",
+                "url": "https://maven.google.com/com/android/support/support-fragment/28.0.0/support-fragment-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-media-compat:26.1.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-media-compat/26.1.0/support-media-compat-26.1.0.aar",
+                "sha256": "9d8cee7cd40eff22ebdeb90c8e70f5ee96c5bd25cb2c3e3b3940e27285a3e98a",
+                "url": "https://maven.google.com/com/android/support/support-media-compat/26.1.0/support-media-compat-26.1.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-v4:aar:26.1.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:support-core-utils:28.0.0",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:support-media-compat:26.1.0",
+                    "com.android.support:support-fragment:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:support-compat:28.0.0",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:support-core-ui:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-v4/26.1.0/support-v4-26.1.0.aar",
+                "sha256": "36d8385de1be7791231acb933b757198f97cb53bc7d046e8c4bc403d214caaca",
+                "url": "https://maven.google.com/com/android/support/support-v4/26.1.0/support-v4-26.1.0.aar"
+            },
+            {
+                "coord": "com.android.support:support-vector-drawable:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/support-vector-drawable/28.0.0/support-vector-drawable-28.0.0.aar",
+                "sha256": "f658986d968172bccfed28578471c96050780fe5e133861e4d331069cc373f4d",
+                "url": "https://maven.google.com/com/android/support/support-vector-drawable/28.0.0/support-vector-drawable-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:swiperefreshlayout:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/swiperefreshlayout/28.0.0/swiperefreshlayout-28.0.0.aar",
+                "sha256": "a3b41f7f6730866b49865e86e49f988d4858699765f534300fb2ff5f9325e712",
+                "url": "https://maven.google.com/com/android/support/swiperefreshlayout/28.0.0/swiperefreshlayout-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:versionedparcelable:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:collections:28.0.0"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/versionedparcelable/28.0.0/versionedparcelable-28.0.0.aar",
+                "sha256": "60eb1cb08f71b65c3f6123135e03ebeb5930b5e126e1e5b2ac91b386908c9d02",
+                "url": "https://maven.google.com/com/android/support/versionedparcelable/28.0.0/versionedparcelable-28.0.0.aar"
+            },
+            {
+                "coord": "com.android.support:viewpager:aar:28.0.0",
+                "dependencies": [
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/android/support/viewpager/28.0.0/viewpager-28.0.0.aar",
+                "sha256": "013c4c53058758ec104dbae970be58159f75dfe342ba8b937d15ff5282e35ffc",
+                "url": "https://maven.google.com/com/android/support/viewpager/28.0.0/viewpager-28.0.0.aar"
+            },
+            {
+                "coord": "com.digitalasset:damlc:jar:osx:100.12.1",
+                "dependencies": [],
+                "file": "v1/https/digitalassetsdk.bintray.com/DigitalAssetSDK/com/digitalasset/damlc/100.12.1/damlc-100.12.1-osx.jar",
+                "sha256": "ffdaa9719dc2f046fa898adc0404d3b68e6915018bc791b28446580c01046755",
+                "url": "https://digitalassetsdk.bintray.com/DigitalAssetSDK/com/digitalasset/damlc/100.12.1/damlc-100.12.1-osx.jar"
+            },
+            {
+                "coord": "com.esotericsoftware.kryo:kryo:2.24.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0.jar",
+                "sha256": "7e56b32c635058f9aa2820f88919ab702d029cbcd15285da9992e36cc0ae52f2",
+                "url": "https://repo1.maven.org/maven2/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0.jar"
+            },
+            {
+                "coord": "com.esotericsoftware.minlog:minlog:1.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar",
+                "sha256": "a678cb1aa8f5d03d901c992c75741841d98a9bc3d55dad02e84d65315c4e60f2",
+                "url": "https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:all:1.1.2",
+                "dependencies": [
+                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:native_ref-java:1.1",
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1"
+                ],
+                "file": null
+            },
+            {
+                "coord": "com.github.fommil.netlib:core:1.1.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/core/1.1.2/core-1.1.2.jar",
+                "sha256": "5ffaddee0a3f8d09a56064aa05feb95837ddad9d42d9dcc37479c66e869aa139",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/core/1.1.2/core-1.1.2.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:native_ref-java:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1.jar",
+                "sha256": "120ca95d3a7b4646f44c3bcebdf7a149ec4f8cccf731a13bd84da103b836e236",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:native_system-java:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar",
+                "sha256": "2414fc6e29b73ba40e0df21ab9618e4f5dc5ac66aab32bd81ee213a68796155d",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-natives.jar",
+                "sha256": "1d9ff5c35a542f598bd8d01c12d838ac4f457beae528f0b1930f21c0bff3eaae",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar",
+                "sha256": "bf1dcc3b32a32bde8bd897b8c7da21cbd75b9febb89321a11b4f9a254aeb92ec",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-natives.jar",
+                "sha256": "f9034b22e89352ea1ba0c1edfb7529057c6b6acd651babb58839af19897e8ac0",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar",
+                "sha256": "fbe45f80be86fb809eb159b75ba45433cbba2b5fb6814758d1f15823b2b17438",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-natives.jar",
+                "sha256": "0dcdc8348430365f7d912dcffb13d4c133810fbc3f3334123edb7c7f88990c5f",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar",
+                "sha256": "322a4d1a9cdfa284b1025b3d85c9ece18605be2caf795abfbaa366eb403fbf32",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-natives.jar",
+                "sha256": "aab65e3a3f3f664496dc512bea38d5ece0723799770f2aa608a4f1410342cb96",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar",
+                "sha256": "ecfd3c4e442411be9bc9aa74ea1b28b0fdf201dda00fe4559c68cde6e311520f",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-natives.jar",
+                "sha256": "9a929390c8c4845a2bff01e7bc0d8381fcc89ebc147c037f877f02b19806d013",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar",
+                "sha256": "07230441e6d7985e30e13b4c6844c6388324a971e1d3c5d46880a213b37a4dd1",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-natives.jar",
+                "sha256": "65b4900fd4fdc6715d3d48cfac2a7809cab5ed626f20e212a747f579bb60a40a",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar",
+                "sha256": "d855c2fc7d70ffddaac504b556c6cc7c33288d85c173386e47921f44bbb34202",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar"
+            },
+            {
+                "coord": "com.github.fommil:jniloader:1.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
+                "sha256": "2f1def54f30e1db5f1e7f2fd600fe2ab331bd6b52037e9a21505c237020b5573",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar"
+            },
+            {
+                "coord": "com.github.scopt:scopt_2.12:3.5.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0.jar",
+                "sha256": "2cb8ead3823aafef8d91ba1968c71548242f8b2ec9466c4f25ee2ee5b0fb98e7",
+                "url": "https://repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0.jar"
+            },
+            {
+                "coord": "com.google.android.gms:play-services-base:16.1.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:support-core-utils:28.0.0",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:support-media-compat:26.1.0",
+                    "com.android.support:support-fragment:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:support-compat:28.0.0",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:support-v4:aar:26.1.0",
+                    "com.android.support:support-core-ui:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.google.android.gms:play-services-tasks:aar:16.0.1",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "com.google.android.gms:play-services-basement:aar:16.2.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
+                "sha256": "3a543b05dfa09ca84fb47ed5e166ec7fbd7715ce630bbde44c10ffa5fb81daa4",
+                "url": "https://maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar"
+            },
+            {
+                "coord": "com.google.android.gms:play-services-basement:aar:16.2.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:support-core-utils:28.0.0",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:support-media-compat:26.1.0",
+                    "com.android.support:support-fragment:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:support-compat:28.0.0",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:support-v4:aar:26.1.0",
+                    "com.android.support:support-core-ui:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
+                "sha256": "5ccead5a05a632f93df0a807752a034adcd0cd62fcf30da287c6dd5b05bd3d5a",
+                "url": "https://maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar"
+            },
+            {
+                "coord": "com.google.android.gms:play-services-tasks:aar:16.0.1",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:support-core-utils:28.0.0",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:support-media-compat:26.1.0",
+                    "com.android.support:support-fragment:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:support-compat:28.0.0",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:support-v4:aar:26.1.0",
+                    "com.android.support:support-core-ui:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "com.google.android.gms:play-services-basement:aar:16.2.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
+                "sha256": "b31c18d8d1cc8d9814f295ee7435471333f370ba5bd904ca14f8f2bec4f35c35",
+                "url": "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
+            },
+            {
+                "coord": "com.google.code.findbugs:jsr305:1.3.9",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar",
+                "sha256": "905721a0eea90a81534abb7ee6ef4ea2e5e645fa1def0a5cd88402df1b46c9ed",
+                "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar"
+            },
+            {
+                "coord": "com.google.guava:guava:16.0.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar",
+                "sha256": "a896857d07845d38c7dc5bbc0457b6d9b0f62ecffda010e5e9ec12d561f676d3",
+                "url": "https://repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar"
+            },
+            {
+                "coord": "com.googlecode.matrix-toolkits-java:mtj:1.0.4",
+                "dependencies": [
+                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:all:pom:1.1.2",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:native_ref-java:1.1",
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4.jar",
+                "sha256": "27a53db335bc6af524b30f97ec3fb4b6df65e7648d70e752447c7dd9bc4697c8",
+                "url": "https://repo1.maven.org/maven2/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4.jar"
+            },
+            {
+                "coord": "com.googlecode.netlib-java:netlib-java:1.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:core:1.1.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar",
+                "sha256": "814b9cf2425bd05d836055a7293a227c297c65126bb091fa50230905421b8126",
+                "url": "https://repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar"
+            },
+            {
+                "coord": "com.squareup:javapoet:1.11.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
+                "sha256": "9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90",
+                "url": "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar"
+            },
+            {
+                "coord": "com.twitter:chill-java:0.7.6",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/twitter/chill-java/0.7.6/chill-java-0.7.6.jar",
+                "sha256": "f7c41a2257be11e6c9bca97095c8f4b0299626941a3508469f90622eb8f8368e",
+                "url": "https://repo1.maven.org/maven2/com/twitter/chill-java/0.7.6/chill-java-0.7.6.jar"
+            },
+            {
+                "coord": "com.twitter:chill_2.12:0.7.6",
+                "dependencies": [
+                    "com.twitter:chill-java:0.7.6"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/twitter/chill_2.12/0.7.6/chill_2.12-0.7.6.jar",
+                "sha256": "bce92caa7e97ed70e5df8fb8aeac92c7c374109f7c681fde4ec19af63ee90a76",
+                "url": "https://repo1.maven.org/maven2/com/twitter/chill_2.12/0.7.6/chill_2.12-0.7.6.jar"
+            },
+            {
+                "coord": "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                "dependencies": [
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe:config:1.3.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.4.20/akka-actor_2.12-2.4.20.jar",
+                "sha256": "04971549bbd863ee5bb6689bab794d97057ff2eb244e7ceb6e7d927ff3472ebe",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.4.20/akka-actor_2.12-2.4.20.jar"
+            },
+            {
+                "coord": "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.12/2.4.20/akka-protobuf_2.12-2.4.20.jar",
+                "sha256": "5992ebf1a11ee638ab208f953c0728abad4baebc61cc5b132abd68c4e6caa49a",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.12/2.4.20/akka-protobuf_2.12-2.4.20.jar"
+            },
+            {
+                "coord": "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                "dependencies": [
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "com.typesafe:config:1.3.0",
+                    "org.slf4j:slf4j-api:1.7.16"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20.jar",
+                "sha256": "32f64dd2c5aa9f8309e7e33288bc885e516e4f1b1a9ceb435ab15e56dd53c52a",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20.jar"
+            },
+            {
+                "coord": "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                "dependencies": [
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.12/2.4.20/akka-stream_2.12-2.4.20.jar",
+                "sha256": "9189b2236cef36f26a4f21eb1ab50726988cdfaf888b8aa9cf2f8d53b29e229e",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.12/2.4.20/akka-stream_2.12-2.4.20.jar"
+            },
+            {
+                "coord": "com.typesafe:config:1.3.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar",
+                "sha256": "d3e9dca258786c51fcbcc47d34d3b44158476af55c47d22dd8c2e38e41a2c89a",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar"
+            },
+            {
+                "coord": "com.typesafe:ssl-config-core_2.12:0.2.1",
+                "dependencies": [
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.2.1/ssl-config-core_2.12-0.2.1.jar",
+                "sha256": "c169a9846e1259e33348d406dd64ca1556a35a404de2a96871effcea9f0998ce",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.2.1/ssl-config-core_2.12-0.2.1.jar"
+            },
+            {
+                "coord": "commons-cli:commons-cli:1.3.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar",
+                "sha256": "3a2f057041aa6a8813f5b59b695f726c5e85014a703d208d7e1689098e92d8c0",
+                "url": "https://repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar"
+            },
+            {
+                "coord": "commons-collections:commons-collections:3.2.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar",
+                "sha256": "eeeae917917144a68a741d4c0dff66aa5c5c5fd85593ff217bced3fc8ca783b8",
+                "url": "https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"
+            },
+            {
+                "coord": "commons-io:commons-io:2.4",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar",
+                "sha256": "cc6a41dc3eaacc9e440a6bd0d2890b20d36b4ee408fe2d67122f328bb6e01581",
+                "url": "https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"
+            },
+            {
+                "coord": "io.netty:netty:3.7.0.Final",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final.jar",
+                "sha256": "aa44be64442b9cbc5edd521476b9f1c272eec6a53dca104cf3032f42ad20ff89",
+                "url": "https://repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final.jar"
+            },
+            {
+                "coord": "javax.annotation:jsr250-api:1.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar",
+                "sha256": "a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f",
+                "url": "https://repo1.maven.org/maven2/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar"
+            },
+            {
+                "coord": "javax.enterprise:cdi-api:1.0",
+                "dependencies": [
+                    "javax.annotation:jsr250-api:1.0",
+                    "javax.inject:javax.inject:1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/javax/enterprise/cdi-api/1.0/cdi-api-1.0.jar",
+                "sha256": "1f10b2204cc77c919301f20ff90461c3df1b6e6cb148be1c2d22107f4851d423",
+                "url": "https://repo1.maven.org/maven2/javax/enterprise/cdi-api/1.0/cdi-api-1.0.jar"
+            },
+            {
+                "coord": "javax.inject:javax.inject:1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar",
+                "sha256": "91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff",
+                "url": "https://repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar"
+            },
+            {
+                "coord": "jline:jline:0.9.94",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar",
+                "sha256": "d8df0ffb12d87ca876271cda4d59b3feb94123882c1be1763b7faf2e0a0b0cbb",
+                "url": "https://repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar"
+            },
+            {
+                "coord": "junit:junit:4.12",
+                "dependencies": [
+                    "org.hamcrest:hamcrest-core:1.3"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar",
+                "sha256": "59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a",
+                "url": "https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"
+            },
+            {
+                "coord": "log4j:log4j:1.2.16",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar",
+                "sha256": "7ae3fdde7ab0cae4735a2aec04381ad9b6e25c93d24205f3ed315d9866f12fe1",
+                "url": "https://repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar"
+            },
+            {
+                "coord": "net.sourceforge.f2j:arpack_combined_all:0.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar",
+                "sha256": "9964fb948ef213548a79b23dd480af9d72f1450824fa006bbfea211ac1ffa6dc",
+                "url": "https://repo1.maven.org/maven2/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar"
+            },
+            {
+                "coord": "nz.ac.waikato.cms.weka.thirdparty:bounce:0.18",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar",
+                "sha256": "bffff1505335c02256b7ab2ccffbe4aa4d3ac9fe14c17557809b7c9d99d666ca",
+                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar"
+            },
+            {
+                "coord": "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b-runtime/2015.03.26/java-cup-11b-runtime-2015.03.26.jar",
+                "sha256": "3d7aa5f733722e66ee334a21ffba798deb4f9bcfedc514654088981f6ca27dc2",
+                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b-runtime/2015.03.26/java-cup-11b-runtime-2015.03.26.jar"
+            },
+            {
+                "coord": "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26.jar",
+                "sha256": "5f80953da8dd95e3624c0e54d0971b6247317aff90f814464c5bdd110ead853a",
+                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26.jar"
+            },
+            {
+                "coord": "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
+                "dependencies": [
+                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
+                    "com.googlecode.matrix-toolkits-java:mtj:1.0.4",
+                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
+                    "com.googlecode.netlib-java:netlib-java:1.1",
+                    "net.sourceforge.f2j:arpack_combined_all:0.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
+                    "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26",
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:all:pom:1.1.2",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
+                    "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:native_ref-java:1.1",
+                    "nz.ac.waikato.cms.weka.thirdparty:bounce:0.18",
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/weka-stable/3.8.1/weka-stable-3.8.1.jar",
+                "sha256": "d593d4a848a7250b6c0b72e93c07776a8894db71090d7a422de4ae2b856ba53c",
+                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/weka-stable/3.8.1/weka-stable-3.8.1.jar"
+            },
+            {
+                "coord": "org.apache.ant:ant-launcher:1.9.9",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/ant/ant-launcher/1.9.9/ant-launcher-1.9.9.jar",
+                "sha256": "02cbe010ceec4acab059acfa48a16dc7b7c430200f2561b6b7c75bcab48f4044",
+                "url": "https://repo1.maven.org/maven2/org/apache/ant/ant-launcher/1.9.9/ant-launcher-1.9.9.jar"
+            },
+            {
+                "coord": "org.apache.ant:ant:1.9.9",
+                "dependencies": [
+                    "org.apache.ant:ant-launcher:1.9.9"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/ant/ant/1.9.9/ant-1.9.9.jar",
+                "sha256": "d81254bcb2e170c9ea16cd418050f3340da1736380a02415c8ddda9a0a0b8a1b",
+                "url": "https://repo1.maven.org/maven2/org/apache/ant/ant/1.9.9/ant-1.9.9.jar"
+            },
+            {
+                "coord": "org.apache.commons:commons-compress:1.18",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18.jar",
+                "sha256": "5f2df1e467825e4cac5996d44890c4201c000b43c0b23cffc0782d28a0beb9b0",
+                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18.jar"
+            },
+            {
+                "coord": "org.apache.commons:commons-lang3:3.4",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar",
+                "sha256": "734c8356420cc8e30c795d64fd1fcd5d44ea9d90342a2cc3262c5158fbc6d98b",
+                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar"
+            },
+            {
+                "coord": "org.apache.commons:commons-math3:3.5",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5.jar",
+                "sha256": "dcf9768726b82e8d7b8a928447b08bca7cfe2773d5120a63a41ec224207c1a29",
+                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5.jar"
+            },
+            {
+                "coord": "org.apache.curator:curator-test:2.12.0",
+                "dependencies": [
+                    "log4j:log4j:1.2.16",
+                    "jline:jline:0.9.94",
+                    "com.google.guava:guava:16.0.1",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.zookeeper:zookeeper:3.4.8",
+                    "io.netty:netty:3.7.0.Final"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/curator/curator-test/2.12.0/curator-test-2.12.0.jar",
+                "sha256": "05e800c48e3d4d1020a5bdb8fcc4a6ef706c88979516556e8fe47acf63000630",
+                "url": "https://repo1.maven.org/maven2/org/apache/curator/curator-test/2.12.0/curator-test-2.12.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-annotations:1.8.0",
+                "dependencies": [
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.slf4j:slf4j-api:1.7.16"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0.jar",
+                "sha256": "8f05ed8ba078ebb31d8cbf7b38c64394d02d9f7533ad1fd8ecf244611b040655",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-clients_2.12:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "commons-io:commons-io:2.4",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.typesafe:config:1.3.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "commons-cli:commons-cli:1.3.1",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "org.apache.flink:flink-runtime_2.12:1.8.0",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "com.twitter:chill-java:0.7.6",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.apache.flink:flink-optimizer_2.12:1.8.0",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-clients_2.12/1.8.0/flink-clients_2.12-1.8.0.jar",
+                "sha256": "803f55fd562fdbfeed8db3274a7c0b652a3c1ec6bafed843a0f9e9accd11f076",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-clients_2.12/1.8.0/flink-clients_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-core:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-core/1.8.0/flink-core-1.8.0.jar",
+                "sha256": "efc92867464326333980dbe18c8fe0aaad200351ccdd3d1cf4fe8761c390284a",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-core/1.8.0/flink-core-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-hadoop-fs:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-hadoop-fs/1.8.0/flink-hadoop-fs-1.8.0.jar",
+                "sha256": "3d7bd0618a8ac4b8d8ad7e008fcde4c86e192b6048e819ed09760f7e65790f80",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-hadoop-fs/1.8.0/flink-hadoop-fs-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-java:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-java/1.8.0/flink-java-1.8.0.jar",
+                "sha256": "30707506a5ffe4b9aad185e654315089c9efda03ba8b0d06f8c902f1220b688b",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-java/1.8.0/flink-java-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-metrics-core:1.8.0",
+                "dependencies": [
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.slf4j:slf4j-api:1.7.16"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0.jar",
+                "sha256": "aeebc1271212fe7f41824998c317d0ec8b5a8a5249543382e9543d63a966b9ef",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-optimizer_2.12:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "commons-io:commons-io:2.4",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.typesafe:config:1.3.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "commons-cli:commons-cli:1.3.1",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "org.apache.flink:flink-runtime_2.12:1.8.0",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "com.twitter:chill-java:0.7.6",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-optimizer_2.12/1.8.0/flink-optimizer_2.12-1.8.0.jar",
+                "sha256": "84ff4c68467ef2fe25539a0098aa7b9df52a7f7f45f777130fe1cb94ecbcc447",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-optimizer_2.12/1.8.0/flink-optimizer_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                "dependencies": [
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0.jar",
+                "sha256": "ceb1b7d91ad24f970b1d9b758e529664e0a1db200857d6413ebce55c882cf77e",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-runtime_2.12:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "commons-io:commons-io:2.4",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.typesafe:config:1.3.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "commons-cli:commons-cli:1.3.1",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "com.twitter:chill-java:0.7.6",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0.jar",
+                "sha256": "14121e60d1e8215ebfe9c997b17b1e8b508a36835f5ec5be4269d71a472fa07c",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-runtime_2.12:test-jar:tests:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "commons-io:commons-io:2.4",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.typesafe:config:1.3.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "commons-cli:commons-cli:1.3.1",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "com.twitter:chill-java:0.7.6",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
+                "sha256": "a09b2cc02a67476d5c1876dc34b0dea9fdefc4aaa2f79e61b19d38af8007b49c",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm-6/6.2.1-6.0/flink-shaded-asm-6-6.2.1-6.0.jar",
+                "sha256": "0d73f2982ca0d19a7eb9b9ff8fd9b0ebfc21700603027c1672ba9c9573f29d63",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm-6/6.2.1-6.0/flink-shaded-asm-6-6.2.1-6.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm/5.0.4-6.0/flink-shaded-asm-5.0.4-6.0.jar",
+                "sha256": "d91cde92466dc1a311eea60ffa5e96d4100f5b1330267e50ff61465e8a75a8c9",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm/5.0.4-6.0/flink-shaded-asm-5.0.4-6.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-guava/18.0-6.0/flink-shaded-guava-18.0-6.0.jar",
+                "sha256": "9d50b0d96ef65d8f6cc540dd3b72b2b92acfb7117edd1972a717effc3ceabdeb",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-guava/18.0-6.0/flink-shaded-guava-18.0-6.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-jackson/2.7.9-6.0/flink-shaded-jackson-2.7.9-6.0.jar",
+                "sha256": "36d749690200b0621d8504139e7978d3b999e60267feb9bcc8ed2bf4731c8824",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-jackson/2.7.9-6.0/flink-shaded-jackson-2.7.9-6.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-netty/4.1.32.Final-6.0/flink-shaded-netty-4.1.32.Final-6.0.jar",
+                "sha256": "d3531c2edc47563bde048193e5098f9075a5a8ddd5c47d4ea4940e1a3c7873ac",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-netty/4.1.32.Final-6.0/flink-shaded-netty-4.1.32.Final-6.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-streaming-java_2.12:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "commons-io:commons-io:2.4",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.typesafe:config:1.3.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "commons-cli:commons-cli:1.3.1",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "org.apache.flink:flink-runtime_2.12:1.8.0",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "com.twitter:chill-java:0.7.6",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.apache.flink:flink-optimizer_2.12:1.8.0",
+                    "org.apache.flink:flink-clients_2.12:1.8.0",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-streaming-java_2.12/1.8.0/flink-streaming-java_2.12-1.8.0.jar",
+                "sha256": "791f72504519eb85cd875ec3aed1e6f66644f6ae271a5941f17f535d98e6efde",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-streaming-java_2.12/1.8.0/flink-streaming-java_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-test-utils-junit:1.8.0",
+                "dependencies": [
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "junit:junit:4.12",
+                    "org.hamcrest:hamcrest-core:1.3",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.slf4j:slf4j-api:1.7.16"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0.jar",
+                "sha256": "534154a0691ab95b1db3c4808ecfb534a30c769de465b380657e4f664d8fc9bc",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-test-utils_2.12:1.8.0",
+                "dependencies": [
+                    "org.objenesis:objenesis:2.1",
+                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "log4j:log4j:1.2.16",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "commons-collections:commons-collections:3.2.2",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "commons-io:commons-io:2.4",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "jline:jline:0.9.94",
+                    "org.apache.curator:curator-test:2.12.0",
+                    "org.apache.commons:commons-math3:3.5",
+                    "junit:junit:4.12",
+                    "org.hamcrest:hamcrest-core:1.3",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "com.google.guava:guava:16.0.1",
+                    "com.typesafe:config:1.3.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.apache.flink:flink-streaming-java_2.12:1.8.0",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.flink:flink-test-utils-junit:1.8.0",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "commons-cli:commons-cli:1.3.1",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "org.apache.flink:flink-runtime_2.12:1.8.0",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "org.apache.zookeeper:zookeeper:3.4.8",
+                    "com.twitter:chill-java:0.7.6",
+                    "org.apache.flink:flink-runtime_2.12:test-jar:1.8.0",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "io.netty:netty:3.7.0.Final",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.apache.flink:flink-optimizer_2.12:1.8.0",
+                    "org.apache.flink:flink-clients_2.12:1.8.0",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-annotations:1.8.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-test-utils_2.12/1.8.0/flink-test-utils_2.12-1.8.0.jar",
+                "sha256": "e06b4c2d1fde83c74e5e41086ee7e9c13b6f5c671613daa958d658c0ebeaa204",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-test-utils_2.12/1.8.0/flink-test-utils_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:force-shading:1.8.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/force-shading/1.8.0/force-shading-1.8.0.jar",
+                "sha256": "8093abf2279bdf2b7915e2ef50b725cd33d23628355197bd3e274e1fe5c364d0",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/force-shading/1.8.0/force-shading-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.maven:maven-artifact:3.3.9",
+                "dependencies": [
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.codehaus.plexus:plexus-utils:3.0.22"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-artifact/3.3.9/maven-artifact-3.3.9.jar",
+                "sha256": "1f702928f2233c6ecdf308fbd8f2932ea287c7062183d3c8364b0db7e9c4445d",
+                "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-artifact/3.3.9/maven-artifact-3.3.9.jar"
+            },
+            {
+                "coord": "org.apache.maven:maven-model:3.3.9",
+                "dependencies": [
+                    "org.apache.commons:commons-lang3:3.4",
+                    "org.codehaus.plexus:plexus-utils:3.0.22"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9.jar",
+                "sha256": "15abde67fa7ea1e573e1f68c34921e995f0971351aaf1fb96790688ff510efcd",
+                "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9.jar"
+            },
+            {
+                "coord": "org.apache.maven:maven-plugin-api:3.3.9",
+                "dependencies": [
+                    "org.apache.maven:maven-model:3.3.9",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "javax.enterprise:cdi-api:1.0",
+                    "org.codehaus.plexus:plexus-component-annotations:1.5.5",
+                    "org.apache.maven:maven-artifact:3.3.9",
+                    "org.codehaus.plexus:plexus-utils:3.0.22",
+                    "javax.inject:javax.inject:1",
+                    "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.2",
+                    "org.codehaus.plexus:plexus-classworlds:2.5.2",
+                    "javax.annotation:jsr250-api:1.0",
+                    "org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-plugin-api/3.3.9/maven-plugin-api-3.3.9.jar",
+                "sha256": "14cae18fd7125901b12fc914e30ea26ad9bd43dbd399dd6e8fcbc6c754ef2c9c",
+                "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-plugin-api/3.3.9/maven-plugin-api-3.3.9.jar"
+            },
+            {
+                "coord": "org.apache.zookeeper:zookeeper:3.4.8",
+                "dependencies": [
+                    "io.netty:netty:3.7.0.Final",
+                    "log4j:log4j:1.2.16",
+                    "org.slf4j:slf4j-api:1.7.16",
+                    "jline:jline:0.9.94"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar",
+                "sha256": "d47d35b9a10af53b7967ff4851bff832778539eed1e43fae6bfcb1f13576bdf5",
+                "url": "https://repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar"
+            },
+            {
+                "coord": "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                "dependencies": [
+                    "org.slf4j:slf4j-api:1.7.16"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2.jar",
+                "sha256": "fc30cd1e4cb03cfbee546fed39428e6e9f929857327723a9fe87afd0a3f275c7",
+                "url": "https://repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2.jar"
+            },
+            {
+                "coord": "org.codehaus.plexus:plexus-classworlds:2.5.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-classworlds/2.5.2/plexus-classworlds-2.5.2.jar",
+                "sha256": "b2931d41740490a8d931cbe0cfe9ac20deb66cca606e679f52522f7f534c9fd7",
+                "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-classworlds/2.5.2/plexus-classworlds-2.5.2.jar"
+            },
+            {
+                "coord": "org.codehaus.plexus:plexus-component-annotations:1.5.5",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5.jar",
+                "sha256": "4df7a6a7be64b35bbccf60b5c115697f9ea3421d22674ae67135dde375fcca1f",
+                "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5.jar"
+            },
+            {
+                "coord": "org.codehaus.plexus:plexus-utils:3.0.22",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22.jar",
+                "sha256": "0f31c44b275f87e56d46a582ce96d03b9e2ab344cf87c4e268b34d3ad046beab",
+                "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22.jar"
+            },
+            {
+                "coord": "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
+                "sha256": "a2cc192a076d9effd10becee8aacbe157f0fe2010fd4322e58aaeff198e56dbe",
+                "url": "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar"
+            },
+            {
+                "coord": "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.2/org.eclipse.sisu.inject-0.3.2.jar",
+                "sha256": "66e87705a818da44eb080a7bb1fc431de987754b4f92aa85f69991bfc677d40d",
+                "url": "https://repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.2/org.eclipse.sisu.inject-0.3.2.jar"
+            },
+            {
+                "coord": "org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.2",
+                "dependencies": [
+                    "javax.enterprise:cdi-api:1.0",
+                    "org.codehaus.plexus:plexus-component-annotations:1.5.5",
+                    "org.codehaus.plexus:plexus-utils:3.0.22",
+                    "javax.inject:javax.inject:1",
+                    "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.2",
+                    "org.codehaus.plexus:plexus-classworlds:2.5.2",
+                    "javax.annotation:jsr250-api:1.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.2/org.eclipse.sisu.plexus-0.3.2.jar",
+                "sha256": "f5cfe0d88e8276971db4ecff0e4186d5f2ec5fdb1b6bb8c2f359fdc4b43eb8b2",
+                "url": "https://repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.2/org.eclipse.sisu.plexus-0.3.2.jar"
+            },
+            {
+                "coord": "org.hamcrest:hamcrest-core:1.3",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+                "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+                "url": "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+            },
+            {
+                "coord": "org.javassist:javassist:3.19.0-GA",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA.jar",
+                "sha256": "d19c1ef43ccd9cb1b39466bb2f1c8e45c2b6752f1e13a3dfb60096543d1791fa",
+                "url": "https://repo1.maven.org/maven2/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA.jar"
+            },
+            {
+                "coord": "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.21/kotlin-stdlib-common-1.3.21.jar",
+                "sha256": "cea61f7b611895e64f58569a9757fc0ab0d582f107211e1930e0ce2a0add52a7",
+                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.21/kotlin-stdlib-common-1.3.21.jar"
+            },
+            {
+                "coord": "org.jetbrains.kotlin:kotlin-stdlib:1.3.21",
+                "dependencies": [
+                    "org.jetbrains:annotations:13.0",
+                    "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/1.3.21/kotlin-stdlib-1.3.21.jar",
+                "sha256": "38ba2370d9f06f50433e06b2ca775b94473c2e2785f410926079ab793c72b034",
+                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/1.3.21/kotlin-stdlib-1.3.21.jar"
+            },
+            {
+                "coord": "org.jetbrains.kotlin:kotlin-test-common:1.3.21",
+                "dependencies": [
+                    "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-common/1.3.21/kotlin-test-common-1.3.21.jar",
+                "sha256": "031002974839411b82c522d289a751367a5f56493b001f99a952263bf1e9d88b",
+                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-common/1.3.21/kotlin-test-common-1.3.21.jar"
+            },
+            {
+                "coord": "org.jetbrains.kotlin:kotlin-test:1.3.21",
+                "dependencies": [
+                    "org.jetbrains.kotlin:kotlin-stdlib:1.3.21",
+                    "org.jetbrains:annotations:13.0",
+                    "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21",
+                    "org.jetbrains.kotlin:kotlin-test-common:1.3.21"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test/1.3.21/kotlin-test-1.3.21.jar",
+                "sha256": "f5dfb309746dbdebfba37437c9646c949f843e3cbe84fae81f07d7611d77bfa5",
+                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test/1.3.21/kotlin-test-1.3.21.jar"
+            },
+            {
+                "coord": "org.jetbrains:annotations:13.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+                "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
+                "url": "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar"
+            },
+            {
+                "coord": "org.objenesis:objenesis:2.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar",
+                "sha256": "c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80",
+                "url": "https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar"
+            },
+            {
+                "coord": "org.ow2.asm:asm-analysis:6.2",
+                "dependencies": [
+                    "org.ow2.asm:asm-tree:6.2",
+                    "org.ow2.asm:asm:6.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-analysis/6.2/asm-analysis-6.2.jar",
+                "sha256": "62b2c0d818fde5c52cf6404aa10836dbb170a2c3fa8466e656f0f991732fa01f",
+                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/6.2/asm-analysis-6.2.jar"
+            },
+            {
+                "coord": "org.ow2.asm:asm-commons:6.2",
+                "dependencies": [
+                    "org.ow2.asm:asm-tree:6.2",
+                    "org.ow2.asm:asm:6.2",
+                    "org.ow2.asm:asm-analysis:6.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-commons/6.2/asm-commons-6.2.jar",
+                "sha256": "15545913db06c987aa404f028e33501d9f27f8ced612f73727e3547ac4de878c",
+                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/6.2/asm-commons-6.2.jar"
+            },
+            {
+                "coord": "org.ow2.asm:asm-tree:6.2",
+                "dependencies": [
+                    "org.ow2.asm:asm:6.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-tree/6.2/asm-tree-6.2.jar",
+                "sha256": "02317d9ed739dab470a96f44de712fde51a811362ca26852b34324388e61257c",
+                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/6.2/asm-tree-6.2.jar"
+            },
+            {
+                "coord": "org.ow2.asm:asm:6.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm/6.2/asm-6.2.jar",
+                "sha256": "917bda888bc543187325d5fbc1034207eed152574ef78df1734ca0aee40b7fc8",
+                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm/6.2/asm-6.2.jar"
+            },
+            {
+                "coord": "org.pantsbuild:jarjar:1.6.6",
+                "dependencies": [
+                    "org.ow2.asm:asm-analysis:6.2",
+                    "org.apache.maven:maven-plugin-api:3.3.9",
+                    "org.apache.maven:maven-model:3.3.9",
+                    "org.ow2.asm:asm-tree:6.2",
+                    "org.apache.commons:commons-lang3:3.4",
+                    "javax.enterprise:cdi-api:1.0",
+                    "org.codehaus.plexus:plexus-component-annotations:1.5.5",
+                    "org.apache.maven:maven-artifact:3.3.9",
+                    "org.codehaus.plexus:plexus-utils:3.0.22",
+                    "org.apache.ant:ant-launcher:1.9.9",
+                    "javax.inject:javax.inject:1",
+                    "org.apache.ant:ant:1.9.9",
+                    "org.ow2.asm:asm:6.2",
+                    "org.ow2.asm:asm-commons:6.2",
+                    "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.2",
+                    "org.codehaus.plexus:plexus-classworlds:2.5.2",
+                    "javax.annotation:jsr250-api:1.0",
+                    "org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/pantsbuild/jarjar/1.6.6/jarjar-1.6.6.jar",
+                "sha256": "965ab4c68b7ff6164841d7034cf5b0d5397205e35903c372db981a3660ad72f1",
+                "url": "https://repo1.maven.org/maven2/org/pantsbuild/jarjar/1.6.6/jarjar-1.6.6.jar"
+            },
+            {
+                "coord": "org.reactivestreams:reactive-streams:1.0.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0.jar",
+                "sha256": "ef867702a614b96eb6c64fb65a8f5e14bdfcabbc1ae056f78a1643f7b79ca0eb",
+                "url": "https://repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0.jar"
+            },
+            {
+                "coord": "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0.jar",
+                "sha256": "d9d5dfd1bc49a8158e6e0a90b2ed08fa602984d815c00af16cec53557e83ef8e",
+                "url": "https://repo1.maven.org/maven2/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0.jar"
+            },
+            {
+                "coord": "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar",
+                "sha256": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111",
+                "url": "https://repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar"
+            },
+            {
+                "coord": "org.scala-lang:scala-library:2.11.12",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar",
+                "sha256": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
+                "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar"
+            },
+            {
+                "coord": "org.slf4j:slf4j-api:1.7.16",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16.jar",
+                "sha256": "e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b",
+                "url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16.jar"
+            },
+            {
+                "coord": "org.xerial.snappy:snappy-java:1.1.4",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4.jar",
+                "sha256": "f75ec0fa9c843e236c6e1512c17c095cfffd175f32e21ea0e3eccb540d77f002",
+                "url": "https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4.jar"
+            }
+        ],
+        "version": "0.1.0"
+    }
+}
