@@ -637,7 +637,7 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
-    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "{}") + "}"
+    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
     repository_ctx.file(
         "pin",
         """#!/bin/bash

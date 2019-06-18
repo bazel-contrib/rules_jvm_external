@@ -6,7 +6,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Begin test dependencies
 
-load("//:defs.bzl", "maven_install")
+load("//:defs.bzl", "maven_install", "pinned_maven_install")
 load("//:specs.bzl", "maven")
 
 maven_install(
@@ -109,6 +109,14 @@ maven_install(
     ],
     generate_compat_repositories = True,
 )
+
+pinned_maven_install(
+    name = "pinned_regression_testing",
+    maven_install_json = "//:regression_testing.json",
+)
+
+load("@pinned_regression_testing//:defs.bzl", "maven_load")
+maven_load()
 
 load("@regression_testing//:compat.bzl", "compat_repositories")
 compat_repositories()
