@@ -112,6 +112,17 @@ def _get_reverse_deps(coord, dep_tree):
                 reverse_deps.append(maybe_rdep)
     return reverse_deps
 
+def _genrule_copy_artifact_from_http_file(artifact):
+    http_file_repository = _escape(artifact["coord"])
+    return "\n".join([
+        "genrule(",
+        "     name = \"%s_extension\"," % http_file_repository,
+        "     srcs = [\"@%s//file:downloaded\"]," % http_file_repository,
+        "     outs = [\"%s\"]," % artifact["file"],
+        "     cmd = \"cp $< $@\",",
+        ")",
+    ])
+
 # Generate BUILD file with java_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
 # tree.
@@ -151,15 +162,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                     target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
                     if repository_ctx.attr.maven_install_json:
-                        http_file_repository = _escape(artifact["coord"])
-                        all_imports.append("\n".join([
-                            "genrule(",
-                            "     name = \"%s_extension\"," % http_file_repository,
-                            "     srcs = [\"@%s//file:downloaded\"]," % http_file_repository,
-                            "     outs = [\"%s\"]," % artifact_relative_path,
-                            "     cmd = \"cp $< $@\",",
-                            ")",
-                        ]))
+                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
@@ -214,17 +217,6 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
-            if repository_ctx.attr.maven_install_json:
-                http_file_repository = _escape(artifact["coord"])
-                all_imports.append("\n".join([
-                    "genrule(",
-                    "     name = \"%s_extension\"," % http_file_repository,
-                    "     srcs = [\"@%s//file:downloaded\"]," % http_file_repository,
-                    "     outs = [\"%s\"]," % artifact_relative_path,
-                    "     cmd = \"cp $< $@\",",
-                    ")",
-                ]))
-
             if packaging == "jar":
                 target_import_string.append("\tjars = [\"%s\"]," % artifact_relative_path)
                 if srcjar_paths != None and target_label in srcjar_paths:
@@ -306,6 +298,19 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # )
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
+
+            # 9. If using maven_install.json, use a genrule to copy the file from the http_file
+            # repository into this repository.
+            #
+            # genrule(
+            #     name = "org_hamcrest_hamcrest_library_1_3_extension",
+            #     srcs = ["@org_hamcrest_hamcrest_library_1_3//file:downloaded"],
+            #     outs = ["@maven//:v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            #     cmd = "cp $< $@",
+            # )
+            if repository_ctx.attr.maven_install_json:
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
+
 
         elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
