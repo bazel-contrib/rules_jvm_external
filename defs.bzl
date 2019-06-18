@@ -46,6 +46,8 @@ def maven_install(
       generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
         artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
         `@com_google_guava_guava//jar`.
+      maven_install_json: A label to a `maven_install.json` file to use pinned artifacts for generating
+        build targets. e.g `//:maven_install.json`.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
