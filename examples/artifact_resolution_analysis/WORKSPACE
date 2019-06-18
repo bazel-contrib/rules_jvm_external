@@ -7,7 +7,7 @@ local_repository(
     path = "../../",
 )
 
-load("@rules_jvm_external//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install", "pinned_maven_install")
 
 maven_install(
     artifacts = [
@@ -16,8 +16,12 @@ maven_install(
     repositories = [
         "https://jcenter.bintray.com",
     ],
-    pinned_maven_install = "//:pinned_maven_install.json",
+    fetch_sources = True,
 )
+
+pinned_maven_install()
+load("@pinned_maven//:defs.bzl", "maven_load")
+maven_load()
 
 # bazel-skylib 0.8.0 released 2019.03.20 (https://github.com/bazelbuild/bazel-skylib/releases/tag/0.8.0)
 http_archive(

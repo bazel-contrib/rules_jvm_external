@@ -150,6 +150,16 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                         artifact_relative_path = _normalize_to_unix_path(artifact_path)
                     target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
+                    if repository_ctx.attr.pinned_maven_install:
+                        http_file_repository = _escape(artifact["coord"])
+                        all_imports.append("\n".join([
+                            "genrule(",
+                            "     name = \"%s_extension\"," % http_file_repository,
+                            "     srcs = [\"@%s//file:downloaded\"]," % http_file_repository,
+                            "     outs = [\"%s\"]," % artifact_relative_path,
+                            "     cmd = \"cp $< $@\",",
+                            ")",
+                        ]))
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
@@ -204,6 +214,17 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
+            if repository_ctx.attr.pinned_maven_install:
+                http_file_repository = _escape(artifact["coord"])
+                all_imports.append("\n".join([
+                    "genrule(",
+                    "     name = \"%s_extension\"," % http_file_repository,
+                    "     srcs = [\"@%s//file:downloaded\"]," % http_file_repository,
+                    "     outs = [\"%s\"]," % artifact_relative_path,
+                    "     cmd = \"cp $< $@\",",
+                    ")",
+                ]))
+
             if packaging == "jar":
                 target_import_string.append("\tjars = [\"%s\"]," % artifact_relative_path)
                 if srcjar_paths != None and target_label in srcjar_paths:
@@ -546,6 +567,21 @@ def _coursier_fetch_impl(repository_ctx):
         dep_tree = json_parse(
             repository_ctx.read(
                 repository_ctx.path("imported_pinned_maven_install.json")))["dependency_tree"]
+        http_files = [
+            "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
+            "def maven_load():",
+        ]
+        for artifact in dep_tree["dependencies"]:
+            if artifact.get("url") != None:
+                http_file_repository_name = _escape(artifact["coord"])
+                http_files.extend([
+                    "    http_file(",
+                    "        name = \"%s\"," % http_file_repository_name,
+                    "        urls = [\"%s\"]," % artifact["url"],
+                    "        sha256 = \"%s\"," % artifact["sha256"],
+                    "    )",
+                ])
+        repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     else:
         exec_result = repository_ctx.execute(cmd)
         if (exec_result.return_code != 0):
@@ -555,25 +591,32 @@ def _coursier_fetch_impl(repository_ctx):
         # transitive dependencies in a JSON file. We use that as the source of truth
         # to generate the repository's BUILD file.
         dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+        sha256_tool = repository_ctx.path(repository_ctx.attr._sha256_tool)
 
-    # Reconstruct the original URLs from the relative path to the artifact,
-    # which encodes the URL components for the protocol, domain, and path to
-    # the file.
-    for artifact in dep_tree["dependencies"]:
-        url = []
-        protocol = None
-        if artifact["file"] != None:
-            for part in _normalize_to_unix_path(artifact["file"]).split("/"):
-                if protocol == None:
-                    if part == "http" or part == "https":
-                        protocol = part
-                        url.extend([protocol, ":/"])
-                else:
-                    url.extend(["/", part])
-            artifact.update({"url": "".join(url)})
-            if not repository_ctx.attr.use_unsafe_shared_cache and repository_ctx.attr.pinned_maven_install == None:
-                result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
-                artifact.update({"sha256": result.sha256})
+        # Reconstruct the original URLs from the relative path to the artifact,
+        # which encodes the URL components for the protocol, domain, and path to
+        # the file.
+        for artifact in dep_tree["dependencies"]:
+            url = []
+            protocol = None
+            if artifact["file"] != None:
+                for part in _normalize_to_unix_path(artifact["file"]).split("/"):
+                    if protocol == None:
+                        if part == "http" or part == "https":
+                            protocol = part
+                            url.extend([protocol, ":/"])
+                    else:
+                        url.extend(["/", part])
+                artifact.update({"url": "".join(url)})
+                cmd = ["python", sha256_tool, repository_ctx.path(artifact["file"]), "artifact.sha256"]
+                exec_result = repository_ctx.execute(cmd)
+                if exec_result.return_code != 0:
+                    fail("Error while obtaining the sha256 checksum of " + artifact["file"] + ": " + exec_result.stderr)
+                artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
+
+            # if not repository_ctx.attr.use_unsafe_shared_cache and repository_ctx.attr.pinned_maven_install == None:
+                # result = repository_ctx.download(artifact["url"], artifact["file"], sha256 = artifact.get("sha256", ""))
+                # artifact.update({"sha256": result.sha256})
 
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -607,7 +650,7 @@ def _coursier_fetch_impl(repository_ctx):
     )
 
     dependency_tree_bzl = "dependency_tree = " + repr(dep_tree)
-    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree) + "}"
+    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "{}") + "}"
 
     # Expose the dependency tree dict for users to analyze and build on top of.
     # Since this is the source of truth of our generated BUILD file, it is safe
@@ -650,6 +693,7 @@ echo %s""" % dependency_tree_json.replace("\"", "\\\""),
 
 coursier_fetch = repository_rule(
     attrs = {
+        "_sha256_tool": attr.label(default = "@bazel_tools//tools/build_defs/hash:sha256.py"),
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json

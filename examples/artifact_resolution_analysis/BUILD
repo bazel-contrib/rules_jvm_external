@@ -1,5 +1,16 @@
-load("@maven//:pinned_maven_install.bzl", "dependency_tree")
+load("@pinned_maven//:pinned_maven_install.bzl", "dependency_tree")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+
+# Regression tests for particular artifacts that revealed problems for this
+# project.
+
+build_test(
+    name = "build_test",
+    targets = [
+        "@pinned_maven//:com_google_guava_guava",
+    ],
+)
 
 genrule(
     name = "copy_dependency_tree",

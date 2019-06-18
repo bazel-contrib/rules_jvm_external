@@ -17,6 +17,13 @@ load("@rules_jvm_external//:specs.bzl", "json", "parse")
 
 DEFAULT_REPOSITORY_NAME = "maven"
 
+def pinned_maven_install(name = "pinned_maven", maven_install_json = "//:maven_install.json"):
+    coursier_fetch(
+        name = name,
+        pinned_maven_install = maven_install_json,
+        fetch_sources = True,
+    )
+
 def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
@@ -25,8 +32,7 @@ def maven_install(
         fetch_sources = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
-        generate_compat_repositories = False,
-        pinned_maven_install = None):
+        generate_compat_repositories = False):
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(json.write_repository_spec(repository))
@@ -48,7 +54,6 @@ def maven_install(
         use_unsafe_shared_cache = use_unsafe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
-        pinned_maven_install = pinned_maven_install,
     )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
