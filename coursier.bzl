@@ -140,7 +140,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
         for artifact in dep_tree["dependencies"]:
             if ":sources:" in artifact["coord"]:
                 artifact_path = artifact["file"]
-                if artifact_path != None and artifact_path not in seen_imports:
+                if artifact_path != {} and artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
                     if repository_ctx.attr.use_unsafe_shared_cache:
                         # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
