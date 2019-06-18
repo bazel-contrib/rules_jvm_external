@@ -3,7 +3,7 @@ local_repository(
     path = "../../",
 )
 
-load("@rules_jvm_external//:defs.bzl", "maven_install", "pinned_maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
@@ -21,8 +21,8 @@ maven_install(
     repositories = [
         "https://jcenter.bintray.com",
     ],
+    maven_install_json = "//:maven_install.json",
 )
 
-pinned_maven_install()
 load("@pinned_maven//:defs.bzl", "maven_load")
 maven_load()

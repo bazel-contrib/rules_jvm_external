@@ -29,7 +29,7 @@ load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 
 scala_register_toolchains()
 
-load("@rules_jvm_external//:defs.bzl", "maven_install", "pinned_maven_install")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 http_archive(
     name = "com_google_protobuf",
@@ -68,8 +68,8 @@ maven_install(
     repositories = [
         "https://jcenter.bintray.com",
     ],
+    maven_install_json = "//:maven_install.json",
 )
 
-pinned_maven_install()
 load("@pinned_maven//:defs.bzl", "maven_load")
 maven_load()

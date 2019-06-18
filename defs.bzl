@@ -17,14 +17,6 @@ load("@rules_jvm_external//:specs.bzl", "json", "parse")
 
 DEFAULT_REPOSITORY_NAME = "maven"
 
-def pinned_maven_install(name = "pinned_maven", maven_install_json = "//:maven_install.json"):
-    coursier_fetch(
-        name = name,
-        maven_install_json = maven_install_json,
-        fetch_sources = True,
-        generate_compat_repositories = True,
-    )
-
 def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
@@ -33,7 +25,8 @@ def maven_install(
         fetch_sources = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
-        generate_compat_repositories = False):
+        generate_compat_repositories = False,
+        maven_install_json = None):
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(json.write_repository_spec(repository))
@@ -51,11 +44,20 @@ def maven_install(
         repositories = repositories_json_strings,
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
-        fetch_sources = True,
+        fetch_sources = fetch_sources,
         use_unsafe_shared_cache = use_unsafe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
     )
+
+    if maven_install_json != None:
+        coursier_fetch(
+            name = "pinned_" + name,
+            maven_install_json = maven_install_json,
+            fetch_sources = fetch_sources,
+            generate_compat_repositories = generate_compat_repositories,
+        )
+
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a

@@ -12,15 +12,6 @@
                 "url": "https://maven.google.com/android/arch/core/common/1.1.1/common-1.1.1.jar"
             },
             {
-                "coord": "android.arch.core:common:jar:sources:1.1.1",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/core/common/1.1.1/common-1.1.1-sources.jar",
-                "sha256": "a92362968c7894fafedddbd1092aa7f775cb9a955aa794ab4c89e5bd386aec0c",
-                "url": "https://maven.google.com/android/arch/core/common/1.1.1/common-1.1.1-sources.jar"
-            },
-            {
                 "coord": "android.arch.core:runtime:aar:1.1.1",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0",
@@ -31,16 +22,6 @@
                 "url": "https://maven.google.com/android/arch/core/runtime/1.1.1/runtime-1.1.1.aar"
             },
             {
-                "coord": "android.arch.core:runtime:aar:sources:1.1.1",
-                "dependencies": [
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/core/runtime/1.1.1/runtime-1.1.1-sources.jar",
-                "sha256": "2819725bae3f0eac99197f810824a084d45d3b63922a87ace3329a64d0fb2420",
-                "url": "https://maven.google.com/android/arch/core/runtime/1.1.1/runtime-1.1.1-sources.jar"
-            },
-            {
                 "coord": "android.arch.lifecycle:common:1.1.1",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -48,15 +29,6 @@
                 "file": "v1/https/maven.google.com/android/arch/lifecycle/common/1.1.1/common-1.1.1.jar",
                 "sha256": "8d378e88ebd5189e09eef623414812c868fd90aa519d6160e2311fb8b81cff56",
                 "url": "https://maven.google.com/android/arch/lifecycle/common/1.1.1/common-1.1.1.jar"
-            },
-            {
-                "coord": "android.arch.lifecycle:common:jar:sources:1.1.1",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/lifecycle/common/1.1.1/common-1.1.1-sources.jar",
-                "sha256": "5b4b6d671680c194e61386a7b39fb98b1be51b5674d3dd0c1430981fe5b9bd13",
-                "url": "https://maven.google.com/android/arch/lifecycle/common/1.1.1/common-1.1.1-sources.jar"
             },
             {
                 "coord": "android.arch.lifecycle:livedata-core:aar:1.1.1",
@@ -69,18 +41,6 @@
                 "file": "v1/https/maven.google.com/android/arch/lifecycle/livedata-core/1.1.1/livedata-core-1.1.1.aar",
                 "sha256": "d6fdd8b985d6178d7ea2f16986a24e83f1bee936b74d43167c69e08d3cc12c50",
                 "url": "https://maven.google.com/android/arch/lifecycle/livedata-core/1.1.1/livedata-core-1.1.1.aar"
-            },
-            {
-                "coord": "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                "dependencies": [
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/lifecycle/livedata-core/1.1.1/livedata-core-1.1.1-sources.jar",
-                "sha256": "17fbd70ccd90070ef62e9949ac970c9a65cffa35d7fce663d046fcc0ee9f59f6",
-                "url": "https://maven.google.com/android/arch/lifecycle/livedata-core/1.1.1/livedata-core-1.1.1-sources.jar"
             },
             {
                 "coord": "android.arch.lifecycle:livedata:aar:1.1.1",
@@ -96,19 +56,6 @@
                 "url": "https://maven.google.com/android/arch/lifecycle/livedata/1.1.1/livedata-1.1.1.aar"
             },
             {
-                "coord": "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/lifecycle/livedata/1.1.1/livedata-1.1.1-sources.jar",
-                "sha256": "39d35ba9334332de42c82f2577b3456194959ec49593b8025bcb5b41a7c41dea",
-                "url": "https://maven.google.com/android/arch/lifecycle/livedata/1.1.1/livedata-1.1.1-sources.jar"
-            },
-            {
                 "coord": "android.arch.lifecycle:runtime:aar:1.1.1",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0",
@@ -120,17 +67,6 @@
                 "url": "https://maven.google.com/android/arch/lifecycle/runtime/1.1.1/runtime-1.1.1.aar"
             },
             {
-                "coord": "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                "dependencies": [
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/lifecycle/runtime/1.1.1/runtime-1.1.1-sources.jar",
-                "sha256": "22a65ac6a11de83b95a9db2f293bd0ef6ec4f185bd0d13fa56216039b8674956",
-                "url": "https://maven.google.com/android/arch/lifecycle/runtime/1.1.1/runtime-1.1.1-sources.jar"
-            },
-            {
                 "coord": "android.arch.lifecycle:viewmodel:aar:1.1.1",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -138,15 +74,6 @@
                 "file": "v1/https/maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1.aar",
                 "sha256": "7de29cfaba77d6b5d5be234c57f6812d0150d087e63941af22ba1d1f8e2bc96a",
                 "url": "https://maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1.aar"
-            },
-            {
-                "coord": "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1-sources.jar",
-                "sha256": "5bcc4db1bee861648b7e07a432e488a2555d019cad1334cba6b94ccfa962c03a",
-                "url": "https://maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1-sources.jar"
             },
             {
                 "coord": "com.android.support:animated-vector-drawable:aar:28.0.0",
@@ -182,39 +109,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/animated-vector-drawable/28.0.0/animated-vector-drawable-28.0.0.aar",
                 "sha256": "271ecbc906cda8dcd9e655ba0473129c3408a4189c806f616c378e6fd18fb3b7",
                 "url": "https://maven.google.com/com/android/support/animated-vector-drawable/28.0.0/animated-vector-drawable-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:animated-vector-drawable:aar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:support-vector-drawable:aar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:appcompat-v7:28.0.0",
@@ -254,41 +148,6 @@
                 "url": "https://maven.google.com/com/android/support/appcompat-v7/28.0.0/appcompat-v7-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:appcompat-v7:jar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:support-vector-drawable:aar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:support-fragment:aar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:animated-vector-drawable:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:asynclayoutinflater:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:collections:28.0.0",
@@ -304,19 +163,6 @@
                 "url": "https://maven.google.com/com/android/support/asynclayoutinflater/28.0.0/asynclayoutinflater-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:collections:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -324,13 +170,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/collections/28.0.0/collections-28.0.0.jar",
                 "sha256": "93c258c8a09f531a267653829742c0f8f6da0e348b11cb8655b0855628f2d4f0",
                 "url": "https://maven.google.com/com/android/support/collections/28.0.0/collections-28.0.0.jar"
-            },
-            {
-                "coord": "com.android.support:collections:jar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:coordinatorlayout:aar:28.0.0",
@@ -349,20 +188,6 @@
                 "url": "https://maven.google.com/com/android/support/coordinatorlayout/28.0.0/coordinatorlayout-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:cursoradapter:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -370,13 +195,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/cursoradapter/28.0.0/cursoradapter-28.0.0.aar",
                 "sha256": "87feffe742b8d62ca8a9833abe564838bf6a672e31c7ad1306ec4006adf90d21",
                 "url": "https://maven.google.com/com/android/support/cursoradapter/28.0.0/cursoradapter-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:cursoradapter:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:customview:aar:28.0.0",
@@ -394,19 +212,6 @@
                 "url": "https://maven.google.com/com/android/support/customview/28.0.0/customview-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:customview:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:documentfile:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -414,13 +219,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/documentfile/28.0.0/documentfile-28.0.0.aar",
                 "sha256": "47cdcd3e9302b7b064923f05487a5c03babbd9bbda4726b71e97791fab5d4779",
                 "url": "https://maven.google.com/com/android/support/documentfile/28.0.0/documentfile-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:documentfile:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:drawerlayout:aar:28.0.0",
@@ -439,20 +237,6 @@
                 "url": "https://maven.google.com/com/android/support/drawerlayout/28.0.0/drawerlayout-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:drawerlayout:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:interpolator:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -460,13 +244,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/interpolator/28.0.0/interpolator-28.0.0.aar",
                 "sha256": "7bc7ee86a0db39a4b51956f3e89842d2bd962118d57d779eb6ed6b34ba0677ea",
                 "url": "https://maven.google.com/com/android/support/interpolator/28.0.0/interpolator-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:interpolator:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:loader:aar:28.0.0",
@@ -488,23 +265,6 @@
                 "url": "https://maven.google.com/com/android/support/loader/28.0.0/loader-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:loader:aar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:localbroadcastmanager:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -514,13 +274,6 @@
                 "url": "https://maven.google.com/com/android/support/localbroadcastmanager/28.0.0/localbroadcastmanager-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:print:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0"
@@ -528,13 +281,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/print/28.0.0/print-28.0.0.aar",
                 "sha256": "4be8a812d73e4a80e35b91ceae127def3f0bb9726bf3bc439aa0cc81503f5728",
                 "url": "https://maven.google.com/com/android/support/print/28.0.0/print-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:print:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:slidingpanelayout:aar:28.0.0",
@@ -553,30 +299,11 @@
                 "url": "https://maven.google.com/com/android/support/slidingpanelayout/28.0.0/slidingpanelayout-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:support-annotations:28.0.0",
                 "dependencies": [],
                 "file": "v1/https/maven.google.com/com/android/support/support-annotations/28.0.0/support-annotations-28.0.0.jar",
                 "sha256": "5d5b9414f02d3fa0ee7526b8d5ddae0da67c8ecc8c4d63ffa6cf91488a93b927",
                 "url": "https://maven.google.com/com/android/support/support-annotations/28.0.0/support-annotations-28.0.0.jar"
-            },
-            {
-                "coord": "com.android.support:support-annotations:jar:sources:28.0.0",
-                "dependencies": [],
-                "file": null
             },
             {
                 "coord": "com.android.support:support-compat:28.0.0",
@@ -605,30 +332,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/support-compat/28.0.0/support-compat-28.0.0.aar",
                 "sha256": "e17e3b01dbea3f9ea1c86943292f903ca93d2231c6242e456e0b6a9c5817118a",
                 "url": "https://maven.google.com/com/android/support/support-compat/28.0.0/support-compat-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:support-compat:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
-                "coord": "com.android.support:support-compat:jar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:support-core-ui:28.0.0",
@@ -697,68 +400,6 @@
                 "url": "https://maven.google.com/com/android/support/support-core-ui/28.0.0/support-core-ui-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:support-core-ui:aar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
-                "coord": "com.android.support:support-core-ui:jar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:support-core-utils:28.0.0",
                 "dependencies": [
                     "android.arch.lifecycle:viewmodel:aar:1.1.1",
@@ -803,48 +444,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/support-core-utils/28.0.0/support-core-utils-28.0.0.aar",
                 "sha256": "c81e1e98ca3cb2edae002c69cf35b22aec364b8cb2f1042c97e206eb5790ac41",
                 "url": "https://maven.google.com/com/android/support/support-core-utils/28.0.0/support-core-utils-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:support-core-utils:aar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
-                "coord": "com.android.support:support-core-utils:jar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:support-fragment:28.0.0",
@@ -915,70 +514,6 @@
                 "url": "https://maven.google.com/com/android/support/support-fragment/28.0.0/support-fragment-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:support-fragment:aar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
-            },
-            {
-                "coord": "com.android.support:support-fragment:jar:sources:28.0.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:support-media-compat:26.1.0",
                 "dependencies": [
                     "com.android.support:collections:28.0.0",
@@ -992,21 +527,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/support-media-compat/26.1.0/support-media-compat-26.1.0.aar",
                 "sha256": "9d8cee7cd40eff22ebdeb90c8e70f5ee96c5bd25cb2c3e3b3940e27285a3e98a",
                 "url": "https://maven.google.com/com/android/support/support-media-compat/26.1.0/support-media-compat-26.1.0.aar"
-            },
-            {
-                "coord": "com.android.support:support-media-compat:jar:sources:26.1.0",
-                "dependencies": [
-                    "com.android.support:support-compat:jar:sources:28.0.0",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": "v1/https/maven.google.com/com/android/support/support-media-compat/26.1.0/support-media-compat-26.1.0-sources.jar",
-                "sha256": "b09e109d11aed9b77fa1fd1cc7cbaf75db6095b97724a47f40cbb691042065dc",
-                "url": "https://maven.google.com/com/android/support/support-media-compat/26.1.0/support-media-compat-26.1.0-sources.jar"
             },
             {
                 "coord": "com.android.support:support-v4:aar:26.1.0",
@@ -1048,45 +568,6 @@
                 "url": "https://maven.google.com/com/android/support/support-v4/26.1.0/support-v4-26.1.0.aar"
             },
             {
-                "coord": "com.android.support:support-v4:aar:sources:26.1.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:support-compat:jar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "com.android.support:support-media-compat:jar:sources:26.1.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-core-utils:jar:sources:28.0.0",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:support-fragment:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "com.android.support:support-core-ui:jar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": "v1/https/maven.google.com/com/android/support/support-v4/26.1.0/support-v4-26.1.0-sources.jar",
-                "sha256": "779344123db0e644a47c336fcbc8e86ab09d41dcda7d459df3f19b868ec89ad2",
-                "url": "https://maven.google.com/com/android/support/support-v4/26.1.0/support-v4-26.1.0-sources.jar"
-            },
-            {
                 "coord": "com.android.support:support-vector-drawable:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:collections:28.0.0",
@@ -1100,19 +581,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/support-vector-drawable/28.0.0/support-vector-drawable-28.0.0.aar",
                 "sha256": "f658986d968172bccfed28578471c96050780fe5e133861e4d331069cc373f4d",
                 "url": "https://maven.google.com/com/android/support/support-vector-drawable/28.0.0/support-vector-drawable-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:support-vector-drawable:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:swiperefreshlayout:aar:28.0.0",
@@ -1131,20 +599,6 @@
                 "url": "https://maven.google.com/com/android/support/swiperefreshlayout/28.0.0/swiperefreshlayout-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.android.support:versionedparcelable:aar:28.0.0",
                 "dependencies": [
                     "com.android.support:support-annotations:28.0.0",
@@ -1153,14 +607,6 @@
                 "file": "v1/https/maven.google.com/com/android/support/versionedparcelable/28.0.0/versionedparcelable-28.0.0.aar",
                 "sha256": "60eb1cb08f71b65c3f6123135e03ebeb5930b5e126e1e5b2ac91b386908c9d02",
                 "url": "https://maven.google.com/com/android/support/versionedparcelable/28.0.0/versionedparcelable-28.0.0.aar"
-            },
-            {
-                "coord": "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:support-annotations:jar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.android.support:viewpager:aar:28.0.0",
@@ -1179,30 +625,11 @@
                 "url": "https://maven.google.com/com/android/support/viewpager/28.0.0/viewpager-28.0.0.aar"
             },
             {
-                "coord": "com.android.support:viewpager:aar:sources:28.0.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.digitalasset:damlc:jar:osx:100.12.1",
                 "dependencies": [],
                 "file": "v1/https/digitalassetsdk.bintray.com/DigitalAssetSDK/com/digitalasset/damlc/100.12.1/damlc-100.12.1-osx.jar",
                 "sha256": "ffdaa9719dc2f046fa898adc0404d3b68e6915018bc791b28446580c01046755",
                 "url": "https://digitalassetsdk.bintray.com/DigitalAssetSDK/com/digitalasset/damlc/100.12.1/damlc-100.12.1-osx.jar"
-            },
-            {
-                "coord": "com.digitalasset:damlc:jar:sources:100.12.1",
-                "dependencies": [],
-                "file": null
             },
             {
                 "coord": "com.esotericsoftware.kryo:kryo:2.24.0",
@@ -1215,28 +642,11 @@
                 "url": "https://repo1.maven.org/maven2/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0.jar"
             },
             {
-                "coord": "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                "dependencies": [
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0-sources.jar",
-                "sha256": "617593f9253ee4246db001641630359df8a8ed9f306a1590e54d6cc091b37439",
-                "url": "https://repo1.maven.org/maven2/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0-sources.jar"
-            },
-            {
                 "coord": "com.esotericsoftware.minlog:minlog:1.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar",
                 "sha256": "a678cb1aa8f5d03d901c992c75741841d98a9bc3d55dad02e84d65315c4e60f2",
                 "url": "https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar"
-            },
-            {
-                "coord": "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2-sources.jar",
-                "sha256": "7c9f5c5b4a541ed9669de73bdc8afbade8cf45e2bbe36c1bd420f74533eedaa8",
-                "url": "https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:all:1.1.2",
@@ -1261,62 +671,11 @@
                 "file": null
             },
             {
-                "coord": "com.github.fommil.netlib:all:jar:sources:1.1.2",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2",
-                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:sources:1.1"
-                ],
-                "file": null
-            },
-            {
-                "coord": "com.github.fommil.netlib:all:pom:sources:1.1.2",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2",
-                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:sources:1.1"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.github.fommil.netlib:core:1.1.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/core/1.1.2/core-1.1.2.jar",
                 "sha256": "5ffaddee0a3f8d09a56064aa05feb95837ddad9d42d9dcc37479c66e869aa139",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/core/1.1.2/core-1.1.2.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:core:jar:sources:1.1.2",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/core/1.1.2/core-1.1.2-sources.jar",
-                "sha256": "a5b4a8c03eaa12bb0f308e6afa5131b03256631920951b9689cff468c3bfd32f",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/core/1.1.2/core-1.1.2-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:native_ref-java:1.1",
@@ -1329,16 +688,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1-sources.jar",
-                "sha256": "9f0baec202cfc31bdecc1ae5b3746a4d31fc30d2d7679fef6dfc7f01a57a86e6",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:native_system-java:1.1",
                 "dependencies": [
                     "com.github.fommil:jniloader:1.1",
@@ -1347,16 +696,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar",
                 "sha256": "2414fc6e29b73ba40e0df21ab9618e4f5dc5ac66aab32bd81ee213a68796155d",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1-sources.jar",
-                "sha256": "1fcdd2af960ac58f53c959fc224571c6dae2efd51ccf37dbdb2a399af5fc93fc",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
@@ -1370,17 +709,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-sources.jar",
-                "sha256": "b03f3ee3220b560c86025f2ddaa329dfe575f29245c6fdf8b2ab166c74dee8da",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
                 "dependencies": [
                     "com.github.fommil:jniloader:1.1",
@@ -1390,17 +718,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar",
                 "sha256": "bf1dcc3b32a32bde8bd897b8c7da21cbd75b9febb89321a11b4f9a254aeb92ec",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-sources.jar",
-                "sha256": "5b29766356a06b761f7260845464606e08216f68abe299be53f2457b4e9bc397",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
@@ -1414,17 +731,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-sources.jar",
-                "sha256": "5abc59d71b2b231a127efbdb190e72b9aa666edc8e329feabce0b8859ec3dc07",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
                 "dependencies": [
                     "com.github.fommil:jniloader:1.1",
@@ -1434,17 +740,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar",
                 "sha256": "fbe45f80be86fb809eb159b75ba45433cbba2b5fb6814758d1f15823b2b17438",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-sources.jar",
-                "sha256": "19d18939446877aaf295205526b47f85e6271328ec823322fcbe7d7dbc1a77ba",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
@@ -1458,17 +753,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-sources.jar",
-                "sha256": "cfa20b2380924d70d82373c69d678b5ac5f2ff954aed3e3b0726f38fa368c9fa",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
                 "dependencies": [
                     "com.github.fommil:jniloader:1.1",
@@ -1478,17 +762,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar",
                 "sha256": "322a4d1a9cdfa284b1025b3d85c9ece18605be2caf795abfbaa366eb403fbf32",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-sources.jar",
-                "sha256": "5e8bb9b9f3443a7747f88035272aeb769dadedf9d5149a22256c44be86c73303",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
@@ -1502,17 +775,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-sources.jar",
-                "sha256": "89f4aac954385cf52f220a27273f837727206a083e178d1c6d7a7d762e58f23b",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
                 "dependencies": [
                     "com.github.fommil.netlib:native_system-java:1.1",
@@ -1522,17 +784,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar",
                 "sha256": "ecfd3c4e442411be9bc9aa74ea1b28b0fdf201dda00fe4559c68cde6e311520f",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-sources.jar",
-                "sha256": "bc2b501439b612287c3a8f6d535e7953cf719daa205d984b2dc32f8df7f049c0",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
@@ -1546,17 +797,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-sources.jar",
-                "sha256": "6b2af363d6f66d139df1e8de041c5507a5769837971ee35dac98f8e508208c37",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
                 "dependencies": [
                     "com.github.fommil.netlib:native_system-java:1.1",
@@ -1566,17 +806,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar",
                 "sha256": "07230441e6d7985e30e13b4c6844c6388324a971e1d3c5d46880a213b37a4dd1",
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar"
-            },
-            {
-                "coord": "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-sources.jar",
-                "sha256": "b83eb9788e6336f8b1d6b0de0432f9620c163963af899b69d13c3d55f84870c1",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-sources.jar"
             },
             {
                 "coord": "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1",
@@ -1590,17 +819,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_system-win-i686:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-sources.jar",
-                "sha256": "a2245f1c40ffe2e8e2632f7982bc947fda9b1022033f7151ffa2dff6daae1ef6",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
                 "dependencies": [
                     "com.github.fommil.netlib:native_system-java:1.1",
@@ -1612,17 +830,6 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar"
             },
             {
-                "coord": "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-sources.jar",
-                "sha256": "1921d0908ed12b7b444fc0fc86f02a09ac88bc3e5099d846f6987b72077afe79",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.fommil:jniloader:1.1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
@@ -1630,25 +837,11 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar"
             },
             {
-                "coord": "com.github.fommil:jniloader:jar:sources:1.1",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1-sources.jar",
-                "sha256": "f31f1d3d257c1c298bff289424283bb881ba372e451745d828c04d02df091cf2",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1-sources.jar"
-            },
-            {
                 "coord": "com.github.scopt:scopt_2.12:3.5.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0.jar",
                 "sha256": "2cb8ead3823aafef8d91ba1968c71548242f8b2ec9466c4f25ee2ee5b0fb98e7",
                 "url": "https://repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0.jar"
-            },
-            {
-                "coord": "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0-sources.jar",
-                "sha256": "009182afff1f384233aa66a4e6d6bf6b632084abe4ddb73f5b235f979e181eea",
-                "url": "https://repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0-sources.jar"
             },
             {
                 "coord": "com.google.android.gms:play-services-base:16.1.0",
@@ -1693,46 +886,6 @@
                 "url": "https://maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar"
             },
             {
-                "coord": "com.google.android.gms:play-services-base:jar:sources:16.1.0",
-                "dependencies": [
-                    "com.google.android.gms:play-services-tasks:aar:sources:16.0.1",
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:support-compat:jar:sources:28.0.0",
-                    "com.google.android.gms:play-services-basement:aar:sources:16.2.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "com.android.support:support-media-compat:jar:sources:26.1.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-core-utils:jar:sources:28.0.0",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:support-fragment:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "com.android.support:support-v4:aar:sources:26.1.0",
-                    "com.android.support:support-core-ui:jar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.google.android.gms:play-services-basement:aar:16.2.0",
                 "dependencies": [
                     "android.arch.lifecycle:viewmodel:aar:1.1.1",
@@ -1771,44 +924,6 @@
                 "file": "v1/https/maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
                 "sha256": "5ccead5a05a632f93df0a807752a034adcd0cd62fcf30da287c6dd5b05bd3d5a",
                 "url": "https://maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar"
-            },
-            {
-                "coord": "com.google.android.gms:play-services-basement:aar:sources:16.2.0",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:support-compat:jar:sources:28.0.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "com.android.support:support-media-compat:jar:sources:26.1.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-core-utils:jar:sources:28.0.0",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:support-fragment:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "com.android.support:support-v4:aar:sources:26.1.0",
-                    "com.android.support:support-core-ui:jar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
             },
             {
                 "coord": "com.google.android.gms:play-services-tasks:aar:16.0.1",
@@ -1852,45 +967,6 @@
                 "url": "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
             },
             {
-                "coord": "com.google.android.gms:play-services-tasks:aar:sources:16.0.1",
-                "dependencies": [
-                    "android.arch.lifecycle:livedata:aar:sources:1.1.1",
-                    "com.android.support:slidingpanelayout:aar:sources:28.0.0",
-                    "com.android.support:support-compat:jar:sources:28.0.0",
-                    "com.google.android.gms:play-services-basement:aar:sources:16.2.0",
-                    "com.android.support:coordinatorlayout:aar:sources:28.0.0",
-                    "android.arch.lifecycle:livedata-core:aar:sources:1.1.1",
-                    "com.android.support:support-annotations:jar:sources:28.0.0",
-                    "com.android.support:customview:aar:sources:28.0.0",
-                    "com.android.support:cursoradapter:aar:sources:28.0.0",
-                    "com.android.support:interpolator:aar:sources:28.0.0",
-                    "com.android.support:asynclayoutinflater:aar:sources:28.0.0",
-                    "com.android.support:support-media-compat:jar:sources:26.1.0",
-                    "android.arch.core:runtime:aar:sources:1.1.1",
-                    "com.android.support:support-core-utils:jar:sources:28.0.0",
-                    "com.android.support:drawerlayout:aar:sources:28.0.0",
-                    "com.android.support:support-fragment:jar:sources:28.0.0",
-                    "com.android.support:versionedparcelable:aar:sources:28.0.0",
-                    "android.arch.lifecycle:viewmodel:aar:sources:1.1.1",
-                    "com.android.support:collections:jar:sources:28.0.0",
-                    "com.android.support:loader:aar:sources:28.0.0",
-                    "android.arch.lifecycle:common:jar:sources:1.1.1",
-                    "com.android.support:swiperefreshlayout:aar:sources:28.0.0",
-                    "com.android.support:support-core-utils:aar:sources:28.0.0",
-                    "android.arch.lifecycle:runtime:aar:sources:1.1.1",
-                    "com.android.support:viewpager:aar:sources:28.0.0",
-                    "com.android.support:print:aar:sources:28.0.0",
-                    "com.android.support:localbroadcastmanager:aar:sources:28.0.0",
-                    "com.android.support:documentfile:aar:sources:28.0.0",
-                    "com.android.support:support-compat:aar:sources:28.0.0",
-                    "com.android.support:support-v4:aar:sources:26.1.0",
-                    "com.android.support:support-core-ui:jar:sources:28.0.0",
-                    "android.arch.core:common:jar:sources:1.1.1",
-                    "com.android.support:support-core-ui:aar:sources:28.0.0"
-                ],
-                "file": null
-            },
-            {
                 "coord": "com.google.code.findbugs:jsr305:1.3.9",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar",
@@ -1898,23 +974,11 @@
                 "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar"
             },
             {
-                "coord": "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                "dependencies": [],
-                "file": null
-            },
-            {
                 "coord": "com.google.guava:guava:16.0.1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar",
                 "sha256": "a896857d07845d38c7dc5bbc0457b6d9b0f62ecffda010e5e9ec12d561f676d3",
                 "url": "https://repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar"
-            },
-            {
-                "coord": "com.google.guava:guava:jar:sources:16.0.1",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1-sources.jar",
-                "sha256": "154ce0c88dce526b822417c8402901ad0a5a299156b38c79b40cce72b72b3c2b",
-                "url": "https://repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1-sources.jar"
             },
             {
                 "coord": "com.googlecode.matrix-toolkits-java:mtj:1.0.4",
@@ -1942,31 +1006,6 @@
                 "url": "https://repo1.maven.org/maven2/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4.jar"
             },
             {
-                "coord": "com.googlecode.matrix-toolkits-java:mtj:jar:sources:1.0.4",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:all:pom:sources:1.1.2",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2",
-                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:sources:1.1"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4-sources.jar",
-                "sha256": "b98ddcdc67cdd3de751dabb31661f4c1adf6a97d52a2b9d447425362a5d791ac",
-                "url": "https://repo1.maven.org/maven2/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4-sources.jar"
-            },
-            {
                 "coord": "com.googlecode.netlib-java:netlib-java:1.1",
                 "dependencies": [
                     "com.github.fommil.netlib:core:1.1.2"
@@ -1976,27 +1015,11 @@
                 "url": "https://repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar"
             },
             {
-                "coord": "com.googlecode.netlib-java:netlib-java:jar:sources:1.1",
-                "dependencies": [
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1-sources.jar",
-                "sha256": "51392d3cd0b16897c33a8232a09fccd1b05867c9b3a632377246bf9c03f85ecf",
-                "url": "https://repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1-sources.jar"
-            },
-            {
                 "coord": "com.squareup:javapoet:1.11.1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
                 "sha256": "9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90",
                 "url": "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar"
-            },
-            {
-                "coord": "com.squareup:javapoet:jar:sources:1.11.1",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1-sources.jar",
-                "sha256": "63d3187d924582b1afe9eb171e725d27a7e15603513890de0f8804a7fc07e9ac",
-                "url": "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1-sources.jar"
             },
             {
                 "coord": "com.twitter:chill-java:0.7.6",
@@ -2006,13 +1029,6 @@
                 "url": "https://repo1.maven.org/maven2/com/twitter/chill-java/0.7.6/chill-java-0.7.6.jar"
             },
             {
-                "coord": "com.twitter:chill-java:jar:sources:0.7.6",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/twitter/chill-java/0.7.6/chill-java-0.7.6-sources.jar",
-                "sha256": "c638075426d39616e45aa3b3e2150102aa2edb6b7ed0b6bb0ad2f959efdac696",
-                "url": "https://repo1.maven.org/maven2/com/twitter/chill-java/0.7.6/chill-java-0.7.6-sources.jar"
-            },
-            {
                 "coord": "com.twitter:chill_2.12:0.7.6",
                 "dependencies": [
                     "com.twitter:chill-java:0.7.6"
@@ -2020,15 +1036,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/twitter/chill_2.12/0.7.6/chill_2.12-0.7.6.jar",
                 "sha256": "bce92caa7e97ed70e5df8fb8aeac92c7c374109f7c681fde4ec19af63ee90a76",
                 "url": "https://repo1.maven.org/maven2/com/twitter/chill_2.12/0.7.6/chill_2.12-0.7.6.jar"
-            },
-            {
-                "coord": "com.twitter:chill_2.12:jar:sources:0.7.6",
-                "dependencies": [
-                    "com.twitter:chill-java:jar:sources:0.7.6"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/twitter/chill_2.12/0.7.6/chill_2.12-0.7.6-sources.jar",
-                "sha256": "63c22cb53f2ebaa2285218e80f27df36404a87a6e3926553fc341fc81be1fc62",
-                "url": "https://repo1.maven.org/maven2/com/twitter/chill_2.12/0.7.6/chill_2.12-0.7.6-sources.jar"
             },
             {
                 "coord": "com.typesafe.akka:akka-actor_2.12:2.4.20",
@@ -2041,28 +1048,11 @@
                 "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.4.20/akka-actor_2.12-2.4.20.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                "dependencies": [
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.4.20/akka-actor_2.12-2.4.20-sources.jar",
-                "sha256": "b14b1831e8b8341ac348759a8f1881c89e5da4023979b3e5bff9861260952490",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_2.12/2.4.20/akka-actor_2.12-2.4.20-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.12/2.4.20/akka-protobuf_2.12-2.4.20.jar",
                 "sha256": "5992ebf1a11ee638ab208f953c0728abad4baebc61cc5b132abd68c4e6caa49a",
                 "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.12/2.4.20/akka-protobuf_2.12-2.4.20.jar"
-            },
-            {
-                "coord": "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.12/2.4.20/akka-protobuf_2.12-2.4.20-sources.jar",
-                "sha256": "4658be6ed862296a8ec39311bbb8cc65f37b7b3119e853938b78105775db40a5",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-protobuf_2.12/2.4.20/akka-protobuf_2.12-2.4.20-sources.jar"
             },
             {
                 "coord": "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
@@ -2075,18 +1065,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20.jar",
                 "sha256": "32f64dd2c5aa9f8309e7e33288bc885e516e4f1b1a9ceb435ab15e56dd53c52a",
                 "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20.jar"
-            },
-            {
-                "coord": "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                "dependencies": [
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20-sources.jar",
-                "sha256": "60f83ca23aa1e257c16215d854014dae55d4afc66424d4e7e315acf71add03dc",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20-sources.jar"
             },
             {
                 "coord": "com.typesafe.akka:akka-stream_2.12:2.4.20",
@@ -2102,31 +1080,11 @@
                 "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.12/2.4.20/akka-stream_2.12-2.4.20.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                "dependencies": [
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.12/2.4.20/akka-stream_2.12-2.4.20-sources.jar",
-                "sha256": "1a12fd08a1f68c2fc905647b9f81cd5ec84698aa45738e183c9a56326ff4b6b7",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.12/2.4.20/akka-stream_2.12-2.4.20-sources.jar"
-            },
-            {
                 "coord": "com.typesafe:config:1.3.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar",
                 "sha256": "d3e9dca258786c51fcbcc47d34d3b44158476af55c47d22dd8c2e38e41a2c89a",
                 "url": "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar"
-            },
-            {
-                "coord": "com.typesafe:config:jar:sources:1.3.0",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0-sources.jar",
-                "sha256": "f123743e87b85b8336eefe2eaf01fbbfdd5d328305485045a2f4ab5d0ed001de",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0-sources.jar"
             },
             {
                 "coord": "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -2138,27 +1096,11 @@
                 "url": "https://repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.2.1/ssl-config-core_2.12-0.2.1.jar"
             },
             {
-                "coord": "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                "dependencies": [
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.2.1/ssl-config-core_2.12-0.2.1-sources.jar",
-                "sha256": "50eedb939158fb3f0b3f975aa3451c91d8def995defbe39d430e4a3b5b1b90c1",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.2.1/ssl-config-core_2.12-0.2.1-sources.jar"
-            },
-            {
                 "coord": "commons-cli:commons-cli:1.3.1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar",
                 "sha256": "3a2f057041aa6a8813f5b59b695f726c5e85014a703d208d7e1689098e92d8c0",
                 "url": "https://repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar"
-            },
-            {
-                "coord": "commons-cli:commons-cli:jar:sources:1.3.1",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1-sources.jar",
-                "sha256": "b440fdddb4c82001c6c1ed4d89d5cc1eee7dd21049b00ae3722f14ffd4bdf6cc",
-                "url": "https://repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1-sources.jar"
             },
             {
                 "coord": "commons-collections:commons-collections:3.2.2",
@@ -2168,25 +1110,11 @@
                 "url": "https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"
             },
             {
-                "coord": "commons-collections:commons-collections:jar:sources:3.2.2",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2-sources.jar",
-                "sha256": "a5b5ee16a02edadf7fe637f250217c19878bc6134f15eb55635c48996f6fed1d",
-                "url": "https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2-sources.jar"
-            },
-            {
                 "coord": "commons-io:commons-io:2.4",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar",
                 "sha256": "cc6a41dc3eaacc9e440a6bd0d2890b20d36b4ee408fe2d67122f328bb6e01581",
                 "url": "https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"
-            },
-            {
-                "coord": "commons-io:commons-io:jar:sources:2.4",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4-sources.jar",
-                "sha256": "d4635b348bbbf3f166d972b052bc4cac5b326c133beed7b8a1cab7ea22b61e01",
-                "url": "https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4-sources.jar"
             },
             {
                 "coord": "io.netty:netty:3.7.0.Final",
@@ -2196,25 +1124,11 @@
                 "url": "https://repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final.jar"
             },
             {
-                "coord": "io.netty:netty:jar:sources:3.7.0.Final",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final-sources.jar",
-                "sha256": "95ffc7f5cd083d4d39a7a36f077b905b94c0adbde714a4a9455647af958aae08",
-                "url": "https://repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final-sources.jar"
-            },
-            {
                 "coord": "javax.annotation:jsr250-api:1.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar",
                 "sha256": "a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f",
                 "url": "https://repo1.maven.org/maven2/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar"
-            },
-            {
-                "coord": "javax.annotation:jsr250-api:jar:sources:1.0",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/javax/annotation/jsr250-api/1.0/jsr250-api-1.0-sources.jar",
-                "sha256": "025c47d76c60199381be07012a0c5f9e74661aac5bd67f5aec847741c5b7f838",
-                "url": "https://repo1.maven.org/maven2/javax/annotation/jsr250-api/1.0/jsr250-api-1.0-sources.jar"
             },
             {
                 "coord": "javax.enterprise:cdi-api:1.0",
@@ -2227,16 +1141,6 @@
                 "url": "https://repo1.maven.org/maven2/javax/enterprise/cdi-api/1.0/cdi-api-1.0.jar"
             },
             {
-                "coord": "javax.enterprise:cdi-api:jar:sources:1.0",
-                "dependencies": [
-                    "javax.inject:javax.inject:jar:sources:1",
-                    "javax.annotation:jsr250-api:jar:sources:1.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/javax/enterprise/cdi-api/1.0/cdi-api-1.0-sources.jar",
-                "sha256": "0e7c351dfe05759f84dc3eddaac1da4ef72578b494b53338829d34b12271374f",
-                "url": "https://repo1.maven.org/maven2/javax/enterprise/cdi-api/1.0/cdi-api-1.0-sources.jar"
-            },
-            {
                 "coord": "javax.inject:javax.inject:1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar",
@@ -2244,25 +1148,11 @@
                 "url": "https://repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar"
             },
             {
-                "coord": "javax.inject:javax.inject:jar:sources:1",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1-sources.jar",
-                "sha256": "c4b87ee2911c139c3daf498a781967f1eb2e75bc1a8529a2e7b328a15d0e433e",
-                "url": "https://repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1-sources.jar"
-            },
-            {
                 "coord": "jline:jline:0.9.94",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar",
                 "sha256": "d8df0ffb12d87ca876271cda4d59b3feb94123882c1be1763b7faf2e0a0b0cbb",
                 "url": "https://repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar"
-            },
-            {
-                "coord": "jline:jline:jar:sources:0.9.94",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94-sources.jar",
-                "sha256": "e2efd2f925e717bb7e88997feb48c7ba2dfd02261051474b728eae58d38ae78b",
-                "url": "https://repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94-sources.jar"
             },
             {
                 "coord": "junit:junit:4.12",
@@ -2274,27 +1164,11 @@
                 "url": "https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"
             },
             {
-                "coord": "junit:junit:jar:sources:4.12",
-                "dependencies": [
-                    "org.hamcrest:hamcrest-core:jar:sources:1.3"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar",
-                "sha256": "9f43fea92033ad82bcad2ae44cec5c82abc9d6ee4b095cab921d11ead98bf2ff",
-                "url": "https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12-sources.jar"
-            },
-            {
                 "coord": "log4j:log4j:1.2.16",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar",
                 "sha256": "7ae3fdde7ab0cae4735a2aec04381ad9b6e25c93d24205f3ed315d9866f12fe1",
                 "url": "https://repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar"
-            },
-            {
-                "coord": "log4j:log4j:jar:sources:1.2.16",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar",
-                "sha256": "3dedbf17197eec1a16a1d9333f6c765a89e3fa320be52a0d37e02df1ed15960f",
-                "url": "https://repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"
             },
             {
                 "coord": "net.sourceforge.f2j:arpack_combined_all:0.1",
@@ -2304,23 +1178,11 @@
                 "url": "https://repo1.maven.org/maven2/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar"
             },
             {
-                "coord": "net.sourceforge.f2j:arpack_combined_all:jar:sources:0.1",
-                "dependencies": [],
-                "file": null
-            },
-            {
                 "coord": "nz.ac.waikato.cms.weka.thirdparty:bounce:0.18",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar",
                 "sha256": "bffff1505335c02256b7ab2ccffbe4aa4d3ac9fe14c17557809b7c9d99d666ca",
                 "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar"
-            },
-            {
-                "coord": "nz.ac.waikato.cms.weka.thirdparty:bounce:jar:sources:0.18",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18-sources.jar",
-                "sha256": "3d2fa327c0af9cc9d15e327e6d926980521a9238d274d35332677f6d881f7d8e",
-                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18-sources.jar"
             },
             {
                 "coord": "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26",
@@ -2330,25 +1192,11 @@
                 "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b-runtime/2015.03.26/java-cup-11b-runtime-2015.03.26.jar"
             },
             {
-                "coord": "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:jar:sources:2015.03.26",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b-runtime/2015.03.26/java-cup-11b-runtime-2015.03.26-sources.jar",
-                "sha256": "4864da50b56b0cf33a304007dd413bc146de6ecb4e752a9aa656f5e4687df9fd",
-                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b-runtime/2015.03.26/java-cup-11b-runtime-2015.03.26-sources.jar"
-            },
-            {
                 "coord": "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26.jar",
                 "sha256": "5f80953da8dd95e3624c0e54d0971b6247317aff90f814464c5bdd110ead853a",
                 "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26.jar"
-            },
-            {
-                "coord": "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:jar:sources:2015.03.26",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26-sources.jar",
-                "sha256": "cc49dbb3dd13d9805d23ce9220a63648aca5ed8254d1b4e5ab59059ee680dd55",
-                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26-sources.jar"
             },
             {
                 "coord": "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
@@ -2382,49 +1230,11 @@
                 "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/weka-stable/3.8.1/weka-stable-3.8.1.jar"
             },
             {
-                "coord": "nz.ac.waikato.cms.weka:weka-stable:jar:sources:3.8.1",
-                "dependencies": [
-                    "com.github.fommil:jniloader:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_system-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:all:pom:sources:1.1.2",
-                    "com.googlecode.matrix-toolkits-java:mtj:jar:sources:1.0.4",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:native_ref-java:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:sources:1.1",
-                    "com.github.fommil.netlib:core:jar:sources:1.1.2",
-                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:sources:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:sources:1.1",
-                    "net.sourceforge.f2j:arpack_combined_all:jar:sources:0.1",
-                    "nz.ac.waikato.cms.weka.thirdparty:bounce:jar:sources:0.18",
-                    "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:jar:sources:2015.03.26",
-                    "com.googlecode.netlib-java:netlib-java:jar:sources:1.1",
-                    "nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:jar:sources:2015.03.26",
-                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:sources:1.1"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/nz/ac/waikato/cms/weka/weka-stable/3.8.1/weka-stable-3.8.1-sources.jar",
-                "sha256": "b7884ce4f7567e9eea03c3c325cf003a640b2ec9a68f69a2f5e7822e6276f042",
-                "url": "https://repo1.maven.org/maven2/nz/ac/waikato/cms/weka/weka-stable/3.8.1/weka-stable-3.8.1-sources.jar"
-            },
-            {
                 "coord": "org.apache.ant:ant-launcher:1.9.9",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/ant/ant-launcher/1.9.9/ant-launcher-1.9.9.jar",
                 "sha256": "02cbe010ceec4acab059acfa48a16dc7b7c430200f2561b6b7c75bcab48f4044",
                 "url": "https://repo1.maven.org/maven2/org/apache/ant/ant-launcher/1.9.9/ant-launcher-1.9.9.jar"
-            },
-            {
-                "coord": "org.apache.ant:ant-launcher:jar:sources:1.9.9",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/ant/ant-launcher/1.9.9/ant-launcher-1.9.9-sources.jar",
-                "sha256": "ba0f51943f94c3a107f1aff983f180e08e3bc2093643feacfa6d1af025190ae8",
-                "url": "https://repo1.maven.org/maven2/org/apache/ant/ant-launcher/1.9.9/ant-launcher-1.9.9-sources.jar"
             },
             {
                 "coord": "org.apache.ant:ant:1.9.9",
@@ -2436,27 +1246,11 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/ant/ant/1.9.9/ant-1.9.9.jar"
             },
             {
-                "coord": "org.apache.ant:ant:jar:sources:1.9.9",
-                "dependencies": [
-                    "org.apache.ant:ant-launcher:jar:sources:1.9.9"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/ant/ant/1.9.9/ant-1.9.9-sources.jar",
-                "sha256": "369708c550831c8a1a4c1a333e51db30ad69bbcd674f8545b6bce6a4290a9f5e",
-                "url": "https://repo1.maven.org/maven2/org/apache/ant/ant/1.9.9/ant-1.9.9-sources.jar"
-            },
-            {
                 "coord": "org.apache.commons:commons-compress:1.18",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18.jar",
                 "sha256": "5f2df1e467825e4cac5996d44890c4201c000b43c0b23cffc0782d28a0beb9b0",
                 "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18.jar"
-            },
-            {
-                "coord": "org.apache.commons:commons-compress:jar:sources:1.18",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18-sources.jar",
-                "sha256": "c8e6896eb3d3880ffc21bb93d563b7cc0d3e2152c8181f261a748502290a5947",
-                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18-sources.jar"
             },
             {
                 "coord": "org.apache.commons:commons-lang3:3.4",
@@ -2466,25 +1260,11 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar"
             },
             {
-                "coord": "org.apache.commons:commons-lang3:jar:sources:3.4",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4-sources.jar",
-                "sha256": "4709f16a9e0f8fd83ae155083d63044e23045aac8f6f0183a2db09f492491b12",
-                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4-sources.jar"
-            },
-            {
                 "coord": "org.apache.commons:commons-math3:3.5",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5.jar",
                 "sha256": "dcf9768726b82e8d7b8a928447b08bca7cfe2773d5120a63a41ec224207c1a29",
                 "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5.jar"
-            },
-            {
-                "coord": "org.apache.commons:commons-math3:jar:sources:3.5",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5-sources.jar",
-                "sha256": "e20b4133ab0573d378b79e3cd2538ef6c98a9a10452c4c361c4bb11a46d350f1",
-                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5-sources.jar"
             },
             {
                 "coord": "org.apache.curator:curator-test:2.12.0",
@@ -2502,21 +1282,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/curator/curator-test/2.12.0/curator-test-2.12.0.jar"
             },
             {
-                "coord": "org.apache.curator:curator-test:jar:sources:2.12.0",
-                "dependencies": [
-                    "jline:jline:jar:sources:0.9.94",
-                    "log4j:log4j:jar:sources:1.2.16",
-                    "org.apache.zookeeper:zookeeper:jar:sources:3.4.8",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "com.google.guava:guava:jar:sources:16.0.1",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "io.netty:netty:jar:sources:3.7.0.Final"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/curator/curator-test/2.12.0/curator-test-2.12.0-sources.jar",
-                "sha256": "41ad6bd779fccbe1604185c4ec3536a1cb8d61d3e9f017d9a9ad9b0554f89f3f",
-                "url": "https://repo1.maven.org/maven2/org/apache/curator/curator-test/2.12.0/curator-test-2.12.0-sources.jar"
-            },
-            {
                 "coord": "org.apache.flink:flink-annotations:1.8.0",
                 "dependencies": [
                     "org.apache.flink:force-shading:1.8.0",
@@ -2526,17 +1291,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0.jar",
                 "sha256": "8f05ed8ba078ebb31d8cbf7b38c64394d02d9f7533ad1fd8ecf244611b040655",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0-sources.jar",
-                "sha256": "ba7fe65d07548011cd2da4fe2599fa2a243112ed5f9e92589324189d3590186b",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-clients_2.12:1.8.0",
@@ -2588,55 +1342,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-clients_2.12/1.8.0/flink-clients_2.12-1.8.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-clients_2.12:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                    "org.apache.flink:flink-java:jar:sources:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                    "org.apache.flink:flink-optimizer_2.12:jar:sources:1.8.0",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "org.apache.flink:flink-runtime_2.12:jar:sources:1.8.0",
-                    "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.twitter:chill_2.12:jar:sources:0.7.6",
-                    "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                    "commons-io:commons-io:jar:sources:2.4",
-                    "org.scala-lang:scala-library:jar:sources:2.11.12",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.twitter:chill-java:jar:sources:0.7.6",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                    "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                    "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                    "commons-cli:commons-cli:jar:sources:1.3.1",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-clients_2.12/1.8.0/flink-clients_2.12-1.8.0-sources.jar",
-                "sha256": "a300ea2659c9bda8e11004952be2cdf8d5de4f46248d1c6b344bfd95db6a8d17",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-clients_2.12/1.8.0/flink-clients_2.12-1.8.0-sources.jar"
-            },
-            {
                 "coord": "org.apache.flink:flink-core:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
@@ -2656,27 +1361,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-core/1.8.0/flink-core-1.8.0.jar",
                 "sha256": "efc92867464326333980dbe18c8fe0aaad200351ccdd3d1cf4fe8761c390284a",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-core/1.8.0/flink-core-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-core:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-core/1.8.0/flink-core-1.8.0-sources.jar",
-                "sha256": "1625c019c9c30e2a3ecaa4aa417b3bac3393ee077c84962ad9cb75910a7f920f",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-core/1.8.0/flink-core-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-hadoop-fs:1.8.0",
@@ -2699,28 +1383,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-hadoop-fs/1.8.0/flink-hadoop-fs-1.8.0.jar",
                 "sha256": "3d7bd0618a8ac4b8d8ad7e008fcde4c86e192b6048e819ed09760f7e65790f80",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-hadoop-fs/1.8.0/flink-hadoop-fs-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-hadoop-fs/1.8.0/flink-hadoop-fs-1.8.0-sources.jar",
-                "sha256": "9763ec603ebaa9a2c7ac3bcdba54da677c3c52bc757e8b4b5aab13290418c942",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-hadoop-fs/1.8.0/flink-hadoop-fs-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-java:1.8.0",
@@ -2747,30 +1409,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-java/1.8.0/flink-java-1.8.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-java:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-java/1.8.0/flink-java-1.8.0-sources.jar",
-                "sha256": "7161ec6c6acb42dafed7e61878facd22878f8eb0b14cdbcdf9e27ce57b6f4f79",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-java/1.8.0/flink-java-1.8.0-sources.jar"
-            },
-            {
                 "coord": "org.apache.flink:flink-metrics-core:1.8.0",
                 "dependencies": [
                     "org.apache.flink:force-shading:1.8.0",
@@ -2780,17 +1418,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0.jar",
                 "sha256": "aeebc1271212fe7f41824998c317d0ec8b5a8a5249543382e9543d63a966b9ef",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0-sources.jar",
-                "sha256": "1e12783eda7546033076fb6ecc480a67e9007de018ab56fea8cbab905339ecb0",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-optimizer_2.12:1.8.0",
@@ -2841,54 +1468,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-optimizer_2.12/1.8.0/flink-optimizer_2.12-1.8.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-optimizer_2.12:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                    "org.apache.flink:flink-java:jar:sources:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "org.apache.flink:flink-runtime_2.12:jar:sources:1.8.0",
-                    "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.twitter:chill_2.12:jar:sources:0.7.6",
-                    "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                    "commons-io:commons-io:jar:sources:2.4",
-                    "org.scala-lang:scala-library:jar:sources:2.11.12",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.twitter:chill-java:jar:sources:0.7.6",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                    "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                    "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                    "commons-cli:commons-cli:jar:sources:1.3.1",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-optimizer_2.12/1.8.0/flink-optimizer_2.12-1.8.0-sources.jar",
-                "sha256": "880397d9341db783fcb72257ccfcaa9220c389a496e2e2550c6e8ac25ce1094b",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-optimizer_2.12/1.8.0/flink-optimizer_2.12-1.8.0-sources.jar"
-            },
-            {
                 "coord": "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                 "dependencies": [
                     "com.google.code.findbugs:jsr305:1.3.9",
@@ -2900,19 +1479,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0.jar",
                 "sha256": "ceb1b7d91ad24f970b1d9b758e529664e0a1db200857d6413ebce55c882cf77e",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0-sources.jar",
-                "sha256": "f23b8f5e44edf9c1d9fccf43abb323c9bd76618c6d5d9a3b90e7c07abfc68144",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-runtime_2.12:1.8.0",
@@ -2960,100 +1526,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0.jar",
                 "sha256": "14121e60d1e8215ebfe9c997b17b1e8b508a36835f5ec5be4269d71a472fa07c",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-runtime_2.12:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                    "org.apache.flink:flink-java:jar:sources:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.twitter:chill_2.12:jar:sources:0.7.6",
-                    "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                    "commons-io:commons-io:jar:sources:2.4",
-                    "org.scala-lang:scala-library:jar:sources:2.11.12",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.twitter:chill-java:jar:sources:0.7.6",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                    "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                    "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                    "commons-cli:commons-cli:jar:sources:1.3.1",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-sources.jar",
-                "sha256": "aea4b039ca5ba927b789eb450299cd8795f963fdd6b79fb5b97ed39d781785a3",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-sources.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-runtime_2.12:test-jar:sources:1.8.0",
-                "dependencies": [
-                    "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                    "org.apache.flink:flink-java:jar:sources:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.twitter:chill_2.12:jar:sources:0.7.6",
-                    "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                    "commons-io:commons-io:jar:sources:2.4",
-                    "org.scala-lang:scala-library:jar:sources:2.11.12",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.twitter:chill-java:jar:sources:0.7.6",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                    "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                    "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                    "commons-cli:commons-cli:jar:sources:1.3.1",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-sources.jar",
-                "sha256": "aea4b039ca5ba927b789eb450299cd8795f963fdd6b79fb5b97ed39d781785a3",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-runtime_2.12:test-jar:tests:1.8.0",
@@ -3110,21 +1582,11 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm-6/6.2.1-6.0/flink-shaded-asm-6-6.2.1-6.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                "dependencies": [],
-                "file": null
-            },
-            {
                 "coord": "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm/5.0.4-6.0/flink-shaded-asm-5.0.4-6.0.jar",
                 "sha256": "d91cde92466dc1a311eea60ffa5e96d4100f5b1330267e50ff61465e8a75a8c9",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-asm/5.0.4-6.0/flink-shaded-asm-5.0.4-6.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                "dependencies": [],
-                "file": null
             },
             {
                 "coord": "org.apache.flink:flink-shaded-guava:18.0-6.0",
@@ -3134,11 +1596,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-guava/18.0-6.0/flink-shaded-guava-18.0-6.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                "dependencies": [],
-                "file": null
-            },
-            {
                 "coord": "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-jackson/2.7.9-6.0/flink-shaded-jackson-2.7.9-6.0.jar",
@@ -3146,21 +1603,11 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-jackson/2.7.9-6.0/flink-shaded-jackson-2.7.9-6.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                "dependencies": [],
-                "file": null
-            },
-            {
                 "coord": "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-shaded-netty/4.1.32.Final-6.0/flink-shaded-netty-4.1.32.Final-6.0.jar",
                 "sha256": "d3531c2edc47563bde048193e5098f9075a5a8ddd5c47d4ea4940e1a3c7873ac",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-shaded-netty/4.1.32.Final-6.0/flink-shaded-netty-4.1.32.Final-6.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                "dependencies": [],
-                "file": null
             },
             {
                 "coord": "org.apache.flink:flink-streaming-java_2.12:1.8.0",
@@ -3213,56 +1660,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-streaming-java_2.12/1.8.0/flink-streaming-java_2.12-1.8.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-streaming-java_2.12:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                    "org.apache.flink:flink-java:jar:sources:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                    "org.apache.flink:flink-optimizer_2.12:jar:sources:1.8.0",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "org.apache.flink:flink-runtime_2.12:jar:sources:1.8.0",
-                    "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.apache.flink:flink-clients_2.12:jar:sources:1.8.0",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.twitter:chill_2.12:jar:sources:0.7.6",
-                    "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                    "commons-io:commons-io:jar:sources:2.4",
-                    "org.scala-lang:scala-library:jar:sources:2.11.12",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "com.twitter:chill-java:jar:sources:0.7.6",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                    "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                    "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                    "commons-cli:commons-cli:jar:sources:1.3.1",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-streaming-java_2.12/1.8.0/flink-streaming-java_2.12-1.8.0-sources.jar",
-                "sha256": "5da75bd9f6270075ccb373d964536aa48db4a77c6e9ab981bff30036ce5d6f9c",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-streaming-java_2.12/1.8.0/flink-streaming-java_2.12-1.8.0-sources.jar"
-            },
-            {
                 "coord": "org.apache.flink:flink-test-utils-junit:1.8.0",
                 "dependencies": [
                     "com.google.code.findbugs:jsr305:1.3.9",
@@ -3274,19 +1671,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0.jar",
                 "sha256": "534154a0691ab95b1db3c4808ecfb534a30c769de465b380657e4f664d8fc9bc",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:flink-test-utils-junit:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.hamcrest:hamcrest-core:jar:sources:1.3",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "junit:junit:jar:sources:4.12"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0-sources.jar",
-                "sha256": "87eae51a9c8e5f3d1ba339a2243cebc2de43d81d8a30b6f18fc5a306cc99a784",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0-sources.jar"
             },
             {
                 "coord": "org.apache.flink:flink-test-utils_2.12:1.8.0",
@@ -3350,77 +1734,11 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-test-utils_2.12/1.8.0/flink-test-utils_2.12-1.8.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-test-utils_2.12:jar:sources:1.8.0",
-                "dependencies": [
-                    "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                    "jline:jline:jar:sources:0.9.94",
-                    "org.apache.flink:flink-java:jar:sources:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:jar:sources:1.8.0",
-                    "org.apache.curator:curator-test:jar:sources:2.12.0",
-                    "log4j:log4j:jar:sources:1.2.16",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.2.1",
-                    "org.apache.flink:flink-shaded-guava:jar:sources:18.0-6.0",
-                    "com.esotericsoftware.kryo:kryo:jar:sources:2.24.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                    "org.apache.flink:force-shading:jar:sources:1.8.0",
-                    "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                    "org.apache.flink:flink-optimizer_2.12:jar:sources:1.8.0",
-                    "org.apache.flink:flink-metrics-core:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.4.20",
-                    "commons-collections:commons-collections:jar:sources:3.2.2",
-                    "org.apache.flink:flink-core:jar:sources:1.8.0",
-                    "org.apache.flink:flink-runtime_2.12:jar:sources:1.8.0",
-                    "com.github.scopt:scopt_2.12:jar:sources:3.5.0",
-                    "com.google.code.findbugs:jsr305:jar:sources:1.3.9",
-                    "org.hamcrest:hamcrest-core:jar:sources:1.3",
-                    "org.apache.flink:flink-clients_2.12:jar:sources:1.8.0",
-                    "org.apache.flink:flink-shaded-netty:jar:sources:4.1.32.Final-6.0",
-                    "org.apache.commons:commons-math3:jar:sources:3.5",
-                    "org.apache.zookeeper:zookeeper:jar:sources:3.4.8",
-                    "org.apache.commons:commons-compress:jar:sources:1.18",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "org.objenesis:objenesis:jar:sources:2.1",
-                    "com.twitter:chill_2.12:jar:sources:0.7.6",
-                    "org.apache.flink:flink-streaming-java_2.12:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-slf4j_2.12:jar:sources:2.4.20",
-                    "commons-io:commons-io:jar:sources:2.4",
-                    "com.google.guava:guava:jar:sources:16.0.1",
-                    "org.scala-lang:scala-library:jar:sources:2.11.12",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.4.20",
-                    "org.apache.flink:flink-test-utils-junit:jar:sources:1.8.0",
-                    "org.apache.flink:flink-shaded-asm-6:jar:sources:6.2.1-6.0",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "org.apache.flink:flink-runtime_2.12:test-jar:sources:1.8.0",
-                    "com.twitter:chill-java:jar:sources:0.7.6",
-                    "org.javassist:javassist:jar:sources:3.19.0-GA",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.esotericsoftware.minlog:minlog:jar:sources:1.2",
-                    "org.apache.flink:flink-shaded-asm:jar:sources:5.0.4-6.0",
-                    "junit:junit:jar:sources:4.12",
-                    "org.apache.flink:flink-annotations:jar:sources:1.8.0",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.4.20",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                    "org.apache.flink:flink-shaded-jackson:jar:sources:2.7.9-6.0",
-                    "org.apache.flink:flink-hadoop-fs:jar:sources:1.8.0",
-                    "commons-cli:commons-cli:jar:sources:1.3.1",
-                    "io.netty:netty:jar:sources:3.7.0.Final",
-                    "com.typesafe:config:jar:sources:1.3.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-test-utils_2.12/1.8.0/flink-test-utils_2.12-1.8.0-sources.jar",
-                "sha256": "9b752abbf34bf369d02528db9e5a54384be521122886a98ebfcca66d1423df9f",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-test-utils_2.12/1.8.0/flink-test-utils_2.12-1.8.0-sources.jar"
-            },
-            {
                 "coord": "org.apache.flink:force-shading:1.8.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/force-shading/1.8.0/force-shading-1.8.0.jar",
                 "sha256": "8093abf2279bdf2b7915e2ef50b725cd33d23628355197bd3e274e1fe5c364d0",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/force-shading/1.8.0/force-shading-1.8.0.jar"
-            },
-            {
-                "coord": "org.apache.flink:force-shading:jar:sources:1.8.0",
-                "dependencies": [],
-                "file": null
             },
             {
                 "coord": "org.apache.maven:maven-artifact:3.3.9",
@@ -3433,16 +1751,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-artifact/3.3.9/maven-artifact-3.3.9.jar"
             },
             {
-                "coord": "org.apache.maven:maven-artifact:jar:sources:3.3.9",
-                "dependencies": [
-                    "org.codehaus.plexus:plexus-utils:jar:sources:3.0.22",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-artifact/3.3.9/maven-artifact-3.3.9-sources.jar",
-                "sha256": "8985ed687dc682ff0fef32fb449005cc02eb47f860e36bf8b38b3be3cfa81ef6",
-                "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-artifact/3.3.9/maven-artifact-3.3.9-sources.jar"
-            },
-            {
                 "coord": "org.apache.maven:maven-model:3.3.9",
                 "dependencies": [
                     "org.apache.commons:commons-lang3:3.4",
@@ -3451,16 +1759,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9.jar",
                 "sha256": "15abde67fa7ea1e573e1f68c34921e995f0971351aaf1fb96790688ff510efcd",
                 "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9.jar"
-            },
-            {
-                "coord": "org.apache.maven:maven-model:jar:sources:3.3.9",
-                "dependencies": [
-                    "org.codehaus.plexus:plexus-utils:jar:sources:3.0.22",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9-sources.jar",
-                "sha256": "9caac5f1fafe59db3b68f3c78dc6f3511720e59b190d3c1de939ce4fefc1bea6",
-                "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9-sources.jar"
             },
             {
                 "coord": "org.apache.maven:maven-plugin-api:3.3.9",
@@ -3482,25 +1780,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-plugin-api/3.3.9/maven-plugin-api-3.3.9.jar"
             },
             {
-                "coord": "org.apache.maven:maven-plugin-api:jar:sources:3.3.9",
-                "dependencies": [
-                    "org.codehaus.plexus:plexus-utils:jar:sources:3.0.22",
-                    "org.codehaus.plexus:plexus-classworlds:jar:sources:2.5.2",
-                    "javax.inject:javax.inject:jar:sources:1",
-                    "org.eclipse.sisu:org.eclipse.sisu.inject:jar:sources:0.3.2",
-                    "org.codehaus.plexus:plexus-component-annotations:jar:sources:1.5.5",
-                    "org.apache.maven:maven-model:jar:sources:3.3.9",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "javax.enterprise:cdi-api:jar:sources:1.0",
-                    "org.apache.maven:maven-artifact:jar:sources:3.3.9",
-                    "javax.annotation:jsr250-api:jar:sources:1.0",
-                    "org.eclipse.sisu:org.eclipse.sisu.plexus:jar:sources:0.3.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-plugin-api/3.3.9/maven-plugin-api-3.3.9-sources.jar",
-                "sha256": "5f26fcbf2634be46e9b55a7c95d92e916fc14c55aca96ad29384a0912476bb9e",
-                "url": "https://repo1.maven.org/maven2/org/apache/maven/maven-plugin-api/3.3.9/maven-plugin-api-3.3.9-sources.jar"
-            },
-            {
                 "coord": "org.apache.zookeeper:zookeeper:3.4.8",
                 "dependencies": [
                     "io.netty:netty:3.7.0.Final",
@@ -3513,18 +1792,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar"
             },
             {
-                "coord": "org.apache.zookeeper:zookeeper:jar:sources:3.4.8",
-                "dependencies": [
-                    "jline:jline:jar:sources:0.9.94",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                    "log4j:log4j:jar:sources:1.2.16",
-                    "io.netty:netty:jar:sources:3.7.0.Final"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8-sources.jar",
-                "sha256": "29de93700ad8d32db614ad341e44e46854db0022c506f80fd6bfeb7d32ef4449",
-                "url": "https://repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8-sources.jar"
-            },
-            {
                 "coord": "org.clapper:grizzled-slf4j_2.12:1.3.2",
                 "dependencies": [
                     "org.slf4j:slf4j-api:1.7.16"
@@ -3534,27 +1801,11 @@
                 "url": "https://repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2.jar"
             },
             {
-                "coord": "org.clapper:grizzled-slf4j_2.12:jar:sources:1.3.2",
-                "dependencies": [
-                    "org.slf4j:slf4j-api:jar:sources:1.7.16"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2-sources.jar",
-                "sha256": "2b47e0ab7687c1f02c0f3936fec22cdf8b8328d204543f9a0c5f855cc8ab058c",
-                "url": "https://repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2-sources.jar"
-            },
-            {
                 "coord": "org.codehaus.plexus:plexus-classworlds:2.5.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-classworlds/2.5.2/plexus-classworlds-2.5.2.jar",
                 "sha256": "b2931d41740490a8d931cbe0cfe9ac20deb66cca606e679f52522f7f534c9fd7",
                 "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-classworlds/2.5.2/plexus-classworlds-2.5.2.jar"
-            },
-            {
-                "coord": "org.codehaus.plexus:plexus-classworlds:jar:sources:2.5.2",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-classworlds/2.5.2/plexus-classworlds-2.5.2-sources.jar",
-                "sha256": "d087c4c0ff02b035111bb72c72603b2851d126c43da39cc3c73ff45139125bec",
-                "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-classworlds/2.5.2/plexus-classworlds-2.5.2-sources.jar"
             },
             {
                 "coord": "org.codehaus.plexus:plexus-component-annotations:1.5.5",
@@ -3564,25 +1815,11 @@
                 "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5.jar"
             },
             {
-                "coord": "org.codehaus.plexus:plexus-component-annotations:jar:sources:1.5.5",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5-sources.jar",
-                "sha256": "527768d357304e0ad56b74ca77f27ba28b4a456680450ef45a30bfaf613469e6",
-                "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5-sources.jar"
-            },
-            {
                 "coord": "org.codehaus.plexus:plexus-utils:3.0.22",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22.jar",
                 "sha256": "0f31c44b275f87e56d46a582ce96d03b9e2ab344cf87c4e268b34d3ad046beab",
                 "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22.jar"
-            },
-            {
-                "coord": "org.codehaus.plexus:plexus-utils:jar:sources:3.0.22",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22-sources.jar",
-                "sha256": "8fb619ac58aaa2a27f9cefce866a9689d41e15a120c2efe0f781b6bcad88caf3",
-                "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22-sources.jar"
             },
             {
                 "coord": "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
@@ -3592,25 +1829,11 @@
                 "url": "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar"
             },
             {
-                "coord": "org.eclipse.jetty.orbit:javax.servlet:jar:sources:3.0.0.v201112011016",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016-sources.jar",
-                "sha256": "5e26e8f9ae3c5a032a9dd6a0560bed3aadd4cd00bd58f3be8411d74e79b2c322",
-                "url": "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016-sources.jar"
-            },
-            {
                 "coord": "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.2/org.eclipse.sisu.inject-0.3.2.jar",
                 "sha256": "66e87705a818da44eb080a7bb1fc431de987754b4f92aa85f69991bfc677d40d",
                 "url": "https://repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.2/org.eclipse.sisu.inject-0.3.2.jar"
-            },
-            {
-                "coord": "org.eclipse.sisu:org.eclipse.sisu.inject:jar:sources:0.3.2",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.2/org.eclipse.sisu.inject-0.3.2-sources.jar",
-                "sha256": "739d7228920a97892b9c6b6e4d16799930e8d2439543e71fa7a7c849a39cc8a1",
-                "url": "https://repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.2/org.eclipse.sisu.inject-0.3.2-sources.jar"
             },
             {
                 "coord": "org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.2",
@@ -3628,33 +1851,11 @@
                 "url": "https://repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.2/org.eclipse.sisu.plexus-0.3.2.jar"
             },
             {
-                "coord": "org.eclipse.sisu:org.eclipse.sisu.plexus:jar:sources:0.3.2",
-                "dependencies": [
-                    "org.codehaus.plexus:plexus-utils:jar:sources:3.0.22",
-                    "org.codehaus.plexus:plexus-classworlds:jar:sources:2.5.2",
-                    "javax.inject:javax.inject:jar:sources:1",
-                    "org.eclipse.sisu:org.eclipse.sisu.inject:jar:sources:0.3.2",
-                    "org.codehaus.plexus:plexus-component-annotations:jar:sources:1.5.5",
-                    "javax.enterprise:cdi-api:jar:sources:1.0",
-                    "javax.annotation:jsr250-api:jar:sources:1.0"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.2/org.eclipse.sisu.plexus-0.3.2-sources.jar",
-                "sha256": "d8091fc791e3027dd72e51f0dabcd387f27dba8fffa79511edea29f33213a8a8",
-                "url": "https://repo1.maven.org/maven2/org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.2/org.eclipse.sisu.plexus-0.3.2-sources.jar"
-            },
-            {
                 "coord": "org.hamcrest:hamcrest-core:1.3",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
                 "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
                 "url": "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
-            },
-            {
-                "coord": "org.hamcrest:hamcrest-core:jar:sources:1.3",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
-                "sha256": "e223d2d8fbafd66057a8848cc94222d63c3cedd652cc48eddc0ab5c39c0f84df",
-                "url": "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar"
             },
             {
                 "coord": "org.javassist:javassist:3.19.0-GA",
@@ -3664,25 +1865,11 @@
                 "url": "https://repo1.maven.org/maven2/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA.jar"
             },
             {
-                "coord": "org.javassist:javassist:jar:sources:3.19.0-GA",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA-sources.jar",
-                "sha256": "26690d98e9b005eecebf0eba2b7331b8f7cb9f3d3d9e41975a41574cfe83a656",
-                "url": "https://repo1.maven.org/maven2/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA-sources.jar"
-            },
-            {
                 "coord": "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.21/kotlin-stdlib-common-1.3.21.jar",
                 "sha256": "cea61f7b611895e64f58569a9757fc0ab0d582f107211e1930e0ce2a0add52a7",
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.21/kotlin-stdlib-common-1.3.21.jar"
-            },
-            {
-                "coord": "org.jetbrains.kotlin:kotlin-stdlib-common:jar:sources:1.3.21",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.21/kotlin-stdlib-common-1.3.21-sources.jar",
-                "sha256": "bce38d120922f101132c23173ba27d0e470461520ccf13c35077f46b6e974846",
-                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.21/kotlin-stdlib-common-1.3.21-sources.jar"
             },
             {
                 "coord": "org.jetbrains.kotlin:kotlin-stdlib:1.3.21",
@@ -3695,16 +1882,6 @@
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/1.3.21/kotlin-stdlib-1.3.21.jar"
             },
             {
-                "coord": "org.jetbrains.kotlin:kotlin-stdlib:jar:sources:1.3.21",
-                "dependencies": [
-                    "org.jetbrains:annotations:jar:sources:13.0",
-                    "org.jetbrains.kotlin:kotlin-stdlib-common:jar:sources:1.3.21"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/1.3.21/kotlin-stdlib-1.3.21-sources.jar",
-                "sha256": "8a1b5c0f9208ebeec9d10ac6b03372fd11a12a8a7034f7897b3bfbfe39ccb083",
-                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/1.3.21/kotlin-stdlib-1.3.21-sources.jar"
-            },
-            {
                 "coord": "org.jetbrains.kotlin:kotlin-test-common:1.3.21",
                 "dependencies": [
                     "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21"
@@ -3712,15 +1889,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-common/1.3.21/kotlin-test-common-1.3.21.jar",
                 "sha256": "031002974839411b82c522d289a751367a5f56493b001f99a952263bf1e9d88b",
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-common/1.3.21/kotlin-test-common-1.3.21.jar"
-            },
-            {
-                "coord": "org.jetbrains.kotlin:kotlin-test-common:jar:sources:1.3.21",
-                "dependencies": [
-                    "org.jetbrains.kotlin:kotlin-stdlib-common:jar:sources:1.3.21"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-common/1.3.21/kotlin-test-common-1.3.21-sources.jar",
-                "sha256": "ce54835576558196098d867b32b1c095c9cf1ad1c93a1e3cc302b203c451ba23",
-                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test-common/1.3.21/kotlin-test-common-1.3.21-sources.jar"
             },
             {
                 "coord": "org.jetbrains.kotlin:kotlin-test:1.3.21",
@@ -3735,18 +1903,6 @@
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test/1.3.21/kotlin-test-1.3.21.jar"
             },
             {
-                "coord": "org.jetbrains.kotlin:kotlin-test:jar:sources:1.3.21",
-                "dependencies": [
-                    "org.jetbrains.kotlin:kotlin-test-common:jar:sources:1.3.21",
-                    "org.jetbrains:annotations:jar:sources:13.0",
-                    "org.jetbrains.kotlin:kotlin-stdlib-common:jar:sources:1.3.21",
-                    "org.jetbrains.kotlin:kotlin-stdlib:jar:sources:1.3.21"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test/1.3.21/kotlin-test-1.3.21-sources.jar",
-                "sha256": "1410a59a5b07e87a1333ab66771544c92b90aa1a85f702176b2f158c1020ddf4",
-                "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test/1.3.21/kotlin-test-1.3.21-sources.jar"
-            },
-            {
                 "coord": "org.jetbrains:annotations:13.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
@@ -3754,25 +1910,11 @@
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar"
             },
             {
-                "coord": "org.jetbrains:annotations:jar:sources:13.0",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0-sources.jar",
-                "sha256": "42a5e144b8e81d50d6913d1007b695e62e614705268d8cf9f13dbdc478c2c68e",
-                "url": "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0-sources.jar"
-            },
-            {
                 "coord": "org.objenesis:objenesis:2.1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar",
                 "sha256": "c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80",
                 "url": "https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar"
-            },
-            {
-                "coord": "org.objenesis:objenesis:jar:sources:2.1",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1-sources.jar",
-                "sha256": "65178da72578c40a37cbd88d07d2a21dd240d6186fe67f1fc066d1fcbac0003b",
-                "url": "https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1-sources.jar"
             },
             {
                 "coord": "org.ow2.asm:asm-analysis:6.2",
@@ -3783,16 +1925,6 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-analysis/6.2/asm-analysis-6.2.jar",
                 "sha256": "62b2c0d818fde5c52cf6404aa10836dbb170a2c3fa8466e656f0f991732fa01f",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/6.2/asm-analysis-6.2.jar"
-            },
-            {
-                "coord": "org.ow2.asm:asm-analysis:jar:sources:6.2",
-                "dependencies": [
-                    "org.ow2.asm:asm:jar:sources:6.2",
-                    "org.ow2.asm:asm-tree:jar:sources:6.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-analysis/6.2/asm-analysis-6.2-sources.jar",
-                "sha256": "bb9ecf3d787786607a63bce4296fe4a8061928f001aba20e0130de14d076c8f5",
-                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/6.2/asm-analysis-6.2-sources.jar"
             },
             {
                 "coord": "org.ow2.asm:asm-commons:6.2",
@@ -3806,17 +1938,6 @@
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/6.2/asm-commons-6.2.jar"
             },
             {
-                "coord": "org.ow2.asm:asm-commons:jar:sources:6.2",
-                "dependencies": [
-                    "org.ow2.asm:asm:jar:sources:6.2",
-                    "org.ow2.asm:asm-analysis:jar:sources:6.2",
-                    "org.ow2.asm:asm-tree:jar:sources:6.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-commons/6.2/asm-commons-6.2-sources.jar",
-                "sha256": "1acdf3914f7ce7565c4d394749eef22b82bf8abaca2a74c77f02ddf0ee98b42d",
-                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/6.2/asm-commons-6.2-sources.jar"
-            },
-            {
                 "coord": "org.ow2.asm:asm-tree:6.2",
                 "dependencies": [
                     "org.ow2.asm:asm:6.2"
@@ -3826,27 +1947,11 @@
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/6.2/asm-tree-6.2.jar"
             },
             {
-                "coord": "org.ow2.asm:asm-tree:jar:sources:6.2",
-                "dependencies": [
-                    "org.ow2.asm:asm:jar:sources:6.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm-tree/6.2/asm-tree-6.2-sources.jar",
-                "sha256": "b3a7766af881e5ef99c531f0c862a40d33bba74136daaa32da2cdb51c8f7ee5f",
-                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/6.2/asm-tree-6.2-sources.jar"
-            },
-            {
                 "coord": "org.ow2.asm:asm:6.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm/6.2/asm-6.2.jar",
                 "sha256": "917bda888bc543187325d5fbc1034207eed152574ef78df1734ca0aee40b7fc8",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm/6.2/asm-6.2.jar"
-            },
-            {
-                "coord": "org.ow2.asm:asm:jar:sources:6.2",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/ow2/asm/asm/6.2/asm-6.2-sources.jar",
-                "sha256": "771e28f38b4adc9f817262d66a3d5d56ae1c131d2385b208c613655fbee05f40",
-                "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm/6.2/asm-6.2-sources.jar"
             },
             {
                 "coord": "org.pantsbuild:jarjar:1.6.6",
@@ -3875,44 +1980,11 @@
                 "url": "https://repo1.maven.org/maven2/org/pantsbuild/jarjar/1.6.6/jarjar-1.6.6.jar"
             },
             {
-                "coord": "org.pantsbuild:jarjar:jar:sources:1.6.6",
-                "dependencies": [
-                    "org.codehaus.plexus:plexus-utils:jar:sources:3.0.22",
-                    "org.apache.ant:ant:jar:sources:1.9.9",
-                    "org.ow2.asm:asm-analysis:jar:sources:6.2",
-                    "org.codehaus.plexus:plexus-classworlds:jar:sources:2.5.2",
-                    "javax.inject:javax.inject:jar:sources:1",
-                    "org.ow2.asm:asm:jar:sources:6.2",
-                    "org.apache.maven:maven-plugin-api:jar:sources:3.3.9",
-                    "org.eclipse.sisu:org.eclipse.sisu.inject:jar:sources:0.3.2",
-                    "org.apache.ant:ant-launcher:jar:sources:1.9.9",
-                    "org.codehaus.plexus:plexus-component-annotations:jar:sources:1.5.5",
-                    "org.apache.maven:maven-model:jar:sources:3.3.9",
-                    "org.ow2.asm:asm-tree:jar:sources:6.2",
-                    "org.apache.commons:commons-lang3:jar:sources:3.4",
-                    "org.ow2.asm:asm-commons:jar:sources:6.2",
-                    "javax.enterprise:cdi-api:jar:sources:1.0",
-                    "org.apache.maven:maven-artifact:jar:sources:3.3.9",
-                    "javax.annotation:jsr250-api:jar:sources:1.0",
-                    "org.eclipse.sisu:org.eclipse.sisu.plexus:jar:sources:0.3.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/pantsbuild/jarjar/1.6.6/jarjar-1.6.6-sources.jar",
-                "sha256": "8de460a60d04fb433ee4fb0221aed549c390cfea896ace143fcc7459885cdd43",
-                "url": "https://repo1.maven.org/maven2/org/pantsbuild/jarjar/1.6.6/jarjar-1.6.6-sources.jar"
-            },
-            {
                 "coord": "org.reactivestreams:reactive-streams:1.0.0",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0.jar",
                 "sha256": "ef867702a614b96eb6c64fb65a8f5e14bdfcabbc1ae056f78a1643f7b79ca0eb",
                 "url": "https://repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0.jar"
-            },
-            {
-                "coord": "org.reactivestreams:reactive-streams:jar:sources:1.0.0",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0-sources.jar",
-                "sha256": "7e673b0c8b0ac51bdef8655cacf7804fb9791c47e71161a36c94738d55eefea8",
-                "url": "https://repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.0/reactive-streams-1.0.0-sources.jar"
             },
             {
                 "coord": "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
@@ -3922,25 +1994,11 @@
                 "url": "https://repo1.maven.org/maven2/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0.jar"
             },
             {
-                "coord": "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0-sources.jar",
-                "sha256": "c0926003987a5c21108748fda401023485085eaa9fe90a41a40bcf67596fff34",
-                "url": "https://repo1.maven.org/maven2/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0-sources.jar"
-            },
-            {
                 "coord": "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar",
                 "sha256": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111",
                 "url": "https://repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4.jar"
-            },
-            {
-                "coord": "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.0.4",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4-sources.jar",
-                "sha256": "cb4ba7b7e598530faec863e5069864a28268ee4c636b0c46443884dcc4e07ac6",
-                "url": "https://repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.0.4/scala-parser-combinators_2.12-1.0.4-sources.jar"
             },
             {
                 "coord": "org.scala-lang:scala-library:2.11.12",
@@ -3950,13 +2008,6 @@
                 "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar"
             },
             {
-                "coord": "org.scala-lang:scala-library:jar:sources:2.11.12",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12-sources.jar",
-                "sha256": "a32ccfac851adeb094a31134af1034d0ba026512931433cba86d5dd12d91f1ff",
-                "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12-sources.jar"
-            },
-            {
                 "coord": "org.slf4j:slf4j-api:1.7.16",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16.jar",
@@ -3964,25 +2015,11 @@
                 "url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16.jar"
             },
             {
-                "coord": "org.slf4j:slf4j-api:jar:sources:1.7.16",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16-sources.jar",
-                "sha256": "ac638f64e6881925cb2f8b4afa9c8d865d5fc9133a90dc917130d29414618e7d",
-                "url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16-sources.jar"
-            },
-            {
                 "coord": "org.xerial.snappy:snappy-java:1.1.4",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4.jar",
                 "sha256": "f75ec0fa9c843e236c6e1512c17c095cfffd175f32e21ea0e3eccb540d77f002",
                 "url": "https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4.jar"
-            },
-            {
-                "coord": "org.xerial.snappy:snappy-java:jar:sources:1.1.4",
-                "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4-sources.jar",
-                "sha256": "599d24f5fdf5a0d5247d332c059b372e40ed77d928fd29b246fcb58ae5e405f2",
-                "url": "https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4-sources.jar"
             }
         ],
         "version": "0.1.0"

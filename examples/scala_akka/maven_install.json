@@ -13,16 +13,6 @@
                 "url": "https://jcenter.bintray.com/com/chuusai/shapeless_2.12/2.3.3/shapeless_2.12-2.3.3.jar"
             },
             {
-                "coord": "com.chuusai:shapeless_2.12:jar:sources:2.3.3",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "org.typelevel:macro-compat_2.12:jar:sources:1.1.1"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/chuusai/shapeless_2.12/2.3.3/shapeless_2.12-2.3.3-sources.jar",
-                "sha256": "2d53fea1b1ab224a4a731d99245747a640deaa6ef3912c253666aa61287f3d63",
-                "url": "https://jcenter.bintray.com/com/chuusai/shapeless_2.12/2.3.3/shapeless_2.12-2.3.3-sources.jar"
-            },
-            {
                 "coord": "com.github.pureconfig:pureconfig-core_2.12:0.10.2",
                 "dependencies": [
                     "com.typesafe:config:1.3.3",
@@ -32,17 +22,6 @@
                 "file": "v1/https/jcenter.bintray.com/com/github/pureconfig/pureconfig-core_2.12/0.10.2/pureconfig-core_2.12-0.10.2.jar",
                 "sha256": "3909c71647b99ab6d342a3adb286fe0633e75da37bac268d131b40de84763f82",
                 "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig-core_2.12/0.10.2/pureconfig-core_2.12-0.10.2.jar"
-            },
-            {
-                "coord": "com.github.pureconfig:pureconfig-core_2.12:jar:sources:0.10.2",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.github.pureconfig:pureconfig-macros_2.12:jar:sources:0.10.2",
-                    "com.typesafe:config:jar:sources:1.3.3"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/github/pureconfig/pureconfig-core_2.12/0.10.2/pureconfig-core_2.12-0.10.2-sources.jar",
-                "sha256": "feaf591dd2e8a9d3e8294f4a897dc318043563a575b2b0709c5f1237b4b4da7e",
-                "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig-core_2.12/0.10.2/pureconfig-core_2.12-0.10.2-sources.jar"
             },
             {
                 "coord": "com.github.pureconfig:pureconfig-generic_2.12:0.10.2",
@@ -59,20 +38,6 @@
                 "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig-generic_2.12/0.10.2/pureconfig-generic_2.12-0.10.2.jar"
             },
             {
-                "coord": "com.github.pureconfig:pureconfig-generic_2.12:jar:sources:0.10.2",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.chuusai:shapeless_2.12:jar:sources:2.3.3",
-                    "com.typesafe:config:jar:sources:1.3.3",
-                    "com.github.pureconfig:pureconfig-macros_2.12:jar:sources:0.10.2",
-                    "com.github.pureconfig:pureconfig-core_2.12:jar:sources:0.10.2",
-                    "org.typelevel:macro-compat_2.12:jar:sources:1.1.1"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/github/pureconfig/pureconfig-generic_2.12/0.10.2/pureconfig-generic_2.12-0.10.2-sources.jar",
-                "sha256": "e2c661bac31c58bcb2919b00b0ee16a79ce9e468774482f459f0051d1a436895",
-                "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig-generic_2.12/0.10.2/pureconfig-generic_2.12-0.10.2-sources.jar"
-            },
-            {
                 "coord": "com.github.pureconfig:pureconfig-macros_2.12:0.10.2",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8"
@@ -80,15 +45,6 @@
                 "file": "v1/https/jcenter.bintray.com/com/github/pureconfig/pureconfig-macros_2.12/0.10.2/pureconfig-macros_2.12-0.10.2.jar",
                 "sha256": "f6ce76fb69f9f4083cbf62ddc6b0d28b0e895bd40ccc22add736ce6bc57afbc8",
                 "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig-macros_2.12/0.10.2/pureconfig-macros_2.12-0.10.2.jar"
-            },
-            {
-                "coord": "com.github.pureconfig:pureconfig-macros_2.12:jar:sources:0.10.2",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/github/pureconfig/pureconfig-macros_2.12/0.10.2/pureconfig-macros_2.12-0.10.2-sources.jar",
-                "sha256": "a3614de8167f199b2bc670a2c90f0d173a0d244bbb3e556629b470de28c39937",
-                "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig-macros_2.12/0.10.2/pureconfig-macros_2.12-0.10.2-sources.jar"
             },
             {
                 "coord": "com.github.pureconfig:pureconfig_2.12:0.10.2",
@@ -106,21 +62,6 @@
                 "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig_2.12/0.10.2/pureconfig_2.12-0.10.2.jar"
             },
             {
-                "coord": "com.github.pureconfig:pureconfig_2.12:jar:sources:0.10.2",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.chuusai:shapeless_2.12:jar:sources:2.3.3",
-                    "com.typesafe:config:jar:sources:1.3.3",
-                    "com.github.pureconfig:pureconfig-generic_2.12:jar:sources:0.10.2",
-                    "com.github.pureconfig:pureconfig-macros_2.12:jar:sources:0.10.2",
-                    "com.github.pureconfig:pureconfig-core_2.12:jar:sources:0.10.2",
-                    "org.typelevel:macro-compat_2.12:jar:sources:1.1.1"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/github/pureconfig/pureconfig_2.12/0.10.2/pureconfig_2.12-0.10.2-sources.jar",
-                "sha256": "f838008bab3d7591a36e73d680aedb01288681cd333439dc0016eed66fe016a6",
-                "url": "https://jcenter.bintray.com/com/github/pureconfig/pureconfig_2.12/0.10.2/pureconfig_2.12-0.10.2-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-actor_2.12:2.5.22",
                 "dependencies": [
                     "com.typesafe:config:1.3.3",
@@ -132,17 +73,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-actor_2.12/2.5.22/akka-actor_2.12-2.5.22.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-actor_2.12:jar:sources:2.5.22",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.typesafe:config:jar:sources:1.3.3"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-actor_2.12/2.5.22/akka-actor_2.12-2.5.22-sources.jar",
-                "sha256": "735f7b21d3820016287c634ebcf4b5edf73cc8ff073aeedd1ea0562b34a9eab3",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-actor_2.12/2.5.22/akka-actor_2.12-2.5.22-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-http-core_2.12:10.1.8",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8",
@@ -151,16 +81,6 @@
                 "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-http-core_2.12/10.1.8/akka-http-core_2.12-10.1.8.jar",
                 "sha256": "d456d457613db43fe10c1bfd0e5046672061eba2af802c81970a470ec397014f",
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-http-core_2.12/10.1.8/akka-http-core_2.12-10.1.8.jar"
-            },
-            {
-                "coord": "com.typesafe.akka:akka-http-core_2.12:jar:sources:10.1.8",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe.akka:akka-parsing_2.12:jar:sources:10.1.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-http-core_2.12/10.1.8/akka-http-core_2.12-10.1.8-sources.jar",
-                "sha256": "c1bb96f732bc07e5c7a52f785de2212ae33eaa3cf25a3796743b3c77046bf668",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-http-core_2.12/10.1.8/akka-http-core_2.12-10.1.8-sources.jar"
             },
             {
                 "coord": "com.typesafe.akka:akka-http-testkit_2.12:10.1.8",
@@ -175,18 +95,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-http-testkit_2.12/10.1.8/akka-http-testkit_2.12-10.1.8.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-http-testkit_2.12:jar:sources:10.1.8",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe.akka:akka-parsing_2.12:jar:sources:10.1.8",
-                    "com.typesafe.akka:akka-http-core_2.12:jar:sources:10.1.8",
-                    "com.typesafe.akka:akka-http_2.12:jar:sources:10.1.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-http-testkit_2.12/10.1.8/akka-http-testkit_2.12-10.1.8-sources.jar",
-                "sha256": "d928628ac6704ffdef0013a4665e84809559066bd74b19b06effa2511a0e6870",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-http-testkit_2.12/10.1.8/akka-http-testkit_2.12-10.1.8-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-http_2.12:10.1.8",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8",
@@ -198,17 +106,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-http_2.12/10.1.8/akka-http_2.12-10.1.8.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-http_2.12:jar:sources:10.1.8",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe.akka:akka-parsing_2.12:jar:sources:10.1.8",
-                    "com.typesafe.akka:akka-http-core_2.12:jar:sources:10.1.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-http_2.12/10.1.8/akka-http_2.12-10.1.8-sources.jar",
-                "sha256": "d43839b0b69d801cdbd2bd1637ae01b7bd853fac6d75108af8a61ec2359c2424",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-http_2.12/10.1.8/akka-http_2.12-10.1.8-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-parsing_2.12:10.1.8",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8"
@@ -218,15 +115,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-parsing_2.12/10.1.8/akka-parsing_2.12-10.1.8.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-parsing_2.12:jar:sources:10.1.8",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-parsing_2.12/10.1.8/akka-parsing_2.12-10.1.8-sources.jar",
-                "sha256": "a833b50687cac32ba4fdba19a5146df04b7a8f95d325fc1229a6960d5a81e274",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-parsing_2.12/10.1.8/akka-parsing_2.12-10.1.8-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-protobuf_2.12:2.5.22",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8"
@@ -234,15 +122,6 @@
                 "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-protobuf_2.12/2.5.22/akka-protobuf_2.12-2.5.22.jar",
                 "sha256": "473189e93a67ab7528e28daa9ef46d49c077595f4dba30c34ab4dbe1f2056501",
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-protobuf_2.12/2.5.22/akka-protobuf_2.12-2.5.22.jar"
-            },
-            {
-                "coord": "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.5.22",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-protobuf_2.12/2.5.22/akka-protobuf_2.12-2.5.22-sources.jar",
-                "sha256": "51c21e15227fe74316f2b430e536ca07be174194bb6c6bff82eb73d30e4bbb17",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-protobuf_2.12/2.5.22/akka-protobuf_2.12-2.5.22-sources.jar"
             },
             {
                 "coord": "com.typesafe.akka:akka-stream-testkit_2.12:2.5.22",
@@ -263,24 +142,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-stream-testkit_2.12/2.5.22/akka-stream-testkit_2.12-2.5.22.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-stream-testkit_2.12:jar:sources:2.5.22",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.5.22",
-                    "com.typesafe.akka:akka-stream_2.12:jar:sources:2.5.22",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.2",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.1.1",
-                    "com.typesafe:config:jar:sources:1.3.3",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.5.22",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.3.7",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.typesafe.akka:akka-testkit_2.12:jar:sources:2.5.22"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-stream-testkit_2.12/2.5.22/akka-stream-testkit_2.12-2.5.22-sources.jar",
-                "sha256": "a18745f1a22aaa7c8370fd3bf51738c8c98b2b9a77dd01a08ff1f666554680b9",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-stream-testkit_2.12/2.5.22/akka-stream-testkit_2.12-2.5.22-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-stream_2.12:2.5.22",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8",
@@ -297,22 +158,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-stream_2.12/2.5.22/akka-stream_2.12-2.5.22.jar"
             },
             {
-                "coord": "com.typesafe.akka:akka-stream_2.12:jar:sources:2.5.22",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe.akka:akka-protobuf_2.12:jar:sources:2.5.22",
-                    "org.reactivestreams:reactive-streams:jar:sources:1.0.2",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.1.1",
-                    "com.typesafe:config:jar:sources:1.3.3",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.5.22",
-                    "com.typesafe:ssl-config-core_2.12:jar:sources:0.3.7",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-stream_2.12/2.5.22/akka-stream_2.12-2.5.22-sources.jar",
-                "sha256": "587fee05e6272cb4603130b941392513fb01e012c714163d8ca0777ed41b2375",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-stream_2.12/2.5.22/akka-stream_2.12-2.5.22-sources.jar"
-            },
-            {
                 "coord": "com.typesafe.akka:akka-testkit_2.12:2.5.22",
                 "dependencies": [
                     "com.typesafe:config:1.3.3",
@@ -323,18 +168,6 @@
                 "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-testkit_2.12/2.5.22/akka-testkit_2.12-2.5.22.jar",
                 "sha256": "1c7f570611e969a36988cd59ae0d9467cac085e1e63369947570d9011594deba",
                 "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-testkit_2.12/2.5.22/akka-testkit_2.12-2.5.22.jar"
-            },
-            {
-                "coord": "com.typesafe.akka:akka-testkit_2.12:jar:sources:2.5.22",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe.akka:akka-actor_2.12:jar:sources:2.5.22",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                    "com.typesafe:config:jar:sources:1.3.3"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/akka/akka-testkit_2.12/2.5.22/akka-testkit_2.12-2.5.22-sources.jar",
-                "sha256": "1c9f4f317ce9e4c65eb8c21e5705223248e02a689eee472f2a0af0ffec531517",
-                "url": "https://jcenter.bintray.com/com/typesafe/akka/akka-testkit_2.12/2.5.22/akka-testkit_2.12-2.5.22-sources.jar"
             },
             {
                 "coord": "com.typesafe.scala-logging:scala-logging_2.12:3.9.2",
@@ -348,29 +181,11 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/scala-logging/scala-logging_2.12/3.9.2/scala-logging_2.12-3.9.2.jar"
             },
             {
-                "coord": "com.typesafe.scala-logging:scala-logging_2.12:jar:sources:3.9.2",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "org.slf4j:slf4j-api:jar:sources:1.7.26",
-                    "org.scala-lang:scala-reflect:jar:sources:2.12.7"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/scala-logging/scala-logging_2.12/3.9.2/scala-logging_2.12-3.9.2-sources.jar",
-                "sha256": "66684d657691bfee01f6a62ac6909a6366b074521645f0bbacb1221e916a8d5f",
-                "url": "https://jcenter.bintray.com/com/typesafe/scala-logging/scala-logging_2.12/3.9.2/scala-logging_2.12-3.9.2-sources.jar"
-            },
-            {
                 "coord": "com.typesafe:config:1.3.3",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/com/typesafe/config/1.3.3/config-1.3.3.jar",
                 "sha256": "b5f1d6071f1548d05be82f59f9039c7d37a1787bd8e3c677e31ee275af4a4621",
                 "url": "https://jcenter.bintray.com/com/typesafe/config/1.3.3/config-1.3.3.jar"
-            },
-            {
-                "coord": "com.typesafe:config:jar:sources:1.3.3",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/config/1.3.3/config-1.3.3-sources.jar",
-                "sha256": "fcd7c3070417c776b313cc559665c035d74e3a2b40a89bbb0e9bff6e567c9cc8",
-                "url": "https://jcenter.bintray.com/com/typesafe/config/1.3.3/config-1.3.3-sources.jar"
             },
             {
                 "coord": "com.typesafe:ssl-config-core_2.12:0.3.7",
@@ -384,17 +199,6 @@
                 "url": "https://jcenter.bintray.com/com/typesafe/ssl-config-core_2.12/0.3.7/ssl-config-core_2.12-0.3.7.jar"
             },
             {
-                "coord": "com.typesafe:ssl-config-core_2.12:jar:sources:0.3.7",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "com.typesafe:config:jar:sources:1.3.3",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.1.1"
-                ],
-                "file": "v1/https/jcenter.bintray.com/com/typesafe/ssl-config-core_2.12/0.3.7/ssl-config-core_2.12-0.3.7-sources.jar",
-                "sha256": "876aec553b4bd9575f51732074285705ec3bd2877b51379bf82e506e3e30bfc8",
-                "url": "https://jcenter.bintray.com/com/typesafe/ssl-config-core_2.12/0.3.7/ssl-config-core_2.12-0.3.7-sources.jar"
-            },
-            {
                 "coord": "net.bytebuddy:byte-buddy-agent:1.9.10",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/net/bytebuddy/byte-buddy-agent/1.9.10/byte-buddy-agent-1.9.10.jar",
@@ -402,25 +206,11 @@
                 "url": "https://jcenter.bintray.com/net/bytebuddy/byte-buddy-agent/1.9.10/byte-buddy-agent-1.9.10.jar"
             },
             {
-                "coord": "net.bytebuddy:byte-buddy-agent:jar:sources:1.9.10",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/net/bytebuddy/byte-buddy-agent/1.9.10/byte-buddy-agent-1.9.10-sources.jar",
-                "sha256": "d506d0a0894fa0b9bf1dca8d55f11d71f1b07138503f7b747640f7087380b8ec",
-                "url": "https://jcenter.bintray.com/net/bytebuddy/byte-buddy-agent/1.9.10/byte-buddy-agent-1.9.10-sources.jar"
-            },
-            {
                 "coord": "net.bytebuddy:byte-buddy:1.9.10",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/net/bytebuddy/byte-buddy/1.9.10/byte-buddy-1.9.10.jar",
                 "sha256": "2936debc4d7b6c534848d361412e2d0f8bd06f7f27a6f4e728a20e97648d2bf3",
                 "url": "https://jcenter.bintray.com/net/bytebuddy/byte-buddy/1.9.10/byte-buddy-1.9.10.jar"
-            },
-            {
-                "coord": "net.bytebuddy:byte-buddy:jar:sources:1.9.10",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/net/bytebuddy/byte-buddy/1.9.10/byte-buddy-1.9.10-sources.jar",
-                "sha256": "e41b3be190770b9ca88a88f4853b205ba0999a0a3d82014678ed06fbf66287b1",
-                "url": "https://jcenter.bintray.com/net/bytebuddy/byte-buddy/1.9.10/byte-buddy-1.9.10-sources.jar"
             },
             {
                 "coord": "org.mockito:mockito-core:2.26.0",
@@ -434,17 +224,6 @@
                 "url": "https://jcenter.bintray.com/org/mockito/mockito-core/2.26.0/mockito-core-2.26.0.jar"
             },
             {
-                "coord": "org.mockito:mockito-core:jar:sources:2.26.0",
-                "dependencies": [
-                    "org.objenesis:objenesis:jar:sources:2.6",
-                    "net.bytebuddy:byte-buddy-agent:jar:sources:1.9.10",
-                    "net.bytebuddy:byte-buddy:jar:sources:1.9.10"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/mockito/mockito-core/2.26.0/mockito-core-2.26.0-sources.jar",
-                "sha256": "2e939e8ed4619f590076dd34ba44e5782b276f3a605becc699aa088274fd53ba",
-                "url": "https://jcenter.bintray.com/org/mockito/mockito-core/2.26.0/mockito-core-2.26.0-sources.jar"
-            },
-            {
                 "coord": "org.objenesis:objenesis:2.6",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/org/objenesis/objenesis/2.6/objenesis-2.6.jar",
@@ -452,25 +231,11 @@
                 "url": "https://jcenter.bintray.com/org/objenesis/objenesis/2.6/objenesis-2.6.jar"
             },
             {
-                "coord": "org.objenesis:objenesis:jar:sources:2.6",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/org/objenesis/objenesis/2.6/objenesis-2.6-sources.jar",
-                "sha256": "52d9f4dba531677fc074eff00ea07f22a1d42e5a97cc9e8571c4cd3d459b6be0",
-                "url": "https://jcenter.bintray.com/org/objenesis/objenesis/2.6/objenesis-2.6-sources.jar"
-            },
-            {
                 "coord": "org.reactivestreams:reactive-streams:1.0.2",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar",
                 "sha256": "cc09ab0b140e0d0496c2165d4b32ce24f4d6446c0a26c5dc77b06bdf99ee8fae",
                 "url": "https://jcenter.bintray.com/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar"
-            },
-            {
-                "coord": "org.reactivestreams:reactive-streams:jar:sources:1.0.2",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2-sources.jar",
-                "sha256": "963a6480f46a64013d0f144ba41c6c6e63c4d34b655761717a436492886f3667",
-                "url": "https://jcenter.bintray.com/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2-sources.jar"
             },
             {
                 "coord": "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
@@ -482,15 +247,6 @@
                 "url": "https://jcenter.bintray.com/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0.jar"
             },
             {
-                "coord": "org.scala-lang.modules:scala-java8-compat_2.12:jar:sources:0.8.0",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0-sources.jar",
-                "sha256": "c0926003987a5c21108748fda401023485085eaa9fe90a41a40bcf67596fff34",
-                "url": "https://jcenter.bintray.com/org/scala-lang/modules/scala-java8-compat_2.12/0.8.0/scala-java8-compat_2.12-0.8.0-sources.jar"
-            },
-            {
                 "coord": "org.scala-lang.modules:scala-parser-combinators_2.12:1.1.1",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8"
@@ -500,27 +256,11 @@
                 "url": "https://jcenter.bintray.com/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.1/scala-parser-combinators_2.12-1.1.1.jar"
             },
             {
-                "coord": "org.scala-lang.modules:scala-parser-combinators_2.12:jar:sources:1.1.1",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.1/scala-parser-combinators_2.12-1.1.1-sources.jar",
-                "sha256": "b005ff7606449700f8ec6d8b5866e1a7d62b80b00b80c005bb4d2677eb353624",
-                "url": "https://jcenter.bintray.com/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.1/scala-parser-combinators_2.12-1.1.1-sources.jar"
-            },
-            {
                 "coord": "org.scala-lang:scala-library:2.12.8",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/org/scala-lang/scala-library/2.12.8/scala-library-2.12.8.jar",
                 "sha256": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
                 "url": "https://jcenter.bintray.com/org/scala-lang/scala-library/2.12.8/scala-library-2.12.8.jar"
-            },
-            {
-                "coord": "org.scala-lang:scala-library:jar:sources:2.12.8",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/org/scala-lang/scala-library/2.12.8/scala-library-2.12.8-sources.jar",
-                "sha256": "11482bcb49b2e47baee89c3b1ae10c6a40b89e2fbb0da2a423e062f444e13492",
-                "url": "https://jcenter.bintray.com/org/scala-lang/scala-library/2.12.8/scala-library-2.12.8-sources.jar"
             },
             {
                 "coord": "org.scala-lang:scala-reflect:2.12.7",
@@ -530,15 +270,6 @@
                 "file": "v1/https/jcenter.bintray.com/org/scala-lang/scala-reflect/2.12.7/scala-reflect-2.12.7.jar",
                 "sha256": "7427d7ee5771e8c36c1db5a09368fa3078f6eceb77d7c797a322a088c5dddb76",
                 "url": "https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.12.7/scala-reflect-2.12.7.jar"
-            },
-            {
-                "coord": "org.scala-lang:scala-reflect:jar:sources:2.12.7",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/scala-lang/scala-reflect/2.12.7/scala-reflect-2.12.7-sources.jar",
-                "sha256": "2b84d948a67fa7f5c4c6cca9c4aefb83bc3bed76db69989d1e2d0977532942c2",
-                "url": "https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.12.7/scala-reflect-2.12.7-sources.jar"
             },
             {
                 "coord": "org.scalaz:scalaz-concurrent_2.12:7.2.27",
@@ -552,17 +283,6 @@
                 "url": "https://jcenter.bintray.com/org/scalaz/scalaz-concurrent_2.12/7.2.27/scalaz-concurrent_2.12-7.2.27.jar"
             },
             {
-                "coord": "org.scalaz:scalaz-concurrent_2.12:jar:sources:7.2.27",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "org.scalaz:scalaz-effect_2.12:jar:sources:7.2.27",
-                    "org.scalaz:scalaz-core_2.12:jar:sources:7.2.27"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/scalaz/scalaz-concurrent_2.12/7.2.27/scalaz-concurrent_2.12-7.2.27-sources.jar",
-                "sha256": "8335b3e8a1130fa6d26deb5e1a111d10b8d06aa03d8c209f93440457bd65ffb3",
-                "url": "https://jcenter.bintray.com/org/scalaz/scalaz-concurrent_2.12/7.2.27/scalaz-concurrent_2.12-7.2.27-sources.jar"
-            },
-            {
                 "coord": "org.scalaz:scalaz-core_2.12:7.2.27",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8"
@@ -570,15 +290,6 @@
                 "file": "v1/https/jcenter.bintray.com/org/scalaz/scalaz-core_2.12/7.2.27/scalaz-core_2.12-7.2.27.jar",
                 "sha256": "a30125affe1b7abb8e51571f04724b7716b8cbab27bb8636303724606c61c662",
                 "url": "https://jcenter.bintray.com/org/scalaz/scalaz-core_2.12/7.2.27/scalaz-core_2.12-7.2.27.jar"
-            },
-            {
-                "coord": "org.scalaz:scalaz-core_2.12:jar:sources:7.2.27",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/scalaz/scalaz-core_2.12/7.2.27/scalaz-core_2.12-7.2.27-sources.jar",
-                "sha256": "25b521fd1e4f37d31ff6e633824cb5572acb907e9ad340f8eb0e2b51ad34d08c",
-                "url": "https://jcenter.bintray.com/org/scalaz/scalaz-core_2.12/7.2.27/scalaz-core_2.12-7.2.27-sources.jar"
             },
             {
                 "coord": "org.scalaz:scalaz-effect_2.12:7.2.27",
@@ -591,28 +302,11 @@
                 "url": "https://jcenter.bintray.com/org/scalaz/scalaz-effect_2.12/7.2.27/scalaz-effect_2.12-7.2.27.jar"
             },
             {
-                "coord": "org.scalaz:scalaz-effect_2.12:jar:sources:7.2.27",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8",
-                    "org.scalaz:scalaz-core_2.12:jar:sources:7.2.27"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/scalaz/scalaz-effect_2.12/7.2.27/scalaz-effect_2.12-7.2.27-sources.jar",
-                "sha256": "2d517256e770857618597f5907d8e1f41b61df56f8b377235730a7451383a383",
-                "url": "https://jcenter.bintray.com/org/scalaz/scalaz-effect_2.12/7.2.27/scalaz-effect_2.12-7.2.27-sources.jar"
-            },
-            {
                 "coord": "org.slf4j:slf4j-api:1.7.26",
                 "dependencies": [],
                 "file": "v1/https/jcenter.bintray.com/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26.jar",
                 "sha256": "6d9e5b86cfd1dd44c676899285b5bb4fa0d371cf583e8164f9c8a0366553242b",
                 "url": "https://jcenter.bintray.com/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26.jar"
-            },
-            {
-                "coord": "org.slf4j:slf4j-api:jar:sources:1.7.26",
-                "dependencies": [],
-                "file": "v1/https/jcenter.bintray.com/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26-sources.jar",
-                "sha256": "9e25ad98a324e6685752fd01fbbd0588ceec5df564e53c49486946a2d19dc482",
-                "url": "https://jcenter.bintray.com/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26-sources.jar"
             },
             {
                 "coord": "org.slf4j:slf4j-simple:1.7.26",
@@ -624,15 +318,6 @@
                 "url": "https://jcenter.bintray.com/org/slf4j/slf4j-simple/1.7.26/slf4j-simple-1.7.26.jar"
             },
             {
-                "coord": "org.slf4j:slf4j-simple:jar:sources:1.7.26",
-                "dependencies": [
-                    "org.slf4j:slf4j-api:jar:sources:1.7.26"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/slf4j/slf4j-simple/1.7.26/slf4j-simple-1.7.26-sources.jar",
-                "sha256": "342b07260d82e5e79e0338daf15cb960b515c6831025d9b5303ca04f0e5a47f5",
-                "url": "https://jcenter.bintray.com/org/slf4j/slf4j-simple/1.7.26/slf4j-simple-1.7.26-sources.jar"
-            },
-            {
                 "coord": "org.typelevel:macro-compat_2.12:1.1.1",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.12.8"
@@ -640,15 +325,6 @@
                 "file": "v1/https/jcenter.bintray.com/org/typelevel/macro-compat_2.12/1.1.1/macro-compat_2.12-1.1.1.jar",
                 "sha256": "8b1514ec99ac9c7eded284367b6c9f8f17a097198a44e6f24488706d66bbd2b8",
                 "url": "https://jcenter.bintray.com/org/typelevel/macro-compat_2.12/1.1.1/macro-compat_2.12-1.1.1.jar"
-            },
-            {
-                "coord": "org.typelevel:macro-compat_2.12:jar:sources:1.1.1",
-                "dependencies": [
-                    "org.scala-lang:scala-library:jar:sources:2.12.8"
-                ],
-                "file": "v1/https/jcenter.bintray.com/org/typelevel/macro-compat_2.12/1.1.1/macro-compat_2.12-1.1.1-sources.jar",
-                "sha256": "c748cbcda2e8828dd25e788617a4c559abf92960ef0f92f9f5d3ea67774c34c8",
-                "url": "https://jcenter.bintray.com/org/typelevel/macro-compat_2.12/1.1.1/macro-compat_2.12-1.1.1-sources.jar"
             }
         ],
         "version": "0.1.0"
