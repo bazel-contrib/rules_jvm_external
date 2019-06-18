@@ -606,7 +606,7 @@ def _coursier_fetch_impl(repository_ctx):
                             protocol = part
                             url.extend([protocol, ":/"])
                     else:
-                        url.extend(["/", part])
+                        url.extend(["/", part.replace("%3A", ":")])
                 artifact.update({"url": "".join(url)})
 
                 # Compute the sha256 of the file downloaded by Coursier
@@ -671,7 +671,8 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "pin",
         """#!/bin/bash
-echo %s""" % dependency_tree_json.replace("\"", "\\\""),
+maven_install_json=$1; shift;
+echo %s > $maven_install_json""" % dependency_tree_json.replace("\"", "\\\""),
         executable = True,
     )
 
