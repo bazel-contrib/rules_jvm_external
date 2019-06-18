@@ -117,7 +117,7 @@ def _genrule_copy_artifact_from_http_file(artifact):
     return "\n".join([
         "genrule(",
         "     name = \"%s_extension\"," % http_file_repository,
-        "     srcs = [\"@%s//file:downloaded\"]," % http_file_repository,
+        "     srcs = [\"@%s//file\"]," % http_file_repository,
         "     outs = [\"%s\"]," % artifact["file"],
         "     cmd = \"cp $< $@\",",
         ")",
