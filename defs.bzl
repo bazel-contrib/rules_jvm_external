@@ -59,6 +59,17 @@ def maven_install(
     for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
         excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
 
+    # The first coursier_fetch generates the @unpinned_maven
+    # repository, which executes Coursier.
+    #
+    # The second coursier_fetch generates the @maven repository generated from
+    # maven_install.json.
+    #
+    # We don't want the two repositories to have edges between them. This allows users
+    # to update the maven_install() declaration in the WORKSPACE, run
+    # @unpinned_maven//:pin / Coursier to update maven_install.json, and bazel build
+    # //... immediately after with the updated artifacts.
+
     coursier_fetch(
         # Name this repository "unpinned_{name}" if the user specified a
         # maven_install.json file. The actual @{name} repository will be
