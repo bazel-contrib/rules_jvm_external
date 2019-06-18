@@ -87,7 +87,7 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     #
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
-    absolute_path_parts = _normalize_to_unix_path(absolute_path).split("v1/")
+    absolute_path_parts = absolute_path.split("v1/")
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
@@ -147,7 +147,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                         artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
                     else:
                         # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                        artifact_relative_path = _normalize_to_unix_path(artifact_path)
+                        artifact_relative_path = artifact_path
                     target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
                     if repository_ctx.attr.maven_install_json:
@@ -180,7 +180,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                 artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
             else:
                 # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                artifact_relative_path = _normalize_to_unix_path(artifact_path)
+                artifact_relative_path = artifact_path
 
             # 1. Generate the rule class.
             #
@@ -580,17 +580,22 @@ def _coursier_fetch_impl(repository_ctx):
         # which encodes the URL components for the protocol, domain, and path to
         # the file.
         for artifact in dep_tree["dependencies"]:
-            url = []
-            protocol = None
             if artifact["file"] != None:
-                for part in _normalize_to_unix_path(artifact["file"]).split("/"):
+                artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
+
+                url = []
+                protocol = None
+                for part in artifact["file"].split("/"):
                     if protocol == None:
                         if part == "http" or part == "https":
                             protocol = part
                             url.extend([protocol, ":/"])
                     else:
-                        url.extend(["/", part.replace("%3A", ":")])
-                artifact.update({"url": "".join(url)})
+                        url.extend(["/", part])
+
+                # Coursier encodes the colon ':' character as "%3A" in the
+                # filepath. Convert it back to colon since it's used for ports.
+                artifact.update({"url": "".join(url).replace("%3A", ":")})
 
                 # Compute the sha256 of the file downloaded by Coursier
                 exec_result = repository_ctx.execute([
@@ -599,11 +604,11 @@ def _coursier_fetch_impl(repository_ctx):
                     repository_ctx.path(artifact["file"]),
                     "artifact.sha256",
                 ])
+
                 if exec_result.return_code != 0:
                     fail("Error while obtaining the sha256 checksum of "
-                         + artifact["file"]
-                         + ": "
-                         + exec_result.stderr)
+                         + artifact["file"] + ": " + exec_result.stderr)
+
                 artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -640,14 +645,16 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
-    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
-    repository_ctx.file(
-        "pin",
-        """#!/bin/bash
-set -euo pipefail
-echo %s | python -m json.tool > $BUILD_WORKSPACE_DIRECTORY/maven_install.json""" % dependency_tree_json.replace("\"", "\\\""),
-        executable = True,
-    )
+    if not repository_ctx.attr.maven_install_json:
+        # Create the maven_install.json export script for unpinned repositories.
+        dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
+        repository_ctx.template("pin", repository_ctx.attr._pin,
+            {
+                "{dependency_tree_json}": dependency_tree_json.replace("\"", "\\\""),
+                "{repository_name}": repository_ctx.name.lstrip("unpinned_"),
+            },
+            executable = True,
+        )
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
@@ -670,6 +677,7 @@ coursier_fetch = repository_rule(
     attrs = {
         "_sha256_tool": attr.label(default = "@bazel_tools//tools/build_defs/hash:sha256.py"),
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
+        "_pin": attr.label(default = "//:private/pin.sh"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
