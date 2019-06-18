@@ -553,7 +553,7 @@ def _coursier_fetch_impl(repository_ctx):
                 repository_ctx.path("imported_maven_install.json")))["dependency_tree"]
         http_files = [
             "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
-            "def maven_load():",
+            "def pinned_maven_install():",
         ]
         for artifact in dep_tree["dependencies"]:
             if artifact.get("url") != None:
