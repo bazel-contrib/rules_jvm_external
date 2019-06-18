@@ -483,7 +483,7 @@ def _coursier_fetch_impl(repository_ctx):
         excluded_artifacts.append(json_parse(a))
 
     if repository_ctx.attr.maven_install_json:
-        # Read Coursier state from maven_install.json
+        # Read Coursier state from maven_install.json.
         repository_ctx.symlink(
             repository_ctx.path(repository_ctx.attr.maven_install_json),
             repository_ctx.path("imported_maven_install.json")
@@ -491,6 +491,12 @@ def _coursier_fetch_impl(repository_ctx):
         dep_tree = json_parse(
             repository_ctx.read(
                 repository_ctx.path("imported_maven_install.json")))["dependency_tree"]
+
+        # Create the list of http_file repositories for each of the artifacts
+        # in maven_install.json. This will be loaded additionally like so:
+        #
+        # load("@maven//:defs.bzl", "pinned_maven_install")
+        # pinned_maven_install()
         http_files = [
             "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
             "def pinned_maven_install():",
@@ -507,6 +513,10 @@ def _coursier_fetch_impl(repository_ctx):
                 ])
         repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     else:
+        # Not using maven_install.json, so we resolve and fetch from scratch.
+        # This takes significantly longer as it doesn't rely on any local
+        # caches and uses Coursier's own download mechanisms.
+
         # Download Coursier's standalone (deploy) jar from Maven repositories.
         repository_ctx.download([
             "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
@@ -580,9 +590,15 @@ def _coursier_fetch_impl(repository_ctx):
         # which encodes the URL components for the protocol, domain, and path to
         # the file.
         for artifact in dep_tree["dependencies"]:
+            # Some artifacts don't contain files; they are just parent artifacts
+            # to other artifacts.
             if artifact["file"] != None:
+                # Normalize paths in place here.
                 artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
 
+                # Coursier saves the artifacts into a subdirectory structure
+                # that mirrors the URL where the artifact's fetched from. Using
+                # this, we can reconstruct the original URL.
                 url = []
                 protocol = None
                 for part in artifact["file"].split("/"):
@@ -597,7 +613,7 @@ def _coursier_fetch_impl(repository_ctx):
                 # filepath. Convert it back to colon since it's used for ports.
                 artifact.update({"url": "".join(url).replace("%3A", ":")})
 
-                # Compute the sha256 of the file downloaded by Coursier
+                # Compute the sha256 of the file.
                 exec_result = repository_ctx.execute([
                     "python",
                     repository_ctx.path(repository_ctx.attr._sha256_tool),
@@ -609,6 +625,7 @@ def _coursier_fetch_impl(repository_ctx):
                     fail("Error while obtaining the sha256 checksum of "
                          + artifact["file"] + ": " + exec_result.stderr)
 
+                # Update the SHA-256 checksum in-place.
                 artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -645,6 +662,11 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+    # If this is an unpinned repository, expose the script to let users pin the
+    # state of the fetch in `<workspace_root>/maven_install.json`.
+    #
+    # $ bazel run @unpinned_maven//:pin
+    #
     if not repository_ctx.attr.maven_install_json:
         # Create the maven_install.json export script for unpinned repositories.
         dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"

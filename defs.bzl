@@ -40,6 +40,10 @@ def maven_install(
         excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
 
     coursier_fetch(
+        # Name this repository "unpinned_{name}" if the user specified a
+        # maven_install.json file. The actual @{name} repository will be
+        # created from the maven_install.json file in the coursier_fetch
+        # invocation after this.
         name = name if maven_install_json == None else "unpinned_" + name,
         repositories = repositories_json_strings,
         artifacts = artifacts_json_strings,
@@ -51,6 +55,7 @@ def maven_install(
     )
 
     if maven_install_json != None:
+        # Create the repository generated from a maven_install.json file.
         coursier_fetch(
             name = name,
             artifacts = artifacts_json_strings,
