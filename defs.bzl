@@ -25,8 +25,28 @@ def maven_install(
         fetch_sources = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
-        generate_compat_repositories = False,
+        generate_compat_repositories = False
         maven_install_json = None):
+    """Resolves and fetches artifacts transitively from Maven repositories.
+
+    This macro runs a repository rule that invokes the Coursier CLI to resolve
+    and fetch Maven artifacts transitively.
+
+    Args:
+      name: A unique name for this Bazel external repository.
+      repositories: A list of Maven repository URLs, specified in lookup order.
+
+        Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
+      artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
+      fetch_sources: Additionally fetch source JARs.
+      use_unsafe_shared_cache: Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is
+        currently unable to detect modifications to the cache.
+      excluded_artifacts: A list of Maven artifact coordinates in the form of `group:artifact` to be
+        excluded from the transitive dependencies.
+      generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
+        artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
+        `@com_google_guava_guava//jar`.
+    """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(json.write_repository_spec(repository))
