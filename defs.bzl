@@ -25,7 +25,7 @@ def maven_install(
         fetch_sources = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
-        generate_compat_repositories = False
+        generate_compat_repositories = False,
         maven_install_json = None):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
