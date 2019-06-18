@@ -494,9 +494,12 @@ def _handle_next_char(checker, json_string, char_index):
             _set_state(checker, VA)
 
         else:
+            first_char_index = char_index - 200 if char_index - 200 > 0 else 0
+            last_char_index = char_index + 200
             return _reject(
                 checker,
-                "invalid action: %s  on input '%s'" % (next_state, next_json_char))
+                "Could not parse the input %s at: \n...\n%s\n..." %
+                    (json_string[char_index:char_index + 15], json_string[first_char_index:last_char_index].strip()))
 
     _add_next_char_to_state(checker, next_json_char)
 
@@ -664,9 +667,9 @@ def json_parse(json_string, fail_on_invalid = True, **kwargs):
     if (not is_valid):
         invalid_msgs = [parser["rejected_reason"]]
         if (fail_on_invalid):
-            fail("parsing JSON failed:\n%s\n\nparser:\n%s" % ("\n".join(invalid_msgs), parser))
+            fail("JSON parsing failed.\n%s\n\nparser:\n%s" % ("\n".join(invalid_msgs), parser))
         else:
-            print("parsing JSON failed:\n%s" % "\n".join(invalid_msgs))
+            print("JSON parsing failed. %s" % "\n".join(invalid_msgs))
             return None
 
     return parser["reduction_stack"][0][0]["reduction"]

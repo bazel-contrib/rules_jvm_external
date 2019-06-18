@@ -493,9 +493,20 @@ def _coursier_fetch_impl(repository_ctx):
             repository_ctx.path(repository_ctx.attr.maven_install_json),
             repository_ctx.path("imported_maven_install.json")
         )
-        dep_tree = json_parse(
+        maven_install_json_content = json_parse(
             repository_ctx.read(
-                repository_ctx.path("imported_maven_install.json")))["dependency_tree"]
+                repository_ctx.path("imported_maven_install.json")),
+            fail_on_invalid = False,
+        )
+        if maven_install_json_content == None:
+            fail("Failed to parse %s. Is this file valid JSON?" % repository_ctx.path(repository_ctx.attr.maven_install_json))
+
+        if maven_install_json_content.get("dependency_tree") == None:
+            fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json)
+                 + "It is not a valid maven_install.json file. Has this "
+                 + "file been modified manually?")
+
+        dep_tree = maven_install_json_content["dependency_tree"]
 
         # Create the list of http_file repositories for each of the artifacts
         # in maven_install.json. This will be loaded additionally like so:
