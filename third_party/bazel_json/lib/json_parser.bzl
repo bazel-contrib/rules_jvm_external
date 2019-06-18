@@ -498,7 +498,7 @@ def _handle_next_char(checker, json_string, char_index):
             last_char_index = char_index + 200
             return _reject(
                 checker,
-                "Could not parse the input %s at: \n...\n%s\n..." %
+                "Could not parse the input:\n\n%s...\n\n at:\n\n%s...\n" %
                     (json_string[char_index:char_index + 15], json_string[first_char_index:last_char_index].strip()))
 
     _add_next_char_to_state(checker, next_json_char)
