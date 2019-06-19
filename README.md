@@ -12,7 +12,7 @@ Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bd
 * Custom Maven repositories
 * Private Maven repositories with HTTP Basic Authentication
 * Artifact version resolution with Coursier
-* Integration with Bazel's downloader and caching mechanisms
+* Integration with Bazel's downloader and caching mechanisms for sharing artifacts across Bazel workspaces
 * Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file
 * Versionless target labels for simpler dependency management
 * Ability to declare multiple sets of versioned artifacts
