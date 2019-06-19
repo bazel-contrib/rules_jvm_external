@@ -474,6 +474,10 @@ def _windows_check(repository_ctx):
         repository_ctx.execute([bash, "-lc", "echo", "works"])
 
 def _pinned_coursier_fetch_impl(repository_ctx):
+    if not repository_ctx.attr.maven_install_json:
+        fail("Please specify the file label to maven_install.json (e.g."
+             + "//:maven_install.json).")
+
     _windows_check(repository_ctx)
 
     artifacts = []
@@ -491,7 +495,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         fail_on_invalid = False,
     )
     if maven_install_json_content == None:
-        fail("Failed to parse %s. Is this file valid JSON?" % repository_ctx.path(repository_ctx.attr.maven_install_json))
+        fail("Failed to parse %s. Is this file valid JSON? The file may have been corrupted." % repository_ctx.path(repository_ctx.attr.maven_install_json)
+             + "Consider regenerating maven_install.json with the following steps:\n"
+             + "  1. Remove the maven_install_json attribute from your `maven_install` declaration for `@%s`.\n" % repository_ctx.name
+             + "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin"
+             + "  3. Add `maven_install_json = \"//:maven_install.json\"` into your `maven_install` declaration.")
 
     if maven_install_json_content.get("dependency_tree") == None:
         fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json)
@@ -554,6 +562,23 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         ),
         False,  # not executable
     )
+
+    # Generate a compatibility layer of external repositories for all jar artifacts.
+    if repository_ctx.attr.generate_compat_repositories:
+        compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
+        compat_repositories_bzl.append("def compat_repositories():")
+        for versionless_target_label in jar_versionless_target_labels:
+            compat_repositories_bzl.extend([
+                "    compat_repository(",
+                "        name = \"%s\"," % versionless_target_label,
+                "        generating_repository = \"%s\"," % repository_ctx.name,
+                "    )",
+            ])
+            repository_ctx.file(
+                "compat.bzl",
+                "\n".join(compat_repositories_bzl) + "\n",
+                False,  # not executable
+            )
 
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
@@ -731,6 +756,8 @@ def _coursier_fetch_impl(repository_ctx):
         },
         executable = True,
     )
+
+    repository_ctx.file("defs.bzl", "def pinned_maven_install():\n    pass", executable = False)
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:

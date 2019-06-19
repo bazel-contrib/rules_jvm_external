@@ -669,7 +669,7 @@ def json_parse(json_string, fail_on_invalid = True, **kwargs):
         if (fail_on_invalid):
             fail("JSON parsing failed.\n%s\n\nparser:\n%s" % ("\n".join(invalid_msgs), parser))
         else:
-            print("JSON parsing failed. %s" % "\n".join(invalid_msgs))
+            print("JSON parsing failed. %s" % "\n".join([str(msg) for msg in invalid_msgs]))
             return None
 
     return parser["reduction_stack"][0][0]["reduction"]
