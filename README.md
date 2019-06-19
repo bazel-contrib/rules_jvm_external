@@ -114,62 +114,39 @@ caches files on their sha256 checksums. It also improves resiliency and
 integrity by tracking the sha256 checksums and original artifact urls in the
 JSON file.
 
-To get started with pinning artifacts, first create an empty
-`maven_install.json` file. Then, specify `maven_install_json` in
-`maven_install`:
+To get started with pinning artifacts, run the following command:
+
+```python
+$ bazel run @maven//:pin
+```
+
+Then, specify `maven_install_json` in `maven_install` and load
+`pinned_maven_install` from `@maven//:defs.bzl`:
 
 ```python
 maven_install(
     # artifacts, repositories, ...
     maven_install_json = "//:maven_install.json",
 )
+
+load("@maven//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+```
+
+Whenever you make a change to the list of `artifacts` or `repositories` and want
+to update `maven_install.json`, run this command to re-pin the unpinned `@maven`
+repository:
+
+```
+$ bazel run @unpinned_maven//:pin
 ```
 
 By specifying `maven_install_json`, an additional `@unpinned_maven` (or
 `unpinned_<your_maven_install_name>`) repo will be created. For example, if your
 `maven_install` is named `@foo`, `@unpinned_foo` will be created.
 
-The `@unpinned_maven` repository accompanies the main `@maven` repository and
-contains a tool called `pin`. `pin` is used to pin the artifacts resolved by
-Coursier into a `maven_install.json` file.
-
-```
-$ bazel run @unpinned_maven//:pin
-Pinned resolved artifacts for @maven in /path/to/maven_install.json. This file
-should be checked in your version control system. Next, please add the following
-snippet to your WORKSPACE file if you have not done so.
----
-
-load("@maven//:defs.bzl", "pinned_maven_install")
-pinned_maven_install()
-
----
-```
-
-Finally, load `pinned_maven_install` from `@maven//:defs.bzl` in the WORKSPACE
-file:
-
-```python
-maven_install(
-    # artifacts, repositories, ...
-    maven_install_json = "//:maven_install.json",
-)
-
-load("@maven//:defs.bzl", "pinned_maven_install")
-pinned_maven_install()
-```
-
 Since all artifacts are stored locally in Bazel's cache, it means that **fully
 offline builds are possible** after the initial `bazel fetch @maven//...`.
-
-Whenever you make a change to the list of `artifacts` or `repositories`, you
-will have to rerun
-
-```
-$ bazel run @unpinned_maven//:pin
-```
-
-to update the pinned artifacts.
 
 ## Advanced usage
 
