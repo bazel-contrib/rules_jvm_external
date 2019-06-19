@@ -59,7 +59,9 @@ def _strip_packaging_and_classifier_and_version(coord):
     return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
 
 def _escape(string):
-    return string.replace(".", "_").replace("-", "_").replace(":", "_").replace("/", "_").replace("[", "").replace("]", "").split(",")[0]
+    for char in [".", "-", ":", "/", "+"]:
+        string = string.replace(char, "_")
+    return string.replace("[", "").replace("]", "").split(",")[0]
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
