@@ -469,8 +469,8 @@ def _windows_check(repository_ctx):
         bash = repository_ctx.os.environ.get("BAZEL_SH")
         if (bash == None):
             fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
         repository_ctx.execute([bash, "-lc", "echo", "works"])
 
 def _pinned_coursier_fetch_impl(repository_ctx):
@@ -566,6 +566,11 @@ def _coursier_fetch_impl(repository_ctx):
         "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
     ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
+    # Try running coursier once
+    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
+    if exec_result.return_code != 0:
+        fail("Unable to run coursier: " + exec_result.stderr)
+
     _windows_check(repository_ctx)
 
     # Deserialize the spec blobs
@@ -576,11 +581,6 @@ def _coursier_fetch_impl(repository_ctx):
     artifacts = []
     for a in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(a))
-
-    # Try running coursier once
-    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
-    if exec_result.return_code != 0:
-        fail("Unable to run coursier: " + exec_result.stderr)
 
     excluded_artifacts = []
     for a in repository_ctx.attr.excluded_artifacts:
@@ -751,9 +751,7 @@ def _coursier_fetch_impl(repository_ctx):
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
-        "_sha256_tool": attr.label(default = "@bazel_tools//tools/build_defs/hash:sha256.py"),
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
-        "_pin": attr.label(default = "//:private/pin.sh"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
