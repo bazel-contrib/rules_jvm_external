@@ -76,6 +76,16 @@
                 "url": "https://maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1.aar"
             },
             {
+                "coord": "ch.epfl.scala:compiler-interface:1.3.0-M4+20-c8a2f9bd",
+                "dependencies": [
+                    "com.google.protobuf:protobuf-java:3.7.0",
+                    "org.scala-sbt:util-interface:1.3.0-M4"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
+                "sha256": "b5080bbfd4dc2beef489e4a7153b1b6099724ae7860b720e64d2b3b3b96570a5",
+                "url": "https://repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar"
+            },
+            {
                 "coord": "com.android.support:animated-vector-drawable:aar:28.0.0",
                 "dependencies": [
                     "android.arch.lifecycle:viewmodel:aar:1.1.1",
@@ -979,6 +989,13 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar",
                 "sha256": "a896857d07845d38c7dc5bbc0457b6d9b0f62ecffda010e5e9ec12d561f676d3",
                 "url": "https://repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar"
+            },
+            {
+                "coord": "com.google.protobuf:protobuf-java:3.7.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
+                "sha256": "dc7f93e3a3dc2c11be5ba9672af3e26410f0a3289312dbf2260d4d8a0c711a51",
+                "url": "https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar"
             },
             {
                 "coord": "com.googlecode.matrix-toolkits-java:mtj:1.0.4",
@@ -2006,6 +2023,13 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar",
                 "sha256": "0b3d6fd42958ee98715ba2ec5fe221f4ca1e694d7c981b0ae0cd68e97baf6dce",
                 "url": "https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.12/scala-library-2.11.12.jar"
+            },
+            {
+                "coord": "org.scala-sbt:util-interface:1.3.0-M4",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.0-M4/util-interface-1.3.0-M4.jar",
+                "sha256": "7f7a8f406bb3991f462fb3ebbdf227c73f5364b402c10114a898d89504f60b02",
+                "url": "https://repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.0-M4/util-interface-1.3.0-M4.jar"
             },
             {
                 "coord": "org.slf4j:slf4j-api:1.7.16",

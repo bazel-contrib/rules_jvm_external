@@ -130,6 +130,8 @@ maven_install(
         "com.google.android.gms:play-services-base:16.1.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-484278260
         "org.apache.flink:flink-test-utils_2.12:1.8.0",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/170
+        "ch.epfl.scala:compiler-interface:1.3.0-M4+20-c8a2f9bd",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
