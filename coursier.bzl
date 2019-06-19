@@ -757,8 +757,6 @@ def _coursier_fetch_impl(repository_ctx):
         executable = True,
     )
 
-    repository_ctx.file("defs.bzl", "def pinned_maven_install():\n    pass", executable = False)
-
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
         compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
