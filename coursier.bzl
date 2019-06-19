@@ -556,6 +556,16 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     )
 
 def _coursier_fetch_impl(repository_ctx):
+    # Not using maven_install.json, so we resolve and fetch from scratch.
+    # This takes significantly longer as it doesn't rely on any local
+    # caches and uses Coursier's own download mechanisms.
+
+    # Download Coursier's standalone (deploy) jar from Maven repositories.
+    repository_ctx.download([
+        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
+        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
+    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+
     _windows_check(repository_ctx)
 
     # Deserialize the spec blobs
@@ -566,16 +576,6 @@ def _coursier_fetch_impl(repository_ctx):
     artifacts = []
     for a in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(a))
-
-    # Not using maven_install.json, so we resolve and fetch from scratch.
-    # This takes significantly longer as it doesn't rely on any local
-    # caches and uses Coursier's own download mechanisms.
-
-    # Download Coursier's standalone (deploy) jar from Maven repositories.
-    repository_ctx.download([
-        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
-    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
     # Try running coursier once
     exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
