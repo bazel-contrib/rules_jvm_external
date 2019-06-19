@@ -116,9 +116,11 @@ JSON file.
 
 To get started with pinning artifacts, run the following command:
 
-```python
+```
 $ bazel run @maven//:pin
 ```
+
+This generates a `maven_install.json` in the root of your Bazel workspace.
 
 Then, specify `maven_install_json` in `maven_install` and load
 `pinned_maven_install` from `@maven//:defs.bzl`:
