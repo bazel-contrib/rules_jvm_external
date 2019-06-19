@@ -498,7 +498,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         fail("Failed to parse %s. Is this file valid JSON? The file may have been corrupted." % repository_ctx.path(repository_ctx.attr.maven_install_json)
              + "Consider regenerating maven_install.json with the following steps:\n"
              + "  1. Remove the maven_install_json attribute from your `maven_install` declaration for `@%s`.\n" % repository_ctx.name
-             + "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin"
+             + "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin" % repository_ctx.name
              + "  3. Add `maven_install_json = \"//:maven_install.json\"` into your `maven_install` declaration.")
 
     if maven_install_json_content.get("dependency_tree") == None:
