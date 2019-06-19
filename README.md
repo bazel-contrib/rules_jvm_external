@@ -115,6 +115,9 @@ caches files on their sha256 checksums. It also improves resiliency and
 integrity by tracking the sha256 checksums and original artifact urls in the
 JSON file.
 
+Since all artifacts are persisted locally in Bazel's cache, it means that
+**fully offline builds are possible** after the initial `bazel fetch @maven//...`.
+
 To get started with pinning artifacts, run the following command:
 
 ```
@@ -144,12 +147,11 @@ repository:
 $ bazel run @unpinned_maven//:pin
 ```
 
-By specifying `maven_install_json`, an additional `@unpinned_maven` (or
-`unpinned_<your_maven_install_name>`) repo will be created. For example, if your
-`maven_install` is named `@foo`, `@unpinned_foo` will be created.
-
-Since all artifacts are stored locally in Bazel's cache, it means that **fully
-offline builds are possible** after the initial `bazel fetch @maven//...`.
+When using artifact pinning, each `maven_install` repository (e.g. `@maven`)
+will be accompanied by an unpinned repository. This repository name has the
+`@unpinned_` prefix (e.g.`@unpinned_maven` or
+`@unpinned_<your_maven_install_name>`). For example, if your `maven_install` is
+named `@foo`, `@unpinned_foo` will be created.
 
 ## Advanced usage
 
