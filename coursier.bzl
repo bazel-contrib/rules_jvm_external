@@ -469,9 +469,9 @@ def _windows_check(repository_ctx):
         bash = repository_ctx.os.environ.get("BAZEL_SH")
         if (bash == None):
             fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                    "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                    "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
-            repository_ctx.execute([bash, "-lc", "echo", "works"])
+                "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+                "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+        repository_ctx.execute([bash, "-lc", "echo", "works"])
 
 def _pinned_coursier_fetch_impl(repository_ctx):
     _windows_check(repository_ctx)
