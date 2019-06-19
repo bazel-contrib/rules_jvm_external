@@ -137,7 +137,7 @@ maven_install(
         "https://maven.google.com",
     ],
     generate_compat_repositories = True,
-    maven_install_json = "//:regression_testing.json",
+    maven_install_json = "//:regression_testing_install.json",
 )
 
 load("@regression_testing//:defs.bzl", "pinned_maven_install")
