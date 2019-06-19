@@ -600,8 +600,8 @@ def _coursier_fetch_impl(repository_ctx):
         if "exclusions" in a:
             for e in a["exclusions"]:
                 exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
-                                        "--" +
-                                        ":".join([e["group"], e["artifact"]]))
+                                       "--" +
+                                       ":".join([e["group"], e["artifact"]]))
 
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
