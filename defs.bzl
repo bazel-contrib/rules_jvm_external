@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_jvm_external//:coursier.bzl", "coursier_fetch")
+load("@rules_jvm_external//:coursier.bzl", "coursier_fetch", "pinned_coursier_fetch")
 load("@rules_jvm_external//:specs.bzl", "json", "parse")
 
 DEFAULT_REPOSITORY_NAME = "maven"
@@ -89,10 +89,9 @@ def maven_install(
 
     if maven_install_json != None:
         # Create the repository generated from a maven_install.json file.
-        coursier_fetch(
+        pinned_coursier_fetch(
             name = name,
             artifacts = artifacts_json_strings,
-            repositories = repositories_json_strings,
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
             generate_compat_repositories = generate_compat_repositories,

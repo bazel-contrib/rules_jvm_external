@@ -153,7 +153,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                 artifact_path = artifact["file"]
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
-                    if repository_ctx.attr.use_unsafe_shared_cache:
+                    if not repository_ctx.attr.maven_install_json and repository_ctx.attr.use_unsafe_shared_cache:
                         # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
                         artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
                     else:
@@ -178,7 +178,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
         elif target_label not in seen_imports and artifact_path != None:
             seen_imports[target_label] = True
 
-            if repository_ctx.attr.use_unsafe_shared_cache:
+            if not repository_ctx.attr.maven_install_json and repository_ctx.attr.use_unsafe_shared_cache:
                 # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
                 artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
             else:
@@ -459,7 +459,7 @@ def _get_java_proxy_args(repository_ctx):
 
     return proxy_args
 
-def _coursier_fetch_impl(repository_ctx):
+def _windows_check(repository_ctx):
     # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
     # will not be around for long.
     #
@@ -469,179 +469,57 @@ def _coursier_fetch_impl(repository_ctx):
         bash = repository_ctx.os.environ.get("BAZEL_SH")
         if (bash == None):
             fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
-        repository_ctx.execute([bash, "-lc", "echo", "works"])
+                    "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
+                    "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+            repository_ctx.execute([bash, "-lc", "echo", "works"])
 
-    # Deserialize the spec blobs
-    repositories = []
-    for repository in repository_ctx.attr.repositories:
-        repositories.append(json_parse(repository))
+def _pinned_coursier_fetch_impl(repository_ctx):
+    _windows_check(repository_ctx)
 
     artifacts = []
     for a in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(a))
 
-    excluded_artifacts = []
-    for a in repository_ctx.attr.excluded_artifacts:
-        excluded_artifacts.append(json_parse(a))
+    # Read Coursier state from maven_install.json.
+    repository_ctx.symlink(
+        repository_ctx.path(repository_ctx.attr.maven_install_json),
+        repository_ctx.path("imported_maven_install.json")
+    )
+    maven_install_json_content = json_parse(
+        repository_ctx.read(
+            repository_ctx.path("imported_maven_install.json")),
+        fail_on_invalid = False,
+    )
+    if maven_install_json_content == None:
+        fail("Failed to parse %s. Is this file valid JSON?" % repository_ctx.path(repository_ctx.attr.maven_install_json))
 
-    if repository_ctx.attr.maven_install_json:
-        # Read Coursier state from maven_install.json.
-        repository_ctx.symlink(
-            repository_ctx.path(repository_ctx.attr.maven_install_json),
-            repository_ctx.path("imported_maven_install.json")
-        )
-        maven_install_json_content = json_parse(
-            repository_ctx.read(
-                repository_ctx.path("imported_maven_install.json")),
-            fail_on_invalid = False,
-        )
-        if maven_install_json_content == None:
-            fail("Failed to parse %s. Is this file valid JSON?" % repository_ctx.path(repository_ctx.attr.maven_install_json))
+    if maven_install_json_content.get("dependency_tree") == None:
+        fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json)
+                + "It is not a valid maven_install.json file. Has this "
+                + "file been modified manually?")
 
-        if maven_install_json_content.get("dependency_tree") == None:
-            fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json)
-                 + "It is not a valid maven_install.json file. Has this "
-                 + "file been modified manually?")
+    dep_tree = maven_install_json_content["dependency_tree"]
 
-        dep_tree = maven_install_json_content["dependency_tree"]
-
-        # Create the list of http_file repositories for each of the artifacts
-        # in maven_install.json. This will be loaded additionally like so:
-        #
-        # load("@maven//:defs.bzl", "pinned_maven_install")
-        # pinned_maven_install()
-        http_files = [
-            "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
-            "def pinned_maven_install():",
-        ]
-        for artifact in dep_tree["dependencies"]:
-            if artifact.get("url") != None:
-                http_file_repository_name = _escape(artifact["coord"])
-                http_files.extend([
-                    "    http_file(",
-                    "        name = \"%s\"," % http_file_repository_name,
-                    "        urls = [\"%s\"]," % artifact["url"],
-                    "        sha256 = \"%s\"," % artifact["sha256"],
-                    "    )",
-                ])
-        repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
-    else:
-        # Not using maven_install.json, so we resolve and fetch from scratch.
-        # This takes significantly longer as it doesn't rely on any local
-        # caches and uses Coursier's own download mechanisms.
-
-        # Download Coursier's standalone (deploy) jar from Maven repositories.
-        repository_ctx.download([
-            "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-            "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
-        ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
-
-        # Try running coursier once
-        exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
-        if exec_result.return_code != 0:
-            fail("Unable to run coursier: " + exec_result.stderr)
-
-        artifact_coordinates = []
-
-        # Set up artifact exclusion, if any. From coursier fetch --help:
-        #
-        # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
-        # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
-        # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
-        # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
-        exclusion_lines = []
-        for a in artifacts:
-            artifact_coordinates.append(utils.artifact_coordinate(a))
-            if "exclusions" in a:
-                for e in a["exclusions"]:
-                    exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
-                                        "--" +
-                                        ":".join([e["group"], e["artifact"]]))
-
-        cmd = _generate_coursier_command(repository_ctx)
-        cmd.extend(["fetch"])
-        cmd.extend(artifact_coordinates)
-        cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
-        cmd.append("--quiet")
-        cmd.append("--no-default")
-        cmd.extend(["--json-output-file", "dep-tree.json"])
-
-        if repository_ctx.attr.fail_on_missing_checksum:
-            cmd.extend(["--checksum", "SHA-1,MD5"])
-        else:
-            cmd.extend(["--checksum", "SHA-1,MD5,None"])
-
-        if len(exclusion_lines) > 0:
-            repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-            cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-        for repository in repositories:
-            cmd.extend(["--repository", utils.repo_url(repository)])
-        for a in excluded_artifacts:
-            cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
-        if not repository_ctx.attr.use_unsafe_shared_cache:
-            cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
-        if repository_ctx.attr.fetch_sources:
-            cmd.append("--sources")
-            cmd.append("--default=true")
-        if _is_windows(repository_ctx):
-            # Unfortunately on Windows, coursier crashes while trying to acquire the
-            # cache's .structure.lock file while running in parallel. This does not
-            # happen on *nix.
-            cmd.extend(["--parallel", "1"])
-
-        repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-        exec_result = repository_ctx.execute(cmd)
-        if (exec_result.return_code != 0):
-            fail("Error while fetching artifact with coursier: " + exec_result.stderr)
-
-        # Once coursier finishes a fetch, it generates a tree of artifacts and their
-        # transitive dependencies in a JSON file. We use that as the source of truth
-        # to generate the repository's BUILD file.
-        dep_tree = json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json")))
-
-        # Reconstruct the original URLs from the relative path to the artifact,
-        # which encodes the URL components for the protocol, domain, and path to
-        # the file.
-        for artifact in dep_tree["dependencies"]:
-            # Some artifacts don't contain files; they are just parent artifacts
-            # to other artifacts.
-            if artifact["file"] != None:
-                # Normalize paths in place here.
-                artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
-
-                # Coursier saves the artifacts into a subdirectory structure
-                # that mirrors the URL where the artifact's fetched from. Using
-                # this, we can reconstruct the original URL.
-                url = []
-                protocol = None
-                for part in artifact["file"].split("/"):
-                    if protocol == None:
-                        if part == "http" or part == "https":
-                            protocol = part
-                            url.extend([protocol, ":/"])
-                    else:
-                        url.extend(["/", part])
-
-                # Coursier encodes the colon ':' character as "%3A" in the
-                # filepath. Convert it back to colon since it's used for ports.
-                artifact.update({"url": "".join(url).replace("%3A", ":")})
-
-                # Compute the sha256 of the file.
-                exec_result = repository_ctx.execute([
-                    "python",
-                    repository_ctx.path(repository_ctx.attr._sha256_tool),
-                    repository_ctx.path(artifact["file"]),
-                    "artifact.sha256",
-                ])
-
-                if exec_result.return_code != 0:
-                    fail("Error while obtaining the sha256 checksum of "
-                         + artifact["file"] + ": " + exec_result.stderr)
-
-                # Update the SHA-256 checksum in-place.
-                artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
+    # Create the list of http_file repositories for each of the artifacts
+    # in maven_install.json. This will be loaded additionally like so:
+    #
+    # load("@maven//:defs.bzl", "pinned_maven_install")
+    # pinned_maven_install()
+    http_files = [
+        "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
+        "def pinned_maven_install():",
+    ]
+    for artifact in dep_tree["dependencies"]:
+        if artifact.get("url") != None:
+            http_file_repository_name = _escape(artifact["coord"])
+            http_files.extend([
+                "    http_file(",
+                "        name = \"%s\"," % http_file_repository_name,
+                "        urls = [\"%s\"]," % artifact["url"],
+                "        sha256 = \"%s\"," % artifact["sha256"],
+                "    )",
+            ])
+    repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
 
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = _generate_imports(
@@ -677,21 +555,185 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
-    # If this is an unpinned repository, expose the script to let users pin the
-    # state of the fetch in `<workspace_root>/maven_install.json`.
+def _coursier_fetch_impl(repository_ctx):
+    _windows_check(repository_ctx)
+
+    # Deserialize the spec blobs
+    repositories = []
+    for repository in repository_ctx.attr.repositories:
+        repositories.append(json_parse(repository))
+
+    artifacts = []
+    for a in repository_ctx.attr.artifacts:
+        artifacts.append(json_parse(a))
+
+    # Not using maven_install.json, so we resolve and fetch from scratch.
+    # This takes significantly longer as it doesn't rely on any local
+    # caches and uses Coursier's own download mechanisms.
+
+    # Download Coursier's standalone (deploy) jar from Maven repositories.
+    repository_ctx.download([
+        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
+        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
+    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+
+    # Try running coursier once
+    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
+    if exec_result.return_code != 0:
+        fail("Unable to run coursier: " + exec_result.stderr)
+
+    excluded_artifacts = []
+    for a in repository_ctx.attr.excluded_artifacts:
+        excluded_artifacts.append(json_parse(a))
+
+    artifact_coordinates = []
+
+    # Set up artifact exclusion, if any. From coursier fetch --help:
+    #
+    # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
+    # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
+    # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
+    # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
+    exclusion_lines = []
+    for a in artifacts:
+        artifact_coordinates.append(utils.artifact_coordinate(a))
+        if "exclusions" in a:
+            for e in a["exclusions"]:
+                exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
+                                    "--" +
+                                    ":".join([e["group"], e["artifact"]]))
+
+    cmd = _generate_coursier_command(repository_ctx)
+    cmd.extend(["fetch"])
+    cmd.extend(artifact_coordinates)
+    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
+    cmd.append("--quiet")
+    cmd.append("--no-default")
+    cmd.extend(["--json-output-file", "dep-tree.json"])
+
+    if repository_ctx.attr.fail_on_missing_checksum:
+        cmd.extend(["--checksum", "SHA-1,MD5"])
+    else:
+        cmd.extend(["--checksum", "SHA-1,MD5,None"])
+
+    if len(exclusion_lines) > 0:
+        repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
+        cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+    for repository in repositories:
+        cmd.extend(["--repository", utils.repo_url(repository)])
+    for a in excluded_artifacts:
+        cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
+    if not repository_ctx.attr.use_unsafe_shared_cache:
+        cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+    if repository_ctx.attr.fetch_sources:
+        cmd.append("--sources")
+        cmd.append("--default=true")
+    if _is_windows(repository_ctx):
+        # Unfortunately on Windows, coursier crashes while trying to acquire the
+        # cache's .structure.lock file while running in parallel. This does not
+        # happen on *nix.
+        cmd.extend(["--parallel", "1"])
+
+    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
+    exec_result = repository_ctx.execute(cmd)
+    if (exec_result.return_code != 0):
+        fail("Error while fetching artifact with coursier: " + exec_result.stderr)
+
+    # Once coursier finishes a fetch, it generates a tree of artifacts and their
+    # transitive dependencies in a JSON file. We use that as the source of truth
+    # to generate the repository's BUILD file.
+    dep_tree = json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json")))
+
+    # Reconstruct the original URLs from the relative path to the artifact,
+    # which encodes the URL components for the protocol, domain, and path to
+    # the file.
+    for artifact in dep_tree["dependencies"]:
+        # Some artifacts don't contain files; they are just parent artifacts
+        # to other artifacts.
+        if artifact["file"] != None:
+            # Normalize paths in place here.
+            artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
+
+            # Coursier saves the artifacts into a subdirectory structure
+            # that mirrors the URL where the artifact's fetched from. Using
+            # this, we can reconstruct the original URL.
+            url = []
+            protocol = None
+            for part in artifact["file"].split("/"):
+                if protocol == None:
+                    if part == "http" or part == "https":
+                        protocol = part
+                        url.extend([protocol, ":/"])
+                else:
+                    url.extend(["/", part])
+
+            # Coursier encodes the colon ':' character as "%3A" in the
+            # filepath. Convert it back to colon since it's used for ports.
+            artifact.update({"url": "".join(url).replace("%3A", ":")})
+
+            # Compute the sha256 of the file.
+            exec_result = repository_ctx.execute([
+                "python",
+                repository_ctx.path(repository_ctx.attr._sha256_tool),
+                repository_ctx.path(artifact["file"]),
+                "artifact.sha256",
+            ])
+
+            if exec_result.return_code != 0:
+                fail("Error while obtaining the sha256 checksum of "
+                        + artifact["file"] + ": " + exec_result.stderr)
+
+            # Update the SHA-256 checksum in-place.
+            artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
+
+    repository_ctx.report_progress("Generating BUILD targets..")
+    (generated_imports, jar_versionless_target_labels) = _generate_imports(
+        repository_ctx = repository_ctx,
+        dep_tree = dep_tree,
+        neverlink_artifacts = {
+            a["group"] + ":" + a["artifact"]: True
+            for a in artifacts
+            if a.get("neverlink", False)
+        },
+    )
+
+    repository_ctx.template(
+        "jvm_import.bzl",
+        repository_ctx.attr._jvm_import,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
+    repository_ctx.template(
+        "compat_repository.bzl",
+        repository_ctx.attr._compat_repository,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
+    repository_ctx.file(
+        "BUILD",
+        _BUILD.format(
+            repository_name = repository_ctx.name,
+            imports = generated_imports,
+        ),
+        False,  # not executable
+    )
+
+    # Expose the script to let users pin the state of the fetch in
+    # `<workspace_root>/maven_install.json`.
     #
     # $ bazel run @unpinned_maven//:pin
     #
-    if not repository_ctx.attr.maven_install_json:
-        # Create the maven_install.json export script for unpinned repositories.
-        dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
-        repository_ctx.template("pin", repository_ctx.attr._pin,
-            {
-                "{dependency_tree_json}": dependency_tree_json.replace("\"", "\\\""),
-                "{repository_name}": repository_ctx.name.lstrip("unpinned_"),
-            },
-            executable = True,
-        )
+    # Create the maven_install.json export script for unpinned repositories.
+    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
+    repository_ctx.template("pin", repository_ctx.attr._pin,
+        {
+            "{dependency_tree_json}": dependency_tree_json.replace("\"", "\\\""),
+            "{repository_name}": repository_ctx.name.lstrip("unpinned_"),
+        },
+        executable = True,
+    )
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
@@ -709,6 +751,20 @@ def _coursier_fetch_impl(repository_ctx):
             "\n".join(compat_repositories_bzl) + "\n",
             False,  # not executable
         )
+
+pinned_coursier_fetch = repository_rule(
+    attrs = {
+        "_sha256_tool": attr.label(default = "@bazel_tools//tools/build_defs/hash:sha256.py"),
+        "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
+        "_pin": attr.label(default = "//:private/pin.sh"),
+        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "artifacts": attr.string_list(),  # list of artifact objects, each as json
+        "fetch_sources": attr.bool(default = False),
+        "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
+        "maven_install_json": attr.label(allow_single_file = True),
+    },
+    implementation = _pinned_coursier_fetch_impl,
+)
 
 coursier_fetch = repository_rule(
     attrs = {
