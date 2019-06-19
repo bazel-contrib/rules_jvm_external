@@ -600,8 +600,8 @@ def _coursier_fetch_impl(repository_ctx):
         if "exclusions" in a:
             for e in a["exclusions"]:
                 exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
-                                    "--" +
-                                    ":".join([e["group"], e["artifact"]]))
+                                        "--" +
+                                        ":".join([e["group"], e["artifact"]]))
 
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
@@ -686,15 +686,12 @@ def _coursier_fetch_impl(repository_ctx):
             # Update the SHA-256 checksum in-place.
             artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
+    neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = _generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
-        neverlink_artifacts = {
-            a["group"] + ":" + a["artifact"]: True
-            for a in artifacts
-            if a.get("neverlink", False)
-        },
+        neverlink_artifacts = neverlink_artifacts,
     )
 
     repository_ctx.template(
