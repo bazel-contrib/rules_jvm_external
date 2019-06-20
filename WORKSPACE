@@ -158,3 +158,20 @@ kotlin_repositories()
 kt_register_toolchains()
 
 # End test dependencies
+
+http_archive(
+    name = "bazel_toolchains",
+    sha256 = "4598bf5a8b4f5ced82c782899438a7ba695165d47b3bf783ce774e89a8c6e617",
+    strip_prefix = "bazel-toolchains-0.27.0",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/0.27.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/0.27.0.tar.gz",
+    ],
+)
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+# Creates a default toolchain config for RBE.
+# Use this as is if you are using the rbe_ubuntu16_04 container,
+# otherwise refer to RBE docs.
+rbe_autoconfig(name = "buildkite_config")

@@ -3,6 +3,9 @@ tasks:
   ubuntu1604:
     test_targets:
       - "//..."
+  rbe_ubuntu1604:
+    test_targets:
+      - "//..."
   ubuntu1804:
     test_targets:
       - "--"
