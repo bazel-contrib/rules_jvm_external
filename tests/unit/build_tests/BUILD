@@ -12,6 +12,7 @@ build_test(
         "@regression_testing//:com_digitalasset_damlc_osx",
         "@regression_testing//:org_eclipse_jetty_orbit_javax_servlet",
         "@regression_testing//:org_apache_flink_flink_test_utils_2_12",
+        "@maven//:org_openjfx_javafx_base_mac",
     ],
 )
 

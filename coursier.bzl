@@ -226,7 +226,10 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             target_import_labels = []
             for dep in artifact["dependencies"]:
                 dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
-                target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+                # Coursier returns cyclic dependencies sometimes. Handle it here.
+                # See https://github.com/bazelbuild/rules_jvm_external/issues/172
+                if dep_target_label != target_label:
+                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
             target_import_string.append("".join(target_import_labels) + "\t],")
@@ -295,7 +298,10 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             target_import_labels = []
             for dep in artifact["dependencies"]:
                 dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
-                target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+                # Coursier returns cyclic dependencies sometimes. Handle it here.
+                # See https://github.com/bazelbuild/rules_jvm_external/issues/172
+                if dep_target_label != target_label:
+                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
             target_import_string.append("".join(target_import_labels) + "\t],")
