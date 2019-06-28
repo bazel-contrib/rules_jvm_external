@@ -132,6 +132,8 @@ maven_install(
         "org.apache.flink:flink-test-utils_2.12:1.8.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/170
         "ch.epfl.scala:compiler-interface:1.3.0-M4+20-c8a2f9bd",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/172
+        "org.openjfx:javafx-base:11.0.1",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -164,3 +166,20 @@ kotlin_repositories()
 kt_register_toolchains()
 
 # End test dependencies
+
+http_archive(
+    name = "bazel_toolchains",
+    sha256 = "4598bf5a8b4f5ced82c782899438a7ba695165d47b3bf783ce774e89a8c6e617",
+    strip_prefix = "bazel-toolchains-0.27.0",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/0.27.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/0.27.0.tar.gz",
+    ],
+)
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+# Creates a default toolchain config for RBE.
+# Use this as is if you are using the rbe_ubuntu16_04 container,
+# otherwise refer to RBE docs.
+rbe_autoconfig(name = "buildkite_config")

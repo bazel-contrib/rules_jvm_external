@@ -3,6 +3,12 @@ tasks:
   ubuntu1604:
     test_targets:
       - "//..."
+  rbe_ubuntu1604:
+    test_targets:
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with RBE
+      - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804:
     test_targets:
       - "--"

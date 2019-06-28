@@ -13,6 +13,7 @@ build_test(
         "@regression_testing//:org_eclipse_jetty_orbit_javax_servlet",
         "@regression_testing//:org_apache_flink_flink_test_utils_2_12",
         "@regression_testing//:ch_epfl_scala_compiler_interface",
+        "@regression_testing//:org_openjfx_javafx_base",
     ],
 )
 
