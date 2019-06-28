@@ -1934,6 +1934,24 @@
                 "url": "https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar"
             },
             {
+                "coord": "org.openjfx:javafx-base:11.0.1",
+                "dependencies": [
+                    "org.openjfx:javafx-base:jar:mac:11.0.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar",
+                "sha256": "c5084a74417a89c69a0c122fae96a4b70bf619fc3d6218ea102a4047ec85ad04",
+                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar"
+            },
+            {
+                "coord": "org.openjfx:javafx-base:jar:mac:11.0.1",
+                "dependencies": [
+                    "org.openjfx:javafx-base:jar:mac:11.0.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
+                "sha256": "2d8052a08fd2e5d98e1d5a16d724ea5dd02102879de20a193225f57199803983",
+                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
+            },
+            {
                 "coord": "org.ow2.asm:asm-analysis:6.2",
                 "dependencies": [
                     "org.ow2.asm:asm-tree:6.2",
