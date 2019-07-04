@@ -691,14 +691,18 @@ def _coursier_fetch_impl(repository_ctx):
             # that mirrors the URL where the artifact's fetched from. Using
             # this, we can reconstruct the original URL.
             url = []
+            filepath_parts = artifact["file"].split("/")
             protocol = None
-            for part in artifact["file"].split("/"):
-                if protocol == None:
-                    if part == "http" or part == "https":
-                        protocol = part
-                        url.extend([protocol, ":/"])
-                else:
-                    url.extend(["/", part])
+            # Only support http/https transports
+            for part in filepath_parts:
+                if part == "http" or part == "https":
+                     protocol = part
+            if protocol == None:
+                fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"]) 
+            url.extend([protocol, "://"])
+            for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
+                url.extend([part, "/"])
+            url.pop() # pop the final "/"
 
             # Coursier encodes the colon ':' character as "%3A" in the
             # filepath. Convert it back to colon since it's used for ports.
