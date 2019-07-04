@@ -26,6 +26,8 @@ load(
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["pin"])
+
 load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
 {imports}
@@ -57,7 +59,9 @@ def _strip_packaging_and_classifier_and_version(coord):
     return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
 
 def _escape(string):
-    return string.replace(".", "_").replace("-", "_").replace(":", "_").replace("/", "_").replace("[", "").replace("]", "").split(",")[0]
+    for char in [".", "-", ":", "/", "+"]:
+        string = string.replace(char, "_")
+    return string.replace("[", "").replace("]", "").split(",")[0]
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
@@ -85,7 +89,7 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     #
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
-    absolute_path_parts = _normalize_to_unix_path(absolute_path).split("v1/")
+    absolute_path_parts = absolute_path.split("v1/")
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
@@ -109,6 +113,17 @@ def _get_reverse_deps(coord, dep_tree):
                 # Then this artifact is an rdep :-)
                 reverse_deps.append(maybe_rdep)
     return reverse_deps
+
+def _genrule_copy_artifact_from_http_file(artifact):
+    http_file_repository = _escape(artifact["coord"])
+    return "\n".join([
+        "genrule(",
+        "     name = \"%s_extension\"," % http_file_repository,
+        "     srcs = [\"@%s//file\"]," % http_file_repository,
+        "     outs = [\"%s\"]," % artifact["file"],
+        "     cmd = \"cp $< $@\",",
+        ")",
+    ])
 
 # Generate BUILD file with java_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
@@ -140,14 +155,16 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                 artifact_path = artifact["file"]
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
-                    if repository_ctx.attr.use_unsafe_shared_cache:
+                    if not repository_ctx.attr.maven_install_json and repository_ctx.attr.use_unsafe_shared_cache:
                         # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
                         artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
                     else:
                         # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                        artifact_relative_path = _normalize_to_unix_path(artifact_path)
+                        artifact_relative_path = artifact_path
                     target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_relative_path
+                    if repository_ctx.attr.maven_install_json:
+                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
@@ -163,12 +180,12 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
         elif target_label not in seen_imports and artifact_path != None:
             seen_imports[target_label] = True
 
-            if repository_ctx.attr.use_unsafe_shared_cache:
+            if not repository_ctx.attr.maven_install_json and repository_ctx.attr.use_unsafe_shared_cache:
                 # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
                 artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
             else:
                 # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                artifact_relative_path = _normalize_to_unix_path(artifact_path)
+                artifact_relative_path = artifact_path
 
             # 1. Generate the rule class.
             #
@@ -286,6 +303,18 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # )
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
+
+            # 9. If using maven_install.json, use a genrule to copy the file from the http_file
+            # repository into this repository.
+            #
+            # genrule(
+            #     name = "org_hamcrest_hamcrest_library_1_3_extension",
+            #     srcs = ["@org_hamcrest_hamcrest_library_1_3//file"],
+            #     outs = ["@maven//:v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            #     cmd = "cp $< $@",
+            # )
+            if repository_ctx.attr.maven_install_json:
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
         elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
@@ -438,34 +467,7 @@ def _get_java_proxy_args(repository_ctx):
 
     return proxy_args
 
-def _cat_file(repository_ctx, filepath):
-    if (_is_windows(repository_ctx)):
-        exec_result = repository_ctx.execute([
-            repository_ctx.os.environ.get("BAZEL_SH"),
-            "-lc",
-            "cat " + str(repository_ctx.path(filepath)),
-        ])
-    else:
-        exec_result = repository_ctx.execute([
-            repository_ctx.which("cat"),
-            repository_ctx.path(filepath),
-        ])
-    if (exec_result.return_code != 0):
-        fail("Error while trying to read %s: %s" % (filepath, exec_result.stderr))
-    return exec_result.stdout
-
-def _coursier_fetch_impl(repository_ctx):
-    # Download Coursier's standalone (deploy) jar from Maven repositories.
-    repository_ctx.download([
-        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
-    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
-
-    # Try running coursier once
-    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
-    if exec_result.return_code != 0:
-        fail("Unable to run coursier: " + exec_result.stderr)
-
+def _windows_check(repository_ctx):
     # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
     # will not be around for long.
     #
@@ -478,6 +480,131 @@ def _coursier_fetch_impl(repository_ctx):
                  "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
                  "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
         repository_ctx.execute([bash, "-lc", "echo", "works"])
+
+def _pinned_coursier_fetch_impl(repository_ctx):
+    if not repository_ctx.attr.maven_install_json:
+        fail("Please specify the file label to maven_install.json (e.g."
+             + "//:maven_install.json).")
+
+    _windows_check(repository_ctx)
+
+    artifacts = []
+    for a in repository_ctx.attr.artifacts:
+        artifacts.append(json_parse(a))
+
+    # Read Coursier state from maven_install.json.
+    repository_ctx.symlink(
+        repository_ctx.path(repository_ctx.attr.maven_install_json),
+        repository_ctx.path("imported_maven_install.json")
+    )
+    maven_install_json_content = json_parse(
+        repository_ctx.read(
+            repository_ctx.path("imported_maven_install.json")),
+        fail_on_invalid = False,
+    )
+    if maven_install_json_content == None:
+        fail("Failed to parse %s. Is this file valid JSON? The file may have been corrupted." % repository_ctx.path(repository_ctx.attr.maven_install_json)
+             + "Consider regenerating maven_install.json with the following steps:\n"
+             + "  1. Remove the maven_install_json attribute from your `maven_install` declaration for `@%s`.\n" % repository_ctx.name
+             + "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin" % repository_ctx.name
+             + "  3. Add `maven_install_json = \"//:maven_install.json\"` into your `maven_install` declaration.")
+
+    if maven_install_json_content.get("dependency_tree") == None:
+        fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json)
+                + "It is not a valid maven_install.json file. Has this "
+                + "file been modified manually?")
+
+    dep_tree = maven_install_json_content["dependency_tree"]
+
+    # Create the list of http_file repositories for each of the artifacts
+    # in maven_install.json. This will be loaded additionally like so:
+    #
+    # load("@maven//:defs.bzl", "pinned_maven_install")
+    # pinned_maven_install()
+    http_files = [
+        "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
+        "def pinned_maven_install():",
+    ]
+    for artifact in dep_tree["dependencies"]:
+        if artifact.get("url") != None:
+            http_file_repository_name = _escape(artifact["coord"])
+            http_files.extend([
+                "    http_file(",
+                "        name = \"%s\"," % http_file_repository_name,
+                "        urls = [\"%s\"]," % artifact["url"],
+                "        sha256 = \"%s\"," % artifact["sha256"],
+                "    )",
+            ])
+    repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
+
+    repository_ctx.report_progress("Generating BUILD targets..")
+    (generated_imports, jar_versionless_target_labels) = _generate_imports(
+        repository_ctx = repository_ctx,
+        dep_tree = dep_tree,
+        neverlink_artifacts = {
+            a["group"] + ":" + a["artifact"]: True
+            for a in artifacts
+            if a.get("neverlink", False)
+        },
+    )
+
+    repository_ctx.template(
+        "jvm_import.bzl",
+        repository_ctx.attr._jvm_import,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
+    repository_ctx.template(
+        "compat_repository.bzl",
+        repository_ctx.attr._compat_repository,
+        substitutions = {},
+        executable = False,  # not executable
+    )
+
+    repository_ctx.file(
+        "BUILD",
+        _BUILD.format(
+            repository_name = repository_ctx.name,
+            imports = generated_imports,
+        ),
+        False,  # not executable
+    )
+
+    # Generate a compatibility layer of external repositories for all jar artifacts.
+    if repository_ctx.attr.generate_compat_repositories:
+        compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
+        compat_repositories_bzl.append("def compat_repositories():")
+        for versionless_target_label in jar_versionless_target_labels:
+            compat_repositories_bzl.extend([
+                "    compat_repository(",
+                "        name = \"%s\"," % versionless_target_label,
+                "        generating_repository = \"%s\"," % repository_ctx.name,
+                "    )",
+            ])
+            repository_ctx.file(
+                "compat.bzl",
+                "\n".join(compat_repositories_bzl) + "\n",
+                False,  # not executable
+            )
+
+def _coursier_fetch_impl(repository_ctx):
+    # Not using maven_install.json, so we resolve and fetch from scratch.
+    # This takes significantly longer as it doesn't rely on any local
+    # caches and uses Coursier's own download mechanisms.
+
+    # Download Coursier's standalone (deploy) jar from Maven repositories.
+    repository_ctx.download([
+        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
+        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
+    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+
+    # Try running coursier once
+    exec_result = repository_ctx.execute(_generate_coursier_command(repository_ctx))
+    if exec_result.return_code != 0:
+        fail("Unable to run coursier: " + exec_result.stderr)
+
+    _windows_check(repository_ctx)
 
     # Deserialize the spec blobs
     repositories = []
@@ -548,7 +675,53 @@ def _coursier_fetch_impl(repository_ctx):
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
     # to generate the repository's BUILD file.
-    dep_tree = json_parse(_cat_file(repository_ctx, "dep-tree.json"))
+    dep_tree = json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json")))
+
+    # Reconstruct the original URLs from the relative path to the artifact,
+    # which encodes the URL components for the protocol, domain, and path to
+    # the file.
+    for artifact in dep_tree["dependencies"]:
+        # Some artifacts don't contain files; they are just parent artifacts
+        # to other artifacts.
+        if artifact["file"] != None:
+            # Normalize paths in place here.
+            artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
+
+            # Coursier saves the artifacts into a subdirectory structure
+            # that mirrors the URL where the artifact's fetched from. Using
+            # this, we can reconstruct the original URL.
+            url = []
+            filepath_parts = artifact["file"].split("/")
+            protocol = None
+            # Only support http/https transports
+            for part in filepath_parts:
+                if part == "http" or part == "https":
+                     protocol = part
+            if protocol == None:
+                fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"]) 
+            url.extend([protocol, "://"])
+            for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
+                url.extend([part, "/"])
+            url.pop() # pop the final "/"
+
+            # Coursier encodes the colon ':' character as "%3A" in the
+            # filepath. Convert it back to colon since it's used for ports.
+            artifact.update({"url": "".join(url).replace("%3A", ":")})
+
+            # Compute the sha256 of the file.
+            exec_result = repository_ctx.execute([
+                "python",
+                repository_ctx.path(repository_ctx.attr._sha256_tool),
+                repository_ctx.path(artifact["file"]),
+                "artifact.sha256",
+            ])
+
+            if exec_result.return_code != 0:
+                fail("Error while obtaining the sha256 checksum of "
+                        + artifact["file"] + ": " + exec_result.stderr)
+
+            # Update the SHA-256 checksum in-place.
+            artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
     neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -581,6 +754,21 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+    # Expose the script to let users pin the state of the fetch in
+    # `<workspace_root>/maven_install.json`.
+    #
+    # $ bazel run @unpinned_maven//:pin
+    #
+    # Create the maven_install.json export script for unpinned repositories.
+    dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
+    repository_ctx.template("pin", repository_ctx.attr._pin,
+        {
+            "{dependency_tree_json}": dependency_tree_json.replace("\"", "\\\""),
+            "{repository_name}": repository_ctx.name.lstrip("unpinned_"),
+        },
+        executable = True,
+    )
+
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
         compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
@@ -598,9 +786,23 @@ def _coursier_fetch_impl(repository_ctx):
             False,  # not executable
         )
 
-coursier_fetch = repository_rule(
+pinned_coursier_fetch = repository_rule(
     attrs = {
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
+        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "artifacts": attr.string_list(),  # list of artifact objects, each as json
+        "fetch_sources": attr.bool(default = False),
+        "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
+        "maven_install_json": attr.label(allow_single_file = True),
+    },
+    implementation = _pinned_coursier_fetch_impl,
+)
+
+coursier_fetch = repository_rule(
+    attrs = {
+        "_sha256_tool": attr.label(default = "@bazel_tools//tools/build_defs/hash:sha256.py"),
+        "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
+        "_pin": attr.label(default = "//:private/pin.sh"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
@@ -609,6 +811,7 @@ coursier_fetch = repository_rule(
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
+        "maven_install_json": attr.label(allow_single_file = True),
     },
     environ = [
         "JAVA_HOME",

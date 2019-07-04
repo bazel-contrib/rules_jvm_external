@@ -130,6 +130,8 @@ maven_install(
         "com.google.android.gms:play-services-base:16.1.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-484278260
         "org.apache.flink:flink-test-utils_2.12:1.8.0",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/170
+        "ch.epfl.scala:compiler-interface:1.3.0-M4+20-c8a2f9bd",
         # https://github.com/bazelbuild/rules_jvm_external/issues/172
         "org.openjfx:javafx-base:11.0.1",
     ],
@@ -139,7 +141,11 @@ maven_install(
         "https://maven.google.com",
     ],
     generate_compat_repositories = True,
+    maven_install_json = "//:regression_testing_install.json",
 )
+
+load("@regression_testing//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
 
 load("@regression_testing//:compat.bzl", "compat_repositories")
 compat_repositories()

@@ -31,7 +31,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## maven_install
 
 <pre>
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>)
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -120,6 +120,16 @@ and fetch Maven artifacts transitively.
           Additionally generate repository aliases in a .bzl file for all JAR
   artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
   `@com_google_guava_guava//jar`.
+        </p>
+      </td>
+    </tr>
+    <tr id="maven_install-maven_install_json">
+      <td><code>maven_install_json</code></td>
+      <td>
+        optional. default is <code>None</code>
+        <p>
+          A label to a `maven_install.json` file to use pinned artifacts for generating
+  build targets. e.g `//:maven_install.json`.
         </p>
       </td>
     </tr>

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_jvm_external//:coursier.bzl", "coursier_fetch")
+load("@rules_jvm_external//:coursier.bzl", "coursier_fetch", "pinned_coursier_fetch")
 load("@rules_jvm_external//:specs.bzl", "json", "parse")
 
 DEFAULT_REPOSITORY_NAME = "maven"
@@ -25,7 +25,8 @@ def maven_install(
         fetch_sources = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
-        generate_compat_repositories = False):
+        generate_compat_repositories = False,
+        maven_install_json = None):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -45,6 +46,8 @@ def maven_install(
       generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
         artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
         `@com_google_guava_guava//jar`.
+      maven_install_json: A label to a `maven_install.json` file to use pinned artifacts for generating
+        build targets. e.g `//:maven_install.json`.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -58,8 +61,23 @@ def maven_install(
     for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
         excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
 
+    # The first coursier_fetch generates the @unpinned_maven
+    # repository, which executes Coursier.
+    #
+    # The second coursier_fetch generates the @maven repository generated from
+    # maven_install.json.
+    #
+    # We don't want the two repositories to have edges between them. This allows users
+    # to update the maven_install() declaration in the WORKSPACE, run
+    # @unpinned_maven//:pin / Coursier to update maven_install.json, and bazel build
+    # //... immediately after with the updated artifacts.
+
     coursier_fetch(
-        name = name,
+        # Name this repository "unpinned_{name}" if the user specified a
+        # maven_install.json file. The actual @{name} repository will be
+        # created from the maven_install.json file in the coursier_fetch
+        # invocation after this.
+        name = name if maven_install_json == None else "unpinned_" + name,
         repositories = repositories_json_strings,
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
@@ -68,6 +86,17 @@ def maven_install(
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
     )
+
+    if maven_install_json != None:
+        # Create the repository generated from a maven_install.json file.
+        pinned_coursier_fetch(
+            name = name,
+            artifacts = artifacts_json_strings,
+            maven_install_json = maven_install_json,
+            fetch_sources = fetch_sources,
+            generate_compat_repositories = generate_compat_repositories,
+        )
+
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
