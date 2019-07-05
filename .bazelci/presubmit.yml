@@ -1,24 +1,34 @@
 ---
 tasks:
   ubuntu1604:
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
     test_targets:
       - "//..."
   rbe_ubuntu1604:
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
     test_targets:
       - "--"
       - "//..."
       # These tests are currently incompatible with RBE
       - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804:
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
     test_targets:
       - "--"
       - "//..."
       # These tests are currently incompatible with OpenJDK 11.
       - "-//tests/integration:UnsafeSharedCacheTest"
   macos:
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
     test_targets:
       - "//..."
   windows:
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
     test_targets:
       - "--"
       - "//..."
