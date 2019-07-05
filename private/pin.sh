@@ -2,7 +2,9 @@
 
 set -euo pipefail
 readonly maven_install_json_loc=$BUILD_WORKSPACE_DIRECTORY/{repository_name}_install.json
-echo {dependency_tree_json} | python -m json.tool > $maven_install_json_loc
+cat <<"RULES_JVM_EXTERNAL_EOF" | python -m json.tool > $maven_install_json_loc
+{dependency_tree_json}
+RULES_JVM_EXTERNAL_EOF
 echo "Successfully pinned resolved artifacts for @{repository_name} in $maven_install_json_loc." \
   "This file should be checked in your version control system."
 echo
