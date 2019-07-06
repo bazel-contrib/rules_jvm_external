@@ -854,6 +854,13 @@
                 "url": "https://repo1.maven.org/maven2/com/github/scopt/scopt_2.12/3.5.0/scopt_2.12-3.5.0.jar"
             },
             {
+                "coord": "com.github.stephenc.jcip:jcip-annotations:1.0-1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/stephenc/jcip/jcip-annotations/1.0-1/jcip-annotations-1.0-1.jar",
+                "sha256": "4fccff8382aafc589962c4edb262f6aa595e34f1e11e61057d1c6a96e8fc7323",
+                "url": "https://repo1.maven.org/maven2/com/github/stephenc/jcip/jcip-annotations/1.0-1/jcip-annotations-1.0-1.jar"
+            },
+            {
                 "coord": "com.google.android.gms:play-services-base:16.1.0",
                 "dependencies": [
                     "android.arch.lifecycle:viewmodel:aar:1.1.1",
@@ -977,18 +984,45 @@
                 "url": "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
             },
             {
-                "coord": "com.google.code.findbugs:jsr305:1.3.9",
+                "coord": "com.google.code.findbugs:jsr305:3.0.2",
                 "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar",
-                "sha256": "905721a0eea90a81534abb7ee6ef4ea2e5e645fa1def0a5cd88402df1b46c9ed",
-                "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar"
+                "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+                "sha256": "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7",
+                "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
             },
             {
-                "coord": "com.google.guava:guava:16.0.1",
+                "coord": "com.google.code.gson:gson:2.8.0",
                 "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar",
-                "sha256": "a896857d07845d38c7dc5bbc0457b6d9b0f62ecffda010e5e9ec12d561f676d3",
-                "url": "https://repo1.maven.org/maven2/com/google/guava/guava/16.0.1/guava-16.0.1.jar"
+                "file": "v1/https/repo1.maven.org/maven2/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar",
+                "sha256": "c6221763bd79c4f1c3dc7f750b5f29a0bb38b367b81314c4f71896e340c40825",
+                "url": "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar"
+            },
+            {
+                "coord": "com.google.errorprone:error_prone_annotations:2.1.3",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar",
+                "sha256": "03d0329547c13da9e17c634d1049ea2ead093925e290567e1a364fd6b1fc7ff8",
+                "url": "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar"
+            },
+            {
+                "coord": "com.google.guava:guava:25.1-jre",
+                "dependencies": [
+                    "com.google.code.findbugs:jsr305:3.0.2",
+                    "org.codehaus.mojo:animal-sniffer-annotations:1.14",
+                    "com.google.j2objc:j2objc-annotations:1.1",
+                    "com.google.errorprone:error_prone_annotations:2.1.3",
+                    "org.checkerframework:checker-qual:2.0.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/25.1-jre/guava-25.1-jre.jar",
+                "sha256": "6db0c3a244c397429c2e362ea2837c3622d5b68bb95105d37c21c36e5bc70abf",
+                "url": "https://repo1.maven.org/maven2/com/google/guava/guava/25.1-jre/guava-25.1-jre.jar"
+            },
+            {
+                "coord": "com.google.j2objc:j2objc-annotations:1.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar",
+                "sha256": "2994a7eb78f2710bd3d3bfb639b2c94e219cedac0d4d084d516e78c16dddecf6",
+                "url": "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"
             },
             {
                 "coord": "com.google.protobuf:protobuf-java:3.7.0",
@@ -1030,6 +1064,95 @@
                 "file": "v1/https/repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar",
                 "sha256": "814b9cf2425bd05d836055a7293a227c297c65126bb091fa50230905421b8126",
                 "url": "https://repo1.maven.org/maven2/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar"
+            },
+            {
+                "coord": "com.microsoft.azure:adal4j:1.6.0",
+                "dependencies": [
+                    "javax.activation:activation:1.1",
+                    "net.minidev:json-smart:1.3.1",
+                    "com.github.stephenc.jcip:jcip-annotations:1.0-1",
+                    "com.google.code.gson:gson:2.8.0",
+                    "com.nimbusds:nimbus-jose-jwt:[4.29,)",
+                    "commons-codec:commons-codec:1.11",
+                    "com.nimbusds:lang-tag:[1.4.3,)",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "com.nimbusds:oauth2-oidc-sdk:5.24.1",
+                    "org.apache.commons:commons-lang3:3.7",
+                    "org.apache.commons:commons-collections4:4.1",
+                    "javax.mail:mail:1.4.7"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/microsoft/azure/adal4j/1.6.0/adal4j-1.6.0.jar",
+                "sha256": "f3f8195752c98cac306617363ccf0ef19a0475af3960ee1847b929e77fb63eac",
+                "url": "https://repo1.maven.org/maven2/com/microsoft/azure/adal4j/1.6.0/adal4j-1.6.0.jar"
+            },
+            {
+                "coord": "com.nimbusds:lang-tag:[1.4.3,)",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/nimbusds/lang-tag/1.4.4/lang-tag-1.4.4.jar",
+                "sha256": "e49d2c694bb80c7036c177f2aabf53b7156061a68bd19dfd60e2bd370709e0c5",
+                "url": "https://repo1.maven.org/maven2/com/nimbusds/lang-tag/1.4.4/lang-tag-1.4.4.jar"
+            },
+            {
+                "coord": "com.nimbusds:nimbus-jose-jwt:[4.29,)",
+                "dependencies": [
+                    "net.minidev:json-smart:1.3.1",
+                    "com.github.stephenc.jcip:jcip-annotations:1.0-1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/nimbusds/nimbus-jose-jwt/7.4/nimbus-jose-jwt-7.4.jar",
+                "sha256": "fc371f5472e4c116211178fb4c67d23a3d625ffee02488b73f5132532753b13a",
+                "url": "https://repo1.maven.org/maven2/com/nimbusds/nimbus-jose-jwt/7.4/nimbus-jose-jwt-7.4.jar"
+            },
+            {
+                "coord": "com.nimbusds:oauth2-oidc-sdk:5.24.1",
+                "dependencies": [
+                    "javax.activation:activation:1.1",
+                    "net.minidev:json-smart:1.3.1",
+                    "com.github.stephenc.jcip:jcip-annotations:1.0-1",
+                    "com.nimbusds:nimbus-jose-jwt:[4.29,)",
+                    "com.nimbusds:lang-tag:[1.4.3,)",
+                    "org.apache.commons:commons-lang3:3.7",
+                    "org.apache.commons:commons-collections4:4.1",
+                    "javax.mail:mail:1.4.7"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/nimbusds/oauth2-oidc-sdk/5.24.1/oauth2-oidc-sdk-5.24.1.jar",
+                "sha256": "0441230ddb3ad1182554e2cd1f7233a776fcd51524e7bce1439607ce92714c8e",
+                "url": "https://repo1.maven.org/maven2/com/nimbusds/oauth2-oidc-sdk/5.24.1/oauth2-oidc-sdk-5.24.1.jar"
+            },
+            {
+                "coord": "com.squareup.okhttp:logging-interceptor:2.7.5",
+                "dependencies": [
+                    "com.squareup.okio:okio:1.6.0",
+                    "com.squareup.okhttp:okhttp:2.7.5"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/squareup/okhttp/logging-interceptor/2.7.5/logging-interceptor-2.7.5.jar",
+                "sha256": "995576e55173cca3bf4fd472c128d1dca2675d9f56f76320b74c4d6ddbd3d600",
+                "url": "https://repo1.maven.org/maven2/com/squareup/okhttp/logging-interceptor/2.7.5/logging-interceptor-2.7.5.jar"
+            },
+            {
+                "coord": "com.squareup.okhttp:okhttp-ws:2.7.5",
+                "dependencies": [
+                    "com.squareup.okio:okio:1.6.0",
+                    "com.squareup.okhttp:okhttp:2.7.5"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/squareup/okhttp/okhttp-ws/2.7.5/okhttp-ws-2.7.5.jar",
+                "sha256": "32e9f9708f08c794fd04aa96e1b9d66b7fd5332899f534e40027696e33788f71",
+                "url": "https://repo1.maven.org/maven2/com/squareup/okhttp/okhttp-ws/2.7.5/okhttp-ws-2.7.5.jar"
+            },
+            {
+                "coord": "com.squareup.okhttp:okhttp:2.7.5",
+                "dependencies": [
+                    "com.squareup.okio:okio:1.6.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/squareup/okhttp/okhttp/2.7.5/okhttp-2.7.5.jar",
+                "sha256": "88ac9fd1bb51f82bcc664cc1eb9c225c90dc4389d660231b4cc737bebfe7d0aa",
+                "url": "https://repo1.maven.org/maven2/com/squareup/okhttp/okhttp/2.7.5/okhttp-2.7.5.jar"
+            },
+            {
+                "coord": "com.squareup.okio:okio:1.6.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/squareup/okio/okio/1.6.0/okio-1.6.0.jar",
+                "sha256": "114bdc1f47338a68bcbc95abf2f5cdc72beeec91812f2fcd7b521c1937876266",
+                "url": "https://repo1.maven.org/maven2/com/squareup/okio/okio/1.6.0/okio-1.6.0.jar"
             },
             {
                 "coord": "com.squareup:javapoet:1.11.1",
@@ -1075,9 +1198,9 @@
                 "coord": "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
                 "dependencies": [
                     "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
-                    "com.typesafe:config:1.3.0",
-                    "org.slf4j:slf4j-api:1.7.16"
+                    "com.typesafe:config:1.3.0"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/com/typesafe/akka/akka-slf4j_2.12/2.4.20/akka-slf4j_2.12-2.4.20.jar",
                 "sha256": "32f64dd2c5aa9f8309e7e33288bc885e516e4f1b1a9ceb435ab15e56dd53c52a",
@@ -1120,6 +1243,13 @@
                 "url": "https://repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar"
             },
             {
+                "coord": "commons-codec:commons-codec:1.11",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/commons-codec/commons-codec/1.11/commons-codec-1.11.jar",
+                "sha256": "e599d5318e97aa48f42136a2927e6dfa4e8881dff0e6c8e3109ddbbff51d7b7d",
+                "url": "https://repo1.maven.org/maven2/commons-codec/commons-codec/1.11/commons-codec-1.11.jar"
+            },
+            {
                 "coord": "commons-collections:commons-collections:3.2.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar",
@@ -1134,11 +1264,132 @@
                 "url": "https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"
             },
             {
+                "coord": "io.kubernetes:client-java-api:4.0.0-beta1",
+                "dependencies": [
+                    "io.sundr:sundr-codegen:0.9.2",
+                    "joda-time:joda-time:2.9.3",
+                    "io.sundr:sundr-core:0.9.2",
+                    "com.squareup.okio:okio:1.6.0",
+                    "io.sundr:builder-annotations:0.9.2",
+                    "com.google.code.gson:gson:2.8.0",
+                    "io.swagger:swagger-annotations:1.5.12",
+                    "org.apache.commons:commons-lang3:3.7",
+                    "com.squareup.okhttp:okhttp:2.7.5",
+                    "org.joda:joda-convert:1.2",
+                    "com.squareup.okhttp:logging-interceptor:2.7.5",
+                    "io.sundr:resourcecify-annotations:0.9.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/io/kubernetes/client-java-api/4.0.0-beta1/client-java-api-4.0.0-beta1.jar",
+                "sha256": "48448949adf9d83468fc955f758ff40fa1de81399a788c4fd91eb276861e4458",
+                "url": "https://repo1.maven.org/maven2/io/kubernetes/client-java-api/4.0.0-beta1/client-java-api-4.0.0-beta1.jar"
+            },
+            {
+                "coord": "io.kubernetes:client-java-proto:4.0.0-beta1",
+                "dependencies": [
+                    "com.google.protobuf:protobuf-java:3.7.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/io/kubernetes/client-java-proto/4.0.0-beta1/client-java-proto-4.0.0-beta1.jar",
+                "sha256": "819d06b010874823ccd9cbf824e772858af651f674533bcea58d8b1250209b8b",
+                "url": "https://repo1.maven.org/maven2/io/kubernetes/client-java-proto/4.0.0-beta1/client-java-proto-4.0.0-beta1.jar"
+            },
+            {
+                "coord": "io.kubernetes:client-java:4.0.0-beta1",
+                "dependencies": [
+                    "com.google.protobuf:protobuf-java:3.7.0",
+                    "javax.activation:activation:1.1",
+                    "io.sundr:sundr-codegen:0.9.2",
+                    "io.kubernetes:client-java-api:4.0.0-beta1",
+                    "joda-time:joda-time:2.9.3",
+                    "net.minidev:json-smart:1.3.1",
+                    "io.sundr:sundr-core:0.9.2",
+                    "com.google.code.findbugs:jsr305:3.0.2",
+                    "com.squareup.okio:okio:1.6.0",
+                    "io.sundr:builder-annotations:0.9.2",
+                    "com.github.stephenc.jcip:jcip-annotations:1.0-1",
+                    "com.google.code.gson:gson:2.8.0",
+                    "com.google.guava:guava:25.1-jre",
+                    "com.nimbusds:nimbus-jose-jwt:[4.29,)",
+                    "commons-codec:commons-codec:1.11",
+                    "io.kubernetes:client-java-proto:4.0.0-beta1",
+                    "com.nimbusds:lang-tag:[1.4.3,)",
+                    "org.bouncycastle:bcprov-ext-jdk15on:1.59",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "com.microsoft.azure:adal4j:1.6.0",
+                    "com.nimbusds:oauth2-oidc-sdk:5.24.1",
+                    "org.apache.commons:commons-compress:1.18",
+                    "io.swagger:swagger-annotations:1.5.12",
+                    "org.apache.commons:commons-lang3:3.7",
+                    "org.codehaus.mojo:animal-sniffer-annotations:1.14",
+                    "org.apache.commons:commons-collections4:4.1",
+                    "org.bouncycastle:bcprov-jdk15on:jar:1.59",
+                    "com.squareup.okhttp:okhttp-ws:2.7.5",
+                    "com.squareup.okhttp:okhttp:2.7.5",
+                    "org.bouncycastle:bcpkix-jdk15on:1.59",
+                    "org.joda:joda-convert:1.2",
+                    "javax.mail:mail:1.4.7",
+                    "org.yaml:snakeyaml:1.19",
+                    "com.google.j2objc:j2objc-annotations:1.1",
+                    "com.squareup.okhttp:logging-interceptor:2.7.5",
+                    "io.sundr:resourcecify-annotations:0.9.2",
+                    "com.google.errorprone:error_prone_annotations:2.1.3",
+                    "org.checkerframework:checker-qual:2.0.0"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/io/kubernetes/client-java/4.0.0-beta1/client-java-4.0.0-beta1.jar",
+                "sha256": "c15824604b12a476087fce36d1b46cad9c3c9970f7dc75b383e35202ab3ef1e1",
+                "url": "https://repo1.maven.org/maven2/io/kubernetes/client-java/4.0.0-beta1/client-java-4.0.0-beta1.jar"
+            },
+            {
                 "coord": "io.netty:netty:3.7.0.Final",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final.jar",
                 "sha256": "aa44be64442b9cbc5edd521476b9f1c272eec6a53dca104cf3032f42ad20ff89",
                 "url": "https://repo1.maven.org/maven2/io/netty/netty/3.7.0.Final/netty-3.7.0.Final.jar"
+            },
+            {
+                "coord": "io.sundr:builder-annotations:0.9.2",
+                "dependencies": [
+                    "io.sundr:sundr-codegen:0.9.2",
+                    "io.sundr:resourcecify-annotations:0.9.2",
+                    "io.sundr:sundr-core:0.9.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/io/sundr/builder-annotations/0.9.2/builder-annotations-0.9.2.jar",
+                "sha256": "5423062b2d63fbf77313826165454ab750e12297c948d052190872eaac68cf1e",
+                "url": "https://repo1.maven.org/maven2/io/sundr/builder-annotations/0.9.2/builder-annotations-0.9.2.jar"
+            },
+            {
+                "coord": "io.sundr:resourcecify-annotations:0.9.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/io/sundr/resourcecify-annotations/0.9.2/resourcecify-annotations-0.9.2.jar",
+                "sha256": "2ca8da6ac37c215aa257cf85d524c7e258df1e3ce432269a32e76a340d633cc9",
+                "url": "https://repo1.maven.org/maven2/io/sundr/resourcecify-annotations/0.9.2/resourcecify-annotations-0.9.2.jar"
+            },
+            {
+                "coord": "io.sundr:sundr-codegen:0.9.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/io/sundr/sundr-codegen/0.9.2/sundr-codegen-0.9.2.jar",
+                "sha256": "3dde68c4edb87ee0f81201056a2dea07b79893e80d1c757fd073335813ebf094",
+                "url": "https://repo1.maven.org/maven2/io/sundr/sundr-codegen/0.9.2/sundr-codegen-0.9.2.jar"
+            },
+            {
+                "coord": "io.sundr:sundr-core:0.9.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/io/sundr/sundr-core/0.9.2/sundr-core-0.9.2.jar",
+                "sha256": "ca7a1294f8d41871c0eeb2d851ce5e88df2ffc156bb084a2d6f8ca9fc8fbfd9a",
+                "url": "https://repo1.maven.org/maven2/io/sundr/sundr-core/0.9.2/sundr-core-0.9.2.jar"
+            },
+            {
+                "coord": "io.swagger:swagger-annotations:1.5.12",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/io/swagger/swagger-annotations/1.5.12/swagger-annotations-1.5.12.jar",
+                "sha256": "3607ffca7ceaca1f5257a454c322237ea4559f1a0c906da2634864b52215d9c0",
+                "url": "https://repo1.maven.org/maven2/io/swagger/swagger-annotations/1.5.12/swagger-annotations-1.5.12.jar"
+            },
+            {
+                "coord": "javax.activation:activation:1.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/javax/activation/activation/1.1/activation-1.1.jar",
+                "sha256": "2881c79c9d6ef01c58e62beea13e9d1ac8b8baa16f2fc198ad6e6776defdcdd3",
+                "url": "https://repo1.maven.org/maven2/javax/activation/activation/1.1/activation-1.1.jar"
             },
             {
                 "coord": "javax.annotation:jsr250-api:1.0",
@@ -1165,11 +1416,27 @@
                 "url": "https://repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar"
             },
             {
+                "coord": "javax.mail:mail:1.4.7",
+                "dependencies": [
+                    "javax.activation:activation:1.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/javax/mail/mail/1.4.7/mail-1.4.7.jar",
+                "sha256": "78c33b4f7c7b60f4b680f2d2405b1f063d71929cf1a4fbc328888379f365fcfb",
+                "url": "https://repo1.maven.org/maven2/javax/mail/mail/1.4.7/mail-1.4.7.jar"
+            },
+            {
                 "coord": "jline:jline:0.9.94",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar",
                 "sha256": "d8df0ffb12d87ca876271cda4d59b3feb94123882c1be1763b7faf2e0a0b0cbb",
                 "url": "https://repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar"
+            },
+            {
+                "coord": "joda-time:joda-time:2.9.3",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/joda-time/joda-time/2.9.3/joda-time-2.9.3.jar",
+                "sha256": "a05f5b8b021802a71919b18702aebdf286148188b3ee9d26e6ec40e8d0071487",
+                "url": "https://repo1.maven.org/maven2/joda-time/joda-time/2.9.3/joda-time-2.9.3.jar"
             },
             {
                 "coord": "junit:junit:4.12",
@@ -1186,6 +1453,13 @@
                 "file": "v1/https/repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar",
                 "sha256": "7ae3fdde7ab0cae4735a2aec04381ad9b6e25c93d24205f3ed315d9866f12fe1",
                 "url": "https://repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar"
+            },
+            {
+                "coord": "net.minidev:json-smart:1.3.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/net/minidev/json-smart/1.3.1/json-smart-1.3.1.jar",
+                "sha256": "ac3689112788e042088755e63ecd1f689adfeb04d7fb1cfd244513f94f82522c",
+                "url": "https://repo1.maven.org/maven2/net/minidev/json-smart/1.3.1/json-smart-1.3.1.jar"
             },
             {
                 "coord": "net.sourceforge.f2j:arpack_combined_all:0.1",
@@ -1263,6 +1537,13 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/ant/ant/1.9.9/ant-1.9.9.jar"
             },
             {
+                "coord": "org.apache.commons:commons-collections4:4.1",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-collections4/4.1/commons-collections4-4.1.jar",
+                "sha256": "b1fe8b5968b57d8465425357ed2d9dc695504518bed2df5b565c4b8e68c1c8a5",
+                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-collections4/4.1/commons-collections4-4.1.jar"
+            },
+            {
                 "coord": "org.apache.commons:commons-compress:1.18",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18.jar",
@@ -1270,11 +1551,11 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.18/commons-compress-1.18.jar"
             },
             {
-                "coord": "org.apache.commons:commons-lang3:3.4",
+                "coord": "org.apache.commons:commons-lang3:3.7",
                 "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar",
-                "sha256": "734c8356420cc8e30c795d64fd1fcd5d44ea9d90342a2cc3262c5158fbc6d98b",
-                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar"
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar",
+                "sha256": "6e8dc31e046508d9953c96534edf0c2e0bfe6f468966b5b842b3f87e43b6a847",
+                "url": "https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar"
             },
             {
                 "coord": "org.apache.commons:commons-math3:3.5",
@@ -1287,10 +1568,15 @@
                 "coord": "org.apache.curator:curator-test:2.12.0",
                 "dependencies": [
                     "log4j:log4j:1.2.16",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "jline:jline:0.9.94",
-                    "com.google.guava:guava:16.0.1",
+                    "com.google.guava:guava:25.1-jre",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.javassist:javassist:3.19.0-GA",
-                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.codehaus.mojo:animal-sniffer-annotations:1.14",
+                    "com.google.j2objc:j2objc-annotations:1.1",
+                    "com.google.errorprone:error_prone_annotations:2.1.3",
+                    "org.checkerframework:checker-qual:2.0.0",
                     "org.apache.zookeeper:zookeeper:3.4.8",
                     "io.netty:netty:3.7.0.Final"
                 ],
@@ -1301,9 +1587,9 @@
             {
                 "coord": "org.apache.flink:flink-annotations:1.8.0",
                 "dependencies": [
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.apache.flink:force-shading:1.8.0",
-                    "com.google.code.findbugs:jsr305:1.3.9",
-                    "org.slf4j:slf4j-api:1.7.16"
+                    "com.google.code.findbugs:jsr305:3.0.2"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-annotations/1.8.0/flink-annotations-1.8.0.jar",
                 "sha256": "8f05ed8ba078ebb31d8cbf7b38c64394d02d9f7533ad1fd8ecf244611b040655",
@@ -1313,7 +1599,6 @@
                 "coord": "org.apache.flink:flink-clients_2.12:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "org.apache.flink:flink-hadoop-fs:1.8.0",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
@@ -1321,6 +1606,7 @@
                     "commons-collections:commons-collections:3.2.2",
                     "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                     "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "commons-io:commons-io:2.4",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
@@ -1329,13 +1615,13 @@
                     "com.typesafe:config:1.3.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
                     "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.reactivestreams:reactive-streams:1.0.0",
                     "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                     "org.javassist:javassist:3.19.0-GA",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.slf4j:slf4j-api:1.7.16",
                     "org.apache.flink:flink-core:1.8.0",
                     "commons-cli:commons-cli:1.3.1",
                     "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -1362,15 +1648,15 @@
                 "coord": "org.apache.flink:flink-core:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
                     "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
                     "commons-collections:commons-collections:3.2.2",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:force-shading:1.8.0",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
-                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.commons:commons-lang3:3.7",
                     "com.esotericsoftware.minlog:minlog:1.2",
                     "org.apache.flink:flink-shaded-guava:18.0-6.0",
                     "org.apache.flink:flink-annotations:1.8.0"
@@ -1383,15 +1669,15 @@
                 "coord": "org.apache.flink:flink-hadoop-fs:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
                     "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
                     "commons-collections:commons-collections:3.2.2",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:force-shading:1.8.0",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
-                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.apache.flink:flink-core:1.8.0",
                     "com.esotericsoftware.minlog:minlog:1.2",
                     "org.apache.flink:flink-shaded-guava:18.0-6.0",
@@ -1405,17 +1691,17 @@
                 "coord": "org.apache.flink:flink-java:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
                     "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
                     "commons-collections:commons-collections:3.2.2",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.commons:commons-math3:3.5",
                     "org.apache.flink:force-shading:1.8.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
-                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.apache.flink:flink-core:1.8.0",
                     "com.esotericsoftware.minlog:minlog:1.2",
                     "org.apache.flink:flink-shaded-guava:18.0-6.0",
@@ -1428,9 +1714,9 @@
             {
                 "coord": "org.apache.flink:flink-metrics-core:1.8.0",
                 "dependencies": [
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.apache.flink:force-shading:1.8.0",
-                    "com.google.code.findbugs:jsr305:1.3.9",
-                    "org.slf4j:slf4j-api:1.7.16"
+                    "com.google.code.findbugs:jsr305:3.0.2"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-metrics-core/1.8.0/flink-metrics-core-1.8.0.jar",
                 "sha256": "aeebc1271212fe7f41824998c317d0ec8b5a8a5249543382e9543d63a966b9ef",
@@ -1440,7 +1726,6 @@
                 "coord": "org.apache.flink:flink-optimizer_2.12:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "org.apache.flink:flink-hadoop-fs:1.8.0",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
@@ -1448,6 +1733,7 @@
                     "commons-collections:commons-collections:3.2.2",
                     "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                     "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "commons-io:commons-io:2.4",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
@@ -1456,13 +1742,13 @@
                     "com.typesafe:config:1.3.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
                     "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.reactivestreams:reactive-streams:1.0.0",
                     "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                     "org.javassist:javassist:3.19.0-GA",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.slf4j:slf4j-api:1.7.16",
                     "org.apache.flink:flink-core:1.8.0",
                     "commons-cli:commons-cli:1.3.1",
                     "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -1487,10 +1773,10 @@
             {
                 "coord": "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                 "dependencies": [
-                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "org.apache.flink:force-shading:1.8.0",
-                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.apache.flink:flink-shaded-guava:18.0-6.0"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0.jar",
@@ -1501,7 +1787,6 @@
                 "coord": "org.apache.flink:flink-runtime_2.12:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "org.apache.flink:flink-hadoop-fs:1.8.0",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
@@ -1509,6 +1794,7 @@
                     "commons-collections:commons-collections:3.2.2",
                     "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                     "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "commons-io:commons-io:2.4",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
@@ -1517,13 +1803,13 @@
                     "com.typesafe:config:1.3.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
                     "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.reactivestreams:reactive-streams:1.0.0",
                     "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                     "org.javassist:javassist:3.19.0-GA",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.slf4j:slf4j-api:1.7.16",
                     "org.apache.flink:flink-core:1.8.0",
                     "commons-cli:commons-cli:1.3.1",
                     "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -1548,7 +1834,6 @@
                 "coord": "org.apache.flink:flink-runtime_2.12:test-jar:tests:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "org.apache.flink:flink-hadoop-fs:1.8.0",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
@@ -1556,6 +1841,7 @@
                     "commons-collections:commons-collections:3.2.2",
                     "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                     "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "commons-io:commons-io:2.4",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
@@ -1564,13 +1850,13 @@
                     "com.typesafe:config:1.3.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
                     "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.reactivestreams:reactive-streams:1.0.0",
                     "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                     "org.javassist:javassist:3.19.0-GA",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.slf4j:slf4j-api:1.7.16",
                     "org.apache.flink:flink-core:1.8.0",
                     "commons-cli:commons-cli:1.3.1",
                     "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -1630,7 +1916,6 @@
                 "coord": "org.apache.flink:flink-streaming-java_2.12:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "org.apache.flink:flink-hadoop-fs:1.8.0",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
                     "org.apache.flink:flink-metrics-core:1.8.0",
@@ -1638,6 +1923,7 @@
                     "commons-collections:commons-collections:3.2.2",
                     "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                     "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "commons-io:commons-io:2.4",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
@@ -1646,13 +1932,13 @@
                     "com.typesafe:config:1.3.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
                     "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.reactivestreams:reactive-streams:1.0.0",
                     "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                     "org.javassist:javassist:3.19.0-GA",
                     "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.slf4j:slf4j-api:1.7.16",
                     "org.apache.flink:flink-core:1.8.0",
                     "commons-cli:commons-cli:1.3.1",
                     "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -1679,11 +1965,11 @@
             {
                 "coord": "org.apache.flink:flink-test-utils-junit:1.8.0",
                 "dependencies": [
-                    "com.google.code.findbugs:jsr305:1.3.9",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "junit:junit:4.12",
                     "org.hamcrest:hamcrest-core:1.3",
                     "org.apache.flink:force-shading:1.8.0",
-                    "org.slf4j:slf4j-api:1.7.16"
+                    "org.slf4j:slf4j-api:1.7.25"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-test-utils-junit/1.8.0/flink-test-utils-junit-1.8.0.jar",
                 "sha256": "534154a0691ab95b1db3c4808ecfb534a30c769de465b380657e4f664d8fc9bc",
@@ -1693,7 +1979,6 @@
                 "coord": "org.apache.flink:flink-test-utils_2.12:1.8.0",
                 "dependencies": [
                     "org.objenesis:objenesis:2.1",
-                    "com.google.code.findbugs:jsr305:1.3.9",
                     "log4j:log4j:1.2.16",
                     "org.apache.flink:flink-hadoop-fs:1.8.0",
                     "com.esotericsoftware.kryo:kryo:2.24.0",
@@ -1702,36 +1987,41 @@
                     "commons-collections:commons-collections:3.2.2",
                     "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
                     "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.google.code.findbugs:jsr305:3.0.2",
                     "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
                     "commons-io:commons-io:2.4",
                     "com.typesafe.akka:akka-actor_2.12:2.4.20",
                     "jline:jline:0.9.94",
+                    "com.google.guava:guava:25.1-jre",
                     "org.apache.curator:curator-test:2.12.0",
                     "org.apache.commons:commons-math3:3.5",
                     "junit:junit:4.12",
                     "org.hamcrest:hamcrest-core:1.3",
                     "org.apache.flink:force-shading:1.8.0",
-                    "com.google.guava:guava:16.0.1",
                     "com.typesafe:config:1.3.0",
                     "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
                     "org.xerial.snappy:snappy-java:1.1.4",
                     "org.apache.flink:flink-streaming-java_2.12:1.8.0",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "org.reactivestreams:reactive-streams:1.0.0",
                     "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
                     "org.javassist:javassist:3.19.0-GA",
                     "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.apache.flink:flink-test-utils-junit:1.8.0",
-                    "org.apache.commons:commons-lang3:3.4",
                     "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.slf4j:slf4j-api:1.7.16",
+                    "org.codehaus.mojo:animal-sniffer-annotations:1.14",
                     "org.apache.flink:flink-core:1.8.0",
                     "commons-cli:commons-cli:1.3.1",
                     "com.typesafe:ssl-config-core_2.12:0.2.1",
                     "com.esotericsoftware.minlog:minlog:1.2",
                     "org.clapper:grizzled-slf4j_2.12:1.3.2",
                     "com.twitter:chill_2.12:0.7.6",
+                    "com.google.j2objc:j2objc-annotations:1.1",
                     "org.apache.flink:flink-runtime_2.12:1.8.0",
+                    "com.google.errorprone:error_prone_annotations:2.1.3",
                     "org.apache.flink:flink-java:1.8.0",
+                    "org.checkerframework:checker-qual:2.0.0",
                     "org.apache.zookeeper:zookeeper:3.4.8",
                     "com.twitter:chill-java:0.7.6",
                     "org.apache.flink:flink-runtime_2.12:test-jar:1.8.0",
@@ -1760,7 +2050,7 @@
             {
                 "coord": "org.apache.maven:maven-artifact:3.3.9",
                 "dependencies": [
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.codehaus.plexus:plexus-utils:3.0.22"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-artifact/3.3.9/maven-artifact-3.3.9.jar",
@@ -1770,7 +2060,7 @@
             {
                 "coord": "org.apache.maven:maven-model:3.3.9",
                 "dependencies": [
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "org.codehaus.plexus:plexus-utils:3.0.22"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/maven/maven-model/3.3.9/maven-model-3.3.9.jar",
@@ -1781,7 +2071,7 @@
                 "coord": "org.apache.maven:maven-plugin-api:3.3.9",
                 "dependencies": [
                     "org.apache.maven:maven-model:3.3.9",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "javax.enterprise:cdi-api:1.0",
                     "org.codehaus.plexus:plexus-component-annotations:1.5.5",
                     "org.apache.maven:maven-artifact:3.3.9",
@@ -1800,8 +2090,8 @@
                 "coord": "org.apache.zookeeper:zookeeper:3.4.8",
                 "dependencies": [
                     "io.netty:netty:3.7.0.Final",
+                    "org.slf4j:slf4j-api:1.7.25",
                     "log4j:log4j:1.2.16",
-                    "org.slf4j:slf4j-api:1.7.16",
                     "jline:jline:0.9.94"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar",
@@ -1809,13 +2099,50 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar"
             },
             {
+                "coord": "org.bouncycastle:bcpkix-jdk15on:1.59",
+                "dependencies": [
+                    "org.bouncycastle:bcprov-jdk15on:jar:1.59"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk15on/1.59/bcpkix-jdk15on-1.59.jar",
+                "sha256": "601d85cfbcef76a1cb77cbf755a6234a4ba1d4c02a98d9a81028d471f388694f",
+                "url": "https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk15on/1.59/bcpkix-jdk15on-1.59.jar"
+            },
+            {
+                "coord": "org.bouncycastle:bcprov-ext-jdk15on:1.59",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/bouncycastle/bcprov-ext-jdk15on/1.59/bcprov-ext-jdk15on-1.59.jar",
+                "sha256": "a75c21098693d4d2f33497cdf960912716ce2f6e2215df57dbfbb5bb7cd3dfe9",
+                "url": "https://repo1.maven.org/maven2/org/bouncycastle/bcprov-ext-jdk15on/1.59/bcprov-ext-jdk15on-1.59.jar"
+            },
+            {
+                "coord": "org.bouncycastle:bcprov-jdk15on:jar:1.59",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.59/bcprov-jdk15on-1.59.jar",
+                "sha256": "1c31e44e331d25e46d293b3e8ee2d07028a67db011e74cb2443285aed1d59c85",
+                "url": "https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.59/bcprov-jdk15on-1.59.jar"
+            },
+            {
+                "coord": "org.checkerframework:checker-qual:2.0.0",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/checkerframework/checker-qual/2.0.0/checker-qual-2.0.0.jar",
+                "sha256": "fc8441632f5fa5537492c9f026d1c8b1adb6a7796f46031b04b4cc0622427995",
+                "url": "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.0.0/checker-qual-2.0.0.jar"
+            },
+            {
                 "coord": "org.clapper:grizzled-slf4j_2.12:1.3.2",
                 "dependencies": [
-                    "org.slf4j:slf4j-api:1.7.16"
+                    "org.slf4j:slf4j-api:1.7.25"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2.jar",
                 "sha256": "fc30cd1e4cb03cfbee546fed39428e6e9f929857327723a9fe87afd0a3f275c7",
                 "url": "https://repo1.maven.org/maven2/org/clapper/grizzled-slf4j_2.12/1.3.2/grizzled-slf4j_2.12-1.3.2.jar"
+            },
+            {
+                "coord": "org.codehaus.mojo:animal-sniffer-annotations:1.14",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar",
+                "sha256": "2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d",
+                "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar"
             },
             {
                 "coord": "org.codehaus.plexus:plexus-classworlds:2.5.2",
@@ -1927,6 +2254,13 @@
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar"
             },
             {
+                "coord": "org.joda:joda-convert:1.2",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/joda/joda-convert/1.2/joda-convert-1.2.jar",
+                "sha256": "5703e1a2ac1969fe90f87076c1f1136822bf31d8948252159c86e6d0535c81a8",
+                "url": "https://repo1.maven.org/maven2/org/joda/joda-convert/1.2/joda-convert-1.2.jar"
+            },
+            {
                 "coord": "org.objenesis:objenesis:2.1",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar",
@@ -1936,20 +2270,20 @@
             {
                 "coord": "org.openjfx:javafx-base:11.0.1",
                 "dependencies": [
-                    "org.openjfx:javafx-base:jar:mac:11.0.1"
+                    "org.openjfx:javafx-base:jar:linux:11.0.1"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar",
                 "sha256": "c5084a74417a89c69a0c122fae96a4b70bf619fc3d6218ea102a4047ec85ad04",
                 "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar"
             },
             {
-                "coord": "org.openjfx:javafx-base:jar:mac:11.0.1",
+                "coord": "org.openjfx:javafx-base:jar:linux:11.0.1",
                 "dependencies": [
-                    "org.openjfx:javafx-base:jar:mac:11.0.1"
+                    "org.openjfx:javafx-base:jar:linux:11.0.1"
                 ],
-                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
-                "sha256": "2d8052a08fd2e5d98e1d5a16d724ea5dd02102879de20a193225f57199803983",
-                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
+                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-linux.jar",
+                "sha256": "2ebf6fa2cbbe1c8b4f7780e06e97beb038f644d5ecf9f15a41c5e88ee0ef9cf1",
+                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-linux.jar"
             },
             {
                 "coord": "org.ow2.asm:asm-analysis:6.2",
@@ -1995,7 +2329,7 @@
                     "org.apache.maven:maven-plugin-api:3.3.9",
                     "org.apache.maven:maven-model:3.3.9",
                     "org.ow2.asm:asm-tree:6.2",
-                    "org.apache.commons:commons-lang3:3.4",
+                    "org.apache.commons:commons-lang3:3.7",
                     "javax.enterprise:cdi-api:1.0",
                     "org.codehaus.plexus:plexus-component-annotations:1.5.5",
                     "org.apache.maven:maven-artifact:3.3.9",
@@ -2050,11 +2384,11 @@
                 "url": "https://repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.0-M4/util-interface-1.3.0-M4.jar"
             },
             {
-                "coord": "org.slf4j:slf4j-api:1.7.16",
+                "coord": "org.slf4j:slf4j-api:1.7.25",
                 "dependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16.jar",
-                "sha256": "e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b",
-                "url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.16/slf4j-api-1.7.16.jar"
+                "file": "v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar",
+                "sha256": "18c4a0095d5c1da6b817592e767bb23d29dd2f560ad74df75ff3961dbde25b79",
+                "url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar"
             },
             {
                 "coord": "org.xerial.snappy:snappy-java:1.1.4",
@@ -2062,6 +2396,13 @@
                 "file": "v1/https/repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4.jar",
                 "sha256": "f75ec0fa9c843e236c6e1512c17c095cfffd175f32e21ea0e3eccb540d77f002",
                 "url": "https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.4/snappy-java-1.1.4.jar"
+            },
+            {
+                "coord": "org.yaml:snakeyaml:1.19",
+                "dependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/yaml/snakeyaml/1.19/snakeyaml-1.19.jar",
+                "sha256": "0a7b1063fcaeb806b40b728d01b9361d38e1ed8deb93f945994fec7c1761dad1",
+                "url": "https://repo1.maven.org/maven2/org/yaml/snakeyaml/1.19/snakeyaml-1.19.jar"
             }
         ],
         "version": "0.1.0"
