@@ -153,6 +153,30 @@ will be accompanied by an unpinned repository. This repository name has the
 `@unpinned_<your_maven_install_name>`). For example, if your `maven_install` is
 named `@foo`, `@unpinned_foo` will be created.
 
+If you have multiple `maven_install` declarations, you will have to alias `pinned_maven_install` to 
+another name to prevent redefinitions:
+
+```python
+maven_install(
+    name = "foo",
+    maven_install_json = "//:foo_maven_install.json",
+    # ...
+)
+
+load("@foo//:defs.bzl", foo_pinned_maven_install = "pinned_maven_install")
+foo_pinned_maven_install()
+
+maven_install(
+    name = "bar",
+    maven_install_json = "//:bar_maven_install.json",
+    # ...
+)
+
+load("@bar//:defs.bzl", bar_pinned_maven_install = "pinned_maven_install")
+bar_pinned_maven_install()
+```
+
+
 ## Advanced usage
 
 ### Fetch source JARs
