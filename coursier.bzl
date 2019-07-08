@@ -763,7 +763,10 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.template("pin", repository_ctx.attr._pin,
         {
             "{dependency_tree_json}": dependency_tree_json,
-            "{repository_name}": repository_ctx.name.lstrip("unpinned_"),
+            "{repository_name}": \
+                repository_ctx.name[len("unpinned_"):] \
+                if repository_ctx.name.startswith("unpinned_") \
+                else repository_ctx.name,
         },
         executable = True,
     )
