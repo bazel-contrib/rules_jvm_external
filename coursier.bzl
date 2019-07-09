@@ -531,15 +531,14 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name
               + "This feature ensures that the file is not modified manually. To generate this "
               + "signature, run `bazel run @unpinned_%s//:pin`." % repository_ctx.name)
-    else:
+    else if _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
-        if _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
-            fail("Detected manual file modification in %s_install.json. " % repository_ctx.name
-                + "Please do not modify this file manually. "
-                + "Please undo the modification to maven_install.json and modify the `maven_install` declaration "
-                + "in the WORKSPACE file directly. Then, run `bazel run unpinned_%s//:pin` " % repository_ctx.name
-                + "to generate a new %s_install.json file." % repository_ctx.name)
+        fail("Detected manual file modification in %s_install.json. " % repository_ctx.name
+            + "Please do not modify this file manually. "
+            + "Please undo the modification to maven_install.json and modify the `maven_install` declaration "
+            + "in the WORKSPACE file directly. Then, run `bazel run unpinned_%s//:pin` " % repository_ctx.name
+            + "to generate a new %s_install.json file." % repository_ctx.name)
 
     # Create the list of http_file repositories for each of the artifacts
     # in maven_install.json. This will be loaded additionally like so:
