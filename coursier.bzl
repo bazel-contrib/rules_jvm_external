@@ -535,8 +535,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         fail("Detected manual file modification in %s_install.json. " % repository_ctx.name
-            + "Please do not modify this file manually. "
-            + "Please undo the modification to maven_install.json and modify the `maven_install` declaration "
+            + "Please do not modify this file manually. Please undo the modification to "
+            + "%s_install.json and modify the `maven_install` declaration " % repository_ctx.name
             + "in the WORKSPACE file directly. Then, run `bazel run unpinned_%s//:pin` " % repository_ctx.name
             + "to generate a new %s_install.json file." % repository_ctx.name)
 
