@@ -473,7 +473,6 @@ def _compute_dependency_tree_signature(artifacts):
     # A collection of elements from the dependency tree to be sorted and hashed
     # into a signature for maven_install.json.
     signature_inputs = []
-    signature_inputs = []
     for artifact in artifacts:
         signature_inputs.append(artifact["coord"])
         if artifact["file"] != None:
@@ -828,7 +827,6 @@ def _coursier_fetch_impl(repository_ctx):
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
-        "_sha256_tool": attr.label(default = "@bazel_tools//tools/build_defs/hash:sha256.py"),
         "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
