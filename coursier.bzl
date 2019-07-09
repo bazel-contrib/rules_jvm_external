@@ -531,7 +531,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name
               + "This feature ensures that the file is not modified manually. To generate this "
               + "signature, run `bazel run @unpinned_%s//:pin`." % repository_ctx.name)
-    else if _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
+    elif _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         fail("Detected manual file modification in %s_install.json. " % repository_ctx.name
