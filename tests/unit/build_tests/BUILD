@@ -27,3 +27,10 @@ build_test(
         "@org_apache_flink_flink_test_utils_2_12//jar",
     ],
 )
+
+build_test(
+    name = "version_conflict_policy_pinned",
+    targets = [
+        "@policy_pinned_testing//:com_google_guava_guava_25_0_android",
+    ],
+)
