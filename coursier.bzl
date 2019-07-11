@@ -640,7 +640,8 @@ def _coursier_fetch_impl(repository_ctx):
     cmd.extend(artifact_coordinates)
     if repository_ctx.attr.version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
-            cmd.extend(["--force-version", coord])
+            # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
+            cmd.extend(["--force-version", coord.split(",classifier=")[0]])
     cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
     cmd.append("--quiet")
     cmd.append("--no-default")
