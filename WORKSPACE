@@ -167,7 +167,7 @@ maven_install(
     maven_install_json = "//:policy_pinned_testing_install.json",
 )
 
-load("@policy_pinned_testing//:defs.bzl", _policy_pinned_maven_install="pinned_maven_install")
+load("@policy_pinned_testing//:defs.bzl", _policy_pinned_maven_install = "pinned_maven_install")
 _policy_pinned_maven_install()
 
 RULES_KOTLIN_VERSION = "da1232eda2ef90d4375e2d1677b32c7ddf09e8a1"
