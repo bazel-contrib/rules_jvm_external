@@ -27,3 +27,13 @@ build_test(
         "@org_apache_flink_flink_test_utils_2_12//jar",
     ],
 )
+
+build_test(
+    name = "compat_repository_alias_jarless",
+    targets = [
+        "@org_pantsbuild_jarjar",
+        "@nz_ac_waikato_cms_weka_weka_stable",
+        "@com_digitalasset_damlc_osx",
+        "@org_apache_flink_flink_test_utils_2_12",
+    ],
+)
