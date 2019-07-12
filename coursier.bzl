@@ -638,6 +638,10 @@ def _coursier_fetch_impl(repository_ctx):
     cmd = _generate_coursier_command(repository_ctx)
     cmd.extend(["fetch"])
     cmd.extend(artifact_coordinates)
+    if repository_ctx.attr.version_conflict_policy == "pinned":
+        for coord in artifact_coordinates:
+            # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
+            cmd.extend(["--force-version", coord.split(",classifier=")[0]])
     cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
     cmd.append("--quiet")
     cmd.append("--no-default")
@@ -813,6 +817,15 @@ coursier_fetch = repository_rule(
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
+        "version_conflict_policy": attr.string(
+            doc = """Policy for user-defined vs. transitive dependency version conflicts
+
+            If "pinned", choose the user-specified version in maven_install unconditionally.
+            If "default", follow Coursier's default policy.
+            """,
+            default = "default",
+            values = ["default", "pinned"],
+        ),
         "maven_install_json": attr.label(allow_single_file = True),
     },
     environ = [

@@ -26,6 +26,7 @@ def maven_install(
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
         generate_compat_repositories = False,
+        version_conflict_policy = "default",
         maven_install_json = None):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
@@ -46,6 +47,9 @@ def maven_install(
       generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
         artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
         `@com_google_guava_guava//jar`.
+      version_conflict_policy: Policy for user-defined vs. transitive dependency version
+        conflicts.  If "pinned", choose the user's version unconditionally.  If "default", follow
+        Coursier's default policy.
       maven_install_json: A label to a `maven_install.json` file to use pinned artifacts for generating
         build targets. e.g `//:maven_install.json`.
     """
@@ -85,6 +89,7 @@ def maven_install(
         use_unsafe_shared_cache = use_unsafe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
+        version_conflict_policy = version_conflict_policy,
     )
 
     if maven_install_json != None:
