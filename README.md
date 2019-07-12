@@ -549,7 +549,7 @@ load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
 ```
 
-## Exporting and Consuming Artifacts from External Repos
+## Exporting and consuming artifacts from external repositories
 
 If you're writing a library that has dependencies, you should define a constant that
 lists all of the artifacts that your library requires. For example:
