@@ -549,6 +549,60 @@ load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
 ```
 
+## Exporting and consuming artifacts from external repositories
+
+If you're writing a library that has dependencies, you should define a constant that
+lists all of the artifacts that your library requires. For example:
+
+```python
+# my_library/BUILD
+# Public interface of the library
+java_library(
+  name = "my_interface",
+  deps = [
+    "@maven//:junit_junit",
+    "@maven//:com_google_inject_guice",
+  ],
+)
+```
+
+```python
+# my_library/library_deps.bzl
+# All artifacts required by the library
+MY_LIBRARY_ARTIFACTS = [
+  "junit:junit:4.12",
+  "com.google.inject:guice:4.0",
+]
+```
+
+Users of your library can then load the constant in their `WORKSPACE` and add the
+artifacts to their `maven_install`. For example:
+
+```python
+# user_project/WORKSPACE
+load("@my_library//:library_deps.bzl", "MY_LIBRARY_ARTIFACTS")
+
+maven_install(
+  artifacts = [
+        "junit:junit:4.11",
+        "com.google.guava:guava:26.0-jre",
+  ] + MY_LIBRARY_ARTIFACTS,
+)
+```
+
+```python
+# user_project/BUILD
+java_library(
+  name = "user_lib",
+  deps = [
+    "@my_library//:my_interface",
+    "@maven//:junit_junit",
+  ],
+)
+```
+
+Any version conflicts or duplicate artifacts will resolved automatically.
+
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
