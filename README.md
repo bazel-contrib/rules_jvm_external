@@ -434,6 +434,88 @@ This instructs `rules_jvm_external` to mark the generated target for
 `com.squareup:javapoet` with the `neverlink = True` attribute, making the
 artifact available only for compilation and not at runtime.
 
+### Resolving user-specified and transitive dependency version conflicts
+
+Use the `version_conflict_policy` attribute to decide how to resolve conflicts
+between artifact versions specified in your `maven_install` rule and those
+implicitly picked up as transitive dependencies.
+
+1. Pulling in guava transitively via google-cloud-storage resolves to guava-26.0-android.
+
+```
+maven_install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ]
+)
+
+$ bazel query @pinning//:all | grep guava_guava
+@pinning//:com_google_guava_guava
+@pinning//:com_google_guava_guava_26_0_android
+```
+
+1. Pulling in guava-27.0-android directly works as expected.
+
+```
+maven_install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:27.0-android",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ]
+)
+
+$ bazel query @pinning//:all | grep guava_guava
+@pinning//:com_google_guava_guava
+@pinning//:com_google_guava_guava_27_0_android
+```
+
+1. Pulling in guava-25.0-android (a lower version), resolves to guava-26.0-android. This is the default version conflict policy in action, where artifacts are resolved to the highest version.
+
+```
+maven_install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:25.0-android",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ]
+)
+
+$ bazel query @pinning//:all | grep guava_guava
+@pinning//:com_google_guava_guava
+@pinning//:com_google_guava_guava_26_0_android
+```
+
+1. Now, if we add `version_conflict_policy = "pinned"`, we should see guava-25.0-android getting pulled instead. The rest of non-specified artifacts still resolve to the highest version in the case of version conflicts.
+
+```
+maven_install(
+    name = "pinning",
+    artifacts = [
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:25.0-android",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ]
+    version_conflict_policy = "pinned",
+)
+
+$ bazel query @pinning//:all | grep guava_guava
+@pinning//:com_google_guava_guava
+@pinning//:com_google_guava_guava_25_0_android
+```
+
 ### Proxies
 
 As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`

@@ -152,6 +152,24 @@ pinned_maven_install()
 load("@regression_testing//:compat.bzl", "compat_repositories")
 compat_repositories()
 
+maven_install(
+    name = "policy_pinned_testing",
+    artifacts = [
+        # https://github.com/bazelbuild/rules_jvm_external/issues/107
+        "com.google.cloud:google-cloud-storage:1.66.0",
+        "com.google.guava:guava:25.0-android",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    version_conflict_policy = "pinned",
+    maven_install_json = "//:policy_pinned_testing_install.json",
+)
+
+load("@policy_pinned_testing//:defs.bzl", _policy_pinned_maven_install = "pinned_maven_install")
+_policy_pinned_maven_install()
+
 RULES_KOTLIN_VERSION = "da1232eda2ef90d4375e2d1677b32c7ddf09e8a1"
 
 http_archive(
