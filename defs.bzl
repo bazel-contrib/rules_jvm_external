@@ -27,7 +27,8 @@ def maven_install(
         excluded_artifacts = [],
         generate_compat_repositories = False,
         version_conflict_policy = "default",
-        maven_install_json = None):
+        maven_install_json = None,
+        override_targets = {}):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -90,6 +91,7 @@ def maven_install(
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
         version_conflict_policy = version_conflict_policy,
+        override_targets = override_targets,
     )
 
     if maven_install_json != None:
@@ -100,6 +102,7 @@ def maven_install(
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
             generate_compat_repositories = generate_compat_repositories,
+            override_targets = override_targets,
         )
 
 

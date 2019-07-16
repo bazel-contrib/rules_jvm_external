@@ -985,6 +985,88 @@
                 "url": "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
             },
             {
+                "coord": "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
+                "dependencies": [
+                    "android.arch.lifecycle:viewmodel:aar:1.1.1",
+                    "com.android.support:customview:aar:28.0.0",
+                    "com.google.ar.sceneform:rendering:aar:1.10.0",
+                    "com.android.support:print:aar:28.0.0",
+                    "com.android.support:asynclayoutinflater:aar:28.0.0",
+                    "com.android.support:support-core-utils:aar:28.0.0",
+                    "com.android.support:collections:28.0.0",
+                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                    "com.android.support:support-fragment:aar:28.0.0",
+                    "com.android.support:viewpager:aar:28.0.0",
+                    "com.google.ar.sceneform:core:aar:1.10.0",
+                    "com.google.ar:core:aar:1.10.0",
+                    "com.android.support:interpolator:aar:28.0.0",
+                    "com.android.support:versionedparcelable:aar:28.0.0",
+                    "com.android.support:support-core-ui:aar:28.0.0",
+                    "com.android.support:swiperefreshlayout:aar:28.0.0",
+                    "android.arch.lifecycle:runtime:aar:1.1.1",
+                    "com.android.support:support-annotations:28.0.0",
+                    "android.arch.core:runtime:aar:1.1.1",
+                    "com.android.support:coordinatorlayout:aar:28.0.0",
+                    "com.android.support:loader:aar:28.0.0",
+                    "android.arch.lifecycle:livedata:aar:1.1.1",
+                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
+                    "com.android.support:support-compat:aar:28.0.0",
+                    "com.android.support:localbroadcastmanager:aar:28.0.0",
+                    "com.android.support:cursoradapter:aar:28.0.0",
+                    "com.android.support:drawerlayout:aar:28.0.0",
+                    "android.arch.lifecycle:livedata-core:aar:1.1.1",
+                    "android.arch.lifecycle:common:1.1.1",
+                    "com.android.support:slidingpanelayout:aar:28.0.0",
+                    "com.android.support:documentfile:aar:28.0.0",
+                    "android.arch.core:common:1.1.1"
+                ],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
+                "sha256": "f37d622f5f44facf953e23bcc01175c4f2df5f7234f71cd8855ca669d7c179fc",
+                "url": "https://maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:core:aar:1.10.0",
+                "dependencies": [
+                    "com.google.ar:core:aar:1.10.0",
+                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
+                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                    "com.google.ar.sceneform:rendering:aar:1.10.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
+                "sha256": "0652b7feb93b5c19ab314b79977aa739ec58c48a1bd727a4f8c31e61fe105e09",
+                "url": "https://maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                "dependencies": [],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
+                "sha256": "24751cbda2bfa49d5ab0d53f36efa7ac4f0b1ba6c7356c8bf418cb5a61dd067f",
+                "url": "https://maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:rendering:aar:1.10.0",
+                "dependencies": [
+                    "com.google.ar:core:aar:1.10.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
+                "sha256": "d2f6cd1d54eee0d5557518d1edcf77a3ba37494ae94f9bb862e570ee426a3431",
+                "url": "https://maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
+                "dependencies": [],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
+                "sha256": "fe2191f8a0b622bf35c91cdbe83074ff025f1641b6fe25ea0b554f208a62daff",
+                "url": "https://maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar:core:aar:1.10.0",
+                "dependencies": [],
+                "file": "v1/https/maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar",
+                "sha256": "6624df5075cb9db0887abd6c84eb0889d1d7ba11bfd930b4e06a56eaffab820a",
+                "url": "https://maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar"
+            },
+            {
                 "coord": "com.google.code.findbugs:jsr305:3.0.2",
                 "dependencies": [],
                 "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
@@ -2271,20 +2353,20 @@
             {
                 "coord": "org.openjfx:javafx-base:11.0.1",
                 "dependencies": [
-                    "org.openjfx:javafx-base:jar:linux:11.0.1"
+                    "org.openjfx:javafx-base:jar:mac:11.0.1"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar",
                 "sha256": "c5084a74417a89c69a0c122fae96a4b70bf619fc3d6218ea102a4047ec85ad04",
                 "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar"
             },
             {
-                "coord": "org.openjfx:javafx-base:jar:linux:11.0.1",
+                "coord": "org.openjfx:javafx-base:jar:mac:11.0.1",
                 "dependencies": [
-                    "org.openjfx:javafx-base:jar:linux:11.0.1"
+                    "org.openjfx:javafx-base:jar:mac:11.0.1"
                 ],
-                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-linux.jar",
-                "sha256": "2ebf6fa2cbbe1c8b4f7780e06e97beb038f644d5ecf9f15a41c5e88ee0ef9cf1",
-                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-linux.jar"
+                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
+                "sha256": "2d8052a08fd2e5d98e1d5a16d724ea5dd02102879de20a193225f57199803983",
+                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
             },
             {
                 "coord": "org.ow2.asm:asm-analysis:6.2",

@@ -151,6 +151,8 @@ maven_install(
         "org.openjfx:javafx-base:11.0.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/178
         "io.kubernetes:client-java:4.0.0-beta1",
+         # https://github.com/bazelbuild/rules_jvm_external/issues/199
+        "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -159,6 +161,9 @@ maven_install(
     ],
     generate_compat_repositories = True,
     maven_install_json = "//:regression_testing_install.json",
+    override_targets = {
+        "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
+    }
 )
 
 load("@regression_testing//:defs.bzl", "pinned_maven_install")

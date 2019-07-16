@@ -130,7 +130,7 @@ def _genrule_copy_artifact_from_http_file(artifact):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
+def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_targets):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -144,6 +144,13 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
     # generating a compatibility layer for repositories. For example, if we generate
     # @maven//:junit_junit, we also generate @junit_junit//jar as an alias to it.
     jar_versionless_target_labels = []
+
+    labels_to_override = {}
+    for coord in override_targets:
+        labels_to_override.update({
+            _escape(coord): override_targets.get(coord)
+        })
+    print(labels_to_override)
 
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
@@ -171,7 +178,12 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
         elif repository_ctx.attr.fetch_sources and ":sources:" in artifact["coord"]:
             # We already processed the sources above, so skip them here.
             pass
-        elif target_label not in seen_imports and artifact_path != None:
+        elif target_label in labels_to_override:
+            seen_imports[target_label] = True
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)))
+            if repository_ctx.attr.maven_install_json:
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
+        elif artifact_path != None:
             seen_imports[target_label] = True
 
             # 1. Generate the rule class.
@@ -233,7 +245,11 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
                 if dep_target_label != target_label:
-                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+                    if dep_target_label in labels_to_override:
+                        dep_target_label = labels_to_override.get(dep_target_label)
+                    else:
+                        dep_target_label = ":" + dep_target_label
+                    target_import_labels.append("\t\t\"%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 
             target_import_string.append("".join(target_import_labels) + "\t],")
@@ -573,6 +589,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             for a in artifacts
             if a.get("neverlink", False)
         },
+        override_targets = repository_ctx.attr.override_targets,
     )
 
     repository_ctx.template(
@@ -767,6 +784,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         neverlink_artifacts = neverlink_artifacts,
+        override_targets = repository_ctx.attr.override_targets,
     )
 
     repository_ctx.template(
@@ -856,6 +874,7 @@ pinned_coursier_fetch = repository_rule(
         "fetch_sources": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
+        "override_targets": attr.string_dict(default = {}),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -883,6 +902,7 @@ coursier_fetch = repository_rule(
             values = ["default", "pinned"],
         ),
         "maven_install_json": attr.label(allow_single_file = True),
+        "override_targets": attr.string_dict(default = {}),
     },
     environ = [
         "JAVA_HOME",
