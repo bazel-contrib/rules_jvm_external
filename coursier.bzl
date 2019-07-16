@@ -536,10 +536,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     elif _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
-        fail("Detected manual file modification in %s_install.json. " % repository_ctx.name
-            + "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To update "
-            + "%s_install.json and re-pin the artifacts, modify 'maven_install' " % repository_ctx.name
-            + "in the WORKSPACE file and run 'bazel run unpinned_%s//:pin' again." % repository_ctx.name)
+        fail("%s_install.json contains an invalid signature and may be corrupted. " % repository_ctx.name
+            + "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new "
+            + "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % repository_ctx.name
+            + "  1) In your WORKSPACE file, comment the 'maven_install_json' attribute in 'maven_install'.\n"
+            + "  2) Run 'bazel run @%s//:pin'.\n" % repository_ctx.name
+            + "  3) Uncomment the 'maven_install_json' attribute in 'maven_install'.\n\n")
 
     # Create the list of http_file repositories for each of the artifacts
     # in maven_install.json. This will be loaded additionally like so:
@@ -800,6 +802,8 @@ def _coursier_fetch_impl(repository_ctx):
         },
         executable = True,
     )
+
+    repository_ctx.file("defs.bzl", "def pinned_maven_install():\n    pass", executable = False)
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
