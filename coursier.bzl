@@ -155,14 +155,8 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
                 artifact_path = artifact["file"]
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
-                    if not repository_ctx.attr.maven_install_json and repository_ctx.attr.use_unsafe_shared_cache:
-                        # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
-                        artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
-                    else:
-                        # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                        artifact_relative_path = artifact_path
                     target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
-                    srcjar_paths[target_label] = artifact_relative_path
+                    srcjar_paths[target_label] = artifact_path
                     if repository_ctx.attr.maven_install_json:
                         all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
@@ -180,18 +174,11 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
         elif target_label not in seen_imports and artifact_path != None:
             seen_imports[target_label] = True
 
-            if not repository_ctx.attr.maven_install_json and repository_ctx.attr.use_unsafe_shared_cache:
-                # If using unsafe shared cache, the path is absolute to the artifact in $COURSIER_CACHE
-                artifact_relative_path = _relativize_and_symlink_file(repository_ctx, artifact_path)
-            else:
-                # If not, it's a relative path to the one in output_base/external/$maven/v1/...
-                artifact_relative_path = artifact_path
-
             # 1. Generate the rule class.
             #
             # java_import(
             #
-            packaging = artifact_relative_path.split(".").pop()
+            packaging = artifact_path.split(".").pop()
             if packaging == "jar":
                 # Regular `java_import` invokes ijar on all JARs, causing some Scala and
                 # Kotlin compile interface JARs to be incorrect. We replace java_import
@@ -220,11 +207,11 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts = {}):
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
             if packaging == "jar":
-                target_import_string.append("\tjars = [\"%s\"]," % artifact_relative_path)
+                target_import_string.append("\tjars = [\"%s\"]," % artifact_path)
                 if srcjar_paths != None and target_label in srcjar_paths:
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
             elif packaging == "aar":
-                target_import_string.append("\taar = \"%s\"," % artifact_relative_path)
+                target_import_string.append("\taar = \"%s\"," % artifact_path)
 
             # 4. Generate the deps attribute with references to other target labels.
             #
@@ -689,6 +676,9 @@ def _coursier_fetch_impl(repository_ctx):
         if artifact["file"] != None:
             # Normalize paths in place here.
             artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
+
+            if repository_ctx.attr.use_unsafe_shared_cache:
+                artifact.update({"file": _relativize_and_symlink_file(repository_ctx, artifact["file"])})
 
             # Coursier saves the artifacts into a subdirectory structure
             # that mirrors the URL where the artifact's fetched from. Using

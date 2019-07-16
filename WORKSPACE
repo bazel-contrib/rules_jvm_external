@@ -58,7 +58,11 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
     use_unsafe_shared_cache = True,
+    maven_install_json = "//:unsafe_shared_cache_install.json",
 )
+
+load("@unsafe_shared_cache//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
 
 maven_install(
     name = "exclusion_testing",
