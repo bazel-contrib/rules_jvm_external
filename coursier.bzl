@@ -147,10 +147,7 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
 
     labels_to_override = {}
     for coord in override_targets:
-        labels_to_override.update({
-            _escape(coord): override_targets.get(coord)
-        })
-    print(labels_to_override)
+        labels_to_override.update({_escape(coord): override_targets.get(coord)})
 
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
