@@ -532,16 +532,16 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     if dep_tree_signature == None:
         print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name
               + "This feature ensures that the file is not modified manually. To generate this "
-              + "signature, run `bazel run @unpinned_%s//:pin`." % repository_ctx.name)
+              + "signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
     elif _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         fail("%s_install.json contains an invalid signature and may be corrupted. " % repository_ctx.name
             + "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new "
             + "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % repository_ctx.name
-            + "  1) In your WORKSPACE file, comment the 'maven_install_json' attribute in 'maven_install'.\n"
+            + "  1) In your WORKSPACE file, comment or remove the 'maven_install_json' attribute in 'maven_install'.\n"
             + "  2) Run 'bazel run @%s//:pin'.\n" % repository_ctx.name
-            + "  3) Uncomment the 'maven_install_json' attribute in 'maven_install'.\n\n")
+            + "  3) Uncomment or re-add the 'maven_install_json' attribute in 'maven_install'.\n\n")
 
     # Create the list of http_file repositories for each of the artifacts
     # in maven_install.json. This will be loaded additionally like so:
@@ -803,7 +803,26 @@ def _coursier_fetch_impl(repository_ctx):
         executable = True,
     )
 
-    repository_ctx.file("defs.bzl", "def pinned_maven_install():\n    pass", executable = False)
+    # Generate a dummy 'defs.bzl' in the case where users have this
+    # in their WORKSPACE:
+    #
+    # maven_install(
+    #     name = "maven",
+    #     # maven_install_json = "//:maven_install.json",
+    # )
+    # load("@maven//:defs.bzl", "pinned_maven_install")
+    # pinned_maven_install()
+    #
+    # This scenario happens when users have a modified/corrupted
+    # 'maven_install.json' and wishes to re-generate one. Instead
+    # of asking users to also remove the load statement for
+    # pinned_maven_install(), we generate a dummy defs.bzl
+    # here so that builds will not fail due to a missing load.
+    repository_ctx.file(
+        "defs.bzl",
+        "def pinned_maven_install():\n    pass",
+        executable = False
+    )
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
