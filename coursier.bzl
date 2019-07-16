@@ -468,21 +468,23 @@ def _windows_check(repository_ctx):
                  "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
 
 # Deterministically compute a signature of a list of artifacts in the dependency tree.
-# This is to prevent users to manually editing maven_install.json.
+# This is to prevent users from manually editing maven_install.json.
 def _compute_dependency_tree_signature(artifacts):
     # A collection of elements from the dependency tree to be sorted and hashed
     # into a signature for maven_install.json.
     signature_inputs = []
     for artifact in artifacts:
-        signature_inputs.append(artifact["coord"])
+        artifact_group = []
+        artifact_group.append(artifact["coord"])
         if artifact["file"] != None:
-            signature_inputs.extend([
+            artifact_group.extend([
                 artifact["sha256"],
                 artifact["file"],
                 artifact["url"]
             ])
         if len(artifact["dependencies"]) > 0:
-            signature_inputs.append(",".join(sorted(artifact["dependencies"])))
+            artifact_group.append(",".join(sorted(artifact["dependencies"])))
+        signature_inputs.append(":".join(artifact_group))
     return hash(repr(sorted(signature_inputs)))
 
 def _pinned_coursier_fetch_impl(repository_ctx):
@@ -535,10 +537,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         fail("Detected manual file modification in %s_install.json. " % repository_ctx.name
-            + "Please do not modify this file manually. Please undo the modification to "
-            + "%s_install.json and modify the `maven_install` declaration " % repository_ctx.name
-            + "in the WORKSPACE file directly. Then, run `bazel run unpinned_%s//:pin` " % repository_ctx.name
-            + "to generate a new %s_install.json file." % repository_ctx.name)
+            + "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To update "
+            + "%s_install.json and re-pin the artifacts, modify 'maven_install' " % repository_ctx.name
+            + "in the WORKSPACE file and run 'bazel run unpinned_%s//:pin' again." % repository_ctx.name)
 
     # Create the list of http_file repositories for each of the artifacts
     # in maven_install.json. This will be loaded additionally like so:
