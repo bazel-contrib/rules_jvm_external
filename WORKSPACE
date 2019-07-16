@@ -58,10 +58,23 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
     use_unsafe_shared_cache = True,
-    maven_install_json = "//:unsafe_shared_cache_install.json",
 )
 
-load("@unsafe_shared_cache//:defs.bzl", "pinned_maven_install")
+maven_install(
+    name = "unsafe_shared_cache_with_pinning",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
+    ],
+    fetch_sources = True,
+    maven_install_json = "//:unsafe_shared_cache_with_pinning_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    use_unsafe_shared_cache = True,
+)
+
+load("@unsafe_shared_cache_with_pinning//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()
 
 maven_install(
