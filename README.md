@@ -44,6 +44,7 @@ maven_install(
     artifacts = [
         "junit:junit:4.12",
         "androidx.test.espresso:espresso-core:3.1.1",
+        "org.hamcrest:hamcrest-library:1.3",
     ],
     repositories = [
         # Private repositories are supported through HTTP Basic auth
@@ -58,11 +59,19 @@ maven_install(
 and use them directly in the BUILD file by specifying the versionless target alias label:
 
 ```python
-android_library(
-    name = "test_deps",
+java_library(
+    name = "java_test_deps",
     exports = [
+        "@maven//:junit_junit"
+        "@maven//:org_hamcrest_hamcrest_library",
+    ],
+)
+
+android_library(
+    name = "android_test_deps",
+    exports = [
+        "@maven//:junit_junit"
         "@maven//:androidx_test_espresso_espresso_core",
-        "@maven//:junit_junit",
     ],
 )
 ```
@@ -533,6 +542,10 @@ provide a `generate_compat_repositories` attribute in `maven_install`. If
 enabled, JAR artifacts can also be referenced using the `@group_artifact//jar`
 target label. For example, `@maven//:com_google_guava_guava` can also be
 referenced using `@com_google_guava_guava//jar`.
+
+The artifacts can also be referenced using the style used by
+`java_import_external` as `@group_artifact//:group_artifact` or
+`@group_artifact` for short.
 
 ```python
 maven_install(

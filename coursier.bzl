@@ -741,13 +741,6 @@ def _coursier_fetch_impl(repository_ctx):
         executable = False,  # not executable
     )
 
-    repository_ctx.template(
-        "compat_repository.bzl",
-        repository_ctx.attr._compat_repository,
-        substitutions = {},
-        executable = False,  # not executable
-    )
-
     repository_ctx.file(
         "BUILD",
         _BUILD.format(
@@ -777,6 +770,13 @@ def _coursier_fetch_impl(repository_ctx):
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
+        repository_ctx.template(
+            "compat_repository.bzl",
+            repository_ctx.attr._compat_repository,
+            substitutions = {},
+            executable = False,  # not executable
+        )
+
         compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
         compat_repositories_bzl.append("def compat_repositories():")
         for versionless_target_label in jar_versionless_target_labels:
