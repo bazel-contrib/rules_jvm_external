@@ -72,9 +72,7 @@ maven_install(
     ],
     use_unsafe_shared_cache = True,
 )
-
 load("@unsafe_shared_cache_with_pinning//:defs.bzl", "pinned_maven_install")
-
 pinned_maven_install()
 
 maven_install(
