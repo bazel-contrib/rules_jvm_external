@@ -44,3 +44,10 @@ build_test(
         "@policy_pinned_testing//:com_google_guava_guava_25_0_android",
     ],
 )
+
+build_test(
+    name = "unsafe_shared_cache_with_pinning",
+    targets = [
+        "@unsafe_shared_cache_with_pinning//:com_google_guava_guava",
+    ],
+)
