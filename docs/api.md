@@ -31,7 +31,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## maven_install
 
 <pre>
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>)
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -123,6 +123,17 @@ and fetch Maven artifacts transitively.
         </p>
       </td>
     </tr>
+    <tr id="maven_install-version_conflict_policy">
+      <td><code>version_conflict_policy</code></td>
+      <td>
+        optional. default is <code>"default"</code>
+        <p>
+          Policy for user-defined vs. transitive dependency version
+  conflicts.  If "pinned", choose the user's version unconditionally.  If "default", follow
+  Coursier's default policy.
+        </p>
+      </td>
+    </tr>
     <tr id="maven_install-maven_install_json">
       <td><code>maven_install_json</code></td>
       <td>
@@ -130,6 +141,17 @@ and fetch Maven artifacts transitively.
         <p>
           A label to a `maven_install.json` file to use pinned artifacts for generating
   build targets. e.g `//:maven_install.json`.
+        </p>
+      </td>
+    </tr>
+    <tr id="maven_install-override_targets">
+      <td><code>override_targets</code></td>
+      <td>
+        optional. default is <code>{}</code>
+        <p>
+          A mapping of `group:artifact` to Bazel target labels. All occurrences of the
+  target label for `group:artifact` will be an alias to the specified label, therefore overriding
+  the original generated `jvm_import` or `aar_import` target.
         </p>
       </td>
     </tr>

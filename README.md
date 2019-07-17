@@ -525,6 +525,31 @@ $ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava_25_0_android
 ```
 
+### Overriding generated targets
+
+You can override the generated targets for artifacts with a target label of your
+choice. For instance, if you want to provide your own definition of
+`@maven//:com_google_guava_guava` at `//third_party/guava:guava`, specify the
+mapping in the `override_targets` attribute:
+
+```python
+maven_install(
+    name = "pinning",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    override_targets = {
+        "com.google.guava:guava": "@//third_party/guava:guava",
+    },
+)
+```
+
+Note that the target label contains `@//`, which tells Bazel to reference the
+target relative to your main workspace, instead of the `@maven` workspace.
+
 ### Proxies
 
 As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`

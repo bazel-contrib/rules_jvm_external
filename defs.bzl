@@ -53,6 +53,9 @@ def maven_install(
         Coursier's default policy.
       maven_install_json: A label to a `maven_install.json` file to use pinned artifacts for generating
         build targets. e.g `//:maven_install.json`.
+      override_targets: A mapping of `group:artifact` to Bazel target labels. All occurrences of the
+        target label for `group:artifact` will be an alias to the specified label, therefore overriding
+        the original generated `jvm_import` or `aar_import` target.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):

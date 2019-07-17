@@ -176,9 +176,13 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
             # We already processed the sources above, so skip them here.
             pass
         elif target_label in labels_to_override:
+            # Override target labels with the user provided mapping, instead of generating
+            # a jvm_import/aar_import based on information in dep_tree.
             seen_imports[target_label] = True
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)))
+            all_imports.append(
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)))
             if repository_ctx.attr.maven_install_json:
+                # Provide the downloaded artifact as a file target.
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
         elif artifact_path != None:
             seen_imports[target_label] = True
