@@ -13,6 +13,7 @@ tasks:
       - "//..."
       # These tests are currently incompatible with RBE
       - "-//tests/integration:UnsafeSharedCacheTest"
+      - "-//tests/integration/override_targets"
   ubuntu1804:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -36,3 +37,4 @@ tasks:
       # https://github.com/bazelbuild/rules_kotlin/issues/179
       # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
       - "-//tests/unit/kotlin/..."
+      - "-//tests/integration/override_targets"
