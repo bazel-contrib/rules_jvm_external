@@ -14,6 +14,10 @@ android_binary(
     ],
 )
 
+# rendering-1.10.0.aar is known to have an incomplete list of dependencies in
+# its POM file. We manually replace the generated target here to work around
+# this issue. See https://github.com/bazelbuild/rules_jvm_external/issues/199
+# for more information.
 aar_import(
     name = "sceneform_rendering",
     aar = "@regression_testing//:v1/https/maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
