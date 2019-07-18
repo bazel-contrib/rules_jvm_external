@@ -18,10 +18,6 @@ load(
     "COURSIER_CLI_MAVEN_PATH",
     "COURSIER_CLI_SHA256",
 )
-load(
-    "//:private/special_artifacts.bzl",
-    "POM_ONLY_ARTIFACTS",
-)
 
 _BUILD = """
 package(default_visibility = ["//visibility:public"])
@@ -98,21 +94,6 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
         artifact_relative_path = "v1/" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
-
-# Get the reverse dependencies of an artifact from the Coursier parsed
-# dependency tree.
-def _get_reverse_deps(coord, dep_tree):
-    reverse_deps = []
-
-    # For all potential reverse dep artifacts,
-    for maybe_rdep in dep_tree["dependencies"]:
-        # For all dependencies of this artifact,
-        for maybe_rdep_coord in maybe_rdep["dependencies"]:
-            # If this artifact depends on the missing artifact,
-            if maybe_rdep_coord == coord:
-                # Then this artifact is an rdep :-)
-                reverse_deps.append(maybe_rdep)
-    return reverse_deps
 
 def _genrule_copy_artifact_from_http_file(artifact):
     http_file_repository = _escape(artifact["coord"])
@@ -320,9 +301,18 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
             if repository_ctx.attr.maven_install_json:
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
-        elif artifact_path == None and POM_ONLY_ARTIFACTS.get(_strip_packaging_and_classifier_and_version(artifact["coord"])):
+        else: # artifact_path == None:
             # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
             # so they don't have a JAR for download.
+            # Note that there are other possible reasons that the artifact_path is None:
+            #
+            # https://github.com/bazelbuild/rules_jvm_external/issues/70
+            # https://github.com/bazelbuild/rules_jvm_external/issues/74
+            #
+            # This can be due to the artifact being of a type that's unknown to Coursier. This is increasingly
+            # rare as we add more types to _COURSIER_PACKAGING_TYPES. It's also increasingly uncommon relatively
+            # to POM-only / parent artifacts. So when we encounter an artifact without a filepath, we assume
+            # that it's a parent artifact that just exports its dependencies, instead of failing.
             seen_imports[target_label] = True
             target_import_string = ["java_library("]
             target_import_string.append("\tname = \"%s\"," % target_label)
@@ -345,66 +335,6 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
 
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
-
-        elif artifact_path == None:
-            # Possible reasons that the artifact_path is None:
-            #
-            # https://github.com/bazelbuild/rules_jvm_external/issues/70
-            # https://github.com/bazelbuild/rules_jvm_external/issues/74
-
-            # Get the reverse deps of the missing artifact.
-            reverse_deps = _get_reverse_deps(artifact["coord"], dep_tree)
-            reverse_dep_coords = [reverse_dep["coord"] for reverse_dep in reverse_deps]
-            reverse_dep_pom_paths = [
-                repository_ctx.path(reverse_dep["file"].replace(".jar", ".pom").replace(".aar", ".pom"))
-                for reverse_dep in reverse_deps
-            ]
-
-            rdeps_message = """
-It is also possible that the packaging type of {artifact} is specified
-incorrectly in the POM file of an artifact that depends on it. For example,
-{artifact} may be an AAR, but the dependent's POM file specified its `<type>`
-value to be a JAR.
-
-The artifact(s) depending on {artifact} are:
-
-{reverse_dep_coords}
-
-and their POM files are located at:
-
-{reverse_dep_pom_paths}""".format(
-                artifact = artifact["coord"],
-                reverse_dep_coords = "\n".join(reverse_dep_coords),
-                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
-                parsed_artifact = repr(artifact),
-            )
-
-            error_message = """
-The artifact for {artifact} was not downloaded. Perhaps its packaging type is
-not one of: {packaging_types}?
-
-Parsed artifact data: {parsed_artifact}
-
-{rdeps_message}""".format(
-                artifact = artifact["coord"],
-                packaging_types = ",".join(_COURSIER_PACKAGING_TYPES),
-                parsed_artifact = repr(artifact),
-                rdeps_message = rdeps_message if len(reverse_dep_coords) > 0 else "",
-            )
-
-            fail(error_message)
-        else:
-            error_message = """Unable to generate a target for this artifact.
-
-Please file an issue on https://github.com/bazelbuild/rules_jvm_external/issues/new
-and include the following snippet:
-
-Artifact coordinates: {artifact}
-Parsed data: {parsed_artifact}""".format(
-                artifact = artifact["coord"],
-                parsed_artifact = repr(artifact),
-            )
-            fail(error_message)
 
     return ("\n".join(all_imports), jar_versionless_target_labels)
 
