@@ -87,7 +87,7 @@ a `maven_install.json` file that can be checked into your repository.
 
 Without artifact pinning, in a clean checkout of your project, `rules_jvm_external` 
 executes the full artifact resolution and fetching steps (which can take a bit of time) 
-and without verifying the integrity of the artifacts against their checksums. The 
+and does not verify the integrity of the artifacts against their checksums. The 
 downloaded artifacts also cannot be shared across Bazel workspaces.
 
 By pinning artifact versions, you can get improved artifact resolution and build times,
