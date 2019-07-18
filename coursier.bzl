@@ -358,7 +358,7 @@ and their POM files are located at:
 {reverse_dep_pom_paths}""".format(
                 artifact = artifact["coord"],
                 reverse_dep_coords = "\n".join(reverse_dep_coords),
-                reverse_dep_pom_paths = "\n".join(reverse_dep_pom_paths),
+                reverse_dep_pom_paths = "\n".join([str(path) for path in reverse_dep_pom_paths]),
                 parsed_artifact = repr(artifact),
             )
 
