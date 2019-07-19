@@ -27,7 +27,8 @@ def maven_install(
         excluded_artifacts = [],
         generate_compat_repositories = False,
         version_conflict_policy = "default",
-        maven_install_json = None):
+        maven_install_json = None,
+        override_targets = {}):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -52,6 +53,9 @@ def maven_install(
         Coursier's default policy.
       maven_install_json: A label to a `maven_install.json` file to use pinned artifacts for generating
         build targets. e.g `//:maven_install.json`.
+      override_targets: A mapping of `group:artifact` to Bazel target labels. All occurrences of the
+        target label for `group:artifact` will be an alias to the specified label, therefore overriding
+        the original generated `jvm_import` or `aar_import` target.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -90,6 +94,7 @@ def maven_install(
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
         version_conflict_policy = version_conflict_policy,
+        override_targets = override_targets,
     )
 
     if maven_install_json != None:
@@ -100,6 +105,7 @@ def maven_install(
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
             generate_compat_repositories = generate_compat_repositories,
+            override_targets = override_targets,
         )
 
 
