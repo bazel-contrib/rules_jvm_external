@@ -702,7 +702,9 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
     for repository in repositories:
-        cmd.extend(["--repository", utils.repo_url(repository)])
+        cmd.extend(["--repository", repository["repo_url"]])
+        if "credentials" in repository:
+            cmd.extend(["--credentials", utils.repo_credentials(repository)])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
     if not repository_ctx.attr.use_unsafe_shared_cache:

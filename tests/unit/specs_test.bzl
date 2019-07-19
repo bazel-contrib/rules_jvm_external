@@ -225,22 +225,16 @@ def _artifact_to_json_test_impl(ctx):
 
 artifact_spec_to_json_test = unittest.make(_artifact_to_json_test_impl)
 
-def _repo_url_test_impl(ctx):
+def _repo_credentials_test_impl(ctx):
     repo_url = "https://maven.google.com/"
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        "https://maven.google.com/",
-        utils.repo_url({"repo_url": repo_url}),
-    )
-    asserts.equals(
-        env,
-        "https://bob:l0bl4w@maven.google.com/",
-        utils.repo_url({"repo_url": repo_url, "credentials": {"user": "bob", "password": "l0bl4w"}}),
+        "maven.google.com bob:l0bl4w",
+        utils.repo_credentials({ "repo_url": repo_url, "credentials": { "user": "bob", "password": "l0bl4w" } })
     )
     return unittest.end(env)
-
-repo_url_test = unittest.make(_repo_url_test_impl)
+repo_credentials_test = unittest.make(_repo_credentials_test_impl)
 
 def artifact_specs_test_suite():
     unittest.suite(
@@ -268,5 +262,5 @@ def artifact_specs_test_suite():
 
     unittest.suite(
         "util_tests",
-        repo_url_test,
+        repo_credentials_test,
     )

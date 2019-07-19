@@ -251,14 +251,22 @@ def _artifact_to_coord(artifact):
     classifier = (",classifier=" + artifact["classifier"]) if artifact.get("classifier") != None else ""
     return artifact["group"] + ":" + artifact["artifact"] + ":" + artifact["version"] + classifier
 
-def _repository_url(repository_spec):
-    (protocol, remainder) = repository_spec["repo_url"].split("//")
+#
+# Returns a string "{hostname} {user}:{password}" for a repository_spec
+#
+def _repository_credentials(repository_spec):
+    if "credentials" not in repository_spec:
+        fail("Asked to generate credentials for a repository that does not need it")
 
-    credentials = repository_spec.get("credentials")
-    auth_string = (credentials["user"] + ":" + credentials["password"] + "@") if credentials != None else ""
-    return protocol + "//" + auth_string + remainder
+    (_, remainder) = repository_spec["repo_url"].split("//")
+    hostname = remainder.split("/")[0]
+
+    credentials = repository_spec["credentials"]
+
+    # See https://get-coursier.io/docs/other-credentials.html#inline for docs on this format
+    return hostname + " " + credentials["user"] + ":" + credentials["password"]
 
 utils = struct(
     artifact_coordinate = _artifact_to_coord,
-    repo_url = _repository_url,
+    repo_credentials = _repository_credentials,
 )
