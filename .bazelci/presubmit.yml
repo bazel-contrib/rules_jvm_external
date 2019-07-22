@@ -14,7 +14,39 @@ tasks:
       # These tests are currently incompatible with RBE
       - "-//tests/integration:UnsafeSharedCacheTest"
       - "-//tests/integration/override_targets"
-  ubuntu1804:
+  ubuntu1804_0_25_3:
+    platform: ubuntu1804
+    bazel: 0.25.3 
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
+    test_targets:
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:UnsafeSharedCacheTest"
+  ubuntu1804_0_26_1:
+    platform: ubuntu1804
+    bazel: 0.26.1 
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
+    test_targets:
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:UnsafeSharedCacheTest"
+  ubuntu1804_0_27_2:
+    platform: ubuntu1804
+    bazel: 0.27.2 
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
+    test_targets:
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:UnsafeSharedCacheTest"
+  ubuntu1804_latest:
+    platform: ubuntu1804
+    bazel: latest
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
     test_targets:

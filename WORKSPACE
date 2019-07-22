@@ -213,11 +213,11 @@ kt_register_toolchains()
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "4598bf5a8b4f5ced82c782899438a7ba695165d47b3bf783ce774e89a8c6e617",
-    strip_prefix = "bazel-toolchains-0.27.0",
+    sha256 = "dcb58e7e5f0b4da54c6c5f8ebc65e63fcfb37414466010cf82ceff912162296e",
+    strip_prefix = "bazel-toolchains-0.28.2",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/0.27.0.tar.gz",
-        "https://github.com/bazelbuild/bazel-toolchains/archive/0.27.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/0.28.2.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/0.28.2.tar.gz",
     ],
 )
 
