@@ -575,10 +575,16 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             http_files.extend([
                 "    http_file(",
                 "        name = \"%s\"," % http_file_repository_name,
-                "        urls = [\"%s\"]," % artifact["url"],
                 "        sha256 = \"%s\"," % artifact["sha256"],
-                "    )",
             ])
+            if artifact.get("mirror_urls") != None:
+                http_files.append("        urls = %s," % repr(artifact["mirror_urls"]))
+            else:
+                # For backwards compatibility. mirror_urls is a field added in a
+                # later version than the url field, so not all maven_install.json
+                # contains the mirror_urls field.
+                http_files.append("        urls = [\"%s\"]," % artifact["url"])
+            http_files.append("    )")
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
 
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -744,7 +750,7 @@ def _coursier_fetch_impl(repository_ctx):
             # Coursier saves the artifacts into a subdirectory structure
             # that mirrors the URL where the artifact's fetched from. Using
             # this, we can reconstruct the original URL.
-            url = []
+            primary_url_parts = []
             filepath_parts = artifact["file"].split("/")
             protocol = None
             # Only support http/https transports
@@ -753,14 +759,45 @@ def _coursier_fetch_impl(repository_ctx):
                      protocol = part
             if protocol == None:
                 fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"]) 
-            url.extend([protocol, "://"])
+            primary_url_parts.extend([protocol, "://"])
             for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
-                url.extend([part, "/"])
-            url.pop() # pop the final "/"
+                primary_url_parts.extend([part, "/"])
+            primary_url_parts.pop() # pop the final "/"
 
-            # Coursier encodes the colon ':' character as "%3A" in the
-            # filepath. Convert it back to colon since it's used for ports.
-            artifact.update({"url": "".join(url).replace("%3A", ":")})
+            # Coursier encodes:
+            # - ':' as '%3A'
+            # - '@' as '%40'
+            #
+            # The primary_url is the url from which Coursier downloaded the jar from. It looks like this:
+            # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
+            primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
+            artifact.update({"url": primary_url})
+
+            # The repository for the primary_url has to be one of the repositories provided through
+            # maven_install. Since Maven artifact URLs are standardized, we can make the `http_file`
+            # targets more robust by replicating the primary url for each specified repository url.
+            # 
+            # It does not matter if the artifact is on a repository or not, since http_file takes 
+            # care of 404s.
+            #
+            # If the artifact does exist, Bazel's HttpConnectorMultiplexer enforces the SHA-256 checksum
+            # is correct. By applying the SHA-256 checksum verification across all the mirrored files,
+            # we get increased robustness in the case where our primary artifact has been tampered with,
+            # and we somehow ended up using the tampered checksum. Attackers would need to tamper *all*
+            # mirrored artifacts.
+            #
+            # See https://github.com/bazelbuild/bazel/blob/77497817b011f298b7f3a1138b08ba6a962b24b8/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/HttpConnectorMultiplexer.java#L103
+            # for more information on how Bazel's HTTP multiplexing works.
+            #
+            # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
+            # basic auth.
+            repository_urls = [r["repo_url"] for r in repositories]
+            for url in repository_urls:
+                if primary_url.find(url) != -1:
+                    primary_repository_url = url
+                    primary_artifact_path = primary_url[len(primary_repository_url):]
+            mirror_urls = [url + primary_artifact_path for url in repository_urls] 
+            artifact.update({"mirror_urls": mirror_urls})
 
             # Compute the sha256 of the file.
             exec_result = repository_ctx.execute([
