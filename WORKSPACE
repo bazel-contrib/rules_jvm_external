@@ -153,6 +153,10 @@ maven_install(
         "io.kubernetes:client-java:4.0.0-beta1",
          # https://github.com/bazelbuild/rules_jvm_external/issues/199
         "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-504704752
+        "com.github.oshi:oshi-parent:3.4.0",
+        "com.github.spinalhdl:spinalhdl-core_2.11:1.3.6",
+        "com.github.spinalhdl:spinalhdl-lib_2.11:1.3.6",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
