@@ -2,6 +2,8 @@
 
 set -euo pipefail
 readonly maven_install_json_loc=$BUILD_WORKSPACE_DIRECTORY/{repository_name}_install.json
+readonly execution_root=$(bazel info execution_root)
+readonly workspace_name=$(basename $execution_root)
 cat <<"RULES_JVM_EXTERNAL_EOF" | python -m json.tool > $maven_install_json_loc
 {dependency_tree_json}
 RULES_JVM_EXTERNAL_EOF
@@ -19,7 +21,7 @@ cat <<EOF
 maven_install(
     artifacts = # ...,
     repositories = # ...,
-    maven_install_json = "//:{repository_name}_install.json",
+    maven_install_json = "@$workspace_name//:{repository_name}_install.json",
 )
 
 load("@{repository_name}//:defs.bzl", "pinned_maven_install")
