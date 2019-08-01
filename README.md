@@ -28,8 +28,8 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "2.5"
-RULES_JVM_EXTERNAL_SHA = "249e8129914be6d987ca57754516be35a14ea866c616041ff0cd32ea94d2f3a1"
+RULES_JVM_EXTERNAL_TAG = "2.6"
+RULES_JVM_EXTERNAL_SHA = "064b9085b21c349c8bd8be015a73efd6226dd2ff7d474797b3507ceca29544bb"
 
 http_archive(
     name = "rules_jvm_external",
