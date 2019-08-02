@@ -169,6 +169,9 @@ maven_install(
         "com.github.oshi:oshi-parent:3.4.0",
         "com.github.spinalhdl:spinalhdl-core_2.11:1.3.6",
         "com.github.spinalhdl:spinalhdl-lib_2.11:1.3.6",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/201
+    	"org.apache.kafka:kafka_2.11:2.1.1",
+    	"io.confluent:kafka-avro-serializer:5.0.1",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
