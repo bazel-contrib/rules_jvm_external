@@ -53,7 +53,6 @@ genrule(
     $(location //:specs.md) > $@""",
 )
 
-
 sh_binary(
     name = "mirror_coursier",
     srcs = [":scripts/mirror_coursier.sh"],
