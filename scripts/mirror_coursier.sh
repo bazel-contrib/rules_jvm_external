@@ -14,52 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script builds a new version of android_tools.tar.gz and uploads
-# it to Google Cloud Storage. This script is non-destructive and idempotent.
-#
-# To run this script, call:
-# `bazel run //tools/android/runtime_deps:upload_android_tools`
-#
-# android_tools.tar.gz contains runtime jars required by the Android rules. We unbundled
-# these jars out from Bazel to keep its binary size small.
-#
-# If you make changes any tool bundled in android_tools.tar.gz and want them to be used for
-# the next Bazel release, increment the version number and run this script.
-#
-# More context: https://github.com/bazelbuild/bazel/issues/1055
-
 set -euo pipefail
-
-# Create a temp directory to hold the versioned tarball, and clean it up when the script exits.
-tmpdir=$(mktemp -d)
-function cleanup {
-  rm -rf "$tmpdir"
-}
-trap cleanup EXIT
 
 readonly repo_name=$(ls external/ | grep coursier_cli_v*)
 readonly coursier_cli_jar="external/$repo_name/file/downloaded"
 chmod u+x $coursier_cli_jar
 
-# Upload the tarball to GCS.
+# Upload Coursier to GCS
 # -n for no-clobber, so we don't overwrite existing files
 gsutil cp -n $coursier_cli_jar \
   gs://bazel-mirror/coursier_cli/$repo_name.jar
-
-# checksum=$(sha256sum $versioned_android_tools_archive | cut -f 1 -d ' ')
-# commit=$(cd $BUILD_WORKSPACE_DIRECTORY && git rev-parse HEAD)
-
-# echo
-# echo "Run this command to update Bazel to use the new version:"
-# echo
-
-# cat <<EOF
-# sed -i 's/android_tools_pkg.*\.tar\.gz/$VERSIONED_FILENAME/g' WORKSPACE  && \\
-#   sed -i 's/"android_tools_pkg.*[0-9a-FA-F]\{64\}",.*/"$VERSIONED_FILENAME": "$checksum", # built at $commit/g' WORKSPACE && \\
-#   sed -i 's/android_tools_pkg.*\.tar\.gz/$VERSIONED_FILENAME/g' src/main/java/com/google/devtools/build/lib/bazel/rules/android/android_remote_tools.WORKSPACE && \\
-#   sed -i 's/"[0-9a-fA-F]\{64\}",.*/"$checksum", # built at $commit/g' src/main/java/com/google/devtools/build/lib/bazel/rules/android/android_remote_tools.WORKSPACE
-# EOF
-
-# echo
-# echo "Then, commit the changes and submit a pull request."
-# echo
