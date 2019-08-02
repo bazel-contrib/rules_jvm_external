@@ -177,6 +177,7 @@ maven_install(
         "https://repo1.maven.org/maven2",
         "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
         "https://maven.google.com",
+    	'https://packages.confluent.io/maven/',
     ],
     generate_compat_repositories = True,
     maven_install_json = "//:regression_testing_install.json",
