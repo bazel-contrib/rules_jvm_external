@@ -15,7 +15,8 @@ load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "utils")
 load(
     "//:private/versions.bzl",
-    "COURSIER_CLI_MAVEN_PATH",
+    "COURSIER_CLI_GITHUB_ASSET_URL",
+    "COURSIER_CLI_BAZEL_MIRROR_URL",
     "COURSIER_CLI_SHA256",
 )
 
@@ -576,8 +577,8 @@ def _coursier_fetch_impl(repository_ctx):
 
     # Download Coursier's standalone (deploy) jar from Maven repositories.
     repository_ctx.download([
-        "https://jcenter.bintray.com/" + COURSIER_CLI_MAVEN_PATH,
-        "http://central.maven.org/maven2/" + COURSIER_CLI_MAVEN_PATH,
+        COURSIER_CLI_GITHUB_ASSET_URL,
+        COURSIER_CLI_BAZEL_MIRROR_URL,
     ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
     # Try running coursier once

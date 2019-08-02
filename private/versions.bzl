@@ -1,7 +1,7 @@
-_COURSIER_CLI_VERSION = "2.12"
-_COURSIER_VERSION = "1.1.0-M14-4"
-COURSIER_CLI_SHA256 = "2311054a07f5e8d83766155744e139e7a4b2ee1e77d47a636839687c4233a465"
-COURSIER_CLI_MAVEN_PATH = "io/get-coursier/coursier-cli_{COURSIER_CLI_VERSION}/{COURSIER_VERSION}/coursier-cli_{COURSIER_CLI_VERSION}-{COURSIER_VERSION}-standalone.jar".format(
-    COURSIER_CLI_VERSION = _COURSIER_CLI_VERSION,
-    COURSIER_VERSION = _COURSIER_VERSION,
-)
+_COURSIER_CLI_VERSION = "v2.0.0-RC3"
+
+COURSIER_CLI_HTTP_FILE_NAME = ("coursier_cli_" + _COURSIER_CLI_VERSION).replace(".", "_").replace("-", "_")
+COURSIER_CLI_GITHUB_ASSET_URL = "https://github.com/coursier/coursier/releases/download/{COURSIER_CLI_VERSION}/coursier.jar".format(COURSIER_CLI_VERSION = _COURSIER_CLI_VERSION)
+# Run 'bazel run //:mirror_coursier' to upload a copy of the jar to the Bazel mirror.
+COURSIER_CLI_BAZEL_MIRROR_URL = "https://mirror.bazel.build/coursier_cli/" + COURSIER_CLI_HTTP_FILE_NAME + ".jar"
+COURSIER_CLI_SHA256 = "17f4ff053d0d1dca588afdcc94ca952f7ed85bb03675cd77ec05b7352a832b86"
