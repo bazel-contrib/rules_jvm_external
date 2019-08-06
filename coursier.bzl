@@ -706,8 +706,8 @@ def _coursier_fetch_impl(repository_ctx):
             # The repository for the primary_url has to be one of the repositories provided through
             # maven_install. Since Maven artifact URLs are standardized, we can make the `http_file`
             # targets more robust by replicating the primary url for each specified repository url.
-            # 
-            # It does not matter if the artifact is on a repository or not, since http_file takes 
+            #
+            # It does not matter if the artifact is on a repository or not, since http_file takes
             # care of 404s.
             #
             # If the artifact does exist, Bazel's HttpConnectorMultiplexer enforces the SHA-256 checksum
@@ -724,9 +724,26 @@ def _coursier_fetch_impl(repository_ctx):
             repository_urls = [r["repo_url"] for r in repositories]
             for url in repository_urls:
                 if primary_url.find(url) != -1:
-                    primary_repository_url = url
-                    primary_artifact_path = primary_url[len(primary_repository_url):]
-            mirror_urls = [url + primary_artifact_path for url in repository_urls] 
+                    primary_artifact_path = primary_url[len(url):]
+                elif url.find("@") != -1 and primary_url.find(url[url.rindex("@"):]) != -1:
+                    # Maybe this is a url-encoded private repository url.
+                    #
+                    # A private repository url looks like this:
+                    # http://admin:passw@rd@localhost/artifactory/jcenter
+                    #
+                    # Or, in its URL encoded form:
+                    # http://admin:passw%40rd@localhost/artifactory/jcenter
+                    #
+                    # However, in the primary_url we've reconstructed using the
+                    # downloaded relative file path earlier on, the password is
+                    # removed by Coursier (as it should). So we end up working
+                    # with: http://admin@localhost/artifactory/jcenter
+                    #
+                    # So, we use rfind to get the index of the final '@' in the
+                    # repository url instead.
+                    primary_artifact_path = primary_url[len(url):]
+
+            mirror_urls = [url + primary_artifact_path for url in repository_urls]
             artifact.update({"mirror_urls": mirror_urls})
 
             # Compute the sha256 of the file.
