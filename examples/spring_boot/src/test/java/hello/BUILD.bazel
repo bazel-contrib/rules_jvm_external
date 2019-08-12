@@ -27,3 +27,9 @@ java_test(
         "@maven//:org_springframework_spring_web",
     ],
 )
+
+filegroup(
+    name = "srcs",
+    srcs = glob(["*.java"]),
+    visibility = ["//:__subpackages__"],
+)

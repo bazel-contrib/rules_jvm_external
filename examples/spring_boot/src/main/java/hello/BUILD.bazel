@@ -18,3 +18,9 @@ java_binary(
         ":lib",
     ],
 )
+
+filegroup(
+    name = "srcs",
+    srcs = glob(["*.java"]),
+    visibility = ["//:__subpackages__"],
+)
