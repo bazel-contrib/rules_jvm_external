@@ -5,11 +5,11 @@ local_repository(
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_SCALA_VERSION = "8f006056990307cbd8320c97a59cd09c821011d8"
+RULES_SCALA_VERSION = "96176ae9e0be8582918a5212a7d4b44d885db8f6"
 
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "e85c1d64520554e0dcdfe828e16ff604de0774b0c68dbb0e90ffab1a6b045adf",
+    sha256 = "ccd4693c5f5a302b8c145ce87792c6fca1cb956b94c15b569ddd0809f5f617d1",
     strip_prefix = "rules_scala-%s" % RULES_SCALA_VERSION,
     url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % RULES_SCALA_VERSION,
 )

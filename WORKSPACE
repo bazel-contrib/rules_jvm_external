@@ -194,11 +194,11 @@ maven_install(
 load("@policy_pinned_testing//:defs.bzl", _policy_pinned_maven_install = "pinned_maven_install")
 _policy_pinned_maven_install()
 
-RULES_KOTLIN_VERSION = "da1232eda2ef90d4375e2d1677b32c7ddf09e8a1"
+RULES_KOTLIN_VERSION = "9051eb053f9c958440603d557316a6e9fda14687"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
-    sha256 = "0bbb0e5e536f0c775f37bded59d4f8cfb8556e6c3d926fcc0f58bf3489bff470",
+    sha256 = "c36e71eec84c0e17dd098143a9d93d5720e81b4db32bceaf2daf939252352727",
     strip_prefix = "rules_kotlin-%s" % RULES_KOTLIN_VERSION,
     url = "https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz" % RULES_KOTLIN_VERSION,
 )
