@@ -13,6 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# This script mirrors the Coursier standalone jar to the Bazel mirror
+# on Google Cloud Storage for redundancy. The original artifacts are
+# hosted on https://github.com/coursier/coursier/releases.
 
 set -euo pipefail
 

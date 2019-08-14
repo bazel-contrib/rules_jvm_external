@@ -887,7 +887,10 @@ coursier_fetch = repository_rule(
             If "default", follow Coursier's default policy.
             """,
             default = "default",
-            values = ["default", "pinned"],
+            values = [
+                "default",
+                "pinned",
+            ],
         ),
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
