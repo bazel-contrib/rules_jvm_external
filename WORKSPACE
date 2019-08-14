@@ -2,7 +2,19 @@ workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = "androidsdk")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load(
+    "//:private/versions.bzl",
+    "COURSIER_CLI_HTTP_FILE_NAME",
+    "COURSIER_CLI_GITHUB_ASSET_URL",
+    "COURSIER_CLI_SHA256",
+)
+
+http_file(
+    name = COURSIER_CLI_HTTP_FILE_NAME,
+    sha256 = COURSIER_CLI_SHA256,
+    urls = [COURSIER_CLI_GITHUB_ASSET_URL],
+)
 
 # Begin Skylib dependencies
 
@@ -14,7 +26,9 @@ http_archive(
     strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
     url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
 )
+
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
 bazel_skylib_workspace()
 
 # End Skylib dependencies
@@ -23,8 +37,8 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "io_bazel_skydoc",
-    remote = "https://github.com/bazelbuild/skydoc.git",
     commit = "e235d7d6dec0241261bdb13d7415f3373920e6fd",
+    remote = "https://github.com/bazelbuild/skydoc.git",
     shallow_since = "1554317371 -0400",
 )
 
@@ -72,7 +86,9 @@ maven_install(
     ],
     use_unsafe_shared_cache = True,
 )
+
 load("@unsafe_shared_cache_with_pinning//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()
 
 maven_install(
@@ -151,29 +167,35 @@ maven_install(
         "org.openjfx:javafx-base:11.0.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/178
         "io.kubernetes:client-java:4.0.0-beta1",
-         # https://github.com/bazelbuild/rules_jvm_external/issues/199
+        # https://github.com/bazelbuild/rules_jvm_external/issues/199
         "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-504704752
         "com.github.oshi:oshi-parent:3.4.0",
         "com.github.spinalhdl:spinalhdl-core_2.11:1.3.6",
         "com.github.spinalhdl:spinalhdl-lib_2.11:1.3.6",
-    ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
-        "https://maven.google.com",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/201
+        "org.apache.kafka:kafka_2.11:2.1.1",
+        "io.confluent:kafka-avro-serializer:5.0.1",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//:regression_testing_install.json",
     override_targets = {
         "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
-    }
+    },
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
+        "https://maven.google.com",
+        "https://packages.confluent.io/maven/",
+    ],
 )
 
 load("@regression_testing//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()
 
 load("@regression_testing//:compat.bzl", "compat_repositories")
+
 compat_repositories()
 
 maven_install(
@@ -183,15 +205,19 @@ maven_install(
         "com.google.cloud:google-cloud-storage:1.66.0",
         "com.google.guava:guava:25.0-android",
     ],
+    maven_install_json = "//:policy_pinned_testing_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     version_conflict_policy = "pinned",
-    maven_install_json = "//:policy_pinned_testing_install.json",
 )
 
-load("@policy_pinned_testing//:defs.bzl", _policy_pinned_maven_install = "pinned_maven_install")
+load(
+    "@policy_pinned_testing//:defs.bzl",
+    _policy_pinned_maven_install = "pinned_maven_install",
+)
+
 _policy_pinned_maven_install()
 
 RULES_KOTLIN_VERSION = "9051eb053f9c958440603d557316a6e9fda14687"

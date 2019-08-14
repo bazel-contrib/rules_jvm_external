@@ -1,5 +1,6 @@
 load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("//:private/versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 
 exports_files(["defs.bzl"])
 
@@ -50,4 +51,10 @@ genrule(
     $(location //:defs.md) \
     $(location //:docs/includes/spec_functions_header.md) \
     $(location //:specs.md) > $@""",
+)
+
+sh_binary(
+    name = "mirror_coursier",
+    srcs = [":scripts/mirror_coursier.sh"],
+    data = ["@" + COURSIER_CLI_HTTP_FILE_NAME + "//file"],
 )
