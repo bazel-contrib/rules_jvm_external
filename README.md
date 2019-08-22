@@ -185,7 +185,16 @@ jvm_import(
 )
 ```
 
-The generated `tags` attribute value also contains the original coordinates of
+These targets can be referenced by:
+
+*   `@maven//:junit_junit`
+*   `@maven//:org_hamcrest_hamcrest_core`
+
+**Transitive classes**: To use a class from `hamcrest-core` in your test, it's not sufficient to just 
+depend on `@maven//:junit_junit` even though JUnit depends on Hamcrest. The compile classes are not exported 
+transitively, so your test should also depend on `@maven//:org_hamcrest_hamcrest_core`.
+
+**Original coordinates**: The generated `tags` attribute value also contains the original coordinates of
 the artifact, which integrates with rules like [bazel-common's
 `pom_file`](https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177)
 for generating POM files. See the [`pom_file_generation`
