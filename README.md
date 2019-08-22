@@ -3,7 +3,7 @@
 Transitive Maven artifact resolver as a repository rule.
 
 [![Build
-Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg)](https://buildkite.com/bazel/rules-jvm-external)
+Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
 
 ## Features
 
