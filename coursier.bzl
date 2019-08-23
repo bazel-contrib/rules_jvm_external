@@ -40,6 +40,9 @@ _COURSIER_PACKAGING_TYPES = [
     "eclipse-plugin",
     "orbit",
     "test-jar",
+    "hk2-jar",
+    "maven-plugin",
+    "scala-jar",
 ]
 
 def _strip_packaging_and_classifier(coord):
