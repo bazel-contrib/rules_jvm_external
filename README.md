@@ -461,7 +461,7 @@ artifact available only for compilation and not at runtime.
 
 Use the `version_conflict_policy` attribute to decide how to resolve conflicts
 between artifact versions specified in your `maven_install` rule and those
-implicitly picked up as transitive dependencies. 
+implicitly picked up as transitive dependencies.
 
 The attribute value can be either `default` or `pinned`. 
 
