@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Prerequisites:
 #   - https://github.com/thlorenz/doctoc - install with `npm -g install doctoc`
