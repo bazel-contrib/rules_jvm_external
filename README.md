@@ -463,9 +463,17 @@ Use the `version_conflict_policy` attribute to decide how to resolve conflicts
 between artifact versions specified in your `maven_install` rule and those
 implicitly picked up as transitive dependencies.
 
-1. Pulling in guava transitively via google-cloud-storage resolves to guava-26.0-android.
+The attribute value can be either `default` or `pinned`. 
 
-```
+`default`: use [Coursier's default algorithm](https://get-coursier.io/docs/other-version-handling) 
+for version handling.
+
+`pinned`: pin the versions of the artifacts that are explicitly specified in `maven_install`.
+
+For example, pulling in guava transitively via google-cloud-storage resolves to 
+guava-26.0-android.
+
+```python
 maven_install(
     name = "pinning",
     artifacts = [
@@ -475,15 +483,17 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ]
 )
+```
 
+```
 $ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_26_0_android
 ```
 
-1. Pulling in guava-27.0-android directly works as expected.
+Pulling in guava-27.0-android directly works as expected.
 
-```
+```python
 maven_install(
     name = "pinning",
     artifacts = [
@@ -494,15 +504,17 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ]
 )
+```
 
+```
 $ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_27_0_android
 ```
 
-1. Pulling in guava-25.0-android (a lower version), resolves to guava-26.0-android. This is the default version conflict policy in action, where artifacts are resolved to the highest version.
+Pulling in guava-25.0-android (a lower version), resolves to guava-26.0-android. This is the default version conflict policy in action, where artifacts are resolved to the highest version.
 
-```
+```python
 maven_install(
     name = "pinning",
     artifacts = [
@@ -513,15 +525,17 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ]
 )
+```
 
+```
 $ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_26_0_android
 ```
 
-1. Now, if we add `version_conflict_policy = "pinned"`, we should see guava-25.0-android getting pulled instead. The rest of non-specified artifacts still resolve to the highest version in the case of version conflicts.
+Now, if we add `version_conflict_policy = "pinned"`, we should see guava-25.0-android getting pulled instead. The rest of non-specified artifacts still resolve to the highest version in the case of version conflicts.
 
-```
+```python
 maven_install(
     name = "pinning",
     artifacts = [
@@ -533,7 +547,9 @@ maven_install(
     ]
     version_conflict_policy = "pinned",
 )
+```
 
+```
 $ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava
 @pinning//:com_google_guava_guava_25_0_android
