@@ -79,7 +79,7 @@ android_library(
 The default label syntax for an artifact `foo.bar:baz-qux:1.2.3` is `@maven//foo_bar_baz_qux`. That is, 
 
 * All non-alphanumeric characters are substituted with underscores.
-* Only the group and artifact coordinates are required.
+* Only the group and artifact IDs are required.
 
 ## API Reference
 
