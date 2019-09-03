@@ -28,7 +28,8 @@ def maven_install(
         generate_compat_repositories = False,
         version_conflict_policy = "default",
         maven_install_json = None,
-        override_targets = {}):
+        override_targets = {},
+        strict_visibility = False):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -56,6 +57,9 @@ def maven_install(
       override_targets: A mapping of `group:artifact` to Bazel target labels. All occurrences of the
         target label for `group:artifact` will be an alias to the specified label, therefore overriding
         the original generated `jvm_import` or `aar_import` target.
+      strict_visibility: Controls visibility of transitive dependencies. If `True`, transitive dependencies
+        are private and invisible to user's rules. If `False`, transitive dependencies are public and
+        visible to user's rules.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -95,6 +99,7 @@ def maven_install(
         generate_compat_repositories = generate_compat_repositories,
         version_conflict_policy = version_conflict_policy,
         override_targets = override_targets,
+        strict_visibility = strict_visibility,
     )
 
     if maven_install_json != None:
@@ -106,6 +111,7 @@ def maven_install(
             fetch_sources = fetch_sources,
             generate_compat_repositories = generate_compat_repositories,
             override_targets = override_targets,
+            strict_visibility = strict_visibility,
         )
 
 
