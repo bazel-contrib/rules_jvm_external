@@ -152,7 +152,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+        simple_coord = _strip_packaging_and_classifier_and_version(artifact["coord"])
+        target_label = _escape(simple_coord)
         alias_visibility = ""
 
         if target_label in seen_imports:
@@ -266,7 +267,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
-            if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
+            if neverlink_artifacts.get(simple_coord):
                 target_import_string.append("\tneverlink = True,")
 
             # 7. If `strict_visibility` is True in the artifact spec, define public
@@ -282,7 +283,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
             #   visibility = ["//visibility:public"],
-            if (repository_ctx.attr.strict_visibility and explicit_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
+            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
                 alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
 
@@ -353,7 +354,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             target_import_string.append("".join(target_import_labels) + "\t],")
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
 
-            if (repository_ctx.attr.strict_visibility and explicit_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
+            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
                 alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
 
