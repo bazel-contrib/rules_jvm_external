@@ -281,7 +281,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
             #   visibility = ["//visibility:public"],
-            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(target_label):
+            if (repository_ctx.attr.strict_visibility and explicit_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
 
             # 8. Finish the java_import rule.
@@ -350,7 +350,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             target_import_string.append("".join(target_import_labels) + "\t],")
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
 
-            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(target_label):
+            if (repository_ctx.attr.strict_visibility and explicit_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
 
             target_import_string.append(")")
