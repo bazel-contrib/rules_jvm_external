@@ -56,6 +56,7 @@ build_test(
     name = "strict_version",
     targets = [
         "@strict_visibility_testing//:org_apache_tomcat_tomcat_catalina",
+        "@strict_visibility_testing//:org_apache_tomcat_tomcat_catalina_9_0_24",
     ],
 )
 

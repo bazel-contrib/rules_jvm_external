@@ -153,6 +153,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
         target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+        alias_visibility = ""
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
@@ -283,6 +284,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   visibility = ["//visibility:public"],
             if (repository_ctx.attr.strict_visibility and explicit_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
+                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
 
             # 8. Finish the java_import rule.
             #
@@ -307,7 +309,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   actual = "org_hamcrest_hamcrest_library",
             # )
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
+                    (versioned_target_alias_label, target_label, alias_visibility))
 
             # 10. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
@@ -352,13 +355,15 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
             if (repository_ctx.attr.strict_visibility and explicit_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
+                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
 
             target_import_string.append(")")
 
             all_imports.append("\n".join(target_import_string))
 
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
+                    (versioned_target_alias_label, target_label, alias_visibility))
 
     return ("\n".join(all_imports), jar_versionless_target_labels)
 
