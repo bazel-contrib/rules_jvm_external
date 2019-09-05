@@ -100,6 +100,7 @@ def maven_install(
         version_conflict_policy = version_conflict_policy,
         override_targets = override_targets,
         strict_visibility = strict_visibility,
+        maven_install_json = maven_install_json,
     )
 
     if maven_install_json != None:
