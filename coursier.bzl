@@ -21,7 +21,7 @@ load(
 )
 
 _BUILD = """
-package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:{visibility}"])
 
 exports_files(["pin"])
 
@@ -115,7 +115,7 @@ def _genrule_copy_artifact_from_http_file(artifact):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_targets):
+def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, override_targets):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -152,7 +152,9 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
+        simple_coord = _strip_packaging_and_classifier_and_version(artifact["coord"])
+        target_label = _escape(simple_coord)
+        alias_visibility = ""
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
@@ -265,10 +267,27 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
-            if (neverlink_artifacts.get(_strip_packaging_and_classifier_and_version(artifact["coord"]))):
+            if neverlink_artifacts.get(simple_coord):
                 target_import_string.append("\tneverlink = True,")
 
-            # 7. Finish the java_import rule.
+            # 7. If `strict_visibility` is True in the artifact spec, define public
+            #    visibility only for non-transitive dependencies.
+            #
+            # java_import(
+            # 	name = "org_hamcrest_hamcrest_library",
+            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
+            # 	deps = [
+            # 		":org_hamcrest_hamcrest_core",
+            # 	],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   neverlink = True,
+            #   visibility = ["//visibility:public"],
+            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
+                target_import_string.append("\tvisibility = [\"//visibility:public\"],")
+                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
+
+            # 8. Finish the java_import rule.
             #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library",
@@ -284,16 +303,17 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
 
             all_imports.append("\n".join(target_import_string))
 
-            # 8. Create a versionless alias target
+            # 9. Create a versionless alias target
             #
             # alias(
             #   name = "org_hamcrest_hamcrest_library_1_3",
             #   actual = "org_hamcrest_hamcrest_library",
             # )
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
+                    (versioned_target_alias_label, target_label, alias_visibility))
 
-            # 9. If using maven_install.json, use a genrule to copy the file from the http_file
+            # 10. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
             #
             # genrule(
@@ -333,12 +353,18 @@ def _generate_imports(repository_ctx, dep_tree, neverlink_artifacts, override_ta
 
             target_import_string.append("".join(target_import_labels) + "\t],")
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+
+            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
+                target_import_string.append("\tvisibility = [\"//visibility:public\"],")
+                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
+
             target_import_string.append(")")
 
             all_imports.append("\n".join(target_import_string))
 
             versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (versioned_target_alias_label, target_label))
+            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
+                    (versioned_target_alias_label, target_label, alias_visibility))
 
     return ("\n".join(all_imports), jar_versionless_target_labels)
 
@@ -525,6 +551,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     (generated_imports, jar_versionless_target_labels) = _generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
+        explicit_artifacts = {
+            a["group"] + ":" + a["artifact"]: True for a in artifacts
+        },
         neverlink_artifacts = {
             a["group"] + ":" + a["artifact"]: True
             for a in artifacts
@@ -550,6 +579,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "BUILD",
         _BUILD.format(
+            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_ctx.name,
             imports = generated_imports,
         ),
@@ -769,12 +799,19 @@ def _coursier_fetch_impl(repository_ctx):
         "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": _compute_dependency_tree_signature(dep_tree["dependencies"])
     })
 
-    neverlink_artifacts = {a["group"] + ":" + a["artifact"]: True for a in artifacts if a.get("neverlink", False)}
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = _generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
-        neverlink_artifacts = neverlink_artifacts,
+        explicit_artifacts = {
+            a["group"] + ":" + a["artifact"]: True
+            for a in artifacts
+        },
+        neverlink_artifacts = {
+            a["group"] + ":" + a["artifact"]: True
+            for a in artifacts
+            if a.get("neverlink", False)
+        },
         override_targets = repository_ctx.attr.override_targets,
     )
 
@@ -788,6 +825,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "BUILD",
         _BUILD.format(
+            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_ctx.name,
             imports = generated_imports,
         ),
@@ -866,6 +904,14 @@ pinned_coursier_fetch = repository_rule(
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "strict_visibility": attr.bool(
+            doc = """Controls visibility of transitive dependencies.
+
+            If "True", transitive dependencies are private and invisible to user's rules.
+            If "False", transitive dependencies are public and visible to user's rules.
+            """,
+            default = False,
+        ),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -897,6 +943,14 @@ coursier_fetch = repository_rule(
         ),
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "strict_visibility": attr.bool(
+            doc = """Controls visibility of transitive dependencies
+
+            If "True", transitive dependencies are private and invisible to user's rules.
+            If "False", transitive dependencies are public and visible to user's rules.
+            """,
+            default = False,
+        ),
     },
     environ = [
         "JAVA_HOME",

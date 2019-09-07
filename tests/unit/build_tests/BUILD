@@ -51,3 +51,19 @@ build_test(
         "@unsafe_shared_cache_with_pinning//:com_google_guava_guava",
     ],
 )
+
+build_test(
+    name = "strict_version",
+    targets = [
+        "@strict_visibility_testing//:org_apache_tomcat_tomcat_catalina",
+        "@strict_visibility_testing//:org_apache_tomcat_tomcat_catalina_9_0_24",
+    ],
+)
+
+build_test(
+    name = "strict_version_neg",
+    targets = [
+        "@strict_visibility_testing//:org_apache_tomcat_tomcat_api",
+    ],
+    tags = ["manual"],  # negative test case
+)

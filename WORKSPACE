@@ -220,6 +220,18 @@ load(
 
 _policy_pinned_maven_install()
 
+maven_install(
+    name = "strict_visibility_testing",
+    artifacts = [
+        # https://github.com/bazelbuild/rules_jvm_external/issues/94
+        "org.apache.tomcat:tomcat-catalina:9.0.24",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    strict_visibility = True,
+)
+
 RULES_KOTLIN_VERSION = "9051eb053f9c958440603d557316a6e9fda14687"
 
 http_archive(

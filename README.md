@@ -617,6 +617,26 @@ load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
 ```
 
+### Hiding transitive dependencies
+
+As a convenience, transitive dependencies are visible to your build rules.
+However, this can lead to surprises when updating `maven_install`'s `artifacts`
+list, since doing so may eliminate transitive dependencies from the build
+graph.  To force rule authors to explicitly declare all directly referenced
+artifacts, use the `strict_visibility` attribute in `maven_install`:
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    strict_visibility = True
+)
+```
+
 ## Exporting and consuming artifacts from external repositories
 
 If you're writing a library that has dependencies, you should define a constant that
