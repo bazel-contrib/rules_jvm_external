@@ -832,6 +832,10 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+    # If maven_install.json has already been used in maven_install,
+    # we don't need to instruct user to update WORKSPACE and load pinned_maven_install.
+    # If maven_install.json is not used yet, provide complete instructions.
+    reading_from_json = "True" if repository_ctx.attr.maven_install_json else "False"
     # Expose the script to let users pin the state of the fetch in
     # `<workspace_root>/maven_install.json`.
     #
@@ -841,6 +845,7 @@ def _coursier_fetch_impl(repository_ctx):
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
     repository_ctx.template("pin", repository_ctx.attr._pin,
         {
+            "{reading_from_json}": reading_from_json,
             "{dependency_tree_json}": dependency_tree_json,
             "{repository_name}": \
                 repository_ctx.name[len("unpinned_"):] \
