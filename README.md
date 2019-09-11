@@ -56,7 +56,7 @@ maven_install(
 )
 ```
 
-and use them directly in the BUILD file by specifying the versionless target alias label:
+and use them directly in the BUILD file by specifying the versionless label:
 
 ```python
 java_library(
@@ -75,6 +75,11 @@ android_library(
     ],
 )
 ```
+
+The default label syntax for an artifact `foo.bar:baz-qux:1.2.3` is `@maven//foo_bar_baz_qux`. That is, 
+
+* All non-alphanumeric characters are substituted with underscores.
+* Only the group and artifact IDs are required.
 
 ## API Reference
 
