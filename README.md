@@ -125,6 +125,10 @@ load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 ```
 
+**Note:** Bazel assumes you have a BUILD file in your project's root directory.
+If you do not have one, create an empty BUILD file to fix issues you may see.
+See [#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
+
 Whenever you make a change to the list of `artifacts` or `repositories` and want
 to update `maven_install.json`, run this command to re-pin the unpinned `@maven`
 repository:
