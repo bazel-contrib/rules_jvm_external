@@ -776,6 +776,9 @@ def _coursier_fetch_impl(repository_ctx):
                     # So, we use rfind to get the index of the final '@' in the
                     # repository url instead.
                     primary_artifact_path = primary_url[len(url):]
+                elif url.find("@") == -1 and primary_url.find("@") != -1:
+                    username_len = primary_url.find("//") + 2 + primary_url.find("@") + 1
+                    primary_artifact_path = primary_url[len(url) + username_len:]
 
             mirror_urls = [url + primary_artifact_path for url in repository_urls]
             artifact.update({"mirror_urls": mirror_urls})
