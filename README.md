@@ -647,6 +647,24 @@ maven_install(
 )
 ```
 
+### Fetch and resolve timeout
+
+The default timeout to fetch and resolve artifacts is 600 seconds.  If you need
+to change this to resolve a large number of artifacts you can set the
+`resolve_timeout` attribute in `maven_install`:
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    resolve_timeout = 900
+)
+```
+
 ## Exporting and consuming artifacts from external repositories
 
 If you're writing a library that has dependencies, you should define a constant that

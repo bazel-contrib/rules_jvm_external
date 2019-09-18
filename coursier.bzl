@@ -689,7 +689,7 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--parallel", "1"])
 
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-    exec_result = repository_ctx.execute(cmd)
+    exec_result = repository_ctx.execute(cmd, timeout=repository_ctx.attr.resolve_timeout)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
@@ -722,7 +722,7 @@ def _coursier_fetch_impl(repository_ctx):
                 if part == "http" or part == "https":
                      protocol = part
             if protocol == None:
-                fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"]) 
+                fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"])
             primary_url_parts.extend([protocol, "://"])
             for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
                 primary_url_parts.extend([part, "/"])
@@ -956,6 +956,7 @@ coursier_fetch = repository_rule(
             """,
             default = False,
         ),
+        "resolve_timeout": attr.int(default = 600),
     },
     environ = [
         "JAVA_HOME",

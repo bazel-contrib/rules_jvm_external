@@ -29,7 +29,8 @@ def maven_install(
         version_conflict_policy = "default",
         maven_install_json = None,
         override_targets = {},
-        strict_visibility = False):
+        strict_visibility = False,
+        resolve_timeout = 600):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -60,6 +61,7 @@ def maven_install(
       strict_visibility: Controls visibility of transitive dependencies. If `True`, transitive dependencies
         are private and invisible to user's rules. If `False`, transitive dependencies are public and
         visible to user's rules.
+      resolve_timeout: The execution timeout of resolving and fetching artifacts.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -101,6 +103,7 @@ def maven_install(
         override_targets = override_targets,
         strict_visibility = strict_visibility,
         maven_install_json = maven_install_json,
+        resolve_timeout = resolve_timeout,
     )
 
     if maven_install_json != None:
