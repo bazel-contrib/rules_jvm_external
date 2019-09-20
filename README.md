@@ -56,7 +56,12 @@ maven_install(
 )
 ```
 
-and use them directly in the BUILD file by specifying the versionless label:
+Credentials for private repositories can also be specified using a property file
+or environment variables. See the [Coursier
+documentation](https://get-coursier.io/docs/other-credentials.html#property-file)
+for more information.
+
+Next, reference the artifacts in the BUILD file with their versionless label:
 
 ```python
 java_library(
