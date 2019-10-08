@@ -67,3 +67,10 @@ build_test(
     ],
     tags = ["manual"],  # negative test case
 )
+
+build_test(
+    name = "strict_version_classifier",
+    targets = [
+        "@strict_visibility_testing//:org_eclipse_jetty_jetty_http_tests",
+    ],
+)

@@ -552,10 +552,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         explicit_artifacts = {
-            a["group"] + ":" + a["artifact"]: True for a in artifacts
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True for a in artifacts
         },
         neverlink_artifacts = {
-            a["group"] + ":" + a["artifact"]: True
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
             if a.get("neverlink", False)
         },
@@ -804,11 +804,11 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         explicit_artifacts = {
-            a["group"] + ":" + a["artifact"]: True
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
         },
         neverlink_artifacts = {
-            a["group"] + ":" + a["artifact"]: True
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
             if a.get("neverlink", False)
         },
