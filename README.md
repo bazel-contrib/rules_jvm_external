@@ -728,6 +728,11 @@ Any version conflicts or duplicate artifacts will resolved automatically.
 
 You can find demos in the [`examples/`](./examples/) directory.
 
+## Projects using rules_jvm_external
+
+Find other GitHub projects using `rules_jvm_external` 
+[with this search query](https://github.com/search?p=1&q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&type=Code).
+
 ## Generating documentation
 
 Use [Stardoc](https://skydoc.bazel.build/docs/getting_started_stardoc.html) to
