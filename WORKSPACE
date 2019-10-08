@@ -225,6 +225,13 @@ maven_install(
     artifacts = [
         # https://github.com/bazelbuild/rules_jvm_external/issues/94
         "org.apache.tomcat:tomcat-catalina:9.0.24",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/255
+        maven.artifact(
+            group = "org.eclipse.jetty",
+            artifact = "jetty-http",
+            version = "9.4.20.v20190813",
+            classifier = "tests",
+        ),
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
