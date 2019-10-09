@@ -832,10 +832,32 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
+
+    # This repository rule can be either in the pinned or unpinned state, depending on when
+    # the user invokes artifact pinning. Normalize the repository name here.
+    if repository_ctx.name.startswith("unpinned_"):
+        repository_name = repository_ctx.name[len("unpinned_"):]
+    else:
+        repository_name = repository_ctx.name
+
     # If maven_install.json has already been used in maven_install,
     # we don't need to instruct user to update WORKSPACE and load pinned_maven_install.
     # If maven_install.json is not used yet, provide complete instructions.
-    reading_from_json = "True" if repository_ctx.attr.maven_install_json else "False"
+    #
+    # Also support custom locations for maven_install.json and update the pin.sh script
+    # accordingly.
+    predefined_maven_install = bool(repository_ctx.attr.maven_install_json)
+    if predefined_maven_install:
+        package_path = repository_ctx.attr.maven_install_json.package
+        file_name = repository_ctx.attr.maven_install_json.name
+        if package_path == "":
+            maven_install_location = file_name # e.g. some.json
+        else:
+            maven_install_location = "/".join([package_path, file_name]) # e.g. path/to/some.json
+    else:
+        # Default maven_install.json file name.
+        maven_install_location = "{repository_name}_install.json"
+
     # Expose the script to let users pin the state of the fetch in
     # `<workspace_root>/maven_install.json`.
     #
@@ -845,12 +867,10 @@ def _coursier_fetch_impl(repository_ctx):
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
     repository_ctx.template("pin", repository_ctx.attr._pin,
         {
-            "{reading_from_json}": reading_from_json,
+            "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
+            "{predefined_maven_install}": str(predefined_maven_install),
             "{dependency_tree_json}": dependency_tree_json,
-            "{repository_name}": \
-                repository_ctx.name[len("unpinned_"):] \
-                if repository_ctx.name.startswith("unpinned_") \
-                else repository_ctx.name,
+            "{repository_name}": repository_name,
         },
         executable = True,
     )

@@ -239,6 +239,16 @@ maven_install(
     strict_visibility = True,
 )
 
+maven_install(
+    name = "maven_install_in_custom_location",
+    artifacts = ["com.google.guava:guava:27.0-jre"],
+    repositories = ["https://repo1.maven.org/maven2"],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_install.json",
+)
+
+load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+
 RULES_KOTLIN_VERSION = "9051eb053f9c958440603d557316a6e9fda14687"
 
 http_archive(

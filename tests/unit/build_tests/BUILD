@@ -74,3 +74,10 @@ build_test(
         "@strict_visibility_testing//:org_eclipse_jetty_jetty_http_tests",
     ],
 )
+
+build_test(
+    name = "custom_maven_install_location",
+    targets = [
+        "@maven_install_in_custom_location//:com_google_guava_guava",
+    ]
+)
