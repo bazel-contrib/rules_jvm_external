@@ -3,6 +3,7 @@ tasks:
   ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "//..."
   rbe_ubuntu1604:
@@ -19,6 +20,7 @@ tasks:
     bazel: 0.25.3 
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "--"
       - "//..."
@@ -29,6 +31,7 @@ tasks:
     bazel: 0.26.1 
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "--"
       - "//..."
@@ -39,6 +42,7 @@ tasks:
     bazel: 0.27.2 
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "--"
       - "//..."
@@ -49,6 +53,7 @@ tasks:
     bazel: latest
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "--"
       - "//..."
@@ -57,11 +62,13 @@ tasks:
   macos:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "//..."
   windows:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
     test_targets:
       - "--"
       - "//..."
