@@ -130,9 +130,12 @@ load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 ```
 
-**Note:** Bazel assumes you have a BUILD file in your project's root directory.
-If you do not have one, create an empty BUILD file to fix issues you may see.
-See [#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
+**Note:** The `//:maven_install.json` label assumes you have a BUILD file in
+your project's root directory. If you do not have one, create an empty BUILD
+file to fix issues you may see. See
+[#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
+
+### Updating `maven_install.json`
 
 Whenever you make a change to the list of `artifacts` or `repositories` and want
 to update `maven_install.json`, run this command to re-pin the unpinned `@maven`
@@ -142,13 +145,38 @@ repository:
 $ bazel run @unpinned_maven//:pin
 ```
 
-Note that the repository is `@unpinned_maven` instead of `@maven`.
+Without re-pinning, `maven_install` will not pick up the changes made to the
+WORKSPACE, as `maven_install.json` is now the source of truth.
 
-When using artifact pinning, each `maven_install` repository (e.g. `@maven`)
-will be accompanied by an unpinned repository. This repository name has the
-`@unpinned_` prefix (e.g.`@unpinned_maven` or
-`@unpinned_<your_maven_install_name>`). For example, if your `maven_install` is
-named `@foo`, `@unpinned_foo` will be created.
+Note that the repository is `@unpinned_maven` instead of `@maven`. When using
+artifact pinning, each `maven_install` repository (e.g. `@maven`) will be
+accompanied by an unpinned repository. This repository name has the `@unpinned_`
+prefix (e.g.`@unpinned_maven` or `@unpinned_<your_maven_install_name>`). For
+example, if your `maven_install` is named `@foo`, `@unpinned_foo` will be
+created.
+
+### Custom location for `maven_install.json`
+
+You can specify a custom location for `maven_install.json` by changing the
+`maven_install_json` attribute value to point to the new file label. For example:
+
+```python
+maven_install(
+    name = "maven_install_in_custom_location",
+    artifacts = ["com.google.guava:guava:27.0-jre"],
+    repositories = ["https://repo1.maven.org/maven2"],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_install.json",
+)
+
+load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+```
+
+Future artifact pinning updates to `maven_install.json` will overwrite the file
+at the specified path instead of creating a new one at the default root
+directory location.
+
+### Multiple `maven_install.json` files
 
 If you have multiple `maven_install` declarations, you have to alias 
 `pinned_maven_install` to another name to prevent redefinitions:
