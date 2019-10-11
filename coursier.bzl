@@ -13,6 +13,7 @@
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "utils")
+load("//:private/proxy.bzl" , "get_java_proxy_args")
 load(
     "//:private/versions.bzl",
     "COURSIER_CLI_GITHUB_ASSET_URL",
@@ -405,31 +406,7 @@ def _get_java_proxy_args(repository_ctx):
     http_proxy = repository_ctx.os.environ.get("http_proxy", repository_ctx.os.environ.get("HTTP_PROXY"))
     https_proxy = repository_ctx.os.environ.get("https_proxy", repository_ctx.os.environ.get("HTTPS_PROXY"))
     no_proxy = repository_ctx.os.environ.get("no_proxy", repository_ctx.os.environ.get("NO_PROXY"))
-
-    proxy_args = []
-
-    # Extract the host and port from a standard proxy URL:
-    # http://proxy.example.com:3128 -> ["proxy.example.com", "3128"]
-    if http_proxy:
-        proxy = http_proxy.split("://", 1)[1].split(":", 1)
-        proxy_args.extend([
-            "-Dhttp.proxyHost=%s" % proxy[0],
-            "-Dhttp.proxyPort=%s" % proxy[1],
-        ])
-
-    if https_proxy:
-        proxy = https_proxy.split("://", 1)[1].split(":", 1)
-        proxy_args.extend([
-            "-Dhttps.proxyHost=%s" % proxy[0],
-            "-Dhttps.proxyPort=%s" % proxy[1],
-        ])
-
-    # Convert no_proxy-style exclusions, including base domain matching, into java.net nonProxyHosts:
-    # localhost,example.com,foo.example.com,.otherexample.com -> "localhost|example.com|foo.example.com|*.otherexample.com"
-    if no_proxy != None:
-        proxy_args.append("-Dhttp.nonProxyHosts=%s" % no_proxy.replace(",", "|").replace("|.", "|*."))
-
-    return proxy_args
+    return get_java_proxy_args(http_proxy, https_proxy, no_proxy)
 
 def _windows_check(repository_ctx):
     # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
