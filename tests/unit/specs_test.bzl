@@ -234,6 +234,7 @@ def _repo_credentials_test_impl(ctx):
         utils.repo_credentials({ "repo_url": repo_url, "credentials": { "user": "bob", "password": "l0bl4w" } })
     )
     return unittest.end(env)
+
 repo_credentials_test = unittest.make(_repo_credentials_test_impl)
 
 def artifact_specs_test_suite():
