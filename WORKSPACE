@@ -36,7 +36,7 @@ bazel_skylib_workspace()
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
-    name = "io_bazel_skydoc",
+    name = "io_bazel_stardoc",
     url = "https://github.com/bazelbuild/stardoc/archive/4378e9b6bb2831de7143580594782f538f461180.zip",
     strip_prefix = "stardoc-4378e9b6bb2831de7143580594782f538f461180",
     sha256 = "4a355dccc713458071f441f3dafd7452b3111c53cde554d0847b9a82d657149e",
