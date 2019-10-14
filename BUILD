@@ -1,4 +1,4 @@
-load("@io_bazel_skydoc//stardoc:stardoc.bzl", "stardoc")
+load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("//:private/versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 
@@ -32,6 +32,7 @@ bzl_library(
         ":coursier.bzl",
         ":defs.bzl",
         ":specs.bzl",
+        "//:private/proxy.bzl",
         "//:private/versions.bzl",
         "//third_party/bazel_json/lib:json_parser.bzl",
     ],
