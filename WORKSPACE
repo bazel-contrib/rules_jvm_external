@@ -60,7 +60,11 @@ maven_install(
     repositories = [
         "https://jcenter.bintray.com/",
     ],
+    maven_install_json = "@rules_jvm_external//:maven_install.json",
 )
+
+load("@maven//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
 
 maven_install(
     name = "unsafe_shared_cache",
@@ -80,7 +84,7 @@ maven_install(
         "com.google.guava:guava:27.0-jre",
     ],
     fetch_sources = True,
-    maven_install_json = "//:unsafe_shared_cache_with_pinning_install.json",
+    maven_install_json = "//tests/custom_maven_install:unsafe_shared_cache_with_pinning_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
@@ -178,7 +182,7 @@ maven_install(
         "io.confluent:kafka-avro-serializer:5.0.1",
     ],
     generate_compat_repositories = True,
-    maven_install_json = "//:regression_testing_install.json",
+    maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
     override_targets = {
         "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
     },
@@ -205,7 +209,7 @@ maven_install(
         "com.google.cloud:google-cloud-storage:1.66.0",
         "com.google.guava:guava:25.0-android",
     ],
-    maven_install_json = "//:policy_pinned_testing_install.json",
+    maven_install_json = "//tests/custom_maven_install:policy_pinned_testing_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
