@@ -18,6 +18,24 @@ tasks:
     working_directory: examples/simple
     build_targets:
       - "//..."
+  pom-file-generation-linux:
+    name: "POM file generation example"
+    platform: ubuntu1804
+    working_directory: examples/pom_file_generation
+    build_targets:
+      - "//..."
+  pom-file-generation-macos:
+    name: "POM file generation example"
+    platform: macos
+    working_directory: examples/pom_file_generation
+    build_targets:
+      - "//..."
+  pom-file-generation-windows:
+    name: "POM file generation example"
+    platform: windows
+    working_directory: examples/pom_file_generation
+    build_targets:
+      - "//..."
   android-instrumentation-test-linux:
     name: "Android instrumentation test example"
     platform: ubuntu1804
