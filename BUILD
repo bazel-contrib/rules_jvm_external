@@ -34,6 +34,8 @@ bzl_library(
         ":specs.bzl",
         "//:private/proxy.bzl",
         "//:private/versions.bzl",
+        "//:private/coursier_utilities.bzl",
+        "//:private/dependency_tree_parser.bzl",
         "//third_party/bazel_json/lib:json_parser.bzl",
     ],
 )
