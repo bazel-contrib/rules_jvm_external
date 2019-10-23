@@ -2,9 +2,9 @@ load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 
 genrule(
     name = "make_person_json",
-    tools = ["//src/main:example"],
-    cmd = "$(location //src/main:example) > $@",
     outs = ["actual.json"],
+    cmd = "$(location //src/main:example) > $@",
+    tools = ["//src/main:example"],
 )
 
 diff_test(

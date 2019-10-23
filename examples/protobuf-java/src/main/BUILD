@@ -1,13 +1,13 @@
 java_binary(
     name = "example",
-    srcs = [ "Main.java" ],
+    srcs = ["Main.java"],
     main_class = "rules.jvm.external.Main",
+    visibility = ["//src/test:__subpackages__"],
     deps = [
+        ":addressbook_proto_java",
         "@maven//:com_google_protobuf_protobuf_java",
         "@maven//:com_google_protobuf_protobuf_java_util",
-        ":addressbook_proto_java",
     ],
-    visibility = ["//src/test:__subpackages__"],
 )
 
 proto_library(
