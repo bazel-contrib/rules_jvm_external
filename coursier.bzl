@@ -681,99 +681,101 @@ def _coursier_fetch_impl(repository_ctx):
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
         # to other artifacts.
-        if artifact["file"] != None:
-            # Normalize paths in place here.
-            artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
+        if artifact["file"] == None:
+            continue
 
-            if repository_ctx.attr.use_unsafe_shared_cache:
-                artifact.update({"file": _relativize_and_symlink_file(repository_ctx, artifact["file"])})
+        # Normalize paths in place here.
+        artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
 
-            # Coursier saves the artifacts into a subdirectory structure
-            # that mirrors the URL where the artifact's fetched from. Using
-            # this, we can reconstruct the original URL.
-            primary_url_parts = []
-            filepath_parts = artifact["file"].split("/")
-            protocol = None
-            # Only support http/https transports
-            for part in filepath_parts:
-                if part == "http" or part == "https":
-                     protocol = part
-            if protocol == None:
-                fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"])
-            primary_url_parts.extend([protocol, "://"])
-            for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
-                primary_url_parts.extend([part, "/"])
-            primary_url_parts.pop() # pop the final "/"
+        if repository_ctx.attr.use_unsafe_shared_cache:
+            artifact.update({"file": _relativize_and_symlink_file(repository_ctx, artifact["file"])})
 
-            # Coursier encodes:
-            # - ':' as '%3A'
-            # - '@' as '%40'
-            #
-            # The primary_url is the url from which Coursier downloaded the jar from. It looks like this:
-            # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
-            primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
-            artifact.update({"url": primary_url})
+        # Coursier saves the artifacts into a subdirectory structure
+        # that mirrors the URL where the artifact's fetched from. Using
+        # this, we can reconstruct the original URL.
+        primary_url_parts = []
+        filepath_parts = artifact["file"].split("/")
+        protocol = None
+        # Only support http/https transports
+        for part in filepath_parts:
+            if part == "http" or part == "https":
+                    protocol = part
+        if protocol == None:
+            fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"])
+        primary_url_parts.extend([protocol, "://"])
+        for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
+            primary_url_parts.extend([part, "/"])
+        primary_url_parts.pop() # pop the final "/"
 
-            # The repository for the primary_url has to be one of the repositories provided through
-            # maven_install. Since Maven artifact URLs are standardized, we can make the `http_file`
-            # targets more robust by replicating the primary url for each specified repository url.
-            #
-            # It does not matter if the artifact is on a repository or not, since http_file takes
-            # care of 404s.
-            #
-            # If the artifact does exist, Bazel's HttpConnectorMultiplexer enforces the SHA-256 checksum
-            # is correct. By applying the SHA-256 checksum verification across all the mirrored files,
-            # we get increased robustness in the case where our primary artifact has been tampered with,
-            # and we somehow ended up using the tampered checksum. Attackers would need to tamper *all*
-            # mirrored artifacts.
-            #
-            # See https://github.com/bazelbuild/bazel/blob/77497817b011f298b7f3a1138b08ba6a962b24b8/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/HttpConnectorMultiplexer.java#L103
-            # for more information on how Bazel's HTTP multiplexing works.
-            #
-            # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
-            # basic auth.
-            repository_urls = [r["repo_url"] for r in repositories]
-            for url in repository_urls:
-                if primary_url.find(url) != -1:
-                    primary_artifact_path = primary_url[len(url):]
-                elif url.find("@") != -1 and primary_url.find(url[url.rindex("@"):]) != -1:
-                    # Maybe this is a url-encoded private repository url.
-                    #
-                    # A private repository url looks like this:
-                    # http://admin:passw@rd@localhost/artifactory/jcenter
-                    #
-                    # Or, in its URL encoded form:
-                    # http://admin:passw%40rd@localhost/artifactory/jcenter
-                    #
-                    # However, in the primary_url we've reconstructed using the
-                    # downloaded relative file path earlier on, the password is
-                    # removed by Coursier (as it should). So we end up working
-                    # with: http://admin@localhost/artifactory/jcenter
-                    #
-                    # So, we use rfind to get the index of the final '@' in the
-                    # repository url instead.
-                    primary_artifact_path = primary_url[len(url):]
-                elif url.find("@") == -1 and primary_url.find("@") != -1:
-                    username_len = primary_url.find("//") + 2 + primary_url.find("@") + 1
-                    primary_artifact_path = primary_url[len(url) + username_len:]
+        # Coursier encodes:
+        # - ':' as '%3A'
+        # - '@' as '%40'
+        #
+        # The primary_url is the url from which Coursier downloaded the jar from. It looks like this:
+        # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
+        primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
+        artifact.update({"url": primary_url})
 
-            mirror_urls = [url + primary_artifact_path for url in repository_urls]
-            artifact.update({"mirror_urls": mirror_urls})
+        # The repository for the primary_url has to be one of the repositories provided through
+        # maven_install. Since Maven artifact URLs are standardized, we can make the `http_file`
+        # targets more robust by replicating the primary url for each specified repository url.
+        #
+        # It does not matter if the artifact is on a repository or not, since http_file takes
+        # care of 404s.
+        #
+        # If the artifact does exist, Bazel's HttpConnectorMultiplexer enforces the SHA-256 checksum
+        # is correct. By applying the SHA-256 checksum verification across all the mirrored files,
+        # we get increased robustness in the case where our primary artifact has been tampered with,
+        # and we somehow ended up using the tampered checksum. Attackers would need to tamper *all*
+        # mirrored artifacts.
+        #
+        # See https://github.com/bazelbuild/bazel/blob/77497817b011f298b7f3a1138b08ba6a962b24b8/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/HttpConnectorMultiplexer.java#L103
+        # for more information on how Bazel's HTTP multiplexing works.
+        #
+        # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
+        # basic auth.
+        repository_urls = [r["repo_url"] for r in repositories]
+        for url in repository_urls:
+            if primary_url.find(url) != -1:
+                primary_artifact_path = primary_url[len(url):]
+            elif url.find("@") != -1 and primary_url.find(url[url.rindex("@"):]) != -1:
+                # Maybe this is a url-encoded private repository url.
+                #
+                # A private repository url looks like this:
+                # http://admin:passw@rd@localhost/artifactory/jcenter
+                #
+                # Or, in its URL encoded form:
+                # http://admin:passw%40rd@localhost/artifactory/jcenter
+                #
+                # However, in the primary_url we've reconstructed using the
+                # downloaded relative file path earlier on, the password is
+                # removed by Coursier (as it should). So we end up working
+                # with: http://admin@localhost/artifactory/jcenter
+                #
+                # So, we use rfind to get the index of the final '@' in the
+                # repository url instead.
+                primary_artifact_path = primary_url[len(url):]
+            elif url.find("@") == -1 and primary_url.find("@") != -1:
+                username_len = primary_url.find("//") + 2 + primary_url.find("@") + 1
+                primary_artifact_path = primary_url[len(url) + username_len:]
 
-            # Compute the sha256 of the file.
-            exec_result = repository_ctx.execute([
-                "python",
-                repository_ctx.path(repository_ctx.attr._sha256_tool),
-                repository_ctx.path(artifact["file"]),
-                "artifact.sha256",
-            ])
+        mirror_urls = [url + primary_artifact_path for url in repository_urls]
+        artifact.update({"mirror_urls": mirror_urls})
 
-            if exec_result.return_code != 0:
-                fail("Error while obtaining the sha256 checksum of "
-                        + artifact["file"] + ": " + exec_result.stderr)
+        # Compute the sha256 of the file.
+        exec_result = repository_ctx.execute([
+            "python",
+            repository_ctx.path(repository_ctx.attr._sha256_tool),
+            repository_ctx.path(artifact["file"]),
+            "artifact.sha256",
+        ])
 
-            # Update the SHA-256 checksum in-place.
-            artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
+        if exec_result.return_code != 0:
+            fail("Error while obtaining the sha256 checksum of "
+                    + artifact["file"] + ": " + exec_result.stderr)
+
+        # Update the SHA-256 checksum in-place.
+        artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
     dep_tree.update({
         "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": _compute_dependency_tree_signature(dep_tree["dependencies"])
