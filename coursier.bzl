@@ -13,11 +13,13 @@
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "utils")
-load("//:private/proxy.bzl" , "get_java_proxy_args")
+load("//:private/proxy.bzl", "get_java_proxy_args")
+load("//:private/dependency_tree_parser.bzl", "parser")
+load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
 load(
     "//:private/versions.bzl",
-    "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_BAZEL_MIRROR_URL",
+    "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
 
@@ -30,39 +32,6 @@ load("@{repository_name}//:jvm_import.bzl", "jvm_import")
 
 {imports}
 """
-
-# Coursier uses these types to determine what files it should resolve and fetch.
-# For example, some jars have the type "eclipse-plugin", and Coursier would not
-# download them if it's not asked to to resolve "eclipse-plugin".
-_COURSIER_PACKAGING_TYPES = [
-    "jar",
-    "aar",
-    "bundle",
-    "eclipse-plugin",
-    "orbit",
-    "test-jar",
-    "hk2-jar",
-    "maven-plugin",
-    "scala-jar",
-]
-
-def _strip_packaging_and_classifier(coord):
-    # We add "pom" into _COURSIER_PACKAGING_TYPES here because "pom" is not a
-    # packaging type that Coursier CLI accepts.
-    for packaging_type in _COURSIER_PACKAGING_TYPES + ["pom"]:
-        coord = coord.replace(":%s:" % packaging_type, ":")
-    for classifier_type in ["sources", "natives"]:
-        coord = coord.replace(":%s:" % classifier_type, ":")
-
-    return coord
-
-def _strip_packaging_and_classifier_and_version(coord):
-    return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
-
-def _escape(string):
-    for char in [".", "-", ":", "/", "+"]:
-        string = string.replace(char, "_")
-    return string.replace("[", "").replace("]", "").split(",")[0]
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
@@ -99,284 +68,6 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
         artifact_relative_path = "v1/" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
-
-def _genrule_copy_artifact_from_http_file(artifact):
-    http_file_repository = _escape(artifact["coord"])
-    return "\n".join([
-        "genrule(",
-        "     name = \"%s_extension\"," % http_file_repository,
-        "     srcs = [\"@%s//file\"]," % http_file_repository,
-        "     outs = [\"%s\"]," % artifact["file"],
-        "     cmd = \"cp $< $@\",",
-        ")",
-    ])
-
-# Generate BUILD file with java_import and aar_import for each artifact in
-# the transitive closure, with their respective deps mapped to the resolved
-# tree.
-#
-# Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, override_targets):
-    # The list of java_import/aar_import declaration strings to be joined at the end
-    all_imports = []
-
-    # A dictionary (set) of coordinates. This is to ensure we don't generate
-    # duplicate labels
-    #
-    # seen_imports :: string -> bool
-    seen_imports = {}
-
-    # A list of versionless target labels for jar artifacts. This is used for
-    # generating a compatibility layer for repositories. For example, if we generate
-    # @maven//:junit_junit, we also generate @junit_junit//jar as an alias to it.
-    jar_versionless_target_labels = []
-
-    labels_to_override = {}
-    for coord in override_targets:
-        labels_to_override.update({_escape(coord): override_targets.get(coord)})
-
-    # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
-    # We will use this map later while generating target declaration strings with the "srcjar" attr.
-    srcjar_paths = None
-    if repository_ctx.attr.fetch_sources:
-        srcjar_paths = {}
-        for artifact in dep_tree["dependencies"]:
-            if ":sources:" in artifact["coord"]:
-                artifact_path = artifact["file"]
-                if artifact_path != None and artifact_path not in seen_imports:
-                    seen_imports[artifact_path] = True
-                    target_label = _escape(_strip_packaging_and_classifier_and_version(artifact["coord"]))
-                    srcjar_paths[target_label] = artifact_path
-                    if repository_ctx.attr.maven_install_json:
-                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
-
-    # Iterate through the list of artifacts, and generate the target declaration strings.
-    for artifact in dep_tree["dependencies"]:
-        artifact_path = artifact["file"]
-        simple_coord = _strip_packaging_and_classifier_and_version(artifact["coord"])
-        target_label = _escape(simple_coord)
-        alias_visibility = ""
-
-        if target_label in seen_imports:
-            # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
-            pass
-        elif repository_ctx.attr.fetch_sources and ":sources:" in artifact["coord"]:
-            # We already processed the sources above, so skip them here.
-            pass
-        elif target_label in labels_to_override:
-            # Override target labels with the user provided mapping, instead of generating
-            # a jvm_import/aar_import based on information in dep_tree.
-            seen_imports[target_label] = True
-            all_imports.append(
-                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)))
-            if repository_ctx.attr.maven_install_json:
-                # Provide the downloaded artifact as a file target.
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
-        elif artifact_path != None:
-            seen_imports[target_label] = True
-
-            # 1. Generate the rule class.
-            #
-            # java_import(
-            #
-            packaging = artifact_path.split(".").pop()
-            if packaging == "jar":
-                # Regular `java_import` invokes ijar on all JARs, causing some Scala and
-                # Kotlin compile interface JARs to be incorrect. We replace java_import
-                # with a simple jvm_import Starlark rule that skips ijar.
-                target_import_string = ["jvm_import("]
-                jar_versionless_target_labels.append(target_label)
-            elif packaging == "aar":
-                target_import_string = ["aar_import("]
-            else:
-                fail("Unsupported packaging type: " + packaging)
-
-            # 2. Generate the target label.
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            #
-            target_import_string.append("\tname = \"%s\"," % target_label)
-
-            # 3. Generate the jars/aar attribute to the relative path of the artifact.
-            #    Optionally generate srcjar attr too.
-            #
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
-            #
-            if packaging == "jar":
-                target_import_string.append("\tjars = [\"%s\"]," % artifact_path)
-                if srcjar_paths != None and target_label in srcjar_paths:
-                    target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
-            elif packaging == "aar":
-                target_import_string.append("\taar = \"%s\"," % artifact_path)
-
-            # 4. Generate the deps attribute with references to other target labels.
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
-            # 	deps = [
-            # 		":org_hamcrest_hamcrest_core",
-            # 	],
-            #
-            target_import_string.append("\tdeps = [")
-
-            # Dedupe dependencies here. Sometimes coursier will return "x.y:z:aar:version" and "x.y:z:version" in the
-            # same list of dependencies.
-            target_import_labels = []
-            for dep in artifact["dependencies"]:
-                dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
-                # Coursier returns cyclic dependencies sometimes. Handle it here.
-                # See https://github.com/bazelbuild/rules_jvm_external/issues/172
-                if dep_target_label != target_label:
-                    if dep_target_label in labels_to_override:
-                        dep_target_label = labels_to_override.get(dep_target_label)
-                    else:
-                        dep_target_label = ":" + dep_target_label
-                    target_import_labels.append("\t\t\"%s\",\n" % dep_target_label)
-            target_import_labels = _deduplicate_list(target_import_labels)
-
-            target_import_string.append("".join(target_import_labels) + "\t],")
-
-            # 5. Add a tag with the original maven coordinates for use generating pom files
-            # For use with this rule https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
-            # 	deps = [
-            # 		":org_hamcrest_hamcrest_core",
-            # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
-            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
-
-            # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
-            #    available only as a compile time dependency.
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
-            # 	deps = [
-            # 		":org_hamcrest_hamcrest_core",
-            # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
-            #   neverlink = True,
-            if neverlink_artifacts.get(simple_coord):
-                target_import_string.append("\tneverlink = True,")
-
-            # 7. If `strict_visibility` is True in the artifact spec, define public
-            #    visibility only for non-transitive dependencies.
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
-            # 	deps = [
-            # 		":org_hamcrest_hamcrest_core",
-            # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
-            #   neverlink = True,
-            #   visibility = ["//visibility:public"],
-            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
-                target_import_string.append("\tvisibility = [\"//visibility:public\"],")
-                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
-
-            # 8. Finish the java_import rule.
-            #
-            # java_import(
-            # 	name = "org_hamcrest_hamcrest_library",
-            # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
-            # 	deps = [
-            # 		":org_hamcrest_hamcrest_core",
-            # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
-            #   neverlink = True,
-            # )
-            target_import_string.append(")")
-
-            all_imports.append("\n".join(target_import_string))
-
-            # 9. Create a versionless alias target
-            #
-            # alias(
-            #   name = "org_hamcrest_hamcrest_library_1_3",
-            #   actual = "org_hamcrest_hamcrest_library",
-            # )
-            versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
-                    (versioned_target_alias_label, target_label, alias_visibility))
-
-            # 10. If using maven_install.json, use a genrule to copy the file from the http_file
-            # repository into this repository.
-            #
-            # genrule(
-            #     name = "org_hamcrest_hamcrest_library_1_3_extension",
-            #     srcs = ["@org_hamcrest_hamcrest_library_1_3//file"],
-            #     outs = ["@maven//:v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            #     cmd = "cp $< $@",
-            # )
-            if repository_ctx.attr.maven_install_json:
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
-
-        else: # artifact_path == None:
-            # Special case for certain artifacts that only come with a POM file. Such artifacts "aggregate" their dependencies,
-            # so they don't have a JAR for download.
-            # Note that there are other possible reasons that the artifact_path is None:
-            #
-            # https://github.com/bazelbuild/rules_jvm_external/issues/70
-            # https://github.com/bazelbuild/rules_jvm_external/issues/74
-            #
-            # This can be due to the artifact being of a type that's unknown to Coursier. This is increasingly
-            # rare as we add more types to _COURSIER_PACKAGING_TYPES. It's also increasingly uncommon relatively
-            # to POM-only / parent artifacts. So when we encounter an artifact without a filepath, we assume
-            # that it's a parent artifact that just exports its dependencies, instead of failing.
-            seen_imports[target_label] = True
-            target_import_string = ["java_library("]
-            target_import_string.append("\tname = \"%s\"," % target_label)
-            target_import_string.append("\texports = [")
-
-            target_import_labels = []
-            for dep in artifact["dependencies"]:
-                dep_target_label = _escape(_strip_packaging_and_classifier_and_version(dep))
-                # Coursier returns cyclic dependencies sometimes. Handle it here.
-                # See https://github.com/bazelbuild/rules_jvm_external/issues/172
-                if dep_target_label != target_label:
-                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
-            target_import_labels = _deduplicate_list(target_import_labels)
-
-            target_import_string.append("".join(target_import_labels) + "\t],")
-            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
-
-            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
-                target_import_string.append("\tvisibility = [\"//visibility:public\"],")
-                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
-
-            target_import_string.append(")")
-
-            all_imports.append("\n".join(target_import_string))
-
-            versioned_target_alias_label = _escape(_strip_packaging_and_classifier(artifact["coord"]))
-            all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
-                    (versioned_target_alias_label, target_label, alias_visibility))
-
-    return ("\n".join(all_imports), jar_versionless_target_labels)
-
-def _deduplicate_list(items):
-    seen_items = {}
-    unique_items = []
-    for item in items:
-        if item not in seen_items:
-            seen_items[item] = True
-            unique_items.append(item)
-    return unique_items
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
@@ -434,7 +125,7 @@ def _compute_dependency_tree_signature(artifacts):
             artifact_group.extend([
                 artifact["sha256"],
                 artifact["file"],
-                artifact["url"]
+                artifact["url"],
             ])
         if len(artifact["dependencies"]) > 0:
             artifact_group.append(",".join(sorted(artifact["dependencies"])))
@@ -443,8 +134,8 @@ def _compute_dependency_tree_signature(artifacts):
 
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
-        fail("Please specify the file label to maven_install.json (e.g."
-             + "//:maven_install.json).")
+        fail("Please specify the file label to maven_install.json (e.g." +
+             "//:maven_install.json).")
 
     _windows_check(repository_ctx)
 
@@ -455,11 +146,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     # Read Coursier state from maven_install.json.
     repository_ctx.symlink(
         repository_ctx.path(repository_ctx.attr.maven_install_json),
-        repository_ctx.path("imported_maven_install.json")
+        repository_ctx.path("imported_maven_install.json"),
     )
     maven_install_json_content = json_parse(
         repository_ctx.read(
-            repository_ctx.path("imported_maven_install.json")),
+            repository_ctx.path("imported_maven_install.json"),
+        ),
         fail_on_invalid = False,
     )
 
@@ -467,35 +159,35 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     # First, validate that we can parse the JSON file.
     if maven_install_json_content == None:
-        fail("Failed to parse %s. Is this file valid JSON? The file may have been corrupted." % repository_ctx.path(repository_ctx.attr.maven_install_json)
-             + "Consider regenerating maven_install.json with the following steps:\n"
-             + "  1. Remove the maven_install_json attribute from your `maven_install` declaration for `@%s`.\n" % repository_ctx.name
-             + "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin" % repository_ctx.name
-             + "  3. Add `maven_install_json = \"//:maven_install.json\"` into your `maven_install` declaration.")
+        fail("Failed to parse %s. Is this file valid JSON? The file may have been corrupted." % repository_ctx.path(repository_ctx.attr.maven_install_json) +
+             "Consider regenerating maven_install.json with the following steps:\n" +
+             "  1. Remove the maven_install_json attribute from your `maven_install` declaration for `@%s`.\n" % repository_ctx.name +
+             "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin" % repository_ctx.name +
+             "  3. Add `maven_install_json = \"//:maven_install.json\"` into your `maven_install` declaration.")
 
     # Then, validate that there's a dependency_tree element in the parsed JSON.
     if maven_install_json_content.get("dependency_tree") == None:
-        fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json)
-                + "It is not a valid maven_install.json file. Has this "
-                + "file been modified manually?")
+        fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json) +
+             "It is not a valid maven_install.json file. Has this " +
+             "file been modified manually?")
 
     dep_tree = maven_install_json_content["dependency_tree"]
 
     dep_tree_signature = dep_tree.get("__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY")
 
     if dep_tree_signature == None:
-        print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name
-              + "This feature ensures that the file is not modified manually. To generate this "
-              + "signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
+        print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name +
+              "This feature ensures that the file is not modified manually. To generate this " +
+              "signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
     elif _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
-        fail("%s_install.json contains an invalid signature and may be corrupted. " % repository_ctx.name
-            + "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new "
-            + "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % repository_ctx.name
-            + "  1) In your WORKSPACE file, comment or remove the 'maven_install_json' attribute in 'maven_install'.\n"
-            + "  2) Run 'bazel run @%s//:pin'.\n" % repository_ctx.name
-            + "  3) Uncomment or re-add the 'maven_install_json' attribute in 'maven_install'.\n\n")
+        fail("%s_install.json contains an invalid signature and may be corrupted. " % repository_ctx.name +
+             "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
+             "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % repository_ctx.name +
+             "  1) In your WORKSPACE file, comment or remove the 'maven_install_json' attribute in 'maven_install'.\n" +
+             "  2) Run 'bazel run @%s//:pin'.\n" % repository_ctx.name +
+             "  3) Uncomment or re-add the 'maven_install_json' attribute in 'maven_install'.\n\n")
 
     # Create the list of http_file repositories for each of the artifacts
     # in maven_install.json. This will be loaded additionally like so:
@@ -508,7 +200,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     ]
     for artifact in dep_tree["dependencies"]:
         if artifact.get("url") != None:
-            http_file_repository_name = _escape(artifact["coord"])
+            http_file_repository_name = escape(artifact["coord"])
             http_files.extend([
                 "    http_file(",
                 "        name = \"%s\"," % http_file_repository_name,
@@ -525,11 +217,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    (generated_imports, jar_versionless_target_labels) = _generate_imports(
+    (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         explicit_artifacts = {
-            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True for a in artifacts
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
+            for a in artifacts
         },
         neverlink_artifacts = {
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
@@ -635,7 +328,7 @@ def _coursier_fetch_impl(repository_ctx):
         for coord in artifact_coordinates:
             # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
             cmd.extend(["--force-version", coord.split(",classifier=")[0]])
-    cmd.extend(["--artifact-type", ",".join(_COURSIER_PACKAGING_TYPES + ["src"])])
+    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src"])])
     cmd.append("--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -666,7 +359,7 @@ def _coursier_fetch_impl(repository_ctx):
         cmd.extend(["--parallel", "1"])
 
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-    exec_result = repository_ctx.execute(cmd, timeout=repository_ctx.attr.resolve_timeout)
+    exec_result = repository_ctx.execute(cmd, timeout = repository_ctx.attr.resolve_timeout)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
@@ -778,11 +471,11 @@ def _coursier_fetch_impl(repository_ctx):
         artifact.update({"sha256": repository_ctx.read("artifact.sha256")})
 
     dep_tree.update({
-        "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": _compute_dependency_tree_signature(dep_tree["dependencies"])
+        "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": _compute_dependency_tree_signature(dep_tree["dependencies"]),
     })
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    (generated_imports, jar_versionless_target_labels) = _generate_imports(
+    (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
         repository_ctx = repository_ctx,
         dep_tree = dep_tree,
         explicit_artifacts = {
@@ -814,7 +507,6 @@ def _coursier_fetch_impl(repository_ctx):
         False,  # not executable
     )
 
-
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
     if repository_ctx.name.startswith("unpinned_"):
@@ -833,9 +525,9 @@ def _coursier_fetch_impl(repository_ctx):
         package_path = repository_ctx.attr.maven_install_json.package
         file_name = repository_ctx.attr.maven_install_json.name
         if package_path == "":
-            maven_install_location = file_name # e.g. some.json
+            maven_install_location = file_name  # e.g. some.json
         else:
-            maven_install_location = "/".join([package_path, file_name]) # e.g. path/to/some.json
+            maven_install_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
     else:
         # Default maven_install.json file name.
         maven_install_location = "{repository_name}_install.json"
@@ -847,7 +539,9 @@ def _coursier_fetch_impl(repository_ctx):
     #
     # Create the maven_install.json export script for unpinned repositories.
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
-    repository_ctx.template("pin", repository_ctx.attr._pin,
+    repository_ctx.template(
+        "pin",
+        repository_ctx.attr._pin,
         {
             "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
             "{predefined_maven_install}": str(predefined_maven_install),
@@ -875,7 +569,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "defs.bzl",
         "def pinned_maven_install():\n    pass",
-        executable = False
+        executable = False,
     )
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
