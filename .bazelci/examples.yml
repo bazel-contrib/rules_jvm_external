@@ -149,17 +149,17 @@ tasks:
     name: "Protobuf Java example"
     platform: ubuntu1804
     working_directory: examples/protobuf-java
-    build_targets:
+    test_targets:
       - "//..."
   protobuf-java-macos:
     name: "Protobuf Java example"
     platform: macos
     working_directory: examples/protobuf-java
-    build_targets:
+    test_targets:
       - "//..."
   protobuf-java-windows:
     name: "Protobuf Java example"
     platform: windows 
     working_directory: examples/protobuf-java
-    build_targets:
+    test_targets:
       - "//..."
