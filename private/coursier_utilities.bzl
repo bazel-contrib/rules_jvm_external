@@ -14,7 +14,7 @@
 # Coursier uses these types to determine what files it should resolve and fetch.
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
-_SUPPORTED_PACKAGING_TYPES = [
+SUPPORTED_PACKAGING_TYPES = [
     "jar",
     "aar",
     "bundle",
@@ -26,27 +26,20 @@ _SUPPORTED_PACKAGING_TYPES = [
     "scala-jar",
 ]
 
-def _strip_packaging_and_classifier(coord):
+def strip_packaging_and_classifier(coord):
     # We add "pom" into _COURSIER_PACKAGING_TYPES here because "pom" is not a
     # packaging type that Coursier CLI accepts.
-    for packaging_type in _SUPPORTED_PACKAGING_TYPES + ["pom"]:
+    for packaging_type in SUPPORTED_PACKAGING_TYPES + ["pom"]:
         coord = coord.replace(":%s:" % packaging_type, ":")
     for classifier_type in ["sources", "natives"]:
         coord = coord.replace(":%s:" % classifier_type, ":")
 
     return coord
 
-def _strip_packaging_and_classifier_and_version(coord):
-    return ":".join(_strip_packaging_and_classifier(coord).split(":")[:-1])
+def strip_packaging_and_classifier_and_version(coord):
+    return ":".join(strip_packaging_and_classifier(coord).split(":")[:-1])
 
-def _escape(string):
+def escape(string):
     for char in [".", "-", ":", "/", "+"]:
         string = string.replace(char, "_")
     return string.replace("[", "").replace("]", "").split(",")[0]
-
-coursier_utilities = struct(
-    strip_packaging_and_classifier = _strip_packaging_and_classifier,
-    strip_packaging_and_classifier_and_version = _strip_packaging_and_classifier_and_version,
-    escape = _escape,
-    SUPPORTED_PACKAGING_TYPES = _SUPPORTED_PACKAGING_TYPES,
-)

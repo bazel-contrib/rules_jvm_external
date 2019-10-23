@@ -17,10 +17,10 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
-load("//:private/coursier_utilities.bzl", coursier_utils = "coursier_utilities")
+load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
 def _genrule_copy_artifact_from_http_file(artifact):
-    http_file_repository = coursier_utils.escape(artifact["coord"])
+    http_file_repository = escape(artifact["coord"])
     return "\n".join([
         "genrule(",
         "     name = \"%s_extension\"," % http_file_repository,
@@ -61,7 +61,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
     labels_to_override = {}
     for coord in override_targets:
-        labels_to_override.update({coursier_utils.escape(coord): override_targets.get(coord)})
+        labels_to_override.update({escape(coord): override_targets.get(coord)})
 
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
@@ -73,7 +73,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 artifact_path = artifact["file"]
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
-                    target_label = coursier_utils.escape(coursier_utils.strip_packaging_and_classifier_and_version(artifact["coord"]))
+                    target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_path
                     if repository_ctx.attr.maven_install_json:
                         all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
@@ -81,8 +81,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        simple_coord = coursier_utils.strip_packaging_and_classifier_and_version(artifact["coord"])
-        target_label = coursier_utils.escape(simple_coord)
+        simple_coord = strip_packaging_and_classifier_and_version(artifact["coord"])
+        target_label = escape(simple_coord)
         alias_visibility = ""
 
         if target_label in seen_imports:
@@ -96,7 +96,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # a jvm_import/aar_import based on information in dep_tree.
             seen_imports[target_label] = True
             all_imports.append(
-                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)))
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)),
+            )
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
@@ -158,7 +159,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                dep_target_label = coursier_utils.escape(coursier_utils.strip_packaging_and_classifier_and_version(dep))
+                dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
+
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
                 if dep_target_label != target_label:
@@ -238,9 +240,9 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   name = "org_hamcrest_hamcrest_library_1_3",
             #   actual = "org_hamcrest_hamcrest_library",
             # )
-            versioned_target_alias_label = coursier_utils.escape(coursier_utils.strip_packaging_and_classifier(artifact["coord"]))
+            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
-                    (versioned_target_alias_label, target_label, alias_visibility))
+                               (versioned_target_alias_label, target_label, alias_visibility))
 
             # 10. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
@@ -254,7 +256,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             if repository_ctx.attr.maven_install_json:
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
-        else: # artifact_path == None:
+        else:  # artifact_path == None:
             # Special case for certain artifacts that only come with a POM file.
             # Such artifacts "aggregate" their dependencies, so they don't have
             # a JAR for download.
@@ -267,7 +269,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #
             # This can be due to the artifact being of a type that's unknown to
             # Coursier. This is increasingly rare as we add more types to
-            # coursier_utils.SUPPORTED_PACKAGING_TYPES. It's also increasingly
+            # SUPPORTED_PACKAGING_TYPES. It's also increasingly
             # uncommon relatively to POM-only / parent artifacts. So when we
             # encounter an artifact without a filepath, we assume that it's a
             # parent artifact that just exports its dependencies, instead of
@@ -279,7 +281,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                dep_target_label = coursier_utils.escape(coursier_utils.strip_packaging_and_classifier_and_version(dep))
+                dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
+
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
                 if dep_target_label != target_label:
@@ -297,12 +300,12 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
             all_imports.append("\n".join(target_import_string))
 
-            versioned_target_alias_label = coursier_utils.escape(coursier_utils.strip_packaging_and_classifier(artifact["coord"]))
+            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
-                    (versioned_target_alias_label, target_label, alias_visibility))
+                               (versioned_target_alias_label, target_label, alias_visibility))
 
     return ("\n".join(all_imports), jar_versionless_target_labels)
 
 parser = struct(
-    generate_imports = _generate_imports
+    generate_imports = _generate_imports,
 )
