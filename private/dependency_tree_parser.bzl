@@ -96,7 +96,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # a jvm_import/aar_import based on information in dep_tree.
             seen_imports[target_label] = True
             all_imports.append(
-                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n)" % (target_label, labels_to_override.get(target_label)),
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],)" % (target_label, labels_to_override.get(target_label)),
             )
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
