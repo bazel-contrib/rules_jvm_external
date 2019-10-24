@@ -145,3 +145,21 @@ tasks:
     # test_targets:
     # https://github.com/bazelbuild/rules_jvm_external/issues/103
     # - "//..."
+  protobuf-java-linux:
+    name: "Protobuf Java example"
+    platform: ubuntu1804
+    working_directory: examples/protobuf-java
+    test_targets:
+      - "//..."
+  protobuf-java-macos:
+    name: "Protobuf Java example"
+    platform: macos
+    working_directory: examples/protobuf-java
+    test_targets:
+      - "//..."
+  protobuf-java-windows:
+    name: "Protobuf Java example"
+    platform: windows 
+    working_directory: examples/protobuf-java
+    test_targets:
+      - "//..."
