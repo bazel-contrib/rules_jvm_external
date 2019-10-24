@@ -161,5 +161,7 @@ tasks:
     name: "Protobuf Java example"
     platform: windows 
     working_directory: examples/protobuf-java
-    test_targets:
+    # //src/test:diff_json_test / diff_test does not ignore line endings
+    # correctly on Windows.
+    build_targets:
       - "//..."
