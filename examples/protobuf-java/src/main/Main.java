@@ -24,8 +24,8 @@ public class Main {
 
   public static Person makePerson(Integer id, String name) {
     Person.Builder person = Person.newBuilder();
-    person.setId(123);
-    person.setName("John Doe");
+    person.setId(id);
+    person.setName(name);
     return person.build();
   }
 }
