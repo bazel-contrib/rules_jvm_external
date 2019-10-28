@@ -282,6 +282,12 @@ maven_install(
 
 ### Using a persistent artifact cache
 
+> NOTE: Prefer using artifact pinning / maven_install.json instead. This
+> is a caching mechanism that was implemented before artifact pinning,
+> which uses Coursier's own persistent cache. With artifact pinning and
+> maven_install.json, the persistent cache is integrated directly into
+> Bazel's own cache.
+
 To download artifacts into a shared and persistent directory in your home
 directory, set `use_unsafe_shared_cache = True` in `maven_install`.
 
