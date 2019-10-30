@@ -4,12 +4,14 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -18,10 +20,9 @@ public class MavenJarMigrator {
 
   // Defined by Bazel during a `bazel run`.
   private static final String BUILD_WORKING_DIRECTORY = System.getenv("BUILD_WORKING_DIRECTORY");
-
   // Converts a Maven coordinate to a valid maven_install target label.
   // e.g. com.google.guava:guava:28.0-jre -> @maven//:com_google_guava_guava
-  private static final Function<String, String> convertCoordinateToLabel =
+  private static final Function<String, String> convertCoordinateToNewLabel =
       (String coordinate) -> {
         coordinate = coordinate.replace("-", "_").replace(".", "_");
         String[] parts = coordinate.split(":");
@@ -29,33 +30,44 @@ public class MavenJarMigrator {
       };
 
   public static void main(String[] args) throws IOException, InterruptedException {
-    ImmutableList<String> coordinates = queryMavenJarsOnStringAttribute("artifact");
-    buildozerMavenJarToMavenInstall(coordinates);
+    ImmutableList<String> coordinates = collectMavenJarAttributeValues("artifact");
+    // Phase 1: Run buildozer to convert old maven_jar labels to new maven_install labels.
+    convertLabels(coordinates);
+    // Phase 2: Print maven_install WORKSPACE snippet on stdout.
     System.out.println(generateWorkspaceSnippet(coordinates));
   }
 
-  private static void buildozerMavenJarToMavenInstall(ImmutableList<String> coordinates)
+  /**
+   * Converts the old style maven_jar labels to the new style maven_install labels.
+   *
+   * <p>This implementation assumes that the sortedness output of bazel query --output=build is
+   * deterministic.
+   *
+   * @param coordinates A list of coordinates to derive the old and new labels.
+   * @throws IOException
+   * @throws InterruptedException
+   */
+  private static void convertLabels(ImmutableList<String> coordinates)
       throws IOException, InterruptedException {
-    ImmutableList<String> mavenInstallLabels =
-        coordinates.stream().map(convertCoordinateToLabel).collect(ImmutableList.toImmutableList());
-    ImmutableList<String> names =
-        queryMavenJarsOnStringAttribute("name").stream()
+    ImmutableList<String> oldLabels =
+        collectMavenJarAttributeValues("name").stream()
             .map((String name) -> String.format("@%s//jar", name))
             .collect(ImmutableList.toImmutableList());
-    assert (mavenInstallLabels.size() == names.size());
-    HashMap<String, String> nameToLabel =
-        IntStream.range(0, names.size())
-            .collect(
-                HashMap::new,
-                (map, index) -> map.put(names.get(index), mavenInstallLabels.get(index)),
-                Map::putAll);
+    ImmutableList<String> newLabels =
+        coordinates.stream()
+            .map(convertCoordinateToNewLabel)
+            .collect(ImmutableList.toImmutableList());
 
-    for (Map.Entry<String, String> nameAndLabel : nameToLabel.entrySet()) {
-      String name = nameAndLabel.getKey();
-      String label = nameAndLabel.getValue();
-      ProcessBuilder p =
-          getProcessBuilder("buildozer", "substitute * " + name + " " + label, "//...:*");
-      p.start().waitFor();
+    assert (newLabels.size() == oldLabels.size());
+    Iterator<String> oldLabelIterator = oldLabels.iterator();
+    Iterator<String> newLabelIterator = newLabels.iterator();
+    while (oldLabelIterator.hasNext()) {
+      getProcessBuilder(
+              "buildozer",
+              "substitute * " + oldLabelIterator.next() + " " + newLabelIterator.next(),
+              "//...:*")
+          .start()
+          .waitFor();
     }
   }
 
@@ -64,14 +76,12 @@ public class MavenJarMigrator {
     InputStream stream =
         MavenJarMigrator.class.getResourceAsStream("resources/workspace_template.txt");
     String workspaceTemplate = new String(ByteStreams.toByteArray(stream), UTF_8);
-    String workspaceSnippet =
-        workspaceTemplate.replace(
-            "%maven_artifact_list%",
-            coordinates.stream()
-                .sorted()
-                .map((String line) -> "        \"" + line + "\",")
-                .collect(Collectors.joining("\n")));
-    return workspaceSnippet;
+    return workspaceTemplate.replace(
+        "%maven_artifact_list%",
+        coordinates.stream()
+            .sorted()
+            .map((String line) -> "        \"" + line + "\",")
+            .collect(Collectors.joining("\n")));
   }
 
   /**
@@ -84,7 +94,7 @@ public class MavenJarMigrator {
    * @throws IOException
    * @throws InterruptedException
    */
-  private static ImmutableList<String> queryMavenJarsOnStringAttribute(String attribute)
+  private static ImmutableList<String> collectMavenJarAttributeValues(String attribute)
       throws IOException, InterruptedException {
     ProcessBuilder processBuilder =
         getProcessBuilder(
@@ -96,7 +106,7 @@ public class MavenJarMigrator {
 
     return readOutput(processBuilder.start()).stream()
         .filter((String line) -> line.trim().startsWith(attribute))
-        .map((String line) -> line.split("\"")[1])
+        .map((String line) -> line.split("\"")[1]) // get the value in a string attribute
         .collect(ImmutableList.toImmutableList());
   }
 

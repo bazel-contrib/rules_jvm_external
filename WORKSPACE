@@ -287,13 +287,5 @@ load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 # otherwise refer to RBE docs.
 rbe_autoconfig(name = "buildkite_config")
 
-load("//migration:maven_jar_migrator_deps.bzl", "MAVEN_JAR_MIGRATOR_DEPS")
-
-maven_install(
-    name = "maven_jar_migrator",
-    artifacts = MAVEN_JAR_MIGRATOR_DEPS,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://jcenter.bintray.com",
-    ],
-)
+load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
+maven_jar_migrator_repositories()

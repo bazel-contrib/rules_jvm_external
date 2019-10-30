@@ -1,3 +1,5 @@
+licenses(["notice"])
+
 exports_files(["maven_jar_migrator_deps.bzl"])
 
 java_binary(
