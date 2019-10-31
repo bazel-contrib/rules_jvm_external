@@ -9,13 +9,13 @@ maven_jar_migrator_repositories()
 Run command in root of project workspace to generate the `maven_install` WORKSPACE snippet: 
 
 ```
-$ bazel run @rules_jvm_external//scripts/migration:maven_jar
+$ bazel run @rules_jvm_external//migration:maven_jar
 ```
 
 If the snippet looks good, concatenate it to the end of your WORKSPACE file:
 
 ```
-$ bazel run @rules_jvm_external//scripts/migration:maven_jar >> WORKSPACE
+$ bazel run @rules_jvm_external//migration:maven_jar >> WORKSPACE
 ```
 
 Finally, if the build continues to succeed, you can remove
