@@ -11,4 +11,10 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
     fetch_sources = True,
+    version_conflict_policy = "pinned",
+    # See https://github.com/bazelbuild/rules_jvm_external/#repository-aliases
+    # This can be removed if none of your external dependencies uses `maven_jar`.
+    generate_compat_repositories = True,
 )
+load("@maven//:compat.bzl", "compat_repositories")
+compat_repositories()
