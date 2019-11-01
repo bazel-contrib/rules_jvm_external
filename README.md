@@ -666,6 +666,30 @@ load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
 ```
 
+#### Repository remapping
+
+If the `maven_jar` or `jvm_import_external` is not named according to `rules_jvm_external`'s 
+conventions, you can apply
+[repository remapping](https://docs.bazel.build/versions/master/external.html#shadowing-dependencies)
+from the expected name to the new name for compatibility.
+
+For example, if an external dependency uses `@guava//jar`, and `rules_jvm_external` 
+generates `@com_google_guava_guava//jar`, apply the `repo_mapping` attribute to the external 
+repository WORKSPACE rule, like `http_archive` in this example:
+
+```python
+http_archive(
+    name = "my_dep",
+    repo_mapping = {
+        "@guava": "@com_google_guava_guava",
+    }
+    # ...
+)
+```
+
+With `repo_mapping`, all references to `@guava//jar` in `@my_dep`'s BUILD files will be mapped 
+to `@com_google_guava_guava//jar` instead.
+
 ### Hiding transitive dependencies
 
 As a convenience, transitive dependencies are visible to your build rules.
