@@ -15,6 +15,20 @@ maven_install(
     # See https://github.com/bazelbuild/rules_jvm_external/#repository-aliases
     # This can be removed if none of your external dependencies uses `maven_jar`.
     generate_compat_repositories = True,
+    # Pin artifacts to a maven_install.json file for direct integration with
+    # Bazel's downloader and repository cache. This brings increased cacheability,
+    # shared artifacts across Bazel workspaces, and faster build speeds.
+    #
+    # This is currently disabled. To use this feature, run this command to generate maven_install.json:
+    #
+    #   `bazel run @maven//:pin`
+    #
+    # To update an existing maven_install.json after updating this maven_install snippet, run:
+    #
+    #   `bazel run @unpinned_maven//:pin`.
+    #
+    # See https://github.com/bazelbuild/rules_jvm_external/#pinning-artifacts-and-integration-with-bazels-downloader for more information.
+    # maven_install_json = "//:maven_install.json",
 )
 load("@maven//:compat.bzl", "compat_repositories")
 compat_repositories()
