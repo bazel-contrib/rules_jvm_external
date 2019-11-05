@@ -18,16 +18,15 @@ http_file(
 
 # Begin Skylib dependencies
 
-BAZEL_SKYLIB_TAG = "1.0.2"
-
 http_archive(
     name = "bazel_skylib",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+    ],
     sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
-    url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
 )
-
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-
 bazel_skylib_workspace()
 
 # End Skylib dependencies
@@ -36,9 +35,9 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
     name = "io_bazel_stardoc",
-    url = "https://github.com/bazelbuild/stardoc/archive/4378e9b6bb2831de7143580594782f538f461180.zip",
-    strip_prefix = "stardoc-4378e9b6bb2831de7143580594782f538f461180",
     sha256 = "4a355dccc713458071f441f3dafd7452b3111c53cde554d0847b9a82d657149e",
+    strip_prefix = "stardoc-4378e9b6bb2831de7143580594782f538f461180",
+    url = "https://github.com/bazelbuild/stardoc/archive/4378e9b6bb2831de7143580594782f538f461180.zip",
 )
 
 # Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
@@ -56,13 +55,14 @@ maven_install(
         "com.google.guava:guava:27.0-jre",
         "org.hamcrest:hamcrest-core:2.1",
     ],
+    maven_install_json = "@rules_jvm_external//:maven_install.json",
     repositories = [
         "https://jcenter.bintray.com/",
     ],
-    maven_install_json = "@rules_jvm_external//:maven_install.json",
 )
 
 load("@maven//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()
 
 maven_install(
@@ -245,11 +245,12 @@ maven_install(
 maven_install(
     name = "maven_install_in_custom_location",
     artifacts = ["com.google.guava:guava:27.0-jre"],
-    repositories = ["https://repo1.maven.org/maven2"],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_install.json",
+    repositories = ["https://repo1.maven.org/maven2"],
 )
 
 load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()
 
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
