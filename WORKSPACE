@@ -286,3 +286,6 @@ load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 # Use this as is if you are using the rbe_ubuntu16_04 container,
 # otherwise refer to RBE docs.
 rbe_autoconfig(name = "buildkite_config")
+
+load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
+maven_jar_migrator_repositories()
