@@ -30,11 +30,22 @@ public class MavenJarMigrator {
       };
 
   public static void main(String[] args) throws IOException, InterruptedException {
+    checkPrerequisites();
+
     ImmutableList<String> coordinates = collectMavenJarAttributeValues("artifact");
     // Phase 1: Run buildozer to convert old maven_jar labels to new maven_install labels.
     convertLabels(coordinates);
     // Phase 2: Print maven_install WORKSPACE snippet on stdout.
     System.out.println(generateWorkspaceSnippet(coordinates));
+  }
+
+  private static void checkPrerequisites() throws InterruptedException, IOException {
+    // Assert that buildozer exists on PATH.
+    if (getProcessBuilder("buildozer", "-version").start().waitFor() != 0) {
+      throw new AssertionError("buildozer is not found on your PATH. Download "
+          + "buildozer for your platform from https://github.com/bazelbuild/buildtools/releases "
+          + "and put the executable in your PATH.");
+    }
   }
 
   /**
@@ -72,7 +83,7 @@ public class MavenJarMigrator {
   }
 
   private static String generateWorkspaceSnippet(ImmutableList<String> coordinates)
-      throws IOException, InterruptedException {
+      throws IOException {
     InputStream stream =
         MavenJarMigrator.class.getResourceAsStream("resources/workspace_template.txt");
     String workspaceTemplate = new String(ByteStreams.toByteArray(stream), UTF_8);
