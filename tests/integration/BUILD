@@ -32,6 +32,17 @@ java_test(
     ],
 )
 
+java_import(
+    name = "guava_import",
+    jars = [
+        # The default @maven//:com_google_guava_guava is a stamped jar created
+        # from the actual symlinked jar. Instead of referencing the stamped jar,
+        # which isn't part of the unsafe shared cache, import the symlink file label
+        # here directly, and bypass the stamping in jvm_import.bzl.
+        "@unsafe_shared_cache//:v1/https/repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar",
+    ]
+)
+
 java_test(
     name = "UnsafeSharedCacheTest",
     srcs = ["UnsafeSharedCacheTest.java"],
@@ -39,6 +50,6 @@ java_test(
     deps = [
         "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_core",
-        "@unsafe_shared_cache//:com_google_guava_guava",
+        ":guava_import",
     ],
 )
