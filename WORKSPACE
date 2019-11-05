@@ -18,12 +18,11 @@ http_file(
 
 # Begin Skylib dependencies
 
-BAZEL_SKYLIB_TAG = "0.8.0"
+BAZEL_SKYLIB_TAG = "1.0.2"
 
 http_archive(
     name = "bazel_skylib",
-    sha256 = "2ea8a5ed2b448baf4a6855d3ce049c4c452a6470b1efd1504fdb7c1c134d220a",
-    strip_prefix = "bazel-skylib-%s" % BAZEL_SKYLIB_TAG,
+    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
     url = "https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % BAZEL_SKYLIB_TAG,
 )
 

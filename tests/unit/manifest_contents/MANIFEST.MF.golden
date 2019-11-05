@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: singlejar
+Target-Label: @maven//:com_google_guava_guava
+
