@@ -24,6 +24,9 @@ public class Hasher {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
     // Since this tool is for private usage, just do a simple assertion for the filename argument.
+    if (args.length != 1) {
+      throw new IllegalArgumentException("Please specify the path of the file to be hashed.");
+    }
     assert (args.length == 1) : "Please specify the path of the file to hash.";
 
     String filename = args[0];
@@ -38,7 +41,7 @@ public class Hasher {
     }
     // Convert digest byte array to a hex string.
     byte[] hashDigest = digest.digest();
-    StringBuffer hexString = new StringBuffer();
+    StringBuilder hexString = new StringBuilder();
     for (int i = 0; i < hashDigest.length; i++) {
       String hex = Integer.toHexString(0xff & hashDigest[i]);
       if (hex.length() == 1) hexString.append('0');
