@@ -16,13 +16,10 @@ package rules.jvm.external;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * A tool to compute the sha256 hash of a file.
- */
+/** A tool to compute the sha256 hash of a file. */
 public class Hasher {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
@@ -40,11 +37,14 @@ public class Hasher {
       }
     }
     // Convert digest byte array to a hex string.
-    StringBuilder hash = new StringBuilder(new BigInteger(1, digest.digest()).toString(16));
-    // Left-pad with zeros until the string is 32 characters long.
-    while (hash.length() < 33) {
-      hash.insert(0, '0');
+    byte[] hashDigest = digest.digest();
+    StringBuffer hexString = new StringBuffer();
+    for (int i = 0; i < hashDigest.length; i++) {
+      String hex = Integer.toHexString(0xff & hashDigest[i]);
+      if (hex.length() == 1) hexString.append('0');
+      hexString.append(hex);
     }
-    System.out.print(hash); // Print without a newline so consumers don't have to trim the string.
+    // Print without a newline so consumers don't have to trim the string.
+    System.out.print(hexString);
   }
 }
