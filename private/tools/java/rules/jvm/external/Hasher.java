@@ -27,7 +27,6 @@ public class Hasher {
     if (args.length != 1) {
       throw new IllegalArgumentException("Please specify the path of the file to be hashed.");
     }
-    assert (args.length == 1) : "Please specify the path of the file to hash.";
 
     String filename = args[0];
     byte[] buffer = new byte[8192];
