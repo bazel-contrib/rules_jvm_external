@@ -13,21 +13,19 @@ def _jvm_import_impl(ctx):
 
     injar = ctx.files.jars[0]
     outjar = ctx.actions.declare_file("stamped_" + injar.basename, sibling = injar)
-    args = ctx.actions.args()
-    args.add("--output")
-    args.add(outjar)
-    args.add("--sources")
-    args.add(injar)
-    args.add("--deploy_manifest_lines")
-
-    # Required for buildozer's add_dep feature with strict deps
-    args.add("Target-Label: %s" % ctx.label)
-
-    ctx.actions.run(
-        executable = ctx.executable._singlejar,
-        arguments = [args],
-        inputs = [injar],
+    ctx.actions.run_shell(
+        inputs = [injar] + ctx.files._host_javabase,
         outputs = [outjar],
+        arguments = [],
+        command = " && ".join([
+            "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
+            "chmod u+w {output_jar}".format(output_jar = outjar.path),
+            "echo 'Target-Label: {label}' > manifest.txt".format(label = ctx.label),
+            "{jar} ufm {output_jar} manifest.txt".format(
+                jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
+                output_jar = outjar.path,
+            ),
+        ]),
         mnemonic = "StampJar",
         progress_message = "Stamping manifest of %s" % ctx.label,
     )
@@ -68,10 +66,10 @@ jvm_import = rule(
         "neverlink": attr.bool(
             default = False,
         ),
-        "_singlejar": attr.label(
-            default = Label("@bazel_tools//tools/jdk:singlejar"),
-            executable = True,
+        "_host_javabase": attr.label(
             cfg = "host",
+            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            providers = [java_common.JavaRuntimeInfo],
         ),
     },
     implementation = _jvm_import_impl,

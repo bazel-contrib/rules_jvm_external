@@ -8,7 +8,7 @@ genrule(
     outs = [
         "MANIFEST.MF",
     ],
-    cmd = "unzip -p $< META-INF/MANIFEST.MF > $@",
+    cmd = "unzip -p $< META-INF/MANIFEST.MF | grep 'Target-Label' > $@",
 )
 
 diff_test(
