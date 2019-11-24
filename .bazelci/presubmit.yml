@@ -17,7 +17,7 @@ tasks:
       - "-//tests/integration/override_targets"
   ubuntu1804_0_25_3:
     platform: ubuntu1804
-    bazel: 0.25.3 
+    bazel: 0.25.3
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
@@ -28,7 +28,7 @@ tasks:
       - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804_0_26_1:
     platform: ubuntu1804
-    bazel: 0.26.1 
+    bazel: 0.26.1
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
@@ -39,7 +39,29 @@ tasks:
       - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804_0_27_2:
     platform: ubuntu1804
-    bazel: 0.27.2 
+    bazel: 0.27.2
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
+    test_targets:
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:UnsafeSharedCacheTest"
+  ubuntu1804_0_29_1:
+    platform: ubuntu1804
+    bazel: 0.29.1
+    shell_commands:
+      - bazel run @unpinned_regression_testing//:pin
+      - bazel run @unpinned_maven_install_in_custom_location//:pin
+    test_targets:
+      - "--"
+      - "//..."
+      # These tests are currently incompatible with OpenJDK 11.
+      - "-//tests/integration:UnsafeSharedCacheTest"
+  ubuntu1804_1_2_0:
+    platform: ubuntu1804
+    bazel: 1.2.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
