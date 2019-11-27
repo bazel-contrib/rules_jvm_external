@@ -81,3 +81,12 @@ build_test(
         "@maven_install_in_custom_location//:com_google_guava_guava",
     ]
 )
+
+build_test(
+    name = "jvm_maven_import_external",
+    targets = [
+        "@org_apache_commons_commons_lang_3_5//jar",
+        "@org_apache_commons_commons_lang_3_5//jar:file",
+    ]
+)
+

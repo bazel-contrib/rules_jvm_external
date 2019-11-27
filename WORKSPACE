@@ -289,3 +289,12 @@ rbe_autoconfig(name = "buildkite_config")
 
 load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
 maven_jar_migrator_repositories()
+
+load("//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
+
+jvm_maven_import_external(
+    name = "org_apache_commons_commons_lang_3_5",
+    artifact = "org.apache.commons:commons-lang3:3.5",
+    artifact_sha256 = "8ac96fc686512d777fca85e144f196cd7cfe0c0aec23127229497d1a38ff651c",
+    server_urls = ["https://repo1.maven.org/maven2"],
+)
