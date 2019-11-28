@@ -14,6 +14,7 @@
 package rules.jvm.external;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -28,25 +29,39 @@ public class Hasher {
       throw new IllegalArgumentException("Please specify the path of the file to be hashed.");
     }
 
-    String filename = args[0];
+    final File file = new File(args[0]);
+
+    if (!file.exists() || !file.isFile()) {
+      throw new IllegalArgumentException("File does not exist or is not a file: " + file.getAbsolutePath());
+    }
+
+    // Print without a newline so consumers don't have to trim the string.
+    System.out.print(sha256(file));
+  }
+
+  static String sha256(File file) throws NoSuchAlgorithmException, IOException {
     byte[] buffer = new byte[8192];
     int count;
     MessageDigest digest = MessageDigest.getInstance("SHA-256");
     try (BufferedInputStream bufferedInputStream =
-        new BufferedInputStream(new FileInputStream(filename))) {
+        new BufferedInputStream(new FileInputStream(file))) {
       while ((count = bufferedInputStream.read(buffer)) > 0) {
         digest.update(buffer, 0, count);
       }
     }
+
+    // sha256 is always 64 characters.
+    StringBuilder hexString = new StringBuilder(64);
+
     // Convert digest byte array to a hex string.
-    byte[] hashDigest = digest.digest();
-    StringBuilder hexString = new StringBuilder();
-    for (int i = 0; i < hashDigest.length; i++) {
-      String hex = Integer.toHexString(0xff & hashDigest[i]);
-      if (hex.length() == 1) hexString.append('0');
+    for (byte b : digest.digest()) {
+      String hex = Integer.toHexString(0xff & b);
+      if (hex.length() == 1) {
+        hexString.append('0');
+      }
       hexString.append(hex);
     }
-    // Print without a newline so consumers don't have to trim the string.
-    System.out.print(hexString);
+
+    return hexString.toString();
   }
 }
