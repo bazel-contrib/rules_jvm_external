@@ -84,8 +84,8 @@ def _remove_auth_basic_with_path_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        "https://c1",
-        remove_auth_from_url("https://a:b@c1"))
+        "https://c1/some/random/path",
+        remove_auth_from_url("https://a:b@c1/some/random/path"))
     return unittest.end(env)
 
 remove_auth_basic_with_path_test = add_test(_remove_auth_basic_with_path_test_impl)
