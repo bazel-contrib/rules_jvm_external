@@ -16,6 +16,7 @@ def _infer_doc_example_test_impl(ctx):
         env,
         "group/path/to/artifact/file.jar",
         infer("http://a:b@c/group/path/to/artifact/file.jar", ["http://c"]))
+    return unittest.end(env)
 
 infer_doc_example_test = add_test(_infer_doc_example_test_impl)
 
