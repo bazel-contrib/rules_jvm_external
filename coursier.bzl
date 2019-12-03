@@ -282,22 +282,34 @@ def remove_auth_from_url(url):
     host = url_parts[0]
     if "@" not in host:
         return url
-    host = host[host.find("@") + 1:]
-    new_url = "{}://{}".format(protocol, "/".join([host] + url_parts[1:]))
+    userless_host = host[host.find("@") + 1:]
+    new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
     """Returns the artifact path inferred by comparing primary_url with urls in repository_urls.
 
+    When given a list of repository urls and a primary url that has a repository url as a prefix and a maven artifact
+    path as a suffix, this method will try to determine what the maven artifact path is and return it.
+
+    This method has some handling for basic http-based auth parsing and will do a url comparison with the user:pass@
+    portion stripped.
+
+    Ex.
+    infer_artifact_path_from_primary_and_repos(
+        "http://a:b@c/group/path/to/artifact/file.jar",
+        ["http://c"])
+    == "group/path/to/artifact/file.jar"
+
     Returns:
         String of the artifact path used by maven to find a particular artifact. Does not have a leading slash (`/`).
     """
-    repository_urls = [remove_auth_from_url(r.rstrip("/")) for r in repository_urls]
-    primary_url = remove_auth_from_url(primary_url)
+    userless_repository_urls = [remove_auth_from_url(r.rstrip("/")) for r in repository_urls]
+    userless_primary_url = remove_auth_from_url(primary_url)
     primary_artifact_path = None
-    for url in repository_urls:
-        if primary_url.find(url) != -1:
-            primary_artifact_path = primary_url[len(url) + 1:]
+    for url in userless_repository_urls:
+        if userless_primary_url.find(url) != -1:
+            primary_artifact_path = userless_primary_url[len(url) + 1:]
             break
     return primary_artifact_path
 

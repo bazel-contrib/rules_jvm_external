@@ -10,6 +10,15 @@ def add_test(test_impl_func):
     ALL_TESTS.append(test)
     return test
 
+def _infer_doc_example_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "group/path/to/artifact/file.jar",
+        infer("http://a:b@c/group/path/to/artifact/file.jar", ["http://c"]))
+
+infer_doc_example_test = add_test(_infer_doc_example_test_impl)
+
 def _infer_basic_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
