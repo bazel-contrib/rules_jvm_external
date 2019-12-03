@@ -272,6 +272,35 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 False,  # not executable
             )
 
+def remove_auth_from_url(url):
+    """Returns url without `user:pass@` or `user@`."""
+    if "@" not in url:
+        return url
+    protocol = url[:url.find("://")]
+    url_without_protocol = url[url.find("://") + 3:]
+    url_parts = url_without_protocol.split("/")
+    host = url_parts[0]
+    if "@" not in host:
+        return url
+    host = host[host.find("@") + 1:]
+    new_url = "{}://{}".format(protocol, "/".join([host] + url_parts[1:]))
+    return new_url
+
+def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
+    """Returns the artifact path inferred by comparing primary_url with urls in repository_urls.
+
+    Returns:
+        String of the artifact path used by maven to find a particular artifact. Does not have a leading slash (`/`).
+    """
+    repository_urls = [remove_auth_from_url(r.rstrip("/")) for r in repository_urls]
+    primary_url = remove_auth_from_url(primary_url)
+    primary_artifact_path = None
+    for url in repository_urls:
+        if primary_url.find(url) != -1:
+            primary_artifact_path = primary_url[len(url) + 1:]
+            break
+    return primary_artifact_path
+
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
@@ -427,32 +456,10 @@ def _coursier_fetch_impl(repository_ctx):
         #
         # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
         # basic auth.
-        repository_urls = [r["repo_url"] for r in repositories]
-        for url in repository_urls:
-            if primary_url.find(url) != -1:
-                primary_artifact_path = primary_url[len(url):]
-            elif url.find("@") != -1 and primary_url.find(url[url.rindex("@"):]) != -1:
-                # Maybe this is a url-encoded private repository url.
-                #
-                # A private repository url looks like this:
-                # http://admin:passw@rd@localhost/artifactory/jcenter
-                #
-                # Or, in its URL encoded form:
-                # http://admin:passw%40rd@localhost/artifactory/jcenter
-                #
-                # However, in the primary_url we've reconstructed using the
-                # downloaded relative file path earlier on, the password is
-                # removed by Coursier (as it should). So we end up working
-                # with: http://admin@localhost/artifactory/jcenter
-                #
-                # So, we use rfind to get the index of the final '@' in the
-                # repository url instead.
-                primary_artifact_path = primary_url[len(url):]
-            elif url.find("@") == -1 and primary_url.find("@") != -1:
-                username_len = primary_url.find("//") + 2 + primary_url.find("@") + 1
-                primary_artifact_path = primary_url[len(url) + username_len:]
+        repository_urls = [r["repo_url"].rstrip("/") for r in repositories]
+        primary_artifact_path = infer_artifact_path_from_primary_and_repos(primary_url, repository_urls)
 
-        mirror_urls = [url + primary_artifact_path for url in repository_urls]
+        mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
         artifact.update({"mirror_urls": mirror_urls})
 
         # Compute the sha256 of the file.
