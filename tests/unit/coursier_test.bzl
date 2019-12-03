@@ -113,5 +113,5 @@ remove_auth_noauth_noop_test = add_test(_remove_auth_noauth_noop_test_impl)
 def coursier_test_suite():
     unittest.suite(
         "coursier_tests",
-        *ALL_TESTS,
+        *ALL_TESTS
     )
