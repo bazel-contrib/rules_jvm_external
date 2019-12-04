@@ -131,6 +131,72 @@ def _compute_dependency_tree_signature(artifacts):
         signature_inputs.append(":".join(artifact_group))
     return hash(repr(sorted(signature_inputs)))
 
+def extract_netrc_from_auth_url(url):
+    """Return a dict showing the netrc machine, login, and password extracted from a url.
+
+    Returns:
+        A dict that is empty if there were no credentials in the url.
+        A dict that has three keys -- machine, login, password -- with their respective values. These values should be
+        what is needed for the netrc entry of the same name except for password whose value may be empty meaning that
+        there is no password for that login.
+    """
+    if "@" not in url:
+        return {}
+    protocol, url_parts = split_url(url)
+    login_password_host = url_parts[0]
+    if "@" not in login_password_host:
+        return {}
+    login_password, host = login_password_host.rsplit("@", 1)
+    login_password_split = login_password.split(":", 1)
+    login = login_password_split[0]
+    # If password is not provided, then this will be a 1-length split
+    if len(login_password_split) < 2:
+        password = None
+    else:
+        password = login_password_split[1]
+    if not host:
+        fail("Got a blank host from: {}".format(url))
+    if not login:
+        fail("Got a blank login from: {}".format(url))
+    # Do not fail for blank password since that is sometimes a thing
+    return {
+        "machine": host,
+        "login": login,
+        "password": password,
+    }
+
+def add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls):
+    """Add a url's auth credentials into a netrc dict of form return[machine][login] = password."""
+    for url in mirror_urls:
+        entry = extract_netrc_from_auth_url(url)
+        if not entry:
+            continue
+        machine = entry["machine"]
+        login = entry["login"]
+        password = entry["password"]
+        if machine not in netrc_entries:
+            netrc_entries[machine] = {}
+        if login not in netrc_entries[machine]:
+            if netrc_entries[machine]:
+                print("Received multiple logins for machine '{}'! Only using '{}'".format(
+                    machine, netrc_entries[machine].keys()[0]))
+                continue
+            netrc_entries[machine][login] = password
+        else:
+            if netrc_entries[machine][login] != password:
+                print("Received different passwords for {}@{}! Only using the first".format(login, machine))
+    return netrc_entries
+
+def get_netrc_lines_from_entries(netrc_entries):
+    netrc_lines = []
+    for machine, login_dict in sorted(netrc_entries.items()):
+        for login, password in sorted(login_dict.items()):
+            netrc_lines.append("machine {}".format(machine))
+            netrc_lines.append("login {}".format(login))
+            if password:
+                netrc_lines.append("password {}".format(password))
+    return netrc_lines
+
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -197,6 +263,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
         "def pinned_maven_install():",
     ]
+    netrc_entries = {}
     for artifact in dep_tree["dependencies"]:
         if artifact.get("url") != None:
             http_file_repository_name = escape(artifact["coord"])
@@ -204,9 +271,14 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 "    http_file(",
                 "        name = \"%s\"," % http_file_repository_name,
                 "        sha256 = \"%s\"," % artifact["sha256"],
+                # repository_ctx should point to external/$repository_ctx.name
+                # The http_file should point to external/$http_file_repository_name
+                # File-path is relative defined from http_file traveling to repository_ctx.
+                "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
             ])
             if artifact.get("mirror_urls") != None:
                 http_files.append("        urls = %s," % repr(artifact["mirror_urls"]))
+                netrc_entries = add_netrc_entries_from_mirror_urls(netrc_entries, artifact["mirror_urls"])
             else:
                 # For backwards compatibility. mirror_urls is a field added in a
                 # later version than the url field, so not all maven_install.json
@@ -214,6 +286,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 http_files.append("        urls = [\"%s\"]," % artifact["url"])
             http_files.append("    )")
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
+    repository_ctx.file("netrc", "\n".join(get_netrc_lines_from_entries(netrc_entries)), executable = False)
 
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
@@ -272,13 +345,17 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 False,  # not executable
             )
 
+def split_url(url):
+    protocol = url[:url.find("://")]
+    url_without_protocol = url[url.find("://") + 3:]
+    url_parts = url_without_protocol.split("/")
+    return protocol, url_parts
+
 def remove_auth_from_url(url):
     """Returns url without `user:pass@` or `user@`."""
     if "@" not in url:
         return url
-    protocol = url[:url.find("://")]
-    url_without_protocol = url[url.find("://") + 3:]
-    url_parts = url_without_protocol.split("/")
+    protocol, url_parts = split_url(url)
     host = url_parts[0]
     if "@" not in host:
         return url
