@@ -277,7 +277,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
             ])
             if artifact.get("mirror_urls") != None:
-                http_files.append("        urls = %s," % repr(artifact["mirror_urls"]))
+                http_files.append("        urls = %s," % repr(
+                    [remove_auth_from_url(url) for url in artifact["mirror_urls"]]))
                 netrc_entries = add_netrc_entries_from_mirror_urls(netrc_entries, artifact["mirror_urls"])
             else:
                 # For backwards compatibility. mirror_urls is a field added in a
