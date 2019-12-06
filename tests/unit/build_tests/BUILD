@@ -15,6 +15,7 @@ build_test(
         "@regression_testing//:ch_epfl_scala_compiler_interface",
         "@regression_testing//:org_openjfx_javafx_base",
         "@regression_testing//:io_kubernetes_client_java",
+        "@regression_testing//:io_quarkus_http_quarkus_http_servlet",
     ],
 )
 
