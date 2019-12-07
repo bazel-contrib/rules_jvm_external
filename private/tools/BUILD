@@ -7,6 +7,7 @@ java_library(
 
 java_test(
     name = "test",
+    size = "small",
     srcs = ["java/rules/jvm/external/HasherTest.java"],
     test_class = "rules.jvm.external.HasherTest",
     deps = [

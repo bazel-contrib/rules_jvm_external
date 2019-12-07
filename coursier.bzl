@@ -149,6 +149,7 @@ def extract_netrc_from_auth_url(url):
     login_password, host = login_password_host.rsplit("@", 1)
     login_password_split = login_password.split(":", 1)
     login = login_password_split[0]
+
     # If password is not provided, then this will be a 1-length split
     if len(login_password_split) < 2:
         password = None
@@ -158,6 +159,7 @@ def extract_netrc_from_auth_url(url):
         fail("Got a blank host from: {}".format(url))
     if not login:
         fail("Got a blank login from: {}".format(url))
+
     # Do not fail for blank password since that is sometimes a thing
     return {
         "machine": host,
@@ -179,12 +181,13 @@ def add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls):
         if login not in netrc_entries[machine]:
             if netrc_entries[machine]:
                 print("Received multiple logins for machine '{}'! Only using '{}'".format(
-                    machine, netrc_entries[machine].keys()[0]))
+                    machine,
+                    netrc_entries[machine].keys()[0],
+                ))
                 continue
             netrc_entries[machine][login] = password
-        else:
-            if netrc_entries[machine][login] != password:
-                print("Received different passwords for {}@{}! Only using the first".format(login, machine))
+        elif netrc_entries[machine][login] != password:
+            print("Received different passwords for {}@{}! Only using the first".format(login, machine))
     return netrc_entries
 
 def get_netrc_lines_from_entries(netrc_entries):
@@ -278,7 +281,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             ])
             if artifact.get("mirror_urls") != None:
                 http_files.append("        urls = %s," % repr(
-                    [remove_auth_from_url(url) for url in artifact["mirror_urls"]]))
+                    [remove_auth_from_url(url) for url in artifact["mirror_urls"]],
+                ))
                 netrc_entries = add_netrc_entries_from_mirror_urls(netrc_entries, artifact["mirror_urls"])
             else:
                 # For backwards compatibility. mirror_urls is a field added in a
@@ -404,7 +408,8 @@ def _coursier_fetch_impl(repository_ctx):
 
     # Try running coursier once
     exec_result = repository_ctx.execute(
-        _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier")))
+        _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier")),
+    )
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
 
@@ -490,6 +495,12 @@ def _coursier_fetch_impl(repository_ctx):
     # Reconstruct the original URLs from the relative path to the artifact,
     # which encodes the URL components for the protocol, domain, and path to
     # the file.
+
+    hasher_command = _generate_java_jar_command(
+        repository_ctx,
+        repository_ctx.path(repository_ctx.attr._sha256_hasher),
+    )
+
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
         # to other artifacts.
@@ -508,6 +519,7 @@ def _coursier_fetch_impl(repository_ctx):
         primary_url_parts = []
         filepath_parts = artifact["file"].split("/")
         protocol = None
+
         # Only support http/https transports
         for part in filepath_parts:
             if part == "http" or part == "https":
@@ -518,7 +530,7 @@ def _coursier_fetch_impl(repository_ctx):
         primary_url_parts.extend([protocol, "://"])
         for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
             primary_url_parts.extend([part, "/"])
-        primary_url_parts.pop() # pop the final "/"
+        primary_url_parts.pop()  # pop the final "/"
 
         # Coursier encodes:
         # - ':' as '%3A'
@@ -553,15 +565,23 @@ def _coursier_fetch_impl(repository_ctx):
         mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
         artifact.update({"mirror_urls": mirror_urls})
 
-        # Compute the sha256 of the file.
-        hasher_command = _generate_java_jar_command(
-            repository_ctx, repository_ctx.path(repository_ctx.attr._sha256_hasher))
-        exec_result = repository_ctx.execute(hasher_command + [repository_ctx.path(artifact["file"])])
-        if exec_result.return_code != 0:
-            fail("Error while obtaining the sha256 checksum of "
-                    + artifact["file"] + ": " + exec_result.stderr)
-        # Update the SHA-256 checksum in-place.
-        artifact.update({"sha256": exec_result.stdout})
+        hasher_command.append(repository_ctx.path(artifact["file"]))
+
+    exec_result = repository_ctx.execute(hasher_command)
+    if exec_result.return_code != 0:
+        fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
+
+    shas = {}
+    for line in exec_result.stdout.splitlines():
+        parts = line.split(" ")
+        path = repository_ctx.path(parts[1])
+        shas[path] = parts[0]
+
+    for artifact in dep_tree["dependencies"]:
+        file = artifact["file"]
+        if file == None:
+            continue
+        artifact.update({"sha256": shas[repository_ctx.path(file)]})
 
     dep_tree.update({
         "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": _compute_dependency_tree_signature(dep_tree["dependencies"]),

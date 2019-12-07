@@ -14,6 +14,7 @@
 package rules.jvm.external;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,6 +24,11 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.StringEndsWith.endsWith;
+import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
+import java.util.List;
+import java.util.Arrays;
 
 public class HasherTest {
 
@@ -39,12 +45,38 @@ public class HasherTest {
 
   @Test
   public void sha256_helloWorldFile() throws IOException, NoSuchAlgorithmException {
-    File file = tmpDir.newFile("test.file");
+    File file = writeFile("test.file", "Hello World!");
+    assertThat(Hasher.sha256(file), equalTo("7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"));
+  }
+
+  @Test
+  public void sha256_multipleFiles() throws IOException, FileNotFoundException {
+    File file1 = writeFile("test-1.file", "Hello World!");
+    File file2 = writeFile("test-2.file", "Hello!");
+    File file3 = writeFile("test-3.file", "Hello World!");
+    String[] files = new String[]{file1.getPath(), file2.getPath(), file3.getPath()};
+
+    String result = Hasher.hashFiles(files);
+    String[] lines = result.split("\n");
+    assertThat(lines, arrayWithSize(3));
+
+    checkLine(lines[0], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069", "test-1.file");
+    checkLine(lines[1], "334d016f755cd6dc58c53a86e183882f8ec14f52fb05345887c8a5edd42c87b7", "test-2.file");
+    checkLine(lines[2], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069", "test-3.file");
+  }
+
+  private File writeFile(String name, String contents) throws IOException {
+    File file = tmpDir.newFile(name);
 
     try (PrintStream out = new PrintStream(new FileOutputStream(file))) {
-      out.print("Hello World!");
+      out.print(contents);
     }
+    return file;
+  }
 
-    assertThat(Hasher.sha256(file), equalTo("7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"));
+  private void checkLine(String line, String hash, String file) {
+    String[] parts = line.split("\\s+");
+    assertThat(parts[0], equalTo(hash));
+    assertThat(parts[1], endsWith(file));
   }
 }
