@@ -20,3 +20,4 @@ java_binary(
     main_class = "rules.jvm.external.Hasher",
     runtime_deps = [":lib"],
 )
+
