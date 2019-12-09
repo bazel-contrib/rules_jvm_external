@@ -179,6 +179,8 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/201
         "org.apache.kafka:kafka_2.11:2.1.1",
         "io.confluent:kafka-avro-serializer:5.0.1",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/309
+        "io.quarkus.http:quarkus-http-servlet:3.0.0.Beta1",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
