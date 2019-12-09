@@ -5,6 +5,40 @@ Transitive Maven artifact resolver as a repository rule.
 [![Build
 Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
 
+
+Table of Contents
+=================
+
+   * [rules_jvm_external](#rules_jvm_external)
+      * [Features](#features)
+      * [Usage](#usage)
+      * [API Reference](#api-reference)
+      * [Pinning artifacts and integration with Bazel's downloader](#pinning-artifacts-and-integration-with-bazels-downloader)
+         * [Updating maven_install.json](#updating-maven_installjson)
+         * [Custom location for maven_install.json](#custom-location-for-maven_installjson)
+         * [Multiple maven_install.json files](#multiple-maven_installjson-files)
+      * [Generated targets](#generated-targets)
+      * [Advanced usage](#advanced-usage)
+         * [Fetch source JARs](#fetch-source-jars)
+         * [Checksum verification](#checksum-verification)
+         * [Using a persistent artifact cache](#using-a-persistent-artifact-cache)
+         * [artifact helper macro](#artifact-helper-macro)
+         * [Multiple maven_install declarations for isolated artifact version trees](#multiple-maven_install-declarations-for-isolated-artifact-version-trees)
+         * [Detailed dependency information specifications](#detailed-dependency-information-specifications)
+         * [Artifact exclusion](#artifact-exclusion)
+         * [Compile-only dependencies](#compile-only-dependencies)
+         * [Resolving user-specified and transitive dependency version conflicts](#resolving-user-specified-and-transitive-dependency-version-conflicts)
+         * [Overriding generated targets](#overriding-generated-targets)
+         * [Proxies](#proxies)
+         * [Repository aliases](#repository-aliases)
+            * [Repository remapping](#repository-remapping)
+         * [Hiding transitive dependencies](#hiding-transitive-dependencies)
+         * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
+      * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
+      * [Demo](#demo)
+      * [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
+      * [Generating documentation](#generating-documentation)
+
 ## Features
 
 * WORKSPACE configuration
