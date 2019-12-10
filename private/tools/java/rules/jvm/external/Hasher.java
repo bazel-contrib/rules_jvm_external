@@ -19,24 +19,37 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** A tool to compute the sha256 hash of a file. */
 public class Hasher {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-    // Since this tool is for private usage, just do a simple assertion for the filename argument.
-    if (args.length != 1) {
-      throw new IllegalArgumentException("Please specify the path of the file to be hashed.");
-    }
+    System.out.print(hashFiles(args));
+  }
 
-    final File file = new File(args[0]);
+  static String hashFiles(String[] files) {
+    return Stream.of(files)
+        .parallel()
+        .map(
+            arg -> {
+              final File file = new File(arg);
 
-    if (!file.exists() || !file.isFile()) {
-      throw new IllegalArgumentException("File does not exist or is not a file: " + file.getAbsolutePath());
-    }
+              // Since this tool is for private usage, just do a simple assertion for the filename
+              // argument.
+              if (!file.exists() || !file.isFile()) {
+                throw new IllegalArgumentException(
+                    "File does not exist or is not a file: " + file.getAbsolutePath());
+              }
 
-    // Print without a newline so consumers don't have to trim the string.
-    System.out.print(sha256(file));
+              try {
+                return sha256(file) + " " + file + "\n";
+              } catch (Exception ex) {
+                throw new RuntimeException(ex);
+              }
+            })
+        .collect(Collectors.joining());
   }
 
   static String sha256(File file) throws NoSuchAlgorithmException, IOException {
