@@ -302,7 +302,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             http_files.append("    )")
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     repository_ctx.file("netrc", "\n".join(
-        get_netrc_lines_from_entries(netrc_entries) + get_home_netrc_contents(repository_ctx).splitlines()),
+        get_home_netrc_contents(repository_ctx).splitlines() + get_netrc_lines_from_entries(netrc_entries)),
         executable = False)
 
     repository_ctx.report_progress("Generating BUILD targets..")
