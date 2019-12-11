@@ -24,7 +24,7 @@ def _get_proxy_hostname(url):
         return netloc
 
 def _get_proxy_port(url):
-    netloc = url.split("://", 1)[1].split("@")[-1]
+    netloc = url.split("://", 1)[1].split("/")[0].split("@")[-1]
     if ":" in netloc:
         return netloc.split(":")[1]
     else:
