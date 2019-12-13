@@ -24,6 +24,7 @@ def maven_install(
         fail_on_missing_checksum = True,
         fetch_sources = False,
         use_unsafe_shared_cache = False,
+        use_safe_shared_cache = False,
         excluded_artifacts = [],
         generate_compat_repositories = False,
         version_conflict_policy = "default",
@@ -45,6 +46,8 @@ def maven_install(
       fetch_sources: Additionally fetch source JARs.
       use_unsafe_shared_cache: Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is
         currently unable to detect modifications to the cache.
+      use_safe_shared_cache: Download artifacts into a persistent shared cache on disk. Considered safe as it copies
+        downloaded artifacts to Bazel's cache (and then stays disconnected).
       excluded_artifacts: A list of Maven artifact coordinates in the form of `group:artifact` to be
         excluded from the transitive dependencies.
       generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
@@ -97,6 +100,7 @@ def maven_install(
         fail_on_missing_checksum = fail_on_missing_checksum,
         fetch_sources = fetch_sources,
         use_unsafe_shared_cache = use_unsafe_shared_cache,
+        use_safe_shared_cache = use_safe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
         version_conflict_policy = version_conflict_policy,
@@ -117,7 +121,6 @@ def maven_install(
             override_targets = override_targets,
             strict_visibility = strict_visibility,
         )
-
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a

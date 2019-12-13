@@ -28,7 +28,9 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 
 <pre>
 maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>,
-              <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
+              <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>,
+              <a href="#maven_install-use_safe_shared_cache">use_safe_shared_cache</a>, 
+              <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
               <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
               <a href="#maven_install-resolve_timeout">resolve_timeout</a>)
 </pre>
@@ -50,6 +52,7 @@ and fetch Maven artifacts transitively.
 | fail_on_missing_checksum |  <p align="center"> - </p>   |  <code>True</code> |
 | fetch_sources |  Additionally fetch source JARs.   |  <code>False</code> |
 | use_unsafe_shared_cache |  Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is   currently unable to detect modifications to the cache.   |  <code>False</code> |
+| use_safe_shared_cache |  Download artifacts into a persistent shared cache on disk. Considered safe as it copies   downloaded artifacts to Bazel's cache (and then stays disconnected).   |  <code>False</code> |
 | excluded_artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact</code> to be   excluded from the transitive dependencies.   |  <code>[]</code> |
 | generate_compat_repositories |  Additionally generate repository aliases in a .bzl file for all JAR   artifacts. For example, <code>@maven//:com_google_guava_guava</code> can also be referenced as   <code>@com_google_guava_guava//jar</code>.   |  <code>False</code> |
 | version_conflict_policy |  Policy for user-defined vs. transitive dependency version   conflicts.  If "pinned", choose the user's version unconditionally.  If "default", follow   Coursier's default policy.   |  <code>"default"</code> |

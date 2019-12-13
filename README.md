@@ -311,6 +311,32 @@ The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
 will create independent caches for each `maven_install` repository, located at
 `$(bazel info output_base)/external/@repository_name/v1`.
 
+### Using a safe persistent artifact cache
+
+To download artifacts into a shared and persistent directory in your home
+directory (while keeping Bazel caching safe), set `use_safe_shared_cache = True` in `maven_install`.
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    use_safe_shared_cache = True,
+)
+```
+
+
+This is considered safe as it copies the downloaded artifacts to Bazel's cache
+(and then stays disconnected). You'll need to re-execute artifact pinning to get
+an update from Coursier, but Coursier will run faster each time.
+
+The default value of `use_safe_shared_cache` is `False`. This means that Bazel
+will create independent caches for each `maven_install` repository, located at
+`$(bazel info output_base)/external/@repository_name/v1`.
+
 ### `artifact` helper macro
 
 The `artifact` macro translates the artifact's `group:artifact` coordinates to
