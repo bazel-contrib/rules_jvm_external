@@ -4,6 +4,7 @@ tasks:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @duplicate_artifacts_test//:pin
     test_targets:
       - "//..."
   rbe_ubuntu1604:
@@ -54,6 +55,7 @@ tasks:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @duplicate_artifacts_test//:pin
     test_targets:
       - "--"
       - "//..."
@@ -63,12 +65,14 @@ tasks:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @duplicate_artifacts_test//:pin
     test_targets:
       - "//..."
   windows:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @duplicate_artifacts_test//:pin
     test_targets:
       - "--"
       - "//..."

@@ -255,6 +255,21 @@ load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
 
 pinned_maven_install()
 
+# https://github.com/bazelbuild/rules_jvm_external/issues/311
+maven_install(
+    name = "duplicate_artifacts_test",
+    artifacts = [
+        "com.typesafe.play:play_2.11:2.5.19",
+        "org.scalatestplus.play:scalatestplus-play_2.11:2.0.1",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    version_conflict_policy = "pinned",
+    fetch_sources = True,
+    use_unsafe_shared_cache = True,
+)
+
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
 
 http_archive(
