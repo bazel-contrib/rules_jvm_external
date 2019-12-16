@@ -399,9 +399,9 @@ def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
 def _deduplicate_artifacts(dep_tree):
     deduped_artifacts = {}
     for artifact in dep_tree["dependencies"]:
-        if artifact["coord"] in deduped_artifacts:
+        if artifact["file"] in deduped_artifacts:
             continue
-        deduped_artifacts[artifact["coord"]] = artifact
+        deduped_artifacts[artifact["file"]] = artifact
     dep_tree.update({"dependencies": deduped_artifacts.values()})
     return dep_tree
 
@@ -502,7 +502,7 @@ def _coursier_fetch_impl(repository_ctx):
     # to generate the repository's BUILD file.
     #
     # Coursier generates duplicate artifacts sometimes. Deduplicate them using
-    # the coordinate value as the key.
+    # the file name value as the key.
     dep_tree = _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json"))))
 
     # Reconstruct the original URLs from the relative path to the artifact,
