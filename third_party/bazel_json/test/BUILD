@@ -1,30 +1,29 @@
-load(
-    "//lib:json_rules.bzl",
-    "json",
-    "json_printer",
-    "json_type_array",
-    "json_type_boolean",
-    "json_type_null",
-    "json_type_number",
-    "json_type_object",
-    "json_type_string",
+load("//lib:json_rules.bzl",
+     "json_type_null",
+     "json_type_boolean",
+     "json_type_string",
+     "json_type_number",
+     "json_type_array",
+     "json_type_object",
+     "json_printer",
+     "json",
 )
+
 load(":json_parse_tests.bzl", "json_parse_test_suite")
+
 load("//lib:json_parser.bzl", "json_parse")
 
 json_parse_test_suite()
 
+
+
+
 # Default values
 json_type_null(name = "null_check")
-
 json_type_boolean(name = "boolean_check")
-
 json_type_string(name = "string_check")
-
 json_type_number(name = "number_check")
-
 json_type_array(name = "array_check")
-
 json_type_object(name = "object_check")
 
 # Value checks
@@ -32,7 +31,6 @@ json_type_boolean(
     name = "boolean_check_false",
     boolean_value = False,
 )
-
 json_type_boolean(
     name = "boolean_check_true",
     boolean_value = True,
@@ -55,8 +53,8 @@ json_type_number(
 
 json_type_number(
     name = "number_check_fraction",
-    exponent = -2,
     number_value = 77,
+    exponent = -2,
 )
 
 json_type_array(
@@ -79,8 +77,8 @@ json_type_array(
 json_type_object(
     name = "object_check_empty",
     inverted_object_map = {
-        ":array_check_values": "an_array",
-    },
+        ":array_check_values" : "an_array",
+    }
 )
 
 json_printer(
@@ -104,11 +102,8 @@ json("a string")
 
 json(66)
 
-json([
-    "a",
-    "b",
-])
+json(["a", "b"])
 
 json({
-    "foo": "bar",
+    "foo" : "bar"
 })
