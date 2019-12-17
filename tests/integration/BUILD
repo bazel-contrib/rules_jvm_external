@@ -27,8 +27,8 @@ java_test(
     srcs = ["NeverlinkTest.java"],
     test_class = "com.jvm.external.NeverlinkTest",
     deps = [
-        "@maven//:org_hamcrest_hamcrest",
         "@maven//:com_google_guava_guava",
+        "@maven//:org_hamcrest_hamcrest",
     ],
 )
 
@@ -40,7 +40,7 @@ java_import(
         # which isn't part of the unsafe shared cache, import the symlink file label
         # here directly, and bypass the stamping in jvm_import.bzl.
         "@unsafe_shared_cache//:v1/https/repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar",
-    ]
+    ],
 )
 
 java_test(
@@ -48,8 +48,8 @@ java_test(
     srcs = ["UnsafeSharedCacheTest.java"],
     test_class = "com.jvm.external.UnsafeSharedCacheTest",
     deps = [
+        ":guava_import",
         "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_core",
-        ":guava_import",
     ],
 )

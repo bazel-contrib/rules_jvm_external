@@ -13,12 +13,14 @@ def _java_proxy_parsing_no_user_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        ["-Dhttp.proxyHost=example.com",
-         "-Dhttp.proxyPort=80",
-         "-Dhttps.proxyHost=secureexample.com",
-         "-Dhttps.proxyPort=443",
-         "-Dhttp.nonProxyHosts=google.com"],
-        get_java_proxy_args("http://example.com:80", "https://secureexample.com:443", "google.com")
+        [
+            "-Dhttp.proxyHost=example.com",
+            "-Dhttp.proxyPort=80",
+            "-Dhttps.proxyHost=secureexample.com",
+            "-Dhttps.proxyPort=443",
+            "-Dhttp.nonProxyHosts=google.com",
+        ],
+        get_java_proxy_args("http://example.com:80", "https://secureexample.com:443", "google.com"),
     )
     return unittest.end(env)
 
@@ -28,10 +30,12 @@ def _java_proxy_parsing_no_port_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        ["-Dhttp.proxyHost=example.com",
-         "-Dhttps.proxyHost=secureexample.com",
-         "-Dhttp.nonProxyHosts=google.com"],
-        get_java_proxy_args("http://example.com", "https://secureexample.com", "google.com")
+        [
+            "-Dhttp.proxyHost=example.com",
+            "-Dhttps.proxyHost=secureexample.com",
+            "-Dhttp.nonProxyHosts=google.com",
+        ],
+        get_java_proxy_args("http://example.com", "https://secureexample.com", "google.com"),
     )
     return unittest.end(env)
 
@@ -41,12 +45,14 @@ def _java_proxy_parsing_trailing_slash_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        ["-Dhttp.proxyHost=example.com",
-         "-Dhttp.proxyPort=80",
-         "-Dhttps.proxyHost=secureexample.com",
-         "-Dhttps.proxyPort=443",
-         "-Dhttp.nonProxyHosts=google.com"],
-        get_java_proxy_args("http://example.com:80", "https://secureexample.com:443/", "google.com")
+        [
+            "-Dhttp.proxyHost=example.com",
+            "-Dhttp.proxyPort=80",
+            "-Dhttps.proxyHost=secureexample.com",
+            "-Dhttps.proxyPort=443",
+            "-Dhttp.nonProxyHosts=google.com",
+        ],
+        get_java_proxy_args("http://example.com:80", "https://secureexample.com:443/", "google.com"),
     )
     return unittest.end(env)
 
@@ -56,16 +62,18 @@ def _java_proxy_parsing_all_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        ["-Dhttp.proxyUser=user1",
-         "-Dhttp.proxyPassword=pass1",
-         "-Dhttp.proxyHost=example.com",
-         "-Dhttp.proxyPort=80",
-         "-Dhttps.proxyUser=user2",
-         "-Dhttps.proxyPassword=pass2",
-         "-Dhttps.proxyHost=secureexample.com",
-         "-Dhttps.proxyPort=443",
-         "-Dhttp.nonProxyHosts=google.com|localhost"],
-        get_java_proxy_args("http://user1:pass1@example.com:80", "https://user2:pass2@secureexample.com:443", "google.com,localhost")
+        [
+            "-Dhttp.proxyUser=user1",
+            "-Dhttp.proxyPassword=pass1",
+            "-Dhttp.proxyHost=example.com",
+            "-Dhttp.proxyPort=80",
+            "-Dhttps.proxyUser=user2",
+            "-Dhttps.proxyPassword=pass2",
+            "-Dhttps.proxyHost=secureexample.com",
+            "-Dhttps.proxyPort=443",
+            "-Dhttp.nonProxyHosts=google.com|localhost",
+        ],
+        get_java_proxy_args("http://user1:pass1@example.com:80", "https://user2:pass2@secureexample.com:443", "google.com,localhost"),
     )
     return unittest.end(env)
 

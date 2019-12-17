@@ -19,13 +19,14 @@ def _jvm_import_impl(ctx):
     args.add("--sources")
     args.add(injar)
     args.add("--deploy_manifest_lines")
+
     # Required for buildozer's add_dep feature with strict deps
     args.add("Target-Label: %s" % ctx.label)
 
     ctx.actions.run(
         executable = ctx.executable._singlejar,
         arguments = [args],
-        inputs = [injar] ,
+        inputs = [injar],
         outputs = [outjar],
         mnemonic = "StampJar",
         progress_message = "Stamping manifest of %s" % ctx.label,
@@ -71,7 +72,7 @@ jvm_import = rule(
             default = Label("@bazel_tools//tools/jdk:singlejar"),
             executable = True,
             cfg = "host",
-        )
+        ),
     },
     implementation = _jvm_import_impl,
     provides = [JavaInfo],

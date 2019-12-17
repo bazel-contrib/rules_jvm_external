@@ -82,6 +82,7 @@ def _maven_exclusion(group, artifact):
         group: The Maven group name of the dependency to exclude, e.g. "com.google.guava".
         artifact: The Maven artifact name of the dependency to exclude, e.g. "guava".
     """
+
     # Output Schema:
     # {
     #     "group": String

@@ -1,7 +1,5 @@
 # IGNORE THIS FILE... it was probably a bad idea....
 
-
-
 # Skylark reference:
 # https://docs.bazel.build/versions/master/skylark/language.html
 # https://docs.bazel.build/versions/master/skylark/lib/globals.html
@@ -50,21 +48,21 @@ _JSON_TYPE_PROVIDERS = [
 def _create_json_type_null(ctx):
     return [
         JsonValue(value_internal = None),
-        JsonNullType()
+        JsonNullType(),
     ]
 
 def _create_json_type_boolean(ctx):
     v = ctx.attr.boolean_value
     return [
         JsonValue(value_internal = v),
-        JsonBooleanType(boolean_value = v)
+        JsonBooleanType(boolean_value = v),
     ]
 
 def _create_json_type_string(ctx):
     v = ctx.attr.string_value
     return [
         JsonValue(value_internal = v),
-        JsonStringType(string_value = v)
+        JsonStringType(string_value = v),
     ]
 
 def _create_json_type_number(ctx):
@@ -74,7 +72,7 @@ def _create_json_type_number(ctx):
         JsonNumberType(
             number_value = v[0],
             exponent = v[1],
-        )
+        ),
     ]
 
 def _create_json_type_array(ctx):
@@ -85,7 +83,7 @@ def _create_json_type_array(ctx):
         json_types.append(_extract_json_type_from_label(label))
     return [
         JsonValue(value_internal = values),
-        JsonArrayType(json_type_values = json_types)
+        JsonArrayType(json_type_values = json_types),
     ]
 
 def _create_json_type_object(ctx):
@@ -98,7 +96,7 @@ def _create_json_type_object(ctx):
         json_type_map[json_key] = json_type
     return [
         JsonValue(value_internal = value_map),
-        JsonObjectType(json_type_map = json_type_map)
+        JsonObjectType(json_type_map = json_type_map),
     ]
 
 def _extract_json_type_from_label(label):
@@ -125,41 +123,41 @@ json_type_null = rule(
 json_type_boolean = rule(
     implementation = _create_json_type_boolean,
     attrs = {
-        "boolean_value" : attr.bool(),
+        "boolean_value": attr.bool(),
     },
 )
 
 json_type_string = rule(
     implementation = _create_json_type_string,
     attrs = {
-        "string_value" : attr.string(),
+        "string_value": attr.string(),
     },
 )
 
 json_type_number = rule(
     implementation = _create_json_type_number,
     attrs = {
-        "number_value" : attr.int(),
-        "exponent" : attr.int(),
+        "number_value": attr.int(),
+        "exponent": attr.int(),
     },
 )
 
 json_type_array = rule(
     implementation = _create_json_type_array,
     attrs = {
-        "array_values" : attr.label_list(
-            providers = _JSON_TYPE_PROVIDERS
-        )
-    }
+        "array_values": attr.label_list(
+            providers = _JSON_TYPE_PROVIDERS,
+        ),
+    },
 )
 
 json_type_object = rule(
     implementation = _create_json_type_object,
     attrs = {
-        "inverted_object_map" : attr.label_keyed_string_dict(
-            providers = _JSON_TYPE_PROVIDERS
-        )
-    }
+        "inverted_object_map": attr.label_keyed_string_dict(
+            providers = _JSON_TYPE_PROVIDERS,
+        ),
+    },
 )
 
 def _json_printer_impl(ctx):
@@ -169,10 +167,10 @@ def _json_printer_impl(ctx):
 json_printer = rule(
     implementation = _json_printer_impl,
     attrs = {
-        "json_values" : attr.label_list(
-            providers = [JsonValue]
-        )
-    }
+        "json_values": attr.label_list(
+            providers = [JsonValue],
+        ),
+    },
 )
 
 def json(value):

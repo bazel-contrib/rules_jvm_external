@@ -65,12 +65,13 @@ maven_install(
         "org.slf4j:slf4j-api:1.7.26",
         "org.slf4j:slf4j-simple:1.7.26",
     ],
+    fetch_sources = True,
+    maven_install_json = "//:maven_install.json",
     repositories = [
         "https://jcenter.bintray.com",
     ],
-    fetch_sources = True,
-    maven_install_json = "//:maven_install.json",
 )
 
 load("@maven//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()

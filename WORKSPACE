@@ -5,8 +5,8 @@ android_sdk_repository(name = "androidsdk")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "//:private/versions.bzl",
-    "COURSIER_CLI_HTTP_FILE_NAME",
     "COURSIER_CLI_GITHUB_ASSET_URL",
+    "COURSIER_CLI_HTTP_FILE_NAME",
     "COURSIER_CLI_SHA256",
 )
 
@@ -20,13 +20,15 @@ http_file(
 
 http_archive(
     name = "bazel_skylib",
+    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
     urls = [
         "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
         "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
     ],
-    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
 )
+
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
 bazel_skylib_workspace()
 
 # End Skylib dependencies
@@ -290,4 +292,5 @@ load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 rbe_autoconfig(name = "buildkite_config")
 
 load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
+
 maven_jar_migrator_repositories()
