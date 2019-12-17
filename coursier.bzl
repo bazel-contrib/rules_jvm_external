@@ -200,6 +200,16 @@ def get_netrc_lines_from_entries(netrc_entries):
                 netrc_lines.append("password {}".format(password))
     return netrc_lines
 
+def get_home_netrc_contents(repository_ctx):
+    # Copied with a ctx -> repository_ctx rename from tools/build_defs/repo/http.bzl's _get_auth.
+    # Need to keep updated with improvements in source since we cannot load private methods.
+    if "HOME" in repository_ctx.os.environ:
+        if not repository_ctx.os.name.startswith("windows"):
+            netrcfile = "%s/.netrc" % (repository_ctx.os.environ["HOME"],)
+            if repository_ctx.which("test") and repository_ctx.execute(["test", "-f", netrcfile]).return_code == 0:
+                return repository_ctx.read(netrcfile)
+    return ""
+
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -291,7 +301,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 http_files.append("        urls = [\"%s\"]," % artifact["url"])
             http_files.append("    )")
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
-    repository_ctx.file("netrc", "\n".join(get_netrc_lines_from_entries(netrc_entries)), executable = False)
+    repository_ctx.file(
+        "netrc",
+        "\n".join(
+            get_home_netrc_contents(repository_ctx).splitlines() + get_netrc_lines_from_entries(netrc_entries),
+        ),
+        executable = False,
+    )
 
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
