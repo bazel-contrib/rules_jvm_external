@@ -63,10 +63,10 @@ build_test(
 
 build_test(
     name = "strict_version_neg",
+    tags = ["manual"],  # negative test case
     targets = [
         "@strict_visibility_testing//:org_apache_tomcat_tomcat_api",
     ],
-    tags = ["manual"],  # negative test case
 )
 
 build_test(
@@ -80,5 +80,5 @@ build_test(
     name = "custom_maven_install_location",
     targets = [
         "@maven_install_in_custom_location//:com_google_guava_guava",
-    ]
+    ],
 )

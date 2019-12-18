@@ -118,7 +118,6 @@ def maven_install(
             strict_visibility = strict_visibility,
         )
 
-
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
     artifact_obj = _parse_artifact_str(a) if type(a) == "string" else a
     return "@%s//:%s" % (repository_name, _escape(artifact_obj["group"] + ":" + artifact_obj["artifact"]))

@@ -14,7 +14,6 @@ alias(
 )
 """
 
-
 def _compat_repository_impl(repository_ctx):
     repository_ctx.file(
         "jar/BUILD",
@@ -39,5 +38,5 @@ compat_repository = repository_rule(
     implementation = _compat_repository_impl,
     attrs = {
         "generating_repository": attr.string(default = "maven"),
-    }
+    },
 )

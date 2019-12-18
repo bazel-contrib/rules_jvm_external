@@ -231,7 +231,7 @@ def _repo_credentials_test_impl(ctx):
     asserts.equals(
         env,
         "maven.google.com bob:l0bl4w",
-        utils.repo_credentials({ "repo_url": repo_url, "credentials": { "user": "bob", "password": "l0bl4w" } })
+        utils.repo_credentials({"repo_url": repo_url, "credentials": {"user": "bob", "password": "l0bl4w"}}),
     )
     return unittest.end(env)
 

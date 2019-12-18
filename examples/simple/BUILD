@@ -3,10 +3,10 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 android_library(
     name = "my_lib",
     exports = [
+        "@junit_junit//jar",  # alias to @maven//:junit_junit
         "@maven//:android_arch_lifecycle_common",
         "@maven//:android_arch_lifecycle_viewmodel",
         "@maven//:androidx_test_espresso_espresso_web",
-        "@junit_junit//jar", # alias to @maven//:junit_junit
         "@maven//:com_android_support_design",
     ],
 )
