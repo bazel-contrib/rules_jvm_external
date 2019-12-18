@@ -346,7 +346,7 @@ To change the location of the cache from the home directory, set the
 set the variable on the command line and in `.bazelrc` files:
 
 ```
-$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=/tmp/custom_cache
+$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=COURSIER_CACHE=/tmp/custom_cache
 ```
 
 This feature also enables checking the downloaded artifacts into your source
@@ -354,7 +354,7 @@ tree by declaring `COURSIER_CACHE` to be `<project root>/some/directory`. For
 example:
 
 ```
-$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=$(pwd)/third_party
+$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=COURSIER_CACHE=$(pwd)/third_party
 ```
 
 The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
