@@ -14,6 +14,9 @@ genrule(
 
 diff_test(
     name = "diff_manifest_test",
-    file1 = "MANIFEST.MF.golden",
+    file1 = select({
+        "@bazel_tools//src/conditions:windows": "MANIFEST.MF.golden",
+        "//conditions:default": "MANIFEST.MF.golden.unix",
+    }),
     file2 = "MANIFEST.MF",
 )
