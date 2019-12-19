@@ -34,6 +34,7 @@ def _jvm_import_impl(ctx):
                 manifest_update_file = manifest_update_file.path,
                 output_jar = outjar.path,
             ),
+            "zip -dq {output_jar} META-INF/*.RSA META-INF/*.DSA META-INF/*.SF 1>/dev/null || true".format(output_jar = outjar.path),
         ]),
         mnemonic = "StampJar",
         progress_message = "Stamping manifest of %s" % ctx.label,
