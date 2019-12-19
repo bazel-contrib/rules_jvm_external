@@ -12,7 +12,7 @@ def _jvm_import_impl(ctx):
         fail("Please only specify one jar to import in the jars attribute.")
 
     injar = ctx.files.jars[0]
-    manifest_update_file = ctx.actions.declare_file("manifest_" + injar.basename)
+    manifest_update_file = ctx.actions.declare_file(injar.basename + ".target_label_manifest", sibling = injar)
     ctx.actions.expand_template(
         template = ctx.file._manifest_template,
         output = manifest_update_file,
