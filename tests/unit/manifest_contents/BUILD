@@ -8,7 +8,7 @@ genrule(
     outs = [
         "MANIFEST.MF",
     ],
-    cmd = "$(JAVABASE)/bin/jar xvf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-*|Target-Label' | sort > $@",
+    cmd = "$(JAVABASE)/bin/jar xvf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sort > $@",
     toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
 )
 

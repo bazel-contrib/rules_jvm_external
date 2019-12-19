@@ -1,8 +1,2 @@
-Bundle-Description: Guava is a suite of core and expanded libraries that
-Bundle-DocURL: https://github.com/google/guava/
-Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
-Bundle-ManifestVersion: 2
-Bundle-Name: Guava: Google Core Libraries for Java
-Bundle-SymbolicName: com.google.guava
 Bundle-Version: 27.0.0.jre
 Target-Label: @maven//:com_google_guava_guava
