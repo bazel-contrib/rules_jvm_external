@@ -29,7 +29,7 @@ def _jvm_import_impl(ctx):
         command = " && ".join([
             "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
             "chmod +w {output_jar}".format(output_jar = outjar.path),
-            "{jar} umf {manifest_update_file} {output_jar}".format(
+            "{jar} ufm {output_jar} {manifest_update_file}".format(
                 jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
                 manifest_update_file = manifest_update_file.path,
                 output_jar = outjar.path,
@@ -77,7 +77,7 @@ jvm_import = rule(
         ),
         "_host_javabase": attr.label(
             cfg = "host",
-            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
             providers = [java_common.JavaRuntimeInfo],
         ),
         "_manifest_template": attr.label(

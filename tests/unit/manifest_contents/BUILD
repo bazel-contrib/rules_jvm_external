@@ -8,7 +8,8 @@ genrule(
     outs = [
         "MANIFEST.MF",
     ],
-    cmd = "unzip -p $< META-INF/MANIFEST.MF | grep 'Target-Label' > $@",
+    cmd = "$(JAVABASE)/bin/jar xvf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF > $@",
+    toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
 )
 
 diff_test(
