@@ -12,17 +12,26 @@ def _jvm_import_impl(ctx):
         fail("Please only specify one jar to import in the jars attribute.")
 
     injar = ctx.files.jars[0]
+    manifest_update_file = ctx.actions.declare_file("manifest_" + injar.basename)
+    ctx.actions.expand_template(
+        template = ctx.file._manifest_template,
+        output = manifest_update_file,
+        substitutions = {
+            "{TARGETLABEL}": "%s" % ctx.label,
+        },
+    )
+
     outjar = ctx.actions.declare_file("stamped_" + injar.basename, sibling = injar)
     ctx.actions.run_shell(
-        inputs = [injar] + ctx.files._host_javabase,
+        inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
         outputs = [outjar],
         arguments = [],
         command = " && ".join([
             "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
-            "chmod u+w {output_jar}".format(output_jar = outjar.path),
-            "echo 'Target-Label: {label}' > manifest.txt".format(label = ctx.label),
-            "{jar} ufm {output_jar} manifest.txt".format(
+            "chmod +w {output_jar}".format(output_jar = outjar.path),
+            "{jar} umf {manifest_update_file} {output_jar}".format(
                 jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
+                manifest_update_file = manifest_update_file.path,
                 output_jar = outjar.path,
             ),
         ]),
@@ -70,6 +79,10 @@ jvm_import = rule(
             cfg = "host",
             default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
             providers = [java_common.JavaRuntimeInfo],
+        ),
+        "_manifest_template": attr.label(
+            default = Label("@rules_jvm_external//private/templates:manifest_target_label.tpl"),
+            allow_single_file = True,
         ),
     },
     implementation = _jvm_import_impl,
