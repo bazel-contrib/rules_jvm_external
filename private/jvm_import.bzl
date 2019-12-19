@@ -25,15 +25,20 @@ def _jvm_import_impl(ctx):
     ctx.actions.run_shell(
         inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
         outputs = [outjar],
-        arguments = [],
         command = " && ".join([
+            # Make a copy of the original jar, since `jar(1)` modifies jars in place.
             "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
+            # Set the write bit on the copied jar.
             "chmod +w {output_jar}".format(output_jar = outjar.path),
+            # Append the Target-Label manifest attribute using `jar ufm`
             "{jar} ufm {output_jar} {manifest_update_file}".format(
                 jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
                 manifest_update_file = manifest_update_file.path,
                 output_jar = outjar.path,
             ),
+            # Remove any prior signature files as we've modified the manifest. Without this, certain signed jars will throw invalid
+            # signature errors (like Robolectric Test Runner jars).
+            # TODO(bazel-team): Replace this with proper jarsigning, with a debug keystore?
             "zip -dq {output_jar} META-INF/*.RSA META-INF/*.DSA META-INF/*.SF 1>/dev/null || true".format(output_jar = outjar.path),
         ]),
         mnemonic = "StampJar",
