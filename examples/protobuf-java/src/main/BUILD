@@ -1,3 +1,5 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
 java_binary(
     name = "example",
     srcs = ["Main.java"],
