@@ -136,6 +136,24 @@ maven_install(
     ],
 )
 
+maven_install(
+    name = "manifest_stamp_testing",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
+        "javax.inject:javax.inject:1",
+        "org.apache.beam:beam-sdks-java-core:2.15.0",
+        "org.bouncycastle:bcprov-jdk15on:1.64"
+    ],
+    maven_install_json = "//tests/custom_maven_install:manifest_stamp_testing_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@manifest_stamp_testing//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
 # These artifacts helped discover limitations by the Maven resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.

@@ -12,22 +12,33 @@ def _jvm_import_impl(ctx):
         fail("Please only specify one jar to import in the jars attribute.")
 
     injar = ctx.files.jars[0]
+    manifest_update_file = ctx.actions.declare_file(injar.basename + ".target_label_manifest", sibling = injar)
+    ctx.actions.expand_template(
+        template = ctx.file._manifest_template,
+        output = manifest_update_file,
+        substitutions = {
+            "{TARGETLABEL}": "%s" % ctx.label,
+        },
+    )
+
     outjar = ctx.actions.declare_file("stamped_" + injar.basename, sibling = injar)
-    args = ctx.actions.args()
-    args.add("--output")
-    args.add(outjar)
-    args.add("--sources")
-    args.add(injar)
-    args.add("--deploy_manifest_lines")
-
-    # Required for buildozer's add_dep feature with strict deps
-    args.add("Target-Label: %s" % ctx.label)
-
-    ctx.actions.run(
-        executable = ctx.executable._singlejar,
-        arguments = [args],
-        inputs = [injar],
+    ctx.actions.run_shell(
+        inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
         outputs = [outjar],
+        command = " && ".join([
+            # Make a copy of the original jar, since `jar(1)` modifies the jar in place.
+            "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
+            # Set the write bit on the copied jar.
+            "chmod +w {output_jar}".format(output_jar = outjar.path),
+            # If the jar is signed do not modify the manifest because it will
+            # make the signature invalid. Otherwise append the Target-Label
+            # manifest attribute using `jar umf`
+            "(unzip -l {output_jar} | grep -qE 'META-INF/.*\\.SF') || ({jar} umf {manifest_update_file} {output_jar} > /dev/null 2>&1 || true)".format(
+                jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
+                manifest_update_file = manifest_update_file.path,
+                output_jar = outjar.path,
+            )
+        ]),
         mnemonic = "StampJar",
         progress_message = "Stamping manifest of %s" % ctx.label,
     )
@@ -68,10 +79,14 @@ jvm_import = rule(
         "neverlink": attr.bool(
             default = False,
         ),
-        "_singlejar": attr.label(
-            default = Label("@bazel_tools//tools/jdk:singlejar"),
-            executable = True,
+        "_host_javabase": attr.label(
             cfg = "host",
+            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
+            providers = [java_common.JavaRuntimeInfo],
+        ),
+        "_manifest_template": attr.label(
+            default = Label("@rules_jvm_external//private/templates:manifest_target_label.tpl"),
+            allow_single_file = True,
         ),
     },
     implementation = _jvm_import_impl,
