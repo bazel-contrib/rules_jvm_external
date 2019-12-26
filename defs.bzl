@@ -30,7 +30,8 @@ def maven_install(
         maven_install_json = None,
         override_targets = {},
         strict_visibility = False,
-        resolve_timeout = 600):
+        resolve_timeout = 600,
+        jetify = False):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -62,6 +63,7 @@ def maven_install(
         are private and invisible to user's rules. If `False`, transitive dependencies are public and
         visible to user's rules.
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
+      jetify: Runs the AndroidX jetifier tool on all artifacts.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -104,6 +106,7 @@ def maven_install(
         strict_visibility = strict_visibility,
         maven_install_json = maven_install_json,
         resolve_timeout = resolve_timeout,
+        jetify = jetify,
     )
 
     if maven_install_json != None:
@@ -116,6 +119,7 @@ def maven_install(
             generate_compat_repositories = generate_compat_repositories,
             override_targets = override_targets,
             strict_visibility = strict_visibility,
+            jetify = jetify,
         )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):

@@ -37,7 +37,7 @@ def _jvm_import_impl(ctx):
                 jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
                 manifest_update_file = manifest_update_file.path,
                 output_jar = outjar.path,
-            )
+            ),
         ]),
         mnemonic = "StampJar",
         progress_message = "Stamping manifest of %s" % ctx.label,
