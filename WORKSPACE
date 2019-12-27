@@ -290,6 +290,19 @@ maven_install(
     use_unsafe_shared_cache = True,
 )
 
+maven_install(
+    name = "jetify_test",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
+        "com.android.support:appcompat-v7:28.0.0"
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+    ],
+    jetify = True,
+)
+
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
 
 http_archive(

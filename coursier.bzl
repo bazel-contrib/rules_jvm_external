@@ -28,7 +28,8 @@ package(default_visibility = ["//visibility:{visibility}"])
 
 exports_files(["pin"])
 
-load("@{repository_name}//:jvm_import.bzl", "jvm_import")
+load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
+load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
 
 {imports}
 """
@@ -325,13 +326,6 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             if a.get("neverlink", False)
         },
         override_targets = repository_ctx.attr.override_targets,
-    )
-
-    repository_ctx.template(
-        "jvm_import.bzl",
-        repository_ctx.attr._jvm_import,
-        substitutions = {},
-        executable = False,  # not executable
     )
 
     repository_ctx.template(
@@ -656,13 +650,6 @@ def _coursier_fetch_impl(repository_ctx):
         override_targets = repository_ctx.attr.override_targets,
     )
 
-    repository_ctx.template(
-        "jvm_import.bzl",
-        repository_ctx.attr._jvm_import,
-        substitutions = {},
-        executable = False,  # not executable
-    )
-
     repository_ctx.file(
         "BUILD",
         _BUILD.format(
@@ -764,7 +751,6 @@ def _coursier_fetch_impl(repository_ctx):
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
-        "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
@@ -779,6 +765,7 @@ pinned_coursier_fetch = repository_rule(
             """,
             default = False,
         ),
+        "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False)
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -786,7 +773,6 @@ pinned_coursier_fetch = repository_rule(
 coursier_fetch = repository_rule(
     attrs = {
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
-        "_jvm_import": attr.label(default = "//:private/jvm_import.bzl"),
         "_pin": attr.label(default = "//:private/pin.sh"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
@@ -819,6 +805,7 @@ coursier_fetch = repository_rule(
             default = False,
         ),
         "resolve_timeout": attr.int(default = 600),
+        "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False)
     },
     environ = [
         "JAVA_HOME",

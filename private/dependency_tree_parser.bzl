@@ -106,19 +106,22 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
             # 1. Generate the rule class.
             #
-            # java_import(
+            # (jetify_)(jvm|aar)_import(
             #
             packaging = artifact_path.split(".").pop()
             if packaging == "jar":
                 # Regular `java_import` invokes ijar on all JARs, causing some Scala and
                 # Kotlin compile interface JARs to be incorrect. We replace java_import
                 # with a simple jvm_import Starlark rule that skips ijar.
-                target_import_string = ["jvm_import("]
+                import_rule = "jvm_import"
                 jar_versionless_target_labels.append(target_label)
             elif packaging == "aar":
-                target_import_string = ["aar_import("]
+                import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
+            if repository_ctx.attr.jetify:
+                import_rule = "jetify_" + import_rule
+            target_import_string = [import_rule + "("]
 
             # 2. Generate the target label.
             #

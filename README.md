@@ -34,6 +34,7 @@ Table of Contents
             * [Repository remapping](#repository-remapping)
          * [Hiding transitive dependencies](#hiding-transitive-dependencies)
          * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
+         * [Jetifier](#jetifier)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
       * [Demo](#demo)
       * [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
@@ -775,6 +776,27 @@ maven_install(
         # ...
     ],
     resolve_timeout = 900
+)
+```
+
+### Jetifier
+
+As part of the [Android
+Jetpack](https://medium.com/google-developer-experts/converting-your-android-app-to-jetpack-85aecfce34d3)
+migration, convert legacy Android support library (`com.android.support`)
+libraries to rely on new AndroidX packages using the
+[Jetifier](https://developer.android.com/studio/command-line/jetifier) tool.
+Enable jetification by specifying `jetify = True` in `maven_install.`
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    jetify = True,
 )
 ```
 
