@@ -32,7 +32,7 @@ def _maven_repository(url, user = None, password = None):
         credentials = {"user": user, "password": password}
         return {"repo_url": url, "credentials": credentials}
 
-def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None):
+def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None):
     """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
@@ -44,6 +44,7 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         override_license_types: An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: ["notify"]).
         exclusions: An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).
         neverlink: Determines if this artifact should be part of the runtime classpath.
+        testonly: Determines whether this artifact is available for targets not marked as `testonly = True`.
     """
 
     # Output Schema:
@@ -56,6 +57,7 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
     #         "override_license_types": Optional Array of String
     #         "exclusions": Optional Array of exclusions (see below)
     #         "neverlink": Optional Boolean
+    #         "testonly": Optional Boolean
     #     }
     maven_artifact = {}
     maven_artifact["group"] = group
@@ -72,6 +74,8 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         maven_artifact["exclusions"] = exclusions
     if neverlink != None:
         maven_artifact["neverlink"] = neverlink
+    if testonly != None:
+        maven_artifact["testonly"] = testonly
 
     return maven_artifact
 
@@ -228,8 +232,9 @@ def _artifact_spec_to_json(artifact_spec):
     with_override_license_types = with_classifier + ((", " + _override_license_types_spec_to_json(artifact_spec["override_license_types"])) if artifact_spec.get("override_license_types") != None else "")
     with_exclusions = with_override_license_types + ((", \"exclusions\": " + exclusion_specs_json) if artifact_spec.get("exclusions") != None else "")
     with_neverlink = with_exclusions + ((", \"neverlink\": " + str(artifact_spec.get("neverlink")).lower()) if artifact_spec.get("neverlink") != None else "")
+    with_testonly = with_neverlink + ((", \"testonly\": " + str(artifact_spec.get("testonly")).lower()) if artifact_spec.get("testonly") != None else "")
 
-    return with_neverlink + " }"
+    return with_testonly + " }"
 
 json = struct(
     write_repository_credentials_spec = _repository_credentials_spec_to_json,

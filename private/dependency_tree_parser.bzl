@@ -44,7 +44,7 @@ def _deduplicate_list(items):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, override_targets):
+def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -204,7 +204,23 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             if neverlink_artifacts.get(simple_coord):
                 target_import_string.append("\tneverlink = True,")
 
-            # 7. If `strict_visibility` is True in the artifact spec, define public
+            # 7. If `testonly` is True in the artifact spec, add the testonly attribute to make this artifact
+            #    available only as a test dependency.
+            #
+            # java_import(
+            #   name = "org_hamcrest_hamcrest_library",
+            #   jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+            #   srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
+            #   deps = [
+            #       ":org_hamcrest_hamcrest_core",
+            #   ],
+            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   neverlink = True,
+            #   testonly = True,
+            if testonly_artifacts.get(simple_coord):
+                target_import_string.append("\ttestonly = True,")
+
+            # 8. If `strict_visibility` is True in the artifact spec, define public
             #    visibility only for non-transitive dependencies.
             #
             # java_import(
@@ -216,12 +232,13 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
+            #   testonly = True,
             #   visibility = ["//visibility:public"],
             if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
                 alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
 
-            # 8. Finish the java_import rule.
+            # 9. Finish the java_import rule.
             #
             # java_import(
             # 	name = "org_hamcrest_hamcrest_library",
@@ -232,12 +249,13 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	],
             #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
             #   neverlink = True,
+            #   testonly = True,
             # )
             target_import_string.append(")")
 
             all_imports.append("\n".join(target_import_string))
 
-            # 9. Create a versionless alias target
+            # 10. Create a versionless alias target
             #
             # alias(
             #   name = "org_hamcrest_hamcrest_library_1_3",
@@ -247,7 +265,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 
-            # 10. If using maven_install.json, use a genrule to copy the file from the http_file
+            # 11. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
             #
             # genrule(

@@ -325,6 +325,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             for a in artifacts
             if a.get("neverlink", False)
         },
+        testonly_artifacts = {
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
+            for a in artifacts
+            if a.get("testonly", False)
+        },
         override_targets = repository_ctx.attr.override_targets,
     )
 
@@ -646,6 +651,11 @@ def _coursier_fetch_impl(repository_ctx):
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
             if a.get("neverlink", False)
+        },
+        testonly_artifacts = {
+            a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
+            for a in artifacts
+            if a.get("testonly", False)
         },
         override_targets = repository_ctx.attr.override_targets,
     )

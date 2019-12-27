@@ -116,7 +116,7 @@ android_library(
 )
 ```
 
-The default label syntax for an artifact `foo.bar:baz-qux:1.2.3` is `@maven//:foo_bar_baz_qux`. That is, 
+The default label syntax for an artifact `foo.bar:baz-qux:1.2.3` is `@maven//:foo_bar_baz_qux`. That is,
 
 * All non-alphanumeric characters are substituted with underscores.
 * Only the group and artifact IDs are required.
@@ -129,15 +129,15 @@ You can find the complete API reference at [docs/api.md](docs/api.md).
 ## Pinning artifacts and integration with Bazel's downloader
 
 `rules_jvm_external` supports pinning artifacts and their SHA-256 checksums into
-a `maven_install.json` file that can be checked into your repository. 
+a `maven_install.json` file that can be checked into your repository.
 
-Without artifact pinning, in a clean checkout of your project, `rules_jvm_external` 
-executes the full artifact resolution and fetching steps (which can take a bit of time) 
-and does not verify the integrity of the artifacts against their checksums. The 
+Without artifact pinning, in a clean checkout of your project, `rules_jvm_external`
+executes the full artifact resolution and fetching steps (which can take a bit of time)
+and does not verify the integrity of the artifacts against their checksums. The
 downloaded artifacts also cannot be shared across Bazel workspaces.
 
 By pinning artifact versions, you can get improved artifact resolution and build times,
-since using `maven_install.json` enables `rules_jvm_external` to integrate with Bazel's 
+since using `maven_install.json` enables `rules_jvm_external` to integrate with Bazel's
 downloader that caches files on their sha256 checksums. It also improves resiliency and
 integrity by tracking the sha256 checksums and original artifact urls in the
 JSON file.
@@ -213,7 +213,7 @@ directory location.
 
 ### Multiple `maven_install.json` files
 
-If you have multiple `maven_install` declarations, you have to alias 
+If you have multiple `maven_install` declarations, you have to alias
 `pinned_maven_install` to another name to prevent redefinitions:
 
 ```python
@@ -268,8 +268,8 @@ These targets can be referenced by:
 *   `@maven//:junit_junit`
 *   `@maven//:org_hamcrest_hamcrest_core`
 
-**Transitive classes**: To use a class from `hamcrest-core` in your test, it's not sufficient to just 
-depend on `@maven//:junit_junit` even though JUnit depends on Hamcrest. The compile classes are not exported 
+**Transitive classes**: To use a class from `hamcrest-core` in your test, it's not sufficient to just
+depend on `@maven//:junit_junit` even though JUnit depends on Hamcrest. The compile classes are not exported
 transitively, so your test should also depend on `@maven//:org_hamcrest_hamcrest_core`.
 
 **Original coordinates**: The generated `tags` attribute value also contains the original coordinates of
@@ -557,20 +557,41 @@ This instructs `rules_jvm_external` to mark the generated target for
 `com.squareup:javapoet` with the `neverlink = True` attribute, making the
 artifact available only for compilation and not at runtime.
 
+### Test-only dependencies
+
+If you want to mark certain artifacts as test-only dependencies, use the
+`testonly` attribute in the `maven.artifact` helper:
+
+```python
+load("@rules_jvm_external//:specs.bzl", "maven")
+
+maven_install(
+    artifacts = [
+        maven.artifact("junit", "junit", "4.13", testonly = True),
+    ],
+    # ...
+)
+```
+
+This instructs `rules_jvm_external` to mark the generated target for
+`junit:Junit` with the `testonly = True` attribute, making the
+artifact available only for tests (e.g. `java_test`), or targets specifically
+marked as `testonly = True`.
+
 ### Resolving user-specified and transitive dependency version conflicts
 
 Use the `version_conflict_policy` attribute to decide how to resolve conflicts
 between artifact versions specified in your `maven_install` rule and those
 implicitly picked up as transitive dependencies.
 
-The attribute value can be either `default` or `pinned`. 
+The attribute value can be either `default` or `pinned`.
 
-`default`: use [Coursier's default algorithm](https://get-coursier.io/docs/other-version-handling) 
+`default`: use [Coursier's default algorithm](https://get-coursier.io/docs/other-version-handling)
 for version handling.
 
 `pinned`: pin the versions of the artifacts that are explicitly specified in `maven_install`.
 
-For example, pulling in guava transitively via google-cloud-storage resolves to 
+For example, pulling in guava transitively via google-cloud-storage resolves to
 guava-26.0-android.
 
 ```python
@@ -719,13 +740,13 @@ compat_repositories()
 
 #### Repository remapping
 
-If the `maven_jar` or `jvm_import_external` is not named according to `rules_jvm_external`'s 
+If the `maven_jar` or `jvm_import_external` is not named according to `rules_jvm_external`'s
 conventions, you can apply
 [repository remapping](https://docs.bazel.build/versions/master/external.html#shadowing-dependencies)
 from the expected name to the new name for compatibility.
 
-For example, if an external dependency uses `@guava//jar`, and `rules_jvm_external` 
-generates `@com_google_guava_guava//jar`, apply the `repo_mapping` attribute to the external 
+For example, if an external dependency uses `@guava//jar`, and `rules_jvm_external`
+generates `@com_google_guava_guava//jar`, apply the `repo_mapping` attribute to the external
 repository WORKSPACE rule, like `http_archive` in this example:
 
 ```python
@@ -738,7 +759,7 @@ http_archive(
 )
 ```
 
-With `repo_mapping`, all references to `@guava//jar` in `@my_dep`'s BUILD files will be mapped 
+With `repo_mapping`, all references to `@guava//jar` in `@my_dep`'s BUILD files will be mapped
 to `@com_google_guava_guava//jar` instead.
 
 ### Hiding transitive dependencies
@@ -860,14 +881,14 @@ You can find demos in the [`examples/`](./examples/) directory.
 
 ## Projects using rules_jvm_external
 
-Find other GitHub projects using `rules_jvm_external` 
+Find other GitHub projects using `rules_jvm_external`
 [with this search query](https://github.com/search?p=1&q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&type=Code).
 
 ## Generating documentation
 
 Use [Stardoc](https://skydoc.bazel.build/docs/getting_started_stardoc.html) to
 generate API documentation in the [docs](docs/) directory using
-[generate_docs.sh](scripts/generate_docs.sh). 
+[generate_docs.sh](scripts/generate_docs.sh).
 
 Note that this script has a dependency on the `doctoc` NPM package to automate
 generating the table of contents. Install it with `npm -g i doctoc`.
