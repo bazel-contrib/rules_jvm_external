@@ -28,7 +28,10 @@ genquery(
 
 diff_test(
     name = "testonly_artifacts_test",
-    file1 = "testonly-deps.golden",
+    file1 = select({
+        "@bazel_tools//src/conditions:windows": "testonly-deps.golden",
+        "//conditions:default": "testonly-deps.golden.unix",
+    }),
     file2 = ":testonly-deps",
 )
 
