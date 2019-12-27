@@ -4,6 +4,7 @@ load(
     "add_netrc_entries_from_mirror_urls",
     "extract_netrc_from_auth_url",
     "get_netrc_lines_from_entries",
+    "get_coursier_cache_or_default",
     "remove_auth_from_url",
     "split_url",
     infer = "infer_artifact_path_from_primary_and_repos",
@@ -355,6 +356,52 @@ def _get_netrc_lines_from_entries_multi_test_impl(ctx):
     return unittest.end(env)
 
 get_netrc_lines_from_entries_multi_test = add_test(_get_netrc_lines_from_entries_multi_test_impl)
+
+def _mock_repo_path(path):
+    if path.startswith("/"):
+        return path
+    else:
+        return "/mockroot/" + path
+
+def _get_coursier_cache_or_default_disabled_test(ctx):
+    env = unittest.begin(ctx)
+    mock_environ = {
+        "COURSIER_CACHE": _mock_repo_path("/does/not/matter")
+    }
+    asserts.equals(
+        env,
+        "v1",
+        get_coursier_cache_or_default(mock_environ, False)
+    )
+    return unittest.end(env)
+
+get_coursier_cache_or_default_disabled_test = add_test(_get_coursier_cache_or_default_disabled_test)
+
+def _get_coursier_cache_or_default_enabled_with_default_location_test(ctx):
+    env = unittest.begin(ctx)
+    mock_environ = {}
+    asserts.equals(
+        env,
+        "v1",
+        get_coursier_cache_or_default(mock_environ, True)
+    )
+    return unittest.end(env)
+
+get_coursier_cache_or_default_enabled_with_default_location_test = add_test(_get_coursier_cache_or_default_enabled_with_default_location_test)
+
+def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
+    env = unittest.begin(ctx)
+    mock_environ = {
+        "COURSIER_CACHE": _mock_repo_path("/custom/location")
+    }
+    asserts.equals(
+        env,
+        "/custom/location",
+        get_coursier_cache_or_default(mock_environ, True)
+    )
+    return unittest.end(env)
+
+get_coursier_cache_or_default_enabled_with_custom_location_test = add_test(_get_coursier_cache_or_default_enabled_with_custom_location_test)
 
 def coursier_test_suite():
     unittest.suite(

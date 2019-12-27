@@ -320,7 +320,7 @@ maven_install(
 > is a caching mechanism that was implemented before artifact pinning,
 > which uses Coursier's own persistent cache. With artifact pinning and
 > maven_install.json, the persistent cache is integrated directly into
-> Bazel's own cache.
+> Bazel's internal cache.
 
 To download artifacts into a shared and persistent directory in your home
 directory, set `use_unsafe_shared_cache = True` in `maven_install`.
@@ -341,9 +341,25 @@ This is **not safe** as Bazel is currently not able to detect changes in the
 shared cache. For example, if an artifact is deleted from the shared cache,
 Bazel will not re-run the repository rule automatically.
 
+To change the location of the cache from the home directory, set the
+`COURSIER_CACHE` environment variable. You can also use the `--repo_env` flag to
+set the variable on the command line and in `.bazelrc` files:
+
+```
+$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=COURSIER_CACHE=/tmp/custom_cache
+```
+
+This feature also enables checking the downloaded artifacts into your source
+tree by declaring `COURSIER_CACHE` to be `<project root>/some/directory`. For
+example:
+
+```
+$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=COURSIER_CACHE=$(pwd)/third_party
+```
+
 The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
 will create independent caches for each `maven_install` repository, located at
-`$(bazel info output_base)/external/@repository_name/v1`.
+`$(bazel info output_base)/external/@<repository_name>/v1`.
 
 ### `artifact` helper macro
 

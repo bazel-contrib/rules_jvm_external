@@ -59,13 +59,14 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     #
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
-    absolute_path_parts = absolute_path.split("v1/")
+    absolute_path_parts = absolute_path.split(get_coursier_cache_or_default(
+        repository_ctx.os.environ, repository_ctx.attr.use_unsafe_shared_cache))
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
         # Make a symlink from the absolute path of the artifact to the relative
         # path within the output_base/external.
-        artifact_relative_path = "v1/" + absolute_path_parts[1]
+        artifact_relative_path = "v1" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
 
@@ -421,6 +422,19 @@ def _deduplicate_artifacts(dep_tree):
     dep_tree.update({"dependencies": deduped_artifacts.values()})
     return dep_tree
 
+# Get the path to the cache directory containing Coursier-downloaded artifacts.
+#
+# This method is public for testing.
+def get_coursier_cache_or_default(env_dict, use_unsafe_shared_cache):
+    location = env_dict.get("COURSIER_CACHE")
+    # If we're not using the unsafe shared cache, or if COURSIER_CACHE is not defined,
+    # use 'external/<this repo>/v1/'. 'v1/' is the current version of the Coursier cache.
+    if not use_unsafe_shared_cache or location == None:
+        return "v1"
+    else:
+        # This is an absolute path.
+        return location
+
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
@@ -497,8 +511,7 @@ def _coursier_fetch_impl(repository_ctx):
             cmd.extend(["--credentials", utils.repo_credentials(repository)])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
-    if not repository_ctx.attr.use_unsafe_shared_cache:
-        cmd.extend(["--cache", "v1"])  # Download into $output_base/external/$maven_repo_name/v1
+
     if repository_ctx.attr.fetch_sources:
         cmd.append("--sources")
         cmd.append("--default=true")
@@ -508,8 +521,19 @@ def _coursier_fetch_impl(repository_ctx):
         # happen on *nix.
         cmd.extend(["--parallel", "1"])
 
+    environment = {}
+    coursier_cache_location = get_coursier_cache_or_default(
+        repository_ctx.os.environ, repository_ctx.attr.use_unsafe_shared_cache)
+    if not repository_ctx.attr.use_unsafe_shared_cache:
+        cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
+        # If not using the shared cache and the user did not specify a COURSIER_CACHE, set the default
+        # value to prevent Coursier from writing into home directories.
+        # https://github.com/bazelbuild/rules_jvm_external/issues/301
+        # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
+        environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-    exec_result = repository_ctx.execute(cmd, timeout = repository_ctx.attr.resolve_timeout)
+    exec_result = repository_ctx.execute(cmd, timeout = repository_ctx.attr.resolve_timeout, environment = environment)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
@@ -804,6 +828,7 @@ coursier_fetch = repository_rule(
         "HTTPS_PROXY",
         "no_proxy",
         "NO_PROXY",
+        "COURSIER_CACHE",
     ],
     implementation = _coursier_fetch_impl,
 )
