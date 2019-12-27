@@ -215,6 +215,26 @@ maven_install(
     ],
 )
 
+maven_install(
+    name = "testonly_testing",
+    artifacts = [
+        maven.artifact(
+            group = "com.google.guava",
+            artifact = "guava",
+            version = "27.0-jre",
+        ),
+        maven.artifact(
+            group = "com.google.auto.value",
+            artifact = "auto-value-annotations",
+            version = "1.6.3",
+            testonly = True,
+        ),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 load("@regression_testing//:defs.bzl", "pinned_maven_install")
 
 pinned_maven_install()
