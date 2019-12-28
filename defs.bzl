@@ -32,7 +32,7 @@ def maven_install(
         strict_visibility = False,
         resolve_timeout = 600,
         jetify = False,
-        jetify_exclude_patterns = []):
+        jetify_include_patterns = []):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -108,7 +108,7 @@ def maven_install(
         maven_install_json = maven_install_json,
         resolve_timeout = resolve_timeout,
         jetify = jetify,
-        jetify_exclude_patterns = jetify_exclude_patterns,
+        jetify_include_patterns = jetify_include_patterns,
     )
 
     if maven_install_json != None:
@@ -122,7 +122,7 @@ def maven_install(
             override_targets = override_targets,
             strict_visibility = strict_visibility,
             jetify = jetify,
-            jetify_exclude_patterns = jetify_exclude_patterns,
+            jetify_include_patterns = jetify_include_patterns,
         )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):

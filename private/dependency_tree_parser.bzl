@@ -119,7 +119,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
-            if repository_ctx.attr.jetify and not _coord_matches_exclude_pattern(simple_coord, repository_ctx.attr.jetify_exclude_patterns):
+            if repository_ctx.attr.jetify and _simple_coord_matches_pattern(simple_coord, repository_ctx.attr.jetify_include_patterns):
                 import_rule = "jetify_" + import_rule
 
             target_import_string = [import_rule + "("]
@@ -332,38 +332,38 @@ parser = struct(
     generate_imports = _generate_imports,
 )
 
-def _coord_matches_exclude_pattern(artifact_coords, exclude_patterns):
-    for exclude_pattern in exclude_patterns:
-        pattern_and_value=_parse_exclude_pattern(exclude_pattern)
+def _simple_coord_matches_pattern(simple_coord, patterns):
+    for raw_pattern in patterns:
+        pattern_and_value=_parse_raw_pattern(raw_pattern)
 
         pattern = pattern_and_value[0]
         token = pattern_and_value[1]
 
         if (
-                (pattern == "equals" and artifact_coords == token)
+                (pattern == "equals" and simple_coord == token)
                 or
-                (pattern == "contains" and token in artifact_coords)
+                (pattern == "contains" and token in simple_coord)
                 or
-                (pattern == "startswith" and artifact_coords.startswith(token))
+                (pattern == "startswith" and simple_coord.startswith(token))
                 or
-                (pattern == "endswith" and artifact_coords.endswith(token))
+                (pattern == "endswith" and simple_coord.endswith(token))
             ):
                 return True
 
     return False
 
-def _parse_exclude_pattern(exclude_pattern):
-    if exclude_pattern.count("(") != 1 or exclude_pattern.count(")") != 1 or not exclude_pattern.endswith(")"):
-        fail("Exclude pattern must contain exactly one '(' and end with ')', but was = '{}'".format(exclude_pattern))
+def _parse_raw_pattern(raw_pattern):
+    if raw_pattern.count("(") != 1 or raw_pattern.count(")") != 1 or not raw_pattern.endswith(")"):
+        fail("Pattern must contain exactly one '(' and end with ')', but was = '{}'".format(raw_pattern))
 
-    if exclude_pattern.startswith("equals("):
-        return ["equals", exclude_pattern[len("equals("):-1]]
-    elif exclude_pattern.startswith("contains("):
-        return ["contains", exclude_pattern[len("contains("):-1]]
-    elif exclude_pattern.startswith("startswith("):
-        return ["startswith", exclude_pattern[len("startswith("):-1]]
-    elif exclude_pattern.startswith("endswith("):
-        return ["endswith", exclude_pattern[len("endswith("):-1]]
+    if raw_pattern.startswith("equals("):
+        return ["equals", raw_pattern[len("equals("):-1]]
+    elif raw_pattern.startswith("contains("):
+        return ["contains", raw_pattern[len("contains("):-1]]
+    elif raw_pattern.startswith("startswith("):
+        return ["startswith", raw_pattern[len("startswith("):-1]]
+    elif raw_pattern.startswith("endswith("):
+        return ["endswith", raw_pattern[len("endswith("):-1]]
     else:
-        fail("Unsupported exclude pattern, supported ones are ['equals(x)', 'contains(x)', 'startswith(x)', 'endswith(x)'] but was '{}'".format(exclude_pattern))
+        fail("Unsupported pattern, supported ones are ['equals(x)', 'contains(x)', 'startswith(x)', 'endswith(x)'], but was '{}'".format(raw_pattern))
 

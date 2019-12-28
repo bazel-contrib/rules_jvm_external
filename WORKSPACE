@@ -321,8 +321,9 @@ maven_install(
         "https://maven.google.com",
     ],
     jetify = True,
-    jetify_exclude_patterns = [
-        "startswith(com.google)",
+    jetify_include_patterns = [
+        "startswith(com.google:)",
+        "startswith(com.android.support:)",
     ],
 )
 
