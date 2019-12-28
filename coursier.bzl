@@ -776,7 +776,7 @@ pinned_coursier_fetch = repository_rule(
             default = False,
         ),
         "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False),
-        "jetify_include_patterns": attr.string_list(doc = "TODO", default = []),
+        "jetify_include_patterns": attr.string_list(doc = "TODO", default = ["contains(:)"]),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -817,7 +817,7 @@ coursier_fetch = repository_rule(
         ),
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False),
-        "jetify_include_patterns": attr.string_list(doc = "TODO", default = []),
+        "jetify_include_patterns": attr.string_list(doc = "TODO", default = ["contains(:)"]),
     },
     environ = [
         "JAVA_HOME",
