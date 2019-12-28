@@ -321,6 +321,9 @@ maven_install(
         "https://maven.google.com",
     ],
     jetify = True,
+    jetify_exclude_patterns = [
+        "startswith(com.google)",
+    ],
 )
 
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"

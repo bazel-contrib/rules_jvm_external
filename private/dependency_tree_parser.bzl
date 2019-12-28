@@ -119,8 +119,9 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
-            if repository_ctx.attr.jetify:
+            if repository_ctx.attr.jetify and not _coord_matches_exclude_pattern(simple_coord, repository_ctx.attr.jetify_exclude_patterns):
                 import_rule = "jetify_" + import_rule
+
             target_import_string = [import_rule + "("]
 
             # 2. Generate the target label.
@@ -330,3 +331,39 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 parser = struct(
     generate_imports = _generate_imports,
 )
+
+def _coord_matches_exclude_pattern(artifact_coords, exclude_patterns):
+    for exclude_pattern in exclude_patterns:
+        pattern_and_value=_parse_exclude_pattern(exclude_pattern)
+
+        pattern = pattern_and_value[0]
+        token = pattern_and_value[1]
+
+        if (
+                (pattern == "equals" and artifact_coords == token)
+                or
+                (pattern == "contains" and token in artifact_coords)
+                or
+                (pattern == "startswith" and artifact_coords.startswith(token))
+                or
+                (pattern == "endswith" and artifact_coords.endswith(token))
+            ):
+                return True
+
+    return False
+
+def _parse_exclude_pattern(exclude_pattern):
+    if exclude_pattern.count("(") != 1 or exclude_pattern.count(")") != 1 or not exclude_pattern.endswith(")"):
+        fail("Exclude pattern must contain exactly one '(' and end with ')', but was = '{}'".format(exclude_pattern))
+
+    if exclude_pattern.startswith("equals("):
+        return ["equals", exclude_pattern[len("equals("):-1]]
+    elif exclude_pattern.startswith("contains("):
+        return ["contains", exclude_pattern[len("contains("):-1]]
+    elif exclude_pattern.startswith("startswith("):
+        return ["startswith", exclude_pattern[len("startswith("):-1]]
+    elif exclude_pattern.startswith("endswith("):
+        return ["endswith", exclude_pattern[len("endswith("):-1]]
+    else:
+        fail("Unsupported exclude pattern, supported ones are ['equals(x)', 'contains(x)', 'startswith(x)', 'endswith(x)'] but was '{}'".format(exclude_pattern))
+
