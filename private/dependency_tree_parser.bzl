@@ -91,6 +91,13 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         elif repository_ctx.attr.fetch_sources and ":sources:" in artifact["coord"]:
             # We already processed the sources above, so skip them here.
             pass
+        elif ":json:" in artifact["coord"]:
+            seen_imports[target_label] = True
+            versioned_target_alias_label = "%s_extension" % escape(artifact["coord"])
+            all_imports.append(
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label))
+            if repository_ctx.attr.maven_install_json:
+              all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
         elif target_label in labels_to_override:
             # Override target labels with the user provided mapping, instead of generating
             # a jvm_import/aar_import based on information in dep_tree.
@@ -162,6 +169,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["dependencies"]:
+                if ":json:" in dep:
+                    continue
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
