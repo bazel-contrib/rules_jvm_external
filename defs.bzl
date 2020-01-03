@@ -14,6 +14,7 @@
 
 load(":coursier.bzl", "coursier_fetch", "pinned_coursier_fetch")
 load(":specs.bzl", "json", "parse")
+load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 
 DEFAULT_REPOSITORY_NAME = "maven"
 
@@ -31,7 +32,8 @@ def maven_install(
         override_targets = {},
         strict_visibility = False,
         resolve_timeout = 600,
-        jetify = False):
+        jetify = False,
+        jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -64,6 +66,7 @@ def maven_install(
         visible to user's rules.
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
       jetify: Runs the AndroidX jetifier tool on all artifacts.
+      jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -107,6 +110,7 @@ def maven_install(
         maven_install_json = maven_install_json,
         resolve_timeout = resolve_timeout,
         jetify = jetify,
+        jetify_include_list = jetify_include_list,
     )
 
     if maven_install_json != None:
@@ -120,6 +124,7 @@ def maven_install(
             override_targets = override_targets,
             strict_visibility = strict_visibility,
             jetify = jetify,
+            jetify_include_list = jetify_include_list,
         )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):

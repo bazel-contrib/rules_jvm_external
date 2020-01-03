@@ -321,6 +321,9 @@ maven_install(
         "https://maven.google.com",
     ],
     jetify = True,
+    jetify_include_list = [
+        "com.android.support:appcompat-v7",
+    ]
 )
 
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"

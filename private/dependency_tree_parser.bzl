@@ -19,6 +19,8 @@ into target declarations (jvm_import) for the final @maven//:BUILD file.
 
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
+JETIFY_INCLUDE_LIST_JETIFY_ALL = ["_PRIVATE_RULES_JVM_EXTERNAL_JETIFY_ALL_"]
+
 def _genrule_copy_artifact_from_http_file(artifact):
     http_file_repository = escape(artifact["coord"])
     return "\n".join([
@@ -78,6 +80,13 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     if repository_ctx.attr.maven_install_json:
                         all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
 
+    jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
+
+    # Write artifacts to dict to achieve O(1) lookup instead of O(n).
+    jetify_include_dict = {}
+    for jetify_include_artifact in repository_ctx.attr.jetify_include_list:
+        jetify_include_dict[jetify_include_artifact] = None
+
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
@@ -119,7 +128,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
-            if repository_ctx.attr.jetify:
+            if jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict):
                 import_rule = "jetify_" + import_rule
             target_import_string = [import_rule + "("]
 

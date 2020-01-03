@@ -14,7 +14,7 @@
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "utils")
 load("//:private/proxy.bzl", "get_java_proxy_args")
-load("//:private/dependency_tree_parser.bzl", "parser")
+load("//:private/dependency_tree_parser.bzl", "parser", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
 load(
     "//:private/versions.bzl",
@@ -775,7 +775,8 @@ pinned_coursier_fetch = repository_rule(
             """,
             default = False,
         ),
-        "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False)
+        "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False),
+        "jetify_include_list": attr.string_list(doc="List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -815,7 +816,8 @@ coursier_fetch = repository_rule(
             default = False,
         ),
         "resolve_timeout": attr.int(default = 600),
-        "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False)
+        "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False),
+        "jetify_include_list": attr.string_list(doc="List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
     },
     environ = [
         "JAVA_HOME",
