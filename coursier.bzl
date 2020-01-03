@@ -14,7 +14,7 @@
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//:specs.bzl", "utils")
 load("//:private/proxy.bzl", "get_java_proxy_args")
-load("//:private/dependency_tree_parser.bzl", "parser", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
+load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
 load(
     "//:private/versions.bzl",
@@ -61,7 +61,9 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
     absolute_path_parts = absolute_path.split(get_coursier_cache_or_default(
-        repository_ctx.os.environ, repository_ctx.attr.use_unsafe_shared_cache))
+        repository_ctx.os.environ,
+        repository_ctx.attr.use_unsafe_shared_cache,
+    ))
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
@@ -426,6 +428,7 @@ def _deduplicate_artifacts(dep_tree):
 # This method is public for testing.
 def get_coursier_cache_or_default(env_dict, use_unsafe_shared_cache):
     location = env_dict.get("COURSIER_CACHE")
+
     # If we're not using the unsafe shared cache, or if COURSIER_CACHE is not defined,
     # use 'external/<this repo>/v1/'. 'v1/' is the current version of the Coursier cache.
     if not use_unsafe_shared_cache or location == None:
@@ -522,9 +525,12 @@ def _coursier_fetch_impl(repository_ctx):
 
     environment = {}
     coursier_cache_location = get_coursier_cache_or_default(
-        repository_ctx.os.environ, repository_ctx.attr.use_unsafe_shared_cache)
+        repository_ctx.os.environ,
+        repository_ctx.attr.use_unsafe_shared_cache,
+    )
     if not repository_ctx.attr.use_unsafe_shared_cache:
         cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
+
         # If not using the shared cache and the user did not specify a COURSIER_CACHE, set the default
         # value to prevent Coursier from writing into home directories.
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
@@ -776,7 +782,7 @@ pinned_coursier_fetch = repository_rule(
             default = False,
         ),
         "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False),
-        "jetify_include_list": attr.string_list(doc="List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -817,7 +823,7 @@ coursier_fetch = repository_rule(
         ),
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX Jetifier tool on all artifacts.", default = False),
-        "jetify_include_list": attr.string_list(doc="List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
     },
     environ = [
         "JAVA_HOME",
