@@ -45,7 +45,7 @@ def _jvm_import_impl(ctx):
 
     return [
         DefaultInfo(
-            files = depset([outjar]),
+            files = depset([injar, outjar]),
         ),
         JavaInfo(
             compile_jar = outjar,
