@@ -1,6 +1,10 @@
 ---
 tasks:
   ubuntu1604:
+    environment:
+      # This tests custom cache locations.
+      # https://github.com/bazelbuild/rules_jvm_external/pull/316
+      COURSIER_CACHE: /tmp/custom_coursier_cache
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
