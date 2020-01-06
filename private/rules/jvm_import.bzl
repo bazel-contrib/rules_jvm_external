@@ -7,6 +7,8 @@
 # [0]: https://github.com/square/bazel_maven_repository/pull/48
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
+load("@rules_jvm_external//settings:stamp_manifest.bzl", "StampManifestProvider")
+
 def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:
         fail("Please only specify one jar to import in the jars attribute.")
@@ -21,8 +23,7 @@ def _jvm_import_impl(ctx):
         },
     )
 
-    outjar_name = injar.basename[:-4] + '_stamped.jar'
-    outjar = ctx.actions.declare_file(outjar_name, sibling = injar)
+    outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
     ctx.actions.run_shell(
         inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
         outputs = [outjar],
@@ -40,9 +41,12 @@ def _jvm_import_impl(ctx):
                 output_jar = outjar.path,
             ),
         ]),
-        mnemonic = "StampJar",
-        progress_message = "Stamping manifest of %s" % ctx.label,
+        mnemonic = "StampJarManifest",
+        progress_message = "Stamping the manifest of %s" % ctx.label,
     )
+
+    if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
+        outjar = injar
 
     return [
         DefaultInfo(
@@ -89,6 +93,9 @@ jvm_import = rule(
             default = Label("@rules_jvm_external//private/templates:manifest_target_label.tpl"),
             allow_single_file = True,
         ),
+        "_stamp_manifest": attr.label(
+            default = Label("@rules_jvm_external//settings:stamp_manifest"),
+        )
     },
     implementation = _jvm_import_impl,
     provides = [JavaInfo],
