@@ -9,11 +9,9 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
   { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
 # --- end runfiles.bash initialization v2 ---
 
-set -euxo pipefail
+set -euox pipefail
 
-readonly classes_jar=$(rlocation rules_jvm_external/tests/unit/jetifier/jetify_all_jetified_classes.jar)
-
-jar tf $classes_jar
+classes_jar=$(rlocation rules_jvm_external/tests/unit/jetifier/jetify_all_jetified_classes.jar)
 
 jar tf $classes_jar | grep "androidx/appcompat"
 jar tf $classes_jar | grep -v "android/support/v7"
