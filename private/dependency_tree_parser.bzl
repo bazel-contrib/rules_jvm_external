@@ -19,7 +19,7 @@ into target declarations (jvm_import) for the final @maven//:BUILD file.
 
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
-JETIFY_INCLUDE_LIST_JETIFY_ALL = ["_PRIVATE_RULES_JVM_EXTERNAL_JETIFY_ALL_"]
+JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
 def _genrule_copy_artifact_from_http_file(artifact):
     http_file_repository = escape(artifact["coord"])

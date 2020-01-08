@@ -65,7 +65,7 @@ def maven_install(
         are private and invisible to user's rules. If `False`, transitive dependencies are public and
         visible to user's rules.
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
-      jetify: Runs the AndroidX jetifier tool on all artifacts.
+      jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
     """
     repositories_json_strings = []
