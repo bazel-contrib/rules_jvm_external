@@ -32,7 +32,7 @@ public class UnsafeSharedCacheTest {
               if (OS.indexOf("mac") >= 0) {
                   // Mac.
                   // The jar's path is automatically resolved to the actual location on macOS.
-                  assertThat(uriString, containsString("Library/Caches/Coursier/v1"));
+                  assertThat(uriString, containsString("/tmp/custom_coursier_cache"));
               } else {
                   // Linux.
                   // Assert that the symlink points to the jar in the default Coursier shared cache location
@@ -40,9 +40,9 @@ public class UnsafeSharedCacheTest {
                   if (Files.isSymbolicLink(Paths.get(uri))) {
                       // If it's a symlink, we'll need to resolve it twice: output base -> shared cache.
                       Path symlinkDest = Files.readSymbolicLink(Files.readSymbolicLink(Paths.get(uri)));
-                      assertThat(symlinkDest.toString(), containsString(".cache/coursier/v1"));
+                      assertThat(symlinkDest.toString(), containsString("/tmp/custom_coursier_cache"));
                   } else {
-                      assertThat(uriString, containsString(".cache/coursier/v1"));
+                      assertThat(uriString, containsString("/tmp/custom_coursier_cache"));
                   }
               }
           }
