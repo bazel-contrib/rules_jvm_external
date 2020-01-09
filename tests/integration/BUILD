@@ -89,4 +89,5 @@ java_test(
         "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_core",
     ],
+    tags = ["manual"],
 )
