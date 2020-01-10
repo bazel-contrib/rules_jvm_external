@@ -11,6 +11,8 @@ tasks:
       - bazel run @duplicate_artifacts_test//:pin
     test_targets:
       - "//..."
+      # manual tests
+      - "//tests/integration:UnsafeSharedCacheTest"
   rbe_ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -18,7 +20,6 @@ tasks:
       - "--"
       - "//..."
       # These tests are currently incompatible with RBE
-      - "-//tests/integration:UnsafeSharedCacheTest"
       - "-//tests/integration/override_targets"
   ubuntu1804_1_0_1:
     platform: ubuntu1804
@@ -29,8 +30,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      # These tests are currently incompatible with OpenJDK 11.
-      - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804_1_1_0:
     platform: ubuntu1804
     bazel: 1.1.0
@@ -40,8 +39,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      # These tests are currently incompatible with OpenJDK 11.
-      - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804_1_2_0:
     platform: ubuntu1804
     bazel: 1.2.0
@@ -51,8 +48,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      # These tests are currently incompatible with OpenJDK 11.
-      - "-//tests/integration:UnsafeSharedCacheTest"
   ubuntu1804_latest:
     platform: ubuntu1804
     bazel: latest
@@ -67,8 +62,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      # These tests are currently incompatible with OpenJDK 11.
-      - "-//tests/integration:UnsafeSharedCacheTest"
   macos:
     environment:
       # This tests custom cache locations.
@@ -80,6 +73,8 @@ tasks:
       - bazel run @duplicate_artifacts_test//:pin
     test_targets:
       - "//..."
+      # manual tests
+      - "//tests/integration:UnsafeSharedCacheTest"
   windows:
     environment:
       # This tests custom cache locations.
