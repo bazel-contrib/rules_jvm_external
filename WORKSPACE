@@ -336,7 +336,6 @@ maven_install(
         "https://repo.spring.io/plugins-release/",
     ],
     fetch_sources = True,
-    use_unsafe_shared_cache = True,
 )
 
 load(
