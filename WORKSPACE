@@ -311,7 +311,7 @@ maven_install(
 )
 
 maven_install(
-    name = "jetify_test",
+    name = "jetify_all_test",
     artifacts = [
         "com.google.guava:guava:27.0-jre",
         "com.android.support:appcompat-v7:28.0.0"
@@ -321,6 +321,23 @@ maven_install(
         "https://maven.google.com",
     ],
     jetify = True,
+)
+
+maven_install(
+    name = "jetify_include_list_test",
+    artifacts = [
+        "com.google.guava:guava:27.0-jre",
+        "com.android.support:appcompat-v7:28.0.0",
+        "com.android.support:swiperefreshlayout:28.0.0",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+    ],
+    jetify = True,
+    jetify_include_list = [
+        "com.android.support:appcompat-v7",
+    ],
 )
 
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
