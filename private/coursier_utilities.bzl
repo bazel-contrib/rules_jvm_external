@@ -16,6 +16,7 @@
 # download them if it's not asked to to resolve "eclipse-plugin".
 SUPPORTED_PACKAGING_TYPES = [
     "jar",
+    "json",
     "aar",
     "bundle",
     "eclipse-plugin",

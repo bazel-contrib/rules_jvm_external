@@ -91,3 +91,12 @@ java_test(
     ],
     tags = ["manual"],
 )
+
+java_test(
+    name = "JsonArtifactsTest",
+    srcs = ["JsonArtifactsTest.java"],
+    test_class = "com.jvm.external.JsonArtifactsTest",
+    deps = [
+        "@json_artifacts_testing//:io_quarkus_quarkus_maven_plugin",
+    ],
+)

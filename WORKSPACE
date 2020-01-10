@@ -340,6 +340,28 @@ maven_install(
     ],
 )
 
+# https://github.com/bazelbuild/rules_jvm_external/issues/351
+maven_install(
+    name = "json_artifacts_testing",
+    artifacts = [
+        "io.quarkus:quarkus-maven-plugin:1.0.1.Final",
+        "io.quarkus:quarkus-bom-descriptor-json:1.0.1.Final",
+    ],
+    maven_install_json = "//tests/custom_maven_install:json_artifacts_testing_install.json",
+    repositories = [
+        "https://repo.maven.apache.org/maven2/",
+        "https://repo.spring.io/plugins-release/",
+    ],
+    fetch_sources = True,
+)
+
+load(
+    "@json_artifacts_testing//:defs.bzl",
+    _json_artifacts_testing_install = "pinned_maven_install",
+)
+
+_json_artifacts_testing_install()
+
 RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
 
 http_archive(
