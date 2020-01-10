@@ -808,8 +808,8 @@ migration, convert legacy Android support library (`com.android.support`)
 libraries to rely on new AndroidX packages using the
 [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool.
 Enable jetification by specifying `jetify = True` in `maven_install.`
-
-Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
+Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format. 
+By default all artifacts are jetified if `jetify` is set to True.
 
 ```python
 maven_install(
