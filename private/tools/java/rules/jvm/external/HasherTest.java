@@ -67,6 +67,30 @@ public class HasherTest {
     checkLine(lines[2], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069", "test-3.file");
   }
 
+  @Test
+  public void argsToStream_files() throws IOException, FileNotFoundException {
+    String[] files = new String[]{"file1"};
+    Stream<String> stream = Hasher.argsToStream(files);
+    assertThat(stream.count()).equalTo(1);
+    assertThat(stream.anyMatch(f -> f.equals("file1"))).isTrue();
+    stream.close();
+
+    files = new String[]{"file1", "file2"};
+    stream = Hasher.argsToStream(files);
+    assertThat(stream.count()).equalTo(2);
+    assertThat(stream.anyMatch(f -> f.equals("file1"))).isTrue();
+    assertThat(stream.anyMatch(f -> f.equals("file2"))).isTrue();
+    stream.close();
+
+    files = new String[]{"file1", "file2", "file3"};
+    stream = Hasher.argsToStream(files);
+    assertThat(stream.count()).equalTo(3);
+    assertThat(stream.anyMatch(f -> f.equals("file1"))).isTrue();
+    assertThat(stream.anyMatch(f -> f.equals("file2"))).isTrue();
+    assertThat(stream.anyMatch(f -> f.equals("file3"))).isTrue();
+    stream.close();
+  }
+
   private File writeFile(String name, String contents) throws IOException {
     File file = tmpDir.newFile(name);
 

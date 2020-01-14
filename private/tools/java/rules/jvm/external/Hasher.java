@@ -28,14 +28,21 @@ import java.util.stream.Stream;
 public class Hasher {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+    Stream<String> fileStream = argsToStream(args);
+    System.out.print(hashFiles(fileStream));
+  }
+
+  static Stream<String> argsToStream(String[] args) {
     Stream<String> fileStream;
+
     if (args.length == 2 && args[0].equals("--argsfile")) {
       String argfile = args[1];
       fileStream = Files.lines(Paths.get(argfile));
     } else {
       fileStream = Stream.of(args);
     }
-    System.out.print(hashFiles(fileStream));
+
+    return fileStream;
   }
 
   static String hashFiles(Stream<String> files) {
