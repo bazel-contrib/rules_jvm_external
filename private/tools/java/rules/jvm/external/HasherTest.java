@@ -18,17 +18,19 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 import java.security.NoSuchAlgorithmException;
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
-import java.util.List;
-import java.util.Arrays;
 
 public class HasherTest {
 
@@ -56,7 +58,7 @@ public class HasherTest {
     File file3 = writeFile("test-3.file", "Hello World!");
     String[] files = new String[]{file1.getPath(), file2.getPath(), file3.getPath()};
 
-    String result = Hasher.hashFiles(files);
+    String result = Hasher.hashFiles(Stream.of(files));
     String[] lines = result.split("\n");
     assertThat(lines, arrayWithSize(3));
 
