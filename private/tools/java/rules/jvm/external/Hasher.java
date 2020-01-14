@@ -32,7 +32,7 @@ public class Hasher {
     System.out.print(hashFiles(fileStream));
   }
 
-  static Stream<String> argsToStream(String[] args) {
+  static Stream<String> argsToStream(String[] args) throws IOException {
     Stream<String> fileStream;
 
     if (args.length == 2 && args[0].equals("--argsfile")) {
