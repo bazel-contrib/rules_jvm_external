@@ -630,7 +630,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "hasher_argsfile",
         "\n".join([str(f) for f in files_to_hash]) + "\n",
-        True,  # Not executable
+        False,  # Not executable
     )
     exec_result = repository_ctx.execute(hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")])
     if exec_result.return_code != 0:
