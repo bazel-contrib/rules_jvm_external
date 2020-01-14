@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,12 +29,6 @@ import java.util.stream.Stream;
 public class Hasher {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-    if (args.length == 0) {
-      throw new RuntimeException(java.util.Arrays.toString(args));
-    }
-    if (args.length > 0) {
-      throw new RuntimeException(java.util.Arrays.toString(args));
-    }
     Stream<String> fileStream;
     if (args.length == 2 && args[0].equals("--argsfile")) {
       String argfile = args[1];

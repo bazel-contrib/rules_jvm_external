@@ -628,12 +628,11 @@ def _coursier_fetch_impl(repository_ctx):
 
     # Avoid argument limits by putting list of files to hash into a file
     repository_ctx.file(
-        "hasher_argfile",
+        "hasher_argsfile",
         "\n".join([str(f) for f in files_to_hash]) + "\n",
         True,  # Not executable
     )
-    print(hasher_command + ["--argfile", repository_ctx.path("hasher_argfile")])
-    exec_result = repository_ctx.execute(hasher_command + ["--argfile", repository_ctx.path("hasher_argfile")])
+    exec_result = repository_ctx.execute(hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")])
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
 
