@@ -43,13 +43,15 @@ public class HasherTest {
     File file = tmpDir.newFile("test.file");
 
     // "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" is sha of null content.
-    assertThat(Hasher.sha256(file), equalTo("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
+    assertThat(Hasher.sha256(file),
+        equalTo("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
   }
 
   @Test
   public void sha256_helloWorldFile() throws IOException, NoSuchAlgorithmException {
     File file = writeFile("test.file", "Hello World!");
-    assertThat(Hasher.sha256(file), equalTo("7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"));
+    assertThat(Hasher.sha256(file),
+        equalTo("7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"));
   }
 
   @Test
@@ -63,9 +65,12 @@ public class HasherTest {
     String[] lines = result.split("\n");
     assertThat(lines, arrayWithSize(3));
 
-    checkLine(lines[0], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069", "test-1.file");
-    checkLine(lines[1], "334d016f755cd6dc58c53a86e183882f8ec14f52fb05345887c8a5edd42c87b7", "test-2.file");
-    checkLine(lines[2], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069", "test-3.file");
+    checkLine(lines[0], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+        "test-1.file");
+    checkLine(lines[1], "334d016f755cd6dc58c53a86e183882f8ec14f52fb05345887c8a5edd42c87b7",
+        "test-2.file");
+    checkLine(lines[2], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+        "test-3.file");
   }
 
   @Test
