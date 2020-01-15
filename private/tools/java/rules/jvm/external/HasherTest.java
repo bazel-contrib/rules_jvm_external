@@ -69,7 +69,15 @@ public class HasherTest {
   }
 
   @Test
-  public void argsToStream_files() throws IOException, FileNotFoundException {
+  public void argsToStream_empty() throws IOException {
+    String[] files = new String[]{};
+    Stream<String> stream = Hasher.argsToStream(files);
+    Object[] streamArray = stream.toArray();
+    assertArrayEquals(streamArray, files);
+  }
+
+  @Test
+  public void argsToStream_files() throws IOException {
     String[] files = new String[]{"file1"};
     Stream<String> stream = Hasher.argsToStream(files);
     Object[] streamArray = stream.toArray();
@@ -84,6 +92,42 @@ public class HasherTest {
     stream = Hasher.argsToStream(files);
     streamArray = stream.toArray();
     assertArrayEquals(streamArray, files);
+  }
+
+  @Test
+  public void argsToStream_argsfile_empty() throws IOException, FileNotFoundException {
+    File argsfile = writeFile("argsfile", "");
+    String[] args = new String[]{"--argsfile", argsfile.getPath()};
+    String[] expected = new String[]{};
+    Stream<String> stream = Hasher.argsToStream(args);
+    assertArrayEquals(stream.toArray(), expected);
+  }
+
+  @Test
+  public void argsToStream_argsfile() throws IOException, FileNotFoundException {
+    File argsfile = writeFile("argsfile", "file1");
+    String[] args = new String[]{"--argsfile", argsfile.getPath()};
+    String[] expected = new String[]{"file1"};
+    Stream<String> stream = Hasher.argsToStream(args);
+    assertArrayEquals(stream.toArray(), expected);
+
+    argsfile = writeFile("argsfile2", "file1");
+    args = new String[]{"--argsfile", argsfile.getPath()};
+    expected = new String[]{"file1"};
+    stream = Hasher.argsToStream(args);
+    assertArrayEquals(stream.toArray(), expected);
+
+    argsfile = writeFile("argsfile3", "file1\nfile2");
+    args = new String[]{"--argsfile", argsfile.getPath()};
+    expected = new String[]{"file1", "file2"};
+    stream = Hasher.argsToStream(args);
+    assertArrayEquals(stream.toArray(), expected);
+
+    argsfile = writeFile("argsfile4", "file1\nfile2\nfile3");
+    args = new String[]{"--argsfile", argsfile.getPath()};
+    expected = new String[]{"file1", "file2", "file3"};
+    stream = Hasher.argsToStream(args);
+    assertArrayEquals(stream.toArray(), expected);
   }
 
   private File writeFile(String name, String contents) throws IOException {
