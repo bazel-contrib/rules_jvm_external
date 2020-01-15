@@ -13,97 +13,60 @@
 // limitations under the License.
 package rules.jvm.external;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 import java.security.NoSuchAlgorithmException;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.StringEndsWith.endsWith;
-import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
-
 public class HasherTest {
 
-  @Rule
-  public TemporaryFolder tmpDir = new TemporaryFolder();
+  @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
 
   @Test
   public void sha256_emptyFile() throws IOException, NoSuchAlgorithmException {
     File file = tmpDir.newFile("test.file");
 
     // "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" is sha of null content.
-    assertThat(Hasher.sha256(file),
+    assertThat(
+        Hasher.sha256(file),
         equalTo("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
   }
 
   @Test
   public void sha256_helloWorldFile() throws IOException, NoSuchAlgorithmException {
     File file = writeFile("test.file", "Hello World!");
-    assertThat(Hasher.sha256(file),
+    assertThat(
+        Hasher.sha256(file),
         equalTo("7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"));
   }
 
   @Test
-  public void sha256_multipleFiles() throws IOException, FileNotFoundException {
-    File file1 = writeFile("test-1.file", "Hello World!");
-    File file2 = writeFile("test-2.file", "Hello!");
-    File file3 = writeFile("test-3.file", "Hello World!");
-    String[] files = new String[]{file1.getPath(), file2.getPath(), file3.getPath()};
-
-    String result = Hasher.hashFiles(Stream.of(files));
-    String[] lines = result.split("\n");
-    assertThat(lines, arrayWithSize(3));
-
-    checkLine(lines[0], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
-        "test-1.file");
-    checkLine(lines[1], "334d016f755cd6dc58c53a86e183882f8ec14f52fb05345887c8a5edd42c87b7",
-        "test-2.file");
-    checkLine(lines[2], "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
-        "test-3.file");
-  }
-
-  @Test
-  public void argsToStream_empty() throws IOException {
-    String[] files = new String[]{};
-    Stream<String> stream = Hasher.argsToStream(files);
-    Object[] streamArray = stream.toArray();
-    assertArrayEquals(streamArray, files);
-  }
-
-  @Test
-  public void argsToStream_files() throws IOException {
-    String[] files = new String[]{"file1"};
-    Stream<String> stream = Hasher.argsToStream(files);
-    Object[] streamArray = stream.toArray();
-    assertArrayEquals(streamArray, files);
-
-    files = new String[]{"file1", "file2"};
-    stream = Hasher.argsToStream(files);
-    streamArray = stream.toArray();
-    assertArrayEquals(streamArray, files);
-
-    files = new String[]{"file1", "file2", "file3"};
-    stream = Hasher.argsToStream(files);
-    streamArray = stream.toArray();
-    assertArrayEquals(streamArray, files);
+  public void argsToStream_throws_exception() throws IOException {
+    String[] files = new String[] {};
+    try {
+      Stream<String> stream = Hasher.argsToStream(files);
+      fail("Should not process args without --argsfile");
+    } catch (IllegalArgumentException e) {
+      // This is good
+    }
   }
 
   @Test
   public void argsToStream_argsfile_empty() throws IOException, FileNotFoundException {
     File argsfile = writeFile("argsfile", "");
-    String[] args = new String[]{"--argsfile", argsfile.getPath()};
-    String[] expected = new String[]{};
+    String[] args = new String[] {"--argsfile", argsfile.getPath()};
+    String[] expected = new String[] {};
     Stream<String> stream = Hasher.argsToStream(args);
     assertArrayEquals(stream.toArray(), expected);
   }
@@ -111,26 +74,26 @@ public class HasherTest {
   @Test
   public void argsToStream_argsfile() throws IOException, FileNotFoundException {
     File argsfile = writeFile("argsfile", "file1");
-    String[] args = new String[]{"--argsfile", argsfile.getPath()};
-    String[] expected = new String[]{"file1"};
+    String[] args = new String[] {"--argsfile", argsfile.getPath()};
+    String[] expected = new String[] {"file1"};
     Stream<String> stream = Hasher.argsToStream(args);
     assertArrayEquals(stream.toArray(), expected);
 
     argsfile = writeFile("argsfile2", "file1");
-    args = new String[]{"--argsfile", argsfile.getPath()};
-    expected = new String[]{"file1"};
+    args = new String[] {"--argsfile", argsfile.getPath()};
+    expected = new String[] {"file1"};
     stream = Hasher.argsToStream(args);
     assertArrayEquals(stream.toArray(), expected);
 
     argsfile = writeFile("argsfile3", "file1\nfile2");
-    args = new String[]{"--argsfile", argsfile.getPath()};
-    expected = new String[]{"file1", "file2"};
+    args = new String[] {"--argsfile", argsfile.getPath()};
+    expected = new String[] {"file1", "file2"};
     stream = Hasher.argsToStream(args);
     assertArrayEquals(stream.toArray(), expected);
 
     argsfile = writeFile("argsfile4", "file1\nfile2\nfile3");
-    args = new String[]{"--argsfile", argsfile.getPath()};
-    expected = new String[]{"file1", "file2", "file3"};
+    args = new String[] {"--argsfile", argsfile.getPath()};
+    expected = new String[] {"file1", "file2", "file3"};
     stream = Hasher.argsToStream(args);
     assertArrayEquals(stream.toArray(), expected);
   }
@@ -142,11 +105,5 @@ public class HasherTest {
       out.print(contents);
     }
     return file;
-  }
-
-  private void checkLine(String line, String hash, String file) {
-    String[] parts = line.split("\\s+");
-    assertThat(parts[0], equalTo(hash));
-    assertThat(parts[1], endsWith(file));
   }
 }

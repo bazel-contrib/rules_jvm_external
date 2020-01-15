@@ -24,9 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * A tool to compute the sha256 hash of a file.
- */
+/** A tool to compute the sha256 hash of a file. */
 public class Hasher {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
@@ -41,7 +39,7 @@ public class Hasher {
       String argfile = args[1];
       fileStream = Files.lines(Paths.get(argfile));
     } else {
-      fileStream = Stream.of(args);
+      throw new IllegalArgumentException("We require use of --argsfile");
     }
 
     return fileStream;
