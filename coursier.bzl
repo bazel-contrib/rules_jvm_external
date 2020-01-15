@@ -558,6 +558,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx,
         repository_ctx.path(repository_ctx.attr._sha256_hasher),
     )
+    files_to_hash = []
 
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
@@ -623,9 +624,15 @@ def _coursier_fetch_impl(repository_ctx):
         mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
         artifact.update({"mirror_urls": mirror_urls})
 
-        hasher_command.append(repository_ctx.path(artifact["file"]))
+        files_to_hash.append(repository_ctx.path(artifact["file"]))
 
-    exec_result = repository_ctx.execute(hasher_command)
+    # Avoid argument limits by putting list of files to hash into a file
+    repository_ctx.file(
+        "hasher_argsfile",
+        "\n".join([str(f) for f in files_to_hash]) + "\n",
+        False,  # Not executable
+    )
+    exec_result = repository_ctx.execute(hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")])
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
 
