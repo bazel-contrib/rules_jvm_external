@@ -517,11 +517,6 @@ def _coursier_fetch_impl(repository_ctx):
     if repository_ctx.attr.fetch_sources:
         cmd.append("--sources")
         cmd.append("--default=true")
-    if _is_windows(repository_ctx):
-        # Unfortunately on Windows, coursier crashes while trying to acquire the
-        # cache's .structure.lock file while running in parallel. This does not
-        # happen on *nix.
-        cmd.extend(["--parallel", "1"])
 
     environment = {}
     coursier_cache_location = get_coursier_cache_or_default(
