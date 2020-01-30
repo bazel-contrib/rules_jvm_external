@@ -21,7 +21,8 @@ def _jvm_import_impl(ctx):
         },
     )
 
-    outjar = ctx.actions.declare_file("stamped_" + injar.basename, sibling = injar)
+    outjar_name = injar.basename[:-4] + '_stamped.jar'
+    outjar = ctx.actions.declare_file(outjar_name, sibling = injar)
     ctx.actions.run_shell(
         inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
         outputs = [outjar],
