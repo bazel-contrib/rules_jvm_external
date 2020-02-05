@@ -16,6 +16,8 @@ build_test(
         "@regression_testing//:org_openjfx_javafx_base",
         "@regression_testing//:io_kubernetes_client_java",
         "@regression_testing//:io_quarkus_http_quarkus_http_servlet",
+        "@regression_testing//:com_fasterxml_jackson_jackson_bom",
+        "@regression_testing//:org_junit_junit_bom",
     ],
 )
 

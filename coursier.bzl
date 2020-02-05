@@ -416,11 +416,15 @@ def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
 
 def _deduplicate_artifacts(dep_tree):
     deduped_artifacts = {}
+    null_artifacts = []
     for artifact in dep_tree["dependencies"]:
+        if artifact["file"] == None:
+            null_artifacts.append(artifact)
+            continue
         if artifact["file"] in deduped_artifacts:
             continue
         deduped_artifacts[artifact["file"]] = artifact
-    dep_tree.update({"dependencies": deduped_artifacts.values()})
+    dep_tree.update({"dependencies": deduped_artifacts.values() + null_artifacts})
     return dep_tree
 
 # Get the path to the cache directory containing Coursier-downloaded artifacts.
