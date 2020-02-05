@@ -9,8 +9,10 @@ kt_android_library(
     visibility = ["//:__pkg__"],
     deps = [
         "@maven//:androidx_appcompat_appcompat",
+        "@maven//:androidx_activity_activity",
         "@maven//:androidx_core_core",
         "@maven//:androidx_core_core_ktx",
+        "@maven//:androidx_savedstate_savedstate",
         "@maven//:androidx_drawerlayout_drawerlayout",
         "@maven//:androidx_fragment_fragment",
         "@maven//:androidx_lifecycle_lifecycle_common",
