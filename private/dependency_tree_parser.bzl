@@ -17,7 +17,7 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
-load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
+load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
@@ -71,7 +71,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     if repository_ctx.attr.fetch_sources:
         srcjar_paths = {}
         for artifact in dep_tree["dependencies"]:
-            if ":sources:" in artifact["coord"]:
+            if get_classifier(artifact["coord"]) == "sources":
                 artifact_path = artifact["file"]
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
@@ -97,10 +97,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
             pass
-        elif repository_ctx.attr.fetch_sources and ":sources:" in artifact["coord"]:
+        elif repository_ctx.attr.fetch_sources and get_classifier(artifact["coord"]) == "sources":
             # We already processed the sources above, so skip them here.
             pass
-        elif ":json:" in artifact["coord"]:
+        elif get_packaging(artifact["coord"]) == "json":
             seen_imports[target_label] = True
             versioned_target_alias_label = "%s_extension" % escape(artifact["coord"])
             all_imports.append(
@@ -178,7 +178,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["dependencies"]:
-                if ":json:" in dep:
+                if get_packaging(dep) == "json":
                     continue
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 

@@ -347,6 +347,7 @@ maven_install(
 maven_install(
     name = "json_artifacts_testing",
     artifacts = [
+        "org.json:json:20190722",
         "io.quarkus:quarkus-maven-plugin:1.0.1.Final",
         "io.quarkus:quarkus-bom-descriptor-json:1.0.1.Final",
     ],

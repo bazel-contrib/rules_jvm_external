@@ -1,6 +1,6 @@
 package com.jvm.external;
 
-
+import org.json.JSONObject;
 import org.junit.Test;
 
 public class JsonArtifactsTest {
