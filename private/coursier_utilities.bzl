@@ -28,17 +28,48 @@ SUPPORTED_PACKAGING_TYPES = [
 ]
 
 def strip_packaging_and_classifier(coord):
-    # We add "pom" into _COURSIER_PACKAGING_TYPES here because "pom" is not a
-    # packaging type that Coursier CLI accepts.
-    for packaging_type in SUPPORTED_PACKAGING_TYPES + ["pom"]:
-        coord = coord.replace(":%s:" % packaging_type, ":")
-    for classifier_type in ["sources", "natives"]:
-        coord = coord.replace(":%s:" % classifier_type, ":")
+    # Strip some packaging and classifier values based on the following maven coordinate formats
+    # groupId:artifactId:version
+    # groupId:artifactId:packaging:version
+    # groupId:artifactId:packaging:classifier:version
+    coordinates = coord.split(":")
+    if len(coordinates) > 4:
+        if coordinates[3] in ["sources", "natives"]:
+            coordinates.pop(3)
 
-    return coord
+    if len(coordinates) > 3:
+        # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
+        # packaging type that Coursier CLI accepts.
+        if coordinates[2] in SUPPORTED_PACKAGING_TYPES + ["pom"]:
+            coordinates.pop(2)
+
+    return ":".join(coordinates)
 
 def strip_packaging_and_classifier_and_version(coord):
     return ":".join(strip_packaging_and_classifier(coord).split(":")[:-1])
+
+# TODO: Should these methods be combined with _parse_maven_coordinate_string in specs.
+def get_packaging(coord):
+    # Get packaging from the following maven coordinate formats
+    # groupId:artifactId:version
+    # groupId:artifactId:packaging:version
+    # groupId:artifactId:packaging:classifier:version
+    coordinates = coord.split(":")
+    if len(coordinates) > 3:
+        return coordinates[2]
+    else:
+        return None
+
+def get_classifier(coord):
+    # Get classifier from the following maven coordinate formats
+    # groupId:artifactId:version
+    # groupId:artifactId:packaging:version
+    # groupId:artifactId:packaging:classifier:version
+    coordinates = coord.split(":")
+    if len(coordinates) > 4:
+        return coordinates[3]
+    else:
+        return None
 
 def escape(string):
     for char in [".", "-", ":", "/", "+"]:

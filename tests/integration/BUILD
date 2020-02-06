@@ -97,6 +97,7 @@ java_test(
     srcs = ["JsonArtifactsTest.java"],
     test_class = "com.jvm.external.JsonArtifactsTest",
     deps = [
+        "@json_artifacts_testing//:org_json_json",
         "@json_artifacts_testing//:io_quarkus_quarkus_maven_plugin",
     ],
 )
