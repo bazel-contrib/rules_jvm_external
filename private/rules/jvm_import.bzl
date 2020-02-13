@@ -33,8 +33,16 @@ def _jvm_import_impl(ctx):
             "chmod +w {output_jar}".format(output_jar = outjar.path),
             # If the jar is signed do not modify the manifest because it will
             # make the signature invalid. Otherwise append the Target-Label
-            # manifest attribute using `jar umf`
-            "(unzip -l {output_jar} | grep -qE 'META-INF/.*\\.SF') || ({jar} umf {manifest_update_file} {output_jar} > /dev/null 2>&1 || true)".format(
+            # manifest attribute using `jar umf`.  After doing so, modify the jar
+            # to override the timestamp of the new MANIFEST.MF file: `jar` always
+            # sets it to the current timestamp.  For reproducibility, set it to
+            # the same sentinel value as Bazel:
+            # https://github.com/bazelbuild/bazel/blob/2.1.0/src/java_tools/buildjar/java/com/google/devtools/build/java/turbine/javac/ZipUtil.java#L30
+            "(unzip -l {output_jar} | grep -qE 'META-INF/.*\\.SF') || \
+                ({jar} umf {manifest_update_file} {output_jar} > /dev/null 2>&1 && \
+                unzip -q {output_jar} META-INF/MANIFEST.MF && \
+                touch --date=2010-01-01T00:00:00+00:00 META-INF/MANIFEST.MF && \
+                zip -qm {output_jar} META-INF/MANIFEST.MF || true)".format(
                 jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
                 manifest_update_file = manifest_update_file.path,
                 output_jar = outjar.path,
