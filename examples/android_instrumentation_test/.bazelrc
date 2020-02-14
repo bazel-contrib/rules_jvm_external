@@ -38,11 +38,11 @@ build:remote --jobs=50
 # bazelrc a standalone file that can be copied more easily.
 # These flags should only be used as is for the rbe-ubuntu16-04 container
 # and need to be adapted to work with other toolchain containers.
-build:remote --host_javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
-build:remote --javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
-build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/default:toolchain
+# build:remote --host_javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
+# build:remote --javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
+# build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
+# build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
+# build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/default:toolchain
 build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 # Platform flags:
 # The toolchain container used for execution is defined in the target indicated
