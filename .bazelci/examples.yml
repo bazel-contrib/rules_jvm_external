@@ -49,11 +49,11 @@ tasks:
     platform: rbe_ubuntu1604
     working_directory: examples/android_instrumentation_test
     test_flags:
-      - "--extra_execution_platforms=':android_platform'"
-      - "--host_platform=':android_platform'"
+      - "--extra_execution_platforms=:android_platform"
+      - "--host_platform=:android_platform"
       - "--incompatible_strict_action_env"
       - "--noexperimental_check_desugar_deps"
-      - "--platforms=':android_platform'"
+      - "--platforms=:android_platform"
       - "--strategy=DexBuilder=remote"          
     test_targets:
       - "//src/test:greeter_test"
