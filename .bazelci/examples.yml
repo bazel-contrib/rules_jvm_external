@@ -38,8 +38,10 @@ tasks:
       - "//..."
   android-instrumentation-test-linux:
     name: "Android instrumentation test example"
-    platform: ubuntu1804
+    platform: rbe_ubuntu1604
     working_directory: examples/android_instrumentation_test
+    test_flags:
+      - "--config=remote_android"
     test_targets:
       - "//src/test:greeter_test"
   android-instrumentation-test-macos:

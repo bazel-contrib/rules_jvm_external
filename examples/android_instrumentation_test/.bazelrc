@@ -1,3 +1,31 @@
 # The unified launcher runs in Python 2 host configuration
 # https://github.com/bazelbuild/bazel/issues/7899
 build --host_force_python=PY2
+
+# ------------------------
+# Custom RBE configuration
+# ------------------------
+
+# build:remote --remote_instance_name=projects/di-cloud-exp/instances/default_instance
+# build:remote --project_id=di-cloud-exp
+
+build:remote_android --extra_execution_platforms=:android_platform
+build:remote_android --host_platform=:android_platform
+build:remote_android --platforms=:android_platform
+
+build:remote_android --config=remote                       # Reuse remote config from RBE bazelrc
+build:remote_android --strategy=DexBuilder=remote             #     RBE C++ toolchain is built for RBE container
+build:remote_android --noexperimental_check_desugar_deps   # Workaround for singlejar incompatibility with RBE
+build:remote_android --incompatible_strict_action_env
+build:remote_android --extra_execution_platforms=:android_platform
+build:remote_android --host_platform=:android_platform
+build:remote_android --platforms=:android_platform
+
+build:docker-sandbox --experimental_docker_image=gcr.io/di-cloud-exp/rbe-ubuntu16-04-android:latest
+build:docker-sandbox --experimental_docker_privileged
+
+# build:rbe_demo --config=remote_android
+# build:rbe_demo --experimental_remote_download_outputs=toplevel
+# build:rbe_demo --experimental_inmemory_dotd_files
+# build:rbe_demo --experimental_inmemory_jdeps_files
+# build:rbe_demo --jobs=300
