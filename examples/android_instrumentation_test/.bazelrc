@@ -9,7 +9,6 @@ build --host_force_python=PY2
 build:remote_android --extra_execution_platforms=:android_platform
 build:remote_android --host_platform=:android_platform
 build:remote_android --platforms=:android_platform
-
 build:remote_android --strategy=DexBuilder=remote             #     RBE C++ toolchain is built for RBE container
 build:remote_android --noexperimental_check_desugar_deps   # Workaround for singlejar incompatibility with RBE
 build:remote_android --incompatible_strict_action_env
