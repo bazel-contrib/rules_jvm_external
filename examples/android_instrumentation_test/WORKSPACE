@@ -58,6 +58,11 @@ http_archive(
     ],
 )
 
+# Creates a default toolchain config for RBE.
+# Use this as is if you are using the rbe_ubuntu16_04 container,
+# otherwise refer to RBE docs.
+rbe_autoconfig(name = "buildkite_config")
+
 # RBE support for android_device and android_instrumentation_test on RBE.
 register_execution_platforms(":android_platform")
 

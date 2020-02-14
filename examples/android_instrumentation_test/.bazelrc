@@ -116,9 +116,6 @@ build:remote-cache --strategy=Genrule=standalone
 # Custom RBE configuration
 # ------------------------
 
-build:remote --remote_instance_name=projects/di-cloud-exp/instances/default_instance
-build:remote --project_id=di-cloud-exp
-
 build:remote_android --extra_execution_platforms=:android_platform
 build:remote_android --host_platform=:android_platform
 build:remote_android --platforms=:android_platform
