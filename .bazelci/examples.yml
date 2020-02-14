@@ -44,19 +44,6 @@ tasks:
       - "--config=remote_android"
     test_targets:
       - "//src/test:greeter_test"
-  rbe_ubuntu1604:
-    name: "Android instrumentation test example on RBE"
-    platform: rbe_ubuntu1604
-    working_directory: examples/android_instrumentation_test
-    test_flags:
-      - "--extra_execution_platforms=:android_platform"
-      - "--host_platform=:android_platform"
-      - "--incompatible_strict_action_env"
-      - "--noexperimental_check_desugar_deps"
-      - "--platforms=:android_platform"
-      - "--strategy=DexBuilder=remote"          
-    test_targets:
-      - "//src/test:greeter_test"
   android-instrumentation-test-macos:
     name: "Android instrumentation test example"
     platform: macos
