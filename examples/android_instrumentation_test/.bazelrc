@@ -1,29 +1,3 @@
-build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-
-build:remote --spawn_strategy=remote
-build:remote --strategy=Javac=remote
-build:remote --strategy=Closure=remote
-build:remote --strategy=Genrule=remote
-build:remote --define=EXECUTOR=remote
-
-# Enable the remote cache so action results can be shared across machines,
-# developers, and workspaces.
-build:remote --remote_cache=remotebuildexecution.googleapis.com
-
-# Enable remote execution so actions are performed on the remote systems.
-build:remote --remote_executor=remotebuildexecution.googleapis.com
-
-# Enable encryption.
-build:remote --tls_enabled=true
-
-# Set a higher timeout value, just in case.
-build:remote --remote_timeout=3600
-
-# Enable authentication. This will pick up application default credentials by
-# default. You can use --auth_credentials=some_file.json to use a service
-# account credential instead.
-build:remote --auth_enabled=true
-
 # The following flags are only necessary for local docker sandboxing
 # with the rbe-ubuntu16-04 container. Use of these flags is still experimental.
 build:docker-sandbox --host_javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
@@ -56,11 +30,17 @@ build:remote-cache --strategy=Genrule=standalone
 # Custom RBE configuration
 # ------------------------
 
+build:remote_android --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:remote_android --spawn_strategy=remote
+build:remote_android --strategy=Javac=remote
+build:remote_android --strategy=Closure=remote
+build:remote_android --strategy=Genrule=remote
+build:remote_android --define=EXECUTOR=remote
+
 build:remote_android --extra_execution_platforms=:android_platform
 build:remote_android --host_platform=:android_platform
 build:remote_android --platforms=:android_platform
 
-build:remote_android --config=remote                       # Reuse remote config from RBE bazelrc
 build:remote_android --strategy=DexBuilder=remote             #     RBE C++ toolchain is built for RBE container
 build:remote_android --noexperimental_check_desugar_deps   # Workaround for singlejar incompatibility with RBE
 build:remote_android --incompatible_strict_action_env
