@@ -1,49 +1,82 @@
-# The following flags are only necessary for local docker sandboxing
-# with the rbe-ubuntu16-04 container. Use of these flags is still experimental.
-build:docker-sandbox --host_javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
-build:docker-sandbox --javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
-build:docker-sandbox --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/default:toolchain
-build:docker-sandbox --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-build:docker-sandbox --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-build:docker-sandbox --spawn_strategy=docker
-build:docker-sandbox --strategy=Javac=docker
-build:docker-sandbox --strategy=Closure=docker
-build:docker-sandbox --strategy=Genrule=docker
-build:docker-sandbox --strategy=DexBuilder=docker
-build:docker-sandbox --define=EXECUTOR=remote
-build:docker-sandbox --experimental_docker_verbose
-build:docker-sandbox --experimental_enable_docker_sandbox
-build:docker-sandbox --noexperimental_check_desugar_deps   # Workaround for singlejar incompatibility with RBE
+# Configurations for testing with Bazel
+# Select a configuration by running `bazel test //my:target --config={headless, gui, local_device}`
 
-# The following flags enable the remote cache so action results can be shared
-# across machines, developers, and workspaces.
-build:remote-cache --remote_cache=remotebuildexecution.googleapis.com
-build:remote-cache --tls_enabled=true
-build:remote-cache --remote_timeout=3600
-build:remote-cache --auth_enabled=true
-build:remote-cache --spawn_strategy=standalone
-build:remote-cache --strategy=Javac=standalone
-build:remote-cache --strategy=Closure=standalone
-build:remote-cache --strategy=Genrule=standalone
+# Headless instrumentation tests
+test:headless --test_arg=--enable_display=false
+# Graphical instrumentation tests. Ensure that $DISPLAY is set.
+test:gui --test_env=DISPLAY
+test:gui --test_arg=--enable_display=true
+
+# Testing with a local emulator or device. Ensure that `adb devices` lists the device.
+# Run tests serially.
+test:local_device --test_strategy=exclusive
+# Use the local device broker type, as opposed to WRAPPED_EMULATOR.
+test:local_device --test_arg=--device_broker_type=LOCAL_ADB_SERVER
+# Uncomment and set $device_id if there is more than one connected device.
+# test:local_device --test_arg=--device_serial_number=$device_id
+
+test --flaky_test_attempts=3
+
+build:remote --jobs=50
+
+build:remote --host_javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
+build:remote --javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
+build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
+build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
+build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/default:toolchain
+build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:remote --extra_toolchains=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/cpp:cc-toolchain-clang-x86_64-default
+# build:remote --extra_execution_platforms=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
+# build:remote --host_platform=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
+# build:remote --platforms=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
+
+# Set various strategies so that all actions execute remotely. Mixing remote
+# and local execution will lead to errors unless the toolchain and remote
+# machine exactly match the host machine.
+build:remote --spawn_strategy=remote
+build:remote --strategy=Javac=remote
+build:remote --strategy=Closure=remote
+build:remote --strategy=Genrule=remote
+build:remote --define=EXECUTOR=remote
+
+# Enable the remote cache so action results can be shared across machines,
+# developers, and workspaces.
+build:remote --remote_cache=remotebuildexecution.googleapis.com
+
+# Enable remote execution so actions are performed on the remote systems.
+build:remote --remote_executor=remotebuildexecution.googleapis.com
+
+# Enable encryption.
+build:remote --tls_enabled=true
+
+# Set a higher timeout value, just in case.
+build:remote --remote_timeout=3600
+
+# Enable authentication. This will pick up application default credentials by
+# default. You can use --auth_credentials=some_file.json to use a service
+# account credential instead.
+build:remote --auth_enabled=true
 
 # ------------------------
 # Custom RBE configuration
 # ------------------------
 
-build:remote_android --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-build:remote_android --spawn_strategy=remote
-build:remote_android --strategy=Javac=remote
-build:remote_android --strategy=Closure=remote
-build:remote_android --strategy=Genrule=remote
-build:remote_android --define=EXECUTOR=remote
+build:remote --remote_instance_name=projects/bazel-untrusted/instances/default_instance
+build:remote --project_id=bazel-untrusted
 
 build:remote_android --extra_execution_platforms=:android_platform
 build:remote_android --host_platform=:android_platform
 build:remote_android --platforms=:android_platform
 
+build:remote_android --config=remote                       # Reuse remote config from RBE bazelrc
 build:remote_android --strategy=DexBuilder=remote             #     RBE C++ toolchain is built for RBE container
 build:remote_android --noexperimental_check_desugar_deps   # Workaround for singlejar incompatibility with RBE
 build:remote_android --incompatible_strict_action_env
+# build:remote_android --bes_backend="buildeventservice.googleapis.com"
+# build:remote_android --bes_results_url="https://source.cloud.google.com/results/invocations/"
+build:remote_android --extra_execution_platforms=:android_platform
+build:remote_android --host_platform=:android_platform
+build:remote_android --platforms=:android_platform
 
 build:docker-sandbox --experimental_docker_image=gcr.io/di-cloud-exp/rbe-ubuntu16-04-android:latest
 build:docker-sandbox --experimental_docker_privileged

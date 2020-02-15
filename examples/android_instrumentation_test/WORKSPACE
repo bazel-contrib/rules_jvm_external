@@ -3,6 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 android_sdk_repository(
     name = "androidsdk",
     build_tools_version = "28.0.2",
+    api_level=28,
 )
 
 android_ndk_repository(
@@ -35,11 +36,17 @@ maven_install(
 # Everything below this line is used for the Android testing tools and their dependencies
 # ---------------------------------------------------------------------------------------
 
+# Android Test Support
+#
+# This repository contains the supporting tools to run Android instrumentation tests,
+# like the emulator definitions (android_device) and the device broker/test runner.
 ATS_TAG = "1edfdab3134a7f01b37afabd3eebfd2c5bb05151"
+
+ATS_SHA256 = "dcd1ff76aef1a26329d77863972780c8fe1fc8ff625747342239f0489c2837ec"
 
 http_archive(
     name = "android_test_support",
-    sha256 = "dcd1ff76aef1a26329d77863972780c8fe1fc8ff625747342239f0489c2837ec",
+    sha256 = ATS_SHA256,
     strip_prefix = "android-test-%s" % ATS_TAG,
     urls = ["https://github.com/android/android-test/archive/%s.tar.gz" % ATS_TAG],
 )
@@ -63,8 +70,7 @@ load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
 # Use this as is if you are using the rbe_ubuntu16_04 container,
 # otherwise refer to RBE docs.
 rbe_autoconfig(name = "buildkite_config")
+rbe_autoconfig(name = "rbe_default")
 
 # RBE support for android_device and android_instrumentation_test on RBE.
 register_execution_platforms(":android_platform")
-
-
