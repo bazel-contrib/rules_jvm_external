@@ -1,54 +1,32 @@
-# Configurations for testing with Bazel
-# Select a configuration by running `bazel test //my:target --config={headless, gui, local_device}`
-
-# Headless instrumentation tests
-test:headless --test_arg=--enable_display=false
-# Graphical instrumentation tests. Ensure that $DISPLAY is set.
-test:gui --test_env=DISPLAY
-test:gui --test_arg=--enable_display=true
-
-# Testing with a local emulator or device. Ensure that `adb devices` lists the device.
-# Run tests serially.
-test:local_device --test_strategy=exclusive
-# Use the local device broker type, as opposed to WRAPPED_EMULATOR.
-test:local_device --test_arg=--device_broker_type=LOCAL_ADB_SERVER
-# Uncomment and set $device_id if there is more than one connected device.
-# test:local_device --test_arg=--device_serial_number=$device_id
+# The unified launcher runs in Python 2 host configuration
+# https://github.com/bazelbuild/bazel/issues/7899
+build --host_force_python=PY2 
 
 test --flaky_test_attempts=3
 
+# ------------------------
+# General RBE configuration
+# ------------------------
 build:remote --jobs=50
 
-# build:remote --host_javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
-# build:remote --javabase=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:jdk8
-# build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-# build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-# build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/default:toolchain
-# build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-# build:remote --extra_toolchains=@bazel_toolchains//configs/ubuntu16_04_clang/1.2/bazel_0.23.0/cpp:cc-toolchain-clang-x86_64-default
-# build:remote --extra_execution_platforms=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
-# build:remote --host_platform=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
-# build:remote --platforms=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
-
-# build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/10.0.0/bazel_2.1.0/cc:toolchain
-# build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
-
-# new
-# build:remote --crosstool_top=@rbe_default//cc:toolchain
+# Java toolchain setup
 build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-# build:remote --extra_execution_platforms=@rbe_default//config:platform
-build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
-# build:remote --extra_toolchains=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
 build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
 build:remote --host_javabase=@rbe_default//java:jdk
-# build:remote --host_platform=@rbe_default//config:platform
 build:remote --javabase=@rbe_default//java:jdk
-# build:remote --platforms=@rbe_default//config:platform
+
+# C++ toolchain setup
+build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
+build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
+
+# Remote instance setup
+build:remote --remote_instance_name=projects/bazel-untrusted/instances/default_instance
+build:remote --project_id=bazel-untrusted
 
 # Set various strategies so that all actions execute remotely. Mixing remote
 # and local execution will lead to errors unless the toolchain and remote
 # machine exactly match the host machine.
-# build:remote --spawn_strategy=remote
+build:remote --spawn_strategy=remote
 build:remote --strategy=Javac=remote
 build:remote --strategy=Closure=remote
 build:remote --strategy=Genrule=remote
@@ -72,33 +50,23 @@ build:remote --remote_timeout=3600
 # account credential instead.
 build:remote --auth_enabled=true
 
-# ------------------------
-# Custom RBE configuration
-# ------------------------
+# -------------------------------------------
+# Custom RBE configuration for Android builds
+# -------------------------------------------
 
-build:remote --remote_instance_name=projects/bazel-untrusted/instances/default_instance
-build:remote --project_id=bazel-untrusted
+build:remote_android --config=remote  # Reuse general configuration
 
+# Platform configuration
 build:remote_android --extra_execution_platforms=:android_platform
 build:remote_android --host_platform=:android_platform
 build:remote_android --platforms=:android_platform
 
-build:remote_android --config=remote                       # Reuse remote config from RBE bazelrc
-build:remote_android --strategy=DexBuilder=remote             #     RBE C++ toolchain is built for RBE container
-build:remote_android --noexperimental_check_desugar_deps   # Workaround for singlejar incompatibility with RBE
+build:remote_android --strategy=DexBuilder=remote
+build:remote_android --noexperimental_check_desugar_deps # Workaround for singlejar incompatibility with RBE
 build:remote_android --incompatible_strict_action_env
-# build:remote_android --bes_backend="buildeventservice.googleapis.com"
-# build:remote_android --bes_results_url="https://source.cloud.google.com/results/invocations/"
-build:remote_android --extra_execution_platforms=:android_platform
-build:remote_android --host_platform=:android_platform
-build:remote_android --platforms=:android_platform
 
 build:docker-sandbox --experimental_docker_image=gcr.io/di-cloud-exp/rbe-ubuntu16-04-android:latest
 build:docker-sandbox --experimental_docker_privileged
-
-# The unified launcher runs in Python 2 host configuration
-# https://github.com/bazelbuild/bazel/issues/7899
-build --host_force_python=PY2 
 
 build:rbe_demo --config=remote_android
 build:rbe_demo --experimental_remote_download_outputs=toplevel
