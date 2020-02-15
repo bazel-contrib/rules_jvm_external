@@ -52,7 +52,7 @@ tasks:
     test_flags:
       - "--config=remote_android"
       - "--remote_instance_name=projects/bazel-untrusted/instances/default_instance"
-      - "--crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/10.0.0/bazel_2.1.0/cc:toolchain"
+      - "--crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_2.1.0/cc:toolchain"
       - "--project_id=bazel-untrusted"
       - "--toolchain_resolution_debug"
     test_targets:
