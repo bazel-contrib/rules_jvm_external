@@ -36,13 +36,14 @@ build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/10.0.0
 # new
 # build:remote --crosstool_top=@rbe_default//cc:toolchain
 build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-build:remote --extra_execution_platforms=@rbe_default//config:platform
-build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
+# build:remote --extra_execution_platforms=@rbe_default//config:platform
+# build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
+build:remote --extra_toolchains=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
 build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
 build:remote --host_javabase=@rbe_default//java:jdk
-build:remote --host_platform=@rbe_default//config:platform
+# build:remote --host_platform=@rbe_default//config:platform
 build:remote --javabase=@rbe_default//java:jdk
-build:remote --platforms=@rbe_default//config:platform
+# build:remote --platforms=@rbe_default//config:platform
 
 # Set various strategies so that all actions execute remotely. Mixing remote
 # and local execution will lead to errors unless the toolchain and remote
