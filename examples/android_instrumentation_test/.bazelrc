@@ -30,15 +30,15 @@ build:remote --jobs=50
 # build:remote --host_platform=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
 # build:remote --platforms=@bazel_toolchains//configs/ubuntu16_04_clang/1.2:rbe_ubuntu1604
 
-build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/10.0.0/bazel_2.1.0/cc:toolchain
+# build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/10.0.0/bazel_2.1.0/cc:toolchain
 # build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
 
 # new
 # build:remote --crosstool_top=@rbe_default//cc:toolchain
 build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
 # build:remote --extra_execution_platforms=@rbe_default//config:platform
-# build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
-build:remote --extra_toolchains=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
+build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
+# build:remote --extra_toolchains=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
 build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
 build:remote --host_javabase=@rbe_default//java:jdk
 # build:remote --host_platform=@rbe_default//config:platform

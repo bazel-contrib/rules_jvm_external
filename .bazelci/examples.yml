@@ -42,6 +42,7 @@ tasks:
     working_directory: examples/android_instrumentation_test
     test_flags:
       - "--config=remote_android"
+      - "--crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/10.0.0/bazel_2.1.0/cc:toolchain"
       - "--toolchain_resolution_debug"
     test_targets:
       - "//src/test:greeter_test"
