@@ -6,5 +6,5 @@ package(
 
 stamp_manifest(
     name = "stamp_manifest",
-    build_setting_default = True,
+    build_setting_default = False,
 )

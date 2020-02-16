@@ -5,5 +5,5 @@ def _impl(ctx):
 
 stamp_manifest = rule(
     implementation = _impl,
-    build_setting = config.bool(flag = False)
+    build_setting = config.bool(flag = True)
 )

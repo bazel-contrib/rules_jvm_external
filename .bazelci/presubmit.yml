@@ -9,11 +9,14 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+    test_flags:
+      - "--//settings:stamp_manifest=True"
     test_targets:
       - "//..."
       # manual tests
       # TODO: Re-enable after fixing https://github.com/bazelbuild/rules_jvm_external/issues/375
       # - "//tests/integration:UnsafeSharedCacheTest"
+      - "//tests/unit/manifest_stamp:diff_manifest_test" # https://github.com/bazelbuild/rules_jvm_external/issues/283
   rbe_ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -72,10 +75,13 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+    test_flags:
+      - "--//settings:stamp_manifest=True"
     test_targets:
       - "//..."
       # manual tests
       - "//tests/integration:UnsafeSharedCacheTest"
+      - "//tests/unit/manifest_stamp:diff_manifest_test" # https://github.com/bazelbuild/rules_jvm_external/issues/283
   windows:
     environment:
       # This tests custom cache locations.
