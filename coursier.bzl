@@ -24,15 +24,15 @@ load(
 )
 
 _BUILD = """
+load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
+load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
+
 package(default_visibility = ["//visibility:{visibility}"])
 
 exports_files(["pin"])
 
-load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
-load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
-
 {imports}
-"""
+""".strip()
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
@@ -344,7 +344,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     repository_ctx.file(
         "BUILD",
-        _BUILD.format(
+        repository_ctx.attr.build_file_template.format(
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_ctx.name,
             imports = generated_imports,
@@ -674,7 +674,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     repository_ctx.file(
         "BUILD",
-        _BUILD.format(
+        repository_ctx.attr.build_file_template.format(
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_ctx.name,
             imports = generated_imports,
@@ -789,6 +789,7 @@ pinned_coursier_fetch = repository_rule(
         ),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "build_file_template": attr.string(default = _BUILD),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -830,6 +831,7 @@ coursier_fetch = repository_rule(
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "build_file_template": attr.string(default = _BUILD),
     },
     environ = [
         "JAVA_HOME",
