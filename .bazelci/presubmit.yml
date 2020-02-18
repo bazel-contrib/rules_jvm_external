@@ -12,7 +12,8 @@ tasks:
     test_targets:
       - "//..."
       # manual tests
-      - "//tests/integration:UnsafeSharedCacheTest"
+      # TODO: Re-enable after fixing https://github.com/bazelbuild/rules_jvm_external/issues/375
+      # - "//tests/integration:UnsafeSharedCacheTest"
   rbe_ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
