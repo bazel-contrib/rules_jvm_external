@@ -56,15 +56,20 @@ http_archive(
 load("//:defs.bzl", "maven_install")
 load("//:specs.bzl", "maven")
 
+MAVEN_MIRRORS = [
+    "https://maven-central.storage-download.googleapis.com/maven2",
+    "https://jcenter.bintray.com/",
+    "https://repo1.maven.org/maven2",
+    "https://maven.google.com",
+]
+
 maven_install(
     artifacts = [
         "com.google.guava:guava:27.0-jre",
         "org.hamcrest:hamcrest-core:2.1",
     ],
     maven_install_json = "@rules_jvm_external//:maven_install.json",
-    repositories = [
-        "https://jcenter.bintray.com/",
-    ],
+    repositories = MAVEN_MIRRORS,
 )
 
 load("@maven//:defs.bzl", "pinned_maven_install")
@@ -77,9 +82,7 @@ maven_install(
         "com.google.guava:guava:27.0-jre",
     ],
     fetch_sources = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
     use_unsafe_shared_cache = True,
 )
 
@@ -90,9 +93,7 @@ maven_install(
     ],
     fetch_sources = True,
     maven_install_json = "//tests/custom_maven_install:unsafe_shared_cache_with_pinning_install.json",
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
     use_unsafe_shared_cache = True,
 )
 
@@ -116,9 +117,7 @@ maven_install(
             ],
         ),
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
 )
 
 maven_install(
@@ -135,9 +134,7 @@ maven_install(
         ),
         "com.google.j2objc:j2objc-annotations",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
 )
 
 maven_install(
@@ -149,9 +146,7 @@ maven_install(
         "org.bouncycastle:bcprov-jdk15on:1.64"
     ],
     maven_install_json = "//tests/custom_maven_install:manifest_stamp_testing_install.json",
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
 )
 
 load("@manifest_stamp_testing//:defs.bzl", "pinned_maven_install")
@@ -237,9 +232,7 @@ maven_install(
             testonly = True,
         ),
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
 )
 
 load("@regression_testing//:defs.bzl", "pinned_maven_install")
@@ -258,10 +251,7 @@ maven_install(
         "com.google.guava:guava:25.0-android",
     ],
     maven_install_json = "//tests/custom_maven_install:policy_pinned_testing_install.json",
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://maven.google.com",
-    ],
+    repositories = MAVEN_MIRRORS,
     version_conflict_policy = "pinned",
 )
 
@@ -285,9 +275,7 @@ maven_install(
             classifier = "tests",
         ),
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
     strict_visibility = True,
 )
 
@@ -295,7 +283,7 @@ maven_install(
     name = "maven_install_in_custom_location",
     artifacts = ["com.google.guava:guava:27.0-jre"],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_install.json",
-    repositories = ["https://repo1.maven.org/maven2"],
+    repositories = MAVEN_MIRRORS,
 )
 
 load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
@@ -309,9 +297,7 @@ maven_install(
         "com.typesafe.play:play_2.11:2.5.19",
         "org.scalatestplus.play:scalatestplus-play_2.11:2.0.1",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+    repositories = MAVEN_MIRRORS,
     version_conflict_policy = "pinned",
     fetch_sources = True,
     use_unsafe_shared_cache = True,
@@ -323,10 +309,7 @@ maven_install(
         "com.google.guava:guava:27.0-jre",
         "com.android.support:appcompat-v7:28.0.0"
     ],
-    repositories = [
-        "https://jcenter.bintray.com/",
-        "https://maven.google.com",
-    ],
+    repositories = MAVEN_MIRRORS,
     jetify = True,
 )
 
@@ -337,10 +320,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
-    repositories = [
-        "https://jcenter.bintray.com/",
-        "https://maven.google.com",
-    ],
+    repositories = MAVEN_MIRRORS,
     jetify = True,
     jetify_include_list = [
         "com.android.support:appcompat-v7",

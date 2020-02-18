@@ -4,16 +4,16 @@ tasks:
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
+      COURSIER_CACHE: /var/lib/buildkite-agent/coursier_cache
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - mkdir -p $COURSIER_CACHE
     test_targets:
       - "//..."
       # manual tests
-      # TODO: Re-enable after fixing https://github.com/bazelbuild/rules_jvm_external/issues/375
-      # - "//tests/integration:UnsafeSharedCacheTest"
+      - "//tests/integration:UnsafeSharedCacheTest"
   rbe_ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -55,11 +55,12 @@ tasks:
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
+      COURSIER_CACHE: /var/lib/buildkite-agent/coursier_cache
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - mkdir -p $COURSIER_CACHE
     test_targets:
       - "--"
       - "//..."
@@ -67,20 +68,17 @@ tasks:
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
+      COURSIER_CACHE: /var/lib/buildkite-agent/coursier_cache
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - mkdir -p $COURSIER_CACHE
     test_targets:
       - "//..."
       # manual tests
       - "//tests/integration:UnsafeSharedCacheTest"
   windows:
-    environment:
-      # This tests custom cache locations.
-      # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
