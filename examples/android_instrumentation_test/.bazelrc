@@ -7,7 +7,7 @@ test --flaky_test_attempts=3
 # ------------------------
 # General RBE configuration
 # ------------------------
-build:remote --jobs=50
+build:remote --jobs=100
 
 # Java toolchain setup
 build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
@@ -17,7 +17,7 @@ build:remote --javabase=@rbe_default//java:jdk
 
 # C++ toolchain setup
 build:remote --extra_toolchains=@rbe_default//config:cc-toolchain
-build:remote --crosstool_top=@bazel_toolchains//configs/ubuntu16_04_clang/9.0.0/bazel_1.0.0/cc:toolchain
+build:remote --crosstool_top=@rbe_default//cc:toolchain
 
 # Remote instance setup
 build:remote --remote_instance_name=projects/bazel-untrusted/instances/default_instance
@@ -27,9 +27,6 @@ build:remote --project_id=bazel-untrusted
 # and local execution will lead to errors unless the toolchain and remote
 # machine exactly match the host machine.
 build:remote --spawn_strategy=remote
-build:remote --strategy=Javac=remote
-build:remote --strategy=Closure=remote
-build:remote --strategy=Genrule=remote
 build:remote --define=EXECUTOR=remote
 
 # Enable the remote cache so action results can be shared across machines,
@@ -39,16 +36,9 @@ build:remote --remote_cache=remotebuildexecution.googleapis.com
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=remotebuildexecution.googleapis.com
 
-# Enable encryption.
-build:remote --tls_enabled=true
-
-# Set a higher timeout value, just in case.
-build:remote --remote_timeout=3600
-
 # Enable authentication. This will pick up application default credentials by
-# default. You can use --auth_credentials=some_file.json to use a service
-# account credential instead.
-build:remote --auth_enabled=true
+# default.
+build:remote --google_default_credentials
 
 # -------------------------------------------
 # Custom RBE configuration for Android builds
