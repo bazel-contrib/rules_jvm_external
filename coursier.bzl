@@ -77,19 +77,21 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
 # location of `java`.
 def _generate_java_jar_command(repository_ctx, jar_path):
     java_home = repository_ctx.os.environ.get("JAVA_HOME")
+    coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
+    coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
 
     if java_home != None:
         # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
         # The -noverify option seems to be required after the proguarding step
         # of the main JAR of coursier.
         java = repository_ctx.path(java_home + "/bin/java")
-        cmd = [java, "-noverify", "-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
+        cmd = [java, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
     elif repository_ctx.which("java") != None:
         # Use 'java' from $PATH
-        cmd = [repository_ctx.which("java"), "-noverify", "-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
+        cmd = [repository_ctx.which("java"), "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
     else:
         # Try to execute coursier directly
-        cmd = [jar_path] + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
+        cmd = [jar_path] + coursier_opts + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
 
     return cmd
 
