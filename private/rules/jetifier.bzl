@@ -1,3 +1,4 @@
+load(":jetifier_maven_map.bzl", "jetifier_maven_map")
 load(":jvm_import.bzl", "jvm_import")
 
 def _jetify_impl(ctx):
@@ -57,3 +58,6 @@ def jetify_jvm_import(name, jars, **kwargs):
         jars = [":jetified_" + name],
         **kwargs
     )
+
+def jetify_maven_coord(coord):
+    return jetifier_maven_map.get(coord, coord)
