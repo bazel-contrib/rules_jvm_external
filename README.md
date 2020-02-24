@@ -827,6 +827,17 @@ maven_install(
 )
 ```
 
+### Provide JVM options for Coursier with `COURSIER_OPTS`
+
+You can set up `COURSIER_OPTS` environment variable to provide some additional JVM options for Coursier.
+This is a space-separated list of options.
+
+Assume you'd like to override Coursier's memory settings:
+
+```bash
+COURSIER_OPTS="-Xms1g -Xmx4g"
+```
+
 ## Exporting and consuming artifacts from external repositories
 
 If you're writing a library that has dependencies, you should define a constant that
