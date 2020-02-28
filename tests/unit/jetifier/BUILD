@@ -28,6 +28,10 @@ build_test(
     targets = [
         "@jetify_include_list_test//:com_google_guava_guava",
         "@jetify_include_list_test//:com_android_support_appcompat_v7",
+        "@jetify_include_list_test//:com_android_support_support_annotations_28_0_0",
+        "@jetify_include_list_test//:androidx_annotation_annotation_1_0_0",
+        "@jetify_include_list_test//:androidx_annotation_annotation",
+        "@jetify_include_list_test//:com_android_support_support_annotations",
     ],
 )
 
