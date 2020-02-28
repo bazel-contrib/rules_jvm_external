@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 
 load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
-load("//:specs.bzl", "utils")
+load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
+load("//:specs.bzl", "maven", "parse", "utils")
 load("//:private/proxy.bzl", "get_java_proxy_args")
 load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
@@ -51,7 +52,7 @@ def _normalize_to_unix_path(path):
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
-def _relativize_and_symlink_file(repository_ctx, absolute_path):
+def _relativize_and_symlink_file(repository_ctx, coursier_cache_location, absolute_path):
     # The path manipulation from here on out assumes *nix paths, not Windows.
     # for artifact_absolute_path in artifact_absolute_paths:
     #
@@ -60,10 +61,7 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     #
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
-    absolute_path_parts = absolute_path.split(get_coursier_cache_or_default(
-        repository_ctx.os.environ,
-        repository_ctx.attr.use_unsafe_shared_cache,
-    ))
+    absolute_path_parts = absolute_path.split(coursier_cache_location)
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
@@ -441,6 +439,138 @@ def get_coursier_cache_or_default(env_dict, use_unsafe_shared_cache):
         # This is an absolute path.
         return location
 
+
+def extract_jetify_artifacts(dep_tree):
+    jetify_artifacts = []
+    for artifact in dep_tree["dependencies"]:
+        # directDependencies
+        # dependencies
+        artifact_coord = parse.parse_maven_coordinate(artifact["coord"])
+        jetify_coord_tuple = jetify_maven_coord(
+            artifact_coord["group"],
+            artifact_coord["artifact"],
+            artifact_coord["version"]
+        )
+        if jetify_coord_tuple:
+            artifact_coord["group"] = jetify_coord_tuple[0]
+            artifact_coord["artifact"] = jetify_coord_tuple[1]
+            artifact_coord["version"] = jetify_coord_tuple[2]
+            jetify_artifacts.append(artifact_coord)
+    return jetify_artifacts
+
+
+def get_exclusion_lines_from_artifacts(artifacts):
+    # Set up artifact exclusion, if any. From coursier fetch --help:
+    #
+    # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
+    # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
+    # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
+    # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
+    exclusion_lines = []
+    for a in artifacts:
+        if "exclusions" in a:
+            for e in a["exclusions"]:
+                exclusion_lines.append(
+                    "{}:{}--{}:{}".format(a["group"], a["artifact"], e["group"], e["artifact"]))
+    return exclusion_lines
+
+def make_coursier_dep_tree(
+        repository_ctx,
+        artifacts,
+        excluded_artifacts,
+        repositories,
+        coursier_cache_location,
+        version_conflict_policy,
+        fail_on_missing_checksum,
+        fetch_sources,
+        use_unsafe_shared_cache,
+        timeout,
+):
+    cmd, environment = make_coursier_fetch_command(
+        repository_ctx,
+        "dep-tree",
+        artifacts,
+        excluded_artifacts,
+        repositories,
+        coursier_cache_location,
+        version_conflict_policy,
+        fail_on_missing_checksum,
+        fetch_sources,
+        use_unsafe_shared_cache,
+    )
+
+    exec_result = repository_ctx.execute(
+        cmd, timeout = timeout, environment = environment)
+    if (exec_result.return_code != 0):
+        fail("Error while fetching artifact with coursier: " + exec_result.stderr)
+
+    return _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path(
+        "dep-tree.json"))))
+
+def make_coursier_fetch_command(
+        repository_ctx,
+        name,
+        artifacts,
+        excluded_artifacts,
+        repositories,
+        coursier_cache_location,
+        version_conflict_policy,
+        fail_on_missing_checksum,
+        fetch_sources,
+        use_unsafe_shared_cache,
+    ):
+    cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
+    cmd.extend(["fetch"])
+
+    artifact_coordinates = [utils.artifact_coordinate(a) for a in artifacts]
+    cmd.extend(artifact_coordinates)
+
+    exclusion_lines = get_exclusion_lines_from_artifacts(artifacts)
+    if len(exclusion_lines) > 0:
+        repository_ctx.file("{}-exclusion-file.txt".format(name), "\n".join(exclusion_lines), False)
+        cmd.extend(["--local-exclude-file", "{}-exclusion-file.txt".format(name)])
+    for a in excluded_artifacts:
+        cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
+
+    if version_conflict_policy == "pinned":
+        for coord in artifact_coordinates:
+            # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
+            cmd.extend(["--force-version", coord.split(",classifier=")[0]])
+    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src"])])
+    cmd.append("--quiet")
+    cmd.append("--no-default")
+    cmd.extend(["--json-output-file", "{}.json".format(name)])
+
+    if fail_on_missing_checksum:
+        cmd.extend(["--checksum", "SHA-1,MD5"])
+    else:
+        cmd.extend(["--checksum", "SHA-1,MD5,None"])
+
+    for repository in repositories:
+        cmd.extend(["--repository", repository["repo_url"]])
+        if "credentials" in repository:
+            cmd.extend(["--credentials", utils.repo_credentials(repository)])
+
+    if fetch_sources:
+        cmd.append("--sources")
+        cmd.append("--default=true")
+
+    environment = {}
+
+    # Use safe cache
+    if not use_unsafe_shared_cache:
+        cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
+
+        # If not using the shared cache and the user did not specify a COURSIER_CACHE, set the default
+        # value to prevent Coursier from writing into home directories.
+        # https://github.com/bazelbuild/rules_jvm_external/issues/301
+        # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
+        environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
+    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
+
+    return cmd, environment
+
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
@@ -474,72 +604,10 @@ def _coursier_fetch_impl(repository_ctx):
     for a in repository_ctx.attr.excluded_artifacts:
         excluded_artifacts.append(json_parse(a))
 
-    artifact_coordinates = []
-
-    # Set up artifact exclusion, if any. From coursier fetch --help:
-    #
-    # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
-    # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
-    # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
-    # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
-    exclusion_lines = []
-    for a in artifacts:
-        artifact_coordinates.append(utils.artifact_coordinate(a))
-        if "exclusions" in a:
-            for e in a["exclusions"]:
-                exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
-                                       "--" +
-                                       ":".join([e["group"], e["artifact"]]))
-
-    cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
-    cmd.extend(["fetch"])
-    cmd.extend(artifact_coordinates)
-    if repository_ctx.attr.version_conflict_policy == "pinned":
-        for coord in artifact_coordinates:
-            # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
-            cmd.extend(["--force-version", coord.split(",classifier=")[0]])
-    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src"])])
-    cmd.append("--quiet")
-    cmd.append("--no-default")
-    cmd.extend(["--json-output-file", "dep-tree.json"])
-
-    if repository_ctx.attr.fail_on_missing_checksum:
-        cmd.extend(["--checksum", "SHA-1,MD5"])
-    else:
-        cmd.extend(["--checksum", "SHA-1,MD5,None"])
-
-    if len(exclusion_lines) > 0:
-        repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
-        cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-    for repository in repositories:
-        cmd.extend(["--repository", repository["repo_url"]])
-        if "credentials" in repository:
-            cmd.extend(["--credentials", utils.repo_credentials(repository)])
-    for a in excluded_artifacts:
-        cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
-
-    if repository_ctx.attr.fetch_sources:
-        cmd.append("--sources")
-        cmd.append("--default=true")
-
-    environment = {}
     coursier_cache_location = get_coursier_cache_or_default(
         repository_ctx.os.environ,
         repository_ctx.attr.use_unsafe_shared_cache,
     )
-    if not repository_ctx.attr.use_unsafe_shared_cache:
-        cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
-
-        # If not using the shared cache and the user did not specify a COURSIER_CACHE, set the default
-        # value to prevent Coursier from writing into home directories.
-        # https://github.com/bazelbuild/rules_jvm_external/issues/301
-        # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
-        environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
-
-    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-    exec_result = repository_ctx.execute(cmd, timeout = repository_ctx.attr.resolve_timeout, environment = environment)
-    if (exec_result.return_code != 0):
-        fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
@@ -547,7 +615,34 @@ def _coursier_fetch_impl(repository_ctx):
     #
     # Coursier generates duplicate artifacts sometimes. Deduplicate them using
     # the file name value as the key.
-    dep_tree = _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json"))))
+    dep_tree = make_coursier_dep_tree(
+        repository_ctx,
+        artifacts,
+        excluded_artifacts,
+        repositories,
+        coursier_cache_location,
+        repository_ctx.attr.version_conflict_policy,
+        repository_ctx.attr.fail_on_missing_checksum,
+        repository_ctx.attr.fetch_sources,
+        repository_ctx.attr.use_unsafe_shared_cache,
+        repository_ctx.attr.resolve_timeout,
+    )
+
+    # Fetch all possible jetified artifacts. We will wire them up later.
+    if repository_ctx.attr.jetify:
+        extra_jetify_artifacts = extract_jetify_artifacts(dep_tree)
+        dep_tree = make_coursier_dep_tree(
+            repository_ctx,
+            artifacts + extra_jetify_artifacts,
+            excluded_artifacts,
+            repositories,
+            coursier_cache_location,
+            repository_ctx.attr.version_conflict_policy,
+            repository_ctx.attr.fail_on_missing_checksum,
+            repository_ctx.attr.fetch_sources,
+            repository_ctx.attr.use_unsafe_shared_cache,
+            repository_ctx.attr.resolve_timeout,
+        )
 
     # Reconstruct the original URLs from the relative path to the artifact,
     # which encodes the URL components for the protocol, domain, and path to
@@ -558,6 +653,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.path(repository_ctx.attr._sha256_hasher),
     )
     files_to_hash = []
+    jetify_include_dict = {k: None for k in repository_ctx.attr.jetify_include_list}
 
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
@@ -565,11 +661,18 @@ def _coursier_fetch_impl(repository_ctx):
         if artifact["file"] == None:
             continue
 
+        jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
+        should_jetify = jetify_all or (repository_ctx.attr.jetify and maven.coord_str_to_unversioned(artifact["coord"]) in jetify_include_dict)
+        if should_jetify :
+            artifact["directDependencies"] = jetify_artifact_dependencies(artifact["directDependencies"])
+            artifact["dependencies"] = jetify_artifact_dependencies(artifact["dependencies"])
+
         # Normalize paths in place here.
         artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
 
         if repository_ctx.attr.use_unsafe_shared_cache:
-            artifact.update({"file": _relativize_and_symlink_file(repository_ctx, artifact["file"])})
+            artifact.update({"file": _relativize_and_symlink_file(
+                repository_ctx, coursier_cache_location, artifact["file"])})
 
         # Coursier saves the artifacts into a subdirectory structure
         # that mirrors the URL where the artifact's fetched from. Using

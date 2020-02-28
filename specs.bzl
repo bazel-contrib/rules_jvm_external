@@ -32,7 +32,7 @@ def _maven_repository(url, user = None, password = None):
         credentials = {"user": user, "password": password}
         return {"repo_url": url, "credentials": credentials}
 
-def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None):
+def _maven_artifact(group, artifact, version = None, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None):
     """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
@@ -62,8 +62,9 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
     maven_artifact = {}
     maven_artifact["group"] = group
     maven_artifact["artifact"] = artifact
-    maven_artifact["version"] = version
 
+    if version != None:
+        maven_artifact["version"] = version
     if packaging != None:
         maven_artifact["packaging"] = packaging
     if classifier != None:
@@ -78,6 +79,15 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         maven_artifact["testonly"] = testonly
 
     return maven_artifact
+
+def _maven_artifact_to_coord_str(artifact):
+    return "{}:{}{}{}{}".format(
+        artifact["group"],
+        artifact["artifact"],
+        (":" + artifact["packaging"]) if "packaging" in artifact else "",
+        (":" + artifact["classifier"]) if "classifier" in artifact else "",
+        (":" + artifact["version"]) if "version" in artifact else "",
+    )
 
 def _maven_exclusion(group, artifact):
     """Generates the data map for a Maven artifact exclusion.
@@ -94,9 +104,15 @@ def _maven_exclusion(group, artifact):
     # }
     return {"group": group, "artifact": artifact}
 
+def _maven_coord_str_to_unversioned(coord_str):
+    coord_split = coord_str.split(":")
+    return "{}:{}".format(coord_split[0], coord_split[1])
+
 maven = struct(
     repository = _maven_repository,
     artifact = _maven_artifact,
+    artifact_to_coord_str = _maven_artifact_to_coord_str,
+    coord_str_to_unversioned = _maven_coord_str_to_unversioned,
     exclusion = _maven_exclusion,
 )
 
@@ -144,6 +160,28 @@ def _parse_maven_coordinate_string(mvn_coord):
     else:
         fail("Could not parse maven coordinate", attr = mvn_coord)
 
+def _parse_maven_unversioned_coordinate_string(mvn_unversioned_coord):
+    """
+    Given a string containing a non-standard unversioned Maven coordinate (g:a[p:[c:]]), returns a maven artifact map (see above).
+    """
+    pieces = mvn_unversioned_coord.split(":")
+    group = pieces[0]
+    artifact = pieces[1]
+
+    if len(pieces) == 2:
+        return {"group": group, "artifact": artifact}
+    elif len(pieces) == 3:
+        packaging = pieces[2]
+        return {"group": group, "artifact": artifact, "packaging": packaging}
+    elif len(pieces) == 4:
+        packaging = pieces[2]
+        classifier = pieces[3]
+        return {"group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier}
+    elif len(pieces) == 5:
+        fail("Got a versioned maven coordinate when an unversioned one was expected! {}".format(mvn_unversioned_coord))
+    else:
+        fail("Could not parse unversioned maven coordinate", attr = mvn_unversioned_coord)
+
 def _parse_repository_spec_list(repository_specs):
     """
     Given a list containing either strings or repository maps (see above), returns a list containing repository maps.
@@ -170,6 +208,7 @@ def _parse_artifact_spec_list(artifact_specs):
 
 parse = struct(
     parse_maven_coordinate = _parse_maven_coordinate_string,
+    parse_maven_unversioned_coordinate = _parse_maven_unversioned_coordinate_string,
     parse_repository_spec_list = _parse_repository_spec_list,
     parse_artifact_spec_list = _parse_artifact_spec_list,
     parse_exclusion_spec_list = _parse_exclusion_spec_list,

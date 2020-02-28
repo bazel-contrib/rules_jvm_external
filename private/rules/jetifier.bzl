@@ -1,3 +1,4 @@
+load("//:specs.bzl", "maven", "parse")
 load(":jetifier_maven_map.bzl", "jetifier_maven_map")
 load(":jvm_import.bzl", "jvm_import")
 
@@ -59,5 +60,40 @@ def jetify_jvm_import(name, jars, **kwargs):
         **kwargs
     )
 
-def jetify_maven_coord(coord):
-    return jetifier_maven_map.get(coord, coord)
+def jetify_coord_str(coord_str):
+    artifact = parse.parse_maven_coordinate(coord_str)
+    jetify_coord_tuple = jetify_maven_coord(
+        artifact["group"],
+        artifact["artifact"],
+        artifact["version"],
+    )
+    if jetify_coord_tuple:
+        artifact["group"] = jetify_coord_tuple[0]
+        artifact["artifact"] = jetify_coord_tuple[1]
+        artifact["version"] = jetify_coord_tuple[2]
+    return maven.artifact_to_coord_str(artifact)
+
+def jetify_unversioned_coord_str(unversioned_coord_str):
+    artifact = parse.parse_maven_unversioned_coordinate(unversioned_coord_str)
+    jetify_coord_tuple = jetify_maven_coord(
+        artifact["group"],
+        artifact["artifact"],
+    )
+    if jetify_coord_tuple:
+        artifact["group"] = jetify_coord_tuple[0]
+        artifact["artifact"] = jetify_coord_tuple[1]
+    return maven.artifact_to_coord_str(artifact)
+
+def jetify_maven_coord(group, artifact, version = None):
+    if (group, artifact) not in jetifier_maven_map:
+        return None
+
+    if version:
+        return jetifier_maven_map[(group, artifact)].get(version, None)
+    else:
+        return jetifier_maven_map[(group, artifact)].values()[0][:2]
+
+def jetify_artifact_dependencies(deps):
+    """Takes in list of maven coordinates and returns a list of jetified maven coordinates"""
+    deps = [jetify_coord_str(coord) for coord in deps]
+    return deps
