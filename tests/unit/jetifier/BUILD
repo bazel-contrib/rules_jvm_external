@@ -15,14 +15,12 @@ build_test(
         "@jetify_all_test//:com_android_support_appcompat_v7",
         "@jetify_all_test//:com_android_support_appcompat_v7_28_0_0",
         "@jetify_all_test//:jetified_com_android_support_appcompat_v7",
-        "@jetify_all_test//:jetified_com_android_support_appcompat_v7_28_0_0",
         "@jetify_all_test//:androidx_appcompat_appcompat",
         "@jetify_all_test//:androidx_appcompat_appcompat_1_0_0",
 
         "@jetify_all_test//:com_android_support_swiperefreshlayout",
         "@jetify_all_test//:com_android_support_swiperefreshlayout_28_0_0",
         "@jetify_all_test//:jetified_com_android_support_swiperefreshlayout",
-        "@jetify_all_test//:jetified_com_android_support_swiperefreshlayout_28_0_0",
         "@jetify_all_test//:androidx_swiperefreshlayout_swiperefreshlayout",
         "@jetify_all_test//:androidx_swiperefreshlayout_swiperefreshlayout_1_0_0",
     ],
@@ -51,7 +49,6 @@ build_test(
         "@jetify_include_list_test//:com_android_support_appcompat_v7",
         "@jetify_include_list_test//:com_android_support_appcompat_v7_28_0_0",
         "@jetify_include_list_test//:jetified_com_android_support_appcompat_v7",
-        "@jetify_include_list_test//:jetified_com_android_support_appcompat_v7_28_0_0",
         "@jetify_include_list_test//:androidx_appcompat_appcompat",
         "@jetify_include_list_test//:androidx_appcompat_appcompat_1_0_0",
 
