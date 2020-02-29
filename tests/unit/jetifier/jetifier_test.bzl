@@ -12,7 +12,7 @@ def add_test(test_impl_func):
     ALL_TESTS.append(test)
     return test
 
-def _jetify_coord_str_returns_original(ctx):
+def _jetify_coord_str_returns_original_test(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
@@ -21,9 +21,9 @@ def _jetify_coord_str_returns_original(ctx):
     )
     return unittest.end(env)
 
-jetify_coord_str_returns_original_test = add_test(_jetify_coord_str_returns_original)
+jetify_coord_str_returns_original_test = add_test(_jetify_coord_str_returns_original_test)
 
-def _jetify_coord_str_returns_jetified(ctx):
+def _jetify_coord_str_returns_jetified_test(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
@@ -32,10 +32,9 @@ def _jetify_coord_str_returns_jetified(ctx):
     )
     return unittest.end(env)
 
-jetify_coord_str_returns_jetified_test = add_test(_jetify_coord_str_returns_jetified)
+jetify_coord_str_returns_jetified_test = add_test(_jetify_coord_str_returns_jetified_test)
 
-
-def _jetify_maven_coord_no_match_without_version(ctx):
+def _jetify_maven_coord_no_match_without_version_test(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
@@ -44,9 +43,9 @@ def _jetify_maven_coord_no_match_without_version(ctx):
     )
     return unittest.end(env)
 
-jetify_maven_coord_no_match_without_version_test = add_test(_jetify_maven_coord_no_match_without_version)
+jetify_maven_coord_no_match_without_version_test = add_test(_jetify_maven_coord_no_match_without_version_test)
 
-def _jetify_maven_coord_no_match_with_version(ctx):
+def _jetify_maven_coord_no_match_with_version_test(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
@@ -55,9 +54,9 @@ def _jetify_maven_coord_no_match_with_version(ctx):
     )
     return unittest.end(env)
 
-jetify_maven_coord_no_match_with_version_test = add_test(_jetify_maven_coord_no_match_with_version)
+jetify_maven_coord_no_match_with_version_test = add_test(_jetify_maven_coord_no_match_with_version_test)
 
-def _jetify_maven_coord_finds_match_without_version(ctx):
+def _jetify_maven_coord_finds_match_without_version_test(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
@@ -66,9 +65,9 @@ def _jetify_maven_coord_finds_match_without_version(ctx):
     )
     return unittest.end(env)
 
-jetify_maven_coord_finds_match_without_version_test = add_test(_jetify_maven_coord_finds_match_without_version)
+jetify_maven_coord_finds_match_without_version_test = add_test(_jetify_maven_coord_finds_match_without_version_test)
 
-def _jetify_maven_coord_finds_match_with_version(ctx):
+def _jetify_maven_coord_finds_match_with_version_test(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
@@ -77,7 +76,7 @@ def _jetify_maven_coord_finds_match_with_version(ctx):
     )
     return unittest.end(env)
 
-jetify_maven_coord_finds_match_with_version_test = add_test(_jetify_maven_coord_finds_match_with_version)
+jetify_maven_coord_finds_match_with_version_test = add_test(_jetify_maven_coord_finds_match_with_version_test)
 
 
 
