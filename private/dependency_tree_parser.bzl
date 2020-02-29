@@ -183,8 +183,6 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 if get_packaging(dep) == "json":
                     continue
                 stripped_dep = strip_packaging_and_classifier_and_version(dep)
-#                if should_jetify:
-#                    stripped_dep = jetify_maven_coord(stripped_dep)
                 dep_target_label = escape(stripped_dep)
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
