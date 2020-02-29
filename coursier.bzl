@@ -441,15 +441,20 @@ def get_coursier_cache_or_default(env_dict, use_unsafe_shared_cache):
 
 
 def extract_jetify_artifacts(dep_tree):
+    """
+    Figures out additional artifacts that need to be fetched for jetified dependencies to work.
+
+    Traverses first level dependencies of each top-level dependency in dep_tree and extracts
+    jetified (androidx) versions of them.
+    """
+
     jetify_artifacts = []
     for artifact in dep_tree["dependencies"]:
-        # directDependencies
-        # dependencies
         artifact_coord = parse.parse_maven_coordinate(artifact["coord"])
         jetify_coord_tuple = jetify_maven_coord(
             artifact_coord["group"],
             artifact_coord["artifact"],
-            artifact_coord["version"]
+            artifact_coord["version"],
         )
         if jetify_coord_tuple:
             artifact_coord["group"] = jetify_coord_tuple[0]
@@ -633,7 +638,10 @@ def _coursier_fetch_impl(repository_ctx):
         extra_jetify_artifacts = extract_jetify_artifacts(dep_tree)
         dep_tree = make_coursier_dep_tree(
             repository_ctx,
-            artifacts + extra_jetify_artifacts,
+            # Order is important due to version conflict resolution. "pinned" will take the last
+            # version that is provided so having the explicit artifacts last makes those versions
+            # stick.
+            extra_jetify_artifacts + artifacts,
             excluded_artifacts,
             repositories,
             coursier_cache_location,
@@ -654,6 +662,7 @@ def _coursier_fetch_impl(repository_ctx):
     )
     files_to_hash = []
     jetify_include_dict = {k: None for k in repository_ctx.attr.jetify_include_list}
+    jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
@@ -661,7 +670,6 @@ def _coursier_fetch_impl(repository_ctx):
         if artifact["file"] == None:
             continue
 
-        jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
         should_jetify = jetify_all or (repository_ctx.attr.jetify and maven.coord_str_to_unversioned(artifact["coord"]) in jetify_include_dict)
         if should_jetify :
             artifact["directDependencies"] = jetify_artifact_dependencies(artifact["directDependencies"])

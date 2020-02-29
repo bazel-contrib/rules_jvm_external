@@ -61,6 +61,9 @@ def jetify_jvm_import(name, jars, **kwargs):
     )
 
 def jetify_coord_str(coord_str):
+    """
+    Finds and returns jetified coordinate of given coordinate, otherwise returns original coordinate
+    """
     artifact = parse.parse_maven_coordinate(coord_str)
     jetify_coord_tuple = jetify_maven_coord(
         artifact["group"],
@@ -71,20 +74,14 @@ def jetify_coord_str(coord_str):
         artifact["group"] = jetify_coord_tuple[0]
         artifact["artifact"] = jetify_coord_tuple[1]
         artifact["version"] = jetify_coord_tuple[2]
-    return maven.artifact_to_coord_str(artifact)
-
-def jetify_unversioned_coord_str(unversioned_coord_str):
-    artifact = parse.parse_maven_unversioned_coordinate(unversioned_coord_str)
-    jetify_coord_tuple = jetify_maven_coord(
-        artifact["group"],
-        artifact["artifact"],
-    )
-    if jetify_coord_tuple:
-        artifact["group"] = jetify_coord_tuple[0]
-        artifact["artifact"] = jetify_coord_tuple[1]
-    return maven.artifact_to_coord_str(artifact)
+        return maven.artifact_to_coord_str(artifact)
+    else:
+        return coord_str
 
 def jetify_maven_coord(group, artifact, version = None):
+    """
+    Looks up support -> androidx artifact mapping, returns None if no mapping found.
+    """
     if (group, artifact) not in jetifier_maven_map:
         return None
 
@@ -95,5 +92,4 @@ def jetify_maven_coord(group, artifact, version = None):
 
 def jetify_artifact_dependencies(deps):
     """Takes in list of maven coordinates and returns a list of jetified maven coordinates"""
-    deps = [jetify_coord_str(coord) for coord in deps]
-    return deps
+    return [jetify_coord_str(coord) for coord in deps]
