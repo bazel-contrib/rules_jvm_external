@@ -7,7 +7,6 @@ load(
     "get_coursier_cache_or_default",
     "remove_auth_from_url",
     "split_url",
-    "extract_jetify_artifacts",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
 
@@ -403,40 +402,6 @@ def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     return unittest.end(env)
 
 get_coursier_cache_or_default_enabled_with_custom_location_test = add_test(_get_coursier_cache_or_default_enabled_with_custom_location_test)
-
-def _extract_jetify_artifacts_nothing_extracted_test(ctx):
-    env = unittest.begin(ctx)
-    dep_tree = {
-        "dependencies": [
-            { "coord": "g:a:v" },
-        ]
-    }
-    asserts.equals(
-        env,
-        [],
-        extract_jetify_artifacts(dep_tree)
-    )
-    return unittest.end(env)
-
-extract_jetify_artifacts_nothing_extracted_test = add_test(_extract_jetify_artifacts_nothing_extracted_test)
-
-def _extract_jetify_artifacts_mixed_extraction_test(ctx):
-    env = unittest.begin(ctx)
-    dep_tree = {
-        "dependencies": [
-            { "coord": "g:a:v" },
-            { "coord": "com.android.support:multidex:1.0.3" },
-            { "coord": "com.android.support:blah:something" },
-        ]
-    }
-    asserts.equals(
-        env,
-        [ { "group": "androidx.multidex", "artifact": "multidex", "version": "2.0.0"} ],
-        extract_jetify_artifacts(dep_tree)
-    )
-    return unittest.end(env)
-
-extract_jetify_artifacts_mixed_extraction_test = add_test(_extract_jetify_artifacts_mixed_extraction_test)
 
 def coursier_test_suite():
     unittest.suite(

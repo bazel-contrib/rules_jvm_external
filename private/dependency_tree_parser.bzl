@@ -18,7 +18,6 @@ into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
 load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
-load("//private/rules:jetifier.bzl", "jetify_maven_coord")
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
@@ -93,7 +92,6 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         artifact_path = artifact["file"]
         simple_coord = strip_packaging_and_classifier_and_version(artifact["coord"])
         target_label = escape(simple_coord)
-        should_jetify = jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict)
         alias_visibility = ""
 
         if target_label in seen_imports:
@@ -137,7 +135,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
-            if should_jetify:
+            if jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict):
                 import_rule = "jetify_" + import_rule
             target_import_string = [import_rule + "("]
 
@@ -183,7 +181,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 if get_packaging(dep) == "json":
                     continue
                 stripped_dep = strip_packaging_and_classifier_and_version(dep)
-                dep_target_label = escape(stripped_dep)
+                dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
