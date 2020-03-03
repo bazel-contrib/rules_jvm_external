@@ -1,3 +1,14 @@
+# Manually crafted from https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/jetifier/jetifier/core/src/main/resources/default.config
+# Take the "pomRules" section and transform it with inlined values from versions.latestReleased.
+# Comment out the com.android.databinding and androidx.databinding entries since they are special-cased due to gradle integration.
+
+# Original (example):
+#     {"from": { "groupId": "com.android.support", "artifactId": "animated-vector-drawable", "version": "{oldSlVersion}" },
+#      "to": { "groupId": "androidx.vectordrawable", "artifactId": "vectordrawable-animated", "version": "{newSlVersion}" }},
+
+# Transformed (generic):
+#     ("from.groupId", "from.artifactId"): {"from.version": ("to.groupId", "to.artifactId", "to.version")}
+
 jetifier_maven_map = {
     ("com.android.support", "animated-vector-drawable"): {"28.0.0" : ("androidx.vectordrawable", "vectordrawable-animated", "1.0.0")},
     ("com.android.support", "appcompat-v7"): {"28.0.0" : ("androidx.appcompat", "appcompat", "1.0.0")},
