@@ -452,6 +452,7 @@ def make_coursier_dep_tree(
         fetch_sources,
         use_unsafe_shared_cache,
         timeout,
+        report_progress_prefix="",
 ):
     # Set up artifact exclusion, if any. From coursier fetch --help:
     #
@@ -515,7 +516,9 @@ def make_coursier_dep_tree(
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
 
-    repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
+    repository_ctx.report_progress(
+        "%sResolving and fetching the transitive closure of %s artifact(s).." % (
+            report_progress_prefix, len(artifact_coordinates)))
     exec_result = repository_ctx.execute(cmd, timeout = timeout, environment = environment)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
@@ -603,6 +606,7 @@ def _coursier_fetch_impl(repository_ctx):
             repository_ctx.attr.fetch_sources,
             repository_ctx.attr.use_unsafe_shared_cache,
             repository_ctx.attr.resolve_timeout,
+            report_progress_prefix = "Second pass for Jetified Artifacts: ",
         )
 
     # Reconstruct the original URLs from the relative path to the artifact,

@@ -811,6 +811,9 @@ Enable jetification by specifying `jetify = True` in `maven_install.`
 Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format. 
 By default all artifacts are jetified if `jetify` is set to True.
 
+NOTE: There is a performance penalty to using jetifier due to modifying fetched binaries, fetching
+additional `AndroidX` artifacts, and modifying the maven dependency graph.
+
 ```python
 maven_install(
     artifacts = [
