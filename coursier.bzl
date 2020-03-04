@@ -442,18 +442,6 @@ def get_coursier_cache_or_default(env_dict, use_unsafe_shared_cache):
         # This is an absolute path.
         return location
 
-
-def extract_jetify_artifacts(dep_tree):
-    """
-    Figures out additional artifacts that need to be fetched for jetified dependencies to work.
-
-    Traverses first level dependencies of each top-level dependency in dep_tree and extracts
-    jetified (androidx) versions of them.
-    """
-
-
-
-
 def make_coursier_dep_tree(
         repository_ctx,
         artifacts,
@@ -471,20 +459,20 @@ def make_coursier_dep_tree(
     # com.twitter.penguin:korean-text--com.twitter:util-tunable-internal_2.11
     # org.apache.commons:commons-math--com.twitter.search:core-query-nodes
     # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
+    artifact_coordinates = []
     exclusion_lines = []
     for a in artifacts:
+        artifact_coordinates.append(utils.artifact_coordinate(a))
         if "exclusions" in a:
             for e in a["exclusions"]:
-                exclusion_lines.append(
-                    "{}:{}--{}:{}".format(a["group"], a["artifact"], e["group"], e["artifact"]))
+                exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
+                                       "--" +
+                                       ":".join([e["group"], e["artifact"]]))
 
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
     cmd.extend(["fetch"])
 
-    artifact_coordinates = [utils.artifact_coordinate(a) for a in artifacts]
     cmd.extend(artifact_coordinates)
-
-
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
             # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
@@ -518,7 +506,6 @@ def make_coursier_dep_tree(
         repository_ctx.os.environ,
         use_unsafe_shared_cache,
     )
-    # Use safe cache
     if not use_unsafe_shared_cache:
         cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
 
@@ -529,9 +516,7 @@ def make_coursier_dep_tree(
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
 
     repository_ctx.report_progress("Resolving and fetching the transitive closure of %s artifact(s).." % len(artifact_coordinates))
-
-    exec_result = repository_ctx.execute(
-        cmd, timeout = timeout, environment = environment)
+    exec_result = repository_ctx.execute(cmd, timeout = timeout, environment = environment)
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
