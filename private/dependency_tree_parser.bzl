@@ -177,9 +177,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # Dedupe dependencies here. Sometimes coursier will return "x.y:z:aar:version" and "x.y:z:version" in the
             # same list of dependencies.
             target_import_labels = []
-            for dep in artifact["dependencies"]:
+            for dep in artifact["directDependencies"]:
                 if get_packaging(dep) == "json":
                     continue
+                stripped_dep = strip_packaging_and_classifier_and_version(dep)
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.

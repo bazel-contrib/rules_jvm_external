@@ -321,7 +321,8 @@ maven_install(
     name = "jetify_all_test",
     artifacts = [
         "com.google.guava:guava:27.0-jre",
-        "com.android.support:appcompat-v7:28.0.0"
+        "com.android.support:appcompat-v7:28.0.0",
+        "com.android.support:swiperefreshlayout:28.0.0",
     ],
     repositories = [
         "https://jcenter.bintray.com/",
