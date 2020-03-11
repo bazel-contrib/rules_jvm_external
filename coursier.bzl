@@ -312,7 +312,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "netrc",
         "\n".join(
-            get_home_netrc_contents(repository_ctx).splitlines() + get_netrc_lines_from_entries(netrc_entries),
+            repository_ctx.attr.additional_netrc_lines +
+            get_home_netrc_contents(repository_ctx).splitlines() +
+            get_netrc_lines_from_entries(netrc_entries),
         ),
         executable = False,
     )
@@ -860,6 +862,7 @@ pinned_coursier_fetch = repository_rule(
         ),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
