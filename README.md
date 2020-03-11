@@ -144,6 +144,12 @@ JSON file.
 
 Since all artifacts are persisted locally in Bazel's cache, it means that
 **fully offline builds are possible** after the initial `bazel fetch @maven//...`.
+The artifacts are downloaded with `http_file` which supports `netrc` for authentication.
+Your `~/.netrc` will be included automatically.
+For additional credentials, add them in the repository URLs passed to `maven_install`
+(so they will be included in the generated JSON).
+Alternatively, pass an array of `additional_netrc_lines` to `maven_install` for authentication with credentials from
+outside the workspace.
 
 To get started with pinning artifacts, run the following command to generate the
 initial `maven_install.json` at the root of your Bazel workspace:

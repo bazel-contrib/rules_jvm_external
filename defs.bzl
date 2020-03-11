@@ -33,7 +33,8 @@ def maven_install(
         strict_visibility = False,
         resolve_timeout = 600,
         jetify = False,
-        jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL):
+        jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
+        additional_netrc_lines = []):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -67,6 +68,7 @@ def maven_install(
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
       jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
+      additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -79,6 +81,9 @@ def maven_install(
     excluded_artifacts_json_strings = []
     for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
         excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
+
+    if additional_netrc_lines and maven_install_json == None:
+        fail("`additional_netrc_lines` is only supported with `maven_install_json` specified", "additional_netrc_lines")
 
     # The first coursier_fetch generates the @unpinned_maven
     # repository, which executes Coursier.
@@ -125,6 +130,7 @@ def maven_install(
             strict_visibility = strict_visibility,
             jetify = jetify,
             jetify_include_list = jetify_include_list,
+            additional_netrc_lines = additional_netrc_lines,
         )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
