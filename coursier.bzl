@@ -31,6 +31,10 @@ package(default_visibility = ["//visibility:{visibility}"])
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
 
+{imports}
+"""
+
+_BUILD_PIN = """
 sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
@@ -40,8 +44,6 @@ sh_binary(
         "@bazel_tools//src/conditions:windows": ["@rules_jvm_external_jq_windows//file"],
     }}),
 )
-
-{imports}
 """
 
 def _is_windows(repository_ctx):
@@ -226,7 +228,7 @@ def get_home_netrc_contents(repository_ctx):
                 return repository_ctx.read(netrcfile)
     return ""
 
-def get_jq_http_files():
+def _get_jq_http_files():
     '''Returns repository targets for the `jq` dependency that `pin.sh` needs.'''
     lines = []
     for jq in JQ_VERSIONS:
@@ -335,7 +337,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 http_files.append("        urls = [\"%s\"]," % artifact["url"])
             http_files.append("    )")
 
-    http_files.extend(get_jq_http_files())
+    http_files.extend(_get_jq_http_files())
 
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     repository_ctx.file(
@@ -783,7 +785,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     repository_ctx.file(
         "BUILD",
-        _BUILD.format(
+        (_BUILD + _BUILD_PIN).format(
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_name,
             imports = generated_imports,
@@ -833,7 +835,7 @@ def _coursier_fetch_impl(repository_ctx):
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
         "def pinned_maven_install():",
-    ] + get_jq_http_files()
+    ] + _get_jq_http_files()
     repository_ctx.file(
         "defs.bzl",
         "\n".join(http_files),
