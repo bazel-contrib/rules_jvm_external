@@ -22,17 +22,28 @@ load(
     "COURSIER_CLI_BAZEL_MIRROR_URL",
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
+    "JQ_VERSIONS",
 )
 
 _BUILD = """
 package(default_visibility = ["//visibility:{visibility}"])
 
-exports_files(["pin"])
-
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
 
 {imports}
+"""
+
+_BUILD_PIN = """
+sh_binary(
+    name = "pin",
+    srcs = ["pin.sh"],
+    data = select({{
+        "@bazel_tools//src/conditions:linux_x86_64": ["@rules_jvm_external_jq_linux//file"],
+        "@bazel_tools//src/conditions:darwin": ["@rules_jvm_external_jq_osx//file"],
+        "@bazel_tools//src/conditions:windows": ["@rules_jvm_external_jq_windows//file"],
+    }}),
+)
 """
 
 def _is_windows(repository_ctx):
@@ -217,6 +228,22 @@ def get_home_netrc_contents(repository_ctx):
                 return repository_ctx.read(netrcfile)
     return ""
 
+def _get_jq_http_files():
+    '''Returns repository targets for the `jq` dependency that `pin.sh` needs.'''
+    lines = []
+    for jq in JQ_VERSIONS:
+        lines.extend([
+            "    maybe(",
+            "        http_file,",
+            "        name = \"rules_jvm_external_jq_%s\"," % jq.os,
+            "        urls = %s," % repr([jq.url]),
+            "        sha256 = %s," % repr(jq.sha256),
+            "        downloaded_file_path = \"jq\",",
+            "        executable = True,",
+            "    )",
+        ])
+    return lines
+
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -281,6 +308,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     # pinned_maven_install()
     http_files = [
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
+        "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
         "def pinned_maven_install():",
     ]
     netrc_entries = {}
@@ -308,6 +336,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 # contains the mirror_urls field.
                 http_files.append("        urls = [\"%s\"]," % artifact["url"])
             http_files.append("    )")
+
+    http_files.extend(_get_jq_http_files())
+
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     repository_ctx.file(
         "netrc",
@@ -745,22 +776,22 @@ def _coursier_fetch_impl(repository_ctx):
         override_targets = repository_ctx.attr.override_targets,
     )
 
-    repository_ctx.file(
-        "BUILD",
-        _BUILD.format(
-            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
-            repository_name = repository_ctx.name,
-            imports = generated_imports,
-        ),
-        False,  # not executable
-    )
-
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
     if repository_ctx.name.startswith("unpinned_"):
         repository_name = repository_ctx.name[len("unpinned_"):]
     else:
         repository_name = repository_ctx.name
+
+    repository_ctx.file(
+        "BUILD",
+        (_BUILD + _BUILD_PIN).format(
+            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
+            repository_name = repository_name,
+            imports = generated_imports,
+        ),
+        False,  # not executable
+    )
 
     # If maven_install.json has already been used in maven_install,
     # we don't need to instruct user to update WORKSPACE and load pinned_maven_install.
@@ -788,7 +819,7 @@ def _coursier_fetch_impl(repository_ctx):
     # Create the maven_install.json export script for unpinned repositories.
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
     repository_ctx.template(
-        "pin",
+        "pin.sh",
         repository_ctx.attr._pin,
         {
             "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
@@ -799,24 +830,15 @@ def _coursier_fetch_impl(repository_ctx):
         executable = True,
     )
 
-    # Generate a dummy 'defs.bzl' in the case where users have this
-    # in their WORKSPACE:
-    #
-    # maven_install(
-    #     name = "maven",
-    #     # maven_install_json = "//:maven_install.json",
-    # )
-    # load("@maven//:defs.bzl", "pinned_maven_install")
-    # pinned_maven_install()
-    #
-    # This scenario happens when users have a modified/corrupted
-    # 'maven_install.json' and wishes to re-generate one. Instead
-    # of asking users to also remove the load statement for
-    # pinned_maven_install(), we generate a dummy defs.bzl
-    # here so that builds will not fail due to a missing load.
+    # Generate 'defs.bzl' with just the dependencies for ':pin'.
+    http_files = [
+        "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
+        "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
+        "def pinned_maven_install():",
+    ] + _get_jq_http_files()
     repository_ctx.file(
         "defs.bzl",
-        "def pinned_maven_install():\n    pass",
+        "\n".join(http_files),
         executable = False,
     )
 
