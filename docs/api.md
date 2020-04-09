@@ -30,7 +30,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>,
               <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
               <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
-              <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-jetify">jetify</a>)
+              <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-jetify">jetify</a>, <a href="#maven_install-jetify_include_list">jetify_include_list</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -57,7 +57,9 @@ and fetch Maven artifacts transitively.
 | override_targets |  A mapping of <code>group:artifact</code> to Bazel target labels. All occurrences of the   target label for <code>group:artifact</code> will be an alias to the specified label, therefore overriding   the original generated <code>jvm_import</code> or <code>aar_import</code> target.   |  <code>{}</code> |
 | strict_visibility |  Controls visibility of transitive dependencies. If <code>True</code>, transitive dependencies   are private and invisible to user's rules. If <code>False</code>, transitive dependencies are public and   visible to user's rules.   |  <code>False</code> |
 | resolve_timeout |  The execution timeout of resolving and fetching artifacts.   |  <code>600</code> |
-| jetify |  Runs the AndroidX jetifier tool on all artifacts.   |  <code>False</code> |
+| jetify |  Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.   |  <code>False</code> |
+| jetify_include_list |  List of artifacts that need to be jetified in <code>groupId:artifactId</code> format. By default all artifacts are jetified if <code>jetify</code> is set to True.   |  <code>["*"]</code> |
+| additional_netrc_lines |  Additional lines prepended to the netrc file used by <code>http_file</code> (with <code>maven_install_json</code> only).   |  <code>[]</code> |
 
 
 # Maven specification functions
