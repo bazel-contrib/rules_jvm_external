@@ -568,10 +568,16 @@ def _coursier_fetch_impl(repository_ctx):
     # caches and uses Coursier's own download mechanisms.
 
     # Download Coursier's standalone (deploy) jar from Maven repositories.
-    repository_ctx.download([
+    coursier_download_urls = [
         COURSIER_CLI_GITHUB_ASSET_URL,
         COURSIER_CLI_BAZEL_MIRROR_URL,
-    ], "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+    ]
+
+    coursier_url_from_env = repository_ctx.os.environ.get("COURSIER_URL")
+    if coursier_url_from_env != None:
+        coursier_download_urls.append(coursier_url_from_env)
+
+    repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
     # Try running coursier once
     exec_result = repository_ctx.execute(
@@ -936,6 +942,7 @@ coursier_fetch = repository_rule(
         "no_proxy",
         "NO_PROXY",
         "COURSIER_CACHE",
+        "COURSIER_URL",
     ],
     implementation = _coursier_fetch_impl,
 )
