@@ -368,6 +368,18 @@ The default value of `use_unsafe_shared_cache` is `False`. This means that Bazel
 will create independent caches for each `maven_install` repository, located at
 `$(bazel info output_base)/external/@<repository_name>/v1`.
 
+### Using a custom Coursier download url
+
+By default bazel bootstraps Coursier via [the urls specificed in versions.bzl](private/versions.bzl).
+However in case they are not directly accessible in your environment, you can also specify a custom
+url to download Coursier. For example:
+
+```
+$ bazel build @maven_with_unsafe_shared_cache//... --repo_env=COURSIER_URL='https://my_secret_host.com/vXYZ/coursier.jar'
+```
+
+Please note it still requires the SHA to match.
+
 ### `artifact` helper macro
 
 The `artifact` macro translates the artifact's `group:artifact` coordinates to
