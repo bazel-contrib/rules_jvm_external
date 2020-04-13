@@ -7,7 +7,7 @@
 # [0]: https://github.com/square/bazel_maven_repository/pull/48
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
-load("@rules_jvm_external//settings:stamp_manifest.bzl", "StampManifestProvider")
+load("//settings:stamp_manifest.bzl", "StampManifestProvider")
 
 def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:
