@@ -818,6 +818,26 @@ maven_install(
 )
 ```
 
+### Stamping manifests for buildozer missing dependency support
+
+If you want more helpful messages when you are missing dependencies from this
+`maven_install` you can enable `stamp_manifests` to have Target-Label entries
+added to the manifests of the imported jar files.  The Target-Label entry provides
+Bazel with enough information to give you a `buildozer` command when a target is
+missing a dependency instead of just the path to the jar file.
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    stamp_manifests = True
+)
+```
+
 ### Jetifier
 
 As part of the [Android
@@ -826,7 +846,7 @@ migration, convert legacy Android support library (`com.android.support`)
 libraries to rely on new AndroidX packages using the
 [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool.
 Enable jetification by specifying `jetify = True` in `maven_install.`
-Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format. 
+Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format.
 By default all artifacts are jetified if `jetify` is set to True.
 
 NOTE: There is a performance penalty to using jetifier due to modifying fetched binaries, fetching

@@ -45,7 +45,7 @@ def _jvm_import_impl(ctx):
         progress_message = "Stamping the manifest of %s" % ctx.label,
     )
 
-    if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
+    if (not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled) and (not ctx.attr.stamp_manifest):
         outjar = injar
 
     return [
@@ -82,6 +82,9 @@ jvm_import = rule(
             providers = [JavaInfo],
         ),
         "neverlink": attr.bool(
+            default = False,
+        ),
+        "stamp_manifest": attr.bool(
             default = False,
         ),
         "_host_javabase": attr.label(

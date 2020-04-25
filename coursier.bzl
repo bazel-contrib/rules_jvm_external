@@ -891,6 +891,7 @@ pinned_coursier_fetch = repository_rule(
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
+        "stamp_manifests": attr.bool(doc = "Add Target-Label entry to manifests of jar files", default = False),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -932,6 +933,7 @@ coursier_fetch = repository_rule(
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "stamp_manifests": attr.bool(doc = "Add Target-Label entry to manifests of jar files", default = False),
     },
     environ = [
         "JAVA_HOME",
