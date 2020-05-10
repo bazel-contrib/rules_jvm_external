@@ -922,7 +922,24 @@ You can find demos in the [`examples/`](./examples/) directory.
 Find other GitHub projects using `rules_jvm_external`
 [with this search query](https://github.com/search?p=1&q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&type=Code).
 
-## Generating documentation
+## Developing this project
+
+### Verbose / debug mode
+
+Set the `RJE_VERBOSE` environment variable to print `coursier`'s verbose
+output. For example:
+
+```
+$ RJE_VERBOSE bazel run @unpinned_maven//:pin
+```
+
+### Tests
+
+```
+$ bazel test //...
+```
+
+### Generating documentation
 
 Use [Stardoc](https://skydoc.bazel.build/docs/getting_started_stardoc.html) to
 generate API documentation in the [docs](docs/) directory using
