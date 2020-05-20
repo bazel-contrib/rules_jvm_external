@@ -926,11 +926,11 @@ Find other GitHub projects using `rules_jvm_external`
 
 ### Verbose / debug mode
 
-Set the `RJE_VERBOSE` environment variable to print `coursier`'s verbose
+Set the `RJE_VERBOSE` environment variable to `true` to print `coursier`'s verbose
 output. For example:
 
 ```
-$ RJE_VERBOSE bazel run @unpinned_maven//:pin
+$ RJE_VERBOSE=true bazel run @unpinned_maven//:pin
 ```
 
 ### Tests
