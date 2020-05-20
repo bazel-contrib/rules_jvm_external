@@ -46,6 +46,9 @@ sh_binary(
 )
 """
 
+def _is_verbose(repository_ctx):
+    return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
+
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
 
@@ -514,7 +517,7 @@ def make_coursier_dep_tree(
             # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
             cmd.extend(["--force-version", coord.split(",classifier=")[0]])
     cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src"])])
-    cmd.append("--quiet")
+    cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
 
@@ -554,7 +557,11 @@ def make_coursier_dep_tree(
     repository_ctx.report_progress(
         "%sResolving and fetching the transitive closure of %s artifact(s).." % (
             report_progress_prefix, len(artifact_coordinates)))
-    exec_result = repository_ctx.execute(cmd, timeout = timeout, environment = environment)
+    exec_result = repository_ctx.execute(
+        cmd,
+        timeout = timeout,
+        environment = environment,
+        quiet = not _is_verbose(repository_ctx))
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
@@ -581,8 +588,10 @@ def _coursier_fetch_impl(repository_ctx):
 
     # Try running coursier once
     exec_result = repository_ctx.execute(
-        _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier")),
-    )
+        _generate_java_jar_command(
+            repository_ctx,
+            repository_ctx.path("coursier")),
+        quiet = not _is_verbose(repository_ctx))
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
 
@@ -741,7 +750,9 @@ def _coursier_fetch_impl(repository_ctx):
         "\n".join([str(f) for f in files_to_hash]) + "\n",
         False,  # Not executable
     )
-    exec_result = repository_ctx.execute(hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")])
+    exec_result = repository_ctx.execute(
+        hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
+        quiet = not _is_verbose(repository_ctx))
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
 
@@ -943,6 +954,7 @@ coursier_fetch = repository_rule(
         "NO_PROXY",
         "COURSIER_CACHE",
         "COURSIER_URL",
+        "RJE_VERBOSE",
     ],
     implementation = _coursier_fetch_impl,
 )
