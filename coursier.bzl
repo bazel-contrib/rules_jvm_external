@@ -49,14 +49,14 @@ sh_binary(
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
-def _is_windows(repository_ctx):
-    return repository_ctx.os.name.find("windows") != -1
+def _is_windows(os_name):
+    return os_name.find("windows") != -1
 
-def _is_linux(repository_ctx):
-    return repository_ctx.os.name.find("linux") != -1
+def _is_linux(os_name):
+    return os_name.find("linux") != -1
 
-def _is_macos(repository_ctx):
-    return repository_ctx.os.name.find("mac") != -1
+def _is_macos(os_name):
+    return os_name.find("mac") != -1
 
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
@@ -77,7 +77,8 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     # TODO(jin): allow custom cache locations
     absolute_path_parts = absolute_path.split(get_coursier_cache_or_default(
         repository_ctx.os.environ,
-        repository_ctx.attr.use_unsafe_shared_cache,
+        repository_ctx.os.name,
+        repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"),
     ))
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
@@ -125,7 +126,7 @@ def _windows_check(repository_ctx):
     #
     # On Windows, run msys once to bootstrap it
     # https://github.com/bazelbuild/rules_jvm_external/issues/53
-    if (_is_windows(repository_ctx)):
+    if (_is_windows(repository_ctx.os.name)):
         bash = repository_ctx.os.environ.get("BAZEL_SH")
         if (bash == None):
             fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
@@ -469,16 +470,24 @@ def _deduplicate_artifacts(dep_tree):
 # Get the path to the cache directory containing Coursier-downloaded artifacts.
 #
 # This method is public for testing.
-def get_coursier_cache_or_default(env_dict, use_unsafe_shared_cache):
-    location = env_dict.get("COURSIER_CACHE")
-
-    # If we're not using the unsafe shared cache, or if COURSIER_CACHE is not defined,
-    # use 'external/<this repo>/v1/'. 'v1/' is the current version of the Coursier cache.
-    if not use_unsafe_shared_cache or location == None:
+def get_coursier_cache_or_default(os_env, os_name, use_unsafe_shared_cache):
+    # If we're not using the unsafe shared cache use 'external/<this repo>/v1/'.
+    # 'v1' is the current version of the Coursier cache.
+    if not use_unsafe_shared_cache:
         return "v1"
-    else:
+
+    coursier_cache_env_var = os_env.get("COURSIER_CACHE")
+    if coursier_cache_env_var:
         # This is an absolute path.
-        return location
+        return coursier_cache_env_var
+
+    # locations from https://get-coursier.io/docs/2.0.0-RC5-3/cache.html#default-location
+    if _is_windows(os_name):
+        return "%s/Coursier/cache/v1" % os_env.get("LOCALAPPDATA").replace("\\", "/")
+    elif _is_macos(os_name):
+        return "%s/Library/Caches/Coursier/v1" % os_env.get("HOME")
+    else:
+        return "%s/.cache/coursier/v1" % os_env.get("HOME")
 
 def make_coursier_dep_tree(
         repository_ctx,
@@ -541,11 +550,12 @@ def make_coursier_dep_tree(
         cmd.append("--default=true")
 
     environment = {}
-    coursier_cache_location = get_coursier_cache_or_default(
-        repository_ctx.os.environ,
-        use_unsafe_shared_cache,
-    )
-    if not use_unsafe_shared_cache:
+    if not use_unsafe_shared_cache and not repository_ctx.attr.name.startswith("unpinned_"):
+        coursier_cache_location = get_coursier_cache_or_default(
+            repository_ctx.os.environ,
+            repository_ctx.os.name,
+            use_unsafe_shared_cache,
+        )
         cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
 
         # If not using the shared cache and the user did not specify a COURSIER_CACHE, set the default
@@ -687,7 +697,7 @@ def _coursier_fetch_impl(repository_ctx):
         # Normalize paths in place here.
         artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
 
-        if repository_ctx.attr.use_unsafe_shared_cache:
+        if repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"):
             artifact.update({"file": _relativize_and_symlink_file(repository_ctx, artifact["file"])})
 
         # Coursier saves the artifacts into a subdirectory structure
