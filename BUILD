@@ -2,6 +2,16 @@ load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("//:private/versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 
+# WARNING: DO NOT ADD USER FACING DOWNSTREAM TARGETS IN THIS BUILD FILE.
+#
+# This BUILD file contains targets just for this project's development purposes,
+# and can depend on external repositories not necessarily defined in user
+# workspaces, like Skylib and Stardoc.
+#
+# rules_jvm_external deliberately vendors all of its dependencies so users
+# wouldn't need to mess with the deps.bzl load pattern in order to use
+# maven_install. We plan to keep it that way.
+
 exports_files(["defs.bzl"])
 
 licenses(["notice"])  # Apache 2.0

@@ -151,6 +151,9 @@ For additional credentials, add them in the repository URLs passed to `maven_ins
 Alternatively, pass an array of `additional_netrc_lines` to `maven_install` for authentication with credentials from
 outside the workspace.
 
+> NOTE: This is supported on macOS and Linux. Support for pinning in Windows is
+> tracked in https://github.com/bazelbuild/rules_jvm_external/issues/324
+
 To get started with pinning artifacts, run the following command to generate the
 initial `maven_install.json` at the root of your Bazel workspace:
 
@@ -195,6 +198,19 @@ accompanied by an unpinned repository. This repository name has the `@unpinned_`
 prefix (e.g.`@unpinned_maven` or `@unpinned_<your_maven_install_name>`). For
 example, if your `maven_install` is named `@foo`, `@unpinned_foo` will be
 created.
+
+Alternatively, you can run the following command to batch-pin *all*
+`maven_install` repositories in your workspace:
+
+```
+$ bazel run @rules_jvm_external//pin:pin
+
+# or simply,
+$ bazel run @rules_jvm_external//pin
+```
+
+The command above looks for all `unpinned` repositories in your workspace, and
+runs the `pin` script on each of them.
 
 ### Custom location for `maven_install.json`
 
