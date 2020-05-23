@@ -371,23 +371,39 @@ def _get_coursier_cache_or_default_disabled_test(ctx):
     asserts.equals(
         env,
         "v1",
-        get_coursier_cache_or_default(mock_environ, False)
+        get_coursier_cache_or_default(mock_environ, "linux", False)
     )
     return unittest.end(env)
 
 get_coursier_cache_or_default_disabled_test = add_test(_get_coursier_cache_or_default_disabled_test)
 
-def _get_coursier_cache_or_default_enabled_with_default_location_test(ctx):
+def _get_coursier_cache_or_default_enabled_with_default_location_linux_test(ctx):
     env = unittest.begin(ctx)
-    mock_environ = {}
+    mock_environ = {
+        "HOME": "/home/testuser"
+    }
     asserts.equals(
         env,
-        "v1",
-        get_coursier_cache_or_default(mock_environ, True)
+        "/home/testuser/.cache/coursier/v1",
+        get_coursier_cache_or_default(mock_environ, "linux", True)
     )
     return unittest.end(env)
 
-get_coursier_cache_or_default_enabled_with_default_location_test = add_test(_get_coursier_cache_or_default_enabled_with_default_location_test)
+get_coursier_cache_or_default_enabled_with_default_location_linux_test = add_test(_get_coursier_cache_or_default_enabled_with_default_location_linux_test)
+
+def _get_coursier_cache_or_default_enabled_with_default_location_mac_test(ctx):
+    env = unittest.begin(ctx)
+    mock_environ = {
+        "HOME": "/Users/testuser"
+    }
+    asserts.equals(
+        env,
+        "/Users/testuser/Library/Caches/Coursier/v1",
+        get_coursier_cache_or_default(mock_environ, "mac", True)
+    )
+    return unittest.end(env)
+
+get_coursier_cache_or_default_enabled_with_default_location_mac_test = add_test(_get_coursier_cache_or_default_enabled_with_default_location_mac_test)
 
 def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     env = unittest.begin(ctx)
@@ -397,7 +413,7 @@ def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     asserts.equals(
         env,
         "/custom/location",
-        get_coursier_cache_or_default(mock_environ, True)
+        get_coursier_cache_or_default(mock_environ, "linux", True)
     )
     return unittest.end(env)
 
