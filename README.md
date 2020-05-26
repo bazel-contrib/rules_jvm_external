@@ -36,6 +36,7 @@ Table of Contents
          * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
          * [Jetifier](#jetifier)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
+      * [Publishing to external repositories](#publishing-to-external-repositories)
       * [Demo](#demo)
       * [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
       * [Generating documentation](#generating-documentation)
@@ -912,6 +913,47 @@ java_library(
 ```
 
 Any version conflicts or duplicate artifacts will resolved automatically.
+
+## Publishing to External Repositories
+
+In order to publish an artifact from your repo to a maven repository, you
+must first create a `java_export` target. This is similar to a regular
+`java_library`, but allows two additional parameters: the maven coordinates
+and an optional template file to use for the `pom.xml` file.
+
+```python
+# user_project/BUILD
+load("@rules_jvm_external//:defs.bzl", "java_export")
+
+java_export(
+  name = "exported_lib",
+  maven_coordinates = "com.example:project:0.0.1",
+  pom_template = "pom.tmpl",  # You can omit this
+  srcs = glob(["*.java"]),
+  deps = [
+    "//user_project/utils",
+    "@maven//:com_google_guava_guava",
+  ],
+)
+```  
+
+In order to publish the artifact, use `bazel run`:
+
+`bazel run --define "maven_repo=file://$HOME/.m2/repository" //user_project:exported_lib.publish`
+
+Or, to publish to (eg) Sonatype's OSS repo:
+
+```python
+bazel run --stamp \
+  --define "maven_repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" \
+  --define "maven_user=example_user" \
+  --define "maven_password=hunter2" \
+  --define gpg_sign=true \
+  //user_project:exported_lib.publish`
+```
+
+When using the `gpg_sign` option, the current default key will be used for 
+signing, and the `gpg` binary needs to be installed on the machine.
 
 ## Demo
 

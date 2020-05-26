@@ -1,0 +1,3 @@
+# Set the default java toolchain
+build --java_toolchain=@bazel_tools//tools/jdk:toolchain_java11
+

@@ -1,0 +1,7 @@
+java_library(
+    name = "zip",
+    srcs = glob(["*.java"]),
+    visibility = [
+        "//private/tools/java:__subpackages__",
+    ],
+)
