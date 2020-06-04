@@ -363,15 +363,24 @@ def _mock_repo_path(path):
     else:
         return "/mockroot/" + path
 
+def _mock_which(path):
+    return False
+
 def _get_coursier_cache_or_default_disabled_test(ctx):
     env = unittest.begin(ctx)
-    mock_environ = {
-        "COURSIER_CACHE": _mock_repo_path("/does/not/matter")
-    }
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "COURSIER_CACHE": _mock_repo_path("/does/not/matter")
+            },
+            name = "linux",
+        ),
+        which = _mock_which
+    )
     asserts.equals(
         env,
         "v1",
-        get_coursier_cache_or_default(mock_environ, "linux", False)
+        get_coursier_cache_or_default(mock_repository_ctx, False)
     )
     return unittest.end(env)
 
@@ -379,13 +388,19 @@ get_coursier_cache_or_default_disabled_test = add_test(_get_coursier_cache_or_de
 
 def _get_coursier_cache_or_default_enabled_with_default_location_linux_test(ctx):
     env = unittest.begin(ctx)
-    mock_environ = {
-        "HOME": "/home/testuser"
-    }
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "HOME": "/home/testuser"
+            },
+            name = "linux",
+        ),
+        which = _mock_which
+    )
     asserts.equals(
         env,
         "/home/testuser/.cache/coursier/v1",
-        get_coursier_cache_or_default(mock_environ, "linux", True)
+        get_coursier_cache_or_default(mock_repository_ctx, True)
     )
     return unittest.end(env)
 
@@ -393,13 +408,19 @@ get_coursier_cache_or_default_enabled_with_default_location_linux_test = add_tes
 
 def _get_coursier_cache_or_default_enabled_with_default_location_mac_test(ctx):
     env = unittest.begin(ctx)
-    mock_environ = {
-        "HOME": "/Users/testuser"
-    }
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "HOME": "/Users/testuser"
+            },
+            name = "mac",
+        ),
+        which = _mock_which
+    )
     asserts.equals(
         env,
         "/Users/testuser/Library/Caches/Coursier/v1",
-        get_coursier_cache_or_default(mock_environ, "mac", True)
+        get_coursier_cache_or_default(mock_repository_ctx, True)
     )
     return unittest.end(env)
 
@@ -407,17 +428,53 @@ get_coursier_cache_or_default_enabled_with_default_location_mac_test = add_test(
 
 def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     env = unittest.begin(ctx)
-    mock_environ = {
-        "COURSIER_CACHE": _mock_repo_path("/custom/location")
-    }
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "COURSIER_CACHE": _mock_repo_path("/custom/location")
+            },
+            name = "linux",
+        ),
+        which = _mock_which
+    )
     asserts.equals(
         env,
         "/custom/location",
-        get_coursier_cache_or_default(mock_environ, "linux", True)
+        get_coursier_cache_or_default(mock_repository_ctx, True)
     )
     return unittest.end(env)
 
 get_coursier_cache_or_default_enabled_with_custom_location_test = add_test(_get_coursier_cache_or_default_enabled_with_custom_location_test)
+
+def _mock_which_true(path):
+    return True
+
+def _mock_execute(args):
+    if args[-1] == "/Users/testuser/Library/Caches/Coursier/v1":
+        return struct(return_code = 1)
+    else:
+        return struct(return_code = 0)
+
+def _get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test(ctx):
+    env = unittest.begin(ctx)
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "HOME": "/Users/testuser"
+            },
+            name = "mac",
+        ),
+        which = _mock_which_true,
+        execute = _mock_execute,
+    )
+    asserts.equals(
+        env,
+        "/Users/testuser/.coursier/cache/v1",
+        get_coursier_cache_or_default(mock_repository_ctx, True)
+    )
+    return unittest.end(env)
+
+get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test = add_test(_get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test)
 
 def coursier_test_suite():
     unittest.suite(

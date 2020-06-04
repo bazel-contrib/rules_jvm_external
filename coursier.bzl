@@ -49,14 +49,20 @@ sh_binary(
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
-def _is_windows(os_name):
-    return os_name.find("windows") != -1
+def _is_windows(repository_ctx):
+    return repository_ctx.os.name.find("windows") != -1
 
-def _is_linux(os_name):
-    return os_name.find("linux") != -1
+def _is_linux(repository_ctx):
+    return repository_ctx.os.name.find("linux") != -1
 
-def _is_macos(os_name):
-    return os_name.find("mac") != -1
+def _is_macos(repository_ctx):
+    return repository_ctx.os.name.find("mac") != -1
+
+def _is_file(repository_ctx, path):
+    return repository_ctx.which("test") and repository_ctx.execute(["test", "-f", path]).return_code == 0
+
+def _is_directory(repository_ctx, path):
+    return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
@@ -76,8 +82,7 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
     absolute_path_parts = absolute_path.split(get_coursier_cache_or_default(
-        repository_ctx.os.environ,
-        repository_ctx.os.name,
+        repository_ctx,
         repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"),
     ))
     if len(absolute_path_parts) != 2:
@@ -126,7 +131,7 @@ def _windows_check(repository_ctx):
     #
     # On Windows, run msys once to bootstrap it
     # https://github.com/bazelbuild/rules_jvm_external/issues/53
-    if (_is_windows(repository_ctx.os.name)):
+    if (_is_windows(repository_ctx)):
         bash = repository_ctx.os.environ.get("BAZEL_SH")
         if (bash == None):
             fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
@@ -228,7 +233,7 @@ def get_home_netrc_contents(repository_ctx):
     if "HOME" in repository_ctx.os.environ:
         if not repository_ctx.os.name.startswith("windows"):
             netrcfile = "%s/.netrc" % (repository_ctx.os.environ["HOME"],)
-            if repository_ctx.which("test") and repository_ctx.execute(["test", "-f", netrcfile]).return_code == 0:
+            if _is_file(repository_ctx, netrcfile):
                 return repository_ctx.read(netrcfile)
     return ""
 
@@ -470,24 +475,33 @@ def _deduplicate_artifacts(dep_tree):
 # Get the path to the cache directory containing Coursier-downloaded artifacts.
 #
 # This method is public for testing.
-def get_coursier_cache_or_default(os_env, os_name, use_unsafe_shared_cache):
+def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
     # If we're not using the unsafe shared cache use 'external/<this repo>/v1/'.
     # 'v1' is the current version of the Coursier cache.
     if not use_unsafe_shared_cache:
         return "v1"
 
+    os_env = repository_ctx.os.environ
     coursier_cache_env_var = os_env.get("COURSIER_CACHE")
     if coursier_cache_env_var:
         # This is an absolute path.
         return coursier_cache_env_var
 
-    # locations from https://get-coursier.io/docs/2.0.0-RC5-3/cache.html#default-location
-    if _is_windows(os_name):
-        return "%s/Coursier/cache/v1" % os_env.get("LOCALAPPDATA").replace("\\", "/")
-    elif _is_macos(os_name):
-        return "%s/Library/Caches/Coursier/v1" % os_env.get("HOME")
-    else:
-        return "%s/.cache/coursier/v1" % os_env.get("HOME")
+    # cache locations from https://get-coursier.io/docs/2.0.0-RC5-3/cache.html#default-location
+    # Use linux as the default cache directory
+    default_cache_dir = "%s/.cache/coursier/v1" % os_env.get("HOME")
+    if _is_windows(repository_ctx):
+        default_cache_dir = "%s/Coursier/cache/v1" % os_env.get("LOCALAPPDATA").replace("\\", "/")
+    elif _is_macos(repository_ctx):
+        default_cache_dir = "%s/Library/Caches/Coursier/v1" % os_env.get("HOME")
+
+    # Logic based on # https://github.com/coursier/coursier/blob/f48c1c6b01ac5b720e66e06cf93587b21d030e8c/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L60
+    if _is_directory(repository_ctx, default_cache_dir):
+        return default_cache_dir
+    elif _is_directory(repository_ctx, "%s/.coursier" % os_env.get("HOME")):
+        return "%s/.coursier/cache/v1" % os_env.get("HOME")
+
+    return default_cache_dir
 
 def make_coursier_dep_tree(
         repository_ctx,
@@ -552,8 +566,7 @@ def make_coursier_dep_tree(
     environment = {}
     if not use_unsafe_shared_cache and not repository_ctx.attr.name.startswith("unpinned_"):
         coursier_cache_location = get_coursier_cache_or_default(
-            repository_ctx.os.environ,
-            repository_ctx.os.name,
+            repository_ctx,
             use_unsafe_shared_cache,
         )
         cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
