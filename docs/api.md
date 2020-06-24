@@ -3,6 +3,8 @@
 # API Reference
 
 - [Basic functions](#basic-functions)
+  - [javadoc](#javadoc)
+  - [java_export](#java_export)
   - [maven_install](#maven_install)
 - [Maven specification functions](#maven-specification-functions)
   - [maven.repository](#mavenrepository)
@@ -21,6 +23,84 @@ To use these functions, load them at the top of your BUILD file. For example:
 load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ```
 <!-- Generated with Stardoc: http://skydoc.bazel.build -->
+
+<a name="#javadoc"></a>
+
+## javadoc
+
+<pre>
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>)
+</pre>
+
+Generate a javadoc from all the `deps`
+
+**ATTRIBUTES**
+
+
+| Name  | Description | Type | Mandatory | Default |
+| :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
+| name |  A unique name for this target.   | <a href="https://bazel.build/docs/build-ref.html#name">Name</a> | required |  |
+| deps |  The java libraries to generate javadocs for.<br><br>          The source jars of each dep will be used to generate the javadocs.           Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a> | required |  |
+
+
+<a name="#java_export"></a>
+
+## java_export
+
+<pre>
+java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-kwargs">kwargs</a>)
+</pre>
+
+Extends `java_library` to allow maven artifacts to be uploaded.
+
+This macro can be used as a drop-in replacement for `java_library`, but
+also generates an implicit `name.publish` target that can be run to publish
+maven artifacts derived from this macro to a maven repository. The publish
+rule understands the following variables (declared using `--define` when
+using `bazel run`):
+
+  * `maven_repo`: A URL for the repo to use. May be "https" or "file".
+  * `maven_user`: The user name to use when uploading to the maven repository.
+  * `maven_password`: The password to use when uploading to the maven repository.
+
+This macro also generates a `name-pom` target that creates the `pom.xml` file
+associated with the artifacts. The template used is derived from the (optional)
+`pom_template` argument, and the following substitutions are performed on
+the template file:
+
+  * `{groupId}`: Replaced with the maven coordinates group ID.
+  * `{artifactId}`: Replaced with the maven coordinates artifact ID.
+  * `{version}`: Replaced by the maven coordinates version.
+  * `{type}`: Replaced by the maven coordintes type, if present (defaults to "jar")
+  * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
+    by java_library targets within the artifact.
+
+The "edges" of the artifact are found by scanning targets that contribute to
+runtime dependencies for the following tags:
+
+  * `maven_coordinates=group:artifact:type:version`: Specifies a dependency of
+    this artifact.
+  * `maven:compile_only`: Specifies that this dependency should not be listed
+    as a dependency of the artifact being generated.
+
+Generated rules:
+  * `name`: A `java_library` that other rules can depend upon.
+  * `name-docs`: A javadoc jar file.
+  * `name-pom`: The pom.xml file.
+  * `name.publish`: To be executed by `bazel run` to publish to a maven repo.
+
+
+**PARAMETERS**
+
+
+| Name  | Description | Default Value |
+| :-------------: | :-------------: | :-------------: |
+| name |  A unique name for this target   |  none |
+| maven_coordinates |  The maven coordinates for this target.   |  none |
+| pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
+| visibility |  The visibility of the target   |  <code>None</code> |
+| kwargs |  These are passed to [<code>java_library</code>](https://docs.bazel.build/versions/master/be/java.html#java_library),   and so may contain any valid parameter for that rule.   |  none |
+
 
 <a name="#maven_install"></a>
 

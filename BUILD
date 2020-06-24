@@ -10,7 +10,11 @@ stardoc(
     name = "defs",
     out = "defs.md",
     input = "defs.bzl",
-    symbol_names = ["maven_install"],
+    symbol_names = [
+        "javadoc",
+        "java_export",
+        "maven_install",
+    ],
     deps = ["//:implementation"],
 )
 

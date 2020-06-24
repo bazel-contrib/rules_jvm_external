@@ -9,47 +9,51 @@ def java_export(
         pom_template = None,
         visibility = None,
         **kwargs):
-    """Extends java_library to allow maven artifacts to be uploaded.
+    """Extends `java_library` to allow maven artifacts to be uploaded.
 
-    This macro can be used as a drop-in replacement for java_library, but
-    also generates an implicit "*.publish" target that can be run to publish
+    This macro can be used as a drop-in replacement for `java_library`, but
+    also generates an implicit `name.publish` target that can be run to publish
     maven artifacts derived from this macro to a maven repository. The publish
-    rule understands the following variables (declared using "--define" when
-    using "bazel run"):
+    rule understands the following variables (declared using `--define` when
+    using `bazel run`):
 
-      maven_repo: A URL for the repo to use. May be "https" or "file".
-      maven_user: The user name to use when uploading to the maven repository.
-      maven_password: The password to use when uploading to the maven repository.
+      * `maven_repo`: A URL for the repo to use. May be "https" or "file".
+      * `maven_user`: The user name to use when uploading to the maven repository.
+      * `maven_password`: The password to use when uploading to the maven repository.
 
-    This macro also generates a "*-pom" target that creates the "pom.xml" file
-    associated with the artifacts. The template used is derived from the
-    "pom_template" argument, and the following substitutions are performed on
+    This macro also generates a `name-pom` target that creates the `pom.xml` file
+    associated with the artifacts. The template used is derived from the (optional)
+    `pom_template` argument, and the following substitutions are performed on
     the template file:
 
-      {groupId}: Replaced with the maven coordinates group ID.
-      {artifactId}: Replaced with the maven coordinates artifact ID.
-      {version}: Replaced by the maven coordinates version.
-      {type}: Replaced by the maven coordintes type, if present (defaults to "jar")
-      {dependencies}: Replaced by a list of maven dependencies directly relied upon
+      * `{groupId}`: Replaced with the maven coordinates group ID.
+      * `{artifactId}`: Replaced with the maven coordinates artifact ID.
+      * `{version}`: Replaced by the maven coordinates version.
+      * `{type}`: Replaced by the maven coordintes type, if present (defaults to "jar")
+      * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
         by java_library targets within the artifact.
 
     The "edges" of the artifact are found by scanning targets that contribute to
     runtime dependencies for the following tags:
 
-      maven_coordinates=group:artifact:type:version: Specifies a dependency of
+      * `maven_coordinates=group:artifact:type:version`: Specifies a dependency of
         this artifact.
-      maven:compile_only: Specifies that this dependency should not be listed
+      * `maven:compile_only`: Specifies that this dependency should not be listed
         as a dependency of the artifact being generated.
 
-    Args in addition to standard `java_library` args:
+    Generated rules:
+      * `name`: A `java_library` that other rules can depend upon.
+      * `name-docs`: A javadoc jar file.
+      * `name-pom`: The pom.xml file.
+      * `name.publish`: To be executed by `bazel run` to publish to a maven repo.
+
+    Args:
+      name: A unique name for this target
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
-
-    Generated rules:
-      name: A "java_library" that other rules can depend upon.
-      name-docs: A javadoc jar file.
-      name-pom: The pom.xml file.
-      name.publish: To be executed by `bazel run` to publish to a maven repo.
+      visibility: The visibility of the target
+      kwargs: These are passed to [`java_library`](https://docs.bazel.build/versions/master/be/java.html#java_library),
+        and so may contain any valid parameter for that rule.
     """
 
     tags = getattr(kwargs, "tags", []) + ["maven_coordinates=%s" % maven_coordinates]
