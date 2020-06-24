@@ -33,11 +33,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
@@ -49,6 +49,7 @@ import java.util.zip.ZipInputStream;
 
 import static java.util.zip.Deflater.BEST_COMPRESSION;
 import static java.util.zip.ZipOutputStream.DEFLATED;
+import static rules.jvm.external.jar.DuplicateEntryStrategy.LAST_IN_WINS;
 
 
 public class MergeJars {
@@ -59,13 +60,19 @@ public class MergeJars {
 
   public static void main(String[] args) throws IOException {
     Path out = null;
-    SortedSet<Path> sources = new TreeSet<>();
+    // Insertion order may matter
+    Set<Path> sources = new LinkedHashSet<>();
+    DuplicateEntryStrategy onDuplicate = LAST_IN_WINS;
 
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
         case "--compression":
         case "--normalize":
           // ignore
+          break;
+
+        case "--duplicates":
+          onDuplicate = DuplicateEntryStrategy.fromShortName(args[++i]);
           break;
 
         case "--output":
@@ -137,14 +144,20 @@ public class MergeJars {
           if (!Files.exists(outPath.getParent())) {
             Files.createDirectories(outPath.getParent());
           }
-          try (OutputStream os = Files.newOutputStream(outPath)) {
-            ByteStreams.copy(zis, os);
-          }
 
-          SortedMap<Path, Path> dirPaths = allPaths.computeIfAbsent(
-            temp.relativize(outPath.getParent()),
-            path -> new TreeMap<>());
-          dirPaths.put(temp.relativize(outPath), outPath);
+          if (Files.exists(outPath)) {
+            // Write the file out to a temporary location, and then figure out what to do
+            onDuplicate.resolve(outPath, zis);
+          } else {
+            try (OutputStream os = Files.newOutputStream(outPath)) {
+              ByteStreams.copy(zis, os);
+            }
+
+            SortedMap<Path, Path> dirPaths = allPaths.computeIfAbsent(
+              temp.relativize(outPath.getParent()),
+              path -> new TreeMap<>());
+            dirPaths.put(temp.relativize(outPath), outPath);
+          }
         }
       }
     }
@@ -257,5 +270,4 @@ public class MergeJars {
 
     return into;
   }
-
 }
