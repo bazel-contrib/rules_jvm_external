@@ -1,0 +1,20 @@
+load("//:defs.bzl", "artifact")
+
+java_binary(
+    name = "MergeJars",
+    srcs = glob(["*.java"]),
+    javacopts = [
+        "-source",
+        "8",
+        "-target",
+        "8",
+    ],
+    deps = [
+        "//private/tools/java/rules/jvm/external/zip",
+        artifact("com.google.guava:guava"),
+    ],
+    main_class = "rules.jvm.external.jar.MergeJars",
+    visibility = [
+        "//visibility:public",
+    ],
+)

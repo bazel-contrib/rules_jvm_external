@@ -1,1 +1,4 @@
-exports_files(["manifest_target_label.tpl"])
+exports_files([
+    "manifest_target_label.tpl",
+    "pom.tpl",
+])
