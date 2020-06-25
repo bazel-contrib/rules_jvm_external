@@ -45,4 +45,7 @@ java_import(
         # here directly, and bypass the stamping in jvm_import.bzl.
         "@unsafe_shared_cache//:v1/https/repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar",
     ],
+    visibility = [
+        "//tests/com/jvm/external:__pkg__",
+    ]
 )

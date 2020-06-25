@@ -47,7 +47,7 @@ java_test(
     srcs = ["UnsafeSharedCacheTest.java"],
     test_class = "com.jvm.external.UnsafeSharedCacheTest",
     deps = [
-        ":guava_import",
+        "//tests/integration:guava_import",
         "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_core",
     ],
