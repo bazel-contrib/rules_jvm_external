@@ -1,5 +1,3 @@
-load("//:defs.bzl", "artifact")
-
 java_binary(
     name = "MergeJars",
     srcs = glob(["*.java"]),
@@ -10,8 +8,8 @@ java_binary(
         "8",
     ],
     deps = [
+        "//private/tools/java/rules/jvm/external:byte-streams",
         "//private/tools/java/rules/jvm/external/zip",
-        artifact("com.google.guava:guava"),
     ],
     main_class = "rules.jvm.external.jar.MergeJars",
     visibility = [

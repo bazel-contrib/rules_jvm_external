@@ -17,18 +17,19 @@
 
 package rules.jvm.external.maven;
 
-import com.google.common.base.Splitter;
-import com.google.common.hash.Hashing;
-import com.google.common.io.ByteStreams;
+import rules.jvm.external.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -58,7 +59,7 @@ public class MavenPublisher {
 
     Credentials credentials = new Credentials(args[2], args[3], Boolean.parseBoolean(args[1]));
 
-    List<String> parts = Splitter.on(':').splitToList(args[4]);
+    List<String> parts = Arrays.asList(args[4].split(":"));
     if (parts.size() != 3) {
       throw new IllegalArgumentException("Coordinates must be a triplet: " + Arrays.toString(args));
     }
@@ -102,10 +103,10 @@ public class MavenPublisher {
 
     byte[] toHash = Files.readAllBytes(item);
     Path md5 = Files.createTempFile(item.getFileName().toString(), ".md5");
-    Files.write(md5, Hashing.md5().hashBytes(toHash).toString().getBytes(UTF_8));
+    Files.write(md5, toMd5(toHash).getBytes(UTF_8));
 
     Path sha1 = Files.createTempFile(item.getFileName().toString(), ".sha1");
-    Files.write(sha1, Hashing.sha1().hashBytes(toHash).toString().getBytes(UTF_8));
+    Files.write(sha1, toSha1(toHash).getBytes(UTF_8));
 
     List<CompletableFuture<?>> uploads = new ArrayList<>();
     uploads.add(upload(String.format("%s%s", base, append), credentials, item));
@@ -119,6 +120,24 @@ public class MavenPublisher {
     }
 
     return CompletableFuture.allOf(uploads.toArray(new CompletableFuture<?>[0]));
+  }
+
+  private static String toSha1(byte[] toHash) {
+    return toHexS("SHA-1", toHash);
+  }
+
+  private static String toMd5(byte[] toHash) {
+    return toHexS("MD5", toHash);
+  }
+
+  private static String toHexS(String algorithm, byte[] toHash) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance(algorithm);
+      digest.update(toHash);
+      return new BigInteger(1, digest.digest()).toString(16);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static CompletableFuture<Void> upload(String targetUrl, Credentials credentials, Path toUpload) {

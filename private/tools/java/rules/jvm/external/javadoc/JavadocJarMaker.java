@@ -17,7 +17,7 @@
 
 package rules.jvm.external.javadoc;
 
-import com.google.common.io.ByteStreams;
+import rules.jvm.external.ByteStreams;
 import rules.jvm.external.zip.StableZipEntry;
 
 import javax.tools.DocumentationTool;
