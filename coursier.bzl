@@ -35,14 +35,26 @@ load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "je
 """
 
 _BUILD_PIN = """
+genrule(
+    name = "jq-binary",
+    cmd = "cp $< $@",
+    outs = ["jq"],
+    srcs = select({{
+        "@bazel_tools//src/conditions:linux_x86_64": ["jq-linux"],
+        "@bazel_tools//src/conditions:darwin": ["jq-macos"],
+        "@bazel_tools//src/conditions:windows": ["jq-windows"],
+    }}),
+)
+
 sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
-    data = select({{
-        "@bazel_tools//src/conditions:linux_x86_64": ["@rules_jvm_external_jq_linux//file"],
-        "@bazel_tools//src/conditions:darwin": ["@rules_jvm_external_jq_osx//file"],
-        "@bazel_tools//src/conditions:windows": ["@rules_jvm_external_jq_windows//file"],
-    }}),
+    args = [
+      "$(location :jq-binary)",
+    ],
+    data = [
+        ":jq-binary",
+    ],
 )
 """
 
@@ -244,9 +256,9 @@ def _get_jq_http_files():
         lines.extend([
             "    maybe(",
             "        http_file,",
-            "        name = \"rules_jvm_external_jq_%s\"," % jq.os,
-            "        urls = %s," % repr([jq.url]),
-            "        sha256 = %s," % repr(jq.sha256),
+            "        name = \"rules_jvm_external_jq_%s\"," % jq,
+            "        urls = %s," % repr([JQ_VERSIONS[jq].url]),
+            "        sha256 = %s," % repr(JQ_VERSIONS[jq].sha256),
             "        downloaded_file_path = \"jq\",",
             "        executable = True,",
             "    )",
@@ -591,6 +603,11 @@ def make_coursier_dep_tree(
     return _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path(
         "dep-tree.json"))))
 
+def _download_jq(repository_ctx):
+    jq_version = None
+
+    for (os, value) in JQ_VERSIONS.items():
+        repository_ctx.download(value.url, "jq-%s" % os, sha256 = value.sha256, executable = True)
 
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
@@ -608,6 +625,7 @@ def _coursier_fetch_impl(repository_ctx):
         coursier_download_urls.append(coursier_url_from_env)
 
     repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+    _download_jq(repository_ctx)
 
     # Try running coursier once
     exec_result = repository_ctx.execute(
@@ -862,9 +880,9 @@ def _coursier_fetch_impl(repository_ctx):
         "pin.sh",
         repository_ctx.attr._pin,
         {
+            "{dependency_tree_json}": dependency_tree_json,
             "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
             "{predefined_maven_install}": str(predefined_maven_install),
-            "{dependency_tree_json}": dependency_tree_json,
             "{repository_name}": repository_name,
         },
         executable = True,
