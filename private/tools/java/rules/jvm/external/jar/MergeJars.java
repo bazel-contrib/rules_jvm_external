@@ -17,7 +17,7 @@
 
 package rules.jvm.external.jar;
 
-import com.google.common.io.ByteStreams;
+import rules.jvm.external.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

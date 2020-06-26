@@ -1,5 +1,3 @@
-load("//:defs.bzl", "artifact")
-
 java_binary(
     name = "MavenPublisher",
     srcs = ["MavenPublisher.java"],
@@ -10,8 +8,8 @@ java_binary(
         "8",
     ],
     main_class = "rules.jvm.external.maven.MavenPublisher",
-    visibility = ["//visibility:public"],
     deps = [
-        artifact("com.google.guava:guava"),
+        "//private/tools/java/rules/jvm/external:byte-streams",
     ],
+    visibility = ["//visibility:public"],
 )
