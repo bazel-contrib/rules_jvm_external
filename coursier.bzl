@@ -427,9 +427,14 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             )
 
 def split_url(url):
+    ''' processes a url like the following, and returns protocol (http, https)
+        and url_parts ['repo.demo.com', 'a', 'b', 'foo', 'foo.jar']
+        https://username@repo.demo.com/a/b/foo/foo.jar '''
     protocol = url[:url.find("://")]
-    url_without_protocol = url[url.find("://") + 3:]
-    url_parts = url_without_protocol.split("/")
+    url_without_protocol_and_user = url[url.find("://") + 3:]
+    if "@" in url_without_protocol_and_user:
+       url_without_protocol_and_user = url_without_protocol_and_user.split("@")[1]
+    url_parts = url_without_protocol_and_user.split("/")
     return protocol, url_parts
 
 def remove_auth_from_url(url):
@@ -437,10 +442,7 @@ def remove_auth_from_url(url):
     if "@" not in url:
         return url
     protocol, url_parts = split_url(url)
-    host = url_parts[0]
-    if "@" not in host:
-        return url
-    userless_host = host[host.find("@") + 1:]
+    userless_host = url_parts[0]
     new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
 
