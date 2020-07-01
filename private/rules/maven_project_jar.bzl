@@ -87,7 +87,6 @@ single artifact that other teams can download and use.
             executable = True,
             cfg = "host",
             default = "//private/tools/java/rules/jvm/external/jar:MergeJars",
-            allow_files = True,
         ),
         "_java_toolchain": attr.label(
             default = "@bazel_tools//tools/jdk:current_java_toolchain",
