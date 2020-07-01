@@ -3,6 +3,7 @@ java_library(
     srcs = ["ByteStreams.java"],
     visibility = [
         "//private/tools/java/rules/jvm/external:__subpackages__",
+        "//tests/com/jvm/external:__subpackages__",
     ]
 )
 

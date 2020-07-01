@@ -1,15 +1,14 @@
 package rules.jvm.external.jar;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-import com.google.common.io.ByteStreams;
+import rules.jvm.external.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -34,12 +33,10 @@ enum DuplicateEntryStrategy {
   IS_ERROR("are-errors") {
     @Override
     public void resolve(Path current, InputStream inputStreamForDuplicate) throws IOException {
-      HashFunction hashFunction = Hashing.goodFastHash(64);
+      byte[] first = hash(Files.readAllBytes(current));
+      byte[] second = hash(ByteStreams.toByteArray(inputStreamForDuplicate));
 
-      HashCode first = hashFunction.hashBytes(Files.readAllBytes(current));
-      HashCode second = hashFunction.hashBytes(ByteStreams.toByteArray(inputStreamForDuplicate));
-
-      if (first.equals(second)) {
+      if (Arrays.equals(first, second)) {
         return;
       }
       throw new IOException("Attempt to write different duplicate file for: " + current);
@@ -69,4 +66,14 @@ enum DuplicateEntryStrategy {
   }
 
   public abstract void resolve(Path current, InputStream inputStreamForDuplicate) throws IOException;
+
+  protected byte[] hash(byte[] bytes) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      digest.update(bytes);
+      return digest.digest();
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
