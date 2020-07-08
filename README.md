@@ -65,7 +65,7 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 RULES_JVM_EXTERNAL_TAG = "3.3"
-RULES_JVM_EXTERNAL_SHA = "2a547d8d5e99703de8de54b6188ff0ed470b3bfc88e346972d1c8865e2688391"
+RULES_JVM_EXTERNAL_SHA = "d85951a92c0908c80bd8551002d66cb23c3434409c814179c0ff026b53544dab"
 
 http_archive(
     name = "rules_jvm_external",
