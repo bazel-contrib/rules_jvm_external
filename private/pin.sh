@@ -3,8 +3,7 @@
 set -euo pipefail
 readonly maven_install_json_loc={maven_install_location}
 # This script is run as a `sh_binary`, so ensure we are in the calling workspace before running Bazel.
-readonly execution_root=$(cd "$(dirname "$maven_install_json_loc")" && bazel info execution_root)
-readonly workspace_name=$(basename "$execution_root")
+cd "$(dirname "$maven_install_json_loc")"
 # `jq` is a platform-specific dependency with an unpredictable path.
 readonly jq=$1
 cat <<"RULES_JVM_EXTERNAL_EOF" | "$jq" --sort-keys --indent 4 . - > $maven_install_json_loc
@@ -28,7 +27,7 @@ else
 maven_install(
     artifacts = # ...,
     repositories = # ...,
-    maven_install_json = "@$workspace_name//:{repository_name}_install.json",
+    maven_install_json = "@//:{repository_name}_install.json",
 )
 
 load("@{repository_name}//:defs.bzl", "pinned_maven_install")
