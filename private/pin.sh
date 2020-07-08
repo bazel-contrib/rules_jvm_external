@@ -2,8 +2,6 @@
 
 set -euo pipefail
 readonly maven_install_json_loc={maven_install_location}
-# This script is run as a `sh_binary`, so ensure we are in the calling workspace before running Bazel.
-cd "$(dirname "$maven_install_json_loc")"
 # `jq` is a platform-specific dependency with an unpredictable path.
 readonly jq=$1
 cat <<"RULES_JVM_EXTERNAL_EOF" | "$jq" --sort-keys --indent 4 . - > $maven_install_json_loc
