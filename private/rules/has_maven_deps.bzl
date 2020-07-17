@@ -84,8 +84,9 @@ def _has_maven_deps_impl(target, ctx):
             first_order_java_infos.append(dep[JavaInfo])
 
     deps_java_infos = depset(
-        items = first_order_java_infos,
-        transitive = [dep.deps_java_infos for dep in all_infos])
+        first_order_java_infos,
+        transitive = [dep.deps_java_infos for dep in all_infos],
+    )
 
     all_jars = target[JavaInfo].transitive_runtime_jars
     jars_from_maven_deps = depset(transitive = [info.jars_from_maven_deps for info in all_infos])
