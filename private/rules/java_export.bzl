@@ -109,6 +109,7 @@ def java_export(
         javadocs = "%s-docs" % name,
         artifact_jar = ":%s-maven-artifact" % name,
         source_jar = ":%s-maven-source" % name,
+        visibility = visibility,
     )
 
     # Finally, alias the primary output
