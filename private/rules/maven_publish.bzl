@@ -1,3 +1,13 @@
+MavenPublishInfo = provider (
+    fields = {
+        "coordinates": "Maven coordinates for the project, which may be None",
+        "pom": "Pom.xml file for metdata",
+        "javadocs": "Javadoc jar file for documentation files",
+        "artifact_jar": "Jar with the code and metadata for execution",
+        "source_jar": "Jar with the source code for review",
+    }
+)
+
 _TEMPLATE = """#!/usr/bin/env bash
 
 echo "Uploading {coordinates} to {maven_repo}"
@@ -38,6 +48,13 @@ def _maven_publish_impl(ctx):
                 },
                 collect_data = True,
             ).merge(ctx.attr._uploader[DefaultInfo].data_runfiles),
+        ),
+        MavenPublishInfo(
+            coordinates = ctx.attr.coordinates,
+            artifact_jar = ctx.file.artifact_jar,
+            javadocs = ctx.file.javadocs,
+            source_jar = ctx.file.source_jar,
+            pom = ctx.file.pom
         )
     ]
 
