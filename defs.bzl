@@ -18,6 +18,7 @@ load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//private/rules:java_export.bzl", _java_export = "java_export")
 load("//private/rules:javadoc.bzl", _javadoc = "javadoc")
 load("//private/rules:pom_file.bzl", _pom_file = "pom_file")
+load("//private/rules:maven_publish.bzl", _MavenPublishInfo = "MavenPublishInfo")
 
 DEFAULT_REPOSITORY_NAME = "maven"
 
@@ -156,3 +157,4 @@ def _parse_artifact_str(artifact_str):
 java_export = _java_export
 javadoc = _javadoc
 pom_file = _pom_file
+MavenPublishInfo = _MavenPublishInfo
