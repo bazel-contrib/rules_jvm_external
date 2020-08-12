@@ -8,6 +8,7 @@ def java_export(
         maven_coordinates,
         pom_template = None,
         visibility = None,
+        tags = [],
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
@@ -56,7 +57,7 @@ def java_export(
         and so may contain any valid parameter for that rule.
     """
 
-    tags = getattr(kwargs, "tags", []) + ["maven_coordinates=%s" % maven_coordinates]
+    tags = tags + ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
     # Construct the java_library we'll export from here.
