@@ -37,6 +37,25 @@ diff_test(
     file2 = ":testonly-deps",
 )
 
+# https://github.com/coursier/coursier/issues/1792
+# https://github.com/bazelbuild/rules_jvm_external/issues/433
+genquery(
+    name = "version_interval_deps",
+    expression = "deps(@version_interval_testing//:io_grpc_grpc_netty_shaded, 2)",
+    opts = ["--nohost_deps", "--noimplicit_deps"],
+    scope = ["@version_interval_testing//:io_grpc_grpc_netty_shaded"],
+    testonly = True,
+)
+
+diff_test(
+    name = "version_interval_deps_test",
+    file1 = select({
+        "@bazel_tools//src/conditions:windows": "version-interval-deps.golden.dos",
+        "//conditions:default": "version-interval-deps.golden.unix",
+    }),
+    file2 = ":version_interval_deps",
+)
+
 java_import(
     name = "guava_import",
     jars = [
