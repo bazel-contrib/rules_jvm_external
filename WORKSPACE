@@ -2,8 +2,8 @@ workspace(name = "rules_jvm_external")
 
 android_sdk_repository(
     name = "androidsdk",
-    api_level = 28,
-    build_tools_version = "28.0.2",
+    api_level = 29,
+    build_tools_version = "29.0.2",
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
