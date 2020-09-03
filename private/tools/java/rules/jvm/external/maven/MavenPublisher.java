@@ -171,7 +171,7 @@ public class MavenPublisher {
       if (credentials.getUser() != null) {
         String basicAuth = Base64.getEncoder().encodeToString(
           String.format("%s:%s", credentials.getUser(), credentials.getPassword()).getBytes(US_ASCII));
-        connection.setRequestProperty("Authorization", "BASIC " + basicAuth);
+        connection.setRequestProperty("Authorization", "Basic " + basicAuth);
       }
       connection.setRequestProperty("Content-Length", "" + Files.size(toUpload));
 
