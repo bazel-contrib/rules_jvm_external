@@ -6,7 +6,10 @@ readonly maven_install_json_loc={maven_install_location}
 readonly execution_root=$(cd "$(dirname "$maven_install_json_loc")" && bazel info execution_root)
 readonly workspace_name=$(basename "$execution_root")
 # `jq` is a platform-specific dependency with an unpredictable path.
-readonly jq=$1
+# Note that $(rootpath) will always give external/unpinned_maven/jq, however under --nolegacy_external_runfiles
+# there is only pin.runfiles/unpinned_maven/jq not also pin.runfiles/user_repo/external/unpinned_maven/jq
+# So replace leading external/ with ../
+readonly jq=${1/#external\//..\/}
 cat <<"RULES_JVM_EXTERNAL_EOF" | "$jq" --sort-keys --indent 4 . - > $maven_install_json_loc
 {dependency_tree_json}
 RULES_JVM_EXTERNAL_EOF
