@@ -2,8 +2,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 android_sdk_repository(
     name = "androidsdk",
+    api_level = 28,
     build_tools_version = "28.0.2",
-    api_level=28,
 )
 
 android_ndk_repository(
@@ -66,11 +66,10 @@ http_archive(
 )
 
 load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
 # Creates a default toolchain config for RBE.
 # Use this as is if you are using the rbe_ubuntu16_04 container,
 # otherwise refer to RBE docs.
 rbe_autoconfig(name = "buildkite_config")
-rbe_autoconfig(name = "rbe_default")
 
-# RBE support for android_device and android_instrumentation_test on RBE.
-register_execution_platforms(":android_platform")
+rbe_autoconfig(name = "rbe_default")
