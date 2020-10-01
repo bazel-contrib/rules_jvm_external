@@ -4,12 +4,16 @@ tasks:
     name: "Simple example"
     platform: ubuntu1804
     working_directory: examples/simple
+    shell_command: 
+      - "bazel run @maven//:pin"
     build_targets:
       - "//..."
   simple-macos:
     name: "Simple example"
     platform: macos
     working_directory: examples/simple
+    shell_command: 
+      - "bazel run @maven//:pin"
     build_targets:
       - "//..."
   simple-windows:
