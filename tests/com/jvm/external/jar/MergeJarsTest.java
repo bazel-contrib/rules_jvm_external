@@ -162,6 +162,23 @@ public class MergeJarsTest {
     assertEquals("Hello, World!", contents.get("com/example/A.class"));
   }
 
+  @Test
+  public void shouldAddAnEntryToTheManifest() throws IOException {
+    Path inputOne = temp.newFile("first.jar").toPath();
+    createJar(inputOne, ImmutableMap.of("com/example/A.class", "Hello, World!"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+      "--output", outputJar.toAbsolutePath().toString(),
+      "--sources", inputOne.toAbsolutePath().toString(),
+      "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+
+    Map<String, String> contents = readJar(outputJar);
+    assertEquals(2, contents.size());
+    assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Target-Label: @maven//:com_google_guava_guava"));
+  }
+
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
          ZipOutputStream zos = new ZipOutputStream(os)) {

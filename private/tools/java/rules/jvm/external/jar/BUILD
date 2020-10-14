@@ -1,5 +1,5 @@
 java_binary(
-    name = "MergeJars",
+    name = "merge_jars",
     srcs = glob(["*.java"]),
     javacopts = [
         "-source",
@@ -9,7 +9,6 @@ java_binary(
     ],
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
-        "//private/tools/java/rules/jvm/external/zip",
     ],
     main_class = "rules.jvm.external.jar.MergeJars",
     visibility = [

@@ -6,7 +6,7 @@ java_test(
     srcs = ["MergeJarsTest.java"],
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
-        "//private/tools/java/rules/jvm/external/jar:MergeJars",
+        "//private/tools/java/rules/jvm/external/jar:merge_jars",
         "//private/tools/java/rules/jvm/external/zip",
         artifact("com.google.guava:guava"),
     ]
