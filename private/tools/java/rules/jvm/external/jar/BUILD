@@ -7,12 +7,12 @@ java_binary(
         "-target",
         "8",
     ],
-    deps = [
-        "//private/tools/java/rules/jvm/external:byte-streams",
-        "//private/tools/java/rules/jvm/external/zip",
-    ],
     main_class = "rules.jvm.external.jar.MergeJars",
     visibility = [
         "//visibility:public",
+    ],
+    deps = [
+        "//private/tools/java/rules/jvm/external:byte-streams",
+        "//private/tools/java/rules/jvm/external/zip",
     ],
 )

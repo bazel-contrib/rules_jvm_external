@@ -8,8 +8,8 @@ java_binary(
         "8",
     ],
     main_class = "rules.jvm.external.maven.MavenPublisher",
+    visibility = ["//visibility:public"],
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
     ],
-    visibility = ["//visibility:public"],
 )
