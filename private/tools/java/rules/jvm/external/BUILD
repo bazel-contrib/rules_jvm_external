@@ -4,7 +4,7 @@ java_library(
     visibility = [
         "//private/tools/java/rules/jvm/external:__subpackages__",
         "//tests/com/jvm/external:__subpackages__",
-    ]
+    ],
 )
 
 java_library(
@@ -12,7 +12,7 @@ java_library(
     srcs = ["Hasher.java"],
     visibility = [
         "//private/tools:__subpackages__",
-    ]
+    ],
 )
 
 java_test(

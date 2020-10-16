@@ -14,4 +14,3 @@ java_export(
         "//src/main/java/com/github/bazelbuild/rulesjvmexternal/example/export",
     ],
 )
-
