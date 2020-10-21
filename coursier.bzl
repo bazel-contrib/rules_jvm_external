@@ -390,6 +390,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             if a.get("testonly", False)
         },
         override_targets = repository_ctx.attr.override_targets,
+        escape_overrides = repository_ctx.attr.escape_overrides,
     )
 
     repository_ctx.template(
@@ -832,6 +833,7 @@ def _coursier_fetch_impl(repository_ctx):
             if a.get("testonly", False)
         },
         override_targets = repository_ctx.attr.override_targets,
+        escape_overrides = repository_ctx.attr.escape_overrides,
     )
 
     # This repository rule can be either in the pinned or unpinned state, depending on when
@@ -932,6 +934,7 @@ pinned_coursier_fetch = repository_rule(
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "escape_overrides": attr.string_dict(default = {}),
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies.
 
@@ -973,6 +976,7 @@ coursier_fetch = repository_rule(
         ),
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "escape_overrides": attr.string_dict(default = {}),
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies
 
