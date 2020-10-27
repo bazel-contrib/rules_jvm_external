@@ -440,7 +440,8 @@ def remove_auth_from_url(url):
     host = url_parts[0]
     if "@" not in host:
         return url
-    userless_host = host[host.find("@") + 1:]
+    last_index=host.rfind("@", 0, None)
+    userless_host=host[last_index + 1:]
     new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
 
