@@ -162,6 +162,25 @@ public class MergeJarsTest {
     assertEquals("Hello, World!", contents.get("com/example/A.class"));
   }
 
+  @Test
+  public void shouldUseDifferentTimesForSourceAndClassFiles() throws IOException {
+    Path inputOne = temp.newFile("first.jar").toPath();
+    createJar(inputOne, new ImmutableMap.Builder<String, String>()
+       .put("com/example/A.class", "Hello, Class!")
+       .put("com/example/A.java", "Hello, Source!")
+       .build());
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+      "--output", outputJar.toAbsolutePath().toString(),
+      "--sources", inputOne.toAbsolutePath().toString()});
+
+    Map<String, Long> entryTimestamps = readJarTimeStamps(outputJar);
+    assertEquals(3, entryTimestamps.size());
+    assertTrue(entryTimestamps.get("com/example/A.class") > entryTimestamps.get("com/example/A.java"));
+  }
+
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
          ZipOutputStream zos = new ZipOutputStream(os)) {
@@ -187,6 +206,24 @@ public class MergeJarsTest {
         }
 
         builder.put(entry.getName(), new String(ByteStreams.toByteArray(zis), UTF_8));
+      }
+    }
+
+    return builder.build();
+  }
+
+  private Map<String, Long> readJarTimeStamps(Path jar) throws IOException {
+    ImmutableMap.Builder<String, Long> builder = ImmutableMap.builder();
+
+    try (InputStream is = Files.newInputStream(jar);
+         ZipInputStream zis = new ZipInputStream(is)) {
+
+      for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
+        if (entry.isDirectory()) {
+          continue;
+        }
+
+        builder.put(entry.getName(), entry.getTime());
       }
     }
 

@@ -1,6 +1,6 @@
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 
-def _combine_jars(ctx, singlejar, inputs, output):
+def _combine_jars(ctx, merge_jars, inputs, output):
     args = ctx.actions.args()
     args.add("--output", output)
     args.add_all(inputs, before_each = "--sources")
@@ -9,7 +9,7 @@ def _combine_jars(ctx, singlejar, inputs, output):
         mnemonic = "MergeJars",
         inputs = inputs,
         outputs = [output],
-        executable = singlejar,
+        executable = merge_jars,
         arguments = [args],
     )
 
@@ -19,10 +19,10 @@ def _maven_project_jar_impl(ctx):
 
     # Merge together all the binary jars
     bin_jar = ctx.actions.declare_file("%s.jar" % ctx.label.name)
-    _combine_jars(ctx, ctx.executable._singlejar, info.artifact_jars.to_list(), bin_jar)
+    _combine_jars(ctx, ctx.executable._merge_jars, info.artifact_jars.to_list(), bin_jar)
 
     src_jar = ctx.actions.declare_file("%s-src.jar" % ctx.label.name)
-    _combine_jars(ctx, ctx.executable._singlejar, info.artifact_source_jars.to_list(), src_jar)
+    _combine_jars(ctx, ctx.executable._merge_jars, info.artifact_source_jars.to_list(), src_jar)
 
     java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
     ijar = java_common.run_ijar(
@@ -83,7 +83,7 @@ single artifact that other teams can download and use.
         ),
         # Bazel's own singlejar doesn't respect java service files,
         # so use our own.
-        "_singlejar": attr.label(
+        "_merge_jars": attr.label(
             executable = True,
             cfg = "host",
             default = "//private/tools/java/rules/jvm/external/jar:MergeJars",

@@ -58,6 +58,10 @@ public class MergeJars {
   // have a different epoch. Oof. Make something sensible up.
   private static final FileTime DOS_EPOCH = FileTime.from(Instant.parse("1985-02-01T00:00:00.00Z"));
 
+  // ZIP timestamps have a resolution of 2 seconds.
+  // see http://www.info-zip.org/FAQ.html#limits
+  public static final long MINIMUM_TIMESTAMP_INCREMENT = 2000L;
+
   public static void main(String[] args) throws IOException {
     Path out = null;
     // Insertion order may matter
@@ -248,8 +252,17 @@ public class MergeJars {
             .forEach(File::delete);
   }
 
+  // Returns the normalized timestamp for a jar entry based on its name. This is necessary since
+  // javac will, when loading a class X, prefer a source file to a class file, if both files have
+  // the same timestamp. Therefore, we need to adjust the timestamp for class files to slightly
+  // after the normalized time.
+  // https://github.com/bazelbuild/bazel/blob/master/src/java_tools/buildjar/java/com/google/devtools/build/buildjar/jarhelper/JarHelper.java#L124
   private static JarEntry resetTime(JarEntry entry) {
-    entry.setTime(DOS_EPOCH.toMillis());
+    if (entry.getName().endsWith(".class")) {
+      entry.setTime(DOS_EPOCH.toMillis() + MINIMUM_TIMESTAMP_INCREMENT);
+    } else {
+      entry.setTime(DOS_EPOCH.toMillis());
+    }
     return entry;
   }
 
