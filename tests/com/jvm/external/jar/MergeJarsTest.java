@@ -166,9 +166,9 @@ public class MergeJarsTest {
   public void shouldUseDifferentTimesForSourceAndClassFiles() throws IOException {
     Path inputOne = temp.newFile("first.jar").toPath();
     createJar(inputOne, new ImmutableMap.Builder<String, String>()
-       .put("com/example/A.class", "Hello, Class!")
-       .put("com/example/A.java", "Hello, Source!")
-       .build());
+      .put("com/example/A.class", "Hello, Class!")
+      .put("com/example/A.java", "Hello, Source!")
+      .build());
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
@@ -179,6 +179,57 @@ public class MergeJarsTest {
     Map<String, Long> entryTimestamps = readJarTimeStamps(outputJar);
     assertEquals(3, entryTimestamps.size());
     assertTrue(entryTimestamps.get("com/example/A.class") > entryTimestamps.get("com/example/A.java"));
+  }
+
+  @Test
+  public void shouldBeAbleToExcludeClassesFromMergedJar() throws IOException {
+    // Create jars with names such that the first is sorted after the second
+    Path includeFrom = temp.newFile("include.jar").toPath();
+    createJar(
+      includeFrom,
+      ImmutableMap.of(
+        "com/example/A.class", "Hello, World!",
+        "com/example/B.class", "I like cheese!"));
+
+    Path excludeFrom = temp.newFile("exclude.jar").toPath();
+    createJar(excludeFrom, ImmutableMap.of("com/example/A.class", "Something else!"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+      "--output", outputJar.toAbsolutePath().toString(),
+      "--sources", includeFrom.toAbsolutePath().toString(),
+      "--exclude", excludeFrom.toAbsolutePath().toString()});
+
+    Map<String, String> contents = readJar(outputJar);
+    // We expect the manifest and one file
+    assertEquals(2, contents.size());
+    assertEquals("I like cheese!", contents.get("com/example/B.class"));
+  }
+
+  @Test
+  public void shouldNotIncludeManifestOrMetaInfEntriesFromExclusions() throws IOException {
+    // Create jars with names such that the first is sorted after the second
+    Path includeFrom = temp.newFile("include.jar").toPath();
+    createJar(
+      includeFrom,
+      ImmutableMap.of(
+        "META-INF/foo", "Hello, World!"));
+
+    Path excludeFrom = temp.newFile("exclude.jar").toPath();
+    createJar(excludeFrom, ImmutableMap.of("META-INF/foo", "Something else!"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+      "--output", outputJar.toAbsolutePath().toString(),
+      "--sources", includeFrom.toAbsolutePath().toString(),
+      "--exclude", excludeFrom.toAbsolutePath().toString()});
+
+    Map<String, String> contents = readJar(outputJar);
+    // We expect the manifest and the one meta inf entry
+    assertEquals(2, contents.size());
+    assertEquals("Hello, World!", contents.get("META-INF/foo"));
   }
 
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {

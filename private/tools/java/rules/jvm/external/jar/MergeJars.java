@@ -19,6 +19,7 @@ package rules.jvm.external.jar;
 
 import rules.jvm.external.ByteStreams;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class MergeJars {
     Path out = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
+    Set<Path> excludes = new HashSet<>();
     DuplicateEntryStrategy onDuplicate = LAST_IN_WINS;
 
     for (int i = 0; i < args.length; i++) {
@@ -79,16 +81,16 @@ public class MergeJars {
           onDuplicate = DuplicateEntryStrategy.fromShortName(args[++i]);
           break;
 
+        case "--exclude":
+          excludes.add(isValid(Paths.get(args[++i])));
+          break;
+
         case "--output":
           out = Paths.get(args[++i]);
           break;
 
         case "--sources":
-          Path path = Paths.get(args[++i]);
-          if (!Files.exists(path) || !Files.isReadable(path)) {
-            throw new IllegalArgumentException("Source must a readable file: " + path);
-          }
-          sources.add(path);
+          sources.add(isValid(Paths.get(args[++i])));
           break;
 
         default:
@@ -105,6 +107,9 @@ public class MergeJars {
       return;
     }
 
+    // Remove any jars from sources that we've been told to exclude
+    sources.removeIf(excludes::contains);
+
     // To keep things simple, we expand all the inputs jars into a single directory,
     // merge the manifests, and then create our own zip.
     Path temp = Files.createTempDirectory("mergejars");
@@ -113,8 +118,8 @@ public class MergeJars {
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
     Map<String, Set<String>> allServices = new TreeMap<>();
-
     Map<Path, SortedMap<Path, Path>> allPaths = new TreeMap<>();
+    Set<String> excludedPaths = readExcludedFileNames(excludes);
 
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
@@ -128,8 +133,8 @@ public class MergeJars {
             continue;
           }
 
-          if (entry.isDirectory()) {
-            skipEntry(zis);
+          if (entry.isDirectory() ||
+            (!entry.getName().startsWith("META-INF/") && excludedPaths.contains(entry.getName()))) {
             continue;
           }
 
@@ -240,9 +245,37 @@ public class MergeJars {
     delete(temp);
   }
 
-  @SuppressWarnings("CheckReturnValue")
-  private static void skipEntry(ZipInputStream zis) throws IOException {
-    ByteStreams.toByteArray(zis);
+  private static Set<String> readExcludedFileNames(Set<Path> excludes) throws IOException {
+    Set<String> paths = new HashSet<>();
+
+    for (Path exclude : excludes) {
+      try (InputStream is = Files.newInputStream(exclude);
+      BufferedInputStream bis = new BufferedInputStream(is);
+      ZipInputStream jis = new ZipInputStream(bis)) {
+        ZipEntry entry;
+        while ((entry = jis.getNextEntry()) != null) {
+          if (entry.isDirectory()) {
+            continue;
+          }
+
+          String name = entry.getName();
+          paths.add(name);
+        }
+      }
+    }
+    return paths;
+  }
+
+  private static Path isValid(Path path) {
+    if (!Files.exists(path)) {
+      throw new IllegalArgumentException("File does not exist: " + path);
+    }
+
+    if (!Files.isReadable(path)) {
+      throw new IllegalArgumentException("File is not readable: " + path);
+    }
+
+    return path;
   }
 
   private static void delete(Path toDelete) throws IOException {
