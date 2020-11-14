@@ -51,9 +51,20 @@ http_archive(
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
+load("//:defs.bzl", "maven_install")
+
+maven_install(
+    name = "outdated",
+    artifacts = [
+        "org.apache.maven:maven-artifact:3.6.3",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 # Begin test dependencies
 
-load("//:defs.bzl", "maven_install")
 load("//:specs.bzl", "maven")
 
 maven_install(

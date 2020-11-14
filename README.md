@@ -18,6 +18,7 @@ Table of Contents
          * [Custom location for maven_install.json](#custom-location-for-maven_installjson)
          * [Multiple maven_install.json files](#multiple-maven_installjson-files)
       * [Generated targets](#generated-targets)
+      * [Outdated artifacts](#outdated-artifacts)
       * [Advanced usage](#advanced-usage)
          * [Fetch source JARs](#fetch-source-jars)
          * [Checksum verification](#checksum-verification)
@@ -284,6 +285,14 @@ the artifact, which integrates with rules like [bazel-common's
 `pom_file`](https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177)
 for generating POM files. See the [`pom_file_generation`
 example](examples/pom_file_generation/) for more information.
+
+## Outdated artifacts
+
+To check for updates of artifacts, run the following command at the root of your Bazel workspace:
+
+```
+$ bazel run @maven//:outdated
+```
 
 ## Advanced usage
 
@@ -827,7 +836,7 @@ migration, convert legacy Android support library (`com.android.support`)
 libraries to rely on new AndroidX packages using the
 [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool.
 Enable jetification by specifying `jetify = True` in `maven_install.`
-Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format. 
+Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format.
 By default all artifacts are jetified if `jetify` is set to True.
 
 NOTE: There is a performance penalty to using jetifier due to modifying fetched binaries, fetching
@@ -952,7 +961,7 @@ bazel run --stamp \
   //user_project:exported_lib.publish`
 ```
 
-When using the `gpg_sign` option, the current default key will be used for 
+When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
 
 ## Demo

@@ -58,6 +58,18 @@ sh_binary(
 )
 """
 
+_BUILD_OUTDATED = """
+sh_binary(
+    name = "outdated",
+    srcs = ["outdated.sh"],
+    data = [
+        "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
+        "outdated.artifacts",
+        "outdated.repositories"
+    ],
+)
+"""
+
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
@@ -265,6 +277,29 @@ def _get_jq_http_files():
         ])
     return lines
 
+def _add_outdated_files(repository_ctx, artifacts, repositories):
+    repository_ctx.file(
+        "outdated.artifacts",
+        "\n".join(["{}:{}:{}".format(artifact["group"], artifact["artifact"], artifact["version"]) for artifact in artifacts]) + "\n",
+        executable = False,
+    )
+
+    repository_ctx.file(
+        "outdated.repositories",
+        "\n".join([repo["repo_url"] for repo in repositories]) + "\n",
+        executable = False,
+    )
+
+    repository_ctx.template(
+        "outdated.sh",
+        repository_ctx.attr._outdated,
+        {
+            "{repository_name}": repository_ctx.name,
+            "{proxy_opts}": " ".join(_get_java_proxy_args(repository_ctx)),
+        },
+        executable = True,
+    )
+
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -272,9 +307,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     _windows_check(repository_ctx)
 
+    repositories = []
+    for repository in repository_ctx.attr.repositories:
+        repositories.append(json_parse(repository))
+
     artifacts = []
-    for a in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(a))
+    for artifact in repository_ctx.attr.artifacts:
+        artifacts.append(json_parse(artifact))
 
     # Read Coursier state from maven_install.json.
     repository_ctx.symlink(
@@ -396,18 +435,20 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "compat_repository.bzl",
         repository_ctx.attr._compat_repository,
         substitutions = {},
-        executable = False,  # not executable
+        executable = False,
     )
 
     repository_ctx.file(
         "BUILD",
-        _BUILD.format(
+        (_BUILD + _BUILD_OUTDATED).format(
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_ctx.name,
             imports = generated_imports,
         ),
-        False,  # not executable
+        executable = False,
     )
+
+    _add_outdated_files(repository_ctx, artifacts, repositories)
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
@@ -423,7 +464,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_ctx.file(
                 "compat.bzl",
                 "\n".join(compat_repositories_bzl) + "\n",
-                False,  # not executable
+                executable = False,
             )
 
 def split_url(url):
@@ -645,12 +686,12 @@ def _coursier_fetch_impl(repository_ctx):
         repositories.append(json_parse(repository))
 
     artifacts = []
-    for a in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(a))
+    for artifact in repository_ctx.attr.artifacts:
+        artifacts.append(json_parse(artifact))
 
     excluded_artifacts = []
-    for a in repository_ctx.attr.excluded_artifacts:
-        excluded_artifacts.append(json_parse(a))
+    for artifact in repository_ctx.attr.excluded_artifacts:
+        excluded_artifacts.append(json_parse(artifact))
 
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
@@ -790,7 +831,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "hasher_argsfile",
         "\n".join([str(f) for f in files_to_hash]) + "\n",
-        False,  # Not executable
+        executable = False,
     )
     exec_result = repository_ctx.execute(
         hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
@@ -839,17 +880,21 @@ def _coursier_fetch_impl(repository_ctx):
     # the user invokes artifact pinning. Normalize the repository name here.
     if repository_ctx.name.startswith("unpinned_"):
         repository_name = repository_ctx.name[len("unpinned_"):]
+        outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
+        # Add outdated artifact files if this is a pinned repo
+        outdated_build_file_content = _BUILD_OUTDATED
+        _add_outdated_files(repository_ctx, artifacts, repositories)
 
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_PIN).format(
+        (_BUILD + _BUILD_PIN + outdated_build_file_content).format(
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_name,
             imports = generated_imports,
         ),
-        False,  # not executable
+        executable = False,
     )
 
     # If maven_install.json has already been used in maven_install,
@@ -907,7 +952,7 @@ def _coursier_fetch_impl(repository_ctx):
             "compat_repository.bzl",
             repository_ctx.attr._compat_repository,
             substitutions = {},
-            executable = False,  # not executable
+            executable = False,
         )
 
         compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
@@ -922,12 +967,14 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.file(
             "compat.bzl",
             "\n".join(compat_repositories_bzl) + "\n",
-            False,  # not executable
+            executable = False,
         )
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "_outdated": attr.label(default = "//:private/outdated.sh"),
+        "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
@@ -953,6 +1000,7 @@ coursier_fetch = repository_rule(
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
         "_pin": attr.label(default = "//:private/pin.sh"),
         "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "_outdated": attr.label(default = "//:private/outdated.sh"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
