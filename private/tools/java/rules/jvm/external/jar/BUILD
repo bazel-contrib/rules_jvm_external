@@ -1,6 +1,24 @@
 java_binary(
+    name = "AddJarManifestEntry",
+    srcs = ["AddJarManifestEntry.java"],
+    javacopts = [
+        "-source",
+        "8",
+        "-target",
+        "8",
+    ],
+    main_class = "rules.jvm.external.jar.AddJarManifestEntry",
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
+java_binary(
     name = "MergeJars",
-    srcs = glob(["*.java"]),
+    srcs = [
+        "DuplicateEntryStrategy.java",
+        "MergeJars.java",
+    ],
     javacopts = [
         "-source",
         "8",
@@ -13,6 +31,5 @@ java_binary(
     ],
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
-        "//private/tools/java/rules/jvm/external/zip",
     ],
 )
