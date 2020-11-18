@@ -1,5 +1,3 @@
-load("@rules_java//java:defs.bzl", "java_binary")
-
 licenses(["notice"])
 
 java_binary(

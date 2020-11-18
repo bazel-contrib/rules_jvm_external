@@ -1,4 +1,3 @@
-load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//:defs.bzl", "artifact")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 

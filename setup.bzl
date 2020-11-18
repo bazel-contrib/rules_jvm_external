@@ -1,5 +1,4 @@
-load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
+load("@rules_jvm_external_deps//:defs.bzl", "pinned_maven_install")
 
 def rules_jvm_external_setup():
-    rules_java_dependencies()
-    rules_java_toolchains()
+    pinned_maven_install()
