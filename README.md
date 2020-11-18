@@ -75,6 +75,14 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
@@ -97,6 +105,14 @@ Credentials for private repositories can also be specified using a property file
 or environment variables. See the [Coursier
 documentation](https://get-coursier.io/docs/other-credentials.html#property-file)
 for more information.
+
+`rules_jvm_external_setup` uses a default list of maven repositories to download
+ `rules_jvm_external`'s own dependencies from. Should you wish to  change this, 
+ use the `repositories` parameter:
+ 
+ ```python 
+rules_jvm_external_setup(repositories = ["https://mycorp.com/artifacts"])
+```
 
 Next, reference the artifacts in the BUILD file with their versionless label:
 
