@@ -977,6 +977,10 @@ bazel run --stamp \
   //user_project:exported_lib.publish`
 ```
 
+It's also possible to publish to a Google Cloud Storage bucket:
+
+`bazel run --define "maven_repo=gs://example-bucket/repository" //user_project:exported_lib.publish`
+
 When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
 
