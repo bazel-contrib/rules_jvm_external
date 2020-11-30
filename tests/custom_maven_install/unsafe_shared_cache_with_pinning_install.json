@@ -135,12 +135,6 @@
                 "url": "https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
             },
             {
-                "coord": "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": null
-            },
-            {
                 "coord": "com.google.j2objc:j2objc-annotations:1.1",
                 "dependencies": [],
                 "directDependencies": [],
@@ -205,6 +199,12 @@
                 ],
                 "sha256": "2571474a676f775a8cdd15fb9b1da20c4c121ed7f42a5d93fca0e7b6e2015b40",
                 "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar"
+            },
+            {
+                "coord": "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": null
             }
         ],
         "version": "0.1.0"
