@@ -383,6 +383,17 @@ maven_install(
     fetch_sources = True,
 )
 
+# https://github.com/bazelbuild/rules_jvm_external/issues/433
+maven_install(
+    name = "version_interval_testing",
+    artifacts = [
+        "io.grpc:grpc-netty-shaded:1.29.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 load(
     "@json_artifacts_testing//:defs.bzl",
     _json_artifacts_testing_install = "pinned_maven_install",
