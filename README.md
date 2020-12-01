@@ -1,6 +1,6 @@
 # rules_jvm_external
 
-Transitive Maven artifact resolver as a repository rule.
+Transitive Maven artifact resolution and publishing rules for Bazel.
 
 [![Build
 Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
