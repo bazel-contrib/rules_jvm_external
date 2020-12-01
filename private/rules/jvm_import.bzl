@@ -14,35 +14,28 @@ def _jvm_import_impl(ctx):
         fail("Please only specify one jar to import in the jars attribute.")
 
     injar = ctx.files.jars[0]
-    manifest_update_file = ctx.actions.declare_file(injar.basename + ".target_label_manifest", sibling = injar)
-    ctx.actions.expand_template(
-        template = ctx.file._manifest_template,
-        output = manifest_update_file,
-        substitutions = {
-            "{TARGETLABEL}": "%s" % ctx.label,
-        },
-    )
-
     outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
     ctx.actions.run_shell(
-        inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
+        inputs = [injar] + ctx.files._add_jar_manifest_entry,
         outputs = [outjar],
-        command = " && ".join([
-            # Make a copy of the original jar, since `jar(1)` modifies the jar in place.
-            "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
-            # Set the write bit on the copied jar.
-            "chmod +w {output_jar}".format(output_jar = outjar.path),
+        command = "\n".join([
             # If the jar is signed do not modify the manifest because it will
-            # make the signature invalid. Otherwise append the Target-Label
-            # manifest attribute using `jar umf`
-            "(unzip -l {output_jar} | grep -qE 'META-INF/.*\\.SF') || ({jar} umf {manifest_update_file} {output_jar} > /dev/null 2>&1 || true)".format(
-                jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
-                manifest_update_file = manifest_update_file.path,
-                output_jar = outjar.path,
+            # make the signature invalid.
+            "if unzip -l {injar} | grep -qE 'META-INF/.*\\.SF'; then".format(injar = injar.path),
+            "  cp {injar} {outjar}".format(injar = injar.path, outjar = outjar.path),
+            "else",
+            "  set -e",
+            "  {add_jar_manifest_entry} --source {injar} --manifest-entry 'Target-Label:{target_label}' --output {outjar}".format(
+                add_jar_manifest_entry = ctx.attr._add_jar_manifest_entry.files_to_run.executable.path,
+                injar = injar.path,
+                target_label = ctx.label,
+                outjar = outjar.path,
             ),
+            "fi",
         ]),
         mnemonic = "StampJarManifest",
         progress_message = "Stamping the manifest of %s" % ctx.label,
+        tools = [ctx.attr._add_jar_manifest_entry.files_to_run],
     )
 
     if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
@@ -84,14 +77,10 @@ jvm_import = rule(
         "neverlink": attr.bool(
             default = False,
         ),
-        "_host_javabase": attr.label(
+        "_add_jar_manifest_entry": attr.label(
+            executable = True,
             cfg = "host",
-            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
-            providers = [java_common.JavaRuntimeInfo],
-        ),
-        "_manifest_template": attr.label(
-            default = Label("@rules_jvm_external//private/templates:manifest_target_label.tpl"),
-            allow_single_file = True,
+            default = "//private/tools/java/rules/jvm/external/jar:AddJarManifestEntry",
         ),
         "_stamp_manifest": attr.label(
             default = Label("@rules_jvm_external//settings:stamp_manifest"),
