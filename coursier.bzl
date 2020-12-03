@@ -55,6 +55,7 @@ sh_binary(
     data = [
         ":jq-binary",
     ],
+    visibility = ["//visibility:public"],
 )
 """
 
