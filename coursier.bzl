@@ -565,6 +565,7 @@ def make_coursier_dep_tree(
         version_conflict_policy,
         fail_on_missing_checksum,
         fetch_sources,
+        fetch_javadoc,
         use_unsafe_shared_cache,
         timeout,
         report_progress_prefix="",
@@ -593,7 +594,7 @@ def make_coursier_dep_tree(
         for coord in artifact_coordinates:
             # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
             cmd.extend(["--force-version", coord.split(",classifier=")[0]])
-    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src"])])
+    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src", "doc"])])
     cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -613,8 +614,11 @@ def make_coursier_dep_tree(
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
 
-    if fetch_sources:
-        cmd.append("--sources")
+    if fetch_sources or fetch_javadoc:
+        if fetch_sources:
+            cmd.append("--sources")
+        if fetch_javadoc:
+            cmd.append("--javadoc")
         cmd.append("--default=true")
 
     environment = {}
@@ -634,6 +638,7 @@ def make_coursier_dep_tree(
     repository_ctx.report_progress(
         "%sResolving and fetching the transitive closure of %s artifact(s).." % (
             report_progress_prefix, len(artifact_coordinates)))
+
     exec_result = repository_ctx.execute(
         cmd,
         timeout = timeout,
@@ -709,6 +714,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.attr.version_conflict_policy,
         repository_ctx.attr.fail_on_missing_checksum,
         repository_ctx.attr.fetch_sources,
+        repository_ctx.attr.fetch_javadoc,
         repository_ctx.attr.use_unsafe_shared_cache,
         repository_ctx.attr.resolve_timeout,
     )
@@ -739,6 +745,7 @@ def _coursier_fetch_impl(repository_ctx):
             repository_ctx.attr.version_conflict_policy,
             repository_ctx.attr.fail_on_missing_checksum,
             repository_ctx.attr.fetch_sources,
+            repository_ctx.attr.fetch_javadoc,
             repository_ctx.attr.use_unsafe_shared_cache,
             repository_ctx.attr.resolve_timeout,
             report_progress_prefix = "Second pass for Jetified Artifacts: ",
@@ -979,6 +986,7 @@ pinned_coursier_fetch = repository_rule(
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
+        "fetch_javadoc": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
@@ -1007,6 +1015,7 @@ coursier_fetch = repository_rule(
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
+        "fetch_javadoc": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact

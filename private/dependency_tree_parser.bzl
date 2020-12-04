@@ -100,6 +100,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         elif repository_ctx.attr.fetch_sources and get_classifier(artifact["coord"]) == "sources":
             # We already processed the sources above, so skip them here.
             pass
+        elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coord"]) == "javadoc":
+            seen_imports[target_label] = True
+            all_imports.append(
+                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_path))
         elif get_packaging(artifact["coord"]) == "json":
             seen_imports[target_label] = True
             versioned_target_alias_label = "%s_extension" % escape(artifact["coord"])

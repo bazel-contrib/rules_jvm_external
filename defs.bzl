@@ -28,6 +28,7 @@ def maven_install(
         artifacts = [],
         fail_on_missing_checksum = True,
         fetch_sources = False,
+        fetch_javadoc = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
         generate_compat_repositories = False,
@@ -51,6 +52,7 @@ def maven_install(
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
       fetch_sources: Additionally fetch source JARs.
+      fetch_javadoc: Additionally fetch javadoc JARs.
       use_unsafe_shared_cache: Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is
         currently unable to detect modifications to the cache.
       excluded_artifacts: A list of Maven artifact coordinates in the form of `group:artifact` to be
@@ -110,6 +112,7 @@ def maven_install(
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
         fetch_sources = fetch_sources,
+        fetch_javadoc = fetch_javadoc,
         use_unsafe_shared_cache = use_unsafe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
@@ -130,6 +133,7 @@ def maven_install(
             artifacts = artifacts_json_strings,
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
+            fetch_javadoc = fetch_javadoc,
             generate_compat_repositories = generate_compat_repositories,
             override_targets = override_targets,
             strict_visibility = strict_visibility,
