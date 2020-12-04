@@ -17,6 +17,10 @@
 
 package rules.jvm.external.maven;
 
+import com.google.cloud.WriteChannel;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import rules.jvm.external.ByteStreams;
 
 import java.io.IOException;
@@ -24,7 +28,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,11 +56,13 @@ public class MavenPublisher {
 
   private static final Logger LOG = Logger.getLogger(MavenPublisher.class.getName());
   private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
+  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://"};
 
   public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
     String repo = args[0];
-    if (!(repo.startsWith("file:/") || repo.startsWith("https://"))) {
-      throw new IllegalArgumentException("Repository must be accessed via file or https: " + repo);
+    if (!isSchemeSupported(repo)) {
+      throw new IllegalArgumentException("Repository must be accessed via the supported schemes: "
+              + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
     Credentials credentials = new Credentials(args[2], args[3], Boolean.parseBoolean(args[1]));
@@ -85,6 +93,15 @@ public class MavenPublisher {
     }
   }
 
+  private static boolean isSchemeSupported(String repo) {
+    for (String scheme : SUPPORTED_SCHEMES) {
+      if (repo.startsWith(scheme)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static CompletableFuture<Void> upload(
     String repo,
     Credentials credentials,
@@ -94,7 +111,7 @@ public class MavenPublisher {
 
     String base = String.format(
       "%s/%s/%s/%s/%s-%s",
-      repo,
+      repo.replaceAll("/$", ""),
       coords.groupId.replace('.', '/'),
       coords.artifactId,
       coords.version,
@@ -144,6 +161,8 @@ public class MavenPublisher {
     Callable<Void> callable;
     if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
       callable = httpUpload(targetUrl, credentials, toUpload);
+    } else if (targetUrl.startsWith("gs://")) {
+      callable = gcsUpload(targetUrl, toUpload);
     } else {
       callable = writeFile(targetUrl, toUpload);
     }
@@ -205,6 +224,24 @@ public class MavenPublisher {
       Files.createDirectories(path.getParent());
       Files.deleteIfExists(path);
       Files.copy(toUpload, path);
+
+      return null;
+    };
+  }
+
+  private static Callable<Void> gcsUpload(String targetUrl, Path toUpload) {
+    return () -> {
+      Storage storage = StorageOptions.getDefaultInstance().getService();
+      URI gsUri = new URI(targetUrl);
+      String bucketName = gsUri.getHost();
+      String path = gsUri.getPath().substring(1);
+
+      LOG.info(String.format("Copying %s to gs://%s/%s", toUpload, bucketName, path));
+      BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, path).build();
+      try (WriteChannel writer = storage.writer(blobInfo);
+            InputStream is = Files.newInputStream(toUpload)) {
+        ByteStreams.copy(is, Channels.newOutputStream(writer));
+      }
 
       return null;
     };
