@@ -479,39 +479,52 @@ get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test = ad
 
 def _coursier_credentials_test(ctx):
     env = unittest.begin(ctx)
-    netrc_content = """
-        machine example.com login foo password bar
-        default login is-ignored
-        machine ignored login missing-password
-        machine missing-password login login
-        machine with-newline
-          login foo
-          password bar
-        machine machine login foo password bar account ignored
-    """
-
+    parsed_netrc = {
+        "example.com": {
+            "login": "foo",
+            "password": "bar",
+        },
+        "": {
+            "login": "is-ignored"
+        },
+        "ignored": {
+            "login": "missing-password",
+        },
+        "missing-password": {
+            "login": "login"
+        },
+        "with-newline": {
+            "login": "foo",
+            "password": "bar",
+        }, "machine": {
+            "login": "foo",
+            "password": "bar",
+            "account": "ignored"
+        }
+    }
     asserts.equals(
         env,
         ["example.com foo:bar",
          "with-newline foo:bar",
          "machine foo:bar",
          ],
-        generate_coursier_credentials_from_netrc(netrc_content)
+        generate_coursier_credentials_from_netrc(parsed_netrc)
     )
     return unittest.end(env)
+
+coursier_credentials_test  = add_test(_coursier_credentials_test)
 
 def _coursier_credentials_empty_test(ctx):
     env = unittest.begin(ctx)
-    netrc_content = ""
+    parsed_netrc = {}
     asserts.equals(
         env,
         [],
-        generate_coursier_credentials_from_netrc(netrc_content)
+        generate_coursier_credentials_from_netrc(parsed_netrc)
     )
     return unittest.end(env)
 
-
-coursier_credentials_test  = add_test(_coursier_credentials_test)
+coursier_credentials_empty_test = add_test(_coursier_credentials_empty_test)
 
 def coursier_test_suite():
     unittest.suite(
