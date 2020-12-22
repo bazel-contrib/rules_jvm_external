@@ -1055,6 +1055,7 @@ coursier_fetch = repository_rule(
         "no_proxy",
         "NO_PROXY",
         "COURSIER_CACHE",
+        "COURSIER_OPTS",
         "COURSIER_URL",
         "RJE_VERBOSE",
     ],
