@@ -112,7 +112,7 @@ Next, reference the artifacts in the BUILD file with their versionless label:
 java_library(
     name = "java_test_deps",
     exports = [
-        "@maven//:junit_junit"
+        "@maven//:junit_junit",
         "@maven//:org_hamcrest_hamcrest_library",
     ],
 )
@@ -120,7 +120,7 @@ java_library(
 android_library(
     name = "android_test_deps",
     exports = [
-        "@maven//:junit_junit"
+        "@maven//:junit_junit",
         "@maven//:androidx_test_espresso_espresso_core",
     ],
 )
