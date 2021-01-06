@@ -20,8 +20,6 @@ import org.xml.sax.SAXException;
 
 public class Outdated {
   public static String getReleaseVersion(String repository, String groupId, String artifactId) {
-    String releaseVersion = null;
-
     String url =
         String.format("%s/%s/%s/maven-metadata.xml",
             repository,
@@ -45,22 +43,48 @@ public class Outdated {
     }
 
     // example maven-metadata.xml
-    //<metadata>
-    //  <versioning>
-    //    <latest>1.14.0-SNAPSHOT</latest>
-    //    <release>1.13.0</release>
-    //  </versioning>
-    //</metadata>
+    // <metadata>
+    //   <versioning>
+    //     <latest>1.14.0-SNAPSHOT</latest>
+    //     <release>1.13.0</release>
+    //   </versioning>
+    // </metadata>
+    //
+    // or
+    //
+    // <metadata>
+    //   <groupId>javax.inject</groupId>
+    //   <artifactId>javax.inject</artifactId>
+    //   <version>1</version>
+    //   <versioning>
+    //     <versions>
+    //       <version>1</version>
+    //     </versions>
+    //     <lastUpdated>20100720032040</lastUpdated>
+    //   </versioning>
+    // </metadata>
     Element metadataElement = document.getDocumentElement();
     Element versioningElement = getFirstChildElement(metadataElement, "versioning");
-    if (versioningElement != null) {
-      // Note: we may want to add a flag to allow people to look for updates against
-      // "latest" instead of "release"
-      releaseVersion = versioningElement.getElementsByTagName("release").item(0).getTextContent();
-    } else {
+    if (versioningElement == null) {
       verboseLog(String.format("Could not find <versioning> tag for %s, returning null version", url));
+      return null;
     }
-    return releaseVersion;
+
+    // Note: we may want to add a flag to allow people to look for updates against
+    // "latest" instead of "release"
+    NodeList release = versioningElement.getElementsByTagName("release");
+    if (release != null && release.getLength() > 0) {
+      return release.item(0).getTextContent();
+    }
+
+    // No release info, default to the first version in the list.
+    NodeList versions = versioningElement.getElementsByTagName("versions");
+    if (versions != null && versions.getLength() > 0) {
+      return versions.item(0).getTextContent();
+    }
+
+    verboseLog(String.format("Could not find <release> or <versions> tag for %s, returning null version", url));
+    return null;
   }
 
   public static Element getFirstChildElement(Element element, String tagName) {
