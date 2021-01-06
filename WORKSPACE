@@ -189,7 +189,9 @@ maven_install(
         "junit:junit:4.12",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
         # https://github.com/bazelbuild/rules_jvm_external/issues/101
-        "com.digitalasset:damlc:jar:osx:100.12.1",
+        # As referenced in the issue, daml is not available anymore, hence
+        # replacing with another artifact with a classifier.
+        "org.eclipse.jetty:jetty-http:jar:tests:9.4.20.v20190813",
         # https://github.com/bazelbuild/rules_jvm_external/issues/116
         "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
         # https://github.com/bazelbuild/rules_jvm_external/issues/92#issuecomment-478430167
@@ -235,7 +237,6 @@ maven_install(
     },
     repositories = [
         "https://repo1.maven.org/maven2",
-        "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
         "https://maven.google.com",
         "https://packages.confluent.io/maven/",
     ],

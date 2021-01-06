@@ -9,7 +9,7 @@ build_test(
         "@regression_testing//:org_pantsbuild_jarjar",
         "@regression_testing//:com_github_fommil_netlib_all",
         "@regression_testing//:nz_ac_waikato_cms_weka_weka_stable",
-        "@regression_testing//:com_digitalasset_damlc_osx",
+        "@regression_testing//:org_eclipse_jetty_jetty_http_tests",
         "@regression_testing//:org_eclipse_jetty_orbit_javax_servlet",
         "@regression_testing//:org_apache_flink_flink_test_utils_2_12",
         "@regression_testing//:ch_epfl_scala_compiler_interface",
@@ -26,7 +26,7 @@ build_test(
     targets = [
         "@org_pantsbuild_jarjar//jar",
         "@nz_ac_waikato_cms_weka_weka_stable//jar",
-        "@com_digitalasset_damlc_osx//jar",
+        "@org_eclipse_jetty_jetty_http_tests//jar",
         "@org_apache_flink_flink_test_utils_2_12//jar",
     ],
 )
@@ -36,7 +36,7 @@ build_test(
     targets = [
         "@org_pantsbuild_jarjar",
         "@nz_ac_waikato_cms_weka_weka_stable",
-        "@com_digitalasset_damlc_osx",
+        "@org_eclipse_jetty_jetty_http_tests",
         "@org_apache_flink_flink_test_utils_2_12",
     ],
 )
