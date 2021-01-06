@@ -206,6 +206,25 @@ prefix (e.g.`@unpinned_maven` or `@unpinned_<your_maven_install_name>`). For
 example, if your `maven_install` is named `@foo`, `@unpinned_foo` will be
 created.
 
+### Requiring lock file repinning when the list of artifacts changes
+
+It can be easy to forget to update the `maven_install.json` lock file
+when updating artifacts in a `maven_install`. Normally,
+rules_jvm_external will print a warning to the console and continue
+the build when this happens, but by setting the
+`fail_if_repin_required` attribute to `True`, this will be treated as
+a build error, causing the build to fail. When this attribute is set,
+it is possible to update the `maven_install.json` file using:
+
+```shell
+$ REPIN=1 bazel run @unpinned_maven//:pin
+```
+
+Alternatively, it is also possible to modify the
+`fail_if_repin_required` attribute in your `WORKSPACE` file, run
+`bazel run @unpinned_maven//:pin` and then reset the
+`fail_if_repin_required` attribute.
+
 ### Custom location for `maven_install.json`
 
 You can specify a custom location for `maven_install.json` by changing the
