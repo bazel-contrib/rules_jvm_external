@@ -26,6 +26,7 @@ tasks:
       - "//..."
       # These tests are currently incompatible with RBE
       - "-//tests/integration/override_targets"
+      - "-//tests/com/jvm/external/maven:OutdatedTest"
   ubuntu1804_1_0_1:
     platform: ubuntu1804
     bazel: 1.0.1
