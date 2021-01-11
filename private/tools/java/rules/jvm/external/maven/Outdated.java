@@ -10,6 +10,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -64,11 +65,9 @@ public class Outdated {
 
   public static Element getFirstChildElement(Element element, String tagName) {
     NodeList nodeList = element.getElementsByTagName(tagName);
-    for (int i = 0; i < nodeList.getLength(); i++)
-    {
+    for (int i = 0; i < nodeList.getLength(); i++) {
       Node node = nodeList.item(i);
-      if (node.getNodeType() == Node.ELEMENT_NODE)
-      {
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
         return (Element) node;
       }
     }
@@ -85,7 +84,7 @@ public class Outdated {
     verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
 
     if (args.length != 2) {
-      System.out.println("Usage: outdated <artifact_file_path> <repositories_file_path");
+      System.out.println("Usage: outdated <artifact_file_path> <repositories_file_path>");
       System.exit(1);
     }
 
@@ -96,7 +95,7 @@ public class Outdated {
     List<String> repositories = Files.readAllLines(Paths.get(repositoriesFilePath), StandardCharsets.UTF_8);
 
     System.out.println(String.format("Checking for updates of %d artifacts against the following repositories:", artifacts.size()));
-    for (String repository: repositories) {
+    for (String repository : repositories) {
       System.out.println(String.format("\t%s", repository));
     }
     System.out.println();
@@ -105,7 +104,10 @@ public class Outdated {
 
     // Note: This should be straightforward to run in a thread and do multiple
     // update checks at once if we want to improve performance in the future.
-    for (String artifact: artifacts) {
+    for (String artifact : artifacts) {
+      if (artifact.isEmpty()) {
+        continue;
+      }
       String[] artifactParts = artifact.split(":");
       String groupId = artifactParts[0];
       String artifactId = artifactParts[1];
