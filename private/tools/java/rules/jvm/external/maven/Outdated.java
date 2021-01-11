@@ -41,7 +41,10 @@ public class Outdated {
       verboseLog(String.format("Caught exception for %s: %s", url, e));
       return null;
     }
+    return getReleaseVersion(document, url);
+  }
 
+  public static String getReleaseVersion(Document document, String documentUrl) {
     // example maven-metadata.xml
     // <metadata>
     //   <versioning>
@@ -66,7 +69,9 @@ public class Outdated {
     Element metadataElement = document.getDocumentElement();
     Element versioningElement = getFirstChildElement(metadataElement, "versioning");
     if (versioningElement == null) {
-      verboseLog(String.format("Could not find <versioning> tag for %s, returning null version", url));
+      verboseLog(
+          String.format(
+              "Could not find <versioning> tag for %s, returning null version", documentUrl));
       return null;
     }
 
@@ -77,14 +82,27 @@ public class Outdated {
       return release.item(0).getTextContent();
     }
 
-    // No release info, default to the first version in the list.
-    NodeList versions = versioningElement.getElementsByTagName("versions");
-    if (versions != null && versions.getLength() > 0) {
-      return versions.item(0).getTextContent();
+    // No release info, default to the last version in the list.
+    Element versionsElement = getFirstChildElement(versioningElement, "versions");
+    if (versionsElement == null) {
+      verboseLog(
+          String.format(
+              "Could not find <release> or <versions> tag for %s, returning null version",
+              documentUrl));
+      return null;
     }
 
-    verboseLog(String.format("Could not find <release> or <versions> tag for %s, returning null version", url));
-    return null;
+    NodeList versions = versionsElement.getElementsByTagName("version");
+    if (versions == null || versions.getLength() == 0) {
+      verboseLog(
+          String.format(
+              "Could not find <release> tag and empty <versions> tag for %s, returning null version",
+              documentUrl));
+      return null;
+    }
+
+    // Grab last version in the list.
+    return versions.item(versions.getLength() -1).getTextContent();
   }
 
   public static Element getFirstChildElement(Element element, String tagName) {
