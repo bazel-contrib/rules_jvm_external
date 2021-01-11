@@ -316,7 +316,7 @@ def _add_outdated_files(repository_ctx, artifacts, repositories):
         executable = True,
     )
 
-def _is_failing_build_if_inputs_change(repository_ctx):
+def _fail_if_repin_required(repository_ctx):
     if not repository_ctx.attr.fail_if_repin_required:
         return False
 
@@ -373,9 +373,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
               "This feature ensures that the build does not use stale dependencies when the inputs " +
               "have changed. To generate this signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
     else:
-        computed = compute_dependency_inputs_signature(repository_ctx.attr.artifacts)
-        if computed != dep_tree.get("__INPUT_ARTIFACTS_HASH"):
-            if _is_failing_build_if_inputs_change(repository_ctx):
+        computed_artifacts_hash = compute_dependency_inputs_signature(repository_ctx.attr.artifacts)
+        if computed_artifacts_hash != dep_tree.get("__INPUT_ARTIFACTS_HASH"):
+            if _fail_if_repin_required(repository_ctx):
                 fail("%s_install.json contains an invalid input signature and must be regenerated. " % (repository_ctx.name) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
