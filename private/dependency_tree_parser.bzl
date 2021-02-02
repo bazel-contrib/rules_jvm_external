@@ -17,7 +17,7 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
-load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
+load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging", "strip_packaging_and_version", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
@@ -87,11 +87,15 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     for jetify_include_artifact in repository_ctx.attr.jetify_include_list:
         jetify_include_dict[jetify_include_artifact] = None
 
+
+    used_labels = {}
+
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
-        simple_coord = strip_packaging_and_classifier_and_version(artifact["coord"])
+        simple_coord = strip_packaging_and_version(artifact["coord"])
         target_label = escape(simple_coord)
+        used_labels[target_label] = None
         alias_visibility = ""
 
         if target_label in seen_imports:
@@ -278,17 +282,42 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
             all_imports.append("\n".join(target_import_string))
 
-            # 10. Create a versionless alias target
+            # 10. Create a versioned alias target
             #
             # alias(
             #   name = "org_hamcrest_hamcrest_library_1_3",
             #   actual = "org_hamcrest_hamcrest_library",
             # )
-            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
+            versioned_target_alias_label = escape(strip_packaging(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
+            used_labels[versioned_target_alias_label] = None
 
-            # 11. If using maven_install.json, use a genrule to copy the file from the http_file
+            # 11. Create aliases with the classifier stripped.
+            #
+            # alias(
+            #   name = "org_sonatype_sisu_sisu_guice",
+            #   actual = "org_sonatype_sisu_sisu_guice_noaop",
+            # )
+            # alias(
+            #   name = "org_sonatype_sisu_sisu_guice_2_1_7",
+            #   actual = "org_sonatype_sisu_sisu_guice_noaop",
+            # )
+
+            classifier_stripped_alias_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
+            versioned_classifier_stripped_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
+            # Avoid creating conflicting aliases. If there are multiple artifacts distinguished only by classifier,
+            # one of them will win this alias, but it will simply be unused as dependendents should be specifying classifier.
+            if classifier_stripped_alias_label not in used_labels.keys():
+                used_labels[classifier_stripped_alias_label] = None
+                all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" % 
+                                   (classifier_stripped_alias_label, target_label, alias_visibility))
+            if versioned_classifier_stripped_alias_label not in used_labels.keys():
+                used_labels[versioned_classifier_stripped_alias_label] = None
+                all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" % 
+                                   (versioned_classifier_stripped_alias_label, target_label, alias_visibility))
+
+            # 12. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
             #
             # genrule(

@@ -33,11 +33,11 @@ def _strip_packaging_and_classifier_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(env, "groupId:artifactId:version",
         strip_packaging_and_classifier("groupId:artifactId:version"))
-    # Note: currently only some package and classifier values are stripped
+    # Note: currently only some package values are stripped
     asserts.equals(env, "groupId:artifactId:packaging:version",
         strip_packaging_and_classifier("groupId:artifactId:packaging:version"))
-    asserts.equals(env, "groupId:artifactId:packaging:classifier:version",
-        strip_packaging_and_classifier("groupId:artifactId:packaging:classifier:version"))
+    asserts.equals(env, "groupId:artifactId:packaging:version",
+        strip_packaging_and_classifier("groupId:artifactId:packaging:version"))
     asserts.equals(env, "groupId:artifactId:version",
         strip_packaging_and_classifier("groupId:artifactId:bundle:version"))
     asserts.equals(env, "groupId:artifactId:version",
@@ -50,7 +50,7 @@ def _strip_packaging_and_classifier_and_version_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(env, "groupId:artifactId",
         strip_packaging_and_classifier_and_version("groupId:artifactId:version"))
-    # Note: currently only some package and classifier values are stripped
+    # Note: currently only some package values are stripped
     asserts.equals(env, "groupId:artifactId",
         strip_packaging_and_classifier_and_version("groupId:artifactId:bundle:version"))
     asserts.equals(env, "groupId:artifactId",

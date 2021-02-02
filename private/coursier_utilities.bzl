@@ -27,23 +27,29 @@ SUPPORTED_PACKAGING_TYPES = [
     "scala-jar",
 ]
 
-def strip_packaging_and_classifier(coord):
-    # Strip some packaging and classifier values based on the following maven coordinate formats
-    # groupId:artifactId:version
-    # groupId:artifactId:packaging:version
-    # groupId:artifactId:packaging:classifier:version
+def strip_packaging(coord):
     coordinates = coord.split(":")
-    if len(coordinates) > 4:
-        if coordinates[3] in ["sources", "natives"]:
-            coordinates.pop(3)
 
     if len(coordinates) > 3:
         # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
         # packaging type that Coursier CLI accepts.
         if coordinates[2] in SUPPORTED_PACKAGING_TYPES + ["pom"]:
             coordinates.pop(2)
-
     return ":".join(coordinates)
+
+def strip_packaging_and_version(coord):
+    return ":".join(strip_packaging(coord).split(":")[:-1])
+
+def strip_packaging_and_classifier(coord):
+    # Strip classifier and some packaging values based on the following maven coordinate formats
+    # groupId:artifactId:version
+    # groupId:artifactId:packaging:version
+    # groupId:artifactId:packaging:classifier:version
+    coordinates = coord.split(":")
+    if len(coordinates) > 4:
+        coordinates.pop(3)
+
+    return strip_packaging(":".join(coordinates))
 
 def strip_packaging_and_classifier_and_version(coord):
     return ":".join(strip_packaging_and_classifier(coord).split(":")[:-1])
