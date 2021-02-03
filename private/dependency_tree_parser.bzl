@@ -88,14 +88,19 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         jetify_include_dict[jetify_include_artifact] = None
 
 
+    # To avoid conflicts when generating classifier-stripped aliases, keep track of which potentially conflicting labels have been used.
     used_labels = {}
+    # Pre-populate with the labels that don't strip classifier, as artifacts without classifiers must take priority over the aliases.
+    for artifact in dep_tree["dependencies"]:
+        used_labels[escape(strip_packaging_and_version(artifact["coord"]))] = None
+        used_labels[escape(strip_packaging(artifact["coord"]))] = None
+
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
         artifact_path = artifact["file"]
         simple_coord = strip_packaging_and_version(artifact["coord"])
         target_label = escape(simple_coord)
-        used_labels[target_label] = None
         alias_visibility = ""
 
         if target_label in seen_imports:
@@ -291,7 +296,6 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             versioned_target_alias_label = escape(strip_packaging(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
-            used_labels[versioned_target_alias_label] = None
 
             # 11. Create aliases with the classifier stripped.
             #
@@ -306,8 +310,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
             classifier_stripped_alias_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
             versioned_classifier_stripped_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
-            # Avoid creating conflicting aliases. If there are multiple artifacts distinguished only by classifier,
-            # one of them will win this alias, but it will simply be unused as dependendents should be specifying classifier.
+
             if classifier_stripped_alias_label not in used_labels.keys():
                 used_labels[classifier_stripped_alias_label] = None
                 all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" % 
