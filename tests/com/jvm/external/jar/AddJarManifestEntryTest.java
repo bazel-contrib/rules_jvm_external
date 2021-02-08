@@ -13,10 +13,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -24,7 +27,12 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.jar.Attributes.Name.CLASS_PATH;
+import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class AddJarManifestEntryTest {
@@ -117,6 +125,149 @@ public class AddJarManifestEntryTest {
     assertEquals(2, contents.size());
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Manifest-Version: 1.0"));
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Target-Label: @maven//:com_google_guava_guava"));
+  }
+
+  @Test
+  public void doesNotAlterSignedJars() throws IOException {
+    Path input = temp.newFile("in.jar").toPath();
+    Path output = temp.newFile("out.jar").toPath();
+
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    createJar(input, manifest, ImmutableMap.of("META-INF/SOME_FILE.SF", ""));
+
+    AddJarManifestEntry.main(new String[]{
+            "--output", output.toAbsolutePath().toString(),
+            "--source", input.toAbsolutePath().toString(),
+            "--manifest-entry", "Target-Label:@boo//:scary"});
+
+    byte[] in = Files.readAllBytes(input);
+    byte[] out = Files.readAllBytes(output);
+
+    assertArrayEquals(in, out);
+  }
+
+  @Test
+  public void shouldLeaveOriginalManifestInPlaceIfNoClassPathIsThere() throws IOException {
+    Path inJar = temp.newFile("input.jar").toPath();
+
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0.0");
+    Attributes.Name name = new Attributes.Name("Cheese");
+
+    manifest.getMainAttributes().put(name, "Roquefort");
+    createJar(inJar, manifest, new HashMap<>());
+
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    AddJarManifestEntry.main(new String[]{
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--remove-entry", "Class-Path"
+    });
+
+    try (InputStream is = Files.newInputStream(outJar);
+         JarInputStream jis = new JarInputStream(is)) {
+      Manifest read = jis.getManifest();
+
+      assertEquals("Roquefort", read.getMainAttributes().get(name));
+    }
+  }
+
+  @Test
+  public void shouldRemoveClassPathFromManifestIfPresent() throws IOException {
+    Path inJar = temp.newFile("input.jar").toPath();
+
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0.0");
+
+    manifest.getMainAttributes().put(CLASS_PATH, "Brie");
+    createJar(inJar, manifest, new HashMap<>());
+
+    Path outJar = temp.newFile("output.jar").toPath();
+    AddJarManifestEntry.main(new String[]{
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--remove-entry", "Class-Path"
+    });
+
+    try (InputStream is = Files.newInputStream(outJar);
+         JarInputStream jis = new JarInputStream(is)) {
+      Manifest read = jis.getManifest();
+
+      assertNull(read.getMainAttributes().get(CLASS_PATH));
+    }
+  }
+
+  /**
+   * There are jars in the wild which cannot be unpacked by zip or bazel's
+   * own zipper. These fail to unpack because the jar contains a directory
+   * and a file that would unpack to the same path. Make sure our header
+   * jar creator handles this.
+   */
+  @Test
+  public void shouldBeAbleToCopeWithUnpackableJars() throws IOException {
+    Path inJar = temp.newFile("input.jar").toPath();
+
+    try (OutputStream is = Files.newOutputStream(inJar);
+         JarOutputStream jos = new JarOutputStream(is)) {
+      ZipEntry entry = new ZipEntry("foo");
+      jos.putNextEntry(entry);
+      jos.write("Hello, World!".getBytes(UTF_8));
+
+      entry = new ZipEntry("foo/");
+      jos.putNextEntry(entry);
+    }
+
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    // No exception is a Good Thing
+    AddJarManifestEntry.main(new String[]{
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--remove-entry", "Class-Path"
+    });
+  }
+
+  /**
+   * One pattern for making "executable jars" is to use a preamble to
+   * the zip archive. When this is done `ZipInputStream` wrongly
+   * indicates that there are no entries in the jar, which means that
+   * the header jar generated is empty, which leads to obvious issues.
+   */
+  @Test
+  public void shouldStillIncludeClassesIfThereIsAShellPreambleToTheJar() throws IOException {
+    Path tempJar = temp.newFile("regular.jar").toPath();
+
+    createJar(
+            tempJar,
+            null,
+            ImmutableMap.of(
+                    "Foo.class", "0xDECAFBAD",
+                    "Bar.class", "0xDEADBEEF"));
+
+    // Write the preamble. We do things this way because a plain text
+    // file is not a valid zip file.
+    Path inJar = temp.newFile("input.jar").toPath();
+    Files.write(inJar, "#!/bin/bash\necho Hello, World\n\n".getBytes(UTF_8));
+
+    try (InputStream is = Files.newInputStream(tempJar);
+         OutputStream os = Files.newOutputStream(inJar, StandardOpenOption.APPEND)) {
+      ByteStreams.copy(is, os);
+    }
+
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    AddJarManifestEntry.main(new String[] {
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+    });
+
+    try (JarFile jarFile = new JarFile(outJar.toFile())) {
+      assertNotNull(jarFile.getEntry("Foo.class"));
+      assertNotNull(jarFile.getEntry("Bar.class"));
+    }
   }
 
   private void createJar(Path outputTo, Manifest manifest, Map<String, String> pathToContents) throws IOException {

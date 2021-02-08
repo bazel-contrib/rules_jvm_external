@@ -15,27 +15,38 @@ def _jvm_import_impl(ctx):
 
     injar = ctx.files.jars[0]
     outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
-    ctx.actions.run_shell(
-        inputs = [injar] + ctx.files._add_jar_manifest_entry,
+    args = ctx.actions.args()
+    args.add_all(["--source", injar, "--output", outjar])
+    args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = ctx.label)])
+    ctx.actions.run(
+        executable = ctx.executable._add_jar_manifest_entry,
+        arguments = [args],
+        inputs = [injar],
         outputs = [outjar],
-        command = "\n".join([
-            # If the jar is signed do not modify the manifest because it will
-            # make the signature invalid.
-            "if unzip -l {injar} | grep -qE 'META-INF/.*\\.SF'; then".format(injar = injar.path),
-            "  cp {injar} {outjar}".format(injar = injar.path, outjar = outjar.path),
-            "else",
-            "  set -e",
-            "  {add_jar_manifest_entry} --source {injar} --manifest-entry 'Target-Label:{target_label}' --output {outjar}".format(
-                add_jar_manifest_entry = ctx.attr._add_jar_manifest_entry.files_to_run.executable.path,
-                injar = injar.path,
-                target_label = ctx.label,
-                outjar = outjar.path,
-            ),
-            "fi",
-        ]),
         mnemonic = "StampJarManifest",
         progress_message = "Stamping the manifest of %s" % ctx.label,
-        tools = [ctx.attr._add_jar_manifest_entry.files_to_run],
+    )
+
+    compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
+    args = ctx.actions.args()
+    args.add_all(["--source", outjar, "--output", compilejar])
+    args.add_all(["--remove-entry", "Class-Path"])
+    ctx.actions.run(
+        executable = ctx.executable._add_jar_manifest_entry,
+        arguments = [args],
+        inputs = [outjar],
+        outputs = [compilejar],
+    )
+
+    compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
+    args = ctx.actions.args()
+    args.add_all(["--source", outjar, "--output", compilejar])
+    args.add_all(["--remove-entry", "Class-Path"])
+    ctx.actions.run(
+        executable = ctx.executable._add_jar_manifest_entry,
+        arguments = [args],
+        inputs = [outjar],
+        outputs = [compilejar],
     )
 
     if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
@@ -46,7 +57,7 @@ def _jvm_import_impl(ctx):
             files = depset([outjar]),
         ),
         JavaInfo(
-            compile_jar = outjar,
+            compile_jar = compilejar,
             output_jar = outjar,
             source_jar = ctx.file.srcjar,
             deps = [
@@ -79,11 +90,11 @@ jvm_import = rule(
         ),
         "_add_jar_manifest_entry": attr.label(
             executable = True,
-            cfg = "host",
+            cfg = "exec",
             default = "//private/tools/java/rules/jvm/external/jar:AddJarManifestEntry",
         ),
         "_stamp_manifest": attr.label(
-            default = Label("@rules_jvm_external//settings:stamp_manifest"),
+            default = "@rules_jvm_external//settings:stamp_manifest",
         ),
     },
     implementation = _jvm_import_impl,
