@@ -2,6 +2,7 @@ load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load(
     "//:coursier.bzl",
     "add_netrc_entries_from_mirror_urls",
+    "compute_dependency_inputs_signature",
     "extract_netrc_from_auth_url",
     "get_netrc_lines_from_entries",
     "get_coursier_cache_or_default",
@@ -9,6 +10,8 @@ load(
     "split_url",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
+load("//:specs.bzl", "maven")
+
 
 ALL_TESTS = []
 
@@ -475,6 +478,23 @@ def _get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test
     return unittest.end(env)
 
 get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test = add_test(_get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test)
+
+def _calculate_inputs_hash_does_not_care_about_input_order_test(ctx):
+    env = unittest.begin(ctx)
+
+    # Order of artifacts is switched in each hash
+    hash1 = compute_dependency_inputs_signature([
+        """{"group": "first", "artifact": "artifact", "version": "version"}""",
+        """{"group": "second", "artifact": "artifact", "version": "version"}""",
+    ])
+    hash2 = compute_dependency_inputs_signature([
+        """{"group": "second", "artifact": "artifact", "version": "version"}""",
+        """{"group": "first", "artifact": "artifact", "version": "version"}""",
+    ])
+
+    return unittest.end(env)
+
+calculate_inputs_hash_does_not_care_about_input_order_test = add_test(_calculate_inputs_hash_does_not_care_about_input_order_test)
 
 def coursier_test_suite():
     unittest.suite(
