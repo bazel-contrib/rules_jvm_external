@@ -186,6 +186,11 @@ your project's root directory. If you do not have one, create an empty BUILD
 file to fix issues you may see. See
 [#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
 
+**Note:** If you're using an older version of `rules_jvm_external` and 
+haven't repinned your dependencies, you may see a warning that you lock
+file "does not contain a signature of the required artifacts" then don't
+worry: either ignore the warning or repin the dependencies.
+
 ### Updating `maven_install.json`
 
 Whenever you make a change to the list of `artifacts` or `repositories` and want
