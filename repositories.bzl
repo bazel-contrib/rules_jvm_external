@@ -2,7 +2,6 @@ load("//:defs.bzl", "maven_install")
 
 _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
-    "https://jcenter.bintray.com/",
     "https://maven.google.com",
 ]
 
