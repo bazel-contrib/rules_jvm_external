@@ -25,7 +25,7 @@ maven_install(
     fetch_sources = True,
     maven_install_json = "//:maven_install.json",
     repositories = [
-        "https://jcenter.bintray.com",
+        "https://repo1.maven.org/maven2",
     ],
 )
 
