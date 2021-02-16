@@ -28,7 +28,7 @@ public class UnsafeSharedCacheTest {
       for (URL url : ((URLClassLoader) cl).getURLs()) {
           URI uri = url.toURI();
           String uriString = uri.toString();
-          if (uriString.contains("repo1.maven.org") || uriString.contains("jcentray.bintray.com")) {
+          if (uriString.contains("repo1.maven.org") && uriString.contains("guava")) {
               if (OS.indexOf("mac") >= 0) {
                   // Mac.
                   // The jar's path is automatically resolved to the actual location on macOS.
