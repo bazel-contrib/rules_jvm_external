@@ -2,6 +2,7 @@
 
 Transitive Maven artifact resolution and publishing rules for Bazel.
 
+
 [![Build
 Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
 
@@ -99,10 +100,10 @@ documentation](https://get-coursier.io/docs/other-credentials.html#property-file
 for more information.
 
 `rules_jvm_external_setup` uses a default list of maven repositories to download
- `rules_jvm_external`'s own dependencies from. Should you wish to  change this, 
+ `rules_jvm_external`'s own dependencies from. Should you wish to  change this,
  use the `repositories` parameter:
- 
- ```python 
+
+ ```python
 rules_jvm_external_setup(repositories = ["https://mycorp.com/artifacts"])
 ```
 
@@ -186,7 +187,7 @@ your project's root directory. If you do not have one, create an empty BUILD
 file to fix issues you may see. See
 [#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
 
-**Note:** If you're using an older version of `rules_jvm_external` and 
+**Note:** If you're using an older version of `rules_jvm_external` and
 haven't repinned your dependencies, you may see a warning that you lock
 file "does not contain a signature of the required artifacts" then don't
 worry: either ignore the warning or repin the dependencies.
@@ -976,7 +977,7 @@ java_export(
     "@maven//:com_google_guava_guava",
   ],
 )
-```  
+```
 
 In order to publish the artifact, use `bazel run`:
 
