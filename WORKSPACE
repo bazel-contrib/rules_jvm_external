@@ -82,7 +82,7 @@ maven_install(
     ],
     maven_install_json = "@rules_jvm_external//:maven_install.json",
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -345,7 +345,7 @@ maven_install(
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     jetify = True,
@@ -359,7 +359,7 @@ maven_install(
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     jetify = True,

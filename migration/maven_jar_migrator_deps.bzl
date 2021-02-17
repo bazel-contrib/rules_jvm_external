@@ -8,6 +8,5 @@ def maven_jar_migrator_repositories():
         ],
         repositories = [
             "https://repo1.maven.org/maven2",
-            "https://jcenter.bintray.com",
         ],
     )

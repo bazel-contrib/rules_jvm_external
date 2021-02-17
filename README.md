@@ -86,7 +86,6 @@ maven_install(
     repositories = [
         # Private repositories are supported through HTTP Basic auth
         "http://username:password@localhost:8081/artifactory/my-repository",
-        "https://jcenter.bintray.com/",
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
@@ -99,10 +98,10 @@ documentation](https://get-coursier.io/docs/other-credentials.html#property-file
 for more information.
 
 `rules_jvm_external_setup` uses a default list of maven repositories to download
- `rules_jvm_external`'s own dependencies from. Should you wish to  change this, 
+ `rules_jvm_external`'s own dependencies from. Should you wish to change this,
  use the `repositories` parameter:
- 
- ```python 
+
+ ```python
 rules_jvm_external_setup(repositories = ["https://mycorp.com/artifacts"])
 ```
 
@@ -186,6 +185,11 @@ your project's root directory. If you do not have one, create an empty BUILD
 file to fix issues you may see. See
 [#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
 
+**Note:** If you're using an older version of `rules_jvm_external` and
+haven't repinned your dependencies, you may see a warning that you lock
+file "does not contain a signature of the required artifacts" then don't
+worry: either ignore the warning or repin the dependencies.
+
 ### Updating `maven_install.json`
 
 Whenever you make a change to the list of `artifacts` or `repositories` and want
@@ -205,6 +209,25 @@ accompanied by an unpinned repository. This repository name has the `@unpinned_`
 prefix (e.g.`@unpinned_maven` or `@unpinned_<your_maven_install_name>`). For
 example, if your `maven_install` is named `@foo`, `@unpinned_foo` will be
 created.
+
+### Requiring lock file repinning when the list of artifacts changes
+
+It can be easy to forget to update the `maven_install.json` lock file
+when updating artifacts in a `maven_install`. Normally,
+rules_jvm_external will print a warning to the console and continue
+the build when this happens, but by setting the
+`fail_if_repin_required` attribute to `True`, this will be treated as
+a build error, causing the build to fail. When this attribute is set,
+it is possible to update the `maven_install.json` file using:
+
+```shell
+$ REPIN=1 bazel run @unpinned_maven//:pin
+```
+
+Alternatively, it is also possible to modify the
+`fail_if_repin_required` attribute in your `WORKSPACE` file, run
+`bazel run @unpinned_maven//:pin` and then reset the
+`fail_if_repin_required` attribute.
 
 ### Custom location for `maven_install.json`
 
