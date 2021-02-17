@@ -128,9 +128,10 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     return artifact_relative_path
 
 def _get_aar_import_statement_or_empty_str(repository_ctx):
-  if not repository_ctx.attr.starlark_aar_import:
+  if repository_ctx.attr.starlark_aar_import:
+    return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
+  else:
     return ""
-  return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
@@ -1062,12 +1063,9 @@ pinned_coursier_fetch = repository_rule(
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
-<<<<<<< HEAD
+        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "starlark_aar_import": attr.bool(default = False, doc = "Whether to use the native or Starlark version of aar_import"),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
-=======
-        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
->>>>>>> 82fca1f59f9cb4b02725cbf3d188a287260bd6ec
     },
     implementation = _pinned_coursier_fetch_impl,
 )
