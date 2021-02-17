@@ -368,6 +368,27 @@ maven_install(
     ],
 )
 
+maven_install(
+    name = "starlark_aar_import_test",
+    artifacts = [
+        "com.android.support:appcompat-v7:28.0.0",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+    ],
+    starlark_aar_import = True,
+)
+
+# for the above "starlark_aar_import_test" maven_install with
+# starlark_aar_import = True
+http_archive(
+    name = "build_bazel_rules_android",
+    urls = ["https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip"],
+    sha256 = "cd06d15dd8bb59926e4d65f9003bfc20f9da4b2519985c27e190cddc8b7a7806",
+    strip_prefix = "rules_android-0.1.1",
+)
+
 # https://github.com/bazelbuild/rules_jvm_external/issues/351
 maven_install(
     name = "json_artifacts_testing",

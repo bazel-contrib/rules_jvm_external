@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load(":coursier.bzl", "coursier_fetch", "pinned_coursier_fetch")
+load(":coursier.bzl", "coursier_fetch", "pinned_coursier_fetch", "DEFAULT_AAR_IMPORT_LABEL")
 load(":specs.bzl", "json", "parse")
 load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//private/rules:java_export.bzl", _java_export = "java_export")
@@ -39,7 +39,9 @@ def maven_install(
         resolve_timeout = 600,
         jetify = False,
         jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
-        additional_netrc_lines = []):
+        additional_netrc_lines = [],
+        starlark_aar_import = False,
+        aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -75,6 +77,8 @@ def maven_install(
       jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
       additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
+      starlark_aar_import: Whether to use the native or Starlark version of aar_import. Default is False.
+      aar_import_bzl_label: The label (as a string) to use to import aar_import from. Default is "@build_bazel_rules_android//rules:rules.bzl".
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -123,6 +127,8 @@ def maven_install(
         resolve_timeout = resolve_timeout,
         jetify = jetify,
         jetify_include_list = jetify_include_list,
+        starlark_aar_import = starlark_aar_import,
+        aar_import_bzl_label = aar_import_bzl_label,
     )
 
     if maven_install_json != None:
