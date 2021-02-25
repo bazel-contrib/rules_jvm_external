@@ -1,0 +1,3 @@
+# Make sure we get something helpful when tests fail
+test --verbose_failures
+test --test_output=errors
