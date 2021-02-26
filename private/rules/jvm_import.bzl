@@ -30,17 +30,12 @@ def _jvm_import_impl(ctx):
     compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
     args = ctx.actions.args()
     args.add_all(["--source", outjar, "--output", compilejar])
-    args.add_all(["--remove-entry", "Class-Path"])
-    ctx.actions.run(
-        executable = ctx.executable._add_jar_manifest_entry,
-        arguments = [args],
-        inputs = [outjar],
-        outputs = [compilejar],
-    )
-
-    compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
-    args = ctx.actions.args()
-    args.add_all(["--source", outjar, "--output", compilejar])
+    # We need to remove the `Class-Path` entry since bazel 4 forces `javac`
+    # to run `-Xlint:path` no matter what other flags are passed. Bazel
+    # manages the classpath for us, so the `Class-Path` manifest entry isn't
+    # needed. Worse, if it's there and the jars listed in it aren't found,
+    # the lint check will emit a `bad path element` warning. We get quiet and
+    # correct builds if we remove the `Class-Path` manifest entry entirely.
     args.add_all(["--remove-entry", "Class-Path"])
     ctx.actions.run(
         executable = ctx.executable._add_jar_manifest_entry,
