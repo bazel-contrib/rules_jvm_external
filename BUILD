@@ -33,6 +33,9 @@ stardoc(
 bzl_library(
     name = "implementation",
     srcs = [
+        ":coursier.bzl",
+        ":defs.bzl",
+        ":specs.bzl",
         "//:private/coursier_utilities.bzl",
         "//:private/dependency_tree_parser.bzl",
         "//:private/proxy.bzl",
@@ -48,9 +51,6 @@ bzl_library(
         "//private/rules:pom_file.bzl",
         "//settings:stamp_manifest.bzl",
         "//third_party/bazel_json/lib:json_parser.bzl",
-        ":coursier.bzl",
-        ":defs.bzl",
-        ":specs.bzl",
     ],
 )
 

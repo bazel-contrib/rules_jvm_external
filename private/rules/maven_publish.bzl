@@ -1,11 +1,11 @@
-MavenPublishInfo = provider (
+MavenPublishInfo = provider(
     fields = {
         "coordinates": "Maven coordinates for the project, which may be None",
         "pom": "Pom.xml file for metdata",
         "javadocs": "Javadoc jar file for documentation files",
         "artifact_jar": "Jar with the code and metadata for execution",
         "source_jar": "Jar with the source code for review",
-    }
+    },
 )
 
 _TEMPLATE = """#!/usr/bin/env bash
@@ -54,8 +54,8 @@ def _maven_publish_impl(ctx):
             artifact_jar = ctx.file.artifact_jar,
             javadocs = ctx.file.javadocs,
             source_jar = ctx.file.source_jar,
-            pom = ctx.file.pom
-        )
+            pom = ctx.file.pom,
+        ),
     ]
 
 maven_publish = rule(
@@ -100,5 +100,5 @@ When signing with GPG, the current default key is used.
             default = "//private/tools/java/rules/jvm/external/maven:MavenPublisher",
             allow_files = True,
         ),
-    }
+    },
 )

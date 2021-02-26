@@ -2,6 +2,7 @@ load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 
 genquery(
     name = "testonly-deps",
+    testonly = True,
     expression = "attr(testonly, 1, deps(@testonly_testing//:all, 0))",
     scope = [
         "@testonly_testing//:org_codehaus_mojo_animal_sniffer_annotations_1_17",
@@ -25,7 +26,6 @@ genquery(
         "@testonly_testing//:outdated",
         "@testonly_testing//:pin",
     ],
-    testonly = True,
 )
 
 diff_test(
@@ -41,10 +41,13 @@ diff_test(
 # https://github.com/bazelbuild/rules_jvm_external/issues/433
 genquery(
     name = "version_interval_deps",
-    expression = "deps(@version_interval_testing//:io_grpc_grpc_netty_shaded, 2)",
-    opts = ["--nohost_deps", "--noimplicit_deps"],
-    scope = ["@version_interval_testing//:io_grpc_grpc_netty_shaded"],
     testonly = True,
+    expression = "deps(@version_interval_testing//:io_grpc_grpc_netty_shaded, 2)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@version_interval_testing//:io_grpc_grpc_netty_shaded"],
 )
 
 diff_test(
@@ -67,5 +70,5 @@ java_import(
     ],
     visibility = [
         "//tests/com/jvm/external:__pkg__",
-    ]
+    ],
 )

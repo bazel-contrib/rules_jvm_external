@@ -4,14 +4,13 @@ load(
     "add_netrc_entries_from_mirror_urls",
     "compute_dependency_inputs_signature",
     "extract_netrc_from_auth_url",
-    "get_netrc_lines_from_entries",
     "get_coursier_cache_or_default",
+    "get_netrc_lines_from_entries",
     "remove_auth_from_url",
     "split_url",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
 load("//:specs.bzl", "maven")
-
 
 ALL_TESTS = []
 
@@ -374,16 +373,16 @@ def _get_coursier_cache_or_default_disabled_test(ctx):
     mock_repository_ctx = struct(
         os = struct(
             environ = {
-                "COURSIER_CACHE": _mock_repo_path("/does/not/matter")
+                "COURSIER_CACHE": _mock_repo_path("/does/not/matter"),
             },
             name = "linux",
         ),
-        which = _mock_which
+        which = _mock_which,
     )
     asserts.equals(
         env,
         "v1",
-        get_coursier_cache_or_default(mock_repository_ctx, False)
+        get_coursier_cache_or_default(mock_repository_ctx, False),
     )
     return unittest.end(env)
 
@@ -394,16 +393,16 @@ def _get_coursier_cache_or_default_enabled_with_default_location_linux_test(ctx)
     mock_repository_ctx = struct(
         os = struct(
             environ = {
-                "HOME": "/home/testuser"
+                "HOME": "/home/testuser",
             },
             name = "linux",
         ),
-        which = _mock_which
+        which = _mock_which,
     )
     asserts.equals(
         env,
         "/home/testuser/.cache/coursier/v1",
-        get_coursier_cache_or_default(mock_repository_ctx, True)
+        get_coursier_cache_or_default(mock_repository_ctx, True),
     )
     return unittest.end(env)
 
@@ -414,16 +413,16 @@ def _get_coursier_cache_or_default_enabled_with_default_location_mac_test(ctx):
     mock_repository_ctx = struct(
         os = struct(
             environ = {
-                "HOME": "/Users/testuser"
+                "HOME": "/Users/testuser",
             },
             name = "mac",
         ),
-        which = _mock_which
+        which = _mock_which,
     )
     asserts.equals(
         env,
         "/Users/testuser/Library/Caches/Coursier/v1",
-        get_coursier_cache_or_default(mock_repository_ctx, True)
+        get_coursier_cache_or_default(mock_repository_ctx, True),
     )
     return unittest.end(env)
 
@@ -434,16 +433,16 @@ def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     mock_repository_ctx = struct(
         os = struct(
             environ = {
-                "COURSIER_CACHE": _mock_repo_path("/custom/location")
+                "COURSIER_CACHE": _mock_repo_path("/custom/location"),
             },
             name = "linux",
         ),
-        which = _mock_which
+        which = _mock_which,
     )
     asserts.equals(
         env,
         "/custom/location",
-        get_coursier_cache_or_default(mock_repository_ctx, True)
+        get_coursier_cache_or_default(mock_repository_ctx, True),
     )
     return unittest.end(env)
 
@@ -463,7 +462,7 @@ def _get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test
     mock_repository_ctx = struct(
         os = struct(
             environ = {
-                "HOME": "/Users/testuser"
+                "HOME": "/Users/testuser",
             },
             name = "mac",
         ),
@@ -473,7 +472,7 @@ def _get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test
     asserts.equals(
         env,
         "/Users/testuser/.coursier/cache/v1",
-        get_coursier_cache_or_default(mock_repository_ctx, True)
+        get_coursier_cache_or_default(mock_repository_ctx, True),
     )
     return unittest.end(env)
 

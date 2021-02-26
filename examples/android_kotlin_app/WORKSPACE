@@ -6,7 +6,6 @@ android_sdk_repository(
     build_tools_version = "28.0.2",
 )
 
-
 # BEGIN io_bazel_rules_kotlin
 
 RULES_KOTLIN_VERSION = "9051eb053f9c958440603d557316a6e9fda14687"

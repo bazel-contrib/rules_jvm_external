@@ -6,8 +6,8 @@ java_import(
 java_binary(
     name = "jetifier",
     main_class = "com.android.tools.build.jetifier.standalone.Main",
-    runtime_deps = [
-        ":jetifier_jars"
-    ],
     visibility = ["//visibility:public"],
+    runtime_deps = [
+        ":jetifier_jars",
+    ],
 )

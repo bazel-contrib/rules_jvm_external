@@ -30,21 +30,21 @@ javadoc = rule(
     _javadoc_impl,
     doc = "Generate a javadoc from all the `deps`",
     attrs = {
-      "deps": attr.label_list(
-          doc = """The java libraries to generate javadocs for.
+        "deps": attr.label_list(
+            doc = """The java libraries to generate javadocs for.
 
           The source jars of each dep will be used to generate the javadocs.
           Currently docs for transitive dependencies are not generated.
           """,
-          mandatory = True,
-          providers = [
-              [JavaInfo],
-          ],
-      ),
-      "_javadoc": attr.label(
-          default = "//private/tools/java/rules/jvm/external/javadoc",
-          cfg = "host",
-          executable = True,
-      ),
+            mandatory = True,
+            providers = [
+                [JavaInfo],
+            ],
+        ),
+        "_javadoc": attr.label(
+            default = "//private/tools/java/rules/jvm/external/javadoc",
+            cfg = "host",
+            executable = True,
+        ),
     },
 )

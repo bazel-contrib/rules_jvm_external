@@ -192,6 +192,7 @@ def compute_dependency_inputs_signature(artifacts):
     artifact_inputs = []
     for artifact in artifacts:
         parsed = json_parse(artifact)
+
         # Sort the keys to provide a stable order
         keys = sorted(parsed.keys())
         flattened = ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
@@ -278,7 +279,7 @@ def get_home_netrc_contents(repository_ctx):
     return ""
 
 def _get_jq_http_files():
-    '''Returns repository targets for the `jq` dependency that `pin.sh` needs.'''
+    """Returns repository targets for the `jq` dependency that `pin.sh` needs."""
     lines = []
     for jq in JQ_VERSIONS:
         lines.extend([
@@ -384,7 +385,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                      "or:\n" +
                      " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
                      " 2) Run 'bazel run @unpinned_%s//:pin'\n" % repository_ctx.name +
-                    " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n");
+                     " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n")
             else:
                 print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % repository_ctx.name +
                       "Consider running 'bazel run @unpinned_%s//:pin'" % repository_ctx.name)
@@ -525,8 +526,8 @@ def remove_auth_from_url(url):
     host = url_parts[0]
     if "@" not in host:
         return url
-    last_index=host.rfind("@", 0, None)
-    userless_host=host[last_index + 1:]
+    last_index = host.rfind("@", 0, None)
+    userless_host = host[last_index + 1:]
     new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
 
@@ -612,8 +613,7 @@ def make_coursier_dep_tree(
         fetch_javadoc,
         use_unsafe_shared_cache,
         timeout,
-        report_progress_prefix="",
-):
+        report_progress_prefix = ""):
     # Set up artifact exclusion, if any. From coursier fetch --help:
     #
     # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
@@ -681,18 +681,23 @@ def make_coursier_dep_tree(
 
     repository_ctx.report_progress(
         "%sResolving and fetching the transitive closure of %s artifact(s).." % (
-            report_progress_prefix, len(artifact_coordinates)))
+            report_progress_prefix,
+            len(artifact_coordinates),
+        ),
+    )
 
     exec_result = repository_ctx.execute(
         cmd,
         timeout = timeout,
         environment = environment,
-        quiet = not _is_verbose(repository_ctx))
+        quiet = not _is_verbose(repository_ctx),
+    )
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
     return _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path(
-        "dep-tree.json"))))
+        "dep-tree.json",
+    ))))
 
 def _download_jq(repository_ctx):
     jq_version = None
@@ -720,12 +725,14 @@ def _coursier_fetch_impl(repository_ctx):
 
     # Try running coursier once
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
+
     # Add --help because calling the default coursier command on Windows will
     # hang waiting for input
     cmd.append("--help")
     exec_result = repository_ctx.execute(
         cmd,
-        quiet = not _is_verbose(repository_ctx))
+        quiet = not _is_verbose(repository_ctx),
+    )
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
 
@@ -816,7 +823,7 @@ def _coursier_fetch_impl(repository_ctx):
         coord_split = artifact["coord"].split(":")
         coord_unversioned = "{}:{}".format(coord_split[0], coord_split[1])
         should_jetify = jetify_all or (repository_ctx.attr.jetify and coord_unversioned in jetify_include_dict)
-        if should_jetify :
+        if should_jetify:
             artifact["directDependencies"] = jetify_artifact_dependencies(artifact["directDependencies"])
             artifact["dependencies"] = jetify_artifact_dependencies(artifact["dependencies"])
 
@@ -888,7 +895,8 @@ def _coursier_fetch_impl(repository_ctx):
     )
     exec_result = repository_ctx.execute(
         hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
-        quiet = not _is_verbose(repository_ctx))
+        quiet = not _is_verbose(repository_ctx),
+    )
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
 
@@ -938,6 +946,7 @@ def _coursier_fetch_impl(repository_ctx):
         outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
+
         # Add outdated artifact files if this is a pinned repo
         outdated_build_file_content = _BUILD_OUTDATED
         _add_outdated_files(repository_ctx, artifacts, repositories)
