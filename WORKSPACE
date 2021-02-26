@@ -378,6 +378,25 @@ maven_install(
         "https://maven.google.com",
     ],
     use_starlark_android_rules = True,
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
+)
+
+maven_install(
+    name = "starlark_aar_import_with_jetify_test",
+    artifacts = [
+        "com.android.support:appcompat-v7:28.0.0",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+    ],
+    use_starlark_android_rules = True,
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
+    jetify = True,
 )
 
 # for the above "starlark_aar_import_test" maven_install with

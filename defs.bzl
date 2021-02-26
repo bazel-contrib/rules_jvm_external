@@ -79,8 +79,13 @@ def maven_install(
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
       additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
       fail_if_repin_required: Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the `maven_install_json` to have been set.
-      use_starlark_android_rules: Whether to use the native or Starlark version of the Android rules. Default is False.
-      aar_import_bzl_label: The label (as a string) to use to import aar_import from. Default is "@build_bazel_rules_android//rules:rules.bzl".
+      use_starlark_android_rules: Whether to use the native or Starlark version
+        of the Android rules. Default is False.
+      aar_import_bzl_label: The label (as a string) to use to import aar_import
+        from. This is usually needed only if the top-level workspace file does
+        not use the typical default repository name to import the Android
+        Starlark rules. Default is
+        "@build_bazel_rules_android//rules:rules.bzl".
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):

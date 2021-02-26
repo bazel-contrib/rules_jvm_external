@@ -36,13 +36,16 @@ jetify = rule(
     implementation = _jetify_impl,
 )
 
-def jetify_aar_import(name, aar, **kwargs):
+def jetify_aar_import(name, aar, _aar_import=None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = [aar],
     )
 
-    native.aar_import(
+    if not _aar_import:
+      _aar_import = native.aar_import
+
+    _aar_import(
         name = name,
         aar = ":jetified_" + name,
         **kwargs
