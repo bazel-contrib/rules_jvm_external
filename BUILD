@@ -52,6 +52,9 @@ bzl_library(
         "//settings:stamp_manifest.bzl",
         "//third_party/bazel_json/lib:json_parser.bzl",
     ],
+    visibility = [
+        "//visibility:public",
+    ],
 )
 
 genrule(
