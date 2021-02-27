@@ -29,7 +29,8 @@ def _maven_project_jar_impl(ctx):
         ctx.executable._merge_jars,
         artifact_jars,
         depset(transitive = [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()]).to_list(),
-        bin_jar)
+        bin_jar,
+    )
 
     src_jar = ctx.actions.declare_file("%s-src.jar" % ctx.label.name)
     _combine_jars(
@@ -37,7 +38,8 @@ def _maven_project_jar_impl(ctx):
         ctx.executable._merge_jars,
         artifact_srcs,
         depset(transitive = [ji.transitive_source_jars for ji in info.dep_infos.to_list()]).to_list(),
-        src_jar)
+        src_jar,
+    )
 
     java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
     ijar = java_common.run_ijar(

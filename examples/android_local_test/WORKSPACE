@@ -6,7 +6,6 @@ android_sdk_repository(
     build_tools_version = "28.0.2",
 )
 
-
 http_archive(
     name = "robolectric",
     sha256 = "2ee850ca521288db72b0dedb9ecbda55b64d11c470435a882f8daf615091253d",

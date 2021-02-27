@@ -62,7 +62,6 @@ rules_jvm_external_setup()
 # Begin test dependencies
 
 load("//:defs.bzl", "maven_install")
-
 load("//:specs.bzl", "maven")
 
 maven_install(
@@ -165,7 +164,7 @@ maven_install(
         "com.google.guava:guava:27.0-jre",
         "javax.inject:javax.inject:1",
         "org.apache.beam:beam-sdks-java-core:2.15.0",
-        "org.bouncycastle:bcprov-jdk15on:1.64"
+        "org.bouncycastle:bcprov-jdk15on:1.64",
     ],
     maven_install_json = "//tests/custom_maven_install:manifest_stamp_testing_install.json",
     repositories = [
@@ -329,12 +328,12 @@ maven_install(
         "com.typesafe.play:play_2.11:2.5.19",
         "org.scalatestplus.play:scalatestplus-play_2.11:2.0.1",
     ],
+    fetch_sources = True,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
-    version_conflict_policy = "pinned",
-    fetch_sources = True,
     use_unsafe_shared_cache = True,
+    version_conflict_policy = "pinned",
 )
 
 maven_install(
@@ -344,11 +343,11 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
+    jetify = True,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
-    jetify = True,
 )
 
 maven_install(
@@ -358,13 +357,13 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://maven.google.com",
-    ],
     jetify = True,
     jetify_include_list = [
         "com.android.support:appcompat-v7",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
     ],
 )
 
@@ -376,12 +375,12 @@ maven_install(
         "io.quarkus:quarkus-maven-plugin:1.0.1.Final",
         "io.quarkus:quarkus-bom-descriptor-json:1.0.1.Final",
     ],
+    fetch_sources = True,
     maven_install_json = "//tests/custom_maven_install:json_artifacts_testing_install.json",
     repositories = [
         "https://repo.maven.apache.org/maven2/",
         "https://repo.spring.io/plugins-release/",
     ],
-    fetch_sources = True,
 )
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/433

@@ -3,7 +3,7 @@
 
 def get_pkg_jsons():
     return {
-        "rollup" : """{
+        "rollup": """{
   "name": "rollup",
   "version": "0.57.1",
   "description": "Next-generation ES6 module bundler",
@@ -126,7 +126,7 @@ def get_pkg_jsons():
   }
 }
 """,
-        "lodash" : """{
+        "lodash": """{
   "name": "lodash",
   "version": "4.17.4",
   "license": "MIT",
@@ -191,7 +191,7 @@ def get_pkg_jsons():
   }
 }
 """,
-        "express" : """{
+        "express": """{
   "name": "express",
   "description": "Fast, unopinionated, minimalist web framework",
   "version": "4.16.3",
@@ -290,7 +290,7 @@ def get_pkg_jsons():
   }
 }
 """,
-        "react" : """{
+        "react": """{
   "private": true,
   "version": "16.3.0-alpha.2",
   "workspaces": [
@@ -414,7 +414,7 @@ def get_pkg_jsons():
   }
 }
 """,
-        "jquery" : """{
+        "jquery": """{
   "name": "jquery",
   "title": "jQuery",
   "description": "JavaScript library for DOM operations",
@@ -523,7 +523,7 @@ def get_pkg_jsons():
   }
 }
 """,
-        "q" : """{
+        "q": """{
   "name": "q",
   "version": "1.5.1",
   "description": "A library for promises (CommonJS/Promises/A,B,D)",
@@ -602,7 +602,7 @@ def get_pkg_jsons():
 """,
         # YUCK!!! NOTE the raw literal quoting, to avoid double
         # escaping the backslash escaped quotes below.
-        "rxjs" : r'''{
+        "rxjs": r'''{
   "name": "@reactivex/rxjs",
   "version": "6.0.0-beta.0",
   "description": "Reactive Extensions for modern JavaScript",
@@ -865,7 +865,7 @@ def get_pkg_jsons():
   "typings": "./dist/package/Rx.d.ts"
 }
 ''',
-        "aws-sdk-js" : """{
+        "aws-sdk-js": """{
   "name": "aws-sdk",
   "description": "AWS SDK for JavaScript",
   "version": "2.211.0",
@@ -1008,8 +1008,7 @@ def get_pkg_jsons():
   }
 }
 """,
-
-        "webpack" : r"""{
+        "webpack": r"""{
   "name": "webpack",
   "version": "4.1.1",
   "author": "Tobias Koppers @sokra",
@@ -1129,7 +1128,7 @@ def get_pkg_jsons():
   }
 }
 """,
-        "commander" : """{
+        "commander": """{
   "name": "commander",
   "version": "2.15.0",
   "description": "the complete solution for node.js command-line programs",
@@ -1166,5 +1165,5 @@ def get_pkg_jsons():
   },
   "typings": "typings/index.d.ts"
 }
-"""
-}
+""",
+    }

@@ -17,7 +17,7 @@ def _jetify_artifact_dependencies_returns_original_test(ctx):
     asserts.equals(
         env,
         ["mygroup:myartifact:myversion"],
-        jetify_artifact_dependencies(["mygroup:myartifact:myversion"])
+        jetify_artifact_dependencies(["mygroup:myartifact:myversion"]),
     )
     return unittest.end(env)
 
@@ -28,7 +28,7 @@ def _jetify_artifact_dependencies_returns_jetified_test(ctx):
     asserts.equals(
         env,
         ["androidx.multidex:multidex:2.0.0"],
-        jetify_artifact_dependencies(["com.android.support:multidex:1.0.3"])
+        jetify_artifact_dependencies(["com.android.support:multidex:1.0.3"]),
     )
     return unittest.end(env)
 
@@ -55,7 +55,6 @@ def _jetify_maven_coord_finds_match_test(ctx):
     return unittest.end(env)
 
 jetify_maven_coord_finds_match_test = add_test(_jetify_maven_coord_finds_match_test)
-
 
 def jetifier_test_suite():
     unittest.suite(
