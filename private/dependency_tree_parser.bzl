@@ -141,7 +141,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
-            if jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict):
+            jetify = jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict)
+            if jetify:
                 import_rule = "jetify_" + import_rule
             target_import_string = [import_rule + "("]
 
@@ -167,6 +168,11 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
             elif packaging == "aar":
                 target_import_string.append("\taar = \"%s\"," % artifact_path)
+                if jetify and repository_ctx.attr.use_starlark_android_rules:
+                  # Because jetifier.bzl cannot conditionally import the starlark rules
+                  # (it's not a generated file), inject the aar_import rule from
+                  # the load statement in the generated file.
+                  target_import_string.append("\t_aar_import = aar_import,")
 
             # 4. Generate the deps attribute with references to other target labels.
             #

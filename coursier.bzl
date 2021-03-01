@@ -30,9 +30,17 @@ package(default_visibility = ["//visibility:{visibility}"])
 
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
+{aar_import_statement}
 
 {imports}
 """
+
+DEFAULT_AAR_IMPORT_LABEL = "@build_bazel_rules_android//android:rules.bzl"
+
+_AAR_IMPORT_STATEMENT = """\
+load("%s", "aar_import")
+"""
+
 
 _BUILD_PIN = """
 genrule(
@@ -118,6 +126,14 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
         artifact_relative_path = "v1" + absolute_path_parts[1]
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
+
+def _get_aar_import_statement_or_empty_str(repository_ctx):
+  if repository_ctx.attr.use_starlark_android_rules:
+    # parse the label to validate it
+    _ = Label(repository_ctx.attr.aar_import_bzl_label)
+    return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
+  else:
+    return ""
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
@@ -489,6 +505,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_ctx.name,
             imports = generated_imports,
+            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
         ),
         executable = False,
     )
@@ -957,6 +974,7 @@ def _coursier_fetch_impl(repository_ctx):
             visibility = "private" if repository_ctx.attr.strict_visibility else "public",
             repository_name = repository_name,
             imports = generated_imports,
+            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
         ),
         executable = False,
     )
@@ -1057,6 +1075,8 @@ pinned_coursier_fetch = repository_rule(
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
+        "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -1100,6 +1120,8 @@ coursier_fetch = repository_rule(
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
     },
     environ = [
         "JAVA_HOME",

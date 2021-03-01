@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load(":coursier.bzl", "coursier_fetch", "pinned_coursier_fetch")
+load(":coursier.bzl", "coursier_fetch", "pinned_coursier_fetch", "DEFAULT_AAR_IMPORT_LABEL")
 load(":specs.bzl", "json", "parse")
 load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//private/rules:java_export.bzl", _java_export = "java_export")
@@ -40,7 +40,9 @@ def maven_install(
         jetify = False,
         jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
         additional_netrc_lines = [],
-        fail_if_repin_required = False):
+        fail_if_repin_required = False,
+        use_starlark_android_rules = False,
+        aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -77,6 +79,13 @@ def maven_install(
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
       additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
       fail_if_repin_required: Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the `maven_install_json` to have been set.
+      use_starlark_android_rules: Whether to use the native or Starlark version
+        of the Android rules. Default is False.
+      aar_import_bzl_label: The label (as a string) to use to import aar_import
+        from. This is usually needed only if the top-level workspace file does
+        not use the typical default repository name to import the Android
+        Starlark rules. Default is
+        "@build_bazel_rules_android//rules:rules.bzl".
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -125,6 +134,8 @@ def maven_install(
         resolve_timeout = resolve_timeout,
         jetify = jetify,
         jetify_include_list = jetify_include_list,
+        use_starlark_android_rules = use_starlark_android_rules,
+        aar_import_bzl_label = aar_import_bzl_label,
     )
 
     if maven_install_json != None:
