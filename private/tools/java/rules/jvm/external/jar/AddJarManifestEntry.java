@@ -1,5 +1,7 @@
 package rules.jvm.external.jar;
 
+import rules.jvm.external.ByteStreams;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,17 +10,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
 
 /*
  * A class that will add an entry to the manifest and keep the same modification
@@ -43,7 +51,8 @@ public class AddJarManifestEntry {
   public static void main(String[] args) throws IOException {
     Path out = null;
     Path source = null;
-    String manifestEntry = null;
+    List<String> toAdd = new ArrayList<>();
+    List<String> toRemove = new ArrayList<>();
 
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
@@ -52,7 +61,11 @@ public class AddJarManifestEntry {
           break;
 
         case "--manifest-entry":
-          manifestEntry = args[++i];
+          toAdd.add(args[++i]);
+          break;
+
+        case "--remove-entry":
+          toRemove.add(args[++i]);
           break;
 
         case "--source":
@@ -67,37 +80,56 @@ public class AddJarManifestEntry {
     Objects.requireNonNull(source, "Source jar must be set.");
     Objects.requireNonNull(out, "Output path must be set.");
 
-    addEntryToManifest(out, source, manifestEntry, false);
+    if (isJarSigned(source)) {
+      verboseLog("Signed jar. Will not modify: " + source);
+      Files.createDirectories(out.getParent());
+      Files.copy(source, out, REPLACE_EXISTING);
+      return;
+    }
+
+    addEntryToManifest(out, source, toAdd, toRemove);
   }
 
-  public static void addEntryToManifest(Path out, Path source, String manifestEntry, boolean addManifest) throws IOException {
-    byte[] buffer = new byte[2048];
-    int bytesRead;
-    boolean manifestUpdated = false;
+  private static boolean isJarSigned(Path source) throws IOException {
+    try (InputStream is = Files.newInputStream(source);
+         JarInputStream jis = new JarInputStream(is)) {
+      for (ZipEntry entry = jis.getNextEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if (entry.isDirectory()) {
+          continue;
+        }
+        if (entry.getName().startsWith("META-INF/") && entry.getName().endsWith(".SF")) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
-    try (InputStream fis = Files.newInputStream(source);
-         ZipInputStream zis = new ZipInputStream(fis)) {
-
+  public static void addEntryToManifest(
+          Path out,
+          Path source,
+          List<String> toAdd,
+          List<String> toRemove) throws IOException {
+    try (JarFile jarFile = new JarFile(source.toFile(), false)) {
       try (OutputStream fos = Files.newOutputStream(out);
            ZipOutputStream zos = new JarOutputStream(fos)) {
 
-        if (addManifest) {
-          verboseLog("INFO: No jar manifest found in " + source + " Adding new jar manifest.");
-          Manifest manifest = new Manifest();
-          manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-          manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "AddJarManifestEntry");
-          String[] manifestEntryParts = manifestEntry.split(":", 2);
-          manifest.getMainAttributes().put(new Attributes.Name(manifestEntryParts[0]), manifestEntryParts[1]);
-
-          ZipEntry newManifestEntry = new ZipEntry(JarFile.MANIFEST_NAME);
-          newManifestEntry.setTime(DEFAULT_TIMESTAMP);
-          zos.putNextEntry(newManifestEntry);
-          manifest.write(zos);
-          manifestUpdated = true;
+        // Rewrite the manifest first
+        Manifest manifest = jarFile.getManifest();
+        if (manifest == null) {
+          manifest = new Manifest();
+          manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0");
         }
+        amendManifest(manifest, toAdd, toRemove);
 
-        ZipEntry sourceEntry;
-        while ((sourceEntry = zis.getNextEntry()) != null) {
+        ZipEntry newManifestEntry = new ZipEntry(JarFile.MANIFEST_NAME);
+        newManifestEntry.setTime(DEFAULT_TIMESTAMP);
+        zos.putNextEntry(newManifestEntry);
+        manifest.write(zos);
+
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+          JarEntry sourceEntry = entries.nextElement();
           String name = sourceEntry.getName();
 
           ZipEntry outEntry = new ZipEntry(name);
@@ -106,76 +138,38 @@ public class AddJarManifestEntry {
           outEntry.setComment(sourceEntry.getComment());
           outEntry.setExtra(sourceEntry.getExtra());
 
-          if (manifestEntry != null && JarFile.MANIFEST_NAME.equals(name)) {
-            Manifest manifest = new Manifest(zis);
-            String[] manifestEntryParts = manifestEntry.split(":", 2);
-            manifest.getMainAttributes().put(new Attributes.Name(manifestEntryParts[0]), manifestEntryParts[1]);
+          if (JarFile.MANIFEST_NAME.equals(name)) {
+            continue;
+          }
 
-            if (sourceEntry.getMethod() == ZipEntry.STORED) {
-              CRC32OutputStream crc32OutputStream = new CRC32OutputStream();
-              manifest.write(crc32OutputStream);
-              outEntry.setSize(crc32OutputStream.getSize());
-              outEntry.setCrc(crc32OutputStream.getCRC());
-            }
+          if (sourceEntry.getMethod() == ZipEntry.STORED) {
+            outEntry.setSize(sourceEntry.getSize());
+            outEntry.setCrc(sourceEntry.getCrc());
+          }
+
+          try (InputStream in = jarFile.getInputStream(sourceEntry)) {
             zos.putNextEntry(outEntry);
-            manifest.write(zos);
-            manifestUpdated = true;
-
-          } else {
-
-            if (sourceEntry.getMethod() == ZipEntry.STORED) {
-              outEntry.setSize(sourceEntry.getSize());
-              outEntry.setCrc(sourceEntry.getCrc());
-            }
-
-            try {
-              zos.putNextEntry(outEntry);
-            } catch (ZipException e) {
-              if (e.getMessage().contains("duplicate entry:")) {
-                // If there is a duplicate entry we keep the first one we saw.
-                verboseLog("WARN: Skipping duplicate jar entry " + outEntry.getName() + " in " + source);
-                continue;
-              } else {
-                throw e;
-              }
-            }
-            while ((bytesRead = zis.read(buffer)) != -1) {
-              zos.write(buffer, 0, bytesRead);
+            ByteStreams.copy(in, zos);
+          } catch (ZipException e) {
+            if (e.getMessage().contains("duplicate entry:")) {
+              // If there is a duplicate entry we keep the first one we saw.
+              verboseLog("WARN: Skipping duplicate jar entry " + outEntry.getName() + " in " + source);
+              continue;
+            } else {
+              throw e;
             }
           }
         }
       }
     }
-
-    if (manifestEntry != null && !manifestUpdated) {
-      // If no manifest was found then re-run and add the MANIFEST.MF as the first entry in the output jar
-      addEntryToManifest(out, source, manifestEntry, true);
-    }
   }
 
-  // OutputStream to find the CRC32 of an updated STORED zip entry
-  private static class CRC32OutputStream extends java.io.OutputStream {
-    private final CRC32 crc = new CRC32();
-    private long size = 0;
-
-    CRC32OutputStream() {}
-
-    public void write(int b) throws IOException {
-      crc.update(b);
-      size++;
-    }
-
-    public void write(byte[] b, int off, int len) throws IOException {
-      crc.update(b, off, len);
-      size += len;
-    }
-
-    public long getSize() {
-      return size;
-    }
-
-    public long getCRC() {
-      return crc.getValue();
-    }
+  private static void amendManifest(Manifest manifest, List<String> toAdd, List<String> toRemove) {
+    manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "AddJarManifestEntry");
+    toAdd.forEach(manifestEntry -> {
+      String[] manifestEntryParts = manifestEntry.split(":", 2);
+      manifest.getMainAttributes().put(new Attributes.Name(manifestEntryParts[0]), manifestEntryParts[1]);
+    });
+    toRemove.forEach(name -> manifest.getMainAttributes().remove(new Attributes.Name(name)));
   }
 }

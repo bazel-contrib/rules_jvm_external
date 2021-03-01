@@ -5,6 +5,7 @@ java_test(
     srcs = ["AddJarManifestEntryTest.java"],
     test_class = "com.jvm.external.jar.AddJarManifestEntryTest",
     deps = [
+        "//private/tools/java/rules/jvm/external:byte-streams",
         "//private/tools/java/rules/jvm/external/jar:AddJarManifestEntry",
         artifact("com.google.guava:guava"),
     ],

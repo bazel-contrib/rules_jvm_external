@@ -11,6 +11,9 @@ java_binary(
     visibility = [
         "//visibility:public",
     ],
+    deps = [
+        "//private/tools/java/rules/jvm/external:byte-streams",
+    ],
 )
 
 java_binary(
