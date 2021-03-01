@@ -42,6 +42,8 @@ def _jvm_import_impl(ctx):
         arguments = [args],
         inputs = [outjar],
         outputs = [compilejar],
+        mnemonic = "CreateCompileJar",
+        progress_message = "Creating compile jar for %s" % ctx.label,
     )
 
     if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
