@@ -28,13 +28,21 @@ genquery(
     ],
 )
 
+genrule(
+    name = "testonly-deps-sorted",
+    srcs = [":testonly-deps"],
+    outs = ["testonly-deps-sorted.txt"],
+    cmd = "cat $< | sort > $@",
+    testonly = 1,
+)
+
 diff_test(
     name = "testonly_artifacts_test",
     file1 = select({
         "@bazel_tools//src/conditions:windows": "testonly-deps.golden",
         "//conditions:default": "testonly-deps.golden.unix",
     }),
-    file2 = ":testonly-deps",
+    file2 = ":testonly-deps-sorted",
 )
 
 # https://github.com/coursier/coursier/issues/1792
@@ -50,13 +58,21 @@ genquery(
     scope = ["@version_interval_testing//:io_grpc_grpc_netty_shaded"],
 )
 
+genrule(
+    name = "version-interval-deps-sorted",
+    srcs = [":version_interval_deps"],
+    outs = ["version-interval-deps-sorted.txt"],
+    cmd = "cat $< | sort > $@",
+    testonly = 1,
+)
+
 diff_test(
     name = "version_interval_deps_test",
     file1 = select({
         "@bazel_tools//src/conditions:windows": "version-interval-deps.golden.dos",
         "//conditions:default": "version-interval-deps.golden.unix",
     }),
-    file2 = ":version_interval_deps",
+    file2 = ":version-interval-deps-sorted.txt",
 )
 
 java_import(
