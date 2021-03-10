@@ -123,7 +123,7 @@ def _normalize_to_unix_path(path):
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
-def _relativize_and_symlink_file(repository_ctx, absolute_path):
+def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path):
     # The path manipulation from here on out assumes *nix paths, not Windows.
     # for artifact_absolute_path in artifact_absolute_paths:
     #
@@ -138,6 +138,20 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     ))
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
+    else:
+        # Make a symlink from the absolute path of the artifact to the relative
+        # path within the output_base/external.
+        artifact_relative_path = "v1" + absolute_path_parts[1]
+        repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
+    return artifact_relative_path
+
+# Relativize an absolute path to an artifact in maven local.
+# After relativizing, also symlink the path into the workspace's output base.
+# Then return the relative path for further processing
+def _relativize_and_symlink_file_in_maven_local(repository_ctx, absolute_path):
+    absolute_path_parts = absolute_path.split(".m2/repository")
+    if len(absolute_path_parts) != 2:
+        fail("Error while trying to parse the path of file in maven local: " + absolute_path_parts)
     else:
         # Make a symlink from the absolute path of the artifact to the relative
         # path within the output_base/external.
@@ -213,9 +227,11 @@ def _compute_dependency_tree_signature(artifacts):
         if artifact["file"] != None:
             artifact_group.extend([
                 artifact["sha256"],
-                artifact["file"],
-                artifact["url"],
+                artifact["file"]
             ])
+            # The url can be None for artifacts from maven local repository
+            if artifact["url"] != None:
+                artifact_group.append(artifact["url"])            
         if len(artifact["dependencies"]) > 0:
             artifact_group.append(",".join(sorted(artifact["dependencies"])))
         signature_inputs.append(":".join(artifact_group))
@@ -913,7 +929,7 @@ def _coursier_fetch_impl(repository_ctx):
         artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
 
         if repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"):
-            artifact.update({"file": _relativize_and_symlink_file(repository_ctx, artifact["file"])})
+            artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"])})
 
         # Coursier saves the artifacts into a subdirectory structure
         # that mirrors the URL where the artifact's fetched from. Using
@@ -922,50 +938,56 @@ def _coursier_fetch_impl(repository_ctx):
         filepath_parts = artifact["file"].split("/")
         protocol = None
 
-        # Only support http/https transports
+        # Only support http/https transports (or maven local repository)
         for part in filepath_parts:
-            if part == "http" or part == "https":
+            if part == "http" or part == "https" or part == ".m2":
                 protocol = part
                 break
         if protocol == None:
             fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"])
-        primary_url_parts.extend([protocol, "://"])
-        for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
-            primary_url_parts.extend([part, "/"])
-        primary_url_parts.pop()  # pop the final "/"
+        elif protocol == ".m2":            
+            # this happens if m2local is used as a repository, in which case we should reference the file directly 
+            # with an emptu url, but we create a symlink to the file within maven local (~/.m2/repository)
+            artifact.update({"url": None, "file": _relativize_and_symlink_file_in_maven_local(repository_ctx, artifact["file"])})
+            print("Assuming maven local for artifact: %s" % artifact["coord"])
+        else:
+            primary_url_parts.extend([protocol, "://"])
+            for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
+                primary_url_parts.extend([part, "/"])
+            primary_url_parts.pop()  # pop the final "/"
 
-        # Coursier encodes:
-        # - ':' as '%3A'
-        # - '@' as '%40'
-        #
-        # The primary_url is the url from which Coursier downloaded the jar from. It looks like this:
-        # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
-        primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
-        artifact.update({"url": primary_url})
+            # Coursier encodes:
+            # - ':' as '%3A'
+            # - '@' as '%40'
+            #
+            # The primary_url is the url from which Coursier downloaded the jar from. It looks like this:
+            # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
+            primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
+            artifact.update({"url": primary_url})
 
-        # The repository for the primary_url has to be one of the repositories provided through
-        # maven_install. Since Maven artifact URLs are standardized, we can make the `http_file`
-        # targets more robust by replicating the primary url for each specified repository url.
-        #
-        # It does not matter if the artifact is on a repository or not, since http_file takes
-        # care of 404s.
-        #
-        # If the artifact does exist, Bazel's HttpConnectorMultiplexer enforces the SHA-256 checksum
-        # is correct. By applying the SHA-256 checksum verification across all the mirrored files,
-        # we get increased robustness in the case where our primary artifact has been tampered with,
-        # and we somehow ended up using the tampered checksum. Attackers would need to tamper *all*
-        # mirrored artifacts.
-        #
-        # See https://github.com/bazelbuild/bazel/blob/77497817b011f298b7f3a1138b08ba6a962b24b8/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/HttpConnectorMultiplexer.java#L103
-        # for more information on how Bazel's HTTP multiplexing works.
-        #
-        # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
-        # basic auth.
-        repository_urls = [r["repo_url"].rstrip("/") for r in repositories]
-        primary_artifact_path = infer_artifact_path_from_primary_and_repos(primary_url, repository_urls)
+            # The repository for the primary_url has to be one of the repositories provided through
+            # maven_install. Since Maven artifact URLs are standardized, we can make the `http_file`
+            # targets more robust by replicating the primary url for each specified repository url.
+            #
+            # It does not matter if the artifact is on a repository or not, since http_file takes
+            # care of 404s.
+            #
+            # If the artifact does exist, Bazel's HttpConnectorMultiplexer enforces the SHA-256 checksum
+            # is correct. By applying the SHA-256 checksum verification across all the mirrored files,
+            # we get increased robustness in the case where our primary artifact has been tampered with,
+            # and we somehow ended up using the tampered checksum. Attackers would need to tamper *all*
+            # mirrored artifacts.
+            #
+            # See https://github.com/bazelbuild/bazel/blob/77497817b011f298b7f3a1138b08ba6a962b24b8/src/main/java/com/google/devtools/build/lib/bazel/repository/downloader/HttpConnectorMultiplexer.java#L103
+            # for more information on how Bazel's HTTP multiplexing works.
+            #
+            # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/186): Make this work with
+            # basic auth.
+            repository_urls = [r["repo_url"].rstrip("/") for r in repositories]
+            primary_artifact_path = infer_artifact_path_from_primary_and_repos(primary_url, repository_urls)
 
-        mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
-        artifact.update({"mirror_urls": mirror_urls})
+            mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
+            artifact.update({"mirror_urls": mirror_urls})
 
         files_to_hash.append(repository_ctx.path(artifact["file"]))
 
