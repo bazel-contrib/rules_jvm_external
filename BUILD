@@ -53,6 +53,9 @@ bzl_library(
         "//third_party/bazel_json/lib:json_parser.bzl",
     ],
     visibility = [
+        # This library is only visible to allow others who depend on
+        # `rules_jvm_external` to be able to document their code using
+        # stardoc.
         "//visibility:public",
     ],
 )
