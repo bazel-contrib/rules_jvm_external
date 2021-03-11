@@ -28,7 +28,9 @@ def _maven_project_jar_impl(ctx):
         ctx,
         ctx.executable._merge_jars,
         artifact_jars,
-        depset(transitive = [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()]).to_list(),
+        depset(transitive =
+            [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
+            [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]).to_list(),
         bin_jar,
     )
 
@@ -101,6 +103,13 @@ single artifact that other teams can download and use.
             aspects = [
                 has_maven_deps,
             ],
+        ),
+        "deploy_env": attr.label_list(
+            doc = "A list of targets to exclude from the generated jar",
+            providers = [
+                [JavaInfo],
+            ],
+            allow_empty = True,
         ),
         # Bazel's own singlejar doesn't respect java service files,
         # so use our own.

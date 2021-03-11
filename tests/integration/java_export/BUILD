@@ -1,4 +1,4 @@
-load("//:defs.bzl", "artifact")
+load("//:defs.bzl", "artifact", "java_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
 java_test(
@@ -54,5 +54,41 @@ java_library(
     srcs = ["Dependency.java"],
     deps = [
         artifact("com.google.guava:guava"),
+    ],
+)
+
+java_export(
+    name = "deploy-env",
+    srcs = [
+        "Main.java",
+    ],
+    deploy_env = [
+        ":dep",
+    ],
+    maven_coordinates = "com.example:lib:1.0.0",
+    deps = [
+        ":dep",
+    ],
+)
+
+genrule(
+    name = "list-deploy-env-classes",
+    srcs = [
+        ":deploy-env-project",
+    ],
+    outs = ["classes.txt"],
+    cmd = "for SRC in $(SRCS); do jar tf $$SRC >> $@; done",
+)
+
+sh_test(
+    name = "check-deploy-env",
+    srcs = [
+        "check-deploy-env.sh",
+    ],
+    data = [
+        ":classes.txt",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
     ],
 )
