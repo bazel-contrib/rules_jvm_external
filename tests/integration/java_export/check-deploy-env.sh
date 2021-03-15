@@ -14,9 +14,11 @@ set -euox pipefail
 classes_file=$(rlocation rules_jvm_external/tests/integration/java_export/classes.txt)
 
 if grep -q Dependency.class "$classes_file"; then
+  echo "Unexpectedly found dependency class in jar"
   exit 1
 fi
 
 if ! grep -q Main.class "$classes_file"; then
-  exit 2
+  echo "Missing main class from jar"
+  exit 1
 fi  
