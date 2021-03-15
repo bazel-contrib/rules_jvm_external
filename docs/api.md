@@ -48,7 +48,7 @@ Generate a javadoc from all the `deps`
 ## java_export
 
 <pre>
-java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-kwargs">kwargs</a>)
+java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
 
 Extends `java_library` to allow maven artifacts to be uploaded.
@@ -97,6 +97,7 @@ Generated rules:
 | :-------------: | :-------------: | :-------------: |
 | name |  A unique name for this target   |  none |
 | maven_coordinates |  The maven coordinates for this target.   |  none |
+| deploy_env |  A list of labels of java targets to exclude from the generated jar   |  <code>[]</code> |
 | pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
 | visibility |  The visibility of the target   |  <code>None</code> |
 | tags |  <p align="center"> - </p>   |  <code>[]</code> |
@@ -112,7 +113,7 @@ maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-re
               <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
               <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
               <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-jetify">jetify</a>, <a href="#maven_install-jetify_include_list">jetify_include_list</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>,
-              <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>)
+              <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -144,6 +145,8 @@ and fetch Maven artifacts transitively.
 | jetify_include_list |  List of artifacts that need to be jetified in <code>groupId:artifactId</code> format. By default all artifacts are jetified if <code>jetify</code> is set to True.   |  <code>["*"]</code> |
 | additional_netrc_lines |  Additional lines prepended to the netrc file used by <code>http_file</code> (with <code>maven_install_json</code> only).   |  <code>[]</code> |
 | fail_if_repin_required |  Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the <code>maven_install_json</code> to have been set.   |  <code>False</code> |
+| use_starlark_android_rules |  Whether to use the native or Starlark version   of the Android rules. Default is False.   |  <code>False</code> |
+| aar_import_bzl_label |  The label (as a string) to use to import aar_import   from. This is usually needed only if the top-level workspace file does   not use the typical default repository name to import the Android   Starlark rules. Default is   "@build_bazel_rules_android//rules:rules.bzl".   |  <code>"@build_bazel_rules_android//android:rules.bzl"</code> |
 
 
 # Maven specification functions

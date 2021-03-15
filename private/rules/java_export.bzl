@@ -6,6 +6,7 @@ load("//private/rules:pom_file.bzl", "pom_file")
 def java_export(
         name,
         maven_coordinates,
+        deploy_env = [],
         pom_template = None,
         visibility = None,
         tags = [],
@@ -52,6 +53,7 @@ def java_export(
       name: A unique name for this target
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
+      deploy_env: A list of labels of java targets to exclude from the generated jar
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://docs.bazel.build/versions/master/be/java.html#java_library),
         and so may contain any valid parameter for that rule.
@@ -71,6 +73,7 @@ def java_export(
     maven_project_jar(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
+        deploy_env = deploy_env,
         tags = tags,
     )
 
