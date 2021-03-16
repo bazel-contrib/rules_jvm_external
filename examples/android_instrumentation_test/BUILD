@@ -22,5 +22,9 @@ platform(
             name: "dockerPrivileged"
             value: "true"
         }
+        properties: {
+            name: "gceMachineType"
+            value: "n1-standard-2"
+        }
 """,
 )
