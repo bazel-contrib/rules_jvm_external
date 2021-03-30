@@ -9,6 +9,23 @@ def _java_proxy_parsing_empty_test_impl(ctx):
 
 java_proxy_parsing_empty_test = unittest.make(_java_proxy_parsing_empty_test_impl)
 
+def _java_proxy_parsing_no_scheme_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        [
+            "-Dhttp.proxyHost=localhost",
+            "-Dhttp.proxyPort=8888",
+            "-Dhttps.proxyHost=localhost",
+            "-Dhttps.proxyPort=8843",
+            "-Dhttp.nonProxyHosts=google.com",
+        ],
+        get_java_proxy_args("localhost:8888", "localhost:8843", "google.com"),
+    )
+    return unittest.end(env)
+
+java_proxy_parsing_no_scheme_test = unittest.make(_java_proxy_parsing_no_scheme_test_impl)
+
 def _java_proxy_parsing_no_user_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
@@ -83,6 +100,7 @@ def proxy_test_suite():
     unittest.suite(
         "proxy_tests",
         java_proxy_parsing_empty_test,
+        java_proxy_parsing_no_scheme_test,
         java_proxy_parsing_no_user_test,
         java_proxy_parsing_no_port_test,
         java_proxy_parsing_trailing_slash_test,
