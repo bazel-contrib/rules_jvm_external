@@ -53,9 +53,7 @@ def _maven_project_jar_impl(ctx):
 
     # Grab the exported javainfos
     exported_infos = []
-    targets = [] + target[JavaInfo].transitive_exports.to_list()
-    for i in info.artifact_infos.to_list():
-        targets.extend(i.transitive_exports.to_list())
+    targets = target[MavenInfo].transitive_exports.to_list()
 
     for label in targets:
         export_info = info.label_to_javainfo.get(label)
