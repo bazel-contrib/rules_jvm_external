@@ -41,7 +41,6 @@ _AAR_IMPORT_STATEMENT = """\
 load("%s", "aar_import")
 """
 
-
 _BUILD_PIN = """
 genrule(
     name = "jq-binary",
@@ -128,12 +127,12 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
     return artifact_relative_path
 
 def _get_aar_import_statement_or_empty_str(repository_ctx):
-  if repository_ctx.attr.use_starlark_android_rules:
-    # parse the label to validate it
-    _ = Label(repository_ctx.attr.aar_import_bzl_label)
-    return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
-  else:
-    return ""
+    if repository_ctx.attr.use_starlark_android_rules:
+        # parse the label to validate it
+        _ = Label(repository_ctx.attr.aar_import_bzl_label)
+        return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
+    else:
+        return ""
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
