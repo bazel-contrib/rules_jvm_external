@@ -108,7 +108,6 @@ def _extract_from(gathered, maven_info, dep):
             gathered.dep_infos.append(dep[JavaInfo])
         else:
             gathered.artifact_infos.append(dep[JavaInfo])
-            gathered.transitive_exports.append(maven_info.transitive_exports)
 
 def _has_maven_deps_impl(target, ctx):
     if not JavaInfo in target:
@@ -129,7 +128,6 @@ def _has_maven_deps_impl(target, ctx):
     gathered = _gathered(
         all_infos = [],
         artifact_infos = [target[JavaInfo]],
-        transitive_exports = [],
         dep_infos = [],
         label_to_javainfo = {target.label: target[JavaInfo]},
     )
@@ -146,7 +144,6 @@ def _has_maven_deps_impl(target, ctx):
 
     all_infos = gathered.all_infos
     artifact_infos = gathered.artifact_infos
-    transitive_exports_from_deps = gathered.transitive_exports
     dep_infos = gathered.dep_infos
     label_to_javainfo = gathered.label_to_javainfo
     maven_deps = depset(transitive = [i.as_maven_dep for i in all_infos])
@@ -166,7 +163,7 @@ def _has_maven_deps_impl(target, ctx):
         artifact_infos = depset(direct = artifact_infos),
         dep_infos = depset(direct = dep_infos, transitive = [i.dep_infos for i in all_infos]),
         label_to_javainfo = label_to_javainfo,
-        transitive_exports = depset(transitive = [transitive_exports_from_exports] + transitive_exports_from_deps)
+        transitive_exports = depset(transitive = [transitive_exports_from_exports])
     )
 
     return [
