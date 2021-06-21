@@ -16,6 +16,7 @@ exports_test = analysistest.make(
     _exports_test_impl,
     attrs = {
         # We can't just use target_under_test because we need to add our own aspect to the attribute.
+        # See https://github.com/bazelbuild/bazel-skylib/pull/299
         "target_under_test_with_aspect": attr.label(aspects = [has_maven_deps], mandatory = True),
     },
 )
