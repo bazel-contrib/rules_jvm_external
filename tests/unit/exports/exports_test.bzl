@@ -6,10 +6,16 @@ load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 
 def _exports_test_impl(ctx):
     env = analysistest.begin(ctx)
-    tut = env.ctx.attr.target_under_test_with_aspect
-    asserts.true(env, MavenInfo in tut, "java_library should provide MavenInfo")
-    maven_info = tut[MavenInfo]
+    tut_with_aspect = env.ctx.attr.target_under_test_with_aspect
+    asserts.true(env, MavenInfo in tut_with_aspect, "java_library should provide MavenInfo")
+    maven_info = tut_with_aspect[MavenInfo]
     asserts.equals(env, [Label("//tests/unit/exports:exported_leaf"), Label("//tests/unit/exports:is_export_has_exports")], maven_info.transitive_exports.to_list())
+
+    tut = env.ctx.attr.target_under_test
+    asserts.true(env, JavaInfo in tut_with_aspect, "maven_project_jar should provide JavaInfo")
+    java_info = tut[JavaInfo]
+    asserts.equals(env, ["maven_project_jar.jar", "libexported_leaf.jar", "libis_export_has_exports.jar"], [f.basename for f in java_info.transitive_runtime_deps.to_list()])
+
     return analysistest.end(env)
 
 exports_test = analysistest.make(
@@ -22,6 +28,11 @@ exports_test = analysistest.make(
 )
 
 def exports_tests(name):
+    maven_project_jar(
+        name = "maven_project_jar",
+        target = ":library_to_test",
+    )
+
     native.java_library(
         name = "library_to_test",
         deps = [":is_dep_has_exports", ":is_export_has_exports"],
@@ -53,10 +64,8 @@ def exports_tests(name):
         srcs = ["Foo.java"],
     )
 
-    native.filegroup(name = "ignored")
-
     exports_test(
         name = "exports_test",
-        target_under_test = ":ignored",
+        target_under_test = ":maven_project_jar",
         target_under_test_with_aspect = ":library_to_test",
     )
