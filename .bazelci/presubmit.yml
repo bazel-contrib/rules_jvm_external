@@ -1,6 +1,6 @@
 ---
 tasks:
-  ubuntu1604:
+  ubuntu1804:
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
