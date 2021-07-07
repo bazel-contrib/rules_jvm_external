@@ -98,7 +98,7 @@ _gathered = provider(
     ],
 )
 
-def _extract_from(gathered, maven_info, dep):
+def _extract_from(gathered, maven_info, dep, include_transitive_exports):
     java_info = dep[JavaInfo] if dep and JavaInfo in dep else None
 
     gathered.all_infos.append(maven_info)
@@ -108,7 +108,8 @@ def _extract_from(gathered, maven_info, dep):
             gathered.dep_infos.append(dep[JavaInfo])
         else:
             gathered.artifact_infos.append(dep[JavaInfo])
-            gathered.transitive_exports.append(maven_info.transitive_exports)
+            if include_transitive_exports:
+                gathered.transitive_exports.append(maven_info.transitive_exports)
 
 def _has_maven_deps_impl(target, ctx):
     if not JavaInfo in target:
@@ -118,10 +119,6 @@ def _has_maven_deps_impl(target, ctx):
     for tag in ctx.rule.attr.tags:
         if tag in _STOP_TAGS:
             return _EMPTY_INFO
-
-    all_deps = []
-    for attr in _ASPECT_ATTRS:
-        all_deps.extend(getattr(ctx.rule.attr, attr, []))
 
     coordinates = _read_coordinates(ctx.rule.attr.tags)
     label_to_javainfo = {target.label: target[JavaInfo]}
@@ -133,16 +130,18 @@ def _has_maven_deps_impl(target, ctx):
         dep_infos = [],
         label_to_javainfo = {target.label: target[JavaInfo]},
     )
-    for dep in all_deps:
-        if MavenHintInfo in dep:
-            for info in dep[MavenHintInfo].maven_infos.to_list():
-                _extract_from(gathered, info, None)
 
-        if not MavenInfo in dep:
-            continue
+    for attr in _ASPECT_ATTRS:
+        for dep in getattr(ctx.rule.attr, attr, []):
+            if MavenHintInfo in dep:
+                for info in dep[MavenHintInfo].maven_infos.to_list():
+                    _extract_from(gathered, info, None, attr == "exports")
 
-        info = dep[MavenInfo]
-        _extract_from(gathered, info, dep)
+            if not MavenInfo in dep:
+                continue
+
+            info = dep[MavenInfo]
+            _extract_from(gathered, info, dep, attr == "exports")
 
     all_infos = gathered.all_infos
     artifact_infos = gathered.artifact_infos
