@@ -96,6 +96,24 @@ def _is_file(repository_ctx, path):
 def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
+def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_message = None):
+    if progress_message:
+        repository_ctx.report_progress(progress_message)
+
+    verbose = _is_verbose(repository_ctx)
+    if verbose:
+        repository_ctx.execute(
+            ["echo", "\n%s" % " ".join([str(c) for c in cmd])],
+            quiet = False,
+        )
+
+    return repository_ctx.execute(
+        cmd,
+        timeout = timeout,
+        environment = environment,
+        quiet = not verbose,
+    )
+
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
@@ -696,18 +714,15 @@ def make_coursier_dep_tree(
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
 
-    repository_ctx.report_progress(
-        "%sResolving and fetching the transitive closure of %s artifact(s).." % (
-            report_progress_prefix,
-            len(artifact_coordinates),
-        ),
-    )
-
-    exec_result = repository_ctx.execute(
+    exec_result = _execute(
+        repository_ctx,
         cmd,
         timeout = timeout,
         environment = environment,
-        quiet = not _is_verbose(repository_ctx),
+        progress_message = "%sResolving and fetching the transitive closure of %s artifact(s).." % (
+            report_progress_prefix,
+            len(artifact_coordinates),
+        )
     )
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
@@ -746,9 +761,9 @@ def _coursier_fetch_impl(repository_ctx):
     # Add --help because calling the default coursier command on Windows will
     # hang waiting for input
     cmd.append("--help")
-    exec_result = repository_ctx.execute(
+    exec_result = _execute(
+        repository_ctx,
         cmd,
-        quiet = not _is_verbose(repository_ctx),
     )
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
@@ -910,9 +925,10 @@ def _coursier_fetch_impl(repository_ctx):
         "\n".join([str(f) for f in files_to_hash]) + "\n",
         executable = False,
     )
-    exec_result = repository_ctx.execute(
+    exec_result = _execute(
+        repository_ctx,
         hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
-        quiet = not _is_verbose(repository_ctx),
+        progress_message = "Calculating sha256 checksums.."
     )
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
