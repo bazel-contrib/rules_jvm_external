@@ -42,7 +42,8 @@ def maven_install(
         additional_netrc_lines = [],
         fail_if_repin_required = False,
         use_starlark_android_rules = False,
-        aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL):
+        aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
+        duplicate_version_warning = "warn"):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -86,6 +87,9 @@ def maven_install(
         not use the typical default repository name to import the Android
         Starlark rules. Default is
         "@build_bazel_rules_android//rules:rules.bzl".
+      duplicate_version_warning: What to do if an artifact is specified multiple times. If "error" then
+        fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default
+        is "warn".
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -136,6 +140,7 @@ def maven_install(
         jetify_include_list = jetify_include_list,
         use_starlark_android_rules = use_starlark_android_rules,
         aar_import_bzl_label = aar_import_bzl_label,
+        duplicate_version_warning = duplicate_version_warning,
     )
 
     if maven_install_json != None:
@@ -154,6 +159,7 @@ def maven_install(
             jetify_include_list = jetify_include_list,
             additional_netrc_lines = additional_netrc_lines,
             fail_if_repin_required = fail_if_repin_required,
+            duplicate_version_warning = duplicate_version_warning,
         )
 
 def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):

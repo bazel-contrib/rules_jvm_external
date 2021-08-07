@@ -9,7 +9,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_flags:
       - "--//settings:stamp_manifest=True"
     test_targets:
@@ -33,7 +33,7 @@ tasks:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -43,7 +43,7 @@ tasks:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -53,7 +53,7 @@ tasks:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -68,7 +68,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -81,7 +81,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_flags:
       - "--//settings:stamp_manifest=True"
     test_targets:
@@ -98,7 +98,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
-      - bazel run @regression_testing//:outdated
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
