@@ -98,12 +98,13 @@ or environment variables. See the [Coursier
 documentation](https://get-coursier.io/docs/other-credentials.html#property-file)
 for more information.
 
-`rules_jvm_external_setup` uses a default list of maven repositories to download
+`rules_jvm_external_deps` uses a default list of maven repositories to download
  `rules_jvm_external`'s own dependencies from. Should you wish to change this,
  use the `repositories` parameter:
 
  ```python
-rules_jvm_external_setup(repositories = ["https://mycorp.com/artifacts"])
+rules_jvm_external_deps(repositories = ["https://mycorp.com/artifacts"])
+rules_jvm_external_setup()
 ```
 
 Next, reference the artifacts in the BUILD file with their versionless label:
