@@ -40,15 +40,6 @@ tasks:
     working_directory: examples/pom_file_generation
     build_targets:
       - "//..."
-  android-instrumentation-test-linux-rbe:
-    name: "Android instrumentation test example on RBE"
-    platform: ubuntu1604
-    working_directory: examples/android_instrumentation_test
-    test_flags:
-      - "--config=remote_android"
-      - "--toolchain_resolution_debug"
-    test_targets:
-      - "//src/test:greeter_test"
   android-instrumentation-test-macos:
     name: "Android instrumentation test example"
     platform: macos
