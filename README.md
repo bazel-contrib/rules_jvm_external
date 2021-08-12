@@ -36,6 +36,7 @@ Table of Contents
          * [Hiding transitive dependencies](#hiding-transitive-dependencies)
          * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
          * [Jetifier](#jetifier)
+         * [Duplicate artifact warning](#duplicate-artifact-warning)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
       * [Publishing to external repositories](#publishing-to-external-repositories)
       * [Demo](#demo)
@@ -890,6 +891,22 @@ maven_install(
     jetify_include_list = [
         "exampleGroupId:exampleArtifactId",
     ],
+)
+```
+
+### Duplicate artifact warning
+
+By default you will be warned if there are duplicate artifacts in your artifact list. The `duplicate_version_warning` setting can be used to change this behavior. Use "none" to disable the warning and "error" to fail the build instead of warn.
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    duplicate_version_warning = "error"
 )
 ```
 

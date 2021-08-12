@@ -372,6 +372,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     for artifact in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(artifact))
 
+    _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
+
     # Read Coursier state from maven_install.json.
     repository_ctx.symlink(
         repository_ctx.path(repository_ctx.attr.maven_install_json),
@@ -606,6 +608,31 @@ def _deduplicate_artifacts(dep_tree):
     dep_tree.update({"dependencies": deduped_artifacts.values() + null_artifacts})
     return dep_tree
 
+def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
+    if duplicate_version_warning == "none":
+        return
+    seen_artifacts = {}
+    duplicate_artifacts = {}
+    for artifact in artifacts:
+        artifact_coordinate = artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
+        if artifact_coordinate in seen_artifacts:
+            if artifact_coordinate in duplicate_artifacts:
+                duplicate_artifacts[artifact_coordinate].append(artifact["version"])
+            else:
+                duplicate_artifacts[artifact_coordinate] = [artifact["version"]]
+        else:
+            seen_artifacts[artifact_coordinate] = artifact["version"]
+
+    if duplicate_artifacts:
+        msg_parts = ["Found duplicate artifact versions"]
+        for duplicate in duplicate_artifacts:
+            msg_parts.append("    {} has multiple versions {}".format(duplicate, ", ".join([seen_artifacts[duplicate]] + duplicate_artifacts[duplicate])))
+        msg_parts.append("Please remove duplicate artifacts from the artifact list so you do not get unexpected artifact versions")
+        if duplicate_version_warning == "error":
+            fail("\n".join(msg_parts))
+        else:
+            print("\n".join(msg_parts))
+
 # Get the path to the cache directory containing Coursier-downloaded artifacts.
 #
 # This method is public for testing.
@@ -778,6 +805,8 @@ def _coursier_fetch_impl(repository_ctx):
     artifacts = []
     for artifact in repository_ctx.attr.artifacts:
         artifacts.append(json_parse(artifact))
+
+    _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
     excluded_artifacts = []
     for artifact in repository_ctx.attr.excluded_artifacts:
@@ -1093,6 +1122,20 @@ pinned_coursier_fetch = repository_rule(
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
+        "duplicate_version_warning": attr.string(
+            doc = """What to do if there are duplicate artifacts
+
+            If "error", then print a message and fail the build.
+            If "warn", then print a warning and continue.
+            If "none", then do nothing.
+            """,
+            default = "warn",
+            values = [
+                "error",
+                "warn",
+                "none",
+            ],
+        ),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -1138,6 +1181,20 @@ coursier_fetch = repository_rule(
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
+        "duplicate_version_warning": attr.string(
+            doc = """What to do if there are duplicate artifacts
+
+            If "error", then print a message and fail the build.
+            If "warn", then print a warning and continue.
+            If "none", then do nothing.
+            """,
+            default = "warn",
+            values = [
+                "error",
+                "warn",
+                "none",
+            ],
+        ),
     },
     environ = [
         "JAVA_HOME",

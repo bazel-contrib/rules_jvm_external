@@ -364,6 +364,33 @@ maven_install(
 )
 
 maven_install(
+    name = "duplicate_version_warning",
+    artifacts = [
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.12.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.11.2",
+        "com.github.jnr:jffi:1.3.4",
+        maven.artifact(
+            group = "com.github.jnr",
+            artifact = "jffi",
+            version = "1.3.3",
+            classifier = "native",
+        ),
+        maven.artifact(
+            group = "com.github.jnr",
+            artifact = "jffi",
+            version = "1.3.2",
+            classifier = "native",
+        ),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+)
+
+maven_install(
     name = "starlark_aar_import_test",
     artifacts = [
         "com.android.support:appcompat-v7:28.0.0",
