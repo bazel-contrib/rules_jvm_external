@@ -107,3 +107,5 @@ tasks:
       # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
       - "-//tests/unit/kotlin/..."
       - "-//tests/integration/override_targets"
+      # https://github.com/bazelbuild/rules_jvm_external/issues/586
+      - "-//tests/unit/manifest_stamp:diff_signed_manifest_test"
