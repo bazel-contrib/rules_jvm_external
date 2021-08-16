@@ -17,6 +17,7 @@ load("//:specs.bzl", "maven", "parse", "utils")
 load("//:private/proxy.bzl", "get_java_proxy_args")
 load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
+load("//:private/java_utilities.bzl", "parse_java_version")
 load(
     "//:private/versions.bzl",
     "COURSIER_CLI_BAZEL_MIRROR_URL",
@@ -152,22 +153,26 @@ def _get_aar_import_statement_or_empty_str(repository_ctx):
     else:
         return ""
 
+def _java_path(repository_ctx):
+    java_home = repository_ctx.os.environ.get("JAVA_HOME")
+    if java_home != None:
+        return repository_ctx.path(java_home + "/bin/java")
+    elif repository_ctx.which("java") != None:
+        return repository_ctx.which("java")
+    return None
+
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
 def _generate_java_jar_command(repository_ctx, jar_path):
-    java_home = repository_ctx.os.environ.get("JAVA_HOME")
     coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
     coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
+    java_path = _java_path(repository_ctx)
 
-    if java_home != None:
+    if java_path != None:
         # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
         # The -noverify option seems to be required after the proguarding step
         # of the main JAR of coursier.
-        java = repository_ctx.path(java_home + "/bin/java")
-        cmd = [java, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
-    elif repository_ctx.which("java") != None:
-        # Use 'java' from $PATH
-        cmd = [repository_ctx.which("java"), "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
+        cmd = [java_path, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
     else:
         # Try to execute coursier directly
         cmd = [jar_path] + coursier_opts + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
@@ -740,6 +745,22 @@ def make_coursier_dep_tree(
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
+    # If we are using Java 9 or higher we can use an argsfile to avoid command line length limits
+    java_path = _java_path(repository_ctx)
+    if java_path:
+        exec_result = _execute(repository_ctx, [java_path, "-version"])
+        if (exec_result.return_code != 0):
+            fail("Error while running java -version: " + exec_result.stderr)
+        if parse_java_version(exec_result.stdout + exec_result.stderr) > 8:
+            java_cmd = cmd[0]
+            java_args = cmd[1:]
+            repository_ctx.file(
+                "java_argsfile",
+                "\n".join([str(f) for f in java_args]) + "\n",
+                executable = False,
+            )
+            cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
 
     exec_result = _execute(
         repository_ctx,
