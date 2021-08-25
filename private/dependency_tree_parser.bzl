@@ -168,6 +168,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
             elif packaging == "aar":
                 target_import_string.append("\taar = \"%s\"," % artifact_path)
+                if srcjar_paths != None and target_label in srcjar_paths:
+                    target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
                 if jetify and repository_ctx.attr.use_starlark_android_rules:
                   # Because jetifier.bzl cannot conditionally import the starlark rules
                   # (it's not a generated file), inject the aar_import rule from
