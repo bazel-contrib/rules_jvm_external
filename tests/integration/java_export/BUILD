@@ -65,6 +65,10 @@ java_export(
     deploy_env = [
         ":dep",
     ],
+    javadocopts = [
+        "-windowtitle",
+        "My Deploy Env"
+    ],
     maven_coordinates = "com.example:lib:1.0.0",
     deps = [
         ":dep",

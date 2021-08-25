@@ -62,6 +62,10 @@ def java_export(
     tags = tags + ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
+    javadocopts = kwargs.pop("javadocopts")
+    if javadocopts == None:
+        javadocopts = []
+
     # Construct the java_library we'll export from here.
     native.java_library(
         name = lib_name,
@@ -98,6 +102,7 @@ def java_export(
         deps = [
             ":%s-project" % name,
         ],
+        javadocopts = javadocopts
     )
 
     pom_file(

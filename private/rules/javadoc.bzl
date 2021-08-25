@@ -1,8 +1,9 @@
-def generate_javadoc(ctx, javadoc, source_jars, classpath, output):
+def generate_javadoc(ctx, javadoc, source_jars, classpath, javadocopts, output):
     args = ctx.actions.args()
     args.add_all(["--out", output])
     args.add_all(source_jars, before_each = "--in")
     args.add_all(classpath.to_list(), before_each = "--cp")
+    args.add_all(javadocopts)
 
     ctx.actions.run(
         executable = javadoc,
@@ -20,7 +21,11 @@ def _javadoc_impl(ctx):
 
     classpath = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps])
 
-    generate_javadoc(ctx, ctx.executable._javadoc, sources, classpath, jar_file)
+    # javadoc options have overlap with javac options, but we cannot rely on that derive
+    # javadoc options from dep[JavaInfo].compilation_info. Also dep[JavaInfo].compilation_info
+    # is always returning None - https://github.com/bazelbuild/bazel/issues/10170
+    # hence, reading javadocopts explicitly from the rule attrs.
+    generate_javadoc(ctx, ctx.executable._javadoc, sources, classpath, ctx.attr.javadocopts, jar_file)
 
     return [
         DefaultInfo(files = depset([jar_file])),
@@ -40,6 +45,13 @@ javadoc = rule(
             providers = [
                 [JavaInfo],
             ],
+        ),
+        "javadocopts": attr.string_list(
+            doc = """javadoc options.
+            Note sources and classpath are derived from the deps. Any additional
+            options can be passed here.
+            """,
+            mandatory = False,
         ),
         "_javadoc": attr.label(
             default = "//private/tools/java/rules/jvm/external/javadoc",
