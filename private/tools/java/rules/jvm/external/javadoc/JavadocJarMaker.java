@@ -59,22 +59,30 @@ public class JavadocJarMaker {
     Set<Path> sourceJars = new HashSet<>();
     Path out = null;
     Set<Path> classpath = new HashSet<>();
+    List<String> options = new ArrayList<>();
 
     for (int i = 0; i < args.length; i++) {
       String flag = args[i];
-      String next = args[++i];
+      String next;
 
       switch (flag) {
         case "--cp":
+          next = args[++i];
           classpath.add(Paths.get(next));
           break;
 
         case "--in":
+          next = args[++i];
           sourceJars.add(Paths.get(next));
           break;
 
         case "--out":
+          next = args[++i];
           out = Paths.get(next);
+          break;
+
+        default:
+          options.add(flag);
           break;
       }
     }
@@ -113,7 +121,6 @@ public class JavadocJarMaker {
         return;
       }
 
-      List<String> options = new ArrayList<>();
       if (!classpath.isEmpty()) {
         options.add("-cp");
         options.add(classpath.stream().map(String::valueOf).collect(Collectors.joining(File.pathSeparator)));
