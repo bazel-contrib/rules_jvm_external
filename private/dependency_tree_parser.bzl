@@ -219,8 +219,16 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
-            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
+
+            target_import_string.append("\ttags = [")
+            target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coord"])
+            target_import_string.append("\t\t\"maven_url=%s\"," % artifact["url"])
+            target_import_string.append("\t],")
+
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
             #    available only as a compile time dependency.
@@ -232,7 +240,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             if neverlink_artifacts.get(simple_coord):
                 target_import_string.append("\tneverlink = True,")
@@ -247,7 +258,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   deps = [
             #       ":org_hamcrest_hamcrest_core",
             #   ],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             #   testonly = True,
             if testonly_artifacts.get(simple_coord):
@@ -263,7 +277,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             #   testonly = True,
             #   visibility = ["//visibility:public"],
@@ -280,7 +297,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             #   testonly = True,
             # )
