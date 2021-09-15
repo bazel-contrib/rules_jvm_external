@@ -43,6 +43,7 @@ load("%s", "aar_import")
 """
 
 _BUILD_PIN = """
+exports_files(['unsorted_deps.json'])
 genrule(
     name = "jq-binary",
     cmd = "cp $< $@",
@@ -59,9 +60,11 @@ sh_binary(
     srcs = ["pin.sh"],
     args = [
       "$(rootpath :jq-binary)",
+      "$(location :unsorted_deps.json)",
     ],
     data = [
         ":jq-binary",
+        ":unsorted_deps.json",
     ],
     visibility = ["//visibility:public"],
 )
@@ -1070,11 +1073,16 @@ def _coursier_fetch_impl(repository_ctx):
     #
     # Create the maven_install.json export script for unpinned repositories.
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
+    repository_ctx.file(
+        "unsorted_deps.json",
+        content = "{dependency_tree_json}".format(
+            dependency_tree_json = dependency_tree_json
+        )
+    )
     repository_ctx.template(
         "pin.sh",
         repository_ctx.attr._pin,
         {
-            "{dependency_tree_json}": dependency_tree_json,
             "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
             "{predefined_maven_install}": str(predefined_maven_install),
             "{repository_name}": repository_name,
