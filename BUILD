@@ -38,6 +38,7 @@ bzl_library(
         ":specs.bzl",
         "//:private/coursier_utilities.bzl",
         "//:private/dependency_tree_parser.bzl",
+        "//:private/java_utilities.bzl",
         "//:private/proxy.bzl",
         "//:private/versions.bzl",
         "//private/rules:has_maven_deps.bzl",
