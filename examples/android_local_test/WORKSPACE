@@ -26,7 +26,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 maven_install(
     artifacts = [
         "androidx.appcompat:appcompat:1.0.2",
-        "androidx.annotation:annotation:1.0.2",
+        "androidx.annotation:annotation:1.1.0",
         "androidx.test.ext:junit:1.1.0",
         "org.robolectric:robolectric:4.4",
         "org.assertj:assertj-core:3.12.1",
