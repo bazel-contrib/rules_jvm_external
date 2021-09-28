@@ -43,7 +43,6 @@ load("%s", "aar_import")
 """
 
 _BUILD_PIN = """
-exports_files(['unsorted_deps.json'])
 genrule(
     name = "jq-binary",
     cmd = "cp $< $@",
