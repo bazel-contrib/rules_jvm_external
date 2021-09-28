@@ -7,10 +7,8 @@ readonly maven_install_json_loc={maven_install_location}
 # there is only pin.runfiles/unpinned_maven/jq not also pin.runfiles/user_repo/external/unpinned_maven/jq
 # So replace leading external/ with ../
 readonly jq=${1/#external\//..\/}
-cat <<"RULES_JVM_EXTERNAL_EOF" | "$jq" --sort-keys --indent 4 . - > $maven_install_json_loc
-{dependency_tree_json}
-RULES_JVM_EXTERNAL_EOF
-
+readonly maven_unsorted_file="$2"
+"$jq" --sort-keys --indent 4 < "$maven_unsorted_file" > $maven_install_json_loc
 if [ "{predefined_maven_install}" = "True" ]; then
     echo "Successfully pinned resolved artifacts for @{repository_name}, $maven_install_json_loc is now up-to-date."
 else
