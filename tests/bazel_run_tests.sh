@@ -20,7 +20,14 @@ function test_outdated() {
   expect_log "junit:junit \[4.12"
 }
 
-TESTS=("test_duplicate_version_warning" "test_outdated")
+function test_outdated_no_external_runfiles() {
+  bazel run @regression_testing//:outdated --nolegacy_external_runfiles >> "$TEST_LOG" 2>&1
+
+  expect_log "Checking for updates of .* artifacts against the following repositories"
+  expect_log "junit:junit \[4.12"
+}
+
+TESTS=("test_duplicate_version_warning" "test_outdated" "test_outdated_no_external_runfiles")
 
 function run_tests() {
   printf "Running bazel run tests:\n"
