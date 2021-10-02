@@ -391,6 +391,23 @@ maven_install(
 )
 
 maven_install(
+    name = "starlark_aar_import_with_sources_test",
+    artifacts = [
+        "androidx.activity:activity-compose:1.4.0-beta01",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+    ],
+    fetch_sources = True,
+    jetify = False,
+    use_starlark_android_rules = True,
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
+)
+
+maven_install(
     name = "starlark_aar_import_test",
     artifacts = [
         "com.android.support:appcompat-v7:28.0.0",
@@ -399,6 +416,7 @@ maven_install(
         "https://jcenter.bintray.com/",
         "https://maven.google.com",
     ],
+    fetch_sources = False,
     use_starlark_android_rules = True,
     # Not actually necessary since this is the default value, but useful for
     # testing.
