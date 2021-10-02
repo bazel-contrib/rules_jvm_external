@@ -25,7 +25,7 @@ def _does_aar_import_not_have_srcjar_test_impl(ctx):
         env,
         len(source_jars) <= 0,
         """
-@starlark_aar_import_test//:com_android_support_appcompat_v7_28_0_0 is expected to have a srcjar provided to the aar_import but found:
+@starlark_aar_import_test//:com_android_support_appcompat_v7_28_0_0 is expected to not have a srcjar provided to the aar_import but found:
     {}
         """.format(source_jars),
     )
