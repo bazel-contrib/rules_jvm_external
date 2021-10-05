@@ -396,7 +396,6 @@ maven_install(
         "androidx.activity:activity-compose:1.4.0-beta01",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
         "https://maven.google.com",
     ],
     fetch_sources = True,
