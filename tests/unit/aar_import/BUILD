@@ -15,6 +15,13 @@ build_test(
     ],
 )
 
+build_test(
+    name = "starlark_aar_import_with_sources_test",
+    targets = [
+        "@starlark_aar_import_with_sources_test//:androidx_activity_activity_compose_1_4_0_beta01",
+    ],
+)
+
 aar_import_test_suite(
     name = "starlark_aar_import_with_srcjar_tests",
 )
