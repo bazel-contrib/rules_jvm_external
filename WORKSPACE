@@ -396,6 +396,7 @@ maven_install(
         "androidx.activity:activity-compose:1.4.0-beta01",
     ],
     repositories = [
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     fetch_sources = True,
@@ -412,7 +413,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     fetch_sources = False,
@@ -428,7 +429,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     use_starlark_android_rules = True,
