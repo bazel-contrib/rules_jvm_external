@@ -396,7 +396,7 @@ maven_install(
         "androidx.work:work-runtime:2.6.0",
     ],
     repositories = [
-        "https://repo1.maven.org/maven2",
+        "https://jcenter.bintray.com/",
         "https://maven.google.com",
     ],
     fetch_sources = True,
@@ -413,7 +413,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     repositories = [
-        "https://repo1.maven.org/maven2",
+        "https://jcenter.bintray.com/",
         "https://maven.google.com",
     ],
     fetch_sources = False,
@@ -429,7 +429,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     repositories = [
-        "https://repo1.maven.org/maven2",
+        "https://jcenter.bintray.com/",
         "https://maven.google.com",
     ],
     use_starlark_android_rules = True,
