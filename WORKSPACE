@@ -396,7 +396,7 @@ maven_install(
         "androidx.work:work-runtime:2.6.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     fetch_sources = True,
