@@ -393,7 +393,7 @@ maven_install(
 maven_install(
     name = "starlark_aar_import_with_sources_test",
     artifacts = [
-        "androidx.activity:activity-compose:1.4.0-beta01",
+        "androidx.work:work-runtime:2.6.0",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",

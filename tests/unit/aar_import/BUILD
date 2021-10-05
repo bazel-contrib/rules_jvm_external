@@ -18,7 +18,7 @@ build_test(
 build_test(
     name = "starlark_aar_import_with_sources_test",
     targets = [
-        "@starlark_aar_import_with_sources_test//:androidx_activity_activity_compose_1_4_0_beta01",
+        "@starlark_aar_import_with_sources_test//:androidx_work_work_runtime_2_6_0",
     ],
 )
 
