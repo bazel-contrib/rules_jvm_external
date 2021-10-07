@@ -21,10 +21,12 @@ def _javadoc_impl(ctx):
 
     classpath = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps])
 
-    # javadoc options have overlap with javac options, but we cannot rely on that derive
-    # javadoc options from dep[JavaInfo].compilation_info. Also dep[JavaInfo].compilation_info
-    # is always returning None - https://github.com/bazelbuild/bazel/issues/10170
-    # hence, reading javadocopts explicitly from the rule attrs.
+    # javadoc options and javac options overlap, but we cannot
+    # necessarily rely on those to derive the javadoc options we need
+    # from dep[JavaInfo].compilation_info (which, FWIW, always returns
+    # `None` https://github.com/bazelbuild/bazel/issues/10170). For this
+    # reason we allow people to set javadocopts via the rule attrs.
+
     generate_javadoc(ctx, ctx.executable._javadoc, sources, classpath, ctx.attr.javadocopts, jar_file)
 
     return [
