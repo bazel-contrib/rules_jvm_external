@@ -7,10 +7,22 @@
 
 function test_duplicate_version_warning() {
   bazel run @duplicate_version_warning//:pin >> "$TEST_LOG" 2>&1
-    
+  rm -f duplicate_version_warning_install.json
+
   expect_log "Found duplicate artifact versions"
   expect_log "com.fasterxml.jackson.core:jackson-annotations has multiple versions"
   expect_log "com.github.jnr:jffi:native has multiple versions"
+  expect_log "Successfully pinned resolved artifacts"
+}
+
+function test_duplicate_version_warning_same_version() {
+  bazel run @duplicate_version_warning_same_version//:pin >> "$TEST_LOG" 2>&1
+  rm -f duplicate_version_warning_same_version_install.json
+
+  expect_not_log "Found duplicate artifact versions"
+  expect_not_log "com.fasterxml.jackson.core:jackson-annotations has multiple versions"
+  expect_not_log "com.github.jnr:jffi:native has multiple versions"
+  expect_log "Successfully pinned resolved artifacts"
 }
 
 function test_outdated() {
@@ -27,7 +39,7 @@ function test_outdated_no_external_runfiles() {
   expect_log "junit:junit \[4.12"
 }
 
-TESTS=("test_duplicate_version_warning" "test_outdated" "test_outdated_no_external_runfiles")
+TESTS=("test_duplicate_version_warning" "test_duplicate_version_warning_same_version" "test_outdated" "test_outdated_no_external_runfiles")
 
 function run_tests() {
   printf "Running bazel run tests:\n"
@@ -44,8 +56,20 @@ function run_tests() {
 
 function expect_log() {
   local pattern=$1
-  local message=${2:-Expected regexp "$pattern" not found}
+  local message=${2:-Expected regexp \""$pattern"\" not found}
   grep -sq -- "$pattern" $TEST_LOG && return 0
+
+  printf "FAILED\n"
+  cat $TEST_LOG
+  DUMPED_TEST_LOG=1
+  printf "FAILURE: $message\n"
+  return 1
+}
+
+function expect_not_log() {
+  local pattern=$1
+  local message=${2:-Expected not to find regexp \""$pattern"\", but it was found}
+  grep -sq -- "$pattern" $TEST_LOG || return 0
 
   printf "FAILED\n"
   cat $TEST_LOG

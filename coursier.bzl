@@ -623,10 +623,12 @@ def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
     for artifact in artifacts:
         artifact_coordinate = artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
         if artifact_coordinate in seen_artifacts:
-            if artifact_coordinate in duplicate_artifacts:
-                duplicate_artifacts[artifact_coordinate].append(artifact["version"])
-            else:
-                duplicate_artifacts[artifact_coordinate] = [artifact["version"]]
+            # Don't warn if the same version is in the list multiple times
+            if seen_artifacts[artifact_coordinate] != artifact["version"]:
+                if artifact_coordinate in duplicate_artifacts:
+                    duplicate_artifacts[artifact_coordinate].append(artifact["version"])
+                else:
+                    duplicate_artifacts[artifact_coordinate] = [artifact["version"]]
         else:
             seen_artifacts[artifact_coordinate] = artifact["version"]
 
