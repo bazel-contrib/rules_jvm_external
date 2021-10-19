@@ -415,6 +415,16 @@ maven_install(
 )
 
 maven_install(
+    name = "jvm_import_test",
+    artifacts = [
+        "com.google.code.findbugs:jsr305:3.0.2",
+    ],
+    repositories = [
+        "https://jcenter.bintray.com/",
+    ],
+)
+
+maven_install(
     name = "starlark_aar_import_with_sources_test",
     artifacts = [
         "androidx.work:work-runtime:2.6.0",
