@@ -8,7 +8,7 @@ readonly maven_install_json_loc={maven_install_location}
 # So replace leading external/ with ../
 readonly jq=${1/#external\//..\/}
 readonly maven_unsorted_file="$2"
-"$jq" --sort-keys --indent 4 < "$maven_unsorted_file" > $maven_install_json_loc
+"$jq" --sort-keys --indent 4 '.dependency_tree.dependencies[].dependencies|=sort_by(.) | .dependency_tree.dependencies[].directDependencies|=sort_by(.)' < "$maven_unsorted_file" > $maven_install_json_loc
 if [ "{predefined_maven_install}" = "True" ]; then
     echo "Successfully pinned resolved artifacts for @{repository_name}, $maven_install_json_loc is now up-to-date."
 else
