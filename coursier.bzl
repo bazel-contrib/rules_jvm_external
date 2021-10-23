@@ -16,6 +16,7 @@ load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_mav
 load("//:specs.bzl", "maven", "parse", "utils")
 load("//:private/proxy.bzl", "get_java_proxy_args")
 load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
+load("//:private/artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
 load("//:private/java_utilities.bzl", "parse_java_version")
 load(
@@ -602,19 +603,6 @@ def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
             break
     return primary_artifact_path
 
-def _deduplicate_artifacts(dep_tree):
-    deduped_artifacts = {}
-    null_artifacts = []
-    for artifact in dep_tree["dependencies"]:
-        if artifact["file"] == None:
-            null_artifacts.append(artifact)
-            continue
-        if artifact["file"] in deduped_artifacts:
-            continue
-        deduped_artifacts[artifact["file"]] = artifact
-    dep_tree.update({"dependencies": deduped_artifacts.values() + null_artifacts})
-    return dep_tree
-
 def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
     if duplicate_version_warning == "none":
         return
@@ -774,14 +762,17 @@ def make_coursier_dep_tree(
         progress_message = "%sResolving and fetching the transitive closure of %s artifact(s).." % (
             report_progress_prefix,
             len(artifact_coordinates),
-        )
+        ),
     )
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
-    return _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path(
-        "dep-tree.json",
-    ))))
+    return deduplicate_and_sort_artifacts(
+        json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
+        artifacts,
+        excluded_artifacts,
+        _is_verbose(repository_ctx),
+    )
 
 def _download_jq(repository_ctx):
     jq_version = None
