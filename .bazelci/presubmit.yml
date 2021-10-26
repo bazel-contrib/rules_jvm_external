@@ -87,7 +87,8 @@ tasks:
     test_targets:
       - "//..."
       # manual tests
-      - "//tests/com/jvm/external:UnsafeSharedCacheTest"
+      # commented out until https://github.com/bazelbuild/rules_jvm_external/issues/610 is fixed for Java 11
+      # - "//tests/com/jvm/external:UnsafeSharedCacheTest"
       - "//tests/unit/manifest_stamp:diff_manifest_test" # https://github.com/bazelbuild/rules_jvm_external/issues/283
   windows:
     environment:
