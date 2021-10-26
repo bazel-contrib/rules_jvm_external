@@ -101,22 +101,22 @@
             {
                 "coord": "com.google.guava:guava:27.0-jre",
                 "dependencies": [
-                    "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
                     "com.google.code.findbugs:jsr305:3.0.2",
-                    "com.google.guava:failureaccess:1.0",
-                    "org.codehaus.mojo:animal-sniffer-annotations:1.17",
-                    "com.google.j2objc:j2objc-annotations:1.1",
                     "com.google.errorprone:error_prone_annotations:2.3.2",
-                    "org.checkerframework:checker-qual:2.5.2"
+                    "com.google.guava:failureaccess:1.0",
+                    "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+                    "com.google.j2objc:j2objc-annotations:1.1",
+                    "org.checkerframework:checker-qual:2.5.2",
+                    "org.codehaus.mojo:animal-sniffer-annotations:1.17"
                 ],
                 "directDependencies": [
-                    "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
                     "com.google.code.findbugs:jsr305:3.0.2",
-                    "com.google.guava:failureaccess:1.0",
-                    "org.codehaus.mojo:animal-sniffer-annotations:1.17",
-                    "com.google.j2objc:j2objc-annotations:1.1",
                     "com.google.errorprone:error_prone_annotations:2.3.2",
-                    "org.checkerframework:checker-qual:2.5.2"
+                    "com.google.guava:failureaccess:1.0",
+                    "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+                    "com.google.j2objc:j2objc-annotations:1.1",
+                    "org.checkerframework:checker-qual:2.5.2",
+                    "org.codehaus.mojo:animal-sniffer-annotations:1.17"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar",
                 "mirror_urls": [
@@ -197,22 +197,22 @@
             {
                 "coord": "org.apache.avro:avro:1.8.2",
                 "dependencies": [
-                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
                     "com.thoughtworks.paranamer:paranamer:2.7",
-                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.apache.commons:commons-compress:1.8.1",
+                    "org.codehaus.jackson:jackson-core-asl:1.9.13",
+                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
                     "org.slf4j:slf4j-api:1.7.25",
                     "org.tukaani:xz:1.8",
-                    "org.apache.commons:commons-compress:1.8.1",
-                    "org.codehaus.jackson:jackson-core-asl:1.9.13"
+                    "org.xerial.snappy:snappy-java:1.1.4"
                 ],
                 "directDependencies": [
-                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
                     "com.thoughtworks.paranamer:paranamer:2.7",
-                    "org.xerial.snappy:snappy-java:1.1.4",
+                    "org.apache.commons:commons-compress:1.8.1",
+                    "org.codehaus.jackson:jackson-core-asl:1.9.13",
+                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
                     "org.slf4j:slf4j-api:1.7.25",
                     "org.tukaani:xz:1.8",
-                    "org.apache.commons:commons-compress:1.8.1",
-                    "org.codehaus.jackson:jackson-core-asl:1.9.13"
+                    "org.xerial.snappy:snappy-java:1.1.4"
                 ],
                 "exclusions": [
                     "jdk.tools:jdk.tools",
@@ -280,35 +280,35 @@
                 "coord": "org.apache.beam:beam-sdks-java-core:2.15.0",
                 "dependencies": [
                     "com.fasterxml.jackson.core:jackson-annotations:2.9.9",
+                    "com.fasterxml.jackson.core:jackson-core:2.9.9",
                     "com.fasterxml.jackson.core:jackson-databind:2.9.9.3",
-                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
-                    "org.apache.beam:beam-model-pipeline:2.15.0",
+                    "com.google.errorprone:error_prone_annotations:2.3.2",
                     "com.thoughtworks.paranamer:paranamer:2.7",
-                    "org.apache.beam:beam-vendor-guava-26_0-jre:0.1",
-                    "org.xerial.snappy:snappy-java:1.1.4",
-                    "org.slf4j:slf4j-api:1.7.25",
+                    "joda-time:joda-time:2.10.1",
+                    "org.apache.avro:avro:1.8.2",
+                    "org.apache.beam:beam-model-job-management:2.15.0",
+                    "org.apache.beam:beam-model-pipeline:2.15.0",
                     "org.apache.beam:beam-vendor-grpc-1_21_0:0.1",
-                    "org.tukaani:xz:1.8",
+                    "org.apache.beam:beam-vendor-guava-26_0-jre:0.1",
                     "org.apache.commons:commons-compress:1.8.1",
                     "org.codehaus.jackson:jackson-core-asl:1.9.13",
-                    "com.fasterxml.jackson.core:jackson-core:2.9.9",
-                    "org.apache.beam:beam-model-job-management:2.15.0",
-                    "com.google.errorprone:error_prone_annotations:2.3.2",
-                    "joda-time:joda-time:2.10.1",
-                    "org.apache.avro:avro:1.8.2"
+                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "org.tukaani:xz:1.8",
+                    "org.xerial.snappy:snappy-java:1.1.4"
                 ],
                 "directDependencies": [
                     "com.fasterxml.jackson.core:jackson-annotations:2.9.9",
+                    "com.fasterxml.jackson.core:jackson-core:2.9.9",
                     "com.fasterxml.jackson.core:jackson-databind:2.9.9.3",
+                    "joda-time:joda-time:2.10.1",
+                    "org.apache.avro:avro:1.8.2",
+                    "org.apache.beam:beam-model-job-management:2.15.0",
                     "org.apache.beam:beam-model-pipeline:2.15.0",
                     "org.apache.beam:beam-vendor-guava-26_0-jre:0.1",
-                    "org.xerial.snappy:snappy-java:1.1.4",
                     "org.slf4j:slf4j-api:1.7.25",
                     "org.tukaani:xz:1.8",
-                    "com.fasterxml.jackson.core:jackson-core:2.9.9",
-                    "org.apache.beam:beam-model-job-management:2.15.0",
-                    "joda-time:joda-time:2.10.1",
-                    "org.apache.avro:avro:1.8.2"
+                    "org.xerial.snappy:snappy-java:1.1.4"
                 ],
                 "file": "v1/https/repo1.maven.org/maven2/org/apache/beam/beam-sdks-java-core/2.15.0/beam-sdks-java-core-2.15.0.jar",
                 "mirror_urls": [
