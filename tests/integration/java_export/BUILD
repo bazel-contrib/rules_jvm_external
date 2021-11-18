@@ -75,6 +75,18 @@ java_export(
     ],
 )
 
+java_export(
+    name = "without-docs",
+    srcs = ["Main.java"],
+    tags = [
+        "no-javadocs",
+    ],
+    maven_coordinates = "com.example:no-docs:1.0.0",
+    deps = [
+        ":dep",
+    ],
+)
+
 genrule(
     name = "list-deploy-env-classes",
     srcs = [
