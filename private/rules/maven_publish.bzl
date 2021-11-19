@@ -22,6 +22,8 @@ def _maven_publish_impl(ctx):
     user = ctx.var.get("maven_user", "''")
     password = ctx.var.get("maven_password", "''")
 
+    javadocs_short_path = ctx.file.javadocs.short_path if ctx.file.javadocs else "''"
+
     ctx.actions.write(
         output = executable,
         is_executable = True,
@@ -35,21 +37,24 @@ def _maven_publish_impl(ctx):
             pom = ctx.file.pom.short_path,
             artifact_jar = ctx.file.artifact_jar.short_path,
             source_jar = ctx.file.source_jar.short_path,
-            javadoc = ctx.file.javadocs.short_path,
+            javadoc = javadocs_short_path,
         ),
     )
+
+    files = [
+        ctx.file.artifact_jar,
+        ctx.file.pom,
+        ctx.file.source_jar,
+    ]
+    if ctx.file.javadocs:
+        files.append(ctx.file.javadocs)
 
     return [
         DefaultInfo(
             files = depset([executable]),
             executable = executable,
             runfiles = ctx.runfiles(
-                files = [
-                    ctx.file.artifact_jar,
-                    ctx.file.javadocs,
-                    ctx.file.pom,
-                    ctx.file.source_jar,
-                ],
+                files = files,
                 collect_data = True,
             ).merge(ctx.attr._uploader[DefaultInfo].data_runfiles),
         ),
@@ -87,7 +92,6 @@ When signing with GPG, the current default key is used.
             allow_single_file = True,
         ),
         "javadocs": attr.label(
-            mandatory = True,
             allow_single_file = True,
         ),
         "artifact_jar": attr.label(

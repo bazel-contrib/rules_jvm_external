@@ -78,15 +78,24 @@ public class MavenPublisher {
     Path pom = Paths.get(args[5]);
     Path binJar = Paths.get(args[6]);
     Path srcJar = Paths.get(args[7]);
-    Path docJar = Paths.get(args[8]);
+    Path docJar;
+    if (!args[8].isEmpty()) {
+      docJar = Paths.get(args[8]);
+    } else {
+      docJar = null;
+    }
 
     try {
-      CompletableFuture<Void> all = CompletableFuture.allOf(
-        upload(repo, credentials, coords, ".pom", pom),
-        upload(repo, credentials, coords, ".jar", binJar),
-        upload(repo, credentials, coords, "-sources.jar", srcJar),
-        upload(repo, credentials, coords, "-javadoc.jar", docJar)
-      );
+      List<CompletableFuture<Void>> futures = new ArrayList<>();
+      futures.add(upload(repo, credentials, coords, ".pom", pom));
+      futures.add(upload(repo, credentials, coords, ".jar", binJar));
+      futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar));
+
+      if (docJar != null) {
+        futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar));
+      }
+
+      CompletableFuture<Void> all = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
       all.get(30, MINUTES);
     } finally {
       EXECUTOR.shutdown();

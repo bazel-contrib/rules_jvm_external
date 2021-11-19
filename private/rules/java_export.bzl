@@ -43,6 +43,8 @@ def java_export(
       * `maven:compile_only`: Specifies that this dependency should not be listed
         as a dependency of the artifact being generated.
 
+    To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.
+
     Generated rules:
       * `name`: A `java_library` that other rules can depend upon.
       * `name-docs`: A javadoc jar file.
@@ -62,9 +64,7 @@ def java_export(
     tags = tags + ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
-    javadocopts = kwargs.pop("javadocopts")
-    if javadocopts == None:
-        javadocopts = []
+    javadocopts = kwargs.pop("javadocopts", [])
 
     # Construct the java_library we'll export from here.
     native.java_library(
@@ -97,13 +97,16 @@ def java_export(
         output_group = "maven_source",
     )
 
-    javadoc(
-        name = "%s-docs" % name,
-        deps = [
-            ":%s-project" % name,
-        ],
-        javadocopts = javadocopts
-    )
+    docs_jar = None
+    if not "no-javadocs" in tags:
+        docs_jar = "%s-docs" % name
+        javadoc(
+            name = docs_jar,
+            deps = [
+                ":%s-project" % name,
+            ],
+            javadocopts = javadocopts
+        )
 
     pom_file(
         name = "%s-pom" % name,
@@ -115,7 +118,7 @@ def java_export(
         name = "%s.publish" % name,
         coordinates = maven_coordinates,
         pom = "%s-pom" % name,
-        javadocs = "%s-docs" % name,
+        javadocs = docs_jar,
         artifact_jar = ":%s-maven-artifact" % name,
         source_jar = ":%s-maven-source" % name,
         visibility = visibility,
