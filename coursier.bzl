@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
+load("//third_party/bazel_json/lib:json_parser.bzl", _json_parse = "json_parse")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "maven", "parse", "utils")
 load("//:private/proxy.bzl", "get_java_proxy_args")
@@ -81,6 +81,11 @@ sh_binary(
     ],
 )
 """
+
+def json_parse(json_string, fail_on_invalid = True):
+    if getattr(native, "json_decode", None) and not fail_on_invalid:
+        return native.json_decode(json_string)
+    return _json_parse(json_string, fail_on_invalid)
 
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
