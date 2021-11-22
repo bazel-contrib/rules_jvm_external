@@ -36,7 +36,7 @@ _EMPTY_INFO = MavenInfo(
 _MAVEN_PREFIX = "maven_coordinates="
 _STOP_TAGS = ["maven:compile-only", "no-maven"]
 
-def _read_coordinates(tags):
+def read_coordinates(tags):
     coordinates = []
     for stop_tag in _STOP_TAGS:
         if stop_tag in tags:
@@ -120,7 +120,7 @@ def _has_maven_deps_impl(target, ctx):
         if tag in _STOP_TAGS:
             return _EMPTY_INFO
 
-    coordinates = _read_coordinates(ctx.rule.attr.tags)
+    coordinates = read_coordinates(ctx.rule.attr.tags)
     label_to_javainfo = {target.label: target[JavaInfo]}
 
     gathered = _gathered(
