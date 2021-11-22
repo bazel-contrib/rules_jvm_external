@@ -45,7 +45,7 @@ def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verb
         deduped_artifact_with_exclusion = duplicate_artifacts_with_exclusions[duplicate_coord][0]
         found_artifact_with_exclusion = False
         for duplicate_artifact in duplicate_artifacts_with_exclusions[duplicate_coord]:
-            if sorted(duplicate_artifact["exclusions"]) == sorted(artifacts_with_exclusions[duplicate_coord]):
+            if "exclusions" in duplicate_artifact and sorted(duplicate_artifact["exclusions"]) == sorted(artifacts_with_exclusions[duplicate_coord]):
                 found_artifact_with_exclusion = True
                 deduped_artifact_with_exclusion = duplicate_artifact
         if verbose and not found_artifact_with_exclusion:
