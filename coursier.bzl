@@ -83,6 +83,10 @@ sh_binary(
 """
 
 def json_parse(json_string, fail_on_invalid = True):
+    # Bazel has had a native JSON decoder since 4.0.0, but
+    # we need to support older versions of Bazel. In addition,
+    # we sometimes need to survive poorly formed JSON, so
+    # a fallback to the Starlark parser is provided.
     if getattr(native, "json_decode", None) and not fail_on_invalid:
         return native.json_decode(json_string)
     return _json_parse(json_string, fail_on_invalid)
