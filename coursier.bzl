@@ -82,13 +82,31 @@ sh_binary(
 )
 """
 
+def _has_native_json():
+    # `native.bazel_version` is only available when called from a
+    # workspace file. If we're called in that situation, then we
+    # should continue to work. "Fail safe" by falling back to the
+    # Starlark parser
+    # https://github.com/bazelbuild/bazel/issues/8305
+    if not getattr(native, "bazel_version", None):
+        return False
+
+    version = native.bazel_version
+
+    for i in range(len(version)):
+        if not version[i].isdigit():
+            return int(version[:i]) > 3
+
+    print("Bazel version cannot be determined. Assuming json is not present.")
+    return False
+
 def json_parse(json_string, fail_on_invalid = True):
     # Bazel has had a native JSON decoder since 4.0.0, but
     # we need to support older versions of Bazel. In addition,
     # we sometimes need to survive poorly formed JSON, so
     # a fallback to the Starlark parser is provided.
-    if getattr(native, "json_decode", None) and not fail_on_invalid:
-        return native.json_decode(json_string)
+    if _has_native_json() and not fail_on_invalid:
+        return json.decode(json_string)
     return _json_parse(json_string, fail_on_invalid)
 
 def _is_verbose(repository_ctx):
