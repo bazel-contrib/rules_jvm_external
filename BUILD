@@ -36,6 +36,7 @@ bzl_library(
         ":coursier.bzl",
         ":defs.bzl",
         ":specs.bzl",
+        "//:private/artifact_utilities.bzl",
         "//:private/coursier_utilities.bzl",
         "//:private/dependency_tree_parser.bzl",
         "//:private/java_utilities.bzl",
