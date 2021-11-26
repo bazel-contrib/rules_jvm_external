@@ -29,7 +29,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## javadoc
 
 <pre>
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>)
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -41,6 +41,7 @@ Generate a javadoc from all the `deps`
 | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
 | name |  A unique name for this target.   | <a href="https://bazel.build/docs/build-ref.html#name">Name</a> | required |  |
 | deps |  The java libraries to generate javadocs for.<br><br>          The source jars of each dep will be used to generate the javadocs.           Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a> | required |  |
+| javadocopts |  javadoc options.             Note sources and classpath are derived from the deps. Any additional             options can be passed here.   | List of strings | optional | [] |
 
 
 <a name="#java_export"></a>
@@ -82,6 +83,8 @@ runtime dependencies for the following tags:
     this artifact.
   * `maven:compile_only`: Specifies that this dependency should not be listed
     as a dependency of the artifact being generated.
+
+To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.
 
 Generated rules:
   * `name`: A `java_library` that other rules can depend upon.
