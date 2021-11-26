@@ -1,5 +1,6 @@
 exports_files([
     "artifact_utilities.bzl",
+    "constants.bzl",
     "coursier_utilities.bzl",
     "dependency_tree_parser.bzl",
     "java_utilities.bzl",
