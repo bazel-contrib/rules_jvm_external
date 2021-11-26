@@ -14,7 +14,7 @@
 
 load(":coursier.bzl", "coursier_fetch", "pinned_coursier_fetch", "DEFAULT_AAR_IMPORT_LABEL")
 load(":specs.bzl", "json", "parse")
-load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
+load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//private/rules:has_maven_deps.bzl", _read_coordinates = "read_coordinates")
 load("//private/rules:java_export.bzl", _java_export = "java_export")
 load("//private/rules:javadoc.bzl", _javadoc = "javadoc")

@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//:private/java_utilities.bzl", "parse_java_version")
+load("//private:java_utilities.bzl", "parse_java_version")
 
 def _parse_java_version_test_impl(ctx):
     env = unittest.begin(ctx)
