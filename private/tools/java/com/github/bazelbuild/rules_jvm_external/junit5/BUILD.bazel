@@ -1,0 +1,42 @@
+load("//:defs.bzl", "artifact")
+
+# We want to be able to compile the test runner, but we don't want to
+# expose any of its dependencies, since we expect whoever is running
+# tests to add them themselves, and we don't want to pollute the classpath.
+# As such, we do this rather weird thing to make sure we have the runner
+# but none of its dependencies.
+java_import(
+    name = "junit5",
+    jars = [
+        ":junit5-copy-file",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
+genrule(
+    name = "junit5-copy-file",
+    srcs = [":junit5-compile"],
+    outs = ["junit5-runner.jar"],
+    cmd = "cp $< $@",
+)
+
+java_library(
+    name = "junit5-compile",
+    srcs = glob(["*.java"]),
+    javacopts = [
+        "--release",
+        "11",
+    ],
+    deps = [
+        # The only dependencies here are those required to run
+        # a junit5 test. We try not to pollute the classpath, so
+        # be very careful when adding new deps here.
+        artifact("org.junit.jupiter:junit-jupiter-engine", repository_name = "rules_jvm_external_deps"),
+        artifact("org.junit.platform:junit-platform-commons", repository_name = "rules_jvm_external_deps"),
+        artifact("org.junit.platform:junit-platform-engine", repository_name = "rules_jvm_external_deps"),
+        artifact("org.junit.platform:junit-platform-launcher", repository_name = "rules_jvm_external_deps"),
+        artifact("org.junit.platform:junit-platform-reporting", repository_name = "rules_jvm_external_deps"),
+    ],
+)

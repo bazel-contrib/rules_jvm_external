@@ -74,6 +74,14 @@ maven_install(
     artifacts = [
         "com.google.guava:guava:27.0-jre",
         "org.hamcrest:hamcrest-core:2.1",
+
+        # These can be versioned independently of the versions in `repositories.bzl`
+        # so long as the version numbers are higher.
+        "org.junit.jupiter:junit-jupiter-engine:5.8.1",
+        "org.junit.jupiter:junit-jupiter-api:5.8.1",
+        "org.junit.platform:junit-platform-launcher:1.8.1",
+        "org.junit.platform:junit-platform-reporting:1.8.1",
+        "org.junit.vintage:junit-vintage-engine:5.8.1",
     ],
     maven_install_json = "@rules_jvm_external//:maven_install.json",
     repositories = [

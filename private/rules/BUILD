@@ -5,6 +5,7 @@ exports_files([
     "javadoc.bzl",
     "jetifier.bzl",
     "jetifier_maven_map.bzl",
+    "junit5.bzl",
     "jvm_import.bzl",
     "maven_install.bzl",
     "maven_project_jar.bzl",

@@ -5,6 +5,7 @@
 - [Basic functions](#basic-functions)
   - [javadoc](#javadoc)
   - [java_export](#java_export)
+  - [java_junit5_test](#java_junit5_test)
   - [maven_install](#maven_install)
 - [Maven specification functions](#maven-specification-functions)
   - [maven.repository](#mavenrepository)
@@ -105,6 +106,37 @@ Generated rules:
 | visibility |  The visibility of the target   |  <code>None</code> |
 | tags |  <p align="center"> - </p>   |  <code>[]</code> |
 | kwargs |  These are passed to [<code>java_library</code>](https://docs.bazel.build/versions/master/be/java.html#java_library),   and so may contain any valid parameter for that rule.   |  none |
+
+
+<a name="#java_junit5_test"></a>
+
+## java_junit5_test
+
+<pre>
+java_junit5_test(<a href="#java_junit5_test-name">name</a>, <a href="#java_junit5_test-test_class">test_class</a>, <a href="#java_junit5_test-runtime_deps">runtime_deps</a>, <a href="#java_junit5_test-kwargs">kwargs</a>)
+</pre>
+
+Run junit5 tests using Bazel.
+
+This is designed to be a drop-in replacement for `java_test`, but
+rather than using a JUnit4 runner it provides support for using
+JUnit5 directly. The arguments are the same as used by `java_test`.
+
+The generated target does not include any JUnit5 dependencies. If
+you are using the standard `@maven` namespace for your
+`maven_install` you can add these to your `deps` using `JUNIT5_DEPS`
+or `JUNIT5_VINTAGE_DEPS` loaded from `//:defs.bzl`
+
+
+**PARAMETERS**
+
+
+| Name  | Description | Default Value |
+| :-------------: | :-------------: | :-------------: |
+| name |  The name of the test.   |  none |
+| test_class |  The Java class to be loaded by the test runner. If not   specified, the class name will be inferred from a combination of   the current bazel package and the <code>name</code> attribute.   |  <code>None</code> |
+| runtime_deps |  <p align="center"> - </p>   |  <code>[]</code> |
+| kwargs |  <p align="center"> - </p>   |  none |
 
 
 <a name="#maven_install"></a>

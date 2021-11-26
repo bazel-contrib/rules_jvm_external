@@ -13,7 +13,9 @@ stardoc(
     symbol_names = [
         "javadoc",
         "java_export",
+        "java_junit5_test",
         "maven_install",
+        "JUNIT5_DEPS",
     ],
     deps = ["//:implementation"],
 )
@@ -49,6 +51,7 @@ bzl_library(
         "//private/rules:javadoc.bzl",
         "//private/rules:jetifier.bzl",
         "//private/rules:jetifier_maven_map.bzl",
+        "//private/rules:junit5.bzl",
         "//private/rules:jvm_import.bzl",
         "//private/rules:maven_install.bzl",
         "//private/rules:maven_project_jar.bzl",

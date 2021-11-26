@@ -19,6 +19,7 @@ Table of Contents
          * [Multiple maven_install.json files](#multiple-maven_installjson-files)
       * [Generated targets](#generated-targets)
       * [Outdated artifacts](#outdated-artifacts)
+      * [JUnit5 tests](#junit5-tests)
       * [Advanced usage](#advanced-usage)
          * [Fetch source JARs](#fetch-source-jars)
          * [Checksum verification](#checksum-verification)
@@ -330,6 +331,42 @@ To check for updates of artifacts, run the following command at the root of your
 ```
 $ bazel run @maven//:outdated
 ```
+
+## JUnit5 tests
+
+`rules_jvm_external` provides support for running tests written junit5
+via the `java_junit5_test` rule.  To use this, you must add _at least_
+the following dependencies to your `maven_install` and each test you
+run:
+
+```starlark
+"org.junit.jupiter:junit-jupiter-api",
+"org.junit.jupiter:junit-jupiter-engine",
+"org.junit.platform:junit-platform-launcher"
+"org.junit.platform:junit-platform-reporting",
+```
+
+In addition, if you want to run JUnit4 tests using the same rule, then
+the `org.junit.vintage:junit-vintage-engine` dependency must also be
+added.
+
+Assuming you are using the default `@maven` name for your
+`maven_install`, you can include these deps by using the constants
+`JUNIT5_DEPS` or `JUNIT5_VINTAGE_DEPS` provided from `deps.bzl`. For
+example:
+
+```starlark
+load("@rules_jvm_external//:defs.bzl", "java_junit5_test", "JUNIT5_DEPS")
+
+java_junit5_test(
+  name = "MyTest",
+  srcs = ["MyTest.java"],
+  deps = JUNIT5_DEPS,
+)
+```
+
+It is suggested that these use a junit platform version of `1.7.0` or
+later and a jupiter version of `5.7.0` or later.
 
 ## Advanced usage
 
