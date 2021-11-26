@@ -92,6 +92,7 @@ def _has_native_json():
         return False
 
     version = native.bazel_version
+    print("Version was read as: %s" % version)
 
     for i in range(len(version)):
         if not version[i].isdigit():
