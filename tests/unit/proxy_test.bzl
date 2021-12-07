@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//:private/proxy.bzl", "get_java_proxy_args")
+load("//private:proxy.bzl", "get_java_proxy_args")
 
 def _java_proxy_parsing_empty_test_impl(ctx):
     env = unittest.begin(ctx)

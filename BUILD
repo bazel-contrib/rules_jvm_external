@@ -1,6 +1,6 @@
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("//:private/versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
+load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 
 exports_files(["defs.bzl"])
 
@@ -36,18 +36,21 @@ bzl_library(
         ":coursier.bzl",
         ":defs.bzl",
         ":specs.bzl",
-        "//:private/artifact_utilities.bzl",
-        "//:private/coursier_utilities.bzl",
-        "//:private/dependency_tree_parser.bzl",
-        "//:private/java_utilities.bzl",
-        "//:private/proxy.bzl",
-        "//:private/versions.bzl",
+        "//private:artifact_utilities.bzl",
+        "//private:constants.bzl",
+        "//private:coursier_utilities.bzl",
+        "//private:dependency_tree_parser.bzl",
+        "//private:java_utilities.bzl",
+        "//private:proxy.bzl",
+        "//private:versions.bzl",
+        "//private/rules:artifact.bzl",
         "//private/rules:has_maven_deps.bzl",
         "//private/rules:java_export.bzl",
         "//private/rules:javadoc.bzl",
         "//private/rules:jetifier.bzl",
         "//private/rules:jetifier_maven_map.bzl",
         "//private/rules:jvm_import.bzl",
+        "//private/rules:maven_install.bzl",
         "//private/rules:maven_project_jar.bzl",
         "//private/rules:maven_publish.bzl",
         "//private/rules:pom_file.bzl",

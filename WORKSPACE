@@ -4,7 +4,7 @@ android_sdk_repository(name = "androidsdk")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
-    "//:private/versions.bzl",
+    "//private:versions.bzl",
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_HTTP_FILE_NAME",
     "COURSIER_CLI_SHA256",

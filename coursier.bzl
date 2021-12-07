@@ -14,13 +14,13 @@
 load("//third_party/bazel_json/lib:json_parser.bzl", _json_parse = "json_parse")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "maven", "parse", "utils")
-load("//:private/proxy.bzl", "get_java_proxy_args")
-load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
-load("//:private/artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
-load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
-load("//:private/java_utilities.bzl", "parse_java_version")
+load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
+load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
+load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
+load("//private:java_utilities.bzl", "parse_java_version")
+load("//private:proxy.bzl", "get_java_proxy_args")
 load(
-    "//:private/versions.bzl",
+    "//private:versions.bzl",
     "COURSIER_CLI_BAZEL_MIRROR_URL",
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
@@ -1129,8 +1129,8 @@ def _coursier_fetch_impl(repository_ctx):
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
-        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
-        "_outdated": attr.label(default = "//:private/outdated.sh"),
+        "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
+        "_outdated": attr.label(default = "//private:outdated.sh"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
@@ -1173,9 +1173,9 @@ pinned_coursier_fetch = repository_rule(
 coursier_fetch = repository_rule(
     attrs = {
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
-        "_pin": attr.label(default = "//:private/pin.sh"),
-        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
-        "_outdated": attr.label(default = "//:private/outdated.sh"),
+        "_pin": attr.label(default = "//private:pin.sh"),
+        "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
+        "_outdated": attr.label(default = "//private:outdated.sh"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),

@@ -1,9 +1,9 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//:private/artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
+load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 
 
 def _empty_test_impl(ctx):
-    env = unittest.begin(ctx)  
+    env = unittest.begin(ctx)
     asserts.equals(env, {"dependencies": []}, deduplicate_and_sort_artifacts({"dependencies": []}, [], [], False))
     return unittest.end(env)
 
