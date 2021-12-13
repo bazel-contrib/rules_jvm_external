@@ -7,6 +7,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
+        # log4j deps are added only for https://github.com/bazelbuild/rules_jvm_external/issues/630
         "org.apache.logging.log4j:log4j-api:2.15.0",
         "org.apache.logging.log4j:log4j-to-slf4j:2.15.0",
         "org.hamcrest:hamcrest-library:1.3",
