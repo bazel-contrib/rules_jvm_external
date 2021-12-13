@@ -7,6 +7,9 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
+        # log4j deps are added only for https://github.com/bazelbuild/rules_jvm_external/issues/630
+        "org.apache.logging.log4j:log4j-api:2.15.0",
+        "org.apache.logging.log4j:log4j-to-slf4j:2.15.0",
         "org.hamcrest:hamcrest-library:1.3",
         "org.springframework.boot:spring-boot-autoconfigure:2.1.3.RELEASE",
         "org.springframework.boot:spring-boot-test-autoconfigure:2.1.3.RELEASE",
@@ -19,6 +22,7 @@ maven_install(
         "org.springframework:spring-web:5.1.5.RELEASE",
     ],
     fetch_sources = True,
+    version_conflict_policy = "pinned",
     maven_install_json = "//:maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
