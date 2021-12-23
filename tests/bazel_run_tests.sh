@@ -41,7 +41,7 @@ function test_outdated_no_external_runfiles() {
 
 test_xdg_cache_home() {
   readonly cachedir=/tmp/${test}-cache
-  XDG_CACHE_HOME=$cachedir bazel run @unsafe_shared_cache//:pin &>> "$TEST_LOG"
+  XDG_CACHE_HOME=$cachedir bazel run @unsafe_shared_cache//:pin >> "$TEST_LOG" 2>&1
   rm -rf $cachedir
   expect_log "Successfully pinned resolved artifacts"
 }
