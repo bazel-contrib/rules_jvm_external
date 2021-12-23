@@ -1248,6 +1248,7 @@ coursier_fetch = repository_rule(
         "COURSIER_OPTS",
         "COURSIER_URL",
         "RJE_VERBOSE",
+        "XDG_CACHE_HOME",
     ],
     implementation = _coursier_fetch_impl,
 )
