@@ -12,6 +12,7 @@ def maven_install(
         fetch_javadoc = False,
         use_unsafe_shared_cache = False,
         excluded_artifacts = [],
+        pinned_artifacts = [],
         generate_compat_repositories = False,
         version_conflict_policy = "default",
         maven_install_json = None,
@@ -42,6 +43,8 @@ def maven_install(
         currently unable to detect modifications to the cache.
       excluded_artifacts: A list of Maven artifact coordinates in the form of `group:artifact` to be
         excluded from the transitive dependencies.
+      pinned_artifacts: A list of Maven artifact coordinates in the form of `group:artifact` to be
+        pinned in transitive dependencies.
       generate_compat_repositories: Additionally generate repository aliases in a .bzl file for all JAR
         artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as
         `@com_google_guava_guava//jar`.
@@ -84,6 +87,10 @@ def maven_install(
     for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
         excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
 
+    pinned_artifacts_json_strings = []
+    for pin in parse.parse_artifact_spec_list(pinned_artifacts):
+        pinned_artifacts_json_strings.append(json.write_artifact_spec(pin))
+
     if additional_netrc_lines and maven_install_json == None:
         fail("`additional_netrc_lines` is only supported with `maven_install_json` specified", "additional_netrc_lines")
 
@@ -111,6 +118,7 @@ def maven_install(
         fetch_javadoc = fetch_javadoc,
         use_unsafe_shared_cache = use_unsafe_shared_cache,
         excluded_artifacts = excluded_artifacts_json_strings,
+        pinned_artifacts = pinned_artifacts_json_strings,
         generate_compat_repositories = generate_compat_repositories,
         version_conflict_policy = version_conflict_policy,
         override_targets = override_targets,

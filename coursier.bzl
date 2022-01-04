@@ -674,6 +674,7 @@ def make_coursier_dep_tree(
         repository_ctx,
         artifacts,
         excluded_artifacts,
+        pinned_artifacts,
         repositories,
         version_conflict_policy,
         fail_on_missing_checksum,
@@ -706,6 +707,8 @@ def make_coursier_dep_tree(
         for coord in artifact_coordinates:
             # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
             cmd.extend(["--force-version", coord.split(",classifier=")[0]])
+    for a in pinned_artifacts:
+        cmd.extend(["--force-version", utils.artifact_coordinate(a).split(",classifier=")[0]])
     cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src", "doc"])])
     cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
@@ -837,6 +840,10 @@ def _coursier_fetch_impl(repository_ctx):
     for artifact in repository_ctx.attr.excluded_artifacts:
         excluded_artifacts.append(json_parse(artifact))
 
+    pinned_artifacts = []
+    for artifact in repository_ctx.attr.pinned_artifacts:
+        pinned_artifacts.append(json_parse(artifact))
+
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
     # to generate the repository's BUILD file.
@@ -847,6 +854,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx,
         artifacts,
         excluded_artifacts,
+        pinned_artifacts,
         repositories,
         repository_ctx.attr.version_conflict_policy,
         repository_ctx.attr.fail_on_missing_checksum,
@@ -878,6 +886,7 @@ def _coursier_fetch_impl(repository_ctx):
             # stick.
             extra_jetify_artifacts + artifacts,
             excluded_artifacts,
+            pinned_artifacts,
             repositories,
             repository_ctx.attr.version_conflict_policy,
             repository_ctx.attr.fail_on_missing_checksum,
@@ -1183,6 +1192,7 @@ coursier_fetch = repository_rule(
         "fetch_javadoc": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
+        "pinned_artifacts": attr.string_list(default = []),  # list of artifacts to pin
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "version_conflict_policy": attr.string(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
