@@ -28,7 +28,7 @@ load(
 )
 
 _BUILD = """
-package(default_visibility = ["//visibility:{visibility}"])
+# package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
 
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
@@ -539,7 +539,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "BUILD",
         (_BUILD + _BUILD_OUTDATED).format(
-            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
+            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
@@ -1041,7 +1041,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "BUILD",
         (_BUILD + _BUILD_PIN + outdated_build_file_content).format(
-            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
+            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
@@ -1146,6 +1146,7 @@ pinned_coursier_fetch = repository_rule(
             """,
             default = False,
         ),
+        "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
@@ -1206,6 +1207,7 @@ coursier_fetch = repository_rule(
             """,
             default = False,
         ),
+        "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
