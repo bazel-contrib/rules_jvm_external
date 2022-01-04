@@ -13,19 +13,30 @@ _TYPED_DEP = """        <dependency>
             <type>{3}</type>
         </dependency>"""
 
+_SCOPED_DEP = """        <dependency>
+            <groupId>{0}</groupId>
+            <artifactId>{1}</artifactId>
+            <version>{2}</version>
+            <type>{3}</type>
+            <scope>{4}</scope>
+        </dependency>"""
+
 def _explode_coordinates(coords):
     """Takes a maven coordinate and explodes it into a tuple of
-    (groupId, artifactId, version, type)
+    (groupId, artifactId, version, type, scope)
     """
     if not coords:
         return None
 
     parts = coords.split(":")
     if len(parts) == 3:
-        return (parts[0], parts[1], parts[2], "jar")
+        return (parts[0], parts[1], parts[2], "jar", "compile")
     if len(parts) == 4:
         # Assume a buildr coordinate: groupId:artifactId:type:version
-        return (parts[0], parts[1], parts[3], parts[2])
+        return (parts[0], parts[1], parts[3], parts[2], "compile")
+    if len(parts) == 5:
+        # Assume a buildr coordinate: groupId:artifactId:type:scope:version
+        return (parts[0], parts[1], parts[4], parts[2], parts[3])
 
     fail("Unparsed: %s" % coords)
 
@@ -42,12 +53,15 @@ def _pom_file_impl(ctx):
         "{artifactId}": coordinates[1],
         "{version}": coordinates[2],
         "{type}": coordinates[3],
+        "{scope}": coordinates[4],
     }
 
     deps = []
     for dep in sorted(info.maven_deps.to_list()):
         exploded = _explode_coordinates(dep)
-        if (exploded[3] == "jar"):
+        if (exploded[4] != "compile"):
+            template = _SCOPED_DEP
+        elif (exploded[3] == "jar"):
             template = _PLAIN_DEP
         else:
             template = _TYPED_DEP
