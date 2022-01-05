@@ -79,6 +79,7 @@ sh_binary(
         "outdated.artifacts",
         "outdated.repositories"
     ],
+    visibility = ["//visibility:public"],
 )
 """
 
