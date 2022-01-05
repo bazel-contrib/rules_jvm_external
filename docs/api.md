@@ -1,18 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-# API Reference
-
-- [Basic functions](#basic-functions)
-  - [javadoc](#javadoc)
-  - [java_export](#java_export)
-  - [maven_install](#maven_install)
-- [Maven specification functions](#maven-specification-functions)
-  - [maven.repository](#mavenrepository)
-  - [maven.artifact](#mavenartifact)
-  - [maven.exclusion](#mavenexclusion)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Basic functions
 
 These are the basic functions to get started.

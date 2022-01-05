@@ -375,6 +375,9 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
                 alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
+            else:
+                target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % v for v in default_visibilities])))
+                alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % v for v in default_visibilities]))
 
             target_import_string.append(")")
 
