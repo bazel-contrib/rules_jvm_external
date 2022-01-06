@@ -25,20 +25,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
@@ -46,6 +47,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static java.util.zip.Deflater.BEST_COMPRESSION;
@@ -110,16 +112,22 @@ public class MergeJars {
     // Remove any jars from sources that we've been told to exclude
     sources.removeIf(excludes::contains);
 
-    // To keep things simple, we expand all the inputs jars into a single directory,
-    // merge the manifests, and then create our own zip.
-    Path temp = Files.createTempDirectory("mergejars");
+    // We would love to keep things simple by expanding all the input jars into
+    // a single directory, but this isn't possible since one jar may contain a
+    // file with the same name as a directory in another. *sigh* Instead, what
+    // we'll do is create a list of contents from each jar, and where we should
+    // pull the contents from. Whee!
 
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
     Map<String, Set<String>> allServices = new TreeMap<>();
-    Map<Path, SortedMap<Path, Path>> allPaths = new TreeMap<>();
     Set<String> excludedPaths = readExcludedFileNames(excludes);
+
+    // Ultimately, we want the entries in the output zip to be sorted
+    // so that we have a deterministic output.
+    Map<String, Path> fileToSourceJar = new TreeMap<>();
+    Map<String, byte[]> fileHashCodes = new HashMap<>();
 
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
@@ -133,8 +141,8 @@ public class MergeJars {
             continue;
           }
 
-          if (entry.isDirectory() ||
-            (!entry.getName().startsWith("META-INF/") && excludedPaths.contains(entry.getName()))) {
+          if ("META-INF/".equals(entry.getName()) ||
+                  (!entry.getName().startsWith("META-INF/") && excludedPaths.contains(entry.getName()))) {
             continue;
           }
 
@@ -146,26 +154,25 @@ public class MergeJars {
             continue;
           }
 
-          Path outPath = temp.resolve(entry.getName()).normalize();
-          if (!outPath.startsWith(temp)) {
-            throw new IllegalStateException("Attempt to write jar entry somewhere weird: " + outPath);
-          }
-          if (!Files.exists(outPath.getParent())) {
-            Files.createDirectories(outPath.getParent());
-          }
-
-          if (Files.exists(outPath)) {
-            // Write the file out to a temporary location, and then figure out what to do
-            onDuplicate.resolve(outPath, zis);
+          if (entry.isDirectory()) {
+            // Duplicate directory names are fine
+            fileToSourceJar.put(entry.getName(), source);
           } else {
-            try (OutputStream os = Files.newOutputStream(outPath)) {
-              ByteStreams.copy(zis, os);
-            }
+            // Duplicate files, however may not be. We need the hash to determine
+            // whether we should do anything.
+            byte[] hash = hash(zis);
 
-            SortedMap<Path, Path> dirPaths = allPaths.computeIfAbsent(
-              temp.relativize(outPath.getParent()),
-              path -> new TreeMap<>());
-            dirPaths.put(temp.relativize(outPath), outPath);
+            if (!fileToSourceJar.containsKey(entry.getName())) {
+              fileToSourceJar.put(entry.getName(), source);
+              fileHashCodes.put(entry.getName(), hash);
+            } else {
+              byte[] originalHashCode = fileHashCodes.get(entry.getName());
+              boolean replace = onDuplicate.isReplacingCurrent(entry.getName(), originalHashCode, hash);
+              if (replace) {
+                fileToSourceJar.put(entry.getName(), source);
+                fileHashCodes.put(entry.getName(), hash);
+              }
+            }
           }
         }
       }
@@ -173,9 +180,8 @@ public class MergeJars {
 
     manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "mergejars");
 
-    Set<String> seen = new HashSet<>(Arrays.asList("META-INF/", "META-INF/MANIFEST.MF"));
-
     // Now create the output jar
+    Files.createDirectories(out.getParent());
     try (OutputStream os = Files.newOutputStream(out);
          JarOutputStream jos = new JarOutputStream(os)) {
       jos.setMethod(DEFLATED);
@@ -213,36 +219,41 @@ public class MergeJars {
         }
       }
 
-      allPaths.forEach((dir, entries) -> {
-        try {
-          String name = dir.toString().replace('\\', '/') + "/";
-          if (seen.add(name)) {
-            JarEntry je = new JarEntry(name);
-            je = resetTime(je);
-            jos.putNextEntry(je);
-            jos.closeEntry();
-          }
+      Path previousSource = sources.isEmpty() ? null : sources.iterator().next();
+      ZipFile source = previousSource == null ? null : new ZipFile(previousSource.toFile());
 
-          for (Map.Entry<Path, Path> me : entries.entrySet()) {
-            name = me.getKey().toString().replace('\\', '/');
+      // We should never enter this loop without there being any sources
+      for (Map.Entry<String, Path> pathAndSource : fileToSourceJar.entrySet()) {
+        // Get the original entry
+        JarEntry je = new JarEntry(pathAndSource.getKey());
+        je = resetTime(je);
+        jos.putNextEntry(je);
 
-            if (seen.add(name)) {
-              JarEntry je = new JarEntry(name);
-              je = resetTime(je);
-              jos.putNextEntry(je);
-              try (InputStream fis = Files.newInputStream(me.getValue())) {
-                ByteStreams.copy(fis, jos);
-              }
-              jos.closeEntry();
-            }
-          }
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
+        if (je.isDirectory()) {
+          jos.closeEntry();
+          continue;
         }
-      });
-    }
 
-    delete(temp);
+        if (!Objects.equals(previousSource, pathAndSource.getValue())) {
+          source.close();
+          source = new ZipFile(pathAndSource.getValue().toFile());
+          previousSource = pathAndSource.getValue();
+        }
+
+        ZipEntry original = source.getEntry(pathAndSource.getKey());
+        if (original == null) {
+          continue;
+        }
+
+        try (InputStream is = source.getInputStream(original)) {
+          ByteStreams.copy(is, jos);
+        }
+        jos.closeEntry();
+      }
+      if (source != null) {
+        source.close();
+      }
+    }
   }
 
   private static Set<String> readExcludedFileNames(Set<Path> excludes) throws IOException {
@@ -315,5 +326,21 @@ public class MergeJars {
     });
 
     return into;
+  }
+
+  private static byte[] hash(InputStream inputStream) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+
+      byte[] buf = new byte[100 * 1024];
+      int read;
+
+      while ((read = inputStream.read(buf)) != -1) {
+        digest.update(buf, 0, read);
+      }
+     return digest.digest();
+    } catch (IOException | NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
