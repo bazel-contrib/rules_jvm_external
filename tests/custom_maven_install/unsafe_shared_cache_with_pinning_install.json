@@ -6,17 +6,6 @@
         "conflict_resolution": {},
         "dependencies": [
             {
-                "coord": "com.google.code.findbugs:jsr305:jar:sources:3.0.2",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar"
-                ],
-                "sha256": "1c9e85e272d0708c6a591dc74828c71603053b48cc75ae83cce56912a2aa063b",
-                "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar"
-            },
-            {
                 "coord": "com.google.code.findbugs:jsr305:3.0.2",
                 "dependencies": [],
                 "directDependencies": [],
@@ -28,15 +17,15 @@
                 "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
             },
             {
-                "coord": "com.google.errorprone:error_prone_annotations:jar:sources:2.2.0",
+                "coord": "com.google.code.findbugs:jsr305:jar:sources:3.0.2",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0-sources.jar",
+                "file": "v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar",
                 "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0-sources.jar"
+                    "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar"
                 ],
-                "sha256": "626adccd4894bee72c3f9a0384812240dcc1282fb37a87a3f6cb94924a089496",
-                "url": "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0-sources.jar"
+                "sha256": "1c9e85e272d0708c6a591dc74828c71603053b48cc75ae83cce56912a2aa063b",
+                "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar"
             },
             {
                 "coord": "com.google.errorprone:error_prone_annotations:2.2.0",
@@ -50,15 +39,15 @@
                 "url": "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0.jar"
             },
             {
-                "coord": "com.google.guava:failureaccess:jar:sources:1.0",
+                "coord": "com.google.errorprone:error_prone_annotations:jar:sources:2.2.0",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0-sources.jar",
+                "file": "v1/https/repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0-sources.jar",
                 "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0-sources.jar"
+                    "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0-sources.jar"
                 ],
-                "sha256": "fec5411553b969fc82d30d6de300e6d2b011c768f306490e4866441a1c54232d",
-                "url": "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0-sources.jar"
+                "sha256": "626adccd4894bee72c3f9a0384812240dcc1282fb37a87a3f6cb94924a089496",
+                "url": "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0-sources.jar"
             },
             {
                 "coord": "com.google.guava:failureaccess:1.0",
@@ -72,31 +61,15 @@
                 "url": "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0.jar"
             },
             {
-                "coord": "com.google.guava:guava:jar:sources:27.0-jre",
-                "dependencies": [
-                    "com.google.code.findbugs:jsr305:jar:sources:3.0.2",
-                    "com.google.errorprone:error_prone_annotations:jar:sources:2.2.0",
-                    "com.google.guava:failureaccess:jar:sources:1.0",
-                    "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
-                    "com.google.j2objc:j2objc-annotations:jar:sources:1.1",
-                    "org.checkerframework:checker-qual:jar:sources:2.5.2",
-                    "org.codehaus.mojo:animal-sniffer-annotations:jar:sources:1.17"
-                ],
-                "directDependencies": [
-                    "com.google.code.findbugs:jsr305:jar:sources:3.0.2",
-                    "com.google.errorprone:error_prone_annotations:jar:sources:2.2.0",
-                    "com.google.guava:failureaccess:jar:sources:1.0",
-                    "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
-                    "com.google.j2objc:j2objc-annotations:jar:sources:1.1",
-                    "org.checkerframework:checker-qual:jar:sources:2.5.2",
-                    "org.codehaus.mojo:animal-sniffer-annotations:jar:sources:1.17"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre-sources.jar",
+                "coord": "com.google.guava:failureaccess:jar:sources:1.0",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0-sources.jar",
                 "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre-sources.jar"
+                    "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0-sources.jar"
                 ],
-                "sha256": "170dbf09858d1cffdaaa53d4d6ab15e6253c845318b0cc3bf21f8dffa9d433ab",
-                "url": "https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre-sources.jar"
+                "sha256": "fec5411553b969fc82d30d6de300e6d2b011c768f306490e4866441a1c54232d",
+                "url": "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0/failureaccess-1.0-sources.jar"
             },
             {
                 "coord": "com.google.guava:guava:27.0-jre",
@@ -126,6 +99,33 @@
                 "url": "https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar"
             },
             {
+                "coord": "com.google.guava:guava:jar:sources:27.0-jre",
+                "dependencies": [
+                    "com.google.code.findbugs:jsr305:jar:sources:3.0.2",
+                    "com.google.errorprone:error_prone_annotations:jar:sources:2.2.0",
+                    "com.google.guava:failureaccess:jar:sources:1.0",
+                    "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
+                    "com.google.j2objc:j2objc-annotations:jar:sources:1.1",
+                    "org.checkerframework:checker-qual:jar:sources:2.5.2",
+                    "org.codehaus.mojo:animal-sniffer-annotations:jar:sources:1.17"
+                ],
+                "directDependencies": [
+                    "com.google.code.findbugs:jsr305:jar:sources:3.0.2",
+                    "com.google.errorprone:error_prone_annotations:jar:sources:2.2.0",
+                    "com.google.guava:failureaccess:jar:sources:1.0",
+                    "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
+                    "com.google.j2objc:j2objc-annotations:jar:sources:1.1",
+                    "org.checkerframework:checker-qual:jar:sources:2.5.2",
+                    "org.codehaus.mojo:animal-sniffer-annotations:jar:sources:1.17"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre-sources.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre-sources.jar"
+                ],
+                "sha256": "170dbf09858d1cffdaaa53d4d6ab15e6253c845318b0cc3bf21f8dffa9d433ab",
+                "url": "https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre-sources.jar"
+            },
+            {
                 "coord": "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
                 "dependencies": [],
                 "directDependencies": [],
@@ -137,15 +137,10 @@
                 "url": "https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
             },
             {
-                "coord": "com.google.j2objc:j2objc-annotations:jar:sources:1.1",
+                "coord": "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1-sources.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1-sources.jar"
-                ],
-                "sha256": "2cd9022a77151d0b574887635cdfcdf3b78155b602abc89d7f8e62aba55cfb4f",
-                "url": "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1-sources.jar"
+                "file": null
             },
             {
                 "coord": "com.google.j2objc:j2objc-annotations:1.1",
@@ -159,15 +154,15 @@
                 "url": "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"
             },
             {
-                "coord": "org.checkerframework:checker-qual:jar:sources:2.5.2",
+                "coord": "com.google.j2objc:j2objc-annotations:jar:sources:1.1",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2-sources.jar",
+                "file": "v1/https/repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1-sources.jar",
                 "mirror_urls": [
-                    "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2-sources.jar"
+                    "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1-sources.jar"
                 ],
-                "sha256": "821c5c63a6f156a3bb498c5bbb613580d9d8f4134131a5627d330fc4018669d2",
-                "url": "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2-sources.jar"
+                "sha256": "2cd9022a77151d0b574887635cdfcdf3b78155b602abc89d7f8e62aba55cfb4f",
+                "url": "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1-sources.jar"
             },
             {
                 "coord": "org.checkerframework:checker-qual:2.5.2",
@@ -181,15 +176,15 @@
                 "url": "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar"
             },
             {
-                "coord": "org.codehaus.mojo:animal-sniffer-annotations:jar:sources:1.17",
+                "coord": "org.checkerframework:checker-qual:jar:sources:2.5.2",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar",
+                "file": "v1/https/repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2-sources.jar",
                 "mirror_urls": [
-                    "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar"
+                    "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2-sources.jar"
                 ],
-                "sha256": "2571474a676f775a8cdd15fb9b1da20c4c121ed7f42a5d93fca0e7b6e2015b40",
-                "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar"
+                "sha256": "821c5c63a6f156a3bb498c5bbb613580d9d8f4134131a5627d330fc4018669d2",
+                "url": "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2-sources.jar"
             },
             {
                 "coord": "org.codehaus.mojo:animal-sniffer-annotations:1.17",
@@ -203,10 +198,15 @@
                 "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar"
             },
             {
-                "coord": "com.google.guava:listenablefuture:jar:sources:9999.0-empty-to-avoid-conflict-with-guava",
+                "coord": "org.codehaus.mojo:animal-sniffer-annotations:jar:sources:1.17",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": null
+                "file": "v1/https/repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar"
+                ],
+                "sha256": "2571474a676f775a8cdd15fb9b1da20c4c121ed7f42a5d93fca0e7b6e2015b40",
+                "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17-sources.jar"
             }
         ],
         "version": "0.1.0"
