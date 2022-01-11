@@ -142,6 +142,51 @@
                 "url": "https://maven.google.com/android/arch/lifecycle/viewmodel/1.1.1/viewmodel-1.1.1.aar"
             },
             {
+                "coord": "ch.epfl.scala:compiler-interface:1.3.0-M4+20-c8a2f9bd",
+                "dependencies": [
+                    "com.google.protobuf:protobuf-java:3.7.0",
+                    "org.scala-sbt:util-interface:1.3.0-M4"
+                ],
+                "directDependencies": [
+                    "com.google.protobuf:protobuf-java:3.7.0",
+                    "org.scala-sbt:util-interface:1.3.0-M4"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
+                    "https://maven.google.com/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
+                    "https://packages.confluent.io/maven/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar"
+                ],
+                "sha256": "b5080bbfd4dc2beef489e4a7153b1b6099724ae7860b720e64d2b3b3b96570a5",
+                "url": "https://repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar"
+            },
+            {
+                "coord": "com.101tec:zkclient:0.11",
+                "dependencies": [
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "directDependencies": [
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "exclusions": [
+                    "*:jline",
+                    "*:jmxtools",
+                    "*:jms",
+                    "*:mail",
+                    "*:javax",
+                    "*:jmxri",
+                    "*:zookeeper"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/101tec/zkclient/0.11/zkclient-0.11.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/101tec/zkclient/0.11/zkclient-0.11.jar",
+                    "https://maven.google.com/com/101tec/zkclient/0.11/zkclient-0.11.jar",
+                    "https://packages.confluent.io/maven/com/101tec/zkclient/0.11/zkclient-0.11.jar"
+                ],
+                "sha256": "72e05e5031508115cafa6092cd53af306c5584957a34012511a20aac5e6c45e5",
+                "url": "https://repo1.maven.org/maven2/com/101tec/zkclient/0.11/zkclient-0.11.jar"
+            },
+            {
                 "coord": "com.android.support:animated-vector-drawable:aar:28.0.0",
                 "dependencies": [
                     "android.arch.core:common:1.1.1",
@@ -809,340 +854,6 @@
                 "url": "https://maven.google.com/com/android/support/viewpager/28.0.0/viewpager-28.0.0.aar"
             },
             {
-                "coord": "com.google.android.gms:play-services-base:16.1.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:28.0.0",
-                    "com.android.support:support-compat:28.0.0",
-                    "com.android.support:support-core-ui:28.0.0",
-                    "com.android.support:support-core-utils:28.0.0",
-                    "com.android.support:support-fragment:28.0.0",
-                    "com.android.support:support-media-compat:26.1.0",
-                    "com.android.support:support-v4:aar:26.1.0",
-                    "com.google.android.gms:play-services-basement:aar:16.2.0",
-                    "com.google.android.gms:play-services-tasks:aar:16.0.1"
-                ],
-                "directDependencies": [
-                    "com.google.android.gms:play-services-basement:aar:16.2.0",
-                    "com.google.android.gms:play-services-tasks:aar:16.0.1"
-                ],
-                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
-                    "https://maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
-                    "https://packages.confluent.io/maven/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar"
-                ],
-                "sha256": "3a543b05dfa09ca84fb47ed5e166ec7fbd7715ce630bbde44c10ffa5fb81daa4",
-                "url": "https://maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar"
-            },
-            {
-                "coord": "com.google.android.gms:play-services-basement:aar:16.2.0",
-                "dependencies": [
-                    "com.android.support:support-annotations:28.0.0",
-                    "com.android.support:support-compat:28.0.0",
-                    "com.android.support:support-core-ui:28.0.0",
-                    "com.android.support:support-core-utils:28.0.0",
-                    "com.android.support:support-fragment:28.0.0",
-                    "com.android.support:support-media-compat:26.1.0",
-                    "com.android.support:support-v4:aar:26.1.0"
-                ],
-                "directDependencies": [
-                    "com.android.support:support-v4:aar:26.1.0"
-                ],
-                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
-                    "https://maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
-                    "https://packages.confluent.io/maven/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar"
-                ],
-                "sha256": "5ccead5a05a632f93df0a807752a034adcd0cd62fcf30da287c6dd5b05bd3d5a",
-                "url": "https://maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar"
-            },
-            {
-                "coord": "com.google.android.gms:play-services-tasks:aar:16.0.1",
-                "dependencies": [
-                    "com.google.android.gms:play-services-basement:aar:16.2.0"
-                ],
-                "directDependencies": [
-                    "com.google.android.gms:play-services-basement:aar:16.2.0"
-                ],
-                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
-                    "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
-                    "https://packages.confluent.io/maven/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
-                ],
-                "sha256": "b31c18d8d1cc8d9814f295ee7435471333f370ba5bd904ca14f8f2bec4f35c35",
-                "url": "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
-            },
-            {
-                "coord": "com.google.ar:core:aar:1.10.0",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/ar/core/1.10.0/core-1.10.0.aar",
-                    "https://maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar",
-                    "https://packages.confluent.io/maven/com/google/ar/core/1.10.0/core-1.10.0.aar"
-                ],
-                "sha256": "6624df5075cb9db0887abd6c84eb0889d1d7ba11bfd930b4e06a56eaffab820a",
-                "url": "https://maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar"
-            },
-            {
-                "coord": "com.google.ar.sceneform:core:aar:1.10.0",
-                "dependencies": [
-                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
-                    "com.google.ar.sceneform:rendering:aar:1.10.0",
-                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
-                    "com.google.ar:core:aar:1.10.0"
-                ],
-                "directDependencies": [
-                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
-                    "com.google.ar.sceneform:rendering:aar:1.10.0",
-                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0"
-                ],
-                "file": "v1/https/maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
-                    "https://maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
-                    "https://packages.confluent.io/maven/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar"
-                ],
-                "sha256": "0652b7feb93b5c19ab314b79977aa739ec58c48a1bd727a4f8c31e61fe105e09",
-                "url": "https://maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar"
-            },
-            {
-                "coord": "com.google.ar.sceneform:filament-android:aar:1.10.0",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
-                    "https://maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
-                    "https://packages.confluent.io/maven/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar"
-                ],
-                "sha256": "24751cbda2bfa49d5ab0d53f36efa7ac4f0b1ba6c7356c8bf418cb5a61dd067f",
-                "url": "https://maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar"
-            },
-            {
-                "coord": "com.google.ar.sceneform:rendering:aar:1.10.0",
-                "dependencies": [
-                    "com.google.ar:core:aar:1.10.0"
-                ],
-                "directDependencies": [
-                    "com.google.ar:core:aar:1.10.0"
-                ],
-                "file": "v1/https/maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
-                    "https://maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
-                    "https://packages.confluent.io/maven/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar"
-                ],
-                "sha256": "d2f6cd1d54eee0d5557518d1edcf77a3ba37494ae94f9bb862e570ee426a3431",
-                "url": "https://maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar"
-            },
-            {
-                "coord": "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
-                    "https://maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
-                    "https://packages.confluent.io/maven/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar"
-                ],
-                "sha256": "fe2191f8a0b622bf35c91cdbe83074ff025f1641b6fe25ea0b554f208a62daff",
-                "url": "https://maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar"
-            },
-            {
-                "coord": "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
-                "dependencies": [
-                    "com.android.support:support-fragment:aar:28.0.0",
-                    "com.google.ar.sceneform:core:aar:1.10.0",
-                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
-                    "com.google.ar.sceneform:rendering:aar:1.10.0",
-                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
-                    "com.google.ar:core:aar:1.10.0"
-                ],
-                "directDependencies": [
-                    "com.android.support:support-fragment:aar:28.0.0",
-                    "com.google.ar.sceneform:core:aar:1.10.0"
-                ],
-                "file": "v1/https/maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
-                    "https://maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
-                    "https://packages.confluent.io/maven/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar"
-                ],
-                "sha256": "f37d622f5f44facf953e23bcc01175c4f2df5f7234f71cd8855ca669d7c179fc",
-                "url": "https://maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar"
-            },
-            {
-                "coord": "io.confluent:common-config:5.0.1",
-                "dependencies": [
-                    "com.101tec:zkclient:0.11",
-                    "io.confluent:common-utils:5.0.1",
-                    "io.netty:netty:3.10.6.Final",
-                    "jline:jline:0.9.94",
-                    "org.apache.yetus:audience-annotations:0.5.0",
-                    "org.apache.zookeeper:zookeeper:3.4.13",
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "directDependencies": [
-                    "io.confluent:common-utils:5.0.1",
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "file": "v1/https/packages.confluent.io/maven/io/confluent/common-config/5.0.1/common-config-5.0.1.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/io/confluent/common-config/5.0.1/common-config-5.0.1.jar",
-                    "https://maven.google.com/io/confluent/common-config/5.0.1/common-config-5.0.1.jar",
-                    "https://packages.confluent.io/maven/io/confluent/common-config/5.0.1/common-config-5.0.1.jar"
-                ],
-                "sha256": "d4375cdff2296888f598af6764697dc6215ceb61c023eeb0c7d5ab60583122ed",
-                "url": "https://packages.confluent.io/maven/io/confluent/common-config/5.0.1/common-config-5.0.1.jar"
-            },
-            {
-                "coord": "io.confluent:common-utils:5.0.1",
-                "dependencies": [
-                    "com.101tec:zkclient:0.11",
-                    "io.netty:netty:3.10.6.Final",
-                    "jline:jline:0.9.94",
-                    "org.apache.yetus:audience-annotations:0.5.0",
-                    "org.apache.zookeeper:zookeeper:3.4.13",
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "directDependencies": [
-                    "com.101tec:zkclient:0.11",
-                    "org.apache.zookeeper:zookeeper:3.4.13",
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "file": "v1/https/packages.confluent.io/maven/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar",
-                    "https://maven.google.com/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar",
-                    "https://packages.confluent.io/maven/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar"
-                ],
-                "sha256": "fec75e2c7da2db6f4a1b2d288576b96cb72fa06029bcf5adfd444573e57f2a7f",
-                "url": "https://packages.confluent.io/maven/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar"
-            },
-            {
-                "coord": "io.confluent:kafka-avro-serializer:5.0.1",
-                "dependencies": [
-                    "com.101tec:zkclient:0.11",
-                    "com.fasterxml.jackson.core:jackson-databind:2.9.8",
-                    "com.thoughtworks.paranamer:paranamer:2.7",
-                    "io.confluent:common-config:5.0.1",
-                    "io.confluent:common-utils:5.0.1",
-                    "io.confluent:kafka-schema-registry-client:5.0.1",
-                    "io.netty:netty:3.10.6.Final",
-                    "jline:jline:0.9.94",
-                    "org.apache.avro:avro:1.8.1",
-                    "org.apache.commons:commons-compress:1.18",
-                    "org.apache.kafka:kafka-clients:2.1.1",
-                    "org.apache.yetus:audience-annotations:0.5.0",
-                    "org.apache.zookeeper:zookeeper:3.4.13",
-                    "org.codehaus.jackson:jackson-core-asl:1.9.13",
-                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
-                    "org.slf4j:slf4j-api:1.7.25",
-                    "org.tukaani:xz:1.5",
-                    "org.xerial.snappy:snappy-java:1.1.7.2"
-                ],
-                "directDependencies": [
-                    "io.confluent:common-config:5.0.1",
-                    "io.confluent:common-utils:5.0.1",
-                    "io.confluent:kafka-schema-registry-client:5.0.1",
-                    "org.apache.avro:avro:1.8.1"
-                ],
-                "file": "v1/https/packages.confluent.io/maven/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar",
-                    "https://maven.google.com/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar",
-                    "https://packages.confluent.io/maven/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar"
-                ],
-                "sha256": "2372bb93a753ce754d0c10514cf4c61501e2c3d8960873541f72377689cb1a48",
-                "url": "https://packages.confluent.io/maven/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar"
-            },
-            {
-                "coord": "io.confluent:kafka-schema-registry-client:5.0.1",
-                "dependencies": [
-                    "com.101tec:zkclient:0.11",
-                    "com.fasterxml.jackson.core:jackson-databind:2.9.8",
-                    "com.thoughtworks.paranamer:paranamer:2.7",
-                    "io.confluent:common-config:5.0.1",
-                    "io.confluent:common-utils:5.0.1",
-                    "io.netty:netty:3.10.6.Final",
-                    "jline:jline:0.9.94",
-                    "org.apache.avro:avro:1.8.1",
-                    "org.apache.commons:commons-compress:1.18",
-                    "org.apache.kafka:kafka-clients:2.1.1",
-                    "org.apache.yetus:audience-annotations:0.5.0",
-                    "org.apache.zookeeper:zookeeper:3.4.13",
-                    "org.codehaus.jackson:jackson-core-asl:1.9.13",
-                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
-                    "org.slf4j:slf4j-api:1.7.25",
-                    "org.tukaani:xz:1.5",
-                    "org.xerial.snappy:snappy-java:1.1.7.2"
-                ],
-                "directDependencies": [
-                    "com.fasterxml.jackson.core:jackson-databind:2.9.8",
-                    "io.confluent:common-config:5.0.1",
-                    "io.confluent:common-utils:5.0.1",
-                    "org.apache.avro:avro:1.8.1",
-                    "org.apache.kafka:kafka-clients:2.1.1"
-                ],
-                "file": "v1/https/packages.confluent.io/maven/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar",
-                    "https://maven.google.com/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar",
-                    "https://packages.confluent.io/maven/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar"
-                ],
-                "sha256": "74111b8c628d5f6fe55569f49af12ea094942a7f17192011795180b970110f8c",
-                "url": "https://packages.confluent.io/maven/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar"
-            },
-            {
-                "coord": "ch.epfl.scala:compiler-interface:1.3.0-M4+20-c8a2f9bd",
-                "dependencies": [
-                    "com.google.protobuf:protobuf-java:3.7.0",
-                    "org.scala-sbt:util-interface:1.3.0-M4"
-                ],
-                "directDependencies": [
-                    "com.google.protobuf:protobuf-java:3.7.0",
-                    "org.scala-sbt:util-interface:1.3.0-M4"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
-                    "https://maven.google.com/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar",
-                    "https://packages.confluent.io/maven/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar"
-                ],
-                "sha256": "b5080bbfd4dc2beef489e4a7153b1b6099724ae7860b720e64d2b3b3b96570a5",
-                "url": "https://repo1.maven.org/maven2/ch/epfl/scala/compiler-interface/1.3.0-M4%2B20-c8a2f9bd/compiler-interface-1.3.0-M4%2B20-c8a2f9bd.jar"
-            },
-            {
-                "coord": "com.101tec:zkclient:0.11",
-                "dependencies": [
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "directDependencies": [
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "exclusions": [
-                    "*:jline",
-                    "*:jmxtools",
-                    "*:jms",
-                    "*:mail",
-                    "*:javax",
-                    "*:jmxri",
-                    "*:zookeeper"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/101tec/zkclient/0.11/zkclient-0.11.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/101tec/zkclient/0.11/zkclient-0.11.jar",
-                    "https://maven.google.com/com/101tec/zkclient/0.11/zkclient-0.11.jar",
-                    "https://packages.confluent.io/maven/com/101tec/zkclient/0.11/zkclient-0.11.jar"
-                ],
-                "sha256": "72e05e5031508115cafa6092cd53af306c5584957a34012511a20aac5e6c45e5",
-                "url": "https://repo1.maven.org/maven2/com/101tec/zkclient/0.11/zkclient-0.11.jar"
-            },
-            {
                 "coord": "com.esotericsoftware.kryo:kryo:2.24.0",
                 "dependencies": [
                     "com.esotericsoftware.minlog:minlog:1.2",
@@ -1244,17 +955,49 @@
                 "url": "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.9.8/jackson-databind-2.9.8.jar"
             },
             {
-                "coord": "com.github.fommil:jniloader:1.1",
+                "coord": "com.fasterxml.jackson:jackson-bom:2.9.10",
                 "dependencies": [],
                 "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
-                    "https://maven.google.com/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
-                    "https://packages.confluent.io/maven/com/github/fommil/jniloader/1.1/jniloader-1.1.jar"
+                "file": null
+            },
+            {
+                "coord": "com.github.fommil.netlib:all:1.1.2",
+                "dependencies": [
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:native_ref-java:1.1",
+                    "com.github.fommil.netlib:native_system-java:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil:jniloader:1.1",
+                    "net.sourceforge.f2j:arpack_combined_all:0.1"
                 ],
-                "sha256": "2f1def54f30e1db5f1e7f2fd600fe2ab331bd6b52037e9a21505c237020b5573",
-                "url": "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar"
+                "directDependencies": [
+                    "com.github.fommil.netlib:core:1.1.2",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1",
+                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
+                    "net.sourceforge.f2j:arpack_combined_all:0.1"
+                ],
+                "file": null
             },
             {
                 "coord": "com.github.fommil.netlib:core:1.1.2",
@@ -1568,6 +1311,19 @@
                 "url": "https://repo1.maven.org/maven2/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar"
             },
             {
+                "coord": "com.github.fommil:jniloader:1.1",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
+                    "https://maven.google.com/com/github/fommil/jniloader/1.1/jniloader-1.1.jar",
+                    "https://packages.confluent.io/maven/com/github/fommil/jniloader/1.1/jniloader-1.1.jar"
+                ],
+                "sha256": "2f1def54f30e1db5f1e7f2fd600fe2ab331bd6b52037e9a21505c237020b5573",
+                "url": "https://repo1.maven.org/maven2/com/github/fommil/jniloader/1.1/jniloader-1.1.jar"
+            },
+            {
                 "coord": "com.github.luben:zstd-jni:1.3.7-1",
                 "dependencies": [],
                 "directDependencies": [],
@@ -1602,6 +1358,16 @@
                 ],
                 "sha256": "3f2c073c2dce44baa0bde0cd258acff9a4d874c422a8fcedefa5fbf8900dcdd5",
                 "url": "https://repo1.maven.org/maven2/com/github/oshi/oshi-core/3.4.0/oshi-core-3.4.0.jar"
+            },
+            {
+                "coord": "com.github.oshi:oshi-parent:3.4.0",
+                "dependencies": [
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "directDependencies": [
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "file": null
             },
             {
                 "coord": "com.github.scopt:scopt_2.11:3.4.0",
@@ -1746,6 +1512,173 @@
                 ],
                 "sha256": "4fccff8382aafc589962c4edb262f6aa595e34f1e11e61057d1c6a96e8fc7323",
                 "url": "https://repo1.maven.org/maven2/com/github/stephenc/jcip/jcip-annotations/1.0-1/jcip-annotations-1.0-1.jar"
+            },
+            {
+                "coord": "com.google.android.gms:play-services-base:16.1.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:28.0.0",
+                    "com.android.support:support-core-ui:28.0.0",
+                    "com.android.support:support-core-utils:28.0.0",
+                    "com.android.support:support-fragment:28.0.0",
+                    "com.android.support:support-media-compat:26.1.0",
+                    "com.android.support:support-v4:aar:26.1.0",
+                    "com.google.android.gms:play-services-basement:aar:16.2.0",
+                    "com.google.android.gms:play-services-tasks:aar:16.0.1"
+                ],
+                "directDependencies": [
+                    "com.google.android.gms:play-services-basement:aar:16.2.0",
+                    "com.google.android.gms:play-services-tasks:aar:16.0.1"
+                ],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
+                    "https://maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar",
+                    "https://packages.confluent.io/maven/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar"
+                ],
+                "sha256": "3a543b05dfa09ca84fb47ed5e166ec7fbd7715ce630bbde44c10ffa5fb81daa4",
+                "url": "https://maven.google.com/com/google/android/gms/play-services-base/16.1.0/play-services-base-16.1.0.aar"
+            },
+            {
+                "coord": "com.google.android.gms:play-services-basement:aar:16.2.0",
+                "dependencies": [
+                    "com.android.support:support-annotations:28.0.0",
+                    "com.android.support:support-compat:28.0.0",
+                    "com.android.support:support-core-ui:28.0.0",
+                    "com.android.support:support-core-utils:28.0.0",
+                    "com.android.support:support-fragment:28.0.0",
+                    "com.android.support:support-media-compat:26.1.0",
+                    "com.android.support:support-v4:aar:26.1.0"
+                ],
+                "directDependencies": [
+                    "com.android.support:support-v4:aar:26.1.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
+                    "https://maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar",
+                    "https://packages.confluent.io/maven/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar"
+                ],
+                "sha256": "5ccead5a05a632f93df0a807752a034adcd0cd62fcf30da287c6dd5b05bd3d5a",
+                "url": "https://maven.google.com/com/google/android/gms/play-services-basement/16.2.0/play-services-basement-16.2.0.aar"
+            },
+            {
+                "coord": "com.google.android.gms:play-services-tasks:aar:16.0.1",
+                "dependencies": [
+                    "com.google.android.gms:play-services-basement:aar:16.2.0"
+                ],
+                "directDependencies": [
+                    "com.google.android.gms:play-services-basement:aar:16.2.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
+                    "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar",
+                    "https://packages.confluent.io/maven/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
+                ],
+                "sha256": "b31c18d8d1cc8d9814f295ee7435471333f370ba5bd904ca14f8f2bec4f35c35",
+                "url": "https://maven.google.com/com/google/android/gms/play-services-tasks/16.0.1/play-services-tasks-16.0.1.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
+                "dependencies": [
+                    "com.android.support:support-fragment:aar:28.0.0",
+                    "com.google.ar.sceneform:core:aar:1.10.0",
+                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                    "com.google.ar.sceneform:rendering:aar:1.10.0",
+                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
+                    "com.google.ar:core:aar:1.10.0"
+                ],
+                "directDependencies": [
+                    "com.android.support:support-fragment:aar:28.0.0",
+                    "com.google.ar.sceneform:core:aar:1.10.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
+                    "https://maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar",
+                    "https://packages.confluent.io/maven/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar"
+                ],
+                "sha256": "f37d622f5f44facf953e23bcc01175c4f2df5f7234f71cd8855ca669d7c179fc",
+                "url": "https://maven.google.com/com/google/ar/sceneform/ux/sceneform-ux/1.10.0/sceneform-ux-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:core:aar:1.10.0",
+                "dependencies": [
+                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                    "com.google.ar.sceneform:rendering:aar:1.10.0",
+                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
+                    "com.google.ar:core:aar:1.10.0"
+                ],
+                "directDependencies": [
+                    "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                    "com.google.ar.sceneform:rendering:aar:1.10.0",
+                    "com.google.ar.sceneform:sceneform-base:aar:1.10.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
+                    "https://maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar",
+                    "https://packages.confluent.io/maven/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar"
+                ],
+                "sha256": "0652b7feb93b5c19ab314b79977aa739ec58c48a1bd727a4f8c31e61fe105e09",
+                "url": "https://maven.google.com/com/google/ar/sceneform/core/1.10.0/core-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:filament-android:aar:1.10.0",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
+                    "https://maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar",
+                    "https://packages.confluent.io/maven/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar"
+                ],
+                "sha256": "24751cbda2bfa49d5ab0d53f36efa7ac4f0b1ba6c7356c8bf418cb5a61dd067f",
+                "url": "https://maven.google.com/com/google/ar/sceneform/filament-android/1.10.0/filament-android-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:rendering:aar:1.10.0",
+                "dependencies": [
+                    "com.google.ar:core:aar:1.10.0"
+                ],
+                "directDependencies": [
+                    "com.google.ar:core:aar:1.10.0"
+                ],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
+                    "https://maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
+                    "https://packages.confluent.io/maven/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar"
+                ],
+                "sha256": "d2f6cd1d54eee0d5557518d1edcf77a3ba37494ae94f9bb862e570ee426a3431",
+                "url": "https://maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar.sceneform:sceneform-base:aar:1.10.0",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
+                    "https://maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar",
+                    "https://packages.confluent.io/maven/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar"
+                ],
+                "sha256": "fe2191f8a0b622bf35c91cdbe83074ff025f1641b6fe25ea0b554f208a62daff",
+                "url": "https://maven.google.com/com/google/ar/sceneform/sceneform-base/1.10.0/sceneform-base-1.10.0.aar"
+            },
+            {
+                "coord": "com.google.ar:core:aar:1.10.0",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/google/ar/core/1.10.0/core-1.10.0.aar",
+                    "https://maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar",
+                    "https://packages.confluent.io/maven/com/google/ar/core/1.10.0/core-1.10.0.aar"
+                ],
+                "sha256": "6624df5075cb9db0887abd6c84eb0889d1d7ba11bfd930b4e06a56eaffab820a",
+                "url": "https://maven.google.com/com/google/ar/core/1.10.0/core-1.10.0.aar"
             },
             {
                 "coord": "com.google.code.findbugs:jsr305:3.0.2",
@@ -1993,19 +1926,6 @@
                 "url": "https://repo1.maven.org/maven2/com/nimbusds/oauth2-oidc-sdk/5.24.1/oauth2-oidc-sdk-5.24.1.jar"
             },
             {
-                "coord": "com.squareup:javapoet:1.11.1",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
-                    "https://maven.google.com/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
-                    "https://packages.confluent.io/maven/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar"
-                ],
-                "sha256": "9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90",
-                "url": "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar"
-            },
-            {
                 "coord": "com.squareup.okhttp:logging-interceptor:2.7.5",
                 "dependencies": [
                     "com.squareup.okhttp:okhttp:2.7.5",
@@ -2070,6 +1990,19 @@
                 ],
                 "sha256": "114bdc1f47338a68bcbc95abf2f5cdc72beeec91812f2fcd7b521c1937876266",
                 "url": "https://repo1.maven.org/maven2/com/squareup/okio/okio/1.6.0/okio-1.6.0.jar"
+            },
+            {
+                "coord": "com.squareup:javapoet:1.11.1",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
+                    "https://maven.google.com/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar",
+                    "https://packages.confluent.io/maven/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar"
+                ],
+                "sha256": "9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90",
+                "url": "https://repo1.maven.org/maven2/com/squareup/javapoet/1.11.1/javapoet-1.11.1.jar"
             },
             {
                 "coord": "com.thoughtworks.paranamer:paranamer:2.7",
@@ -2212,22 +2145,6 @@
                 "url": "https://repo1.maven.org/maven2/com/typesafe/akka/akka-stream_2.12/2.4.20/akka-stream_2.12-2.4.20.jar"
             },
             {
-                "coord": "com.typesafe:config:1.3.0",
-                "dependencies": [],
-                "directDependencies": [],
-                "exclusions": [
-                    "org.scala-lang:scala-library"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar",
-                    "https://maven.google.com/com/typesafe/config/1.3.0/config-1.3.0.jar",
-                    "https://packages.confluent.io/maven/com/typesafe/config/1.3.0/config-1.3.0.jar"
-                ],
-                "sha256": "d3e9dca258786c51fcbcc47d34d3b44158476af55c47d22dd8c2e38e41a2c89a",
-                "url": "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar"
-            },
-            {
                 "coord": "com.typesafe.scala-logging:scala-logging_2.11:3.9.0",
                 "dependencies": [
                     "org.scala-lang:scala-library:2.11.12",
@@ -2255,6 +2172,22 @@
                 ],
                 "sha256": "6f58222c736833066894f51de21fdac840e573a545e776dafff670b673ed52e4",
                 "url": "https://repo1.maven.org/maven2/com/typesafe/scala-logging/scala-logging_2.11/3.9.0/scala-logging_2.11-3.9.0.jar"
+            },
+            {
+                "coord": "com.typesafe:config:1.3.0",
+                "dependencies": [],
+                "directDependencies": [],
+                "exclusions": [
+                    "org.scala-lang:scala-library"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar",
+                    "https://maven.google.com/com/typesafe/config/1.3.0/config-1.3.0.jar",
+                    "https://packages.confluent.io/maven/com/typesafe/config/1.3.0/config-1.3.0.jar"
+                ],
+                "sha256": "d3e9dca258786c51fcbcc47d34d3b44158476af55c47d22dd8c2e38e41a2c89a",
+                "url": "https://repo1.maven.org/maven2/com/typesafe/config/1.3.0/config-1.3.0.jar"
             },
             {
                 "coord": "com.typesafe:ssl-config-core_2.12:0.2.1",
@@ -2353,6 +2286,128 @@
                 ],
                 "sha256": "cc6a41dc3eaacc9e440a6bd0d2890b20d36b4ee408fe2d67122f328bb6e01581",
                 "url": "https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"
+            },
+            {
+                "coord": "io.confluent:common-config:5.0.1",
+                "dependencies": [
+                    "com.101tec:zkclient:0.11",
+                    "io.confluent:common-utils:5.0.1",
+                    "io.netty:netty:3.10.6.Final",
+                    "jline:jline:0.9.94",
+                    "org.apache.yetus:audience-annotations:0.5.0",
+                    "org.apache.zookeeper:zookeeper:3.4.13",
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "directDependencies": [
+                    "io.confluent:common-utils:5.0.1",
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "file": "v1/https/packages.confluent.io/maven/io/confluent/common-config/5.0.1/common-config-5.0.1.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/io/confluent/common-config/5.0.1/common-config-5.0.1.jar",
+                    "https://maven.google.com/io/confluent/common-config/5.0.1/common-config-5.0.1.jar",
+                    "https://packages.confluent.io/maven/io/confluent/common-config/5.0.1/common-config-5.0.1.jar"
+                ],
+                "sha256": "d4375cdff2296888f598af6764697dc6215ceb61c023eeb0c7d5ab60583122ed",
+                "url": "https://packages.confluent.io/maven/io/confluent/common-config/5.0.1/common-config-5.0.1.jar"
+            },
+            {
+                "coord": "io.confluent:common-utils:5.0.1",
+                "dependencies": [
+                    "com.101tec:zkclient:0.11",
+                    "io.netty:netty:3.10.6.Final",
+                    "jline:jline:0.9.94",
+                    "org.apache.yetus:audience-annotations:0.5.0",
+                    "org.apache.zookeeper:zookeeper:3.4.13",
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "directDependencies": [
+                    "com.101tec:zkclient:0.11",
+                    "org.apache.zookeeper:zookeeper:3.4.13",
+                    "org.slf4j:slf4j-api:1.7.25"
+                ],
+                "file": "v1/https/packages.confluent.io/maven/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar",
+                    "https://maven.google.com/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar",
+                    "https://packages.confluent.io/maven/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar"
+                ],
+                "sha256": "fec75e2c7da2db6f4a1b2d288576b96cb72fa06029bcf5adfd444573e57f2a7f",
+                "url": "https://packages.confluent.io/maven/io/confluent/common-utils/5.0.1/common-utils-5.0.1.jar"
+            },
+            {
+                "coord": "io.confluent:kafka-avro-serializer:5.0.1",
+                "dependencies": [
+                    "com.101tec:zkclient:0.11",
+                    "com.fasterxml.jackson.core:jackson-databind:2.9.8",
+                    "com.thoughtworks.paranamer:paranamer:2.7",
+                    "io.confluent:common-config:5.0.1",
+                    "io.confluent:common-utils:5.0.1",
+                    "io.confluent:kafka-schema-registry-client:5.0.1",
+                    "io.netty:netty:3.10.6.Final",
+                    "jline:jline:0.9.94",
+                    "org.apache.avro:avro:1.8.1",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.kafka:kafka-clients:2.1.1",
+                    "org.apache.yetus:audience-annotations:0.5.0",
+                    "org.apache.zookeeper:zookeeper:3.4.13",
+                    "org.codehaus.jackson:jackson-core-asl:1.9.13",
+                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "org.tukaani:xz:1.5",
+                    "org.xerial.snappy:snappy-java:1.1.7.2"
+                ],
+                "directDependencies": [
+                    "io.confluent:common-config:5.0.1",
+                    "io.confluent:common-utils:5.0.1",
+                    "io.confluent:kafka-schema-registry-client:5.0.1",
+                    "org.apache.avro:avro:1.8.1"
+                ],
+                "file": "v1/https/packages.confluent.io/maven/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar",
+                    "https://maven.google.com/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar",
+                    "https://packages.confluent.io/maven/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar"
+                ],
+                "sha256": "2372bb93a753ce754d0c10514cf4c61501e2c3d8960873541f72377689cb1a48",
+                "url": "https://packages.confluent.io/maven/io/confluent/kafka-avro-serializer/5.0.1/kafka-avro-serializer-5.0.1.jar"
+            },
+            {
+                "coord": "io.confluent:kafka-schema-registry-client:5.0.1",
+                "dependencies": [
+                    "com.101tec:zkclient:0.11",
+                    "com.fasterxml.jackson.core:jackson-databind:2.9.8",
+                    "com.thoughtworks.paranamer:paranamer:2.7",
+                    "io.confluent:common-config:5.0.1",
+                    "io.confluent:common-utils:5.0.1",
+                    "io.netty:netty:3.10.6.Final",
+                    "jline:jline:0.9.94",
+                    "org.apache.avro:avro:1.8.1",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.kafka:kafka-clients:2.1.1",
+                    "org.apache.yetus:audience-annotations:0.5.0",
+                    "org.apache.zookeeper:zookeeper:3.4.13",
+                    "org.codehaus.jackson:jackson-core-asl:1.9.13",
+                    "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "org.tukaani:xz:1.5",
+                    "org.xerial.snappy:snappy-java:1.1.7.2"
+                ],
+                "directDependencies": [
+                    "com.fasterxml.jackson.core:jackson-databind:2.9.8",
+                    "io.confluent:common-config:5.0.1",
+                    "io.confluent:common-utils:5.0.1",
+                    "org.apache.avro:avro:1.8.1",
+                    "org.apache.kafka:kafka-clients:2.1.1"
+                ],
+                "file": "v1/https/packages.confluent.io/maven/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar",
+                    "https://maven.google.com/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar",
+                    "https://packages.confluent.io/maven/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar"
+                ],
+                "sha256": "74111b8c628d5f6fe55569f49af12ea094942a7f17192011795180b970110f8c",
+                "url": "https://packages.confluent.io/maven/io/confluent/kafka-schema-registry-client/5.0.1/kafka-schema-registry-client-5.0.1.jar"
             },
             {
                 "coord": "io.kubernetes:client-java-api:4.0.0-beta1",
@@ -3567,84 +3622,6 @@
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-queryable-state-client-java_2.12/1.8.0/flink-queryable-state-client-java_2.12-1.8.0.jar"
             },
             {
-                "coord": "org.apache.flink:flink-runtime_2.12:test-jar:tests:1.8.0",
-                "dependencies": [
-                    "com.esotericsoftware.kryo:kryo:2.24.0",
-                    "com.esotericsoftware.minlog:minlog:1.2",
-                    "com.github.scopt:scopt_2.12:3.5.0",
-                    "com.google.code.findbugs:jsr305:3.0.2",
-                    "com.twitter:chill-java:0.7.6",
-                    "com.twitter:chill_2.12:0.7.6",
-                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
-                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
-                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
-                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
-                    "com.typesafe:config:1.3.0",
-                    "com.typesafe:ssl-config-core_2.12:0.2.1",
-                    "commons-cli:commons-cli:1.3.1",
-                    "commons-collections:commons-collections:3.2.2",
-                    "commons-io:commons-io:2.4",
-                    "org.apache.commons:commons-compress:1.18",
-                    "org.apache.commons:commons-lang3:3.7",
-                    "org.apache.commons:commons-math3:3.5",
-                    "org.apache.flink:flink-annotations:1.8.0",
-                    "org.apache.flink:flink-core:1.8.0",
-                    "org.apache.flink:flink-hadoop-fs:1.8.0",
-                    "org.apache.flink:flink-java:1.8.0",
-                    "org.apache.flink:flink-metrics-core:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
-                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
-                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
-                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
-                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
-                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
-                    "org.apache.flink:force-shading:1.8.0",
-                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
-                    "org.javassist:javassist:3.19.0-GA",
-                    "org.objenesis:objenesis:2.1",
-                    "org.reactivestreams:reactive-streams:1.0.0",
-                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
-                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
-                    "org.scala-lang:scala-library:2.11.12",
-                    "org.slf4j:slf4j-api:1.7.25",
-                    "org.xerial.snappy:snappy-java:1.1.7.2"
-                ],
-                "directDependencies": [
-                    "com.github.scopt:scopt_2.12:3.5.0",
-                    "com.google.code.findbugs:jsr305:3.0.2",
-                    "com.twitter:chill_2.12:0.7.6",
-                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
-                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
-                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
-                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
-                    "commons-cli:commons-cli:1.3.1",
-                    "commons-io:commons-io:2.4",
-                    "org.apache.commons:commons-lang3:3.7",
-                    "org.apache.flink:flink-core:1.8.0",
-                    "org.apache.flink:flink-hadoop-fs:1.8.0",
-                    "org.apache.flink:flink-java:1.8.0",
-                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
-                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
-                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
-                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
-                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
-                    "org.apache.flink:force-shading:1.8.0",
-                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
-                    "org.javassist:javassist:3.19.0-GA",
-                    "org.scala-lang:scala-library:2.11.12",
-                    "org.slf4j:slf4j-api:1.7.25",
-                    "org.xerial.snappy:snappy-java:1.1.7.2"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
-                    "https://maven.google.com/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
-                    "https://packages.confluent.io/maven/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar"
-                ],
-                "sha256": "a09b2cc02a67476d5c1876dc34b0dea9fdefc4aaa2f79e61b19d38af8007b49c",
-                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar"
-            },
-            {
                 "coord": "org.apache.flink:flink-runtime_2.12:1.8.0",
                 "dependencies": [
                     "com.esotericsoftware.kryo:kryo:2.24.0",
@@ -3721,6 +3698,84 @@
                 ],
                 "sha256": "14121e60d1e8215ebfe9c997b17b1e8b508a36835f5ec5be4269d71a472fa07c",
                 "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0.jar"
+            },
+            {
+                "coord": "org.apache.flink:flink-runtime_2.12:test-jar:tests:1.8.0",
+                "dependencies": [
+                    "com.esotericsoftware.kryo:kryo:2.24.0",
+                    "com.esotericsoftware.minlog:minlog:1.2",
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "com.google.code.findbugs:jsr305:3.0.2",
+                    "com.twitter:chill-java:0.7.6",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "com.typesafe:config:1.3.0",
+                    "com.typesafe:ssl-config-core_2.12:0.2.1",
+                    "commons-cli:commons-cli:1.3.1",
+                    "commons-collections:commons-collections:3.2.2",
+                    "commons-io:commons-io:2.4",
+                    "org.apache.commons:commons-compress:1.18",
+                    "org.apache.commons:commons-lang3:3.7",
+                    "org.apache.commons:commons-math3:3.5",
+                    "org.apache.flink:flink-annotations:1.8.0",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "org.apache.flink:flink-metrics-core:1.8.0",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.objenesis:objenesis:2.1",
+                    "org.reactivestreams:reactive-streams:1.0.0",
+                    "org.scala-lang.modules:scala-java8-compat_2.12:0.8.0",
+                    "org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "org.xerial.snappy:snappy-java:1.1.7.2"
+                ],
+                "directDependencies": [
+                    "com.github.scopt:scopt_2.12:3.5.0",
+                    "com.google.code.findbugs:jsr305:3.0.2",
+                    "com.twitter:chill_2.12:0.7.6",
+                    "com.typesafe.akka:akka-actor_2.12:2.4.20",
+                    "com.typesafe.akka:akka-protobuf_2.12:2.4.20",
+                    "com.typesafe.akka:akka-slf4j_2.12:2.4.20",
+                    "com.typesafe.akka:akka-stream_2.12:2.4.20",
+                    "commons-cli:commons-cli:1.3.1",
+                    "commons-io:commons-io:2.4",
+                    "org.apache.commons:commons-lang3:3.7",
+                    "org.apache.flink:flink-core:1.8.0",
+                    "org.apache.flink:flink-hadoop-fs:1.8.0",
+                    "org.apache.flink:flink-java:1.8.0",
+                    "org.apache.flink:flink-queryable-state-client-java_2.12:1.8.0",
+                    "org.apache.flink:flink-shaded-asm:5.0.4-6.0",
+                    "org.apache.flink:flink-shaded-guava:18.0-6.0",
+                    "org.apache.flink:flink-shaded-jackson:2.7.9-6.0",
+                    "org.apache.flink:flink-shaded-netty:4.1.32.Final-6.0",
+                    "org.apache.flink:force-shading:1.8.0",
+                    "org.clapper:grizzled-slf4j_2.12:1.3.2",
+                    "org.javassist:javassist:3.19.0-GA",
+                    "org.scala-lang:scala-library:2.11.12",
+                    "org.slf4j:slf4j-api:1.7.25",
+                    "org.xerial.snappy:snappy-java:1.1.7.2"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
+                    "https://maven.google.com/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar",
+                    "https://packages.confluent.io/maven/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar"
+                ],
+                "sha256": "a09b2cc02a67476d5c1876dc34b0dea9fdefc4aaa2f79e61b19d38af8007b49c",
+                "url": "https://repo1.maven.org/maven2/org/apache/flink/flink-runtime_2.12/1.8.0/flink-runtime_2.12-1.8.0-tests.jar"
             },
             {
                 "coord": "org.apache.flink:flink-shaded-asm-6:6.2.1-6.0",
@@ -4313,6 +4368,19 @@
                 "url": "https://repo1.maven.org/maven2/org/codehaus/plexus/plexus-utils/3.0.22/plexus-utils-3.0.22.jar"
             },
             {
+                "coord": "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
+                    "https://maven.google.com/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
+                    "https://packages.confluent.io/maven/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar"
+                ],
+                "sha256": "a2cc192a076d9effd10becee8aacbe157f0fe2010fd4322e58aaeff198e56dbe",
+                "url": "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar"
+            },
+            {
                 "coord": "org.eclipse.jetty:jetty-http:jar:tests:9.4.20.v20190813",
                 "dependencies": [
                     "org.eclipse.jetty:jetty-io:9.4.20.v20190813",
@@ -4360,19 +4428,6 @@
                 ],
                 "sha256": "5816ef44f73e76b8ef1c1ea848cc34c7b1f24771f3675353e2ef23eb920121d8",
                 "url": "https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util/9.4.20.v20190813/jetty-util-9.4.20.v20190813.jar"
-            },
-            {
-                "coord": "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
-                    "https://maven.google.com/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar",
-                    "https://packages.confluent.io/maven/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar"
-                ],
-                "sha256": "a2cc192a076d9effd10becee8aacbe157f0fe2010fd4322e58aaeff198e56dbe",
-                "url": "https://repo1.maven.org/maven2/org/eclipse/jetty/orbit/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar"
             },
             {
                 "coord": "org.eclipse.sisu:org.eclipse.sisu.inject:0.3.2",
@@ -4480,19 +4535,6 @@
                 "url": "https://repo1.maven.org/maven2/org/jboss/spec/javax/servlet/jboss-servlet-api_4.0_spec/1.0.0.Final/jboss-servlet-api_4.0_spec-1.0.0.Final.jar"
             },
             {
-                "coord": "org.jetbrains:annotations:13.0",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
-                    "https://maven.google.com/org/jetbrains/annotations/13.0/annotations-13.0.jar",
-                    "https://packages.confluent.io/maven/org/jetbrains/annotations/13.0/annotations-13.0.jar"
-                ],
-                "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
-                "url": "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar"
-            },
-            {
                 "coord": "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.21",
                 "dependencies": [],
                 "directDependencies": [],
@@ -4563,6 +4605,19 @@
                 "url": "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-test/1.3.21/kotlin-test-1.3.21.jar"
             },
             {
+                "coord": "org.jetbrains:annotations:13.0",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": "v1/https/repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+                    "https://maven.google.com/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+                    "https://packages.confluent.io/maven/org/jetbrains/annotations/13.0/annotations-13.0.jar"
+                ],
+                "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
+                "url": "https://repo1.maven.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar"
+            },
+            {
                 "coord": "org.joda:joda-convert:1.2",
                 "dependencies": [],
                 "directDependencies": [],
@@ -4574,6 +4629,12 @@
                 ],
                 "sha256": "5703e1a2ac1969fe90f87076c1f1136822bf31d8948252159c86e6d0535c81a8",
                 "url": "https://repo1.maven.org/maven2/org/joda/joda-convert/1.2/joda-convert-1.2.jar"
+            },
+            {
+                "coord": "org.junit:junit-bom:5.3.1",
+                "dependencies": [],
+                "directDependencies": [],
+                "file": null
             },
             {
                 "coord": "org.lz4:lz4-java:1.5.0",
@@ -4610,23 +4671,6 @@
                 "url": "https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar"
             },
             {
-                "coord": "org.openjfx:javafx-base:jar:mac:11.0.1",
-                "dependencies": [
-                    "org.openjfx:javafx-base:jar:mac:11.0.1"
-                ],
-                "directDependencies": [
-                    "org.openjfx:javafx-base:jar:mac:11.0.1"
-                ],
-                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
-                "mirror_urls": [
-                    "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
-                    "https://maven.google.com/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
-                    "https://packages.confluent.io/maven/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
-                ],
-                "sha256": "2d8052a08fd2e5d98e1d5a16d724ea5dd02102879de20a193225f57199803983",
-                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
-            },
-            {
                 "coord": "org.openjfx:javafx-base:11.0.1",
                 "dependencies": [
                     "org.openjfx:javafx-base:jar:mac:11.0.1"
@@ -4642,6 +4686,23 @@
                 ],
                 "sha256": "c5084a74417a89c69a0c122fae96a4b70bf619fc3d6218ea102a4047ec85ad04",
                 "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1.jar"
+            },
+            {
+                "coord": "org.openjfx:javafx-base:jar:mac:11.0.1",
+                "dependencies": [
+                    "org.openjfx:javafx-base:jar:mac:11.0.1"
+                ],
+                "directDependencies": [
+                    "org.openjfx:javafx-base:jar:mac:11.0.1"
+                ],
+                "file": "v1/https/repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
+                "mirror_urls": [
+                    "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
+                    "https://maven.google.com/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar",
+                    "https://packages.confluent.io/maven/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
+                ],
+                "sha256": "2d8052a08fd2e5d98e1d5a16d724ea5dd02102879de20a193225f57199803983",
+                "url": "https://repo1.maven.org/maven2/org/openjfx/javafx-base/11.0.1/javafx-base-11.0.1-mac.jar"
             },
             {
                 "coord": "org.ow2.asm:asm-analysis:6.2",
@@ -4910,67 +4971,6 @@
                 ],
                 "sha256": "0a7b1063fcaeb806b40b728d01b9361d38e1ed8deb93f945994fec7c1761dad1",
                 "url": "https://repo1.maven.org/maven2/org/yaml/snakeyaml/1.19/snakeyaml-1.19.jar"
-            },
-            {
-                "coord": "com.fasterxml.jackson:jackson-bom:2.9.10",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": null
-            },
-            {
-                "coord": "com.github.fommil.netlib:all:1.1.2",
-                "dependencies": [
-                    "com.github.fommil.netlib:core:1.1.2",
-                    "com.github.fommil.netlib:native_ref-java:1.1",
-                    "com.github.fommil.netlib:native_system-java:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
-                    "com.github.fommil:jniloader:1.1",
-                    "net.sourceforge.f2j:arpack_combined_all:0.1"
-                ],
-                "directDependencies": [
-                    "com.github.fommil.netlib:core:1.1.2",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-armhf:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-linux-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-osx-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_ref-win-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-armhf:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-linux-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-osx-x86_64:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-i686:jar:natives:1.1",
-                    "com.github.fommil.netlib:netlib-native_system-win-x86_64:jar:natives:1.1",
-                    "net.sourceforge.f2j:arpack_combined_all:0.1"
-                ],
-                "file": null
-            },
-            {
-                "coord": "com.github.oshi:oshi-parent:3.4.0",
-                "dependencies": [
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "directDependencies": [
-                    "org.slf4j:slf4j-api:1.7.25"
-                ],
-                "file": null
-            },
-            {
-                "coord": "org.junit:junit-bom:5.3.1",
-                "dependencies": [],
-                "directDependencies": [],
-                "file": null
             }
         ],
         "version": "0.1.0"
