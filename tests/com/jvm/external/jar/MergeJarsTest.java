@@ -232,6 +232,28 @@ public class MergeJarsTest {
     assertEquals("Hello, World!", contents.get("META-INF/foo"));
   }
 
+  @Test
+  public void canMergeJarsWhereADirectoryAndFileShareTheSamePath() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    createJar(inputOne, ImmutableMap.of("example/file.txt", "Yellow!"));
+
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    createJar(inputTwo, ImmutableMap.of("example", "Purple!"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString(),
+            "--sources", inputTwo.toAbsolutePath().toString()});
+
+    Map<String, String> contents = readJar(outputJar);
+
+    // One entry for the manifest, one for the file "example", and one for "example/file.txt"
+    assertEquals("Yellow!", contents.get("example/file.txt"));
+    assertEquals("Purple!", contents.get("example"));
+  }
+
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
          ZipOutputStream zos = new ZipOutputStream(os)) {
