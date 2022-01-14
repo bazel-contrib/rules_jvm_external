@@ -129,6 +129,7 @@ public class MergeJars {
     Map<String, Path> fileToSourceJar = new TreeMap<>();
     Map<String, byte[]> fileHashCodes = new HashMap<>();
 
+    Set<String> createdDirectories = new HashSet<>();
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
            ZipInputStream zis = new ZipInputStream(fis)) {
@@ -146,7 +147,7 @@ public class MergeJars {
             continue;
           }
 
-          if (entry.getName().startsWith("META-INF/services/")) {
+          if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) {
             String servicesName = entry.getName().substring("META-INF/services/".length());
             Set<String> services = allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
             String content = new String(ByteStreams.toByteArray(zis));
@@ -154,9 +155,9 @@ public class MergeJars {
             continue;
           }
 
-          if (entry.isDirectory()) {
-            // Duplicate directory names are fine
+          if (entry.isDirectory() && createdDirectories.add(entry.getName())) {
             fileToSourceJar.put(entry.getName(), source);
+            createdDirectories.add(entry.getName());
           } else {
             // Duplicate files, however may not be. We need the hash to determine
             // whether we should do anything.
@@ -203,10 +204,12 @@ public class MergeJars {
       jos.closeEntry();
 
       if (!allServices.isEmpty()) {
-        entry = new JarEntry("META-INF/services/");
-        entry = resetTime(entry);
-        jos.putNextEntry(entry);
-        jos.closeEntry();
+        if (!createdDirectories.contains("META-INF/services/")) {
+          entry = new JarEntry("META-INF/services/");
+          entry = resetTime(entry);
+          jos.putNextEntry(entry);
+          jos.closeEntry();
+        }
         for (Map.Entry<String, Set<String>> kv : allServices.entrySet()) {
           entry = new JarEntry("META-INF/services/" + kv.getKey());
           entry = resetTime(entry);

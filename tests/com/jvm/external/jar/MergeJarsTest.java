@@ -254,6 +254,47 @@ public class MergeJarsTest {
     assertEquals("Purple!", contents.get("example"));
   }
 
+  @Test
+  public void canMergeJarsWithDirectoriesWithTheSameName() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+
+    // We actually need the directory entries this time
+    try (OutputStream os = Files.newOutputStream(inputOne);
+         ZipOutputStream zos = new ZipOutputStream(os)) {
+      ZipEntry e = new ZipEntry("META-INF/services/");
+      zos.putNextEntry(e);
+      zos.closeEntry();
+      e = new ZipEntry("META-INF/services/one.txt");
+      zos.putNextEntry(e);
+      zos.write("Hello".getBytes(UTF_8));
+      zos.closeEntry();
+    }
+
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    try (OutputStream os = Files.newOutputStream(inputTwo);
+         ZipOutputStream zos = new ZipOutputStream(os)) {
+      ZipEntry e = new ZipEntry("META-INF/services/");
+      zos.putNextEntry(e);
+      zos.closeEntry();
+      e = new ZipEntry("META-INF/services/two.txt");
+      zos.putNextEntry(e);
+      zos.write("Hello".getBytes(UTF_8));
+      zos.closeEntry();
+    }
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString(),
+            "--sources", inputTwo.toAbsolutePath().toString()});
+
+
+    Map<String, String> contents = readJar(outputJar);
+    assertTrue(contents.containsKey("META-INF/services/one.txt"));
+    assertTrue(contents.containsKey("META-INF/services/two.txt"));
+  }
+
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
          ZipOutputStream zos = new ZipOutputStream(os)) {
