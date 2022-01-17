@@ -2,13 +2,13 @@ load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 
 def _format_dep(unpacked):
     return "".join([
- "        <dependency>\n",
- "            <groupId>%s</groupId>\n" % unpacked.groupId,
- "            <artifactId>%s</artifactId>\n" % unpacked.artifactId,
- "            <version>%s</version>\n" % unpacked.version,
-("            <type>%s</type>\n" % unpacked.type) if unpacked.type and unpacked.type != "jar" else "",
-("            <scope>%s</scope>\n" % unpacked.scope) if unpacked.scope and unpacked.scope != "compile" else "",
- "        </dependency>",
+        "        <dependency>\n",
+        "            <groupId>%s</groupId>\n" % unpacked.groupId,
+        "            <artifactId>%s</artifactId>\n" % unpacked.artifactId,
+        "            <version>%s</version>\n" % unpacked.version,
+        ("            <type>%s</type>\n" % unpacked.type) if unpacked.type and unpacked.type != "jar" else "",
+        ("            <scope>%s</scope>\n" % unpacked.scope) if unpacked.scope and unpacked.scope != "compile" else "",
+        "        </dependency>",
     ])
 
 def _unpack_coordinates(coords):
