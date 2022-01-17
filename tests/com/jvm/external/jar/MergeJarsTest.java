@@ -8,12 +8,17 @@ import org.junit.rules.TemporaryFolder;
 import rules.jvm.external.jar.MergeJars;
 import rules.jvm.external.zip.StableZipEntry;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -252,6 +257,98 @@ public class MergeJarsTest {
     // One entry for the manifest, one for the file "example", and one for "example/file.txt"
     assertEquals("Yellow!", contents.get("example/file.txt"));
     assertEquals("Purple!", contents.get("example"));
+  }
+
+  @Test
+  public void canMergeJarsWithDirectoriesWithTheSameName() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+
+    // We actually need the directory entries this time
+    try (OutputStream os = Files.newOutputStream(inputOne);
+         ZipOutputStream zos = new ZipOutputStream(os)) {
+      ZipEntry e = new ZipEntry("META-INF/services/");
+      zos.putNextEntry(e);
+      zos.closeEntry();
+      e = new ZipEntry("META-INF/services/one.txt");
+      zos.putNextEntry(e);
+      zos.write("Hello".getBytes(UTF_8));
+      zos.closeEntry();
+    }
+
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    try (OutputStream os = Files.newOutputStream(inputTwo);
+         ZipOutputStream zos = new ZipOutputStream(os)) {
+      ZipEntry e = new ZipEntry("META-INF/services/");
+      zos.putNextEntry(e);
+      zos.closeEntry();
+      e = new ZipEntry("META-INF/services/two.txt");
+      zos.putNextEntry(e);
+      zos.write("Hello".getBytes(UTF_8));
+      zos.closeEntry();
+    }
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString(),
+            "--sources", inputTwo.toAbsolutePath().toString()});
+
+
+    Map<String, String> contents = readJar(outputJar);
+    assertTrue(contents.containsKey("META-INF/services/one.txt"));
+    assertTrue(contents.containsKey("META-INF/services/two.txt"));
+  }
+
+  @Test
+  public void aMergedJarShouldHaveTheManifestAsTheFirstOrSecondEntry() throws IOException {
+    // This is required to allow JarInputStream to read the manifest properly
+    Path inputOne = temp.newFile("one.jar").toPath();
+
+    Manifest firstManifest = new Manifest();
+    firstManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    firstManifest.getMainAttributes().put(new Attributes.Name("First"), "foo");
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    firstManifest.write(bos);
+
+    // Note: none of these jars have the manifest as one of the first two entries
+    createJar(
+            inputOne,
+            ImmutableMap.of(
+                    "META-INF/MANA", "Yellow!",
+                    "META-INF/MANB", "Red!",
+                    "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
+
+    Path inputTwo = temp.newFile("two.jar").toPath();
+
+    Manifest secondManifest = new Manifest();
+    secondManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    secondManifest.getMainAttributes().put(new Attributes.Name("Second"), "bar");
+    bos = new ByteArrayOutputStream();
+    secondManifest.write(bos);
+
+    createJar(
+            inputTwo,
+            ImmutableMap.of(
+                    "META-INF/MANC", "Purple!",
+                    "META-INF/MAND", "Green!",
+                    "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString(),
+            "--sources", inputTwo.toAbsolutePath().toString()});
+
+    try (InputStream is = Files.newInputStream(outputJar);
+         ZipInputStream zis = new ZipInputStream(is)) {
+      Set<String> names = new HashSet<>();
+      names.add(zis.getNextEntry().getName());
+      names.add(zis.getNextEntry().getName());
+
+      assertTrue("Manifest is not one of the first entries.", names.contains("META-INF/MANIFEST.MF"));
+    }
   }
 
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
