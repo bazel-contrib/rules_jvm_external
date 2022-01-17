@@ -61,7 +61,7 @@ def java_export(
         and so may contain any valid parameter for that rule.
     """
 
-    tags = tags + ["maven_coordinates=%s" % maven_coordinates]
+    maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
     javadocopts = kwargs.pop("javadocopts", [])
@@ -69,7 +69,7 @@ def java_export(
     # Construct the java_library we'll export from here.
     native.java_library(
         name = lib_name,
-        tags = tags,
+        tags = tags + maven_coordinates_tags,
         **kwargs
     )
 
@@ -78,7 +78,7 @@ def java_export(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
         deploy_env = deploy_env,
-        tags = tags,
+        tags = tags + maven_coordinates_tags,
     )
 
     native.filegroup(
@@ -87,6 +87,7 @@ def java_export(
             ":%s-project" % name,
         ],
         output_group = "maven_artifact",
+        tags = tags,
     )
 
     native.filegroup(
@@ -95,6 +96,7 @@ def java_export(
             ":%s-project" % name,
         ],
         output_group = "maven_source",
+        tags = tags,
     )
 
     docs_jar = None
@@ -105,13 +107,15 @@ def java_export(
             deps = [
                 ":%s-project" % name,
             ],
-            javadocopts = javadocopts
+            javadocopts = javadocopts,
+            tags = tags,
         )
 
     pom_file(
         name = "%s-pom" % name,
         target = ":%s" % lib_name,
         pom_template = pom_template,
+        tags = tags,
     )
 
     maven_publish(
@@ -122,6 +126,7 @@ def java_export(
         artifact_jar = ":%s-maven-artifact" % name,
         source_jar = ":%s-maven-source" % name,
         visibility = visibility,
+        tags = tags,
     )
 
     # Finally, alias the primary output
@@ -129,4 +134,5 @@ def java_export(
         name = name,
         actual = ":%s-project" % name,
         visibility = visibility,
+        tags = tags,
     )
