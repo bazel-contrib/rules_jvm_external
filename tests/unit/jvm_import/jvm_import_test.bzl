@@ -40,7 +40,7 @@ def _does_jvm_import_have_tags_impl(ctx):
 
     expected_tags = [
         "maven_coordinates=com.google.code.findbugs:jsr305:3.0.2",
-        "maven_url=https://jcenter.bintray.com/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+        "maven_url=https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
     ]
 
     asserts.equals(env, ctx.attr.src[TagsInfo].tags, expected_tags)
