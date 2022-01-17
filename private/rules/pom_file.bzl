@@ -13,7 +13,7 @@ def _format_dep(unpacked):
 
 def _unpack_coordinates(coords):
     """Takes a maven coordinate and unpacks it into a struct with fields
-    groupId, artifactId, version, type_, scope
+    `groupId`, `artifactId`, `version`, `type_`, `scope`
     where type and scope are optional.
 
     Assumes following maven coordinate syntax:
