@@ -13,7 +13,7 @@ def _format_dep(unpacked):
 
 def _unpack_coordinates(coords):
     """Takes a maven coordinate and unpacks it into a struct with fields
-    `groupId`, `artifactId`, `version`, `type_`, `scope`
+    `groupId`, `artifactId`, `version`, `type`, `scope`
     where type and scope are optional.
 
     Assumes following maven coordinate syntax:
@@ -32,7 +32,7 @@ def _unpack_coordinates(coords):
     return struct(
         groupId = parts.get(0),
         artifactId = parts.get(1),
-        type_ = parts.get(2),
+        type = parts.get(2),
         scope = parts.get(3),
         version = version,
     )
@@ -49,7 +49,7 @@ def _pom_file_impl(ctx):
         "{groupId}": coordinates.groupId,
         "{artifactId}": coordinates.artifactId,
         "{version}": coordinates.version,
-        "{type}": coordinates.type_,
+        "{type}": coordinates.type,
         "{scope}": coordinates.scope,
     }
 
