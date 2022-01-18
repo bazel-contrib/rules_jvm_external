@@ -49,8 +49,8 @@ def _pom_file_impl(ctx):
         "{groupId}": coordinates.groupId,
         "{artifactId}": coordinates.artifactId,
         "{version}": coordinates.version,
-        "{type}": coordinates.type,
-        "{scope}": coordinates.scope,
+        "{type}": coordinates.type or "jar",
+        "{scope}": coordinates.scope or "compile",
     }
 
     deps = []
