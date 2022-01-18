@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("//third_party/bazel_json/lib:json_parser.bzl", _json_parse = "json_parse")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
@@ -84,15 +83,6 @@ sh_binary(
 )
 """
 
-def json_parse(json_string, fail_on_invalid = True):
-    # Bazel has had a native JSON decoder since 4.0.0, but
-    # we need to support older versions of Bazel. In addition,
-    # we sometimes need to survive poorly formed JSON, so
-    # a fallback to the Starlark parser is provided.
-    if getattr(native, "json_decode", None) and not fail_on_invalid:
-        return native.json_decode(json_string)
-    return _json_parse(json_string, fail_on_invalid)
-
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
@@ -132,7 +122,9 @@ def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_mess
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
-    return path.replace("\\\\", "/")
+    if path == None:
+        return None
+    return path.replace("\\", "/")
 
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
@@ -227,7 +219,7 @@ def _compute_dependency_tree_signature(artifacts):
         if artifact["file"] != None:
             artifact_group.extend([
                 artifact["sha256"],
-                artifact["file"],
+                artifact["file"].replace("\\", "/"),  # Make sure we represent files in a stable way cross-platform
                 artifact["url"],
             ])
         if len(artifact["dependencies"]) > 0:
@@ -243,7 +235,7 @@ def _compute_dependency_tree_signature(artifacts):
 def compute_dependency_inputs_signature(artifacts):
     artifact_inputs = []
     for artifact in artifacts:
-        parsed = json_parse(artifact)
+        parsed = json.decode(artifact)
 
         # Sort the keys to provide a stable order
         keys = sorted(parsed.keys())
@@ -385,11 +377,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     repositories = []
     for repository in repository_ctx.attr.repositories:
-        repositories.append(json_parse(repository))
+        repositories.append(json.decode(repository))
 
     artifacts = []
     for artifact in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(artifact))
+        artifacts.append(json.decode(artifact))
 
     _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
@@ -398,11 +390,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path(repository_ctx.attr.maven_install_json),
         repository_ctx.path("imported_maven_install.json"),
     )
-    maven_install_json_content = json_parse(
+    maven_install_json_content = json.decode(
         repository_ctx.read(
             repository_ctx.path("imported_maven_install.json"),
-        ),
-        fail_on_invalid = False,
+        )
     )
 
     # Validation steps for maven_install.json.
@@ -783,7 +774,7 @@ def make_coursier_dep_tree(
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
     return deduplicate_and_sort_artifacts(
-        json_parse(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
+        json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
         artifacts,
         excluded_artifacts,
         _is_verbose(repository_ctx),
@@ -831,17 +822,17 @@ def _coursier_fetch_impl(repository_ctx):
     # Deserialize the spec blobs
     repositories = []
     for repository in repository_ctx.attr.repositories:
-        repositories.append(json_parse(repository))
+        repositories.append(json.decode(repository))
 
     artifacts = []
     for artifact in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(artifact))
+        artifacts.append(json.decode(artifact))
 
     _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
     excluded_artifacts = []
     for artifact in repository_ctx.attr.excluded_artifacts:
-        excluded_artifacts.append(json_parse(artifact))
+        excluded_artifacts.append(json.decode(artifact))
 
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
@@ -929,7 +920,8 @@ def _coursier_fetch_impl(repository_ctx):
         # that mirrors the URL where the artifact's fetched from. Using
         # this, we can reconstruct the original URL.
         primary_url_parts = []
-        filepath_parts = artifact["file"].split("/")
+        # _normalize_to_unix_path uses 2 backslashes, but the paths themselves have a single backslash at this point
+        filepath_parts = artifact["file"].replace("\\", "/").split("/")
         protocol = None
 
         # Only support http/https transports
@@ -938,7 +930,7 @@ def _coursier_fetch_impl(repository_ctx):
                 protocol = part
                 break
         if protocol == None:
-            fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"])
+            fail("Only artifacts downloaded over http(s) are supported: %s - %s (analyzed %s)" % (artifact["coord"], artifact["file"], filepath_parts))
         primary_url_parts.extend([protocol, "://"])
         for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
             primary_url_parts.extend([part, "/"])
