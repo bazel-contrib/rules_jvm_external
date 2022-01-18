@@ -1,5 +1,3 @@
-load("@rules_jvm_external//:defs.bzl", "artifact")
-
 android_library(
     name = "my_lib",
     exports = [

@@ -30,10 +30,10 @@ genquery(
 
 genrule(
     name = "testonly-deps-sorted",
+    testonly = 1,
     srcs = [":testonly-deps"],
     outs = ["testonly-deps-sorted.txt"],
     cmd = "cat $< | sort > $@",
-    testonly = 1,
 )
 
 diff_test(
@@ -60,10 +60,10 @@ genquery(
 
 genrule(
     name = "version-interval-deps-sorted",
+    testonly = 1,
     srcs = [":version_interval_deps"],
     outs = ["version-interval-deps-sorted.txt"],
     cmd = "cat $< | sort > $@",
-    testonly = 1,
 )
 
 diff_test(

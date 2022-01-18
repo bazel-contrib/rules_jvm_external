@@ -1,7 +1,6 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 
-
 def _empty_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(env, {"dependencies": []}, deduplicate_and_sort_artifacts({"dependencies": []}, [], [], False))
@@ -21,7 +20,7 @@ def _one_artifact_no_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [],
-            }
+            },
         ],
         "version": "0.1.0",
     }
@@ -30,7 +29,7 @@ def _one_artifact_no_exclusions_test_impl(ctx):
         "group": "com.google.guava",
         "artifact": "guava",
         "version": "27.0-jre",
-        "exclusions": []
+        "exclusions": [],
     }]
 
     sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
@@ -71,7 +70,7 @@ def _one_artifact_no_exclusions_with_nulls_test_impl(ctx):
         "group": "com.google.guava",
         "artifact": "guava",
         "version": "27.0-jre",
-        "exclusions": []
+        "exclusions": [],
     }]
 
     sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
@@ -104,7 +103,7 @@ def _one_artifact_duplicate_no_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [],
-            }
+            },
         ],
         "version": "0.1.0",
     }
@@ -113,7 +112,7 @@ def _one_artifact_duplicate_no_exclusions_test_impl(ctx):
         "group": "com.google.guava",
         "artifact": "guava",
         "version": "27.0-jre",
-        "exclusions": []
+        "exclusions": [],
     }]
 
     sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
@@ -145,7 +144,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                    "*:*"
+                    "*:*",
                 ],
             },
             {
@@ -154,10 +153,10 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                     "org.codehaus.mojo:animal-sniffer-annotations",
-                     "com.google.j2objc:j2objc-annotations",
-                 ]
-            }
+                    "org.codehaus.mojo:animal-sniffer-annotations",
+                    "com.google.j2objc:j2objc-annotations",
+                ],
+            },
         ],
         "version": "0.1.0",
     }
@@ -167,8 +166,8 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
         "artifact": "guava",
         "version": "27.0-jre",
         "exclusions": [
-            {"group": "*", "artifact": "*"}
-        ]
+            {"group": "*", "artifact": "*"},
+        ],
     }]
 
     sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
@@ -193,7 +192,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                    "*:*"
+                    "*:*",
                 ],
             },
             {
@@ -202,10 +201,10 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                     "org.codehaus.mojo:animal-sniffer-annotations",
-                     "com.google.j2objc:j2objc-annotations",
-                 ]
-            }
+                    "org.codehaus.mojo:animal-sniffer-annotations",
+                    "com.google.j2objc:j2objc-annotations",
+                ],
+            },
         ],
         "version": "0.1.0",
     }
@@ -217,7 +216,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
         "exclusions": [
             {"group": "org.codehaus.mojo", "artifact": "animal-sniffer-annotations"},
             {"group": "com.google.j2objc", "artifact": "j2objc-annotations"},
-        ]
+        ],
     }]
 
     sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
@@ -227,7 +226,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
     asserts.equals(
         env,
         sorted_dep_tree["dependencies"][0]["exclusions"],
-        ["org.codehaus.mojo:animal-sniffer-annotations", "com.google.j2objc:j2objc-annotations"]
+        ["org.codehaus.mojo:animal-sniffer-annotations", "com.google.j2objc:j2objc-annotations"],
     )
 
     return unittest.end(env)
@@ -253,7 +252,7 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                    "*:*"
+                    "*:*",
                 ],
             },
             {
@@ -262,11 +261,11 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                     "org.codehaus.mojo:animal-sniffer-annotations",
-                     "com.google.j2objc:j2objc-annotations",
-                     "org.checkerframework:checker-qual",
-                 ]
-            }
+                    "org.codehaus.mojo:animal-sniffer-annotations",
+                    "com.google.j2objc:j2objc-annotations",
+                    "org.checkerframework:checker-qual",
+                ],
+            },
         ],
         "version": "0.1.0",
     }
@@ -276,8 +275,8 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
         "artifact": "guava",
         "version": "27.0-jre",
         "exclusions": [
-            {"group": "*", "artifact": "*"}
-        ]
+            {"group": "*", "artifact": "*"},
+        ],
     }]
 
     excluded_artifacts = [
@@ -307,7 +306,7 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                    "*:*"
+                    "*:*",
                 ],
             },
             {
@@ -316,11 +315,11 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
                 "directDependencies": [],
                 "dependencies": [],
                 "exclusions": [
-                     "org.codehaus.mojo:animal-sniffer-annotations",
-                     "com.google.j2objc:j2objc-annotations",
-                     "org.checkerframework:checker-qual",
-                 ]
-            }
+                    "org.codehaus.mojo:animal-sniffer-annotations",
+                    "com.google.j2objc:j2objc-annotations",
+                    "org.checkerframework:checker-qual",
+                ],
+            },
         ],
         "version": "0.1.0",
     }
@@ -332,7 +331,7 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
         "exclusions": [
             {"group": "org.codehaus.mojo", "artifact": "animal-sniffer-annotations"},
             {"group": "com.google.j2objc", "artifact": "j2objc-annotations"},
-        ]
+        ],
     }]
 
     sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, False)
@@ -346,7 +345,7 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
             "org.codehaus.mojo:animal-sniffer-annotations",
             "com.google.j2objc:j2objc-annotations",
             "org.checkerframework:checker-qual",
-        ]
+        ],
     )
 
     return unittest.end(env)

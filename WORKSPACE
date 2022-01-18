@@ -33,8 +33,6 @@ bazel_skylib_workspace()
 
 # End Skylib dependencies
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 http_archive(
     name = "io_bazel_stardoc",
     sha256 = "4a355dccc713458071f441f3dafd7452b3111c53cde554d0847b9a82d657149e",
@@ -118,16 +116,16 @@ maven_install(
     name = "exclusion_testing",
     artifacts = [
         maven.artifact(
-            group = "com.google.guava",
             artifact = "guava",
-            version = "27.0-jre",
             exclusions = [
                 maven.exclusion(
-                    group = "org.codehaus.mojo",
                     artifact = "animal-sniffer-annotations",
+                    group = "org.codehaus.mojo",
                 ),
                 "com.google.j2objc:j2objc-annotations",
             ],
+            group = "com.google.guava",
+            version = "27.0-jre",
         ),
     ],
     repositories = [
@@ -144,8 +142,8 @@ maven_install(
     ],
     excluded_artifacts = [
         maven.exclusion(
-            group = "org.codehaus.mojo",
             artifact = "animal-sniffer-annotations",
+            group = "org.codehaus.mojo",
         ),
         "com.google.j2objc:j2objc-annotations",
     ],
@@ -241,15 +239,15 @@ maven_install(
     name = "testonly_testing",
     artifacts = [
         maven.artifact(
-            group = "com.google.guava",
             artifact = "guava",
+            group = "com.google.guava",
             version = "27.0-jre",
         ),
         maven.artifact(
-            group = "com.google.auto.value",
-            artifact = "auto-value-annotations",
-            version = "1.6.3",
             testonly = True,
+            artifact = "auto-value-annotations",
+            group = "com.google.auto.value",
+            version = "1.6.3",
         ),
     ],
     repositories = [
@@ -294,10 +292,10 @@ maven_install(
         "org.apache.tomcat:tomcat-catalina:9.0.24",
         # https://github.com/bazelbuild/rules_jvm_external/issues/255
         maven.artifact(
-            group = "org.eclipse.jetty",
             artifact = "jetty-http",
-            version = "9.4.20.v20190813",
             classifier = "tests",
+            group = "org.eclipse.jetty",
+            version = "9.4.20.v20190813",
         ),
     ],
     repositories = [
@@ -372,16 +370,16 @@ maven_install(
         "com.fasterxml.jackson.core:jackson-annotations:2.11.2",
         "com.github.jnr:jffi:1.3.4",
         maven.artifact(
-            group = "com.github.jnr",
             artifact = "jffi",
-            version = "1.3.3",
             classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.3",
         ),
         maven.artifact(
-            group = "com.github.jnr",
             artifact = "jffi",
-            version = "1.3.2",
             classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.2",
         ),
     ],
     repositories = [
@@ -396,16 +394,16 @@ maven_install(
         "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
         "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
         maven.artifact(
-            group = "com.github.jnr",
             artifact = "jffi",
-            version = "1.3.3",
             classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.3",
         ),
         maven.artifact(
-            group = "com.github.jnr",
             artifact = "jffi",
-            version = "1.3.3",
             classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.3",
         ),
     ],
     repositories = [
@@ -426,60 +424,60 @@ maven_install(
 
 maven_install(
     name = "starlark_aar_import_with_sources_test",
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
     artifacts = [
         "androidx.work:work-runtime:2.6.0",
     ],
+    fetch_sources = True,
+    jetify = False,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
-    fetch_sources = True,
-    jetify = False,
     use_starlark_android_rules = True,
-    # Not actually necessary since this is the default value, but useful for
-    # testing.
-    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
 )
 
 maven_install(
     name = "starlark_aar_import_test",
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
     artifacts = [
         "com.android.support:appcompat-v7:28.0.0",
     ],
+    fetch_sources = False,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
-    fetch_sources = False,
     use_starlark_android_rules = True,
-    # Not actually necessary since this is the default value, but useful for
-    # testing.
-    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
 )
 
 maven_install(
     name = "starlark_aar_import_with_jetify_test",
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
     artifacts = [
         "com.android.support:appcompat-v7:28.0.0",
     ],
+    jetify = True,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     use_starlark_android_rules = True,
-    # Not actually necessary since this is the default value, but useful for
-    # testing.
-    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
-    jetify = True,
 )
 
 # for the above "starlark_aar_import_test" maven_install with
 # use_starlark_android_rules = True
 http_archive(
     name = "build_bazel_rules_android",
-    urls = ["https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip"],
     sha256 = "cd06d15dd8bb59926e4d65f9003bfc20f9da4b2519985c27e190cddc8b7a7806",
     strip_prefix = "rules_android-0.1.1",
+    urls = ["https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip"],
 )
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/351

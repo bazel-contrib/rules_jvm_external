@@ -10,7 +10,6 @@ load(
     "split_url",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
-load("//:specs.bzl", "maven")
 
 ALL_TESTS = []
 

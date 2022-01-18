@@ -33,6 +33,7 @@ def _jvm_import_impl(ctx):
     compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
     args = ctx.actions.args()
     args.add_all(["--source", outjar, "--output", compilejar])
+
     # We need to remove the `Class-Path` entry since bazel 4.0.0 forces `javac`
     # to run `-Xlint:path` no matter what other flags are passed. Bazel
     # manages the classpath for us, so the `Class-Path` manifest entry isn't

@@ -67,7 +67,7 @@ java_export(
     ],
     javadocopts = [
         "-windowtitle",
-        "My Deploy Env"
+        "My Deploy Env",
     ],
     maven_coordinates = "com.example:lib:1.0.0",
     deps = [
@@ -78,10 +78,10 @@ java_export(
 java_export(
     name = "without-docs",
     srcs = ["Main.java"],
+    maven_coordinates = "com.example:no-docs:1.0.0",
     tags = [
         "no-javadocs",
     ],
-    maven_coordinates = "com.example:no-docs:1.0.0",
     deps = [
         ":dep",
     ],

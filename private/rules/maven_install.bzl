@@ -1,4 +1,4 @@
-load("//:coursier.bzl", "coursier_fetch", "pinned_coursier_fetch", "DEFAULT_AAR_IMPORT_LABEL")
+load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//:specs.bzl", "json", "parse")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
@@ -147,4 +147,3 @@ def maven_install(
             fail_if_repin_required = fail_if_repin_required,
             duplicate_version_warning = duplicate_version_warning,
         )
-
