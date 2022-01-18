@@ -420,7 +420,7 @@ maven_install(
         "com.google.code.findbugs:jsr305:3.0.2",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -447,7 +447,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     fetch_sources = False,
@@ -463,7 +463,7 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
     use_starlark_android_rules = True,
