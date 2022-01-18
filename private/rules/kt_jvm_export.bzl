@@ -1,8 +1,5 @@
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load("//private/rules:javadoc.bzl", "javadoc")
-load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
-load("//private/rules:maven_publish.bzl", "maven_publish")
-load("//private/rules:pom_file.bzl", "pom_file")
+load("//private/rules:java_export.bzl", "maven_export")
 
 def kt_jvm_export(
         name,
@@ -68,67 +65,20 @@ def kt_jvm_export(
 
     javadocopts = kwargs.pop("javadocopts", [])
 
-    # Construct the java_library we'll export from here.
+    # Construct the kt_jvm_library we'll export from here.
     kt_jvm_library(
         name = lib_name,
         tags = tags,
         **kwargs
     )
 
-    # Merge the jars to create the maven project jar
-    maven_project_jar(
-        name = "%s-project" % name,
-        target = ":%s" % lib_name,
-        deploy_env = deploy_env + native.glob(["kotlin/*"]),
-        tags = tags,
-    )
-
-    native.filegroup(
-        name = "%s-maven-artifact" % name,
-        srcs = [
-            ":%s-project" % name,
-        ],
-        output_group = "maven_artifact",
-    )
-
-    native.filegroup(
-        name = "%s-maven-source" % name,
-        srcs = [
-            ":%s-project" % name,
-        ],
-        output_group = "maven_source",
-    )
-
-    docs_jar = None
-    if not "no-javadocs" in tags:
-        docs_jar = "%s-docs" % name
-        javadoc(
-            name = docs_jar,
-            deps = [
-                ":%s-project" % name,
-            ],
-            javadocopts = javadocopts
-        )
-
-    pom_file(
-        name = "%s-pom" % name,
-        target = ":%s" % lib_name,
-        pom_template = pom_template,
-    )
-
-    maven_publish(
-        name = "%s.publish" % name,
-        coordinates = maven_coordinates,
-        pom = "%s-pom" % name,
-        javadocs = docs_jar,
-        artifact_jar = ":%s-maven-artifact" % name,
-        source_jar = ":%s-maven-source" % name,
-        visibility = visibility,
-    )
-
-    # Finally, alias the primary output
-    native.alias(
-        name = name,
-        actual = ":%s-project" % name,
-        visibility = visibility,
+    maven_export(
+        name,
+        maven_coordinates,
+        deploy_env,
+        pom_template,
+        visibility,
+        tags,
+        lib_name,
+        javadocopts
     )
