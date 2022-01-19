@@ -72,7 +72,8 @@ the template file:
   * `{groupId}`: Replaced with the maven coordinates group ID.
   * `{artifactId}`: Replaced with the maven coordinates artifact ID.
   * `{version}`: Replaced by the maven coordinates version.
-  * `{type}`: Replaced by the maven coordintes type, if present (defaults to "jar")
+  * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
+  * `{scope}`: Replaced by the maven coordinates scope, if present (defaults to "compile")
   * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
     by java_library targets within the artifact.
 
