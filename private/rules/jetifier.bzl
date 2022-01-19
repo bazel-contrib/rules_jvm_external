@@ -37,10 +37,11 @@ jetify = rule(
     implementation = _jetify_impl,
 )
 
-def jetify_aar_import(name, aar, _aar_import=None, **kwargs):
+def jetify_aar_import(name, aar, _aar_import=None, visibility=None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = [aar],
+        visibility = visibility,
     )
 
     if not _aar_import:
@@ -49,18 +50,21 @@ def jetify_aar_import(name, aar, _aar_import=None, **kwargs):
     _aar_import(
         name = name,
         aar = ":jetified_" + name,
+        visibility = visibility,
         **kwargs
     )
 
-def jetify_jvm_import(name, jars, **kwargs):
+def jetify_jvm_import(name, jars, visibility=None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = jars,
+        visibility = visibility,
     )
 
     jvm_import(
         name = name,
         jars = [":jetified_" + name],
+        visibility = visibility,
         **kwargs
     )
 
