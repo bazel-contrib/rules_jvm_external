@@ -1,5 +1,10 @@
 # WORKSPACE
 
+local_repository(
+    name = "rules_jvm_external",
+    path = "../../",
+)
+
 load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
 
 rules_jvm_external_deps()
@@ -51,13 +56,6 @@ http_archive(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
-
-local_repository(
-    name = "rules_jvm_external",
-    path = "../..",
-)
-
-load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [

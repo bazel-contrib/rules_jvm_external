@@ -1,3 +1,8 @@
+local_repository(
+    name = "rules_jvm_external",
+    path = "../../",
+)
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
@@ -23,11 +28,6 @@ http_archive(
 load("@robolectric//bazel:robolectric.bzl", "robolectric_repositories")
 
 robolectric_repositories()
-
-local_repository(
-    name = "rules_jvm_external",
-    path = "../../",
-)
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
