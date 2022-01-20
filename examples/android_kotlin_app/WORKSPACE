@@ -1,28 +1,17 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
 android_sdk_repository(
     name = "androidsdk",
     api_level = 28,
 )
-
-# BEGIN io_bazel_rules_kotlin
-
-RULES_KOTLIN_VERSION = "9051eb053f9c958440603d557316a6e9fda14687"
-
-http_archive(
-    name = "io_bazel_rules_kotlin",
-    sha256 = "c36e71eec84c0e17dd098143a9d93d5720e81b4db32bceaf2daf939252352727",
-    strip_prefix = "rules_kotlin-%s" % RULES_KOTLIN_VERSION,
-    url = "https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz" % RULES_KOTLIN_VERSION,
-)
-
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
-
-kotlin_repositories()
-
-kt_register_toolchains()
-
-# END io_bazel_rules_kotlin
 
 local_repository(
     name = "rules_jvm_external",
