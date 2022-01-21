@@ -1,4 +1,4 @@
-load("//:defs.bzl", "artifact", "kt_jvm_export")
+load("//:kt_defs.bzl", "kt_jvm_export")
 
 kt_jvm_export(
     name = "test",

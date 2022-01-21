@@ -1,4 +1,4 @@
-load("@rules_jvm_external//:defs.bzl", "kt_jvm_export")
+load("@rules_jvm_external//:kt_defs.bzl", "kt_jvm_export")
 
 # To export the file, run:
 #
