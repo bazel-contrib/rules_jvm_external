@@ -49,6 +49,7 @@ genrule(
     cmd = "cp $< $@",
     outs = ["jq"],
     srcs = select({{
+        "@bazel_tools//src/conditions:linux_aarch64": ["jq-linux"],
         "@bazel_tools//src/conditions:linux_x86_64": ["jq-linux"],
         "@bazel_tools//src/conditions:darwin": ["jq-macos"],
         "@bazel_tools//src/conditions:windows": ["jq-windows"],
