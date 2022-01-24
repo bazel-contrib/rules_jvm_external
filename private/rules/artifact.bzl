@@ -12,6 +12,14 @@ def maven_artifact(a):
 def _escape(string):
     return string.replace(".", "_").replace("-", "_").replace(":", "_")
 
+# inverse of parse_maven_coordinate
 def _make_artifact_str(artifact_obj):
-    # TODO: add support for optional type, classifier and version parts in artifact_obj case
-    return artifact_obj["group"] + ":" + artifact_obj["artifact"]
+    # produce either simplified g:a or standard g:a:[p:[c:]]v Maven coordinate string
+    coord = [artifact_obj["group"], artifact_obj["artifact"]]
+    if "version" in artifact_obj:
+        if "packaging" in artifact_obj:
+           coord.extend([artifact_obj["packaging"]])
+           if "classifier" in artifact_obj:
+             coord.extend([artifact_obj["classifier"]])
+        coord.extend([artifact_obj["version"]])
+    return ":".join(coord)
