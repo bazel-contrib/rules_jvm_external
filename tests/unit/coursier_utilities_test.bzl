@@ -80,6 +80,12 @@ def _strip_packaging_and_classifier_and_version_test_impl(ctx):
         "groupId:artifactId",
         strip_packaging_and_classifier_and_version("groupId:artifactId:pom:sources:version"),
     )
+    # versionless coordinates aren't standard Maven coordinates but are useful for the artifact() macro
+    asserts.equals(
+        env,
+        "groupId:artifactId",
+        strip_packaging_and_classifier_and_version("groupId:artifactId"),
+    )
     return unittest.end(env)
 
 strip_packaging_and_classifier_and_version_test = unittest.make(_strip_packaging_and_classifier_and_version_test_impl)
