@@ -59,6 +59,12 @@ Table of Contents
 Get the [latest release
 here](https://github.com/bazelbuild/rules_jvm_external/releases/latest).
 
+## Prerequisites
+
+* Bazel 4.0.0 and above
+
+Support for Bazel versions before `4.0.0` is only available on rules_jvm_external releases `4.2` or earlier.
+
 ## Usage
 
 List the top-level Maven artifacts and servers in the WORKSPACE:

@@ -27,9 +27,9 @@ tasks:
       # These tests are currently incompatible with RBE
       - "-//tests/integration/override_targets"
       - "-//tests/com/jvm/external/maven:OutdatedTest"
-  ubuntu1804_1_0_1:
+  ubuntu1804_4_0_0:
     platform: ubuntu1804
-    bazel: 1.0.1
+    bazel: 4.0.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
@@ -37,9 +37,9 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_1_1_0:
+  ubuntu1804_4_2_2:
     platform: ubuntu1804
-    bazel: 1.1.0
+    bazel: 4.2.2
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
@@ -47,9 +47,9 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_1_2_0:
+  ubuntu1804_5_0_0:
     platform: ubuntu1804
-    bazel: 1.2.0
+    bazel: 5.0.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
