@@ -77,6 +77,7 @@ def java_export(
     maven_export(
         name,
         maven_coordinates,
+        maven_coordinates_tags,
         deploy_env,
         pom_template,
         visibility,
@@ -88,6 +89,7 @@ def java_export(
 def maven_export(
         name,
         maven_coordinates,
+        maven_coordinates_tags,
         deploy_env,
         pom_template,
         visibility,

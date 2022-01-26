@@ -60,7 +60,7 @@ def kt_jvm_export(
         and so may contain any valid parameter for that rule.
     """
 
-    tags = tags + ["maven_coordinates=%s" % maven_coordinates]
+    maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
     javadocopts = kwargs.pop("javadocopts", [])
@@ -68,13 +68,14 @@ def kt_jvm_export(
     # Construct the kt_jvm_library we'll export from here.
     kt_jvm_library(
         name = lib_name,
-        tags = tags,
+        tags = tags + maven_coordinates_tags,
         **kwargs
     )
 
     maven_export(
         name,
         maven_coordinates,
+        maven_coordinates_tags,
         deploy_env,
         pom_template,
         visibility,
