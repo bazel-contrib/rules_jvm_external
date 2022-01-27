@@ -471,11 +471,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
         "def pinned_maven_install():",
     ]
+    maven_artifacts = []
     netrc_entries = {}
 
     for artifact in dep_tree["dependencies"]:
         if artifact.get("url") != None:
             http_file_repository_name = escape(artifact["coord"])
+            maven_artifacts.extend([artifact["coord"]])
             http_files.extend([
                 "    http_file(",
                 "        name = \"%s\"," % http_file_repository_name,
@@ -498,6 +500,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             http_files.append("    )")
 
     http_files.extend(_get_jq_http_files())
+
+    http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     repository_ctx.file(

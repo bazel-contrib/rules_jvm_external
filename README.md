@@ -458,6 +458,9 @@ To use it, add the load statement to the top of your BUILD file:
 load("@rules_jvm_external//:defs.bzl", "artifact")
 ```
 
+Full `group:artifact:[packaging:[classifier:]]version` maven coordinates are also
+supported and translate to corresponding versionless target.
+
 Note that usage of this macro makes BUILD file refactoring with tools like
 `buildozer` more difficult, because the macro hides the actual target label at
 the syntax level.
@@ -858,6 +861,31 @@ maven_install(
         # ...
     ],
     strict_visibility = True
+)
+```
+
+It is also possible to change strict visibility value from default `//visibility:private`
+to a value specified by `strict_visibility_value` attribute.
+
+### Accessing transitive dependencies list
+
+It is possible to retrieve full list of dependencies in the dependency tree, including
+transitive, source, javadoc and other artifacts. `maven_artifacts` list contains full
+versioned maven coordinate strings of all dependencies.
+
+For example:
+```python
+load("@maven//:defs.bzl", "maven_artifacts")
+
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_jvm_external//:specs.bzl", "parse")
+
+all_jar_coordinates = [c for c in maven_artifacts if parse.parse_maven_coordinate(c).get("packaging", "jar") == "jar"]
+all_jar_targets = [artifact(c) for c in all_jar_coordinates]
+
+java_library(
+  name = "depends_on_everything",
+  runtime_deps = all_jar_targets,
 )
 ```
 
