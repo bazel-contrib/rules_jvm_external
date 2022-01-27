@@ -29,8 +29,8 @@ def _maven_project_jar_impl(ctx):
         ctx.executable._merge_jars,
         artifact_jars,
         depset(transitive =
-            [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
-            [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]).to_list(),
+                   [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
+                   [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]).to_list(),
         bin_jar,
     )
 

@@ -1,4 +1,4 @@
-load("@rules_jvm_external//:defs.bzl", "artifact", "java_export")
+load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
     name = "export",

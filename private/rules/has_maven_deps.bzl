@@ -152,11 +152,11 @@ def _has_maven_deps_impl(target, ctx):
 
     transitive_exports_from_exports = depset()
     if hasattr(ctx.rule.attr, "exports"):
-      transitive_exports_from_exports = depset(
-        [e.label for e in ctx.rule.attr.exports],
-        transitive =
-            [e[MavenInfo].transitive_exports for e in ctx.rule.attr.exports]
-      )
+        transitive_exports_from_exports = depset(
+            [e.label for e in ctx.rule.attr.exports],
+            transitive =
+                [e[MavenInfo].transitive_exports for e in ctx.rule.attr.exports],
+        )
 
     info = MavenInfo(
         coordinates = coordinates,
@@ -165,7 +165,7 @@ def _has_maven_deps_impl(target, ctx):
         artifact_infos = depset(direct = artifact_infos),
         dep_infos = depset(direct = dep_infos, transitive = [i.dep_infos for i in all_infos]),
         label_to_javainfo = label_to_javainfo,
-        transitive_exports = depset(transitive = [transitive_exports_from_exports] + transitive_exports_from_deps)
+        transitive_exports = depset(transitive = [transitive_exports_from_exports] + transitive_exports_from_deps),
     )
 
     return [

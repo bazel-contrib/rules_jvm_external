@@ -1,4 +1,4 @@
-# This is a Skylark/Java adaptation of http://www.json.org/JSON_checker/ a
+# This is a Starlark/Java adaptation of http://www.json.org/JSON_checker/ a
 # push-down automaton originally design to check JSON syntax, attempting to be
 # extended to a full JSON parser.
 #
@@ -749,7 +749,7 @@ _MAX_INT = 2147483647
 _MIN_INT = -2147483647
 
 def _tokenize_int(collected_chars):
-    # Drops precision due to no decimals in Skylark.
+    # Drops precision due to no decimals in Starlark.
     #
     # https://tools.ietf.org/html/rfc8259#section-6
     # "This specification allows implementations to set limits on the range

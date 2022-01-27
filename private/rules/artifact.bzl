@@ -1,4 +1,3 @@
-load("//:specs.bzl", "parse")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
 load("//private:coursier_utilities.bzl", "strip_packaging_and_classifier_and_version")
 
@@ -18,8 +17,8 @@ def _make_artifact_str(artifact_obj):
     coord = [artifact_obj["group"], artifact_obj["artifact"]]
     if "version" in artifact_obj:
         if "packaging" in artifact_obj:
-           coord.extend([artifact_obj["packaging"]])
-           if "classifier" in artifact_obj:
-             coord.extend([artifact_obj["classifier"]])
+            coord.extend([artifact_obj["packaging"]])
+            if "classifier" in artifact_obj:
+                coord.extend([artifact_obj["classifier"]])
         coord.extend([artifact_obj["version"]])
     return ":".join(coord)

@@ -13,7 +13,7 @@
 
 load("//third_party/bazel_json/lib:json_parser.bzl", _json_parse = "json_parse")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
-load("//:specs.bzl", "maven", "parse", "utils")
+load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
@@ -988,7 +988,7 @@ def _coursier_fetch_impl(repository_ctx):
     exec_result = _execute(
         repository_ctx,
         hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
-        progress_message = "Calculating sha256 checksums.."
+        progress_message = "Calculating sha256 checksums..",
     )
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
@@ -1083,8 +1083,8 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "unsorted_deps.json",
         content = "{dependency_tree_json}".format(
-            dependency_tree_json = dependency_tree_json
-        )
+            dependency_tree_json = dependency_tree_json,
+        ),
     )
     repository_ctx.template(
         "pin.sh",

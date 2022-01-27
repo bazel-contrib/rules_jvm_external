@@ -174,10 +174,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 if srcjar_paths != None and target_label in srcjar_paths:
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
                 if jetify and repository_ctx.attr.use_starlark_android_rules:
-                  # Because jetifier.bzl cannot conditionally import the starlark rules
-                  # (it's not a generated file), inject the aar_import rule from
-                  # the load statement in the generated file.
-                  target_import_string.append("\t_aar_import = aar_import,")
+                    # Because jetifier.bzl cannot conditionally import the starlark rules
+                    # (it's not a generated file), inject the aar_import rule from
+                    # the load statement in the generated file.
+                    target_import_string.append("\t_aar_import = aar_import,")
 
             # 4. Generate the deps attribute with references to other target labels.
             #
@@ -231,7 +231,6 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coord"])
             target_import_string.append("\t\t\"maven_url=%s\"," % artifact["url"])
             target_import_string.append("\t],")
-
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
             #    available only as a compile time dependency.

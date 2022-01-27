@@ -1,4 +1,4 @@
-load("//:specs.bzl", "maven", "parse")
+load("//:specs.bzl", "parse")
 load(":jetifier_maven_map.bzl", "jetifier_maven_map")
 load(":jvm_import.bzl", "jvm_import")
 
@@ -37,7 +37,7 @@ jetify = rule(
     implementation = _jetify_impl,
 )
 
-def jetify_aar_import(name, aar, _aar_import=None, visibility=None, **kwargs):
+def jetify_aar_import(name, aar, _aar_import = None, visibility = None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = [aar],
@@ -45,7 +45,7 @@ def jetify_aar_import(name, aar, _aar_import=None, visibility=None, **kwargs):
     )
 
     if not _aar_import:
-      _aar_import = native.aar_import
+        _aar_import = native.aar_import
 
     _aar_import(
         name = name,
@@ -54,7 +54,7 @@ def jetify_aar_import(name, aar, _aar_import=None, visibility=None, **kwargs):
         **kwargs
     )
 
-def jetify_jvm_import(name, jars, visibility=None, **kwargs):
+def jetify_jvm_import(name, jars, visibility = None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = jars,

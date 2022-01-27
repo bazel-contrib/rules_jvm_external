@@ -10,7 +10,6 @@ load(
     "json_type_string",
 )
 load(":json_parse_tests.bzl", "json_parse_test_suite")
-load("//lib:json_parser.bzl", "json_parse")
 
 json_parse_test_suite()
 

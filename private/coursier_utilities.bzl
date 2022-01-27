@@ -47,6 +47,7 @@ def strip_packaging_and_classifier(coord):
 
 def strip_packaging_and_classifier_and_version(coord):
     coordinates = coord.split(":")
+
     # Support for simplified versionless groupId:artifactId coordinate format
     if len(coordinates) == 2:
         return ":".join(coordinates)

@@ -22,11 +22,11 @@ maven_install(
         "org.springframework:spring-web:5.1.5.RELEASE",
     ],
     fetch_sources = True,
-    version_conflict_policy = "pinned",
     maven_install_json = "//:maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    version_conflict_policy = "pinned",
 )
 
 load("@maven//:defs.bzl", "pinned_maven_install")
