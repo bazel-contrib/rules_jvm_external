@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The kt rule has been separated from the other rules since it requires a
+# dependency on @io_bazel_rules_kotlin that we would not like to transfer
+# to the other rules.
+
 load("//private/rules:kt_jvm_export.bzl", _kt_jvm_export = "kt_jvm_export")
 
 kt_jvm_export = _kt_jvm_export

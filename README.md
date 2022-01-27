@@ -1011,7 +1011,22 @@ java_export(
     "@maven//:com_google_guava_guava",
   ],
 )
-```  
+```
+
+If you wish to publish an artifact with Kotlin source code to a maven repository
+you can use `kt_jvm_export`. This rule has the same arguments and generated
+rules as `java_export`, but uses `kt_jvm_library` instead of `java_library`.
+
+```python
+# user_project/BUILD
+load("@rules_jvm_external//:kt_defs.bzl", "kt_jvm_export")
+
+kt_jvm_export(
+  name = "exported_kt_lib",
+  maven_coordinates = "com.example:project:0.0.1",
+  srcs = glob(["*.kt"]),
+)
+```
 
 In order to publish the artifact, use `bazel run`:
 
