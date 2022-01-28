@@ -1,4 +1,5 @@
 load("//:defs.bzl", "maven_install")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",

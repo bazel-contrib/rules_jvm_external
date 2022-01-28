@@ -6,6 +6,7 @@ exports_files([
     "jetifier.bzl",
     "jetifier_maven_map.bzl",
     "jvm_import.bzl",
+    "kt_jvm_export.bzl",
     "maven_install.bzl",
     "maven_project_jar.bzl",
     "maven_publish.bzl",

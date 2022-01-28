@@ -74,6 +74,41 @@ def java_export(
         **kwargs
     )
 
+    maven_export(
+        name,
+        maven_coordinates,
+        maven_coordinates_tags,
+        deploy_env,
+        pom_template,
+        visibility,
+        tags,
+        lib_name,
+        javadocopts
+    )
+
+def maven_export(
+        name,
+        maven_coordinates,
+        maven_coordinates_tags,
+        deploy_env,
+        pom_template,
+        visibility,
+        tags,
+        lib_name,
+        javadocopts):
+
+    """Helper rule to reuse this code for both java_export and kt_jvm_export.
+
+    After a library has already been created (either a kt_jvm_library or
+    java_library) this rule will create the maven jar and pom files and publish
+    them.
+
+    All arguments are the same as java_export with the addition of:
+      lib_name: Name of the library that has been built.
+      javadocopts: The options to be used for javadocs.
+
+    """
+
     # Merge the jars to create the maven project jar
     maven_project_jar(
         name = "%s-project" % name,

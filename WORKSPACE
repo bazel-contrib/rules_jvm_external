@@ -40,6 +40,18 @@ http_archive(
     url = "https://github.com/bazelbuild/stardoc/archive/4378e9b6bb2831de7143580594782f538f461180.zip",
 )
 
+http_archive(
+    name = "io_bazel_rules_kotlin",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.5.0-beta-4/rules_kotlin_release.tgz"],
+    sha256 = "6cbd4e5768bdfae1598662e40272729ec9ece8b7bded8f0d2c81c8ff96dc139d",
+)
+
+load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+kotlin_repositories()
+
+load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
+kt_register_toolchains()
+
 # Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
 # usage of Stardoc (scripts/generate_docs) doesn't require any of these
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
@@ -513,21 +525,6 @@ load(
 )
 
 _json_artifacts_testing_install()
-
-RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
-
-http_archive(
-    name = "io_bazel_rules_kotlin",
-    sha256 = "22d7d3155b95f79e461451f565353bf0098d8a6ec2696a06edf9549bb15ab8ba",
-    strip_prefix = "rules_kotlin-%s" % RULES_KOTLIN_VERSION,
-    url = "https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz" % RULES_KOTLIN_VERSION,
-)
-
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
-
-kotlin_repositories()
-
-kt_register_toolchains()
 
 # End test dependencies
 
