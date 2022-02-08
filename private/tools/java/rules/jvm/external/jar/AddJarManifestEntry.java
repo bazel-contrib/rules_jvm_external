@@ -5,6 +5,9 @@ import rules.jvm.external.ByteStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +30,7 @@ import java.util.zip.ZipOutputStream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 /*
  * A class that will add an entry to the manifest and keep the same modification
@@ -34,11 +38,15 @@ import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
  */
 public class AddJarManifestEntry {
 
-  public static final long DEFAULT_TIMESTAMP =
-      LocalDateTime.of(2010, 1, 1, 0, 0, 0)
-          .atZone(ZoneId.systemDefault())
-          .toInstant()
-          .toEpochMilli();
+  // From https://sourcegraph.com/github.com/openjdk/jdk/-/blob/src/jdk.zipfs/share/classes/jdk/nio/zipfs/ZipFileAttributeView.java?L45&subtree=true
+  public static final String MTIME_ATTR_NAME = "lastModifiedTime";
+
+  public static final FileTime DEFAULT_TIMESTAMP =
+      FileTime.fromMillis(
+              LocalDateTime.of(2010, 1, 1, 0, 0, 0)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli());
 
   public static void verboseLog(String logline) {
     // To make this work you need to add 'use_default_shell_env = True' to the
@@ -110,57 +118,29 @@ public class AddJarManifestEntry {
           Path source,
           List<String> toAdd,
           List<String> toRemove) throws IOException {
-    try (JarFile jarFile = new JarFile(source.toFile(), false)) {
-      try (OutputStream fos = Files.newOutputStream(out);
-           ZipOutputStream zos = new JarOutputStream(fos)) {
 
-        // Rewrite the manifest first
-        Manifest manifest = jarFile.getManifest();
-        if (manifest == null) {
+    Files.copy(source, out);
+    out.toFile().setWritable(true);
+    try (FileSystem fs = FileSystems.newFileSystem(out, null)) {
+        Manifest manifest;
+        Path manifestPath = fs.getPath(JarFile.MANIFEST_NAME);
+        if (Files.exists(manifestPath)) {
+            manifest = new Manifest(Files.newInputStream(manifestPath));
+        } else {
           manifest = new Manifest();
           manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0");
         }
         amendManifest(manifest, toAdd, toRemove);
-
-        ZipEntry newManifestEntry = new ZipEntry(JarFile.MANIFEST_NAME);
-        newManifestEntry.setTime(DEFAULT_TIMESTAMP);
-        zos.putNextEntry(newManifestEntry);
-        manifest.write(zos);
-
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-          JarEntry sourceEntry = entries.nextElement();
-          String name = sourceEntry.getName();
-
-          ZipEntry outEntry = new ZipEntry(name);
-          outEntry.setMethod(sourceEntry.getMethod());
-          outEntry.setTime(sourceEntry.getTime());
-          outEntry.setComment(sourceEntry.getComment());
-          outEntry.setExtra(sourceEntry.getExtra());
-
-          if (JarFile.MANIFEST_NAME.equals(name)) {
-            continue;
-          }
-
-          if (sourceEntry.getMethod() == ZipEntry.STORED) {
-            outEntry.setSize(sourceEntry.getSize());
-            outEntry.setCrc(sourceEntry.getCrc());
-          }
-
-          try (InputStream in = jarFile.getInputStream(sourceEntry)) {
-            zos.putNextEntry(outEntry);
-            ByteStreams.copy(in, zos);
-          } catch (ZipException e) {
-            if (e.getMessage().contains("duplicate entry:")) {
-              // If there is a duplicate entry we keep the first one we saw.
-              verboseLog("WARN: Skipping duplicate jar entry " + outEntry.getName() + " in " + source);
-              continue;
-            } else {
-              throw e;
-            }
-          }
+        if (Files.exists(manifestPath)) {
+            Files.delete(manifestPath);
         }
-      }
+        if (!Files.exists(manifestPath.getParent())) {
+            fs.provider().createDirectory(manifestPath.getParent());
+        }
+        try (OutputStream os = fs.provider().newOutputStream(manifestPath, CREATE_NEW)) {
+            manifest.write(os);
+        }
+        fs.provider().setAttribute(manifestPath, MTIME_ATTR_NAME, DEFAULT_TIMESTAMP);
     }
   }
 
