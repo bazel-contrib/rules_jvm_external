@@ -789,6 +789,13 @@ def make_coursier_dep_tree(
         _is_verbose(repository_ctx),
     )
 
+def _filter_list_by_allowlist(original, allowlist):
+    new_list = []
+    for item in original:
+        if item in allowlist:
+            new_list.append(item)
+    return new_list
+
 def _download_jq(repository_ctx):
     jq_version = None
 
@@ -906,14 +913,27 @@ def _coursier_fetch_impl(repository_ctx):
     jetify_include_dict = {k: None for k in repository_ctx.attr.jetify_include_list}
     jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
-    for artifact in dep_tree["dependencies"]:
+    specified_artifacts = {}
+    for a in artifacts:
+        specified_artifacts[utils.artifact_coordinate(a)] = a
+
+    block_list = []
+    for artifact_position, artifact in enumerate(dep_tree["dependencies"]):
         # Some artifacts don't contain files; they are just parent artifacts
         # to other artifacts.
         if artifact["file"] == None:
             continue
-
-        coord_split = artifact["coord"].split(":")
+        
+        coord = artifact["coord"]
+        coord_split = coord.split(":")
         coord_unversioned = "{}:{}".format(coord_split[0], coord_split[1])
+
+        if repository_ctx.attr.allowlist_mode:
+            if coord not in specified_artifacts:
+                block_list.insert(0, artifact_position)
+            artifact["dependencies"] = _filter_list_by_allowlist(artifact["dependencies"], specified_artifacts)
+            artifact["directDependencies"] = _filter_list_by_allowlist(artifact["directDependencies"], specified_artifacts)
+
         should_jetify = jetify_all or (repository_ctx.attr.jetify and coord_unversioned in jetify_include_dict)
         if should_jetify:
             artifact["directDependencies"] = jetify_artifact_dependencies(artifact["directDependencies"])
@@ -978,6 +998,9 @@ def _coursier_fetch_impl(repository_ctx):
         artifact.update({"mirror_urls": mirror_urls})
 
         files_to_hash.append(repository_ctx.path(artifact["file"]))
+
+    for coord_to_block in block_list:
+        dep_tree["dependencies"].pop(coord_to_block)
 
     # Avoid argument limits by putting list of files to hash into a file
     repository_ctx.file(
@@ -1233,6 +1256,7 @@ coursier_fetch = repository_rule(
                 "none",
             ],
         ),
+        "allowlist_mode": attr.bool(doc = "Only download dependencies (including transitive) that were explicitly declared via `artifacts` parameter")
     },
     environ = [
         "JAVA_HOME",
