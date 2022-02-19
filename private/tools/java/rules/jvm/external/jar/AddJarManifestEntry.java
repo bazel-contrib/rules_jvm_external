@@ -3,6 +3,7 @@ package rules.jvm.external.jar;
 import rules.jvm.external.ByteStreams;
 
 import java.io.IOException;
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -112,7 +113,7 @@ public class AddJarManifestEntry {
           List<String> toRemove) throws IOException {
     try (JarFile jarFile = new JarFile(source.toFile(), false)) {
       try (OutputStream fos = Files.newOutputStream(out);
-           ZipOutputStream zos = new JarOutputStream(fos)) {
+           ZipOutputStream zos = new JarOutputStream(new BufferedOutputStream(fos))) {
 
         // Rewrite the manifest first
         Manifest manifest = jarFile.getManifest();
