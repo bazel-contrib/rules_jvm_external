@@ -1,3 +1,5 @@
 # Set the default java toolchain
-build --java_toolchain=@bazel_tools//tools/jdk:toolchain_java11
+build --java_runtime_version=remotejdk_11
+build --tool_java_language_version=11
 
+build --javacopt="--release 11"
