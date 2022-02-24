@@ -122,8 +122,6 @@ def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_mess
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
-    if path == None:
-        return None
     return path.replace("\\", "/")
 
 # Relativize an absolute path to an artifact in coursier's default cache location.
@@ -219,7 +217,7 @@ def _compute_dependency_tree_signature(artifacts):
         if artifact["file"] != None:
             artifact_group.extend([
                 artifact["sha256"],
-                artifact["file"].replace("\\", "/"),  # Make sure we represent files in a stable way cross-platform
+                _normalize_to_unix_path(artifact["file"]),  # Make sure we represent files in a stable way cross-platform
                 artifact["url"],
             ])
         if len(artifact["dependencies"]) > 0:
@@ -393,7 +391,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     maven_install_json_content = json.decode(
         repository_ctx.read(
             repository_ctx.path("imported_maven_install.json"),
-        )
+        ),
     )
 
     # Validation steps for maven_install.json.
@@ -920,8 +918,9 @@ def _coursier_fetch_impl(repository_ctx):
         # that mirrors the URL where the artifact's fetched from. Using
         # this, we can reconstruct the original URL.
         primary_url_parts = []
+
         # _normalize_to_unix_path uses 2 backslashes, but the paths themselves have a single backslash at this point
-        filepath_parts = artifact["file"].replace("\\", "/").split("/")
+        filepath_parts = _normalize_to_unix_path(artifact["file"]).split("/")
         protocol = None
 
         # Only support http/https transports
