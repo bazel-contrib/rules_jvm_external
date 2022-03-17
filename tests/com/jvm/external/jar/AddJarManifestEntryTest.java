@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import rules.jvm.external.jar.AddJarManifestEntry;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,9 +32,11 @@ import static java.util.jar.Attributes.Name.CLASS_PATH;
 import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static rules.jvm.external.jar.AddJarManifestEntry.AUTOMATIC_MODULE_NAME;
 
 public class AddJarManifestEntryTest {
 
@@ -268,6 +271,92 @@ public class AddJarManifestEntryTest {
       assertNotNull(jarFile.getEntry("Foo.class"));
       assertNotNull(jarFile.getEntry("Bar.class"));
     }
+  }
+
+  @Test
+  public void aValidAutomaticModuleNameIsLeftAlone() throws IOException {
+    Path inJar = createJarWithAutomaticModuleName("it.will.be.fine");
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    AddJarManifestEntry.main(new String[] {
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--make-safe"
+    });
+
+    Manifest manifest = readManifest(outJar);
+    String name = manifest.getMainAttributes().getValue(AUTOMATIC_MODULE_NAME);
+
+    assertEquals("it.will.be.fine", name);
+  }
+
+  @Test
+  public void anEmptyAutomaticModuleNameIsRemoved() throws IOException {
+    Path inJar = createJarWithAutomaticModuleName("");
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    AddJarManifestEntry.main(new String[] {
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--make-safe"
+    });
+
+    Manifest manifest = readManifest(outJar);
+
+    assertFalse(manifest.getMainAttributes().containsKey(AUTOMATIC_MODULE_NAME));
+  }
+
+  @Test
+  public void anAutomaticModuleNameThatIsNotAValidJavaIdentifierIsRemoved() throws IOException {
+    // The `-` means that this isn't a valid package name
+    Path inJar = createJarWithAutomaticModuleName("some.invalid.package-name");
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    AddJarManifestEntry.main(new String[] {
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--make-safe"
+    });
+
+    Manifest manifest = readManifest(outJar);
+
+    assertFalse(manifest.getMainAttributes().containsKey(AUTOMATIC_MODULE_NAME));
+  }
+
+  @Test
+  public void aJavaReservedKeywordIsNotAllowedAsPartOfAnAutomaticModuleName() throws IOException {
+    // Both `boolean` and `package` are reserved words
+    Path inJar = createJarWithAutomaticModuleName("some.boolean.package.name");
+    Path outJar = temp.newFile("output.jar").toPath();
+
+    AddJarManifestEntry.main(new String[] {
+            "--source", inJar.toAbsolutePath().toString(),
+            "--output", outJar.toAbsolutePath().toString(),
+            "--make-safe"
+    });
+
+    Manifest manifest = readManifest(outJar);
+
+    assertFalse(manifest.getMainAttributes().containsKey(AUTOMATIC_MODULE_NAME));
+  }
+
+  private Manifest readManifest(Path fromJar) throws IOException {
+    try (InputStream is = Files.newInputStream(fromJar);
+         JarInputStream jis = new JarInputStream(is)) {
+      return jis.getManifest();
+    }
+  }
+
+  private Path createJarWithAutomaticModuleName(String name) throws IOException {
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().put(AUTOMATIC_MODULE_NAME, name);
+
+    Path jar = temp.newFile("automatic-module.jar").toPath();
+    try (OutputStream os = Files.newOutputStream(jar)) {
+      new JarOutputStream(os, manifest).close();
+    }
+    return jar;
   }
 
   private void createJar(Path outputTo, Manifest manifest, Map<String, String> pathToContents) throws IOException {
