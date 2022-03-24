@@ -249,11 +249,9 @@ public class AddJarManifestEntry {
     });
     toRemove.forEach(name -> manifest.getMainAttributes().remove(new Attributes.Name(name)));
 
-    if (!makeSafe) {
-      return;
+    if (makeSafe) {
+      checkAutomaticModuleName(jar, manifest);
     }
-
-    checkAutomaticModuleName(jar, manifest);
   }
 
   private static Manifest checkAutomaticModuleName(Path jar, Manifest manifest) {
