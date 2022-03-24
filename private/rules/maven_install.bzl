@@ -1,5 +1,5 @@
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
-load("//:specs.bzl", "json", "parse")
+load("//:specs.bzl", _json = "json", "parse")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 
@@ -77,15 +77,15 @@ def maven_install(
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
-        repositories_json_strings.append(json.write_repository_spec(repository))
+        repositories_json_strings.append(_json.write_repository_spec(repository))
 
     artifacts_json_strings = []
     for artifact in parse.parse_artifact_spec_list(artifacts):
-        artifacts_json_strings.append(json.write_artifact_spec(artifact))
+        artifacts_json_strings.append(_json.write_artifact_spec(artifact))
 
     excluded_artifacts_json_strings = []
     for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
-        excluded_artifacts_json_strings.append(json.write_exclusion_spec(exclusion))
+        excluded_artifacts_json_strings.append(_json.write_exclusion_spec(exclusion))
 
     if additional_netrc_lines and maven_install_json == None:
         fail("`additional_netrc_lines` is only supported with `maven_install_json` specified", "additional_netrc_lines")
