@@ -10,6 +10,7 @@ def java_export(
         pom_template = None,
         visibility = None,
         tags = [],
+        testonly = False,
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
@@ -71,6 +72,7 @@ def java_export(
     native.java_library(
         name = lib_name,
         tags = tags + maven_coordinates_tags,
+        testonly = testonly,
         **kwargs
     )
 
@@ -82,6 +84,7 @@ def java_export(
         pom_template,
         visibility,
         tags,
+        testonly,
         lib_name,
         javadocopts
     )
@@ -94,6 +97,7 @@ def maven_export(
         pom_template,
         visibility,
         tags,
+        testonly,
         lib_name,
         javadocopts):
 
@@ -115,6 +119,7 @@ def maven_export(
         target = ":%s" % lib_name,
         deploy_env = deploy_env,
         tags = tags + maven_coordinates_tags,
+        testonly = testonly,
     )
 
     native.filegroup(
@@ -124,6 +129,7 @@ def maven_export(
         ],
         output_group = "maven_artifact",
         tags = tags,
+        testonly = testonly,
     )
 
     native.filegroup(
@@ -133,6 +139,7 @@ def maven_export(
         ],
         output_group = "maven_source",
         tags = tags,
+        testonly = testonly,
     )
 
     docs_jar = None
@@ -145,6 +152,7 @@ def maven_export(
             ],
             javadocopts = javadocopts,
             tags = tags,
+            testonly = testonly,
         )
 
     pom_file(
@@ -152,6 +160,7 @@ def maven_export(
         target = ":%s" % lib_name,
         pom_template = pom_template,
         tags = tags,
+        testonly = testonly,
     )
 
     maven_publish(
@@ -163,6 +172,7 @@ def maven_export(
         source_jar = ":%s-maven-source" % name,
         visibility = visibility,
         tags = tags,
+        testonly = testonly,
     )
 
     # Finally, alias the primary output
@@ -171,4 +181,5 @@ def maven_export(
         actual = ":%s-project" % name,
         visibility = visibility,
         tags = tags,
+        testonly = testonly,
     )
