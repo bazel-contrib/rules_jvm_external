@@ -41,6 +41,10 @@ def _jvm_import_impl(ctx):
     # the lint check will emit a `bad path element` warning. We get quiet and
     # correct builds if we remove the `Class-Path` manifest entry entirely.
     args.add_all(["--remove-entry", "Class-Path"])
+
+    # Make sure the compile jar is safe to compile with
+    args.add("--make-safe")
+
     ctx.actions.run(
         executable = ctx.executable._add_jar_manifest_entry,
         arguments = [args],
