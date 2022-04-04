@@ -7,6 +7,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "com_google_protobuf",
+    sha256 = "b07772d38ab07e55eca4d50f4b53da2d998bb221575c60a4f81100242d4b4889",
     strip_prefix = "protobuf-3.20.0",
     urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.20.0.tar.gz"],
 )
@@ -14,13 +15,6 @@ http_archive(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
-
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "2ea8a5ed2b448baf4a6855d3ce049c4c452a6470b1efd1504fdb7c1c134d220a",
-    strip_prefix = "bazel-skylib-0.8.0",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/0.8.0.tar.gz"],
-)
 
 RULES_SCALA_VERSION = "e4560ac332e9da731c1e50a76af2579c55836a5c"
 
