@@ -203,10 +203,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
                 if dep_target_label != target_label:
-                    if dep_target_label in labels_to_override:
-                        dep_target_label = labels_to_override.get(dep_target_label)
-                    else:
-                        dep_target_label = ":" + dep_target_label
+                    dep_target_label = ":" + dep_target_label
                     target_import_labels.append("\t\t\"%s\",\n" % dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
 

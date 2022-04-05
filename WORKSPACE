@@ -234,11 +234,14 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/371
         "com.fasterxml.jackson:jackson-bom:2.9.10",
         "org.junit:junit-bom:5.3.1",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/582
+        "com.netflix.ndbench:ndbench-core:0.7.2",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
     override_targets = {
         "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
+        "com.codahale.metrics:metrics-core": "@regression_testing//:io_dropwizard_metrics_metrics_core",
     },
     repositories = [
         "https://repo1.maven.org/maven2",
