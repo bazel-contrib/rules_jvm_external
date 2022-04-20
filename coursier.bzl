@@ -656,6 +656,16 @@ def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
         default_cache_dir = "%s/Coursier/cache/v1" % os_env.get("LOCALAPPDATA").replace("\\", "/")
     elif _is_macos(repository_ctx):
         default_cache_dir = "%s/Library/Caches/Coursier/v1" % os_env.get("HOME")
+    else:
+        # Coursier respects $XDG_CACHE_HOME as a replacement for $HOME/.cache
+        # outside of Windows and macOS.
+        #
+        # - https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
+        # - https://github.com/dirs-dev/directories-jvm/tree/006ca7ff804ca48f692d59a7fce8599f8a1eadfc#projectdirectories
+        # - https://github.com/coursier/coursier/blob/d5ad55d1dcb025084ba9bd994ea47ceae0608a8f/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L44-L59
+        xdg_cache_home = os_env.get("XDG_CACHE_HOME")
+        if xdg_cache_home:
+            return "%s/coursier/v1" % xdg_cache_home
 
     # Logic based on # https://github.com/coursier/coursier/blob/f48c1c6b01ac5b720e66e06cf93587b21d030e8c/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L60
     if _is_directory(repository_ctx, default_cache_dir):
@@ -1237,6 +1247,7 @@ coursier_fetch = repository_rule(
         "COURSIER_OPTS",
         "COURSIER_URL",
         "RJE_VERBOSE",
+        "XDG_CACHE_HOME",
     ],
     implementation = _coursier_fetch_impl,
 )
