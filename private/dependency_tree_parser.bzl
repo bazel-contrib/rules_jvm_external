@@ -317,7 +317,6 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 licenses = license_info[artifact["coord"]]
                 # target_import_labels.append("\t\t\"%s\",\n" % dep_target_label)
                 for license in licenses:
-                    print(license)
                     target_import_string.append("\t\t\":%s\"," % (license["name"]))
             target_import_string.append("\t],")     
 
