@@ -787,13 +787,6 @@ def _download_jq(repository_ctx):
         repository_ctx.download(value.url, "jq-%s" % os, sha256 = value.sha256, executable = True)
 
 def _coursier_fetch_impl(repository_ctx):
-    print("DAM from _coursier_fetch_impl")
-
-    # print("license_info", license_info)
-    # print("license_info", license_info["example:package:id"])
-    # print("license_json ", repository_ctx.attr.license_json.workspace_root)
-    # print("license_json: ", repository_ctx.file(repository_ctx.attr.license_json))
-    # print("OriginPackageInfo: ", repository_ctx.attr.license_json[OriginPackageInfo].data)
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
     # caches and uses Coursier's own download mechanisms.

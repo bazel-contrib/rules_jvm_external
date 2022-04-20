@@ -26,8 +26,7 @@ def maven_install(
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
         duplicate_version_warning = "warn",
-        license_json = None,
-        license_lookup = None):
+        license_json = None):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
