@@ -548,3 +548,13 @@ rbe_autoconfig(name = "buildkite_config")
 load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
 
 maven_jar_migrator_repositories()
+
+RULE_LICENSE_COMMIT = "683e47b13cb92cb3c2f484e35c6573a100f8fd25"
+
+http_archive(
+    name = "rules_license",
+    sha256 = "78ffce40439a2af5b1d289a0a8f3b9aabc3857a527080164fb2e02b06b654130",
+    strip_prefix = "rules_license-%s" % RULE_LICENSE_COMMIT,
+    url = "https://github.com/bazelbuild/rules_license/archive/%s.zip" % RULE_LICENSE_COMMIT,
+)
+

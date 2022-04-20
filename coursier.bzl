@@ -31,6 +31,7 @@ _BUILD = """
 
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
+{rules_license_import_statement}
 {aar_import_statement}
 
 {imports}
@@ -538,6 +539,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            rules_license_import_statement = "load(\"@rules_license//rules:license.bzl\", \"license\")" if repository_ctx.attr.license_json else "",
         ),
         executable = False,
     )
@@ -785,6 +787,13 @@ def _download_jq(repository_ctx):
         repository_ctx.download(value.url, "jq-%s" % os, sha256 = value.sha256, executable = True)
 
 def _coursier_fetch_impl(repository_ctx):
+    print("DAM from _coursier_fetch_impl")
+
+    # print("license_info", license_info)
+    # print("license_info", license_info["example:package:id"])
+    # print("license_json ", repository_ctx.attr.license_json.workspace_root)
+    # print("license_json: ", repository_ctx.file(repository_ctx.attr.license_json))
+    # print("OriginPackageInfo: ", repository_ctx.attr.license_json[OriginPackageInfo].data)
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
     # caches and uses Coursier's own download mechanisms.
@@ -1001,6 +1010,18 @@ def _coursier_fetch_impl(repository_ctx):
         "__RESOLVED_ARTIFACTS_HASH": _compute_dependency_tree_signature(dep_tree["dependencies"]),
         "__INPUT_ARTIFACTS_HASH": compute_dependency_inputs_signature(repository_ctx.attr.artifacts),
     })
+    
+    license_info = {}
+    if repository_ctx.attr.license_json:
+        repository_ctx.symlink(
+            repository_ctx.path(repository_ctx.attr.license_json),
+            repository_ctx.path("imported_license_info.json"),
+        )
+        license_info = json.decode(
+            repository_ctx.read(
+                repository_ctx.path("imported_license_info.json"),
+            ),
+        )
 
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
@@ -1021,6 +1042,7 @@ def _coursier_fetch_impl(repository_ctx):
             if a.get("testonly", False)
         },
         override_targets = repository_ctx.attr.override_targets,
+        license_info = license_info,
     )
 
     # This repository rule can be either in the pinned or unpinned state, depending on when
@@ -1042,6 +1064,7 @@ def _coursier_fetch_impl(repository_ctx):
             repository_name = repository_name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            rules_license_import_statement = "load(\"@rules_license//rules:license.bzl\", \"license\")" if repository_ctx.attr.license_json else "",
         ),
         executable = False,
     )
@@ -1224,6 +1247,7 @@ coursier_fetch = repository_rule(
                 "none",
             ],
         ),
+        "license_json": attr.label(),
     },
     environ = [
         "JAVA_HOME",
