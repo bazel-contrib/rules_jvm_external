@@ -158,6 +158,12 @@ def _get_aar_import_statement_or_empty_str(repository_ctx):
     else:
         return ""
 
+def _get_rules_license_import_statement_or_empty_str(repository_ctx):
+    if repository_ctx.attr.license_json:
+        return "load(\"@rules_license//rules:license.bzl\", \"license\")" 
+    else:
+        return ""
+
 def _java_path(repository_ctx):
     java_home = repository_ctx.os.environ.get("JAVA_HOME")
     if java_home != None:
@@ -539,7 +545,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
-            rules_license_import_statement = "load(\"@rules_license//rules:license.bzl\", \"license\")" if repository_ctx.attr.license_json else "",
+            rules_license_import_statement = _get_rules_license_import_statement_or_empty_str(repository_ctx),
         ),
         executable = False,
     )
@@ -1057,7 +1063,7 @@ def _coursier_fetch_impl(repository_ctx):
             repository_name = repository_name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
-            rules_license_import_statement = "load(\"@rules_license//rules:license.bzl\", \"license\")" if repository_ctx.attr.license_json else "",
+            rules_license_import_statement = _get_rules_license_import_statement_or_empty_str(repository_ctx),
         ),
         executable = False,
     )
@@ -1240,7 +1246,7 @@ coursier_fetch = repository_rule(
                 "none",
             ],
         ),
-        "license_json": attr.label(),
+        "license_json": attr.label(doc = "JSON representing rules_license's necessary metadata for applying licenses to imported artifacts"),
     },
     environ = [
         "JAVA_HOME",

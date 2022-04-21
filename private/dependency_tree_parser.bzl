@@ -350,7 +350,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 
-            # 13. If there is a corresponding for the artifact, create a license target.
+            # 12. If there is a corresponding for the artifact, create a license target.
             #
             # license(
             #   name = "license-org.hamcrest:hamcrest.library:1.3",
@@ -364,7 +364,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 for license in license_info[artifact["coord"]]:
                     all_imports.append("license(\n\tname = \"%s\",\n\tliense_text = \"%s\",\n\tpackage_name = \"%s\",\n\tlicense_kinds = %s\n)" %
                                         (license["name"], license["license_text"], license["package_name"], license["license_kinds"]))
-            # 12. If using maven_install.json, use a genrule to copy the file from the http_file
+            # 13. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
             #
             # genrule(
