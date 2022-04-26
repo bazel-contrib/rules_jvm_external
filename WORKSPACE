@@ -234,6 +234,8 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/371
         "com.fasterxml.jackson:jackson-bom:2.9.10",
         "org.junit:junit-bom:5.3.1",
+        #https://github.com/bazelbuild/rules_jvm_external/issues/686
+        "io.netty:netty-tcnative-boringssl-static:2.0.51.Final",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
