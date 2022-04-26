@@ -27,6 +27,17 @@ SUPPORTED_PACKAGING_TYPES = [
     "scala-jar",
 ]
 
+# See https://github.com/bazelbuild/rules_jvm_external/issues/686
+# A single package uses classifier to distingush the jar files (one per platform),
+# So we need to check these are not dependnecies of each other.
+PLATFORM_CLASSIFIER = [
+    "linux-aarch_64",
+    "linux-x86_64",
+    "osx-aarch_64",
+    "osx-x86_64",
+    "windows-x86_64"
+]
+
 def strip_packaging_and_classifier(coord):
     # Strip some packaging and classifier values based on the following maven coordinate formats
     # groupId:artifactId:version
@@ -75,6 +86,16 @@ def get_classifier(coord):
         return coordinates[3]
     else:
         return None
+
+def get_artifact(coord):
+    # Get the artifact from the following maven coordinate formats
+    # groupId:artifactId:version
+    # groupId:artifactId:packaging:version
+    # groupId:artifactId:packaging:classifier:version
+
+    coordinates = coord.split(":")
+    return coordinates[2]
+
 
 def escape(string):
     for char in [".", "-", ":", "/", "+"]:
