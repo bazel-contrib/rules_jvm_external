@@ -19,25 +19,27 @@ package rules.jvm.external.jar;
 
 import rules.jvm.external.ByteStreams;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
@@ -45,6 +47,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static java.util.zip.Deflater.BEST_COMPRESSION;
@@ -58,10 +61,15 @@ public class MergeJars {
   // have a different epoch. Oof. Make something sensible up.
   private static final FileTime DOS_EPOCH = FileTime.from(Instant.parse("1985-02-01T00:00:00.00Z"));
 
+  // ZIP timestamps have a resolution of 2 seconds.
+  // see http://www.info-zip.org/FAQ.html#limits
+  public static final long MINIMUM_TIMESTAMP_INCREMENT = 2000L;
+
   public static void main(String[] args) throws IOException {
     Path out = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
+    Set<Path> excludes = new HashSet<>();
     DuplicateEntryStrategy onDuplicate = LAST_IN_WINS;
 
     for (int i = 0; i < args.length; i++) {
@@ -75,16 +83,16 @@ public class MergeJars {
           onDuplicate = DuplicateEntryStrategy.fromShortName(args[++i]);
           break;
 
+        case "--exclude":
+          excludes.add(isValid(Paths.get(args[++i])));
+          break;
+
         case "--output":
           out = Paths.get(args[++i]);
           break;
 
         case "--sources":
-          Path path = Paths.get(args[++i]);
-          if (!Files.exists(path) || !Files.isReadable(path)) {
-            throw new IllegalArgumentException("Source must a readable file: " + path);
-          }
-          sources.add(path);
+          sources.add(isValid(Paths.get(args[++i])));
           break;
 
         default:
@@ -101,17 +109,27 @@ public class MergeJars {
       return;
     }
 
-    // To keep things simple, we expand all the inputs jars into a single directory,
-    // merge the manifests, and then create our own zip.
-    Path temp = Files.createTempDirectory("mergejars");
+    // Remove any jars from sources that we've been told to exclude
+    sources.removeIf(excludes::contains);
+
+    // We would love to keep things simple by expanding all the input jars into
+    // a single directory, but this isn't possible since one jar may contain a
+    // file with the same name as a directory in another. *sigh* Instead, what
+    // we'll do is create a list of contents from each jar, and where we should
+    // pull the contents from. Whee!
 
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
     Map<String, Set<String>> allServices = new TreeMap<>();
+    Set<String> excludedPaths = readExcludedFileNames(excludes);
 
-    Map<Path, SortedMap<Path, Path>> allPaths = new TreeMap<>();
+    // Ultimately, we want the entries in the output zip to be sorted
+    // so that we have a deterministic output.
+    Map<String, Path> fileToSourceJar = new TreeMap<>();
+    Map<String, byte[]> fileHashCodes = new HashMap<>();
 
+    Set<String> createdDirectories = new HashSet<>();
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
            ZipInputStream zis = new ZipInputStream(fis)) {
@@ -124,12 +142,12 @@ public class MergeJars {
             continue;
           }
 
-          if (entry.isDirectory()) {
-            skipEntry(zis);
+          if ("META-INF/".equals(entry.getName()) ||
+                  (!entry.getName().startsWith("META-INF/") && excludedPaths.contains(entry.getName()))) {
             continue;
           }
 
-          if (entry.getName().startsWith("META-INF/services/")) {
+          if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) {
             String servicesName = entry.getName().substring("META-INF/services/".length());
             Set<String> services = allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
             String content = new String(ByteStreams.toByteArray(zis));
@@ -137,26 +155,25 @@ public class MergeJars {
             continue;
           }
 
-          Path outPath = temp.resolve(entry.getName()).normalize();
-          if (!outPath.startsWith(temp)) {
-            throw new IllegalStateException("Attempt to write jar entry somewhere weird: " + outPath);
-          }
-          if (!Files.exists(outPath.getParent())) {
-            Files.createDirectories(outPath.getParent());
-          }
-
-          if (Files.exists(outPath)) {
-            // Write the file out to a temporary location, and then figure out what to do
-            onDuplicate.resolve(outPath, zis);
+          if (entry.isDirectory() && createdDirectories.add(entry.getName())) {
+            fileToSourceJar.put(entry.getName(), source);
+            createdDirectories.add(entry.getName());
           } else {
-            try (OutputStream os = Files.newOutputStream(outPath)) {
-              ByteStreams.copy(zis, os);
-            }
+            // Duplicate files, however may not be. We need the hash to determine
+            // whether we should do anything.
+            byte[] hash = hash(zis);
 
-            SortedMap<Path, Path> dirPaths = allPaths.computeIfAbsent(
-              temp.relativize(outPath.getParent()),
-              path -> new TreeMap<>());
-            dirPaths.put(temp.relativize(outPath), outPath);
+            if (!fileToSourceJar.containsKey(entry.getName())) {
+              fileToSourceJar.put(entry.getName(), source);
+              fileHashCodes.put(entry.getName(), hash);
+            } else {
+              byte[] originalHashCode = fileHashCodes.get(entry.getName());
+              boolean replace = onDuplicate.isReplacingCurrent(entry.getName(), originalHashCode, hash);
+              if (replace) {
+                fileToSourceJar.put(entry.getName(), source);
+                fileHashCodes.put(entry.getName(), hash);
+              }
+            }
           }
         }
       }
@@ -164,9 +181,8 @@ public class MergeJars {
 
     manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "mergejars");
 
-    Set<String> seen = new HashSet<>(Arrays.asList("META-INF/", "META-INF/MANIFEST.MF"));
-
     // Now create the output jar
+    Files.createDirectories(out.getParent());
     try (OutputStream os = Files.newOutputStream(out);
          JarOutputStream jos = new JarOutputStream(os)) {
       jos.setMethod(DEFLATED);
@@ -188,10 +204,12 @@ public class MergeJars {
       jos.closeEntry();
 
       if (!allServices.isEmpty()) {
-        entry = new JarEntry("META-INF/services/");
-        entry = resetTime(entry);
-        jos.putNextEntry(entry);
-        jos.closeEntry();
+        if (!createdDirectories.contains("META-INF/services/")) {
+          entry = new JarEntry("META-INF/services/");
+          entry = resetTime(entry);
+          jos.putNextEntry(entry);
+          jos.closeEntry();
+        }
         for (Map.Entry<String, Set<String>> kv : allServices.entrySet()) {
           entry = new JarEntry("META-INF/services/" + kv.getKey());
           entry = resetTime(entry);
@@ -204,41 +222,74 @@ public class MergeJars {
         }
       }
 
-      allPaths.forEach((dir, entries) -> {
-        try {
-          String name = dir.toString().replace('\\', '/') + "/";
-          if (seen.add(name)) {
-            JarEntry je = new JarEntry(name);
-            je = resetTime(je);
-            jos.putNextEntry(je);
-            jos.closeEntry();
-          }
+      Path previousSource = sources.isEmpty() ? null : sources.iterator().next();
+      ZipFile source = previousSource == null ? null : new ZipFile(previousSource.toFile());
 
-          for (Map.Entry<Path, Path> me : entries.entrySet()) {
-            name = me.getKey().toString().replace('\\', '/');
+      // We should never enter this loop without there being any sources
+      for (Map.Entry<String, Path> pathAndSource : fileToSourceJar.entrySet()) {
+        // Get the original entry
+        JarEntry je = new JarEntry(pathAndSource.getKey());
+        je = resetTime(je);
+        jos.putNextEntry(je);
 
-            if (seen.add(name)) {
-              JarEntry je = new JarEntry(name);
-              je = resetTime(je);
-              jos.putNextEntry(je);
-              try (InputStream fis = Files.newInputStream(me.getValue())) {
-                ByteStreams.copy(fis, jos);
-              }
-              jos.closeEntry();
-            }
-          }
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
+        if (je.isDirectory()) {
+          jos.closeEntry();
+          continue;
         }
-      });
-    }
 
-    delete(temp);
+        if (!Objects.equals(previousSource, pathAndSource.getValue())) {
+          source.close();
+          source = new ZipFile(pathAndSource.getValue().toFile());
+          previousSource = pathAndSource.getValue();
+        }
+
+        ZipEntry original = source.getEntry(pathAndSource.getKey());
+        if (original == null) {
+          continue;
+        }
+
+        try (InputStream is = source.getInputStream(original)) {
+          ByteStreams.copy(is, jos);
+        }
+        jos.closeEntry();
+      }
+      if (source != null) {
+        source.close();
+      }
+    }
   }
 
-  @SuppressWarnings("CheckReturnValue")
-  private static void skipEntry(ZipInputStream zis) throws IOException {
-    ByteStreams.toByteArray(zis);
+  private static Set<String> readExcludedFileNames(Set<Path> excludes) throws IOException {
+    Set<String> paths = new HashSet<>();
+
+    for (Path exclude : excludes) {
+      try (InputStream is = Files.newInputStream(exclude);
+      BufferedInputStream bis = new BufferedInputStream(is);
+      ZipInputStream jis = new ZipInputStream(bis)) {
+        ZipEntry entry;
+        while ((entry = jis.getNextEntry()) != null) {
+          if (entry.isDirectory()) {
+            continue;
+          }
+
+          String name = entry.getName();
+          paths.add(name);
+        }
+      }
+    }
+    return paths;
+  }
+
+  private static Path isValid(Path path) {
+    if (!Files.exists(path)) {
+      throw new IllegalArgumentException("File does not exist: " + path);
+    }
+
+    if (!Files.isReadable(path)) {
+      throw new IllegalArgumentException("File is not readable: " + path);
+    }
+
+    return path;
   }
 
   private static void delete(Path toDelete) throws IOException {
@@ -248,8 +299,17 @@ public class MergeJars {
             .forEach(File::delete);
   }
 
+  // Returns the normalized timestamp for a jar entry based on its name. This is necessary since
+  // javac will, when loading a class X, prefer a source file to a class file, if both files have
+  // the same timestamp. Therefore, we need to adjust the timestamp for class files to slightly
+  // after the normalized time.
+  // https://github.com/bazelbuild/bazel/blob/master/src/java_tools/buildjar/java/com/google/devtools/build/buildjar/jarhelper/JarHelper.java#L124
   private static JarEntry resetTime(JarEntry entry) {
-    entry.setTime(DOS_EPOCH.toMillis());
+    if (entry.getName().endsWith(".class")) {
+      entry.setTime(DOS_EPOCH.toMillis() + MINIMUM_TIMESTAMP_INCREMENT);
+    } else {
+      entry.setTime(DOS_EPOCH.toMillis());
+    }
     return entry;
   }
 
@@ -269,5 +329,21 @@ public class MergeJars {
     });
 
     return into;
+  }
+
+  private static byte[] hash(InputStream inputStream) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+
+      byte[] buf = new byte[100 * 1024];
+      int read;
+
+      while ((read = inputStream.read(buf)) != -1) {
+        digest.update(buf, 0, read);
+      }
+     return digest.digest();
+    } catch (IOException | NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -1,33 +1,41 @@
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 
-_PLAIN_DEP = """        <dependency>
-            <groupId>{0}</groupId>
-            <artifactId>{1}</artifactId>
-            <version>{2}</version>
-        </dependency>"""
+def _format_dep(unpacked):
+    return "".join([
+        "        <dependency>\n",
+        "            <groupId>%s</groupId>\n" % unpacked.groupId,
+        "            <artifactId>%s</artifactId>\n" % unpacked.artifactId,
+        "            <version>%s</version>\n" % unpacked.version,
+        ("            <type>%s</type>\n" % unpacked.type) if unpacked.type and unpacked.type != "jar" else "",
+        ("            <scope>%s</scope>\n" % unpacked.scope) if unpacked.scope and unpacked.scope != "compile" else "",
+        "        </dependency>",
+    ])
 
-_TYPED_DEP = """        <dependency>
-            <groupId>{0}</groupId>
-            <artifactId>{1}</artifactId>
-            <version>{2}</version>
-            <type>{3}</type>
-        </dependency>"""
+def _unpack_coordinates(coords):
+    """Takes a maven coordinate and unpacks it into a struct with fields
+    `groupId`, `artifactId`, `version`, `type`, `scope`
+    where type and scope are optional.
 
-def _explode_coordinates(coords):
-    """Takes a maven coordinate and explodes it into a tuple of
-    (groupId, artifactId, version, type)
+    Assumes following maven coordinate syntax:
+    groupId:artifactId[:type[:scope]]:version
     """
     if not coords:
         return None
 
     parts = coords.split(":")
-    if len(parts) == 3:
-        return (parts[0], parts[1], parts[2], "jar")
-    if len(parts) == 4:
-        # Assume a buildr coordinate: groupId:artifactId:type:version
-        return (parts[0], parts[1], parts[3], parts[2])
+    nparts = len(parts)
+    if nparts < 3 or nparts > 5:
+        fail("Unparsed: %s" % coords)
 
-    fail("Unparsed: %s" % coords)
+    version = parts[-1]
+    parts = dict(enumerate(parts[:-1]))
+    return struct(
+        groupId = parts.get(0),
+        artifactId = parts.get(1),
+        type = parts.get(2),
+        scope = parts.get(3),
+        version = version,
+    )
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
@@ -36,22 +44,19 @@ def _pom_file_impl(ctx):
 
     info = ctx.attr.target[MavenInfo]
 
-    coordinates = _explode_coordinates(info.coordinates)
+    coordinates = _unpack_coordinates(info.coordinates)
     substitutions = {
-        "{groupId}": coordinates[0],
-        "{artifactId}": coordinates[1],
-        "{version}": coordinates[2],
-        "{type}": coordinates[3],
+        "{groupId}": coordinates.groupId,
+        "{artifactId}": coordinates.artifactId,
+        "{version}": coordinates.version,
+        "{type}": coordinates.type or "jar",
+        "{scope}": coordinates.scope or "compile",
     }
 
     deps = []
     for dep in sorted(info.maven_deps.to_list()):
-        exploded = _explode_coordinates(dep)
-        if (exploded[3] == "jar"):
-            template = _PLAIN_DEP
-        else:
-            template = _TYPED_DEP
-        deps.append(template.format(*exploded))
+        unpacked = _unpack_coordinates(dep)
+        deps.append(_format_dep(unpacked))
     substitutions.update({"{dependencies}": "\n".join(deps)})
 
     out = ctx.actions.declare_file("%s.xml" % ctx.label.name)
@@ -77,7 +82,8 @@ The following substitutions are performed on the template file:
   {groupId}: Replaced with the maven coordinates group ID.
   {artifactId}: Replaced with the maven coordinates artifact ID.
   {version}: Replaced by the maven coordinates version.
-  {type}: Replaced by the maven coordintes type, if present (defaults to "jar")
+  {type}: Replaced by the maven coordinates type, if present (defaults to "jar")
+  {scope}: Replaced by the maven coordinates type, if present (defaults to "compile")
   {dependencies}: Replaced by a list of maven dependencies directly relied upon
     by java_library targets within the artifact.
 """,

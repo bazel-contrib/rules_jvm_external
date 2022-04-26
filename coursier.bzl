@@ -11,14 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("//third_party/bazel_json/lib:json_parser.bzl", "json_parse")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
-load("//:specs.bzl", "maven", "parse", "utils")
-load("//:private/proxy.bzl", "get_java_proxy_args")
-load("//:private/dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
-load("//:private/coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
+load("//:specs.bzl", "parse", "utils")
+load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
+load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape")
+load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
+load("//private:java_utilities.bzl", "parse_java_version")
+load("//private:proxy.bzl", "get_java_proxy_args")
 load(
-    "//:private/versions.bzl",
+    "//private:versions.bzl",
     "COURSIER_CLI_BAZEL_MIRROR_URL",
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
@@ -26,12 +27,19 @@ load(
 )
 
 _BUILD = """
-package(default_visibility = ["//visibility:{visibility}"])
+# package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
 
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
+{aar_import_statement}
 
 {imports}
+"""
+
+DEFAULT_AAR_IMPORT_LABEL = "@build_bazel_rules_android//android:rules.bzl"
+
+_AAR_IMPORT_STATEMENT = """\
+load("%s", "aar_import")
 """
 
 _BUILD_PIN = """
@@ -40,6 +48,7 @@ genrule(
     cmd = "cp $< $@",
     outs = ["jq"],
     srcs = select({{
+        "@bazel_tools//src/conditions:linux_aarch64": ["jq-linux"],
         "@bazel_tools//src/conditions:linux_x86_64": ["jq-linux"],
         "@bazel_tools//src/conditions:darwin": ["jq-macos"],
         "@bazel_tools//src/conditions:windows": ["jq-windows"],
@@ -50,11 +59,27 @@ sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
     args = [
-      "$(location :jq-binary)",
+      "$(rootpath :jq-binary)",
+      "$(location :unsorted_deps.json)",
     ],
     data = [
         ":jq-binary",
+        ":unsorted_deps.json",
     ],
+    visibility = ["//visibility:public"],
+)
+"""
+
+_BUILD_OUTDATED = """
+sh_binary(
+    name = "outdated",
+    srcs = ["outdated.sh"],
+    data = [
+        "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
+        "outdated.artifacts",
+        "outdated.repositories"
+    ],
+    visibility = ["//visibility:public"],
 )
 """
 
@@ -76,10 +101,28 @@ def _is_file(repository_ctx, path):
 def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
+def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_message = None):
+    if progress_message:
+        repository_ctx.report_progress(progress_message)
+
+    verbose = _is_verbose(repository_ctx)
+    if verbose:
+        repository_ctx.execute(
+            ["echo", "\n%s" % " ".join([str(c) for c in cmd])],
+            quiet = False,
+        )
+
+    return repository_ctx.execute(
+        cmd,
+        timeout = timeout,
+        environment = environment,
+        quiet = not verbose,
+    )
+
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
-    return path.replace("\\\\", "/")
+    return path.replace("\\", "/")
 
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
@@ -106,22 +149,34 @@ def _relativize_and_symlink_file(repository_ctx, absolute_path):
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
 
+def _get_aar_import_statement_or_empty_str(repository_ctx):
+    if repository_ctx.attr.use_starlark_android_rules:
+        # parse the label to validate it
+        _ = Label(repository_ctx.attr.aar_import_bzl_label)
+        return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
+    else:
+        return ""
+
+def _java_path(repository_ctx):
+    java_home = repository_ctx.os.environ.get("JAVA_HOME")
+    if java_home != None:
+        return repository_ctx.path(java_home + "/bin/java")
+    elif repository_ctx.which("java") != None:
+        return repository_ctx.which("java")
+    return None
+
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
 def _generate_java_jar_command(repository_ctx, jar_path):
-    java_home = repository_ctx.os.environ.get("JAVA_HOME")
     coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
     coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
+    java_path = _java_path(repository_ctx)
 
-    if java_home != None:
+    if java_path != None:
         # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
         # The -noverify option seems to be required after the proguarding step
         # of the main JAR of coursier.
-        java = repository_ctx.path(java_home + "/bin/java")
-        cmd = [java, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
-    elif repository_ctx.which("java") != None:
-        # Use 'java' from $PATH
-        cmd = [repository_ctx.which("java"), "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
+        cmd = [java_path, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
     else:
         # Try to execute coursier directly
         cmd = [jar_path] + coursier_opts + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
@@ -162,13 +217,29 @@ def _compute_dependency_tree_signature(artifacts):
         if artifact["file"] != None:
             artifact_group.extend([
                 artifact["sha256"],
-                artifact["file"],
+                _normalize_to_unix_path(artifact["file"]),  # Make sure we represent files in a stable way cross-platform
                 artifact["url"],
             ])
         if len(artifact["dependencies"]) > 0:
             artifact_group.append(",".join(sorted(artifact["dependencies"])))
         signature_inputs.append(":".join(artifact_group))
     return hash(repr(sorted(signature_inputs)))
+
+# Compute a signature of the list of artifacts that will be used to build
+# the dependency tree. This is used as a check to see whether the dependency
+# tree needs to be repinned.
+#
+# Visible for testing
+def compute_dependency_inputs_signature(artifacts):
+    artifact_inputs = []
+    for artifact in artifacts:
+        parsed = json.decode(artifact)
+
+        # Sort the keys to provide a stable order
+        keys = sorted(parsed.keys())
+        flattened = ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
+        artifact_inputs.append(flattened)
+    return hash(repr(sorted(artifact_inputs)))
 
 def extract_netrc_from_auth_url(url):
     """Return a dict showing the netrc machine, login, and password extracted from a url.
@@ -250,7 +321,7 @@ def get_home_netrc_contents(repository_ctx):
     return ""
 
 def _get_jq_http_files():
-    '''Returns repository targets for the `jq` dependency that `pin.sh` needs.'''
+    """Returns repository targets for the `jq` dependency that `pin.sh` needs."""
     lines = []
     for jq in JQ_VERSIONS:
         lines.extend([
@@ -265,6 +336,36 @@ def _get_jq_http_files():
         ])
     return lines
 
+def _add_outdated_files(repository_ctx, artifacts, repositories):
+    repository_ctx.file(
+        "outdated.artifacts",
+        "\n".join(["{}:{}:{}".format(artifact["group"], artifact["artifact"], artifact["version"]) for artifact in artifacts]) + "\n",
+        executable = False,
+    )
+
+    repository_ctx.file(
+        "outdated.repositories",
+        "\n".join([repo["repo_url"] for repo in repositories]) + "\n",
+        executable = False,
+    )
+
+    repository_ctx.template(
+        "outdated.sh",
+        repository_ctx.attr._outdated,
+        {
+            "{repository_name}": repository_ctx.name,
+            "{proxy_opts}": " ".join(_get_java_proxy_args(repository_ctx)),
+        },
+        executable = True,
+    )
+
+def _fail_if_repin_required(repository_ctx):
+    if not repository_ctx.attr.fail_if_repin_required:
+        return False
+
+    env_var_names = repository_ctx.os.environ.keys()
+    return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
+
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -272,20 +373,25 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     _windows_check(repository_ctx)
 
+    repositories = []
+    for repository in repository_ctx.attr.repositories:
+        repositories.append(json.decode(repository))
+
     artifacts = []
-    for a in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(a))
+    for artifact in repository_ctx.attr.artifacts:
+        artifacts.append(json.decode(artifact))
+
+    _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
     # Read Coursier state from maven_install.json.
     repository_ctx.symlink(
         repository_ctx.path(repository_ctx.attr.maven_install_json),
         repository_ctx.path("imported_maven_install.json"),
     )
-    maven_install_json_content = json_parse(
+    maven_install_json_content = json.decode(
         repository_ctx.read(
             repository_ctx.path("imported_maven_install.json"),
         ),
-        fail_on_invalid = False,
     )
 
     # Validation steps for maven_install.json.
@@ -306,7 +412,29 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     dep_tree = maven_install_json_content["dependency_tree"]
 
-    dep_tree_signature = dep_tree.get("__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY")
+    # Then, check to see if we need to repin our deps because inputs have changed
+    if dep_tree.get("__INPUT_ARTIFACTS_HASH") == None:
+        print("NOTE: %s_install.json does not contain a signature of the required artifacts. " % repository_ctx.name +
+              "This feature ensures that the build does not use stale dependencies when the inputs " +
+              "have changed. To generate this signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
+    else:
+        computed_artifacts_hash = compute_dependency_inputs_signature(repository_ctx.attr.artifacts)
+        if computed_artifacts_hash != dep_tree.get("__INPUT_ARTIFACTS_HASH"):
+            if _fail_if_repin_required(repository_ctx):
+                fail("%s_install.json contains an invalid input signature and must be regenerated. " % (repository_ctx.name) +
+                     "This typically happens when the maven_install artifacts have been changed but not repinned. " +
+                     "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
+                     "%s_install.json and re-pin the artifacts, either run:\n" % repository_ctx.name +
+                     " REPIN=1 bazel run @unpinned_%s//:pin\n" % repository_ctx.name +
+                     "or:\n" +
+                     " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
+                     " 2) Run 'bazel run @unpinned_%s//:pin'\n" % repository_ctx.name +
+                     " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n")
+            else:
+                print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % repository_ctx.name +
+                      "Consider running 'bazel run @unpinned_%s//:pin'" % repository_ctx.name)
+
+    dep_tree_signature = dep_tree.get("__RESOLVED_ARTIFACTS_HASH")
 
     if dep_tree_signature == None:
         print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name +
@@ -332,11 +460,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
         "def pinned_maven_install():",
     ]
+    maven_artifacts = []
     netrc_entries = {}
 
     for artifact in dep_tree["dependencies"]:
         if artifact.get("url") != None:
             http_file_repository_name = escape(artifact["coord"])
+            maven_artifacts.extend([artifact["coord"]])
             http_files.extend([
                 "    http_file(",
                 "        name = \"%s\"," % http_file_repository_name,
@@ -359,6 +489,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             http_files.append("    )")
 
     http_files.extend(_get_jq_http_files())
+
+    http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
     repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     repository_ctx.file(
@@ -396,18 +528,21 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "compat_repository.bzl",
         repository_ctx.attr._compat_repository,
         substitutions = {},
-        executable = False,  # not executable
+        executable = False,
     )
 
     repository_ctx.file(
         "BUILD",
-        _BUILD.format(
-            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
+        (_BUILD + _BUILD_OUTDATED).format(
+            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
+            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
         ),
-        False,  # not executable
+        executable = False,
     )
+
+    _add_outdated_files(repository_ctx, artifacts, repositories)
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
@@ -423,7 +558,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_ctx.file(
                 "compat.bzl",
                 "\n".join(compat_repositories_bzl) + "\n",
-                False,  # not executable
+                executable = False,
             )
 
 def split_url(url):
@@ -440,7 +575,8 @@ def remove_auth_from_url(url):
     host = url_parts[0]
     if "@" not in host:
         return url
-    userless_host = host[host.find("@") + 1:]
+    last_index = host.rfind("@", 0, None)
+    userless_host = host[last_index + 1:]
     new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
 
@@ -471,18 +607,32 @@ def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
             break
     return primary_artifact_path
 
-def _deduplicate_artifacts(dep_tree):
-    deduped_artifacts = {}
-    null_artifacts = []
-    for artifact in dep_tree["dependencies"]:
-        if artifact["file"] == None:
-            null_artifacts.append(artifact)
-            continue
-        if artifact["file"] in deduped_artifacts:
-            continue
-        deduped_artifacts[artifact["file"]] = artifact
-    dep_tree.update({"dependencies": deduped_artifacts.values() + null_artifacts})
-    return dep_tree
+def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
+    if duplicate_version_warning == "none":
+        return
+    seen_artifacts = {}
+    duplicate_artifacts = {}
+    for artifact in artifacts:
+        artifact_coordinate = artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
+        if artifact_coordinate in seen_artifacts:
+            # Don't warn if the same version is in the list multiple times
+            if seen_artifacts[artifact_coordinate] != artifact["version"]:
+                if artifact_coordinate in duplicate_artifacts:
+                    duplicate_artifacts[artifact_coordinate].append(artifact["version"])
+                else:
+                    duplicate_artifacts[artifact_coordinate] = [artifact["version"]]
+        else:
+            seen_artifacts[artifact_coordinate] = artifact["version"]
+
+    if duplicate_artifacts:
+        msg_parts = ["Found duplicate artifact versions"]
+        for duplicate in duplicate_artifacts:
+            msg_parts.append("    {} has multiple versions {}".format(duplicate, ", ".join([seen_artifacts[duplicate]] + duplicate_artifacts[duplicate])))
+        msg_parts.append("Please remove duplicate artifacts from the artifact list so you do not get unexpected artifact versions")
+        if duplicate_version_warning == "error":
+            fail("\n".join(msg_parts))
+        else:
+            print("\n".join(msg_parts))
 
 # Get the path to the cache directory containing Coursier-downloaded artifacts.
 #
@@ -506,6 +656,16 @@ def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
         default_cache_dir = "%s/Coursier/cache/v1" % os_env.get("LOCALAPPDATA").replace("\\", "/")
     elif _is_macos(repository_ctx):
         default_cache_dir = "%s/Library/Caches/Coursier/v1" % os_env.get("HOME")
+    else:
+        # Coursier respects $XDG_CACHE_HOME as a replacement for $HOME/.cache
+        # outside of Windows and macOS.
+        #
+        # - https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
+        # - https://github.com/dirs-dev/directories-jvm/tree/006ca7ff804ca48f692d59a7fce8599f8a1eadfc#projectdirectories
+        # - https://github.com/coursier/coursier/blob/d5ad55d1dcb025084ba9bd994ea47ceae0608a8f/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L44-L59
+        xdg_cache_home = os_env.get("XDG_CACHE_HOME")
+        if xdg_cache_home:
+            return "%s/coursier/v1" % xdg_cache_home
 
     # Logic based on # https://github.com/coursier/coursier/blob/f48c1c6b01ac5b720e66e06cf93587b21d030e8c/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L60
     if _is_directory(repository_ctx, default_cache_dir):
@@ -523,10 +683,10 @@ def make_coursier_dep_tree(
         version_conflict_policy,
         fail_on_missing_checksum,
         fetch_sources,
+        fetch_javadoc,
         use_unsafe_shared_cache,
         timeout,
-        report_progress_prefix="",
-):
+        report_progress_prefix = ""):
     # Set up artifact exclusion, if any. From coursier fetch --help:
     #
     # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
@@ -551,7 +711,7 @@ def make_coursier_dep_tree(
         for coord in artifact_coordinates:
             # Undo any `,classifier=` suffix from `utils.artifact_coordinate`.
             cmd.extend(["--force-version", coord.split(",classifier=")[0]])
-    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src"])])
+    cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src", "doc"])])
     cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
@@ -571,8 +731,11 @@ def make_coursier_dep_tree(
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
 
-    if fetch_sources:
-        cmd.append("--sources")
+    if fetch_sources or fetch_javadoc:
+        if fetch_sources:
+            cmd.append("--sources")
+        if fetch_javadoc:
+            cmd.append("--javadoc")
         cmd.append("--default=true")
 
     environment = {}
@@ -589,19 +752,41 @@ def make_coursier_dep_tree(
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
 
-    repository_ctx.report_progress(
-        "%sResolving and fetching the transitive closure of %s artifact(s).." % (
-            report_progress_prefix, len(artifact_coordinates)))
-    exec_result = repository_ctx.execute(
+    # If we are using Java 9 or higher we can use an argsfile to avoid command line length limits
+    java_path = _java_path(repository_ctx)
+    if java_path:
+        exec_result = _execute(repository_ctx, [java_path, "-version"])
+        if (exec_result.return_code != 0):
+            fail("Error while running java -version: " + exec_result.stderr)
+        if parse_java_version(exec_result.stdout + exec_result.stderr) > 8:
+            java_cmd = cmd[0]
+            java_args = cmd[1:]
+            repository_ctx.file(
+                "java_argsfile",
+                "\n".join([str(f) for f in java_args]) + "\n",
+                executable = False,
+            )
+            cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
+
+    exec_result = _execute(
+        repository_ctx,
         cmd,
         timeout = timeout,
         environment = environment,
-        quiet = not _is_verbose(repository_ctx))
+        progress_message = "%sResolving and fetching the transitive closure of %s artifact(s).." % (
+            report_progress_prefix,
+            len(artifact_coordinates),
+        ),
+    )
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
-    return _deduplicate_artifacts(json_parse(repository_ctx.read(repository_ctx.path(
-        "dep-tree.json"))))
+    return deduplicate_and_sort_artifacts(
+        json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
+        artifacts,
+        excluded_artifacts,
+        _is_verbose(repository_ctx),
+    )
 
 def _download_jq(repository_ctx):
     jq_version = None
@@ -628,11 +813,15 @@ def _coursier_fetch_impl(repository_ctx):
     _download_jq(repository_ctx)
 
     # Try running coursier once
-    exec_result = repository_ctx.execute(
-        _generate_java_jar_command(
-            repository_ctx,
-            repository_ctx.path("coursier")),
-        quiet = not _is_verbose(repository_ctx))
+    cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
+
+    # Add --help because calling the default coursier command on Windows will
+    # hang waiting for input
+    cmd.append("--help")
+    exec_result = _execute(
+        repository_ctx,
+        cmd,
+    )
     if exec_result.return_code != 0:
         fail("Unable to run coursier: " + exec_result.stderr)
 
@@ -641,15 +830,17 @@ def _coursier_fetch_impl(repository_ctx):
     # Deserialize the spec blobs
     repositories = []
     for repository in repository_ctx.attr.repositories:
-        repositories.append(json_parse(repository))
+        repositories.append(json.decode(repository))
 
     artifacts = []
-    for a in repository_ctx.attr.artifacts:
-        artifacts.append(json_parse(a))
+    for artifact in repository_ctx.attr.artifacts:
+        artifacts.append(json.decode(artifact))
+
+    _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
     excluded_artifacts = []
-    for a in repository_ctx.attr.excluded_artifacts:
-        excluded_artifacts.append(json_parse(a))
+    for artifact in repository_ctx.attr.excluded_artifacts:
+        excluded_artifacts.append(json.decode(artifact))
 
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
@@ -665,6 +856,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.attr.version_conflict_policy,
         repository_ctx.attr.fail_on_missing_checksum,
         repository_ctx.attr.fetch_sources,
+        repository_ctx.attr.fetch_javadoc,
         repository_ctx.attr.use_unsafe_shared_cache,
         repository_ctx.attr.resolve_timeout,
     )
@@ -695,6 +887,7 @@ def _coursier_fetch_impl(repository_ctx):
             repository_ctx.attr.version_conflict_policy,
             repository_ctx.attr.fail_on_missing_checksum,
             repository_ctx.attr.fetch_sources,
+            repository_ctx.attr.fetch_javadoc,
             repository_ctx.attr.use_unsafe_shared_cache,
             repository_ctx.attr.resolve_timeout,
             report_progress_prefix = "Second pass for Jetified Artifacts: ",
@@ -721,7 +914,7 @@ def _coursier_fetch_impl(repository_ctx):
         coord_split = artifact["coord"].split(":")
         coord_unversioned = "{}:{}".format(coord_split[0], coord_split[1])
         should_jetify = jetify_all or (repository_ctx.attr.jetify and coord_unversioned in jetify_include_dict)
-        if should_jetify :
+        if should_jetify:
             artifact["directDependencies"] = jetify_artifact_dependencies(artifact["directDependencies"])
             artifact["dependencies"] = jetify_artifact_dependencies(artifact["dependencies"])
 
@@ -735,7 +928,9 @@ def _coursier_fetch_impl(repository_ctx):
         # that mirrors the URL where the artifact's fetched from. Using
         # this, we can reconstruct the original URL.
         primary_url_parts = []
-        filepath_parts = artifact["file"].split("/")
+
+        # _normalize_to_unix_path uses 2 backslashes, but the paths themselves have a single backslash at this point
+        filepath_parts = _normalize_to_unix_path(artifact["file"]).split("/")
         protocol = None
 
         # Only support http/https transports
@@ -744,7 +939,7 @@ def _coursier_fetch_impl(repository_ctx):
                 protocol = part
                 break
         if protocol == None:
-            fail("Only artifacts downloaded over http(s) are supported: %s" % artifact["coord"])
+            fail("Only artifacts downloaded over http(s) are supported: %s - %s (analyzed %s)" % (artifact["coord"], artifact["file"], filepath_parts))
         primary_url_parts.extend([protocol, "://"])
         for part in filepath_parts[filepath_parts.index(protocol) + 1:]:
             primary_url_parts.extend([part, "/"])
@@ -789,11 +984,13 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.file(
         "hasher_argsfile",
         "\n".join([str(f) for f in files_to_hash]) + "\n",
-        False,  # Not executable
+        executable = False,
     )
-    exec_result = repository_ctx.execute(
+    exec_result = _execute(
+        repository_ctx,
         hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
-        quiet = not _is_verbose(repository_ctx))
+        progress_message = "Calculating sha256 checksums..",
+    )
     if exec_result.return_code != 0:
         fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
 
@@ -810,7 +1007,9 @@ def _coursier_fetch_impl(repository_ctx):
         artifact.update({"sha256": shas[str(repository_ctx.path(file))]})
 
     dep_tree.update({
-        "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": _compute_dependency_tree_signature(dep_tree["dependencies"]),
+        "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": "THERE_IS_NO_DATA_ONLY_ZUUL",
+        "__RESOLVED_ARTIFACTS_HASH": _compute_dependency_tree_signature(dep_tree["dependencies"]),
+        "__INPUT_ARTIFACTS_HASH": compute_dependency_inputs_signature(repository_ctx.attr.artifacts),
     })
 
     repository_ctx.report_progress("Generating BUILD targets..")
@@ -838,17 +1037,23 @@ def _coursier_fetch_impl(repository_ctx):
     # the user invokes artifact pinning. Normalize the repository name here.
     if repository_ctx.name.startswith("unpinned_"):
         repository_name = repository_ctx.name[len("unpinned_"):]
+        outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
 
+        # Add outdated artifact files if this is a pinned repo
+        outdated_build_file_content = _BUILD_OUTDATED
+        _add_outdated_files(repository_ctx, artifacts, repositories)
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_PIN).format(
-            visibility = "private" if repository_ctx.attr.strict_visibility else "public",
+        (_BUILD + _BUILD_PIN + outdated_build_file_content).format(
+            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_name,
             imports = generated_imports,
+            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
         ),
-        False,  # not executable
+        executable = False,
     )
 
     # If maven_install.json has already been used in maven_install,
@@ -876,11 +1081,16 @@ def _coursier_fetch_impl(repository_ctx):
     #
     # Create the maven_install.json export script for unpinned repositories.
     dependency_tree_json = "{ \"dependency_tree\": " + repr(dep_tree).replace("None", "null") + "}"
+    repository_ctx.file(
+        "unsorted_deps.json",
+        content = "{dependency_tree_json}".format(
+            dependency_tree_json = dependency_tree_json,
+        ),
+    )
     repository_ctx.template(
         "pin.sh",
         repository_ctx.attr._pin,
         {
-            "{dependency_tree_json}": dependency_tree_json,
             "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
             "{predefined_maven_install}": str(predefined_maven_install),
             "{repository_name}": repository_name,
@@ -906,7 +1116,7 @@ def _coursier_fetch_impl(repository_ctx):
             "compat_repository.bzl",
             repository_ctx.attr._compat_repository,
             substitutions = {},
-            executable = False,  # not executable
+            executable = False,
         )
 
         compat_repositories_bzl = ["load(\"@%s//:compat_repository.bzl\", \"compat_repository\")" % repository_ctx.name]
@@ -921,14 +1131,17 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.file(
             "compat.bzl",
             "\n".join(compat_repositories_bzl) + "\n",
-            False,  # not executable
+            executable = False,
         )
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
-        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
+        "_outdated": attr.label(default = "//private:outdated.sh"),
+        "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
+        "fetch_javadoc": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
@@ -940,9 +1153,27 @@ pinned_coursier_fetch = repository_rule(
             """,
             default = False,
         ),
+        "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
+        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
+        "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
+        "duplicate_version_warning": attr.string(
+            doc = """What to do if there are duplicate artifacts
+
+            If "error", then print a message and fail the build.
+            If "warn", then print a warning and continue.
+            If "none", then do nothing.
+            """,
+            default = "warn",
+            values = [
+                "error",
+                "warn",
+                "none",
+            ],
+        ),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -950,12 +1181,14 @@ pinned_coursier_fetch = repository_rule(
 coursier_fetch = repository_rule(
     attrs = {
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
-        "_pin": attr.label(default = "//:private/pin.sh"),
-        "_compat_repository": attr.label(default = "//:private/compat_repository.bzl"),
+        "_pin": attr.label(default = "//private:pin.sh"),
+        "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
+        "_outdated": attr.label(default = "//private:outdated.sh"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
+        "fetch_javadoc": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
@@ -981,9 +1214,26 @@ coursier_fetch = repository_rule(
             """,
             default = False,
         ),
+        "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
         "resolve_timeout": attr.int(default = 600),
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
+        "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
+        "duplicate_version_warning": attr.string(
+            doc = """What to do if there are duplicate artifacts
+
+            If "error", then print a message and fail the build.
+            If "warn", then print a warning and continue.
+            If "none", then do nothing.
+            """,
+            default = "warn",
+            values = [
+                "error",
+                "warn",
+                "none",
+            ],
+        ),
     },
     environ = [
         "JAVA_HOME",
@@ -994,8 +1244,10 @@ coursier_fetch = repository_rule(
         "no_proxy",
         "NO_PROXY",
         "COURSIER_CACHE",
+        "COURSIER_OPTS",
         "COURSIER_URL",
         "RJE_VERBOSE",
+        "XDG_CACHE_HOME",
     ],
     implementation = _coursier_fetch_impl,
 )

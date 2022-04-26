@@ -17,11 +17,11 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
-load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
+load("//private:coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
-def _genrule_copy_artifact_from_http_file(artifact):
+def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     http_file_repository = escape(artifact["coord"])
     return "\n".join([
         "genrule(",
@@ -29,6 +29,7 @@ def _genrule_copy_artifact_from_http_file(artifact):
         "     srcs = [\"@%s//file\"]," % http_file_repository,
         "     outs = [\"%s\"]," % artifact["file"],
         "     cmd = \"cp $< $@\",",
+        "     visibility = [%s]" % (",".join(["\"%s\"" % v for v in visibilities])),
         ")",
     ])
 
@@ -65,6 +66,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     for coord in override_targets:
         labels_to_override.update({escape(coord): override_targets.get(coord)})
 
+    default_visibilities = repository_ctx.attr.strict_visibility_value if repository_ctx.attr.strict_visibility else ["//visibility:public"]
+
     # First collect a map of target_label to their srcjar relative paths, and symlink the srcjars if needed.
     # We will use this map later while generating target declaration strings with the "srcjar" attr.
     srcjar_paths = None
@@ -78,7 +81,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_path
                     if repository_ctx.attr.maven_install_json:
-                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
+                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
 
     jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
@@ -100,13 +103,19 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         elif repository_ctx.attr.fetch_sources and get_classifier(artifact["coord"]) == "sources":
             # We already processed the sources above, so skip them here.
             pass
+        elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coord"]) == "javadoc":
+            seen_imports[target_label] = True
+            all_imports.append(
+                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_path),
+            )
         elif get_packaging(artifact["coord"]) == "json":
             seen_imports[target_label] = True
             versioned_target_alias_label = "%s_extension" % escape(artifact["coord"])
             all_imports.append(
-                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label))
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label),
+            )
             if repository_ctx.attr.maven_install_json:
-              all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
         elif target_label in labels_to_override:
             # Override target labels with the user provided mapping, instead of generating
             # a jvm_import/aar_import based on information in dep_tree.
@@ -116,7 +125,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             )
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
         elif artifact_path != None:
             seen_imports[target_label] = True
 
@@ -135,7 +144,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 import_rule = "aar_import"
             else:
                 fail("Unsupported packaging type: " + packaging)
-            if jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict):
+            jetify = jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict)
+            if jetify:
                 import_rule = "jetify_" + import_rule
             target_import_string = [import_rule + "("]
 
@@ -161,6 +171,13 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
             elif packaging == "aar":
                 target_import_string.append("\taar = \"%s\"," % artifact_path)
+                if srcjar_paths != None and target_label in srcjar_paths:
+                    target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
+                if jetify and repository_ctx.attr.use_starlark_android_rules:
+                    # Because jetifier.bzl cannot conditionally import the starlark rules
+                    # (it's not a generated file), inject the aar_import rule from
+                    # the load statement in the generated file.
+                    target_import_string.append("\t_aar_import = aar_import,")
 
             # 4. Generate the deps attribute with references to other target labels.
             #
@@ -205,8 +222,15 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
-            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
+
+            target_import_string.append("\ttags = [")
+            target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coord"])
+            target_import_string.append("\t\t\"maven_url=%s\"," % artifact["url"])
+            target_import_string.append("\t],")
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
             #    available only as a compile time dependency.
@@ -218,7 +242,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             if neverlink_artifacts.get(simple_coord):
                 target_import_string.append("\tneverlink = True,")
@@ -233,7 +260,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   deps = [
             #       ":org_hamcrest_hamcrest_core",
             #   ],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             #   testonly = True,
             if testonly_artifacts.get(simple_coord):
@@ -249,13 +279,19 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             #   testonly = True,
             #   visibility = ["//visibility:public"],
             if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
                 alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
+            else:
+                target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % v for v in default_visibilities])))
+                alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % v for v in default_visibilities]))
 
             # 9. Finish the java_import rule.
             #
@@ -266,7 +302,10 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	deps = [
             # 		":org_hamcrest_hamcrest_core",
             # 	],
-            #   tags = ["maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #   tags = [
+            #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+            #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+            #   ],
             #   neverlink = True,
             #   testonly = True,
             # )
@@ -294,7 +333,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #     cmd = "cp $< $@",
             # )
             if repository_ctx.attr.maven_install_json:
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact))
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
 
         else:  # artifact_path == None:
             # Special case for certain artifacts that only come with a POM file.
@@ -335,6 +374,9 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
                 alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
+            else:
+                target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % v for v in default_visibilities])))
+                alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % v for v in default_visibilities]))
 
             target_import_string.append(")")
 

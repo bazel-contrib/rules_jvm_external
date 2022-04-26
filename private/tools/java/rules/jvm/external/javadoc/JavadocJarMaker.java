@@ -52,26 +52,37 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class JavadocJarMaker {
 
+  private static Version JAVA_9 = Version.parse("9.0.0");
+  private static Version JAVA_13 = Version.parse("13.0.0");
+
   public static void main(String[] args) throws IOException {
     Set<Path> sourceJars = new HashSet<>();
     Path out = null;
     Set<Path> classpath = new HashSet<>();
+    List<String> options = new ArrayList<>();
 
     for (int i = 0; i < args.length; i++) {
       String flag = args[i];
-      String next = args[++i];
+      String next;
 
       switch (flag) {
         case "--cp":
+          next = args[++i];
           classpath.add(Paths.get(next));
           break;
 
         case "--in":
+          next = args[++i];
           sourceJars.add(Paths.get(next));
           break;
 
         case "--out":
+          next = args[++i];
           out = Paths.get(next);
+          break;
+
+        default:
+          options.add(flag);
           break;
       }
     }
@@ -110,12 +121,24 @@ public class JavadocJarMaker {
         return;
       }
 
-      List<String> options = new ArrayList<>();
       if (!classpath.isEmpty()) {
         options.add("-cp");
         options.add(classpath.stream().map(String::valueOf).collect(Collectors.joining(File.pathSeparator)));
       }
-      options.addAll(Arrays.asList("-html5", "--frames", "-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"));
+      Version version = Version.parse(System.getProperty("java.version"));
+
+      options.addAll(Arrays.asList("-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"));
+
+      // Generate frames if we can. Java prior to v9 generates frames automatically.
+      // In Java 13, the flag was removed.
+      if (version.compareTo(JAVA_9) > 0 && version.compareTo(JAVA_13) < 0) {
+        options.add("--frames");
+      }
+
+      // If we can, generate HTML 5 documentation
+      if (version.compareTo(JAVA_9) > 0) {
+        options.add("-html5");
+      }
 
       Path outputTo = Files.createTempDirectory("output-dir");
       tempDirs.add(outputTo);

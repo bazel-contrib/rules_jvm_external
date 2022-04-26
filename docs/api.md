@@ -29,7 +29,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## javadoc
 
 <pre>
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>)
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -41,6 +41,7 @@ Generate a javadoc from all the `deps`
 | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
 | name |  A unique name for this target.   | <a href="https://bazel.build/docs/build-ref.html#name">Name</a> | required |  |
 | deps |  The java libraries to generate javadocs for.<br><br>          The source jars of each dep will be used to generate the javadocs.           Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a> | required |  |
+| javadocopts |  javadoc options.             Note sources and classpath are derived from the deps. Any additional             options can be passed here.   | List of strings | optional | [] |
 
 
 <a name="#java_export"></a>
@@ -48,7 +49,7 @@ Generate a javadoc from all the `deps`
 ## java_export
 
 <pre>
-java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-kwargs">kwargs</a>)
+java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
 
 Extends `java_library` to allow maven artifacts to be uploaded.
@@ -71,7 +72,8 @@ the template file:
   * `{groupId}`: Replaced with the maven coordinates group ID.
   * `{artifactId}`: Replaced with the maven coordinates artifact ID.
   * `{version}`: Replaced by the maven coordinates version.
-  * `{type}`: Replaced by the maven coordintes type, if present (defaults to "jar")
+  * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
+  * `{scope}`: Replaced by the maven coordinates scope, if present (defaults to "compile")
   * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
     by java_library targets within the artifact.
 
@@ -82,6 +84,8 @@ runtime dependencies for the following tags:
     this artifact.
   * `maven:compile_only`: Specifies that this dependency should not be listed
     as a dependency of the artifact being generated.
+
+To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.
 
 Generated rules:
   * `name`: A `java_library` that other rules can depend upon.
@@ -97,8 +101,10 @@ Generated rules:
 | :-------------: | :-------------: | :-------------: |
 | name |  A unique name for this target   |  none |
 | maven_coordinates |  The maven coordinates for this target.   |  none |
+| deploy_env |  A list of labels of java targets to exclude from the generated jar   |  <code>[]</code> |
 | pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
 | visibility |  The visibility of the target   |  <code>None</code> |
+| tags |  <p align="center"> - </p>   |  <code>[]</code> |
 | kwargs |  These are passed to [<code>java_library</code>](https://docs.bazel.build/versions/master/be/java.html#java_library),   and so may contain any valid parameter for that rule.   |  none |
 
 
@@ -107,10 +113,12 @@ Generated rules:
 ## maven_install
 
 <pre>
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>,
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-fetch_javadoc">fetch_javadoc</a>,
               <a href="#maven_install-use_unsafe_shared_cache">use_unsafe_shared_cache</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
               <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
-              <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-jetify">jetify</a>, <a href="#maven_install-jetify_include_list">jetify_include_list</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>)
+              <a href="#maven_install-strict_visibility_value">strict_visibility_value</a>, <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-jetify">jetify</a>, <a href="#maven_install-jetify_include_list">jetify_include_list</a>,
+              <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>, <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>,
+              <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven_install-duplicate_version_warning">duplicate_version_warning</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -129,6 +137,7 @@ and fetch Maven artifacts transitively.
 | artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact:version</code>.   |  <code>[]</code> |
 | fail_on_missing_checksum |  <p align="center"> - </p>   |  <code>True</code> |
 | fetch_sources |  Additionally fetch source JARs.   |  <code>False</code> |
+| fetch_javadoc |  Additionally fetch javadoc JARs.   |  <code>False</code> |
 | use_unsafe_shared_cache |  Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is   currently unable to detect modifications to the cache.   |  <code>False</code> |
 | excluded_artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact</code> to be   excluded from the transitive dependencies.   |  <code>[]</code> |
 | generate_compat_repositories |  Additionally generate repository aliases in a .bzl file for all JAR   artifacts. For example, <code>@maven//:com_google_guava_guava</code> can also be referenced as   <code>@com_google_guava_guava//jar</code>.   |  <code>False</code> |
@@ -136,10 +145,15 @@ and fetch Maven artifacts transitively.
 | maven_install_json |  A label to a <code>maven_install.json</code> file to use pinned artifacts for generating   build targets. e.g <code>//:maven_install.json</code>.   |  <code>None</code> |
 | override_targets |  A mapping of <code>group:artifact</code> to Bazel target labels. All occurrences of the   target label for <code>group:artifact</code> will be an alias to the specified label, therefore overriding   the original generated <code>jvm_import</code> or <code>aar_import</code> target.   |  <code>{}</code> |
 | strict_visibility |  Controls visibility of transitive dependencies. If <code>True</code>, transitive dependencies   are private and invisible to user's rules. If <code>False</code>, transitive dependencies are public and   visible to user's rules.   |  <code>False</code> |
+| strict_visibility_value |  Allows changing transitive dependencies strict visibility scope from private   to specified scopes list.   |  <code>["//visibility:private"]</code> |
 | resolve_timeout |  The execution timeout of resolving and fetching artifacts.   |  <code>600</code> |
 | jetify |  Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.   |  <code>False</code> |
 | jetify_include_list |  List of artifacts that need to be jetified in <code>groupId:artifactId</code> format. By default all artifacts are jetified if <code>jetify</code> is set to True.   |  <code>["*"]</code> |
 | additional_netrc_lines |  Additional lines prepended to the netrc file used by <code>http_file</code> (with <code>maven_install_json</code> only).   |  <code>[]</code> |
+| fail_if_repin_required |  Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the <code>maven_install_json</code> to have been set.   |  <code>False</code> |
+| use_starlark_android_rules |  Whether to use the native or Starlark version   of the Android rules. Default is False.   |  <code>False</code> |
+| aar_import_bzl_label |  The label (as a string) to use to import aar_import   from. This is usually needed only if the top-level workspace file does   not use the typical default repository name to import the Android   Starlark rules. Default is   "@build_bazel_rules_android//rules:rules.bzl".   |  <code>"@build_bazel_rules_android//android:rules.bzl"</code> |
+| duplicate_version_warning |  What to do if an artifact is specified multiple times. If "error" then   fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default   is "warn".   |  <code>"warn"</code> |
 
 
 # Maven specification functions

@@ -1,6 +1,6 @@
 ---
 tasks:
-  ubuntu1604:
+  ubuntu1804:
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
@@ -9,6 +9,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - tests/bazel_run_tests.sh
     test_flags:
       - "--//settings:stamp_manifest=True"
     test_targets:
@@ -25,30 +26,34 @@ tasks:
       - "//..."
       # These tests are currently incompatible with RBE
       - "-//tests/integration/override_targets"
-  ubuntu1804_1_0_1:
+      - "-//tests/com/jvm/external/maven:OutdatedTest"
+  ubuntu1804_4_0_0:
     platform: ubuntu1804
-    bazel: 1.0.1
+    bazel: 4.0.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_1_1_0:
+  ubuntu1804_4_2_2:
     platform: ubuntu1804
-    bazel: 1.1.0
+    bazel: 4.2.2
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_1_2_0:
+  ubuntu1804_5_0_0:
     platform: ubuntu1804
-    bazel: 1.2.0
+    bazel: 5.0.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -63,6 +68,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -75,12 +81,14 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - tests/bazel_run_tests.sh
     test_flags:
       - "--//settings:stamp_manifest=True"
     test_targets:
       - "//..."
       # manual tests
-      - "//tests/com/jvm/external:UnsafeSharedCacheTest"
+      # commented out until https://github.com/bazelbuild/rules_jvm_external/issues/610 is fixed for Java 11
+      # - "//tests/com/jvm/external:UnsafeSharedCacheTest"
       - "//tests/unit/manifest_stamp:diff_manifest_test" # https://github.com/bazelbuild/rules_jvm_external/issues/283
   windows:
     environment:
@@ -91,6 +99,7 @@ tasks:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - bazel run @duplicate_artifacts_test//:pin
+      - tests/bazel_run_tests.sh
     test_targets:
       - "--"
       - "//..."
@@ -99,3 +108,5 @@ tasks:
       # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
       - "-//tests/unit/kotlin/..."
       - "-//tests/integration/override_targets"
+      # https://github.com/bazelbuild/rules_jvm_external/issues/586
+      - "-//tests/unit/manifest_stamp:diff_signed_manifest_test"

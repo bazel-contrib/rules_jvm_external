@@ -27,8 +27,8 @@ java_test(
     srcs = ["JsonArtifactsTest.java"],
     test_class = "com.jvm.external.JsonArtifactsTest",
     deps = [
-        "@json_artifacts_testing//:org_json_json",
         "@json_artifacts_testing//:io_quarkus_quarkus_maven_plugin",
+        "@json_artifacts_testing//:org_json_json",
     ],
 )
 
@@ -45,11 +45,11 @@ java_test(
 java_test(
     name = "UnsafeSharedCacheTest",
     srcs = ["UnsafeSharedCacheTest.java"],
+    tags = ["manual"],
     test_class = "com.jvm.external.UnsafeSharedCacheTest",
     deps = [
         "//tests/integration:guava_import",
         "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_core",
     ],
-    tags = ["manual"],
 )

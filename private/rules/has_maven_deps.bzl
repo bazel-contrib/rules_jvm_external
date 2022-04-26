@@ -1,33 +1,42 @@
 MavenInfo = provider(
     fields = {
+        # Fields to do with maven coordinates
         "coordinates": "Maven coordinates for the project, which may be None",
-        "artifact_jars": "Depset of runtime jars that are unique to the artifact",
-        "jars_from_maven_deps": "Depset of jars from all transitive maven dependencies",
-        "artifact_source_jars": "Depset of source jars that unique to the artifact",
-        "source_jars_from_maven_deps": "Depset of jars from all transitive maven dependencies",
-        "maven_deps": "Depset of first order maven dependencies",
+        "maven_deps": "Depset of first-order maven dependencies",
         "as_maven_dep": "Depset of this project if used as a maven dependency",
-        "deps_java_infos": "Depset of JavaInfo instances of dependencies not included in the project",
-        "transitive_infos": "Dict of label to JavaInfos",
+
+        # Fields used for generating artifacts
+        "artifact_infos": "Depset of JavaInfo instances of targets to include in the maven artifact",
+        "dep_infos": "Depset of JavaInfo instances of dependencies that the maven artifact depends on",
+        "label_to_javainfo": "Dict mapping a label to the JavaInfo that label produces",
+        "transitive_exports": "Depset of Labels of exported targets",
+    },
+)
+
+MavenHintInfo = provider(
+    doc = """Provides hints to the `has_maven_deps` aspect about additional dependencies.
+This is particularly useful if outputs are generated from aspects, and so may not be able
+to offer `tags` to be used to infer maven information.
+""",
+    fields = {
+        "maven_infos": "Depset of MavenInfo instances to also consider as dependencies",
     },
 )
 
 _EMPTY_INFO = MavenInfo(
     coordinates = None,
-    artifact_jars = depset(),
-    artifact_source_jars = depset(),
-    jars_from_maven_deps = depset(),
-    source_jars_from_maven_deps = depset(),
     maven_deps = depset(),
     as_maven_dep = depset(),
-    deps_java_infos = depset(),
-    transitive_infos = {},
+    artifact_infos = depset(),
+    dep_infos = depset(),
+    label_to_javainfo = {},
+    transitive_exports = depset(),
 )
 
 _MAVEN_PREFIX = "maven_coordinates="
 _STOP_TAGS = ["maven:compile-only", "no-maven"]
 
-def _read_coordinates(tags):
+def read_coordinates(tags):
     coordinates = []
     for stop_tag in _STOP_TAGS:
         if stop_tag in tags:
@@ -56,8 +65,51 @@ def _set_diff(first, second):
 
     return [item for item in first if item not in second]
 
-def _filter_external_jars(workspace_name, items):
-    return [item for item in items if item.owner.workspace_name in ["", workspace_name]]
+def _flatten(array_of_depsets):
+    flattened = {}
+    for dep in array_of_depsets:
+        for item in dep.to_list():
+            flattened.update({item: True})
+
+    return flattened.keys()
+
+def calculate_artifact_jars(maven_info):
+    """Calculate the actual jars to include in a maven artifact"""
+    all_jars = _flatten([i.transitive_runtime_jars for i in maven_info.artifact_infos.to_list()])
+    dep_jars = _flatten([i.transitive_runtime_jars for i in maven_info.dep_infos.to_list()])
+
+    return _set_diff(all_jars, dep_jars)
+
+def calculate_artifact_source_jars(maven_info):
+    """Calculate the actual jars to include in a maven artifact"""
+    all_jars = _flatten([i.transitive_source_jars for i in maven_info.artifact_infos.to_list()])
+    dep_jars = _flatten([i.transitive_source_jars for i in maven_info.dep_infos.to_list()])
+
+    return _set_diff(all_jars, dep_jars)
+
+# Used to gather maven data
+_gathered = provider(
+    fields = [
+        "all_infos",
+        "label_to_javainfo",
+        "artifact_infos",
+        "transitive_exports",
+        "dep_infos",
+    ],
+)
+
+def _extract_from(gathered, maven_info, dep, include_transitive_exports):
+    java_info = dep[JavaInfo] if dep and JavaInfo in dep else None
+
+    gathered.all_infos.append(maven_info)
+    gathered.label_to_javainfo.update(maven_info.label_to_javainfo)
+    if java_info:
+        if maven_info.coordinates:
+            gathered.dep_infos.append(dep[JavaInfo])
+        else:
+            gathered.artifact_infos.append(dep[JavaInfo])
+            if include_transitive_exports:
+                gathered.transitive_exports.append(maven_info.transitive_exports)
 
 def _has_maven_deps_impl(target, ctx):
     if not JavaInfo in target:
@@ -68,58 +120,52 @@ def _has_maven_deps_impl(target, ctx):
         if tag in _STOP_TAGS:
             return _EMPTY_INFO
 
-    all_deps = []
+    coordinates = read_coordinates(ctx.rule.attr.tags)
+    label_to_javainfo = {target.label: target[JavaInfo]}
+
+    gathered = _gathered(
+        all_infos = [],
+        artifact_infos = [target[JavaInfo]],
+        transitive_exports = [],
+        dep_infos = [],
+        label_to_javainfo = {target.label: target[JavaInfo]},
+    )
+
     for attr in _ASPECT_ATTRS:
-        all_deps.extend(getattr(ctx.rule.attr, attr, []))
+        for dep in getattr(ctx.rule.attr, attr, []):
+            if MavenHintInfo in dep:
+                for info in dep[MavenHintInfo].maven_infos.to_list():
+                    _extract_from(gathered, info, None, attr == "exports")
 
-    all_infos = []
-    first_order_java_infos = []
-    for dep in all_deps:
-        if not MavenInfo in dep:
-            continue
+            if not MavenInfo in dep:
+                continue
 
-        all_infos.append(dep[MavenInfo])
+            info = dep[MavenInfo]
+            _extract_from(gathered, info, dep, attr == "exports")
 
-        if JavaInfo in dep and dep[MavenInfo].coordinates:
-            first_order_java_infos.append(dep[JavaInfo])
+    all_infos = gathered.all_infos
+    artifact_infos = gathered.artifact_infos
+    transitive_exports_from_deps = gathered.transitive_exports
+    dep_infos = gathered.dep_infos
+    label_to_javainfo = gathered.label_to_javainfo
+    maven_deps = depset(transitive = [i.as_maven_dep for i in all_infos])
 
-    deps_java_infos = depset(
-        direct = first_order_java_infos,
-        transitive = [dep.deps_java_infos for dep in all_infos])
-
-    all_jars = target[JavaInfo].transitive_runtime_jars
-    jars_from_maven_deps = depset(transitive = [info.jars_from_maven_deps for info in all_infos])
-    items = _set_diff(all_jars.to_list(), jars_from_maven_deps.to_list())
-    artifact_jars = depset(_filter_external_jars(ctx.workspace_name, items))
-
-    all_source_jars = target[JavaInfo].transitive_source_jars
-    source_jars_from_maven_deps = depset(transitive = [jpi.source_jars_from_maven_deps for jpi in all_infos])
-    items = _set_diff(all_source_jars.to_list(), source_jars_from_maven_deps.to_list())
-    artifact_source_jars = depset(_filter_external_jars(ctx.workspace_name, items))
-
-    coordinates = _read_coordinates(ctx.rule.attr.tags)
-
-    first_order_maven_deps = depset(transitive = [jpi.as_maven_dep for jpi in all_infos])
-
-    # If we have coordinates our current `all_jars` is also our `maven_dep_jars`.
-    # Otherwise, we need to collect them from the MavenInfos we depend
-    # upon.
-    maven_dep_jars = all_jars if coordinates else jars_from_maven_deps
-
-    transitive_infos = {target.label: target[JavaInfo]}
-    for mi in all_infos:
-        transitive_infos.update(mi.transitive_infos)
+    transitive_exports_from_exports = depset()
+    if hasattr(ctx.rule.attr, "exports"):
+        transitive_exports_from_exports = depset(
+            [e.label for e in ctx.rule.attr.exports],
+            transitive =
+                [e[MavenInfo].transitive_exports for e in ctx.rule.attr.exports],
+        )
 
     info = MavenInfo(
         coordinates = coordinates,
-        artifact_jars = artifact_jars,
-        jars_from_maven_deps = all_jars if coordinates else jars_from_maven_deps,
-        artifact_source_jars = artifact_source_jars,
-        source_jars_from_maven_deps = all_source_jars if coordinates else source_jars_from_maven_deps,
-        maven_deps = first_order_maven_deps,
-        as_maven_dep = depset([coordinates]) if coordinates else first_order_maven_deps,
-        deps_java_infos = deps_java_infos,
-        transitive_infos = transitive_infos,
+        maven_deps = maven_deps,
+        as_maven_dep = depset([coordinates]) if coordinates else maven_deps,
+        artifact_infos = depset(direct = artifact_infos),
+        dep_infos = depset(direct = dep_infos, transitive = [i.dep_infos for i in all_infos]),
+        label_to_javainfo = label_to_javainfo,
+        transitive_exports = depset(transitive = [transitive_exports_from_exports] + transitive_exports_from_deps),
     )
 
     return [

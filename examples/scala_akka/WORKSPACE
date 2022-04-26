@@ -7,45 +7,56 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "d399f651dbdc5f9116a2da199a808c815c0aeeb8d0b46e3213eee5a41263aeff",
-    strip_prefix = "protobuf-3.8.0-rc1",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.8.0-rc1.tar.gz"],
+    sha256 = "b07772d38ab07e55eca4d50f4b53da2d998bb221575c60a4f81100242d4b4889",
+    strip_prefix = "protobuf-3.20.0",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.20.0.tar.gz"],
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "2ea8a5ed2b448baf4a6855d3ce049c4c452a6470b1efd1504fdb7c1c134d220a",
-    strip_prefix = "bazel-skylib-0.8.0",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/0.8.0.tar.gz"],
-)
-
-RULES_SCALA_VERSION = "a676633dc14d8239569affb2acafbef255df3480"
+RULES_SCALA_VERSION = "e4560ac332e9da731c1e50a76af2579c55836a5c"
 
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "b8b18d0fe3f6c3401b4f83f78f536b24c7fb8b92c593c1dcbcd01cc2b3e85c9a",
+    sha256 = "ccf19e8f966022eaaca64da559c6140b23409829cb315f2eff5dc3e757fb6ad8",
     strip_prefix = "rules_scala-%s" % RULES_SCALA_VERSION,
     url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % RULES_SCALA_VERSION,
 )
 
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+
+scala_config()
+
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_repositories")
 
-scala_repositories((
-    "2.12.8",
-    {
-        "scala_compiler": "f34e9119f45abd41e85b9e121ba19dd9288b3b4af7f7047e86dc70236708d170",
-        "scala_library": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
-        "scala_reflect": "4d6405395c4599ce04cea08ba082339e3e42135de9aae2923c9f5367e957315a",
+scala_repositories(
+    overriden_artifacts = {
+        "io_bazel_rules_scala_scala_compiler": {
+            "artifact": "org.scala-lang:scala-compiler:2.12.8",
+            "sha256": "f34e9119f45abd41e85b9e121ba19dd9288b3b4af7f7047e86dc70236708d170",
+        },
+        "io_bazel_rules_scala_scala_library": {
+            "artifact": "org.scala-lang:scala-library:2.12.8",
+            "sha256": "321fb55685635c931eba4bc0d7668349da3f2c09aee2de93a70566066ff25c28",
+        },
+        "io_bazel_rules_scala_scala_reflect": {
+            "artifact": "org.scala-lang:scala-reflect:2.12.8",
+            "sha256": "4d6405395c4599ce04cea08ba082339e3e42135de9aae2923c9f5367e957315a",
+        },
     },
-))
+)
 
 load("@io_bazel_rules_scala//scala:toolchains.bzl", "scala_register_toolchains")
 
 scala_register_toolchains()
+
+load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
+
+scalatest_repositories()
+
+scalatest_toolchain()
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
@@ -68,7 +79,7 @@ maven_install(
     fetch_sources = True,
     maven_install_json = "//:maven_install.json",
     repositories = [
-        "https://jcenter.bintray.com",
+        "https://repo1.maven.org/maven2",
     ],
 )
 

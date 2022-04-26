@@ -5,6 +5,14 @@ local_repository(
     path = "../../",
 )
 
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 protobuf_version = "3.11.3"
@@ -17,7 +25,7 @@ maven_install(
     fetch_sources = True,
     maven_install_json = "//:maven_install.json",
     repositories = [
-        "https://jcenter.bintray.com",
+        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -56,4 +64,3 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 
 rules_proto_toolchains()
-

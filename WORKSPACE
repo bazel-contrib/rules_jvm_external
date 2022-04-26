@@ -1,14 +1,10 @@
 workspace(name = "rules_jvm_external")
 
-android_sdk_repository(
-    name = "androidsdk",
-    api_level = 28,
-    build_tools_version = "28.0.2",
-)
+android_sdk_repository(name = "androidsdk")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
-    "//:private/versions.bzl",
+    "//private:versions.bzl",
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_HTTP_FILE_NAME",
     "COURSIER_CLI_SHA256",
@@ -37,8 +33,6 @@ bazel_skylib_workspace()
 
 # End Skylib dependencies
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 http_archive(
     name = "io_bazel_stardoc",
     sha256 = "4a355dccc713458071f441f3dafd7452b3111c53cde554d0847b9a82d657149e",
@@ -46,15 +40,45 @@ http_archive(
     url = "https://github.com/bazelbuild/stardoc/archive/4378e9b6bb2831de7143580594782f538f461180.zip",
 )
 
+http_archive(
+    name = "io_bazel_rules_kotlin",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.5.0-beta-4/rules_kotlin_release.tgz"],
+    sha256 = "6cbd4e5768bdfae1598662e40272729ec9ece8b7bded8f0d2c81c8ff96dc139d",
+)
+
+load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+kotlin_repositories()
+
+load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
+kt_register_toolchains()
+
 # Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
 # usage of Stardoc (scripts/generate_docs) doesn't require any of these
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
+load("//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
 # Begin test dependencies
 
 load("//:defs.bzl", "maven_install")
 load("//:specs.bzl", "maven")
+
+maven_install(
+    name = "outdated",
+    artifacts = [
+        "org.apache.maven:maven-artifact:3.6.3",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
 
 maven_install(
     artifacts = [
@@ -63,7 +87,7 @@ maven_install(
     ],
     maven_install_json = "@rules_jvm_external//:maven_install.json",
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -104,16 +128,16 @@ maven_install(
     name = "exclusion_testing",
     artifacts = [
         maven.artifact(
-            group = "com.google.guava",
             artifact = "guava",
-            version = "27.0-jre",
             exclusions = [
                 maven.exclusion(
-                    group = "org.codehaus.mojo",
                     artifact = "animal-sniffer-annotations",
+                    group = "org.codehaus.mojo",
                 ),
                 "com.google.j2objc:j2objc-annotations",
             ],
+            group = "com.google.guava",
+            version = "27.0-jre",
         ),
     ],
     repositories = [
@@ -130,8 +154,8 @@ maven_install(
     ],
     excluded_artifacts = [
         maven.exclusion(
-            group = "org.codehaus.mojo",
             artifact = "animal-sniffer-annotations",
+            group = "org.codehaus.mojo",
         ),
         "com.google.j2objc:j2objc-annotations",
     ],
@@ -146,7 +170,7 @@ maven_install(
         "com.google.guava:guava:27.0-jre",
         "javax.inject:javax.inject:1",
         "org.apache.beam:beam-sdks-java-core:2.15.0",
-        "org.bouncycastle:bcprov-jdk15on:1.64"
+        "org.bouncycastle:bcprov-jdk15on:1.64",
     ],
     maven_install_json = "//tests/custom_maven_install:manifest_stamp_testing_install.json",
     repositories = [
@@ -170,7 +194,9 @@ maven_install(
         "junit:junit:4.12",
         "org.jetbrains.kotlin:kotlin-test:1.3.21",
         # https://github.com/bazelbuild/rules_jvm_external/issues/101
-        "com.digitalasset:damlc:jar:osx:100.12.1",
+        # As referenced in the issue, daml is not available anymore, hence
+        # replacing with another artifact with a classifier.
+        "org.eclipse.jetty:jetty-http:jar:tests:9.4.20.v20190813",
         # https://github.com/bazelbuild/rules_jvm_external/issues/116
         "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
         # https://github.com/bazelbuild/rules_jvm_external/issues/92#issuecomment-478430167
@@ -216,7 +242,6 @@ maven_install(
     },
     repositories = [
         "https://repo1.maven.org/maven2",
-        "https://digitalassetsdk.bintray.com/DigitalAssetSDK",
         "https://maven.google.com",
         "https://packages.confluent.io/maven/",
     ],
@@ -226,15 +251,15 @@ maven_install(
     name = "testonly_testing",
     artifacts = [
         maven.artifact(
-            group = "com.google.guava",
             artifact = "guava",
+            group = "com.google.guava",
             version = "27.0-jre",
         ),
         maven.artifact(
-            group = "com.google.auto.value",
-            artifact = "auto-value-annotations",
-            version = "1.6.3",
             testonly = True,
+            artifact = "auto-value-annotations",
+            group = "com.google.auto.value",
+            version = "1.6.3",
         ),
     ],
     repositories = [
@@ -279,10 +304,10 @@ maven_install(
         "org.apache.tomcat:tomcat-catalina:9.0.24",
         # https://github.com/bazelbuild/rules_jvm_external/issues/255
         maven.artifact(
-            group = "org.eclipse.jetty",
             artifact = "jetty-http",
-            version = "9.4.20.v20190813",
             classifier = "tests",
+            group = "org.eclipse.jetty",
+            version = "9.4.20.v20190813",
         ),
     ],
     repositories = [
@@ -309,12 +334,12 @@ maven_install(
         "com.typesafe.play:play_2.11:2.5.19",
         "org.scalatestplus.play:scalatestplus-play_2.11:2.0.1",
     ],
+    fetch_sources = True,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
-    version_conflict_policy = "pinned",
-    fetch_sources = True,
     use_unsafe_shared_cache = True,
+    version_conflict_policy = "pinned",
 )
 
 maven_install(
@@ -324,11 +349,11 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
+    jetify = True,
     repositories = [
-        "https://jcenter.bintray.com/",
+        "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
-    jetify = True,
 )
 
 maven_install(
@@ -338,14 +363,133 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
         "com.android.support:swiperefreshlayout:28.0.0",
     ],
-    repositories = [
-        "https://jcenter.bintray.com/",
-        "https://maven.google.com",
-    ],
     jetify = True,
     jetify_include_list = [
         "com.android.support:appcompat-v7",
     ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+)
+
+maven_install(
+    name = "duplicate_version_warning",
+    artifacts = [
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.12.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.11.2",
+        "com.github.jnr:jffi:1.3.4",
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.3",
+        ),
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.2",
+        ),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+)
+
+maven_install(
+    name = "duplicate_version_warning_same_version",
+    artifacts = [
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.3",
+        ),
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.3",
+        ),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+)
+
+maven_install(
+    name = "jvm_import_test",
+    artifacts = [
+        "com.google.code.findbugs:jsr305:3.0.2",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
+    name = "starlark_aar_import_with_sources_test",
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
+    artifacts = [
+        "androidx.work:work-runtime:2.6.0",
+    ],
+    fetch_sources = True,
+    jetify = False,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    use_starlark_android_rules = True,
+)
+
+maven_install(
+    name = "starlark_aar_import_test",
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
+    artifacts = [
+        "com.android.support:appcompat-v7:28.0.0",
+    ],
+    fetch_sources = False,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    use_starlark_android_rules = True,
+)
+
+maven_install(
+    name = "starlark_aar_import_with_jetify_test",
+    # Not actually necessary since this is the default value, but useful for
+    # testing.
+    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
+    artifacts = [
+        "com.android.support:appcompat-v7:28.0.0",
+    ],
+    jetify = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    use_starlark_android_rules = True,
+)
+
+# for the above "starlark_aar_import_test" maven_install with
+# use_starlark_android_rules = True
+http_archive(
+    name = "build_bazel_rules_android",
+    sha256 = "cd06d15dd8bb59926e4d65f9003bfc20f9da4b2519985c27e190cddc8b7a7806",
+    strip_prefix = "rules_android-0.1.1",
+    urls = ["https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip"],
 )
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/351
@@ -356,12 +500,23 @@ maven_install(
         "io.quarkus:quarkus-maven-plugin:1.0.1.Final",
         "io.quarkus:quarkus-bom-descriptor-json:1.0.1.Final",
     ],
+    fetch_sources = True,
     maven_install_json = "//tests/custom_maven_install:json_artifacts_testing_install.json",
     repositories = [
         "https://repo.maven.apache.org/maven2/",
         "https://repo.spring.io/plugins-release/",
     ],
-    fetch_sources = True,
+)
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/433
+maven_install(
+    name = "version_interval_testing",
+    artifacts = [
+        "io.grpc:grpc-netty-shaded:1.29.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
 )
 
 load(
@@ -371,30 +526,15 @@ load(
 
 _json_artifacts_testing_install()
 
-RULES_KOTLIN_VERSION = "8ca948548159f288450516a09248dcfb9e957804"
-
-http_archive(
-    name = "io_bazel_rules_kotlin",
-    sha256 = "22d7d3155b95f79e461451f565353bf0098d8a6ec2696a06edf9549bb15ab8ba",
-    strip_prefix = "rules_kotlin-%s" % RULES_KOTLIN_VERSION,
-    url = "https://github.com/bazelbuild/rules_kotlin/archive/%s.tar.gz" % RULES_KOTLIN_VERSION,
-)
-
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
-
-kotlin_repositories()
-
-kt_register_toolchains()
-
 # End test dependencies
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "04b10647f76983c9fb4cc8d6eb763ec90107882818a9c6bef70bdadb0fdf8df9",
-    strip_prefix = "bazel-toolchains-1.2.4",
+    sha256 = "179ec02f809e86abf56356d8898c8bd74069f1bd7c56044050c2cd3d79d0e024",
+    strip_prefix = "bazel-toolchains-4.1.0",
     urls = [
-        "https://github.com/bazelbuild/bazel-toolchains/releases/download/1.2.4/bazel-toolchains-1.2.4.tar.gz",
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/1.2.4.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/releases/download/4.1.0/bazel-toolchains-4.1.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/releases/download/4.1.0/bazel-toolchains-4.1.0.tar.gz",
     ],
 )
 

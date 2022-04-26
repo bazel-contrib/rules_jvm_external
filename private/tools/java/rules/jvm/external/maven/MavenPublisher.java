@@ -17,6 +17,10 @@
 
 package rules.jvm.external.maven;
 
+import com.google.cloud.WriteChannel;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import rules.jvm.external.ByteStreams;
 
 import java.io.IOException;
@@ -24,7 +28,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,11 +56,13 @@ public class MavenPublisher {
 
   private static final Logger LOG = Logger.getLogger(MavenPublisher.class.getName());
   private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
+  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://"};
 
   public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
     String repo = args[0];
-    if (!(repo.startsWith("file:/") || repo.startsWith("https://"))) {
-      throw new IllegalArgumentException("Repository must be accessed via file or https: " + repo);
+    if (!isSchemeSupported(repo)) {
+      throw new IllegalArgumentException("Repository must be accessed via the supported schemes: "
+              + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
     Credentials credentials = new Credentials(args[2], args[3], Boolean.parseBoolean(args[1]));
@@ -70,19 +78,37 @@ public class MavenPublisher {
     Path pom = Paths.get(args[5]);
     Path binJar = Paths.get(args[6]);
     Path srcJar = Paths.get(args[7]);
-    Path docJar = Paths.get(args[8]);
+    Path docJar;
+    if (!args[8].isEmpty()) {
+      docJar = Paths.get(args[8]);
+    } else {
+      docJar = null;
+    }
 
     try {
-      CompletableFuture<Void> all = CompletableFuture.allOf(
-        upload(repo, credentials, coords, ".pom", pom),
-        upload(repo, credentials, coords, ".jar", binJar),
-        upload(repo, credentials, coords, "-sources.jar", srcJar),
-        upload(repo, credentials, coords, "-javadoc.jar", docJar)
-      );
+      List<CompletableFuture<Void>> futures = new ArrayList<>();
+      futures.add(upload(repo, credentials, coords, ".pom", pom));
+      futures.add(upload(repo, credentials, coords, ".jar", binJar));
+      futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar));
+
+      if (docJar != null) {
+        futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar));
+      }
+
+      CompletableFuture<Void> all = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
       all.get(30, MINUTES);
     } finally {
       EXECUTOR.shutdown();
     }
+  }
+
+  private static boolean isSchemeSupported(String repo) {
+    for (String scheme : SUPPORTED_SCHEMES) {
+      if (repo.startsWith(scheme)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static CompletableFuture<Void> upload(
@@ -94,7 +120,7 @@ public class MavenPublisher {
 
     String base = String.format(
       "%s/%s/%s/%s/%s-%s",
-      repo,
+      repo.replaceAll("/$", ""),
       coords.groupId.replace('.', '/'),
       coords.artifactId,
       coords.version,
@@ -123,18 +149,18 @@ public class MavenPublisher {
   }
 
   private static String toSha1(byte[] toHash) {
-    return toHexS("SHA-1", toHash);
+    return toHexS("%040x", "SHA-1", toHash);
   }
 
   private static String toMd5(byte[] toHash) {
-    return toHexS("MD5", toHash);
+    return toHexS("%032x", "MD5", toHash);
   }
 
-  private static String toHexS(String algorithm, byte[] toHash) {
+  private static String toHexS(String fmt, String algorithm, byte[] toHash) {
     try {
       MessageDigest digest = MessageDigest.getInstance(algorithm);
       digest.update(toHash);
-      return new BigInteger(1, digest.digest()).toString(16);
+      return String.format(fmt, new BigInteger(1, digest.digest()));
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
@@ -144,6 +170,8 @@ public class MavenPublisher {
     Callable<Void> callable;
     if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
       callable = httpUpload(targetUrl, credentials, toUpload);
+    } else if (targetUrl.startsWith("gs://")) {
+      callable = gcsUpload(targetUrl, toUpload);
     } else {
       callable = writeFile(targetUrl, toUpload);
     }
@@ -171,7 +199,7 @@ public class MavenPublisher {
       if (credentials.getUser() != null) {
         String basicAuth = Base64.getEncoder().encodeToString(
           String.format("%s:%s", credentials.getUser(), credentials.getPassword()).getBytes(US_ASCII));
-        connection.setRequestProperty("Authorization", "BASIC " + basicAuth);
+        connection.setRequestProperty("Authorization", "Basic " + basicAuth);
       }
       connection.setRequestProperty("Content-Length", "" + Files.size(toUpload));
 
@@ -205,6 +233,24 @@ public class MavenPublisher {
       Files.createDirectories(path.getParent());
       Files.deleteIfExists(path);
       Files.copy(toUpload, path);
+
+      return null;
+    };
+  }
+
+  private static Callable<Void> gcsUpload(String targetUrl, Path toUpload) {
+    return () -> {
+      Storage storage = StorageOptions.getDefaultInstance().getService();
+      URI gsUri = new URI(targetUrl);
+      String bucketName = gsUri.getHost();
+      String path = gsUri.getPath().substring(1);
+
+      LOG.info(String.format("Copying %s to gs://%s/%s", toUpload, bucketName, path));
+      BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, path).build();
+      try (WriteChannel writer = storage.writer(blobInfo);
+            InputStream is = Files.newInputStream(toUpload)) {
+        ByteStreams.copy(is, Channels.newOutputStream(writer));
+      }
 
       return null;
     };

@@ -1,17 +1,17 @@
-MavenPublishInfo = provider (
+MavenPublishInfo = provider(
     fields = {
         "coordinates": "Maven coordinates for the project, which may be None",
         "pom": "Pom.xml file for metdata",
         "javadocs": "Javadoc jar file for documentation files",
         "artifact_jar": "Jar with the code and metadata for execution",
         "source_jar": "Jar with the source code for review",
-    }
+    },
 )
 
 _TEMPLATE = """#!/usr/bin/env bash
 
 echo "Uploading {coordinates} to {maven_repo}"
-./uploader {maven_repo} {gpg_sign} {user} {password} {coordinates} pom.xml artifact.jar source.jar doc.jar
+{uploader} {maven_repo} {gpg_sign} {user} {password} {coordinates} {pom} {artifact_jar} {source_jar} {javadoc}
 """
 
 def _maven_publish_impl(ctx):
@@ -22,30 +22,39 @@ def _maven_publish_impl(ctx):
     user = ctx.var.get("maven_user", "''")
     password = ctx.var.get("maven_password", "''")
 
+    javadocs_short_path = ctx.file.javadocs.short_path if ctx.file.javadocs else "''"
+
     ctx.actions.write(
         output = executable,
         is_executable = True,
         content = _TEMPLATE.format(
+            uploader = ctx.executable._uploader.short_path,
             coordinates = ctx.attr.coordinates,
             gpg_sign = gpg_sign,
             maven_repo = maven_repo,
             password = password,
             user = user,
+            pom = ctx.file.pom.short_path,
+            artifact_jar = ctx.file.artifact_jar.short_path,
+            source_jar = ctx.file.source_jar.short_path,
+            javadoc = javadocs_short_path,
         ),
     )
+
+    files = [
+        ctx.file.artifact_jar,
+        ctx.file.pom,
+        ctx.file.source_jar,
+    ]
+    if ctx.file.javadocs:
+        files.append(ctx.file.javadocs)
 
     return [
         DefaultInfo(
             files = depset([executable]),
             executable = executable,
             runfiles = ctx.runfiles(
-                symlinks = {
-                    "artifact.jar": ctx.file.artifact_jar,
-                    "doc.jar": ctx.file.javadocs,
-                    "pom.xml": ctx.file.pom,
-                    "source.jar": ctx.file.source_jar,
-                    "uploader": ctx.executable._uploader,
-                },
+                files = files,
                 collect_data = True,
             ).merge(ctx.attr._uploader[DefaultInfo].data_runfiles),
         ),
@@ -54,8 +63,8 @@ def _maven_publish_impl(ctx):
             artifact_jar = ctx.file.artifact_jar,
             javadocs = ctx.file.javadocs,
             source_jar = ctx.file.source_jar,
-            pom = ctx.file.pom
-        )
+            pom = ctx.file.pom,
+        ),
     ]
 
 maven_publish = rule(
@@ -83,7 +92,6 @@ When signing with GPG, the current default key is used.
             allow_single_file = True,
         ),
         "javadocs": attr.label(
-            mandatory = True,
             allow_single_file = True,
         ),
         "artifact_jar": attr.label(
@@ -100,5 +108,5 @@ When signing with GPG, the current default key is used.
             default = "//private/tools/java/rules/jvm/external/maven:MavenPublisher",
             allow_files = True,
         ),
-    }
+    },
 )

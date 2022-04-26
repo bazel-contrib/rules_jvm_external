@@ -14,46 +14,52 @@ def _jvm_import_impl(ctx):
         fail("Please only specify one jar to import in the jars attribute.")
 
     injar = ctx.files.jars[0]
-    manifest_update_file = ctx.actions.declare_file(injar.basename + ".target_label_manifest", sibling = injar)
-    ctx.actions.expand_template(
-        template = ctx.file._manifest_template,
-        output = manifest_update_file,
-        substitutions = {
-            "{TARGETLABEL}": "%s" % ctx.label,
-        },
-    )
-
-    outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
-    ctx.actions.run_shell(
-        inputs = [injar, manifest_update_file] + ctx.files._host_javabase,
-        outputs = [outjar],
-        command = " && ".join([
-            # Make a copy of the original jar, since `jar(1)` modifies the jar in place.
-            "cp {input_jar} {output_jar}".format(input_jar = injar.path, output_jar = outjar.path),
-            # Set the write bit on the copied jar.
-            "chmod +w {output_jar}".format(output_jar = outjar.path),
-            # If the jar is signed do not modify the manifest because it will
-            # make the signature invalid. Otherwise append the Target-Label
-            # manifest attribute using `jar umf`
-            "(unzip -l {output_jar} | grep -qE 'META-INF/.*\\.SF') || ({jar} umf {manifest_update_file} {output_jar} > /dev/null 2>&1 || true)".format(
-                jar = "%s/bin/jar" % ctx.attr._host_javabase[java_common.JavaRuntimeInfo].java_home,
-                manifest_update_file = manifest_update_file.path,
-                output_jar = outjar.path,
-            ),
-        ]),
-        mnemonic = "StampJarManifest",
-        progress_message = "Stamping the manifest of %s" % ctx.label,
-    )
-
-    if not ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
+    if ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
+        outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
+        args = ctx.actions.args()
+        args.add_all(["--source", injar, "--output", outjar])
+        args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = ctx.label)])
+        ctx.actions.run(
+            executable = ctx.executable._add_jar_manifest_entry,
+            arguments = [args],
+            inputs = [injar],
+            outputs = [outjar],
+            mnemonic = "StampJarManifest",
+            progress_message = "Stamping the manifest of %s" % ctx.label,
+        )
+    else:
         outjar = injar
+
+    compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
+    args = ctx.actions.args()
+    args.add_all(["--source", outjar, "--output", compilejar])
+
+    # We need to remove the `Class-Path` entry since bazel 4.0.0 forces `javac`
+    # to run `-Xlint:path` no matter what other flags are passed. Bazel
+    # manages the classpath for us, so the `Class-Path` manifest entry isn't
+    # needed. Worse, if it's there and the jars listed in it aren't found,
+    # the lint check will emit a `bad path element` warning. We get quiet and
+    # correct builds if we remove the `Class-Path` manifest entry entirely.
+    args.add_all(["--remove-entry", "Class-Path"])
+
+    # Make sure the compile jar is safe to compile with
+    args.add("--make-safe")
+
+    ctx.actions.run(
+        executable = ctx.executable._add_jar_manifest_entry,
+        arguments = [args],
+        inputs = [outjar],
+        outputs = [compilejar],
+        mnemonic = "CreateCompileJar",
+        progress_message = "Creating compile jar for %s" % ctx.label,
+    )
 
     return [
         DefaultInfo(
             files = depset([outjar]),
         ),
         JavaInfo(
-            compile_jar = outjar,
+            compile_jar = compilejar,
             output_jar = outjar,
             source_jar = ctx.file.srcjar,
             deps = [
@@ -84,18 +90,14 @@ jvm_import = rule(
         "neverlink": attr.bool(
             default = False,
         ),
-        "_host_javabase": attr.label(
-            cfg = "host",
-            default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
-            providers = [java_common.JavaRuntimeInfo],
-        ),
-        "_manifest_template": attr.label(
-            default = Label("@rules_jvm_external//private/templates:manifest_target_label.tpl"),
-            allow_single_file = True,
+        "_add_jar_manifest_entry": attr.label(
+            executable = True,
+            cfg = "exec",
+            default = "//private/tools/java/rules/jvm/external/jar:AddJarManifestEntry",
         ),
         "_stamp_manifest": attr.label(
-            default = Label("@rules_jvm_external//settings:stamp_manifest"),
-        )
+            default = "@rules_jvm_external//settings:stamp_manifest",
+        ),
     },
     implementation = _jvm_import_impl,
     provides = [JavaInfo],

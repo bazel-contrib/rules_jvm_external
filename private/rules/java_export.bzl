@@ -6,8 +6,11 @@ load("//private/rules:pom_file.bzl", "pom_file")
 def java_export(
         name,
         maven_coordinates,
+        deploy_env = [],
         pom_template = None,
         visibility = None,
+        tags = [],
+        testonly = False,
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
@@ -29,7 +32,8 @@ def java_export(
       * `{groupId}`: Replaced with the maven coordinates group ID.
       * `{artifactId}`: Replaced with the maven coordinates artifact ID.
       * `{version}`: Replaced by the maven coordinates version.
-      * `{type}`: Replaced by the maven coordintes type, if present (defaults to "jar")
+      * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
+      * `{scope}`: Replaced by the maven coordinates type, if present (defaults to "compile")
       * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
         by java_library targets within the artifact.
 
@@ -41,6 +45,8 @@ def java_export(
       * `maven:compile_only`: Specifies that this dependency should not be listed
         as a dependency of the artifact being generated.
 
+    To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.
+
     Generated rules:
       * `name`: A `java_library` that other rules can depend upon.
       * `name-docs`: A javadoc jar file.
@@ -51,26 +57,69 @@ def java_export(
       name: A unique name for this target
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
+      deploy_env: A list of labels of java targets to exclude from the generated jar
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://docs.bazel.build/versions/master/be/java.html#java_library),
         and so may contain any valid parameter for that rule.
     """
 
-    tags = getattr(kwargs, "tags", []) + ["maven_coordinates=%s" % maven_coordinates]
+    maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
+
+    javadocopts = kwargs.pop("javadocopts", [])
 
     # Construct the java_library we'll export from here.
     native.java_library(
         name = lib_name,
-        tags = tags,
+        tags = tags + maven_coordinates_tags,
+        testonly = testonly,
         **kwargs
     )
+
+    maven_export(
+        name,
+        maven_coordinates,
+        maven_coordinates_tags,
+        deploy_env,
+        pom_template,
+        visibility,
+        tags,
+        testonly,
+        lib_name,
+        javadocopts
+    )
+
+def maven_export(
+        name,
+        maven_coordinates,
+        maven_coordinates_tags,
+        deploy_env,
+        pom_template,
+        visibility,
+        tags,
+        testonly,
+        lib_name,
+        javadocopts):
+
+    """Helper rule to reuse this code for both java_export and kt_jvm_export.
+
+    After a library has already been created (either a kt_jvm_library or
+    java_library) this rule will create the maven jar and pom files and publish
+    them.
+
+    All arguments are the same as java_export with the addition of:
+      lib_name: Name of the library that has been built.
+      javadocopts: The options to be used for javadocs.
+
+    """
 
     # Merge the jars to create the maven project jar
     maven_project_jar(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
-        tags = tags,
+        deploy_env = deploy_env,
+        tags = tags + maven_coordinates_tags,
+        testonly = testonly,
     )
 
     native.filegroup(
@@ -79,6 +128,8 @@ def java_export(
             ":%s-project" % name,
         ],
         output_group = "maven_artifact",
+        tags = tags,
+        testonly = testonly,
     )
 
     native.filegroup(
@@ -87,29 +138,41 @@ def java_export(
             ":%s-project" % name,
         ],
         output_group = "maven_source",
+        tags = tags,
+        testonly = testonly,
     )
 
-    javadoc(
-        name = "%s-docs" % name,
-        deps = [
-            ":%s-project" % name,
-        ],
-    )
+    docs_jar = None
+    if not "no-javadocs" in tags:
+        docs_jar = "%s-docs" % name
+        javadoc(
+            name = docs_jar,
+            deps = [
+                ":%s-project" % name,
+            ],
+            javadocopts = javadocopts,
+            tags = tags,
+            testonly = testonly,
+        )
 
     pom_file(
         name = "%s-pom" % name,
         target = ":%s" % lib_name,
         pom_template = pom_template,
+        tags = tags,
+        testonly = testonly,
     )
 
     maven_publish(
         name = "%s.publish" % name,
         coordinates = maven_coordinates,
         pom = "%s-pom" % name,
-        javadocs = "%s-docs" % name,
+        javadocs = docs_jar,
         artifact_jar = ":%s-maven-artifact" % name,
         source_jar = ":%s-maven-source" % name,
         visibility = visibility,
+        tags = tags,
+        testonly = testonly,
     )
 
     # Finally, alias the primary output
@@ -117,4 +180,6 @@ def java_export(
         name = name,
         actual = ":%s-project" % name,
         visibility = visibility,
+        tags = tags,
+        testonly = testonly,
     )

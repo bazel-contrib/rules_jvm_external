@@ -1,4 +1,4 @@
-load("//:specs.bzl", "maven", "parse")
+load("//:specs.bzl", "parse")
 load(":jetifier_maven_map.bzl", "jetifier_maven_map")
 load(":jvm_import.bzl", "jvm_import")
 
@@ -12,6 +12,7 @@ def _jetify_impl(ctx):
             jetify_args.add("-l", "error")
             jetify_args.add("-o", jetified_outfile)
             jetify_args.add("-i", artifact)
+            jetify_args.add("-timestampsPolicy", "keepPrevious")
             ctx.actions.run(
                 mnemonic = "Jetify",
                 inputs = [artifact],
@@ -36,27 +37,34 @@ jetify = rule(
     implementation = _jetify_impl,
 )
 
-def jetify_aar_import(name, aar, **kwargs):
+def jetify_aar_import(name, aar, _aar_import = None, visibility = None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = [aar],
+        visibility = visibility,
     )
 
-    native.aar_import(
+    if not _aar_import:
+        _aar_import = native.aar_import
+
+    _aar_import(
         name = name,
         aar = ":jetified_" + name,
+        visibility = visibility,
         **kwargs
     )
 
-def jetify_jvm_import(name, jars, **kwargs):
+def jetify_jvm_import(name, jars, visibility = None, **kwargs):
     jetify(
         name = "jetified_" + name,
         srcs = jars,
+        visibility = visibility,
     )
 
     jvm_import(
         name = name,
         jars = [":jetified_" + name],
+        visibility = visibility,
         **kwargs
     )
 

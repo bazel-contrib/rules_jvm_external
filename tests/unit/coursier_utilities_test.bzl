@@ -1,6 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//:private/coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
-
+load("//private:coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
 def _escape_test_impl(ctx):
     env = unittest.begin(ctx)
@@ -31,30 +30,63 @@ get_packaging_test = unittest.make(_get_packaging_test_impl)
 
 def _strip_packaging_and_classifier_test_impl(ctx):
     env = unittest.begin(ctx)
-    asserts.equals(env, "groupId:artifactId:version",
-        strip_packaging_and_classifier("groupId:artifactId:version"))
+    asserts.equals(
+        env,
+        "groupId:artifactId:version",
+        strip_packaging_and_classifier("groupId:artifactId:version"),
+    )
+
     # Note: currently only some package and classifier values are stripped
-    asserts.equals(env, "groupId:artifactId:packaging:version",
-        strip_packaging_and_classifier("groupId:artifactId:packaging:version"))
-    asserts.equals(env, "groupId:artifactId:packaging:classifier:version",
-        strip_packaging_and_classifier("groupId:artifactId:packaging:classifier:version"))
-    asserts.equals(env, "groupId:artifactId:version",
-        strip_packaging_and_classifier("groupId:artifactId:bundle:version"))
-    asserts.equals(env, "groupId:artifactId:version",
-        strip_packaging_and_classifier("groupId:artifactId:pom:sources:version"))
+    asserts.equals(
+        env,
+        "groupId:artifactId:packaging:version",
+        strip_packaging_and_classifier("groupId:artifactId:packaging:version"),
+    )
+    asserts.equals(
+        env,
+        "groupId:artifactId:packaging:classifier:version",
+        strip_packaging_and_classifier("groupId:artifactId:packaging:classifier:version"),
+    )
+    asserts.equals(
+        env,
+        "groupId:artifactId:version",
+        strip_packaging_and_classifier("groupId:artifactId:bundle:version"),
+    )
+    asserts.equals(
+        env,
+        "groupId:artifactId:version",
+        strip_packaging_and_classifier("groupId:artifactId:pom:sources:version"),
+    )
     return unittest.end(env)
 
 strip_packaging_and_classifier_test = unittest.make(_strip_packaging_and_classifier_test_impl)
 
 def _strip_packaging_and_classifier_and_version_test_impl(ctx):
     env = unittest.begin(ctx)
-    asserts.equals(env, "groupId:artifactId",
-        strip_packaging_and_classifier_and_version("groupId:artifactId:version"))
+    asserts.equals(
+        env,
+        "groupId:artifactId",
+        strip_packaging_and_classifier_and_version("groupId:artifactId:version"),
+    )
+
     # Note: currently only some package and classifier values are stripped
-    asserts.equals(env, "groupId:artifactId",
-        strip_packaging_and_classifier_and_version("groupId:artifactId:bundle:version"))
-    asserts.equals(env, "groupId:artifactId",
-        strip_packaging_and_classifier_and_version("groupId:artifactId:pom:sources:version"))
+    asserts.equals(
+        env,
+        "groupId:artifactId",
+        strip_packaging_and_classifier_and_version("groupId:artifactId:bundle:version"),
+    )
+    asserts.equals(
+        env,
+        "groupId:artifactId",
+        strip_packaging_and_classifier_and_version("groupId:artifactId:pom:sources:version"),
+    )
+
+    # versionless coordinates aren't standard Maven coordinates but are useful for the artifact() macro
+    asserts.equals(
+        env,
+        "groupId:artifactId",
+        strip_packaging_and_classifier_and_version("groupId:artifactId"),
+    )
     return unittest.end(env)
 
 strip_packaging_and_classifier_and_version_test = unittest.make(_strip_packaging_and_classifier_and_version_test_impl)

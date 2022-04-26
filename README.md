@@ -1,6 +1,6 @@
 # rules_jvm_external
 
-Transitive Maven artifact resolver as a repository rule.
+Transitive Maven artifact resolution and publishing rules for Bazel.
 
 [![Build
 Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
@@ -18,6 +18,7 @@ Table of Contents
          * [Custom location for maven_install.json](#custom-location-for-maven_installjson)
          * [Multiple maven_install.json files](#multiple-maven_installjson-files)
       * [Generated targets](#generated-targets)
+      * [Outdated artifacts](#outdated-artifacts)
       * [Advanced usage](#advanced-usage)
          * [Fetch source JARs](#fetch-source-jars)
          * [Checksum verification](#checksum-verification)
@@ -35,6 +36,7 @@ Table of Contents
          * [Hiding transitive dependencies](#hiding-transitive-dependencies)
          * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
          * [Jetifier](#jetifier)
+         * [Duplicate artifact warning](#duplicate-artifact-warning)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
       * [Publishing to external repositories](#publishing-to-external-repositories)
       * [Demo](#demo)
@@ -57,6 +59,12 @@ Table of Contents
 Get the [latest release
 here](https://github.com/bazelbuild/rules_jvm_external/releases/latest).
 
+## Prerequisites
+
+* Bazel 4.0.0 and above
+
+Support for Bazel versions before `4.0.0` is only available on rules_jvm_external releases `4.2` or earlier.
+
 ## Usage
 
 List the top-level Maven artifacts and servers in the WORKSPACE:
@@ -64,8 +72,8 @@ List the top-level Maven artifacts and servers in the WORKSPACE:
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "3.3"
-RULES_JVM_EXTERNAL_SHA = "d85951a92c0908c80bd8551002d66cb23c3434409c814179c0ff026b53544dab"
+RULES_JVM_EXTERNAL_TAG = "4.2"
+RULES_JVM_EXTERNAL_SHA = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca"
 
 http_archive(
     name = "rules_jvm_external",
@@ -73,6 +81,14 @@ http_archive(
     sha256 = RULES_JVM_EXTERNAL_SHA,
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
+
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
@@ -85,7 +101,6 @@ maven_install(
     repositories = [
         # Private repositories are supported through HTTP Basic auth
         "http://username:password@localhost:8081/artifactory/my-repository",
-        "https://jcenter.bintray.com/",
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
@@ -97,13 +112,22 @@ or environment variables. See the [Coursier
 documentation](https://get-coursier.io/docs/other-credentials.html#property-file)
 for more information.
 
+`rules_jvm_external_deps` uses a default list of maven repositories to download
+ `rules_jvm_external`'s own dependencies from. Should you wish to change this,
+ use the `repositories` parameter:
+
+ ```python
+rules_jvm_external_deps(repositories = ["https://mycorp.com/artifacts"])
+rules_jvm_external_setup()
+```
+
 Next, reference the artifacts in the BUILD file with their versionless label:
 
 ```python
 java_library(
     name = "java_test_deps",
     exports = [
-        "@maven//:junit_junit"
+        "@maven//:junit_junit",
         "@maven//:org_hamcrest_hamcrest_library",
     ],
 )
@@ -111,7 +135,7 @@ java_library(
 android_library(
     name = "android_test_deps",
     exports = [
-        "@maven//:junit_junit"
+        "@maven//:junit_junit",
         "@maven//:androidx_test_espresso_espresso_core",
     ],
 )
@@ -177,6 +201,11 @@ your project's root directory. If you do not have one, create an empty BUILD
 file to fix issues you may see. See
 [#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
 
+**Note:** If you're using an older version of `rules_jvm_external` and
+haven't repinned your dependencies, you may see a warning that you lock
+file "does not contain a signature of the required artifacts" then don't
+worry: either ignore the warning or repin the dependencies.
+
 ### Updating `maven_install.json`
 
 Whenever you make a change to the list of `artifacts` or `repositories` and want
@@ -196,6 +225,29 @@ accompanied by an unpinned repository. This repository name has the `@unpinned_`
 prefix (e.g.`@unpinned_maven` or `@unpinned_<your_maven_install_name>`). For
 example, if your `maven_install` is named `@foo`, `@unpinned_foo` will be
 created.
+
+### Requiring lock file repinning when the list of artifacts changes
+
+It can be easy to forget to update the `maven_install.json` lock file
+when updating artifacts in a `maven_install`. Normally,
+rules_jvm_external will print a warning to the console and continue
+the build when this happens, but by setting the
+`fail_if_repin_required` attribute to `True`, this will be treated as
+a build error, causing the build to fail. When this attribute is set,
+it is possible to update the `maven_install.json` file using:
+
+```shell
+# To repin everything:
+REPIN=1 bazel run @unpinned_maven//:pin
+
+# To only repin rules_jvm_external:
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @unpinned_maven//:pin
+```
+
+Alternatively, it is also possible to modify the
+`fail_if_repin_required` attribute in your `WORKSPACE` file, run
+`bazel run @unpinned_maven//:pin` and then reset the
+`fail_if_repin_required` attribute.
 
 ### Custom location for `maven_install.json`
 
@@ -284,6 +336,14 @@ the artifact, which integrates with rules like [bazel-common's
 `pom_file`](https://github.com/google/bazel-common/blob/f1115e0f777f08c3cdb115526c4e663005bec69b/tools/maven/pom_file.bzl#L177)
 for generating POM files. See the [`pom_file_generation`
 example](examples/pom_file_generation/) for more information.
+
+## Outdated artifacts
+
+To check for updates of artifacts, run the following command at the root of your Bazel workspace:
+
+```
+$ bazel run @maven//:outdated
+```
 
 ## Advanced usage
 
@@ -397,6 +457,9 @@ To use it, add the load statement to the top of your BUILD file:
 ```python
 load("@rules_jvm_external//:defs.bzl", "artifact")
 ```
+
+Full `group:artifact:[packaging:[classifier:]]version` maven coordinates are also
+supported and translate to corresponding versionless target.
 
 Note that usage of this macro makes BUILD file refactoring with tools like
 `buildozer` more difficult, because the macro hides the actual target label at
@@ -801,6 +864,31 @@ maven_install(
 )
 ```
 
+It is also possible to change strict visibility value from default `//visibility:private`
+to a value specified by `strict_visibility_value` attribute.
+
+### Accessing transitive dependencies list
+
+It is possible to retrieve full list of dependencies in the dependency tree, including
+transitive, source, javadoc and other artifacts. `maven_artifacts` list contains full
+versioned maven coordinate strings of all dependencies.
+
+For example:
+```python
+load("@maven//:defs.bzl", "maven_artifacts")
+
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_jvm_external//:specs.bzl", "parse")
+
+all_jar_coordinates = [c for c in maven_artifacts if parse.parse_maven_coordinate(c).get("packaging", "jar") == "jar"]
+all_jar_targets = [artifact(c) for c in all_jar_coordinates]
+
+java_library(
+  name = "depends_on_everything",
+  runtime_deps = all_jar_targets,
+)
+```
+
 ### Fetch and resolve timeout
 
 The default timeout to fetch and resolve artifacts is 600 seconds.  If you need
@@ -827,7 +915,7 @@ migration, convert legacy Android support library (`com.android.support`)
 libraries to rely on new AndroidX packages using the
 [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool.
 Enable jetification by specifying `jetify = True` in `maven_install.`
-Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format. 
+Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format.
 By default all artifacts are jetified if `jetify` is set to True.
 
 NOTE: There is a performance penalty to using jetifier due to modifying fetched binaries, fetching
@@ -846,6 +934,22 @@ maven_install(
     jetify_include_list = [
         "exampleGroupId:exampleArtifactId",
     ],
+)
+```
+
+### Duplicate artifact warning
+
+By default you will be warned if there are duplicate artifacts in your artifact list. The `duplicate_version_warning` setting can be used to change this behavior. Use "none" to disable the warning and "error" to fail the build instead of warn.
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    duplicate_version_warning = "error"
 )
 ```
 
@@ -935,7 +1039,22 @@ java_export(
     "@maven//:com_google_guava_guava",
   ],
 )
-```  
+```
+
+If you wish to publish an artifact with Kotlin source code to a maven repository
+you can use `kt_jvm_export`. This rule has the same arguments and generated
+rules as `java_export`, but uses `kt_jvm_library` instead of `java_library`.
+
+```python
+# user_project/BUILD
+load("@rules_jvm_external//:kt_defs.bzl", "kt_jvm_export")
+
+kt_jvm_export(
+  name = "exported_kt_lib",
+  maven_coordinates = "com.example:project:0.0.1",
+  srcs = glob(["*.kt"]),
+)
+```
 
 In order to publish the artifact, use `bazel run`:
 
@@ -952,7 +1071,11 @@ bazel run --stamp \
   //user_project:exported_lib.publish`
 ```
 
-When using the `gpg_sign` option, the current default key will be used for 
+It's also possible to publish to a Google Cloud Storage bucket:
+
+`bazel run --define "maven_repo=gs://example-bucket/repository" //user_project:exported_lib.publish`
+
+When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
 
 ## Demo

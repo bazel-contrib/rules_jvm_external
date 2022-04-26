@@ -1,10 +1,13 @@
 exports_files([
+    "artifact.bzl",
     "has_maven_deps.bzl",
     "java_export.bzl",
     "javadoc.bzl",
     "jetifier.bzl",
     "jetifier_maven_map.bzl",
     "jvm_import.bzl",
+    "kt_jvm_export.bzl",
+    "maven_install.bzl",
     "maven_project_jar.bzl",
     "maven_publish.bzl",
     "pom_file.bzl",

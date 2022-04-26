@@ -1,30 +1,35 @@
+def _strip_url_scheme(url):
+    return url.split("://", 1)[1] if "://" in url else url
+
 def _get_proxy_user(url):
-    netloc = url.split("://", 1)[1]
-    if "@" in netloc:
-        userinfo = netloc.rsplit("@", 1)[0]
+    no_scheme_url = _strip_url_scheme(url)
+    if "@" in no_scheme_url:
+        userinfo = no_scheme_url.rsplit("@", 1)[0]
         if ":" in userinfo:
             userinfo = userinfo.split(":", 1)[0]
         return userinfo
     return None
 
 def _get_proxy_password(url):
-    netloc = url.split("://", 1)[1]
-    if "@" in netloc:
-        userinfo = netloc.rsplit("@", 1)[0]
+    no_scheme_url = _strip_url_scheme(url)
+    if "@" in no_scheme_url:
+        userinfo = no_scheme_url.rsplit("@", 1)[0]
         if ":" in userinfo:
             userinfo = userinfo.split(":", 1)[1]
         return userinfo
     return None
 
 def _get_proxy_hostname(url):
-    netloc = url.split("://", 1)[1].split("@")[-1]
+    no_scheme_url = _strip_url_scheme(url)
+    netloc = no_scheme_url.split("@")[-1]
     if ":" in netloc:
         return netloc.split(":")[0]
     else:
         return netloc
 
 def _get_proxy_port(url):
-    netloc = url.split("://", 1)[1].split("/")[0].split("@")[-1]
+    no_scheme_url = _strip_url_scheme(url)
+    netloc = no_scheme_url.split("/")[0].split("@")[-1]
     if ":" in netloc:
         return netloc.split(":")[1]
     else:
@@ -66,6 +71,8 @@ def get_java_proxy_args(http_proxy, https_proxy, no_proxy):
     # Convert no_proxy-style exclusions, including base domain matching, into java.net nonProxyHosts:
     # localhost,example.com,foo.example.com,.otherexample.com -> "localhost|example.com|foo.example.com|*.otherexample.com"
     if no_proxy:
-        proxy_args.append("-Dhttp.nonProxyHosts=%s" % no_proxy.replace(",", "|").replace("|.", "|*."))
+        if no_proxy.startswith("."):
+            no_proxy = "*" + no_proxy
+        proxy_args.append("-Dhttp.nonProxyHosts='%s'" % no_proxy.replace(",", "|").replace("|.", "|*."))
 
     return proxy_args

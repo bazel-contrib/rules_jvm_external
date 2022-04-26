@@ -2,6 +2,7 @@ load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 
 genquery(
     name = "testonly-deps",
+    testonly = True,
     expression = "attr(testonly, 1, deps(@testonly_testing//:all, 0))",
     scope = [
         "@testonly_testing//:org_codehaus_mojo_animal_sniffer_annotations_1_17",
@@ -22,9 +23,17 @@ genquery(
         "@testonly_testing//:com_google_code_findbugs_jsr305",
         "@testonly_testing//:com_google_auto_value_auto_value_annotations_1_6_3",
         "@testonly_testing//:com_google_auto_value_auto_value_annotations",
+        "@testonly_testing//:outdated",
         "@testonly_testing//:pin",
     ],
-    testonly = True,
+)
+
+genrule(
+    name = "testonly-deps-sorted",
+    testonly = 1,
+    srcs = [":testonly-deps"],
+    outs = ["testonly-deps-sorted.txt"],
+    cmd = "cat $< | sort > $@",
 )
 
 diff_test(
@@ -33,7 +42,37 @@ diff_test(
         "@bazel_tools//src/conditions:windows": "testonly-deps.golden",
         "//conditions:default": "testonly-deps.golden.unix",
     }),
-    file2 = ":testonly-deps",
+    file2 = ":testonly-deps-sorted",
+)
+
+# https://github.com/coursier/coursier/issues/1792
+# https://github.com/bazelbuild/rules_jvm_external/issues/433
+genquery(
+    name = "version_interval_deps",
+    testonly = True,
+    expression = "deps(@version_interval_testing//:io_grpc_grpc_netty_shaded, 2)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@version_interval_testing//:io_grpc_grpc_netty_shaded"],
+)
+
+genrule(
+    name = "version-interval-deps-sorted",
+    testonly = 1,
+    srcs = [":version_interval_deps"],
+    outs = ["version-interval-deps-sorted.txt"],
+    cmd = "cat $< | sort > $@",
+)
+
+diff_test(
+    name = "version_interval_deps_test",
+    file1 = select({
+        "@bazel_tools//src/conditions:windows": "version-interval-deps.golden.dos",
+        "//conditions:default": "version-interval-deps.golden.unix",
+    }),
+    file2 = ":version-interval-deps-sorted.txt",
 )
 
 java_import(
@@ -47,5 +86,5 @@ java_import(
     ],
     visibility = [
         "//tests/com/jvm/external:__pkg__",
-    ]
+    ],
 )
