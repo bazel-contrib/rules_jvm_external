@@ -57,6 +57,10 @@ kt_register_toolchains()
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
+load("//:set_license_classifier.bzl", "use_default_license_classifier")
+
+use_default_license_classifier()
+
 load("//:repositories.bzl", "rules_jvm_external_deps")
 
 rules_jvm_external_deps()
