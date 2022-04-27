@@ -3,6 +3,10 @@ local_repository(
     path = "../../",
 )
 
+load("//:set_license_classifier.bzl", "use_default_license_classifier")
+
+use_default_license_classifier()
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
