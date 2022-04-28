@@ -17,6 +17,7 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
+load("@rules_jvm_license_classifier//:license_classifier.bzl", "lookup_license")
 load("//private:coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
@@ -292,6 +293,12 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             else:
                 target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % v for v in default_visibilities])))
                 alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % v for v in default_visibilities]))
+
+
+            # Splice in the license
+            lic = lookup_license(maven_id = simple_coord)
+            if lic:
+               target_import_string.append("\tapplicable_licenses = [\"%s\"]," % lic)
 
             # 9. Finish the java_import rule.
             #
