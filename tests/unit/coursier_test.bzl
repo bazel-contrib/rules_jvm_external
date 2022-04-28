@@ -480,19 +480,65 @@ get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test = ad
 def _calculate_inputs_hash_does_not_care_about_input_order_test(ctx):
     env = unittest.begin(ctx)
 
+    artifacts1 = [
+        """{"group": "first", "artifact": "artifact", "version": "version"}""",
+        """{"group": "second", "artifact": "artifact", "version": "version"}""",
+    ]
+    repositories1 = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ]
+
+    artifacts2 = [
+        """{"group": "second", "artifact": "artifact", "version": "version"}""",
+        """{"group": "first", "artifact": "artifact", "version": "version"}""",
+    ]
+    repositories2 = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ]
+
     # Order of artifacts is switched in each hash
-    hash1 = compute_dependency_inputs_signature([
-        """{"group": "first", "artifact": "artifact", "version": "version"}""",
-        """{"group": "second", "artifact": "artifact", "version": "version"}""",
-    ])
-    hash2 = compute_dependency_inputs_signature([
-        """{"group": "second", "artifact": "artifact", "version": "version"}""",
-        """{"group": "first", "artifact": "artifact", "version": "version"}""",
-    ])
+    hash1 = compute_dependency_inputs_signature(artifacts1, repositories1)
+    hash2 = compute_dependency_inputs_signature(artifacts2, repositories2)
+
+    asserts.equals(env, hash1, hash2)
+
+    asserts.equals(env, hash1, hash2)
 
     return unittest.end(env)
 
 calculate_inputs_hash_does_not_care_about_input_order_test = add_test(_calculate_inputs_hash_does_not_care_about_input_order_test)
+
+def _calculate_inputs_hash_is_different_for_different_repositories_test(ctx):
+    env = unittest.begin(ctx)
+
+    artifacts1 = [
+        """{"group": "first", "artifact": "artifact", "version": "version"}""",
+        """{"group": "second", "artifact": "artifact", "version": "version"}""",
+    ]
+    repositories1 = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ]
+
+    artifacts2 = [
+        """{"group": "second", "artifact": "artifact", "version": "version"}""",
+        """{"group": "first", "artifact": "artifact", "version": "version"}""",
+    ]
+    repositories2 = [
+        "https://repo1.maven.org/maven2",
+    ]
+
+    # Order of artifacts is switched in each hash
+    hash1 = compute_dependency_inputs_signature(artifacts1, repositories1)
+    hash2 = compute_dependency_inputs_signature(artifacts2, repositories2)
+
+    asserts.false(env, hash1 == hash2)
+
+    return unittest.end(env)
+
+calculate_inputs_hash_is_different_for_different_repositories_test = add_test(_calculate_inputs_hash_is_different_for_different_repositories_test)
 
 def coursier_test_suite():
     unittest.suite(
