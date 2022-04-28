@@ -14,7 +14,6 @@ tasks:
       - "--//settings:stamp_manifest=True"
     test_targets:
       - "//..."
-      - "-//license_demo/..."
       # manual tests
       # TODO: Re-enable after fixing https://github.com/bazelbuild/rules_jvm_external/issues/375
       # - "//tests/com/jvm/external:UnsafeSharedCacheTest"
@@ -38,7 +37,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      - "-//license_demo/..."
   ubuntu1804_4_2_2:
     platform: ubuntu1804
     bazel: 4.2.2
@@ -49,7 +47,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      - "-//license_demo/..."
   ubuntu1804_5_0_0:
     platform: ubuntu1804
     bazel: 5.0.0
