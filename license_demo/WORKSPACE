@@ -39,19 +39,12 @@ http_archive(
     # path = "..",
     urls = ["file:///tmp/rje.tar"],
     patch_cmds = [
-      "/bin/date",
-      "/usr/local/google/home/aiuto/ws/rules_jvm_external/license_demo/splice_lc.sh",
+      "/bin/pwd >/tmp/toast.pwd",
+      "./use_license_classifier.sh my_compliance",
+      # "/usr/local/google/home/aiuto/ws/rules_jvm_external/license_demo/splice_lc.sh",
     ],
 )
 
-
-load("@rules_jvm_external//:set_license_classifier.bzl", "set_license_classifier")
-set_license_classifier(path="compliance")
-
-# You should never have to call this. rules_jvm_external_setup does it for you.
-#load("@rules_jvm_external//:set_license_classifier.bzl", "use_default_license_classifier")
-#use_default_license_classifier()
- 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
