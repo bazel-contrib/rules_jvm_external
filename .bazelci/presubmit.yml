@@ -60,7 +60,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      - "-//license_demo/..."
   ubuntu1804_latest:
     platform: ubuntu1804
     bazel: latest
@@ -76,7 +75,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      - "-//license_demo/..."
   macos:
     environment:
       # This tests custom cache locations.
@@ -91,7 +89,6 @@ tasks:
       - "--//settings:stamp_manifest=True"
     test_targets:
       - "//..."
-      - "-//license_demo/..."
       # manual tests
       # commented out until https://github.com/bazelbuild/rules_jvm_external/issues/610 is fixed for Java 11
       # - "//tests/com/jvm/external:UnsafeSharedCacheTest"
@@ -109,7 +106,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      - "-//license_demo/..."
       # rules_kotlin is not tested / does not work on Windows.
       # https://github.com/bazelbuild/rules_kotlin/issues/179
       # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
