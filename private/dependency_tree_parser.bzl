@@ -22,7 +22,7 @@ load(
     "escape",
     "get_classifier",
     "get_packaging",
-    "get_artifact",
+    "match_group_and_artifact",
     "strip_packaging_and_classifier",
     "strip_packaging_and_classifier_and_version",
     "PLATFORM_CLASSIFIER"
@@ -211,7 +211,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
                 # If we have matching artifacts with platform classifiers, skip adding this dependency.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
-                if get_artifact(artifact["coord"]) == get_artifact(dep) and \
+                if match_group_and_artifact(artifact["coord"], dep) and \
                     get_classifier(artifact["coord"]) in PLATFORM_CLASSIFIER and \
                     get_classifier(dep) in PLATFORM_CLASSIFIER:
                     continue
