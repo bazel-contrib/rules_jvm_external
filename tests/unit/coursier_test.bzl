@@ -490,6 +490,8 @@ def _calculate_inputs_hash_does_not_care_about_input_order_test(ctx):
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
     ])
 
+    asserts.equals(env, hash1, hash2)
+
     return unittest.end(env)
 
 calculate_inputs_hash_does_not_care_about_input_order_test = add_test(_calculate_inputs_hash_does_not_care_about_input_order_test)
