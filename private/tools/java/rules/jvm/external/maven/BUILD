@@ -3,12 +3,6 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 java_binary(
     name = "MavenPublisher",
     srcs = ["MavenPublisher.java"],
-    javacopts = [
-        "-source",
-        "8",
-        "-target",
-        "8",
-    ],
     main_class = "rules.jvm.external.maven.MavenPublisher",
     visibility = ["//visibility:public"],
     deps = [
@@ -27,12 +21,6 @@ java_binary(
 java_binary(
     name = "outdated",
     srcs = ["Outdated.java"],
-    javacopts = [
-        "-source",
-        "8",
-        "-target",
-        "8",
-    ],
     main_class = "rules.jvm.external.maven.Outdated",
     visibility = ["//visibility:public"],
     deps = [

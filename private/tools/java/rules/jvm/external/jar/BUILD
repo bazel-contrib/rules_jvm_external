@@ -1,12 +1,6 @@
 java_binary(
     name = "AddJarManifestEntry",
     srcs = ["AddJarManifestEntry.java"],
-    javacopts = [
-        "-source",
-        "8",
-        "-target",
-        "8",
-    ],
     main_class = "rules.jvm.external.jar.AddJarManifestEntry",
     visibility = [
         "//visibility:public",
@@ -21,12 +15,6 @@ java_binary(
     srcs = [
         "DuplicateEntryStrategy.java",
         "MergeJars.java",
-    ],
-    javacopts = [
-        "-source",
-        "8",
-        "-target",
-        "8",
     ],
     main_class = "rules.jvm.external.jar.MergeJars",
     visibility = [
