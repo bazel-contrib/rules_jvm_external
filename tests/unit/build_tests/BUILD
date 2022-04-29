@@ -18,6 +18,7 @@ build_test(
         "@regression_testing//:io_quarkus_http_quarkus_http_servlet",
         "@regression_testing//:com_fasterxml_jackson_jackson_bom",
         "@regression_testing//:org_junit_junit_bom",
+        "@regression_testing//:io_netty_netty_tcnative_boringssl_static",
     ],
 )
 

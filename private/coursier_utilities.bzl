@@ -14,6 +14,9 @@
 # Coursier uses these types to determine what files it should resolve and fetch.
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
+
+load ("//:specs.bzl", "parse")
+
 SUPPORTED_PACKAGING_TYPES = [
     "jar",
     "json",
@@ -25,6 +28,17 @@ SUPPORTED_PACKAGING_TYPES = [
     "hk2-jar",
     "maven-plugin",
     "scala-jar",
+]
+
+# See https://github.com/bazelbuild/rules_jvm_external/issues/686
+# A single package uses classifier to distinguish the jar files (one per platform),
+# So we need to check these are not dependencies of each other.
+PLATFORM_CLASSIFIER = [
+    "linux-aarch_64",
+    "linux-x86_64",
+    "osx-aarch_64",
+    "osx-x86_64",
+    "windows-x86_64"
 ]
 
 def strip_packaging_and_classifier(coord):
@@ -53,28 +67,19 @@ def strip_packaging_and_classifier_and_version(coord):
         return ":".join(coordinates)
     return ":".join(strip_packaging_and_classifier(coord).split(":")[:-1])
 
-# TODO: Should these methods be combined with _parse_maven_coordinate_string in specs.
+def match_group_and_artifact(source, target):
+    source_coord = parse.parse_maven_coordinate(source)
+    target_coord = parse.parse_maven_coordinate(target)
+    return source_coord["group"] == target_coord["group"] and source_coord["artifact"] == target_coord["artifact"]
+
 def get_packaging(coord):
-    # Get packaging from the following maven coordinate formats
-    # groupId:artifactId:version
-    # groupId:artifactId:packaging:version
-    # groupId:artifactId:packaging:classifier:version
-    coordinates = coord.split(":")
-    if len(coordinates) > 3:
-        return coordinates[2]
-    else:
-        return None
+    # Get packaging from the following maven coordinate
+    return parse.parse_maven_coordinate(coord).get("packaging", None)
 
 def get_classifier(coord):
-    # Get classifier from the following maven coordinate formats
-    # groupId:artifactId:version
-    # groupId:artifactId:packaging:version
-    # groupId:artifactId:packaging:classifier:version
-    coordinates = coord.split(":")
-    if len(coordinates) > 4:
-        return coordinates[3]
-    else:
-        return None
+    # Get classifier from the following maven coordinate
+    return parse.parse_maven_coordinate(coord).get("classifier", None)
+
 
 def escape(string):
     for char in [".", "-", ":", "/", "+"]:

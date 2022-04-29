@@ -17,7 +17,16 @@ This file contains parsing functions to turn a JSON-like dependency tree
 into target declarations (jvm_import) for the final @maven//:BUILD file.
 """
 
-load("//private:coursier_utilities.bzl", "escape", "get_classifier", "get_packaging", "strip_packaging_and_classifier", "strip_packaging_and_classifier_and_version")
+load(
+    "//private:coursier_utilities.bzl",
+    "escape",
+    "get_classifier",
+    "get_packaging",
+    "match_group_and_artifact",
+    "strip_packaging_and_classifier",
+    "strip_packaging_and_classifier_and_version",
+    "PLATFORM_CLASSIFIER"
+)
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
@@ -199,6 +208,13 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     continue
                 stripped_dep = strip_packaging_and_classifier_and_version(dep)
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
+
+                # If we have matching artifacts with platform classifiers, skip adding this dependency.
+                # See https://github.com/bazelbuild/rules_jvm_external/issues/686
+                if match_group_and_artifact(artifact["coord"], dep) and \
+                    get_classifier(artifact["coord"]) in PLATFORM_CLASSIFIER and \
+                    get_classifier(dep) in PLATFORM_CLASSIFIER:
+                    continue
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
