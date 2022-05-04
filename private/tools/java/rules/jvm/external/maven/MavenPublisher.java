@@ -47,6 +47,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -56,7 +58,7 @@ public class MavenPublisher {
 
   private static final Logger LOG = Logger.getLogger(MavenPublisher.class.getName());
   private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
-  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://"};
+  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://", "s3://"};
 
   public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
     String repo = args[0];
@@ -172,6 +174,8 @@ public class MavenPublisher {
       callable = httpUpload(targetUrl, credentials, toUpload);
     } else if (targetUrl.startsWith("gs://")) {
       callable = gcsUpload(targetUrl, toUpload);
+    } else if (targetUrl.startsWith("s3://")) {
+      callable = s3upload(targetUrl, toUpload);
     } else {
       callable = writeFile(targetUrl, toUpload);
     }
@@ -251,6 +255,20 @@ public class MavenPublisher {
             InputStream is = Files.newInputStream(toUpload)) {
         ByteStreams.copy(is, Channels.newOutputStream(writer));
       }
+
+      return null;
+    };
+  }
+
+  private static Callable<Void> s3upload(String targetUrl, Path toUpload) {
+    return () -> {
+      S3Client s3Client = S3Client.create();
+      URI s3Uri = new URI(targetUrl);
+      String bucketName = s3Uri.getHost();
+      String path = s3Uri.getPath().substring(1);
+
+      LOG.info(String.format("Copying %s to s3://%s/%s", toUpload, bucketName, path));
+      s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(path).build(), toUpload);
 
       return null;
     };

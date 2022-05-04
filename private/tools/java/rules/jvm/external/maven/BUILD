@@ -15,6 +15,10 @@ java_binary(
             "com.google.cloud:google-cloud-core",
             repository_name = "rules_jvm_external_deps",
         ),
+        artifact(
+            "software.amazon.awssdk:s3",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )
 
