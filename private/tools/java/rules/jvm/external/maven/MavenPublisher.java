@@ -216,8 +216,15 @@ public class MavenPublisher {
 
         if (code < 200 || code > 299) {
           try (InputStream in = connection.getErrorStream()) {
-            String message = new String(ByteStreams.toByteArray(in));
-            throw new IOException(String.format("Unable to upload %s (%s) %s", targetUrl, code, message));
+            String message;
+            if (in != null) {
+              String body = new String(ByteStreams.toByteArray(in));
+              message = String.format("Unable to upload %s (%s) %s", targetUrl, code, body);
+            } else {
+              message = String.format("Unable to upload %s (%s)", targetUrl, code);
+            }
+
+            throw new IOException(message);
           }
         }
       }
