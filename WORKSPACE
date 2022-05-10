@@ -528,6 +528,35 @@ load(
 
 _json_artifacts_testing_install()
 
+maven_install(
+    name = "m2local_testing",
+    artifacts = [
+        # this is a test jar built for integration
+        # tests in this repo
+        "com.example:kt:1.0.0"
+    ],
+    repositories = [
+        "m2Local",
+        "https://repo1.maven.org/maven2",
+    ],
+    fail_on_missing_checksum = True
+)
+
+maven_install(
+    name = "m2local_testing_without_checksum",
+    artifacts = [
+        # this is a test jar built for integration
+        # tests in this repo
+        "com.example:kt:1.0.0"
+    ],
+    repositories = [
+        "m2Local",
+        "https://repo1.maven.org/maven2",
+    ],
+    # jar won't have checksums for this test case
+    fail_on_missing_checksum = False
+)
+
 # End test dependencies
 
 http_archive(

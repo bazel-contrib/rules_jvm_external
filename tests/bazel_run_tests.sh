@@ -15,6 +15,66 @@ function test_duplicate_version_warning() {
   expect_log "Successfully pinned resolved artifacts"
 }
 
+function test_m2local_testing_found_local_artifact_through_pin() {
+  m2local_dir="~/.m2/repository"
+  mkdir -p ${m2local_dir}
+  # Publish a maven artifact locally - com.example.kt:1.0.0
+  bazel run --define maven_repo="file://${HOME}/.m2/repository" //tests/integration/kt_jvm_export:test.publish 
+  bazel run @m2local_testing//:pin >> "$TEST_LOG" 2>&1
+  rm -f m2local_testing_install.json
+  rm -rf ~/.m2/repository
+
+  expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
+  expect_log "Successfully pinned resolved artifacts"
+}
+
+function test_m2local_testing_found_local_artifact_through_build() {
+  m2local_dir="~/.m2/repository"
+  mkdir -p ${m2local_dir}
+  # Publish a maven artifact locally - com.example.kt:1.0.0
+  bazel run --define maven_repo="file://${HOME}/.m2/repository" //tests/integration/kt_jvm_export:test.publish 
+  bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
+  rm -rf ~/.m2/repository
+
+  expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
+}
+
+function test_m2local_testing_found_local_artifact_after_build_copy() {
+  m2local_dir="$HOME/.m2/repository"
+  mkdir -p ${m2local_dir}
+
+  project_dir="com/example/kt/1.0.0"
+  jar_dir="${m2local_dir}/${project_dir}"
+  mkdir -p "${jar_dir}"
+
+  binaries_dir="bazel-bin/tests/integration/kt_jvm_export"
+  # We need to copy from binaries to local maven repo to appropriate paths
+  # this is mapping of the two, since bash 3 doesn't support
+  # maps
+   maven_files_to_copy=(
+    "test-docs.jar:kt-1.0.0-javadoc.jar"
+    "test-lib.jar:kt-1.0.0.jar"
+    "test-lib-sources.jar:kt-1.0.0-sources.jar"
+    "test-pom.xml:kt-1.0.0.pom"
+  )
+
+  bazel build //tests/integration/kt_jvm_export:test.publish
+  # Populate m2local from bazel-bin
+  for file_map in "${maven_files_to_copy[@]}"; do
+    source="${file_map%%:*}"
+    dest="${file_map##*:}"
+    echo ${source}
+    echo ${dest}
+    cp "${binaries_dir}/$source" "${jar_dir}/${dest}"
+  done
+
+  # Clear cache for fresh re-build
+  bazel clean --expunge
+  bazel build @m2local_testing_without_checksum//:com_example_kt >> "$TEST_LOG" 2>&1
+
+  expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
+}
+
 function test_duplicate_version_warning_same_version() {
   bazel run @duplicate_version_warning_same_version//:pin >> "$TEST_LOG" 2>&1
   rm -f duplicate_version_warning_same_version_install.json
@@ -52,6 +112,9 @@ TESTS=(
   "test_outdated"
   "test_outdated_no_external_runfiles"
   "test_xdg_cache_home"
+  "test_m2local_testing_found_local_artifact_through_pin"
+  "test_m2local_testing_found_local_artifact_through_build"
+  "test_m2local_testing_found_local_artifact_after_build_copy"
 )
 
 function run_tests() {
