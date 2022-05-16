@@ -270,7 +270,7 @@ def _repository_credentials(repository_spec):
     credentials = repository_spec["credentials"]
 
     # See https://get-coursier.io/docs/other-credentials.html#inline for docs on this format
-    return hostname + " " + credentials["user"] + ":" + credentials["password"]
+    return '"' + hostname + " " + credentials["user"] + ":" + credentials["password"] + '"'
 
 utils = struct(
     artifact_coordinate = _artifact_to_coord,
