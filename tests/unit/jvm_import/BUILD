@@ -13,5 +13,19 @@
 # limitations under the License.
 
 load(":jvm_import_test.bzl", "jvm_import_test_suite")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+
+java_import(
+    name = "java_import_that_consumes_the_downloaded_file_directly",
+    # Will produce an error if the downloaded file does not have the `.jar` file extension
+    jars = ["@com_google_guava_guava_27_0_jre//file"],
+)
+
+build_test(
+    name = "test_does_jar_artifact_have_the_correct_file_extension",
+    targets = [
+        ":java_import_that_consumes_the_downloaded_file_directly",
+    ],
+)
 
 jvm_import_test_suite(name = "jvm_import_tests")
