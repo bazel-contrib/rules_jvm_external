@@ -30,7 +30,7 @@ def _jvm_import_impl(ctx):
     else:
         outjar = injar
 
-    compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
+    compilejar = ctx.actions.declare_file("header_" + injar.basename)
     args = ctx.actions.args()
     args.add_all(["--source", outjar, "--output", compilejar])
 

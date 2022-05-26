@@ -19,25 +19,23 @@ into target declarations (jvm_import) for the final @maven//:BUILD file.
 
 load(
     "//private:coursier_utilities.bzl",
+    "PLATFORM_CLASSIFIER",
     "escape",
     "get_classifier",
     "get_packaging",
     "match_group_and_artifact",
     "strip_packaging_and_classifier",
     "strip_packaging_and_classifier_and_version",
-    "PLATFORM_CLASSIFIER"
 )
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
-def _genrule_copy_artifact_from_http_file(artifact, visibilities):
+def _alias_artifact_from_http_file(artifact, visibilities):
     http_file_repository = escape(artifact["coord"])
     return "\n".join([
-        "genrule(",
+        "alias(",
         "     name = \"%s_extension\"," % http_file_repository,
-        "     srcs = [\"@%s//file\"]," % http_file_repository,
-        "     outs = [\"%s\"]," % artifact["file"],
-        "     cmd = \"cp $< $@\",",
+        "     actual = \"@%s//file\"," % http_file_repository,
         "     visibility = [%s]" % (",".join(["\"%s\"" % v for v in visibilities])),
         ")",
     ])
@@ -88,9 +86,11 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
                     target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
-                    srcjar_paths[target_label] = artifact_path
                     if repository_ctx.attr.maven_install_json:
-                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                        srcjar_paths[target_label] = ":%s_extension" % escape(artifact["coord"])
+                        all_imports.append(_alias_artifact_from_http_file(artifact, default_visibilities))
+                    else:
+                        srcjar_paths[target_label] = "@%s//file" % escape(artifact["coord"])
 
     jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
@@ -101,6 +101,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dep_tree["dependencies"]:
+        artifact_target = ":%s_extension" % escape(artifact["coord"]) if repository_ctx.attr.maven_install_json else "@%s//file" % escape(artifact["coord"])
         artifact_path = artifact["file"]
         simple_coord = strip_packaging_and_classifier_and_version(artifact["coord"])
         target_label = escape(simple_coord)
@@ -115,7 +116,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coord"]) == "javadoc":
             seen_imports[target_label] = True
             all_imports.append(
-                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_path),
+                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_target),
             )
         elif get_packaging(artifact["coord"]) == "json":
             seen_imports[target_label] = True
@@ -124,7 +125,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label),
             )
             if repository_ctx.attr.maven_install_json:
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                all_imports.append(_alias_artifact_from_http_file(artifact, default_visibilities))
         elif target_label in labels_to_override:
             # Override target labels with the user provided mapping, instead of generating
             # a jvm_import/aar_import based on information in dep_tree.
@@ -134,7 +135,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             )
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                all_imports.append(_alias_artifact_from_http_file(artifact, default_visibilities))
         elif artifact_path != None:
             seen_imports[target_label] = True
 
@@ -175,11 +176,11 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
             #
             if packaging == "jar":
-                target_import_string.append("\tjars = [\"%s\"]," % artifact_path)
+                target_import_string.append("\tjars = [\"%s\"]," % artifact_target)
                 if srcjar_paths != None and target_label in srcjar_paths:
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
             elif packaging == "aar":
-                target_import_string.append("\taar = \"%s\"," % artifact_path)
+                target_import_string.append("\taar = \"%s\"," % artifact_target)
                 if srcjar_paths != None and target_label in srcjar_paths:
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
                 if jetify and repository_ctx.attr.use_starlark_android_rules:
@@ -212,8 +213,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 # If we have matching artifacts with platform classifiers, skip adding this dependency.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
                 if match_group_and_artifact(artifact["coord"], dep) and \
-                    get_classifier(artifact["coord"]) in PLATFORM_CLASSIFIER and \
-                    get_classifier(dep) in PLATFORM_CLASSIFIER:
+                   get_classifier(artifact["coord"]) in PLATFORM_CLASSIFIER and \
+                   get_classifier(dep) in PLATFORM_CLASSIFIER:
                     continue
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
@@ -339,17 +340,15 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 
-            # 11. If using maven_install.json, use a genrule to copy the file from the http_file
+            # 11. If using maven_install.json, use an alias to reference the file from the http_file
             # repository into this repository.
             #
-            # genrule(
+            # alias(
             #     name = "org_hamcrest_hamcrest_library_1_3_extension",
-            #     srcs = ["@org_hamcrest_hamcrest_library_1_3//file"],
-            #     outs = ["@maven//:v1/https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
-            #     cmd = "cp $< $@",
+            #     actual = "@org_hamcrest_hamcrest_library_1_3//file",
             # )
             if repository_ctx.attr.maven_install_json:
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                all_imports.append(_alias_artifact_from_http_file(artifact, default_visibilities))
 
         else:  # artifact_path == None:
             # Special case for certain artifacts that only come with a POM file.
