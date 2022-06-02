@@ -25,12 +25,16 @@ load(
     "match_group_and_artifact",
     "strip_packaging_and_classifier",
     "strip_packaging_and_classifier_and_version",
-    "PLATFORM_CLASSIFIER"
+    "PLATFORM_CLASSIFIER",
+    "is_maven_local_path"
 )
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
+    # skip artifacts without any urls (ie: maven local artifacts)
+    if not artifact.get("url"):
+        return ""
     http_file_repository = escape(artifact["coord"])
     return "\n".join([
         "genrule(",
@@ -56,7 +60,7 @@ def _deduplicate_list(items):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets):
+def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -85,6 +89,9 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         for artifact in dep_tree["dependencies"]:
             if get_classifier(artifact["coord"]) == "sources":
                 artifact_path = artifact["file"]
+                # Skip the maven local dependencies if requested
+                if skip_maven_local_dependencies and is_maven_local_path(artifact_path):
+                    continue    
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
                     target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
