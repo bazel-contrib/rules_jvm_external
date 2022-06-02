@@ -8,7 +8,7 @@ def kt_jvm_export(
         pom_template = None,
         visibility = None,
         tags = [],
-        testonly = False,
+        testonly = None,
         **kwargs):
     """Extends `kt_jvm_library` to allow maven artifacts to be uploaded. This
     rule is the Kotlin JVM version of `java_export`.

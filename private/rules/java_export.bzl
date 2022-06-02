@@ -10,7 +10,7 @@ def java_export(
         pom_template = None,
         visibility = None,
         tags = [],
-        testonly = False,
+        testonly = None,
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
