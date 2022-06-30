@@ -71,6 +71,7 @@ def java_export(
     # Construct the java_library we'll export from here.
     native.java_library(
         name = lib_name,
+        visibility = visibility,
         tags = tags + maven_coordinates_tags,
         testonly = testonly,
         **kwargs
@@ -118,6 +119,7 @@ def maven_export(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
         deploy_env = deploy_env,
+        visibility = visibility,
         tags = tags + maven_coordinates_tags,
         testonly = testonly,
     )
@@ -128,6 +130,7 @@ def maven_export(
             ":%s-project" % name,
         ],
         output_group = "maven_artifact",
+        visibility = visibility,
         tags = tags,
         testonly = testonly,
     )
@@ -138,6 +141,7 @@ def maven_export(
             ":%s-project" % name,
         ],
         output_group = "maven_source",
+        visibility = visibility,
         tags = tags,
         testonly = testonly,
     )
@@ -151,6 +155,7 @@ def maven_export(
                 ":%s-project" % name,
             ],
             javadocopts = javadocopts,
+            visibility = visibility,
             tags = tags,
             testonly = testonly,
         )
@@ -159,6 +164,7 @@ def maven_export(
         name = "%s-pom" % name,
         target = ":%s" % lib_name,
         pom_template = pom_template,
+        visibility = visibility,
         tags = tags,
         testonly = testonly,
     )
