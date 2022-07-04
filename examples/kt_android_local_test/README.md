@@ -1,4 +1,4 @@
-# Robolectric test example using android_local_test
+# Robolectric test example using kt_android_local_test
 
 To run the Robolectric test in this workspace:
 
