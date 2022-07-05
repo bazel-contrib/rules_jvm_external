@@ -14,6 +14,19 @@
                     "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar",
                     "https://maven.google.com/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar"
                 ],
+                "packages": [
+                    "com.fasterxml.jackson.core",
+                    "com.fasterxml.jackson.core.async",
+                    "com.fasterxml.jackson.core.base",
+                    "com.fasterxml.jackson.core.filter",
+                    "com.fasterxml.jackson.core.format",
+                    "com.fasterxml.jackson.core.io",
+                    "com.fasterxml.jackson.core.json",
+                    "com.fasterxml.jackson.core.json.async",
+                    "com.fasterxml.jackson.core.sym",
+                    "com.fasterxml.jackson.core.type",
+                    "com.fasterxml.jackson.core.util"
+                ],
                 "sha256": "fab8746aedd6427788ee390ea04d438ec141bff7eb3476f8bdd5d9110fb2718a",
                 "url": "https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar"
             },
@@ -36,6 +49,30 @@
                     "https://repo1.maven.org/maven2/com/google/api-client/google-api-client/1.27.0/google-api-client-1.27.0.jar",
                     "https://maven.google.com/com/google/api-client/google-api-client/1.27.0/google-api-client-1.27.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.client.googleapis",
+                    "com.google.api.client.googleapis.apache",
+                    "com.google.api.client.googleapis.auth.clientlogin",
+                    "com.google.api.client.googleapis.auth.oauth2",
+                    "com.google.api.client.googleapis.batch",
+                    "com.google.api.client.googleapis.batch.json",
+                    "com.google.api.client.googleapis.compute",
+                    "com.google.api.client.googleapis.javanet",
+                    "com.google.api.client.googleapis.json",
+                    "com.google.api.client.googleapis.media",
+                    "com.google.api.client.googleapis.notifications",
+                    "com.google.api.client.googleapis.notifications.json",
+                    "com.google.api.client.googleapis.services",
+                    "com.google.api.client.googleapis.services.json",
+                    "com.google.api.client.googleapis.testing",
+                    "com.google.api.client.googleapis.testing.auth.oauth2",
+                    "com.google.api.client.googleapis.testing.compute",
+                    "com.google.api.client.googleapis.testing.json",
+                    "com.google.api.client.googleapis.testing.notifications",
+                    "com.google.api.client.googleapis.testing.services",
+                    "com.google.api.client.googleapis.testing.services.json",
+                    "com.google.api.client.googleapis.util"
+                ],
                 "sha256": "fd1f06bc8cea64cd6e85e7a29dd632ba05c4e4ec2daae9a7115b6dbc9004fcd9",
                 "url": "https://repo1.maven.org/maven2/com/google/api-client/google-api-client/1.27.0/google-api-client-1.27.0.jar"
             },
@@ -51,6 +88,14 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/api/grpc/proto-google-common-protos/1.14.0/proto-google-common-protos-1.14.0.jar",
                     "https://maven.google.com/com/google/api/grpc/proto-google-common-protos/1.14.0/proto-google-common-protos-1.14.0.jar"
+                ],
+                "packages": [
+                    "com.google.api",
+                    "com.google.cloud.audit",
+                    "com.google.logging.type",
+                    "com.google.longrunning",
+                    "com.google.rpc",
+                    "com.google.type"
                 ],
                 "sha256": "d94b529c39f94765fdb81f1835ee9c006de2707c0ef4a49445999d00cb99eec2",
                 "url": "https://repo1.maven.org/maven2/com/google/api/grpc/proto-google-common-protos/1.14.0/proto-google-common-protos-1.14.0.jar"
@@ -72,6 +117,10 @@
                     "https://repo1.maven.org/maven2/com/google/api/grpc/proto-google-iam-v1/0.12.0/proto-google-iam-v1-0.12.0.jar",
                     "https://maven.google.com/com/google/api/grpc/proto-google-iam-v1/0.12.0/proto-google-iam-v1-0.12.0.jar"
                 ],
+                "packages": [
+                    "com.google.iam.v1",
+                    "com.google.iam.v1.logging"
+                ],
                 "sha256": "ddabb48fe072ada50484c98f00893a3e1356b4f05d2d0bf0045bc830145d1e0c",
                 "url": "https://repo1.maven.org/maven2/com/google/api/grpc/proto-google-iam-v1/0.12.0/proto-google-iam-v1-0.12.0.jar"
             },
@@ -89,6 +138,11 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/api/api-common/1.7.0/api-common-1.7.0.jar",
                     "https://maven.google.com/com/google/api/api-common/1.7.0/api-common-1.7.0.jar"
+                ],
+                "packages": [
+                    "com.google.api.core",
+                    "com.google.api.pathtemplate",
+                    "com.google.api.resourcenames"
                 ],
                 "sha256": "75e0a9c50391576fb3e9eede2218645c0e7f084ca18a8fa6e3e4196b94891a79",
                 "url": "https://repo1.maven.org/maven2/com/google/api/api-common/1.7.0/api-common-1.7.0.jar"
@@ -128,6 +182,9 @@
                     "https://repo1.maven.org/maven2/com/google/api/gax-httpjson/0.59.0/gax-httpjson-0.59.0.jar",
                     "https://maven.google.com/com/google/api/gax-httpjson/0.59.0/gax-httpjson-0.59.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.gax.httpjson"
+                ],
                 "sha256": "1dc3638c479cd9cd1ebedb18d8438763cda5ac8bb10981f308573bbbaf847705",
                 "url": "https://repo1.maven.org/maven2/com/google/api/gax-httpjson/0.59.0/gax-httpjson-0.59.0.jar"
             },
@@ -161,6 +218,16 @@
                     "https://repo1.maven.org/maven2/com/google/api/gax/1.42.0/gax-1.42.0.jar",
                     "https://maven.google.com/com/google/api/gax/1.42.0/gax-1.42.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.gax.batching",
+                    "com.google.api.gax.core",
+                    "com.google.api.gax.longrunning",
+                    "com.google.api.gax.paging",
+                    "com.google.api.gax.retrying",
+                    "com.google.api.gax.rpc",
+                    "com.google.api.gax.rpc.internal",
+                    "com.google.api.gax.tracing"
+                ],
                 "sha256": "9c8540678f209092191e19c59b6ca3092bd75b782f30823bdadf5567e2a1515a",
                 "url": "https://repo1.maven.org/maven2/com/google/api/gax/1.42.0/gax-1.42.0.jar"
             },
@@ -182,6 +249,10 @@
                     "https://repo1.maven.org/maven2/com/google/apis/google-api-services-storage/v1-rev20181109-1.27.0/google-api-services-storage-v1-rev20181109-1.27.0.jar",
                     "https://maven.google.com/com/google/apis/google-api-services-storage/v1-rev20181109-1.27.0/google-api-services-storage-v1-rev20181109-1.27.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.services.storage",
+                    "com.google.api.services.storage.model"
+                ],
                 "sha256": "1be252c53ce4247892296e43af9526975e6e8208a3a136d7e4d3809c1097bd63",
                 "url": "https://repo1.maven.org/maven2/com/google/apis/google-api-services-storage/v1-rev20181109-1.27.0/google-api-services-storage-v1-rev20181109-1.27.0.jar"
             },
@@ -193,6 +264,9 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/auth/google-auth-library-credentials/0.13.0/google-auth-library-credentials-0.13.0.jar",
                     "https://maven.google.com/com/google/auth/google-auth-library-credentials/0.13.0/google-auth-library-credentials-0.13.0.jar"
+                ],
+                "packages": [
+                    "com.google.auth"
                 ],
                 "sha256": "e117279c52c41b66937a5adae41dfeae0e40e48ae40230d2edeb4adc28ed996c",
                 "url": "https://repo1.maven.org/maven2/com/google/auth/google-auth-library-credentials/0.13.0/google-auth-library-credentials-0.13.0.jar"
@@ -221,6 +295,10 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/auth/google-auth-library-oauth2-http/0.13.0/google-auth-library-oauth2-http-0.13.0.jar",
                     "https://maven.google.com/com/google/auth/google-auth-library-oauth2-http/0.13.0/google-auth-library-oauth2-http-0.13.0.jar"
+                ],
+                "packages": [
+                    "com.google.auth.http",
+                    "com.google.auth.oauth2"
                 ],
                 "sha256": "62551f27379f873962e410328fc10a11a2b8f5df7c232e3cbe96a1b5edadf1ba",
                 "url": "https://repo1.maven.org/maven2/com/google/auth/google-auth-library-oauth2-http/0.13.0/google-auth-library-oauth2-http-0.13.0.jar"
@@ -272,6 +350,9 @@
                     "https://repo1.maven.org/maven2/com/google/cloud/google-cloud-core-http/1.66.0/google-cloud-core-http-1.66.0.jar",
                     "https://maven.google.com/com/google/cloud/google-cloud-core-http/1.66.0/google-cloud-core-http-1.66.0.jar"
                 ],
+                "packages": [
+                    "com.google.cloud.http"
+                ],
                 "sha256": "f1df370d7e352721c4caf5dbace4919be5a12fb701a969e652625e82458342fb",
                 "url": "https://repo1.maven.org/maven2/com/google/cloud/google-cloud-core-http/1.66.0/google-cloud-core-http-1.66.0.jar"
             },
@@ -314,6 +395,11 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/cloud/google-cloud-core/1.66.0/google-cloud-core-1.66.0.jar",
                     "https://maven.google.com/com/google/cloud/google-cloud-core/1.66.0/google-cloud-core-1.66.0.jar"
+                ],
+                "packages": [
+                    "com.google.cloud",
+                    "com.google.cloud.spi",
+                    "com.google.cloud.testing"
                 ],
                 "sha256": "e7a0f5f5e58352cdb0a095a3cddc40c4050d4e2076d98c8ffce4af538971ce67",
                 "url": "https://repo1.maven.org/maven2/com/google/cloud/google-cloud-core/1.66.0/google-cloud-core-1.66.0.jar"
@@ -366,6 +452,12 @@
                     "https://repo1.maven.org/maven2/com/google/cloud/google-cloud-storage/1.66.0/google-cloud-storage-1.66.0.jar",
                     "https://maven.google.com/com/google/cloud/google-cloud-storage/1.66.0/google-cloud-storage-1.66.0.jar"
                 ],
+                "packages": [
+                    "com.google.cloud.storage",
+                    "com.google.cloud.storage.spi",
+                    "com.google.cloud.storage.spi.v1",
+                    "com.google.cloud.storage.testing"
+                ],
                 "sha256": "524b75b693d09cae7b7ef56bdeca68cdc4b2e40ce392beaa1ea8d2b436efdddb",
                 "url": "https://repo1.maven.org/maven2/com/google/cloud/google-cloud-storage/1.66.0/google-cloud-storage-1.66.0.jar"
             },
@@ -377,6 +469,11 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
                     "https://maven.google.com/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
+                ],
+                "packages": [
+                    "javax.annotation",
+                    "javax.annotation.concurrent",
+                    "javax.annotation.meta"
                 ],
                 "sha256": "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7",
                 "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
@@ -390,6 +487,15 @@
                     "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar",
                     "https://maven.google.com/com/google/code/gson/gson/2.7/gson-2.7.jar"
                 ],
+                "packages": [
+                    "com.google.gson",
+                    "com.google.gson.annotations",
+                    "com.google.gson.internal",
+                    "com.google.gson.internal.bind",
+                    "com.google.gson.internal.bind.util",
+                    "com.google.gson.reflect",
+                    "com.google.gson.stream"
+                ],
                 "sha256": "2d43eb5ea9e133d2ee2405cc14f5ee08951b8361302fdd93494a3a997b508d32",
                 "url": "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar"
             },
@@ -401,6 +507,10 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar",
                     "https://maven.google.com/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar"
+                ],
+                "packages": [
+                    "com.google.errorprone.annotations",
+                    "com.google.errorprone.annotations.concurrent"
                 ],
                 "sha256": "03d0329547c13da9e17c634d1049ea2ead093925e290567e1a364fd6b1fc7ff8",
                 "url": "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar"
@@ -425,6 +535,26 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/guava/guava/25.0-android/guava-25.0-android.jar",
                     "https://maven.google.com/com/google/guava/guava/25.0-android/guava-25.0-android.jar"
+                ],
+                "packages": [
+                    "com.google.common.annotations",
+                    "com.google.common.base",
+                    "com.google.common.base.internal",
+                    "com.google.common.cache",
+                    "com.google.common.collect",
+                    "com.google.common.escape",
+                    "com.google.common.eventbus",
+                    "com.google.common.graph",
+                    "com.google.common.hash",
+                    "com.google.common.html",
+                    "com.google.common.io",
+                    "com.google.common.math",
+                    "com.google.common.net",
+                    "com.google.common.primitives",
+                    "com.google.common.reflect",
+                    "com.google.common.util.concurrent",
+                    "com.google.common.xml",
+                    "com.google.thirdparty.publicsuffix"
                 ],
                 "sha256": "db8b7b8004199af95eb3d5ec7d41fa9f1a4f7e58a2be669a70a3a1426ffa7b5c",
                 "url": "https://repo1.maven.org/maven2/com/google/guava/guava/25.0-android/guava-25.0-android.jar"
@@ -453,6 +583,9 @@
                     "https://repo1.maven.org/maven2/com/google/http-client/google-http-client-apache/2.0.0/google-http-client-apache-2.0.0.jar",
                     "https://maven.google.com/com/google/http-client/google-http-client-apache/2.0.0/google-http-client-apache-2.0.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.client.http.apache"
+                ],
                 "sha256": "bfec6352be55ca0426935107d397275c6e703ecbc291b91594c507ca2005aa21",
                 "url": "https://repo1.maven.org/maven2/com/google/http-client/google-http-client-apache/2.0.0/google-http-client-apache-2.0.0.jar"
             },
@@ -474,6 +607,10 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/http-client/google-http-client-appengine/1.28.0/google-http-client-appengine-1.28.0.jar",
                     "https://maven.google.com/com/google/http-client/google-http-client-appengine/1.28.0/google-http-client-appengine-1.28.0.jar"
+                ],
+                "packages": [
+                    "com.google.api.client.extensions.appengine.datastore",
+                    "com.google.api.client.extensions.appengine.http"
                 ],
                 "sha256": "cb08acb4f5dbe6fda8140eacdbd0a51ffb3bb3ed72f80e759327e9ffded8443d",
                 "url": "https://repo1.maven.org/maven2/com/google/http-client/google-http-client-appengine/1.28.0/google-http-client-appengine-1.28.0.jar"
@@ -498,6 +635,9 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/http-client/google-http-client-jackson2/1.28.0/google-http-client-jackson2-1.28.0.jar",
                     "https://maven.google.com/com/google/http-client/google-http-client-jackson2/1.28.0/google-http-client-jackson2-1.28.0.jar"
+                ],
+                "packages": [
+                    "com.google.api.client.json.jackson2"
                 ],
                 "sha256": "5d81963854cf1bd3f082063b20a04d872ca2b9cd0009463924e91deacd0cd6cf",
                 "url": "https://repo1.maven.org/maven2/com/google/http-client/google-http-client-jackson2/1.28.0/google-http-client-jackson2-1.28.0.jar"
@@ -524,6 +664,23 @@
                     "https://repo1.maven.org/maven2/com/google/http-client/google-http-client/1.28.0/google-http-client-1.28.0.jar",
                     "https://maven.google.com/com/google/http-client/google-http-client/1.28.0/google-http-client-1.28.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.client.http",
+                    "com.google.api.client.http.javanet",
+                    "com.google.api.client.http.json",
+                    "com.google.api.client.json",
+                    "com.google.api.client.json.rpc2",
+                    "com.google.api.client.json.webtoken",
+                    "com.google.api.client.testing.http",
+                    "com.google.api.client.testing.http.apache",
+                    "com.google.api.client.testing.http.javanet",
+                    "com.google.api.client.testing.json",
+                    "com.google.api.client.testing.json.webtoken",
+                    "com.google.api.client.testing.util",
+                    "com.google.api.client.util",
+                    "com.google.api.client.util.escape",
+                    "com.google.api.client.util.store"
+                ],
                 "sha256": "43af1d45ca31d8ce20e805d73e9e3444472a0a9eaab608f9cbd8c45fc1f822b6",
                 "url": "https://repo1.maven.org/maven2/com/google/http-client/google-http-client/1.28.0/google-http-client-1.28.0.jar"
             },
@@ -535,6 +692,9 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar",
                     "https://maven.google.com/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"
+                ],
+                "packages": [
+                    "com.google.j2objc.annotations"
                 ],
                 "sha256": "2994a7eb78f2710bd3d3bfb639b2c94e219cedac0d4d084d516e78c16dddecf6",
                 "url": "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"
@@ -556,6 +716,11 @@
                     "https://repo1.maven.org/maven2/com/google/oauth-client/google-oauth-client/1.27.0/google-oauth-client-1.27.0.jar",
                     "https://maven.google.com/com/google/oauth-client/google-oauth-client/1.27.0/google-oauth-client-1.27.0.jar"
                 ],
+                "packages": [
+                    "com.google.api.client.auth.oauth",
+                    "com.google.api.client.auth.oauth2",
+                    "com.google.api.client.auth.openidconnect"
+                ],
                 "sha256": "80e85cc5eae49d8bb8b2b2221c780a26a36a3b213f97504f0968016df9fad474",
                 "url": "https://repo1.maven.org/maven2/com/google/oauth-client/google-oauth-client/1.27.0/google-oauth-client-1.27.0.jar"
             },
@@ -576,6 +741,9 @@
                     "https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java-util/3.6.1/protobuf-java-util-3.6.1.jar",
                     "https://maven.google.com/com/google/protobuf/protobuf-java-util/3.6.1/protobuf-java-util-3.6.1.jar"
                 ],
+                "packages": [
+                    "com.google.protobuf.util"
+                ],
                 "sha256": "692618ae9409fb4c4d936ccbf1a0217641c720a4a0a0dce35a4fe2ca96c5a190",
                 "url": "https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java-util/3.6.1/protobuf-java-util-3.6.1.jar"
             },
@@ -587,6 +755,10 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.6.1/protobuf-java-3.6.1.jar",
                     "https://maven.google.com/com/google/protobuf/protobuf-java/3.6.1/protobuf-java-3.6.1.jar"
+                ],
+                "packages": [
+                    "com.google.protobuf",
+                    "com.google.protobuf.compiler"
                 ],
                 "sha256": "fb66d913ff0578553b2e28a3338cbbbe2657e6cfe0e98d939f23aea219daf508",
                 "url": "https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.6.1/protobuf-java-3.6.1.jar"
@@ -600,6 +772,14 @@
                     "https://repo1.maven.org/maven2/commons-codec/commons-codec/1.10/commons-codec-1.10.jar",
                     "https://maven.google.com/commons-codec/commons-codec/1.10/commons-codec-1.10.jar"
                 ],
+                "packages": [
+                    "org.apache.commons.codec",
+                    "org.apache.commons.codec.binary",
+                    "org.apache.commons.codec.digest",
+                    "org.apache.commons.codec.language",
+                    "org.apache.commons.codec.language.bm",
+                    "org.apache.commons.codec.net"
+                ],
                 "sha256": "4241dfa94e711d435f29a4604a3e2de5c4aa3c165e23bd066be6fc1fc4309569",
                 "url": "https://repo1.maven.org/maven2/commons-codec/commons-codec/1.10/commons-codec-1.10.jar"
             },
@@ -612,6 +792,10 @@
                     "https://repo1.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
                     "https://maven.google.com/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
                 ],
+                "packages": [
+                    "org.apache.commons.logging",
+                    "org.apache.commons.logging.impl"
+                ],
                 "sha256": "daddea1ea0be0f56978ab3006b8ac92834afeefbd9b7e4e6316fca57df0fa636",
                 "url": "https://repo1.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
             },
@@ -623,6 +807,9 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/io/grpc/grpc-context/1.14.0/grpc-context-1.14.0.jar",
                     "https://maven.google.com/io/grpc/grpc-context/1.14.0/grpc-context-1.14.0.jar"
+                ],
+                "packages": [
+                    "io.grpc"
                 ],
                 "sha256": "d70c10bdd12cd62ba4563d0b060c6db8d9d8e6593a87791a122633b0c4fd70cc",
                 "url": "https://repo1.maven.org/maven2/io/grpc/grpc-context/1.14.0/grpc-context-1.14.0.jar"
@@ -639,6 +826,24 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/io/opencensus/opencensus-api/0.18.0/opencensus-api-0.18.0.jar",
                     "https://maven.google.com/io/opencensus/opencensus-api/0.18.0/opencensus-api-0.18.0.jar"
+                ],
+                "packages": [
+                    "io.opencensus.common",
+                    "io.opencensus.internal",
+                    "io.opencensus.metrics",
+                    "io.opencensus.metrics.export",
+                    "io.opencensus.resource",
+                    "io.opencensus.stats",
+                    "io.opencensus.tags",
+                    "io.opencensus.tags.propagation",
+                    "io.opencensus.tags.unsafe",
+                    "io.opencensus.trace",
+                    "io.opencensus.trace.config",
+                    "io.opencensus.trace.export",
+                    "io.opencensus.trace.internal",
+                    "io.opencensus.trace.propagation",
+                    "io.opencensus.trace.samplers",
+                    "io.opencensus.trace.unsafe"
                 ],
                 "sha256": "45421ffe95271aba94686ed8d4c5070fe77dc2ff0b922688097f0dd40f1931b1",
                 "url": "https://repo1.maven.org/maven2/io/opencensus/opencensus-api/0.18.0/opencensus-api-0.18.0.jar"
@@ -659,6 +864,10 @@
                     "https://repo1.maven.org/maven2/io/opencensus/opencensus-contrib-http-util/0.18.0/opencensus-contrib-http-util-0.18.0.jar",
                     "https://maven.google.com/io/opencensus/opencensus-contrib-http-util/0.18.0/opencensus-contrib-http-util-0.18.0.jar"
                 ],
+                "packages": [
+                    "io.opencensus.contrib.http",
+                    "io.opencensus.contrib.http.util"
+                ],
                 "sha256": "ccd7b95ab4fc30a7f4875a06a2293320f454c3a8d3f7eb8c3f0907d6c1370128",
                 "url": "https://repo1.maven.org/maven2/io/opencensus/opencensus-contrib-http-util/0.18.0/opencensus-contrib-http-util-0.18.0.jar"
             },
@@ -670,6 +879,11 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar",
                     "https://maven.google.com/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"
+                ],
+                "packages": [
+                    "javax.annotation",
+                    "javax.annotation.security",
+                    "javax.annotation.sql"
                 ],
                 "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
                 "url": "https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"
@@ -691,6 +905,32 @@
                     "https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.5/httpclient-4.5.5.jar",
                     "https://maven.google.com/org/apache/httpcomponents/httpclient/4.5.5/httpclient-4.5.5.jar"
                 ],
+                "packages": [
+                    "org.apache.http.auth",
+                    "org.apache.http.auth.params",
+                    "org.apache.http.client",
+                    "org.apache.http.client.config",
+                    "org.apache.http.client.entity",
+                    "org.apache.http.client.methods",
+                    "org.apache.http.client.params",
+                    "org.apache.http.client.protocol",
+                    "org.apache.http.client.utils",
+                    "org.apache.http.conn",
+                    "org.apache.http.conn.params",
+                    "org.apache.http.conn.routing",
+                    "org.apache.http.conn.scheme",
+                    "org.apache.http.conn.socket",
+                    "org.apache.http.conn.ssl",
+                    "org.apache.http.conn.util",
+                    "org.apache.http.cookie",
+                    "org.apache.http.cookie.params",
+                    "org.apache.http.impl.auth",
+                    "org.apache.http.impl.client",
+                    "org.apache.http.impl.conn",
+                    "org.apache.http.impl.conn.tsccm",
+                    "org.apache.http.impl.cookie",
+                    "org.apache.http.impl.execchain"
+                ],
                 "sha256": "7e97724443ad2a25ad8c73183431d47cc7946271bcbbdfa91a8a17522a566573",
                 "url": "https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.5/httpclient-4.5.5.jar"
             },
@@ -702,6 +942,25 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.9/httpcore-4.4.9.jar",
                     "https://maven.google.com/org/apache/httpcomponents/httpcore/4.4.9/httpcore-4.4.9.jar"
+                ],
+                "packages": [
+                    "org.apache.http",
+                    "org.apache.http.annotation",
+                    "org.apache.http.concurrent",
+                    "org.apache.http.config",
+                    "org.apache.http.entity",
+                    "org.apache.http.impl",
+                    "org.apache.http.impl.bootstrap",
+                    "org.apache.http.impl.entity",
+                    "org.apache.http.impl.io",
+                    "org.apache.http.impl.pool",
+                    "org.apache.http.io",
+                    "org.apache.http.message",
+                    "org.apache.http.params",
+                    "org.apache.http.pool",
+                    "org.apache.http.protocol",
+                    "org.apache.http.ssl",
+                    "org.apache.http.util"
                 ],
                 "sha256": "1b4a1c0b9b4222eda70108d3c6e2befd4a6be3d9f78ff53dd7a94966fdf51fc5",
                 "url": "https://repo1.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.9/httpcore-4.4.9.jar"
@@ -715,6 +974,18 @@
                     "https://repo1.maven.org/maven2/org/checkerframework/checker-compat-qual/2.0.0/checker-compat-qual-2.0.0.jar",
                     "https://maven.google.com/org/checkerframework/checker-compat-qual/2.0.0/checker-compat-qual-2.0.0.jar"
                 ],
+                "packages": [
+                    "afu.org.checkerframework.checker.formatter",
+                    "afu.org.checkerframework.checker.nullness",
+                    "afu.org.checkerframework.checker.regex",
+                    "afu.org.checkerframework.checker.units",
+                    "afu.plume",
+                    "org.checkerframework.checker.formatter",
+                    "org.checkerframework.checker.nullness",
+                    "org.checkerframework.checker.nullness.compatqual",
+                    "org.checkerframework.checker.regex",
+                    "org.checkerframework.checker.units"
+                ],
                 "sha256": "a40b2ce6d8551e5b90b1bf637064303f32944d61b52ab2014e38699df573941b",
                 "url": "https://repo1.maven.org/maven2/org/checkerframework/checker-compat-qual/2.0.0/checker-compat-qual-2.0.0.jar"
             },
@@ -727,6 +998,9 @@
                     "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar",
                     "https://maven.google.com/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar"
                 ],
+                "packages": [
+                    "org.codehaus.mojo.animal_sniffer"
+                ],
                 "sha256": "2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d",
                 "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar"
             },
@@ -738,6 +1012,14 @@
                 "mirror_urls": [
                     "https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar",
                     "https://maven.google.com/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar"
+                ],
+                "packages": [
+                    "org.threeten.bp",
+                    "org.threeten.bp.chrono",
+                    "org.threeten.bp.format",
+                    "org.threeten.bp.jdk8",
+                    "org.threeten.bp.temporal",
+                    "org.threeten.bp.zone"
                 ],
                 "sha256": "7bbee842b0334f63627556d3c657aab82431f3a207c8dc4dcfc379d7d210a8c6",
                 "url": "https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar"

@@ -557,6 +557,42 @@ maven_install(
     fail_on_missing_checksum = False
 )
 
+http_file(
+    name = "hamcrest_core_for_test",
+    downloaded_file_path = "hamcrest-core-1.3.jar",
+    sha256 = "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+    urls = [
+        "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+    ],
+)
+
+http_file(
+    name = "hamcrest_core_srcs_for_test",
+    downloaded_file_path = "hamcrest-core-1.3-sources.jar",
+    sha256 = "e223d2d8fbafd66057a8848cc94222d63c3cedd652cc48eddc0ab5c39c0f84df",
+    urls = [
+        "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar",
+    ],
+)
+
+http_file(
+    name = "gson_for_test",
+    downloaded_file_path = "gson-2.9.0.jar",
+    sha256 = "c96d60551331a196dac54b745aa642cd078ef89b6f267146b705f2c2cbef052d",
+    urls = [
+        "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.9.0/gson-2.9.0.jar",
+    ],
+)
+
+http_file(
+    name = "junit_platform_commons_for_test",
+    downloaded_file_path = "junit-platform-commons-1.8.2.jar",
+    sha256 = "d2e015fca7130e79af2f4608dc54415e4b10b592d77333decb4b1a274c185050",
+    urls = [
+        "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/1.8.2/junit-platform-commons-1.8.2.jar",
+    ]
+)
+
 # End test dependencies
 
 http_archive(

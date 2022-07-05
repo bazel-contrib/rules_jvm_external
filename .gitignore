@@ -3,4 +3,3 @@ bazel-*
 .ijwb
 .DS_Store
 .idea
-private

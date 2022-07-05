@@ -119,6 +119,38 @@ def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_mess
         quiet = not verbose,
     )
 
+def _execute_with_argsfile(
+        repository_ctx,
+        tool,
+        tool_name,
+        progress_message,
+        error_description,
+        files_to_inspect):
+    # Currently each tool can only be used once per repository.
+    # This could be avoided by adding a disambiguator to the argsfile name.
+
+    # Avoid argument limits by putting list of files to inspect into a file
+    repository_ctx.file(
+        "{}_argsfile".format(tool_name),
+        "\n".join([str(f) for f in files_to_inspect]) + "\n",
+        executable = False,
+    )
+
+    command = _generate_java_jar_command(
+        repository_ctx,
+        repository_ctx.path(tool),
+    )
+
+    exec_result = _execute(
+        repository_ctx,
+        command + ["--argsfile", repository_ctx.path("{}_argsfile".format(tool_name))],
+        progress_message = progress_message,
+    )
+    if exec_result.return_code != 0:
+        fail("Error while " + error_description + ": " + exec_result.stderr)
+
+    return exec_result.stdout
+
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
@@ -234,7 +266,7 @@ def _compute_dependency_tree_signature(artifacts):
                 _normalize_to_unix_path(artifact["file"]),  # Make sure we represent files in a stable way cross-platform
             ])
             if artifact["url"]:
-                artifact_group.append(artifact["url"]) 
+                artifact_group.append(artifact["url"])
         if len(artifact["dependencies"]) > 0:
             artifact_group.append(",".join(sorted(artifact["dependencies"])))
         signature_inputs.append(":".join(artifact_group))
@@ -839,12 +871,12 @@ def _coursier_fetch_impl(repository_ctx):
     # Add --help because calling the default coursier command on Windows will
     # hang waiting for input
     cmd.append("--help")
-    exec_result = _execute(
+    hasher_exec_result = _execute(
         repository_ctx,
         cmd,
     )
-    if exec_result.return_code != 0:
-        fail("Unable to run coursier: " + exec_result.stderr)
+    if hasher_exec_result.return_code != 0:
+        fail("Unable to run coursier: " + hasher_exec_result.stderr)
 
     _windows_check(repository_ctx)
 
@@ -918,11 +950,7 @@ def _coursier_fetch_impl(repository_ctx):
     # which encodes the URL components for the protocol, domain, and path to
     # the file.
 
-    hasher_command = _generate_java_jar_command(
-        repository_ctx,
-        repository_ctx.path(repository_ctx.attr._sha256_hasher),
-    )
-    files_to_hash = []
+    files_to_inspect = []
     jetify_include_dict = {k: None for k in repository_ctx.attr.jetify_include_list}
     jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
@@ -943,23 +971,22 @@ def _coursier_fetch_impl(repository_ctx):
         artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
 
         if is_maven_local_path(artifact["file"]):
-            # This file comes from maven local, so handle it in two different ways depending if 
+            # This file comes from maven local, so handle it in two different ways depending if
             # dependency pinning is used:
             # a) If the repository is unpinned, we keep the file as is, but clear the url to skip it
-            # b) Otherwise, we clear the url and also simlink the file from the mavel local directory 
+            # b) Otherwise, we clear the url and also simlink the file from the mavel local directory
             #    to file within the repository rule workspace
             print("Assuming maven local for artifact: %s" % artifact["coord"])
             artifact.update({"url": None})
             if not repository_ctx.attr.name.startswith("unpinned_"):
                 artifact.update({"file": _relativize_and_symlink_file_in_maven_local(repository_ctx, artifact["file"])})
 
-            files_to_hash.append(repository_ctx.path(artifact["file"]))
-            continue 
-        
+            files_to_inspect.append(repository_ctx.path(artifact["file"]))
+            continue
+
         if repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"):
             artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"])})
 
-        
         # Coursier saves the artifacts into a subdirectory structure
         # that mirrors the URL where the artifact's fetched from. Using
         # this, we can reconstruct the original URL.
@@ -1018,33 +1045,45 @@ def _coursier_fetch_impl(repository_ctx):
         mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
         artifact.update({"mirror_urls": mirror_urls})
 
-        files_to_hash.append(repository_ctx.path(artifact["file"]))
+        files_to_inspect.append(repository_ctx.path(artifact["file"]))
 
-    # Avoid argument limits by putting list of files to hash into a file
-    repository_ctx.file(
-        "hasher_argsfile",
-        "\n".join([str(f) for f in files_to_hash]) + "\n",
-        executable = False,
-    )
-    exec_result = _execute(
+    hasher_stdout = _execute_with_argsfile(
         repository_ctx,
-        hasher_command + ["--argsfile", repository_ctx.path("hasher_argsfile")],
-        progress_message = "Calculating sha256 checksums..",
+        repository_ctx.attr._sha256_hasher,
+        "hasher",
+        "Calculating sha256 checksums..",
+        "obtaining the sha256 checksums",
+        files_to_inspect,
     )
-    if exec_result.return_code != 0:
-        fail("Error while obtaining the sha256 checksums: " + exec_result.stderr)
 
     shas = {}
-    for line in exec_result.stdout.splitlines():
+    for line in hasher_stdout.splitlines():
         parts = line.split(" ")
         path = str(repository_ctx.path(parts[1]))
         shas[path] = parts[0]
+
+    list_packages_stdout = _execute_with_argsfile(
+        repository_ctx,
+        repository_ctx.attr._list_packages,
+        "package_lister",
+        "Indexing jar packages",
+        "indexing jar packages",
+        files_to_inspect,
+    )
+
+    jars_to_packages = json.decode(list_packages_stdout)
+    for jar, packages in jars_to_packages.items():
+        path = str(repository_ctx.path(jar))
+        if path != jar:
+            jars_to_packages[path] = jars_to_packages.pop(jar)
 
     for artifact in dep_tree["dependencies"]:
         file = artifact["file"]
         if file == None:
             continue
-        artifact.update({"sha256": shas[str(repository_ctx.path(file))]})
+        path = str(repository_ctx.path(file))
+        artifact.update({"sha256": shas[path]})
+        artifact.update({"packages": jars_to_packages[path]})
 
     dep_tree.update({
         "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY": "THERE_IS_NO_DATA_ONLY_ZUUL",
@@ -1072,7 +1111,7 @@ def _coursier_fetch_impl(repository_ctx):
         },
         override_targets = repository_ctx.attr.override_targets,
         # Skip maven local dependencies if generating the unpinned repository
-        skip_maven_local_dependencies = repository_ctx.attr.name.startswith("unpinned_")
+        skip_maven_local_dependencies = repository_ctx.attr.name.startswith("unpinned_"),
     )
 
     # This repository rule can be either in the pinned or unpinned state, depending on when
@@ -1223,6 +1262,7 @@ pinned_coursier_fetch = repository_rule(
 coursier_fetch = repository_rule(
     attrs = {
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
+        "_list_packages": attr.label(default = "//private/tools/prebuilt:list_packages_deploy.jar"),
         "_pin": attr.label(default = "//private:pin.sh"),
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
