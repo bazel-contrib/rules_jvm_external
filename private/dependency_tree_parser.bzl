@@ -31,11 +31,11 @@ load(
 
 JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
-def _genrule_copy_artifact_from_http_file(artifact, visibilities):
+def _genrule_copy_artifact_from_http_file(artifact, visibilities, workspace_prefix_for_pinned_deps):
     # skip artifacts without any urls (ie: maven local artifacts)
     if not artifact.get("url"):
         return ""
-    http_file_repository = escape(artifact["coord"])
+    http_file_repository = workspace_prefix_for_pinned_deps + escape(artifact["coord"])
     return "\n".join([
         "genrule(",
         "     name = \"%s_extension\"," % http_file_repository,
@@ -97,7 +97,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
                     srcjar_paths[target_label] = artifact_path
                     if repository_ctx.attr.maven_install_json:
-                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                        all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities, repository_ctx.attr.workspace_prefix_for_pinned_deps))
 
     jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
@@ -141,7 +141,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             )
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities, repository_ctx.attr.workspace_prefix_for_pinned_deps))
         elif artifact_path != None:
             seen_imports[target_label] = True
 
@@ -356,7 +356,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #     cmd = "cp $< $@",
             # )
             if repository_ctx.attr.maven_install_json:
-                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+                all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities, repository_ctx.attr.workspace_prefix_for_pinned_deps))
 
         else:  # artifact_path == None:
             # Special case for certain artifacts that only come with a POM file.

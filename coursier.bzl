@@ -512,7 +512,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     for artifact in dep_tree["dependencies"]:
         if artifact.get("url") != None:
-            http_file_repository_name = escape(artifact["coord"])
+            http_file_repository_name = repository_ctx.attr.workspace_prefix_for_pinned_deps + escape(artifact["coord"])
             maven_artifacts.extend([artifact["coord"]])
             http_files.extend([
                 "    http_file(",
@@ -1259,6 +1259,10 @@ pinned_coursier_fetch = repository_rule(
                 "none",
             ],
         ),
+        "workspace_prefix_for_pinned_deps": attr.string(
+            doc = """Prefix to use for names of http_file if using pinned dependencies. For example, with the default empty string, `maven_install` creates intermediate dependencies like `@junit_junit`. With a prefix "my_deps_", the intermediate workspace names becomes `@my_deps_junit_junit`. This is useful to avoid workspace name pollution during migration.""",
+            default = "",
+        ),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -1319,6 +1323,10 @@ coursier_fetch = repository_rule(
                 "warn",
                 "none",
             ],
+        ),
+        "workspace_prefix_for_pinned_deps": attr.string(
+            doc = """Prefix to use for names of http_file if using pinned dependencies. For example, with the default empty string, `maven_install` creates intermediate dependencies like `@junit_junit`. With a prefix "my_deps_", the intermediate workspace names becomes `@my_deps_junit_junit`. This is useful to avoid workspace name pollution during migration.""",
+            default = "",
         ),
     },
     environ = [
