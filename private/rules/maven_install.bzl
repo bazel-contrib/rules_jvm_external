@@ -146,4 +146,6 @@ def maven_install(
             additional_netrc_lines = additional_netrc_lines,
             fail_if_repin_required = fail_if_repin_required,
             duplicate_version_warning = duplicate_version_warning,
+            use_starlark_android_rules = use_starlark_android_rules,
+            aar_import_bzl_label = aar_import_bzl_label,
         )
