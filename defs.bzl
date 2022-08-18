@@ -17,6 +17,7 @@ load("//private/rules:artifact.bzl", _artifact = "artifact", _maven_artifact = "
 load("//private/rules:has_maven_deps.bzl", _read_coordinates = "read_coordinates")
 load("//private/rules:java_export.bzl", _java_export = "java_export")
 load("//private/rules:javadoc.bzl", _javadoc = "javadoc")
+load("//private/rules:maven_bom.bzl", _maven_bom = "maven_bom")
 load("//private/rules:maven_install.bzl", _maven_install = "maven_install")
 load("//private/rules:maven_publish.bzl", _MavenPublishInfo = "MavenPublishInfo")
 load("//private/rules:pom_file.bzl", _pom_file = "pom_file")
@@ -27,6 +28,7 @@ artifact = _artifact
 java_export = _java_export
 javadoc = _javadoc
 maven_artifact = _maven_artifact
+maven_bom = _maven_bom
 maven_install = _maven_install
 pom_file = _pom_file
 read_coordinates = _read_coordinates

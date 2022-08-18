@@ -5,6 +5,7 @@
 - [Basic functions](#basic-functions)
   - [javadoc](#javadoc)
   - [java_export](#java_export)
+  - [maven_bom](#maven_bom)
   - [maven_install](#maven_install)
 - [Maven specification functions](#maven-specification-functions)
   - [maven.repository](#mavenrepository)
@@ -49,7 +50,7 @@ Generate a javadoc from all the `deps`
 ## java_export
 
 <pre>
-java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-kwargs">kwargs</a>)
+java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
 
 Extends `java_library` to allow maven artifacts to be uploaded.
@@ -73,7 +74,8 @@ the template file:
   * `{artifactId}`: Replaced with the maven coordinates artifact ID.
   * `{version}`: Replaced by the maven coordinates version.
   * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
-  * `{scope}`: Replaced by the maven coordinates scope, if present (defaults to "compile")
+  * `{scope}`: Replaced by the maven coordinates type, if present (defaults to "compile")
+  * `{parent}`: Replaced by a `<groupId>`, `<artifactId>`, and `<version>` set of tags.
   * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
     by java_library targets within the artifact.
 
@@ -105,7 +107,53 @@ Generated rules:
 | pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
 | visibility |  The visibility of the target   |  <code>None</code> |
 | tags |  <p align="center"> - </p>   |  <code>[]</code> |
+| testonly |  <p align="center"> - </p>   |  <code>None</code> |
 | kwargs |  These are passed to [<code>java_library</code>](https://docs.bazel.build/versions/master/be/java.html#java_library),   and so may contain any valid parameter for that rule.   |  none |
+
+
+<a name="#maven_bom"></a>
+
+## maven_bom
+
+<pre>
+maven_bom(<a href="#maven_bom-name">name</a>, <a href="#maven_bom-maven_coordinates">maven_coordinates</a>, <a href="#maven_bom-java_exports">java_exports</a>, <a href="#maven_bom-tags">tags</a>, <a href="#maven_bom-testonly">testonly</a>, <a href="#maven_bom-visibility">visibility</a>)
+</pre>
+
+Generates a Maven BOM `pom.xml` file.
+
+The generated BOM will contain maven dependencies that are shared between two
+or more of the `java_exports`. This will also generate `pom.xml` files for
+each of the `java_exports`. Within those `pom.xml`s, only dependencies that are
+unique to the `java_export` will have the `version` tag. Dependencies which are
+listed in the BOM will omit the `version` tag.
+
+The maven repository may accessed locally using a `file://` URL, or
+remotely using an `https://` URL. The following flags may be set
+using `--define`:
+
+  gpg_sign: Whether to sign artifacts using GPG
+  maven_repo: A URL for the repo to use. May be "https" or "file".
+  maven_user: The user name to use when uploading to the maven repository.
+  maven_password: The password to use when uploading to the maven repository.
+
+When signing with GPG, the current default key is used.
+
+    Args:
+      name: A unique name for this rule.
+      maven_coordinates: The maven coordinates of this BOM in `groupId:artifactId:version` form.
+      java_exports: A list of `java_export` targets that are used to generate the BOM.
+
+**PARAMETERS**
+
+
+| Name  | Description | Default Value |
+| :-------------: | :-------------: | :-------------: |
+| name |  <p align="center"> - </p>   |  none |
+| maven_coordinates |  <p align="center"> - </p>   |  none |
+| java_exports |  <p align="center"> - </p>   |  none |
+| tags |  <p align="center"> - </p>   |  <code>None</code> |
+| testonly |  <p align="center"> - </p>   |  <code>None</code> |
+| visibility |  <p align="center"> - </p>   |  <code>None</code> |
 
 
 <a name="#maven_install"></a>

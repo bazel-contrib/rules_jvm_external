@@ -1,4 +1,4 @@
-load("@rules_jvm_external//:defs.bzl", "java_export")
+load("@rules_jvm_external//:defs.bzl", "java_export", "maven_bom")
 
 # To export the file, run:
 #
@@ -13,4 +13,13 @@ java_export(
     runtime_deps = [
         "//src/main/java/com/github/bazelbuild/rulesjvmexternal/example/export",
     ],
+)
+
+maven_bom(
+    name = "bom",
+    java_exports = [
+        ":example-export",
+        "//src/main/java/com/github/bazelbuild/rulesjvmexternal/example/io",
+    ],
+    maven_coordinates = "com.example:bazel-example-bom:0.0.1",
 )
