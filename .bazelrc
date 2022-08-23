@@ -11,3 +11,5 @@ build --explicit_java_test_deps
 test --verbose_failures
 test --test_output=errors
 
+# Allows the examples to extend the default bazelrc
+try-import %workspace%/.bazelrc.example
