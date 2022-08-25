@@ -1,7 +1,8 @@
-load("//private/rules:javadoc.bzl", "javadoc")
-load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
-load("//private/rules:maven_publish.bzl", "maven_publish")
-load("//private/rules:pom_file.bzl", "pom_file")
+load(":javadoc.bzl", "javadoc")
+load(":maven_bom_fragment.bzl", "maven_bom_fragment")
+load(":maven_project_jar.bzl", "maven_project_jar")
+load(":maven_publish.bzl", "maven_publish")
+load(":pom_file.bzl", "pom_file")
 
 def java_export(
         name,
@@ -34,6 +35,7 @@ def java_export(
       * `{version}`: Replaced by the maven coordinates version.
       * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
       * `{scope}`: Replaced by the maven coordinates type, if present (defaults to "compile")
+      * `{parent}`: Replaced by a `<groupId>`, `<artifactId>`, and `<version>` set of tags.
       * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
         by java_library targets within the artifact.
 
@@ -87,7 +89,7 @@ def java_export(
         tags,
         testonly,
         lib_name,
-        javadocopts
+        javadocopts,
     )
 
 def maven_export(
@@ -101,7 +103,6 @@ def maven_export(
         testonly,
         lib_name,
         javadocopts):
-
     """Helper rule to reuse this code for both java_export and kt_jvm_export.
 
     After a library has already been created (either a kt_jvm_library or
@@ -179,6 +180,20 @@ def maven_export(
         visibility = visibility,
         tags = tags,
         testonly = testonly,
+    )
+
+    # We may want to aggregate several `java_export` targets into a single Maven BOM POM
+    # https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#bill-of-materials-bom-poms
+    maven_bom_fragment(
+        name = "%s.bom-fragment" % name,
+        maven_coordinates = maven_coordinates,
+        artifact = ":%s" % lib_name,
+        src_artifact = "%s-maven-source" % name,
+        javadoc_artifact = None if "no-javadocs" in tags else "%s-docs" % name,
+        pom_template = pom_template,
+        testonly = testonly,
+        tags = tags,
+        visibility = visibility,
     )
 
     # Finally, alias the primary output

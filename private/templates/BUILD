@@ -1,3 +1,1 @@
-exports_files([
-    "pom.tpl",
-])
+exports_files(glob(["*.tpl"]))

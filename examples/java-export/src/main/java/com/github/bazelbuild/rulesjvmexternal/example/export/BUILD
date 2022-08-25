@@ -2,7 +2,7 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
     name = "export",
-    srcs = glob(["Main.java"]),
+    srcs = glob(["*.java"]),
     visibility = [
         "//:__pkg__",
     ],

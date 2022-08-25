@@ -1,0 +1,66 @@
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("//:defs.bzl", "artifact", "java_export", "maven_bom")
+
+maven_bom(
+    name = "bom",
+    java_exports = [
+        ":one-dep",
+        ":two-deps",
+    ],
+    maven_coordinates = "com.example:bom:1.0.0",
+)
+
+filegroup(
+    name = "generated-one-dep-pom",
+    srcs = [":bom"],
+    output_group = "com.example:one-dep:1.0.0-pom",
+)
+
+diff_test(
+    name = "validate-one-dep",
+    file1 = ":generated-one-dep-pom",
+    file2 = "one-dep.golden.xml",
+)
+
+filegroup(
+    name = "generated-two-deps-pom",
+    srcs = [":bom"],
+    output_group = "com.example:two-deps:1.0.0-pom",
+)
+
+diff_test(
+    name = "validate-two-deps",
+    file1 = ":generated-two-deps-pom",
+    file2 = "two-deps.golden.xml",
+)
+
+filegroup(
+    name = "bom-file",
+    srcs = [":bom"],
+    output_group = "bom",
+)
+
+diff_test(
+    name = "validate-bom",
+    file1 = ":bom-file",
+    file2 = "bom.golden.xml",
+)
+
+java_export(
+    name = "two-deps",
+    srcs = ["TwoDeps.java"],
+    maven_coordinates = "com.example:two-deps:1.0.0",
+    deps = [
+        artifact("com.google.guava:guava"),
+        artifact("org.hamcrest:hamcrest"),
+    ],
+)
+
+java_export(
+    name = "one-dep",
+    srcs = ["OneDep.java"],
+    maven_coordinates = "com.example:one-dep:1.0.0",
+    deps = [
+        artifact("com.google.guava:guava"),
+    ],
+)
