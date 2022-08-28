@@ -20,12 +20,12 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MergeJarsTest {
 
@@ -349,6 +349,35 @@ public class MergeJarsTest {
 
       assertTrue("Manifest is not one of the first entries.", names.contains("META-INF/MANIFEST.MF"));
     }
+  }
+
+  @Test
+  public void shouldAddMissingDirectories() throws IOException {
+    Path input = temp.newFile("example.jar").toPath();
+    createJar(input, ImmutableMap.of("foo/bar/baz.txt", "Hello, World!"));
+
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[] {
+            "--output", output.toAbsolutePath().toString(),
+            "--sources", input.toAbsolutePath().toString(),
+    });
+
+    Set<String> dirNames = new HashSet<>();
+    try (InputStream is = Files.newInputStream(output);
+         ZipInputStream zis = new ZipInputStream(is)) {
+      ZipEntry entry = zis.getNextEntry();
+      while (entry != null) {
+        if (entry.isDirectory()) {
+          dirNames.add(entry.getName());
+        }
+        entry = zis.getNextEntry();
+      }
+
+      assertTrue(dirNames.toString(), dirNames.contains("foo/"));
+      assertTrue(dirNames.toString(), dirNames.contains("foo/bar/"));
+    }
+
   }
 
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {

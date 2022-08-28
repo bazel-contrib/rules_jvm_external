@@ -93,6 +93,7 @@ public class MergeJars {
       // Just write an empty jar and leave
       try (OutputStream fos = Files.newOutputStream(out);
            JarOutputStream jos = new JarOutputStream(fos)) {
+        // This space left blank deliberately
       }
       return;
     }
@@ -180,6 +181,7 @@ public class MergeJars {
       ZipEntry entry = new StableZipEntry("META-INF/");
       jos.putNextEntry(entry);
       jos.closeEntry();
+      createdDirectories.add(entry.getName());
 
       entry = new StableZipEntry("META-INF/MANIFEST.MF");
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -194,6 +196,7 @@ public class MergeJars {
           entry = new StableZipEntry( "META-INF/services/");
           jos.putNextEntry(entry);
           jos.closeEntry();
+          createdDirectories.add(entry.getName());
         }
         for (Map.Entry<String, Set<String>> kv : allServices.entrySet()) {
           entry = new StableZipEntry("META-INF/services/" + kv.getKey());
@@ -212,24 +215,37 @@ public class MergeJars {
       // We should never enter this loop without there being any sources
       for (Map.Entry<String, Path> pathAndSource : fileToSourceJar.entrySet()) {
         // Get the original entry
-        ZipEntry je = new StableZipEntry(pathAndSource.getKey());
-        jos.putNextEntry(je);
+        String name = pathAndSource.getKey();
 
-        if (je.isDirectory()) {
-          jos.closeEntry();
+        // Make sure we're not trying to create root entries.
+        if (name.startsWith("/")) {
+          if (name.length() == 1) {
+            continue;
+          }
+          name = name.substring(1);
+        }
+
+        createDirectories(jos, name, createdDirectories);
+
+        if (createdDirectories.contains(name)) {
           continue;
         }
 
         if (!Objects.equals(previousSource, pathAndSource.getValue())) {
-          source.close();
+          if (source != null) {
+            source.close();
+          }
           source = new ZipFile(pathAndSource.getValue().toFile());
           previousSource = pathAndSource.getValue();
         }
 
-        ZipEntry original = source.getEntry(pathAndSource.getKey());
+        ZipEntry original = source.getEntry(name);
         if (original == null) {
           continue;
         }
+
+        ZipEntry je = new StableZipEntry(name);
+        jos.putNextEntry(je);
 
         try (InputStream is = source.getInputStream(original)) {
           ByteStreams.copy(is, jos);
@@ -239,6 +255,36 @@ public class MergeJars {
       if (source != null) {
         source.close();
       }
+    }
+  }
+
+  private static void createDirectories(JarOutputStream jos, String name, Set<String> createdDirs) throws IOException {
+    if (!name.endsWith("/")) {
+      int slashIndex = name.lastIndexOf('/');
+      if (slashIndex != -1) {
+        createDirectories(jos, name.substring(0, slashIndex + 1), createdDirs);
+      }
+      return;
+    }
+
+    if (createdDirs.contains(name)) {
+      return;
+    }
+
+    String[] segments = name.split("/");
+    StringBuilder path = new StringBuilder();
+    for (String segment : segments) {
+      path.append(segment).append('/');
+
+      String newPath = path.toString();
+      if (createdDirs.contains(newPath)) {
+        continue;
+      }
+
+      ZipEntry entry = new StableZipEntry(newPath);
+      jos.putNextEntry(entry);
+      jos.closeEntry();
+      createdDirs.add(newPath);
     }
   }
 
