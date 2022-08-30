@@ -14,6 +14,9 @@
                     "https://maven.google.com/androidx/annotation/annotation/1.1.0/annotation-1.1.0.jar",
                     "https://repo1.maven.org/maven2/androidx/annotation/annotation/1.1.0/annotation-1.1.0.jar"
                 ],
+                "packages": [
+                    "androidx.annotation"
+                ],
                 "sha256": "d38d63edb30f1467818d50aaf05f8a692dea8b31392a049bfa991b159ad5b692",
                 "url": "https://maven.google.com/androidx/annotation/annotation/1.1.0/annotation-1.1.0.jar"
             },
@@ -65,6 +68,7 @@
                     "https://maven.google.com/androidx/appcompat/appcompat/1.0.2/appcompat-1.0.2.aar",
                     "https://repo1.maven.org/maven2/androidx/appcompat/appcompat/1.0.2/appcompat-1.0.2.aar"
                 ],
+                "packages": [],
                 "sha256": "a3080cdd5e5c56cb72f9d428b1657d4380011ec211cfedf76e084b95f6bf0d03",
                 "url": "https://maven.google.com/androidx/appcompat/appcompat/1.0.2/appcompat-1.0.2.aar"
             },
@@ -80,6 +84,10 @@
                 "mirror_urls": [
                     "https://maven.google.com/androidx/arch/core/core-common/2.0.0/core-common-2.0.0.jar",
                     "https://repo1.maven.org/maven2/androidx/arch/core/core-common/2.0.0/core-common-2.0.0.jar"
+                ],
+                "packages": [
+                    "androidx.arch.core.internal",
+                    "androidx.arch.core.util"
                 ],
                 "sha256": "4b80b337779b526e64b0ee0ca9e0df43b808344d145f8e9b1c42a134dac57ad8",
                 "url": "https://maven.google.com/androidx/arch/core/core-common/2.0.0/core-common-2.0.0.jar"
@@ -99,6 +107,7 @@
                     "https://maven.google.com/androidx/arch/core/core-runtime/2.0.0/core-runtime-2.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/arch/core/core-runtime/2.0.0/core-runtime-2.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "87e65fc767c712b437649c7cee2431ebb4bed6daef82e501d4125b3ed3f65f8e",
                 "url": "https://maven.google.com/androidx/arch/core/core-runtime/2.0.0/core-runtime-2.0.0.aar"
             },
@@ -117,6 +126,7 @@
                     "https://maven.google.com/androidx/asynclayoutinflater/asynclayoutinflater/1.0.0/asynclayoutinflater-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/asynclayoutinflater/asynclayoutinflater/1.0.0/asynclayoutinflater-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "f7eab60c57addd94bb06275832fe7600611beaaae1a1ec597c231956faf96c8b",
                 "url": "https://maven.google.com/androidx/asynclayoutinflater/asynclayoutinflater/1.0.0/asynclayoutinflater-1.0.0.aar"
             },
@@ -132,6 +142,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/androidx/collection/collection/1.0.0/collection-1.0.0.jar",
                     "https://repo1.maven.org/maven2/androidx/collection/collection/1.0.0/collection-1.0.0.jar"
+                ],
+                "packages": [
+                    "androidx.collection"
                 ],
                 "sha256": "9c8d117b5c2bc120a1cdfeb857e05b495b16c36013570372a708f7827e3ac9f9",
                 "url": "https://maven.google.com/androidx/collection/collection/1.0.0/collection-1.0.0.jar"
@@ -153,6 +166,7 @@
                     "https://maven.google.com/androidx/coordinatorlayout/coordinatorlayout/1.0.0/coordinatorlayout-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/coordinatorlayout/coordinatorlayout/1.0.0/coordinatorlayout-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "e508c695489493374d942bf7b4ee02abf7571d25aac4c622e57d6cd5cd29eb73",
                 "url": "https://maven.google.com/androidx/coordinatorlayout/coordinatorlayout/1.0.0/coordinatorlayout-1.0.0.aar"
             },
@@ -177,6 +191,7 @@
                     "https://maven.google.com/androidx/core/core/1.0.1/core-1.0.1.aar",
                     "https://repo1.maven.org/maven2/androidx/core/core/1.0.1/core-1.0.1.aar"
                 ],
+                "packages": [],
                 "sha256": "b1a90522c22cad8c5fb7a4f912493dbcde463c6a37b4148dfb9423763460f998",
                 "url": "https://maven.google.com/androidx/core/core/1.0.1/core-1.0.1.aar"
             },
@@ -193,6 +208,7 @@
                     "https://maven.google.com/androidx/cursoradapter/cursoradapter/1.0.0/cursoradapter-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/cursoradapter/cursoradapter/1.0.0/cursoradapter-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "a81c8fe78815fa47df5b749deb52727ad11f9397da58b16017f4eb2c11e28564",
                 "url": "https://maven.google.com/androidx/cursoradapter/cursoradapter/1.0.0/cursoradapter-1.0.0.aar"
             },
@@ -211,6 +227,7 @@
                     "https://maven.google.com/androidx/customview/customview/1.0.0/customview-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/customview/customview/1.0.0/customview-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "20e5b8f6526a34595a604f56718da81167c0b40a7a94a57daa355663f2594df2",
                 "url": "https://maven.google.com/androidx/customview/customview/1.0.0/customview-1.0.0.aar"
             },
@@ -227,6 +244,7 @@
                     "https://maven.google.com/androidx/documentfile/documentfile/1.0.0/documentfile-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/documentfile/documentfile/1.0.0/documentfile-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "865a061ef2fad16522f8433536b8d47208c46ff7c7745197dfa1eeb481869487",
                 "url": "https://maven.google.com/androidx/documentfile/documentfile/1.0.0/documentfile-1.0.0.aar"
             },
@@ -247,6 +265,7 @@
                     "https://maven.google.com/androidx/drawerlayout/drawerlayout/1.0.0/drawerlayout-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/drawerlayout/drawerlayout/1.0.0/drawerlayout-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "9402442cdc5a43cf62fb14f8cf98c63342d4d9d9b805c8033c6cf7e802749ac1",
                 "url": "https://maven.google.com/androidx/drawerlayout/drawerlayout/1.0.0/drawerlayout-1.0.0.aar"
             },
@@ -290,6 +309,7 @@
                     "https://maven.google.com/androidx/fragment/fragment/1.0.0/fragment-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/fragment/fragment/1.0.0/fragment-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "65dd32d71fe65a32e77989a6cfb1ad09307038927f82a740c7611162d0b518f8",
                 "url": "https://maven.google.com/androidx/fragment/fragment/1.0.0/fragment-1.0.0.aar"
             },
@@ -306,6 +326,7 @@
                     "https://maven.google.com/androidx/interpolator/interpolator/1.0.0/interpolator-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/interpolator/interpolator/1.0.0/interpolator-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "33193135a64fe21fa2c35eec6688f1a76e512606c0fc83dc1b689e37add7732a",
                 "url": "https://maven.google.com/androidx/interpolator/interpolator/1.0.0/interpolator-1.0.0.aar"
             },
@@ -354,6 +375,7 @@
                     "https://maven.google.com/androidx/legacy/legacy-support-core-ui/1.0.0/legacy-support-core-ui-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/legacy/legacy-support-core-ui/1.0.0/legacy-support-core-ui-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "0d1260c6e7e6a337f875df71b516931e703f716e90889817cd3a20fa5ac3d947",
                 "url": "https://maven.google.com/androidx/legacy/legacy-support-core-ui/1.0.0/legacy-support-core-ui-1.0.0.aar"
             },
@@ -386,6 +408,7 @@
                     "https://maven.google.com/androidx/legacy/legacy-support-core-utils/1.0.0/legacy-support-core-utils-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/legacy/legacy-support-core-utils/1.0.0/legacy-support-core-utils-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "a7edcf01d5b52b3034073027bc4775b78a4764bb6202bb91d61c829add8dd1c7",
                 "url": "https://maven.google.com/androidx/legacy/legacy-support-core-utils/1.0.0/legacy-support-core-utils-1.0.0.aar"
             },
@@ -401,6 +424,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/androidx/lifecycle/lifecycle-common/2.0.0/lifecycle-common-2.0.0.jar",
                     "https://repo1.maven.org/maven2/androidx/lifecycle/lifecycle-common/2.0.0/lifecycle-common-2.0.0.jar"
+                ],
+                "packages": [
+                    "androidx.lifecycle"
                 ],
                 "sha256": "7bad7a188804adea6fa1f35d5ef99b705f20bd93ecadde484760ff86b535fefc",
                 "url": "https://maven.google.com/androidx/lifecycle/lifecycle-common/2.0.0/lifecycle-common-2.0.0.jar"
@@ -423,6 +449,7 @@
                     "https://maven.google.com/androidx/lifecycle/lifecycle-livedata-core/2.0.0/lifecycle-livedata-core-2.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/lifecycle/lifecycle-livedata-core/2.0.0/lifecycle-livedata-core-2.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "fde334ec7e22744c0f5bfe7caf1a84c9d717327044400577bdf9bd921ec4f7bc",
                 "url": "https://maven.google.com/androidx/lifecycle/lifecycle-livedata-core/2.0.0/lifecycle-livedata-core-2.0.0.aar"
             },
@@ -445,6 +472,7 @@
                     "https://maven.google.com/androidx/lifecycle/lifecycle-livedata/2.0.0/lifecycle-livedata-2.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/lifecycle/lifecycle-livedata/2.0.0/lifecycle-livedata-2.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "c82609ced8c498f0a701a30fb6771bb7480860daee84d82e0a81ee86edf7ba39",
                 "url": "https://maven.google.com/androidx/lifecycle/lifecycle-livedata/2.0.0/lifecycle-livedata-2.0.0.aar"
             },
@@ -465,6 +493,7 @@
                     "https://maven.google.com/androidx/lifecycle/lifecycle-runtime/2.0.0/lifecycle-runtime-2.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/lifecycle/lifecycle-runtime/2.0.0/lifecycle-runtime-2.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "e4afc9e636183f6f3e0edf1cf46121a492ffd2c673075bb07f55c7a99dd43cfb",
                 "url": "https://maven.google.com/androidx/lifecycle/lifecycle-runtime/2.0.0/lifecycle-runtime-2.0.0.aar"
             },
@@ -481,6 +510,7 @@
                     "https://maven.google.com/androidx/lifecycle/lifecycle-viewmodel/2.0.0/lifecycle-viewmodel-2.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/lifecycle/lifecycle-viewmodel/2.0.0/lifecycle-viewmodel-2.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "d6460aea1b6bad80ab14cf88297e9e43bfde8d87c3e5c28f2c508233ffbcc062",
                 "url": "https://maven.google.com/androidx/lifecycle/lifecycle-viewmodel/2.0.0/lifecycle-viewmodel-2.0.0.aar"
             },
@@ -507,6 +537,7 @@
                     "https://maven.google.com/androidx/loader/loader/1.0.0/loader-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/loader/loader/1.0.0/loader-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "11f735cb3b55c458d470bed9e25254375b518b4b1bad6926783a7026db0f5025",
                 "url": "https://maven.google.com/androidx/loader/loader/1.0.0/loader-1.0.0.aar"
             },
@@ -523,6 +554,7 @@
                     "https://maven.google.com/androidx/localbroadcastmanager/localbroadcastmanager/1.0.0/localbroadcastmanager-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/localbroadcastmanager/localbroadcastmanager/1.0.0/localbroadcastmanager-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "e71c328ceef5c4a7d76f2d86df1b65d65fe2acf868b1a4efd84a3f34336186d8",
                 "url": "https://maven.google.com/androidx/localbroadcastmanager/localbroadcastmanager/1.0.0/localbroadcastmanager-1.0.0.aar"
             },
@@ -539,6 +571,7 @@
                     "https://maven.google.com/androidx/print/print/1.0.0/print-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/print/print/1.0.0/print-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "1d5c7f3135a1bba661fc373fd72e11eb0a4adbb3396787826dd8e4190d5d9edd",
                 "url": "https://maven.google.com/androidx/print/print/1.0.0/print-1.0.0.aar"
             },
@@ -559,6 +592,7 @@
                     "https://maven.google.com/androidx/slidingpanelayout/slidingpanelayout/1.0.0/slidingpanelayout-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/slidingpanelayout/slidingpanelayout/1.0.0/slidingpanelayout-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "76bffb7cefbf780794d8817002dad1562f3e27c0a9f746d62401c8edb30aeede",
                 "url": "https://maven.google.com/androidx/slidingpanelayout/slidingpanelayout/1.0.0/slidingpanelayout-1.0.0.aar"
             },
@@ -579,6 +613,7 @@
                     "https://maven.google.com/androidx/swiperefreshlayout/swiperefreshlayout/1.0.0/swiperefreshlayout-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/swiperefreshlayout/swiperefreshlayout/1.0.0/swiperefreshlayout-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "9761b3a809c9b093fd06a3c4bbc645756dec0e95b5c9da419bc9f2a3f3026e8d",
                 "url": "https://maven.google.com/androidx/swiperefreshlayout/swiperefreshlayout/1.0.0/swiperefreshlayout-1.0.0.aar"
             },
@@ -591,6 +626,7 @@
                     "https://maven.google.com/androidx/test/espresso/espresso-idling-resource/3.4.0/espresso-idling-resource-3.4.0.aar",
                     "https://repo1.maven.org/maven2/androidx/test/espresso/espresso-idling-resource/3.4.0/espresso-idling-resource-3.4.0.aar"
                 ],
+                "packages": [],
                 "sha256": "8845d93979f09fffcc974c0be7d6b6ce4cf4275a4e3ba26bf0f83402e7f0cca5",
                 "url": "https://maven.google.com/androidx/test/espresso/espresso-idling-resource/3.4.0/espresso-idling-resource-3.4.0.aar"
             },
@@ -615,6 +651,7 @@
                     "https://maven.google.com/androidx/test/ext/junit/1.1.0/junit-1.1.0.aar",
                     "https://repo1.maven.org/maven2/androidx/test/ext/junit/1.1.0/junit-1.1.0.aar"
                 ],
+                "packages": [],
                 "sha256": "8d4733213eeb8d071f969ea5b04f6559dc4e180cdc6fa9254aacdc14a3d3f4b7",
                 "url": "https://maven.google.com/androidx/test/ext/junit/1.1.0/junit-1.1.0.aar"
             },
@@ -635,6 +672,7 @@
                     "https://maven.google.com/androidx/test/core/1.1.0/core-1.1.0.aar",
                     "https://repo1.maven.org/maven2/androidx/test/core/1.1.0/core-1.1.0.aar"
                 ],
+                "packages": [],
                 "sha256": "fda5a08856ec82fc05e4dc37bd4eea93c9d02c231fd828d6b8ce2c6a42f79271",
                 "url": "https://maven.google.com/androidx/test/core/1.1.0/core-1.1.0.aar"
             },
@@ -651,6 +689,7 @@
                     "https://maven.google.com/androidx/test/monitor/1.4.0/monitor-1.4.0.aar",
                     "https://repo1.maven.org/maven2/androidx/test/monitor/1.4.0/monitor-1.4.0.aar"
                 ],
+                "packages": [],
                 "sha256": "46a912a1e175f27a97521af3f50e5af87c22c49275dd2c57c043740012806325",
                 "url": "https://maven.google.com/androidx/test/monitor/1.4.0/monitor-1.4.0.aar"
             },
@@ -691,6 +730,7 @@
                     "https://maven.google.com/androidx/vectordrawable/vectordrawable-animated/1.0.0/vectordrawable-animated-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/vectordrawable/vectordrawable-animated/1.0.0/vectordrawable-animated-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "26c3a0cf0a9a9a7d235a0b00f2f37e431d52d9952751e3eb7c90b4b52c236cf1",
                 "url": "https://maven.google.com/androidx/vectordrawable/vectordrawable-animated/1.0.0/vectordrawable-animated-1.0.0.aar"
             },
@@ -709,6 +749,7 @@
                     "https://maven.google.com/androidx/vectordrawable/vectordrawable/1.0.1/vectordrawable-1.0.1.aar",
                     "https://repo1.maven.org/maven2/androidx/vectordrawable/vectordrawable/1.0.1/vectordrawable-1.0.1.aar"
                 ],
+                "packages": [],
                 "sha256": "4ca358957b9510e52fc388e01c9d33c2d655d406bfe6e71984e9afea9f715ed2",
                 "url": "https://maven.google.com/androidx/vectordrawable/vectordrawable/1.0.1/vectordrawable-1.0.1.aar"
             },
@@ -727,6 +768,7 @@
                     "https://maven.google.com/androidx/versionedparcelable/versionedparcelable/1.0.0/versionedparcelable-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/versionedparcelable/versionedparcelable/1.0.0/versionedparcelable-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "f6438a93ed8016ccddca0e140a70be0b0110e0424edaa1472f84f98fed2e1ce3",
                 "url": "https://maven.google.com/androidx/versionedparcelable/versionedparcelable/1.0.0/versionedparcelable-1.0.0.aar"
             },
@@ -747,6 +789,7 @@
                     "https://maven.google.com/androidx/viewpager/viewpager/1.0.0/viewpager-1.0.0.aar",
                     "https://repo1.maven.org/maven2/androidx/viewpager/viewpager/1.0.0/viewpager-1.0.0.aar"
                 ],
+                "packages": [],
                 "sha256": "147af4e14a1984010d8f155e5e19d781f03c1d70dfed02a8e0d18428b8fc8682",
                 "url": "https://maven.google.com/androidx/viewpager/viewpager/1.0.0/viewpager-1.0.0.aar"
             },
@@ -758,6 +801,10 @@
                 "mirror_urls": [
                     "https://maven.google.com/com/almworks/sqlite4java/sqlite4java/1.0.392/sqlite4java-1.0.392.jar",
                     "https://repo1.maven.org/maven2/com/almworks/sqlite4java/sqlite4java/1.0.392/sqlite4java-1.0.392.jar"
+                ],
+                "packages": [
+                    "com.almworks.sqlite4java",
+                    "javolution.util.stripped"
                 ],
                 "sha256": "243a64470fda0e86a6fddeb0af4c7aa9426ce84e68cbfe18d75ee5da4b7e0b92",
                 "url": "https://repo1.maven.org/maven2/com/almworks/sqlite4java/sqlite4java/1.0.392/sqlite4java-1.0.392.jar"
@@ -771,6 +818,11 @@
                     "https://maven.google.com/com/google/auto/value/auto-value-annotations/1.7.4/auto-value-annotations-1.7.4.jar",
                     "https://repo1.maven.org/maven2/com/google/auto/value/auto-value-annotations/1.7.4/auto-value-annotations-1.7.4.jar"
                 ],
+                "packages": [
+                    "com.google.auto.value",
+                    "com.google.auto.value.extension.memoized",
+                    "com.google.auto.value.extension.serializable"
+                ],
                 "sha256": "fedd59b0b4986c342f6ab2d182f2a4ee9fceb2c7e2d5bdc4dc764c92394a23d3",
                 "url": "https://repo1.maven.org/maven2/com/google/auto/value/auto-value-annotations/1.7.4/auto-value-annotations-1.7.4.jar"
             },
@@ -782,6 +834,11 @@
                 "mirror_urls": [
                     "https://maven.google.com/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
                     "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
+                ],
+                "packages": [
+                    "javax.annotation",
+                    "javax.annotation.concurrent",
+                    "javax.annotation.meta"
                 ],
                 "sha256": "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7",
                 "url": "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
@@ -795,6 +852,10 @@
                     "https://maven.google.com/com/google/errorprone/error_prone_annotations/2.9.0/error_prone_annotations-2.9.0.jar",
                     "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.9.0/error_prone_annotations-2.9.0.jar"
                 ],
+                "packages": [
+                    "com.google.errorprone.annotations",
+                    "com.google.errorprone.annotations.concurrent"
+                ],
                 "sha256": "f947bdc33ae27a6b4aa44799e6c21e1944797bd0010ba43eb82d11446e163694",
                 "url": "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.9.0/error_prone_annotations-2.9.0.jar"
             },
@@ -806,6 +867,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar",
                     "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar"
+                ],
+                "packages": [
+                    "com.google.common.util.concurrent.internal"
                 ],
                 "sha256": "a171ee4c734dd2da837e4b16be9df4661afab72a41adaf31eb84dfdaf936ca26",
                 "url": "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar"
@@ -835,6 +899,26 @@
                     "https://maven.google.com/com/google/guava/guava/27.0.1-jre/guava-27.0.1-jre.jar",
                     "https://repo1.maven.org/maven2/com/google/guava/guava/27.0.1-jre/guava-27.0.1-jre.jar"
                 ],
+                "packages": [
+                    "com.google.common.annotations",
+                    "com.google.common.base",
+                    "com.google.common.base.internal",
+                    "com.google.common.cache",
+                    "com.google.common.collect",
+                    "com.google.common.escape",
+                    "com.google.common.eventbus",
+                    "com.google.common.graph",
+                    "com.google.common.hash",
+                    "com.google.common.html",
+                    "com.google.common.io",
+                    "com.google.common.math",
+                    "com.google.common.net",
+                    "com.google.common.primitives",
+                    "com.google.common.reflect",
+                    "com.google.common.util.concurrent",
+                    "com.google.common.xml",
+                    "com.google.thirdparty.publicsuffix"
+                ],
                 "sha256": "e1c814fd04492a27c38e0317eabeaa1b3e950ec8010239e400fe90ad6c9107b4",
                 "url": "https://repo1.maven.org/maven2/com/google/guava/guava/27.0.1-jre/guava-27.0.1-jre.jar"
             },
@@ -847,6 +931,7 @@
                     "https://maven.google.com/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
                     "https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
                 ],
+                "packages": [],
                 "sha256": "b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99",
                 "url": "https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
             },
@@ -858,6 +943,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar",
                     "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"
+                ],
+                "packages": [
+                    "com.google.j2objc.annotations"
                 ],
                 "sha256": "2994a7eb78f2710bd3d3bfb639b2c94e219cedac0d4d084d516e78c16dddecf6",
                 "url": "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"
@@ -871,6 +959,25 @@
                     "https://maven.google.com/com/ibm/icu/icu4j/70.1/icu4j-70.1.jar",
                     "https://repo1.maven.org/maven2/com/ibm/icu/icu4j/70.1/icu4j-70.1.jar"
                 ],
+                "packages": [
+                    "com.ibm.icu.impl",
+                    "com.ibm.icu.impl.breakiter",
+                    "com.ibm.icu.impl.coll",
+                    "com.ibm.icu.impl.data",
+                    "com.ibm.icu.impl.duration",
+                    "com.ibm.icu.impl.duration.impl",
+                    "com.ibm.icu.impl.locale",
+                    "com.ibm.icu.impl.number",
+                    "com.ibm.icu.impl.number.parse",
+                    "com.ibm.icu.impl.number.range",
+                    "com.ibm.icu.impl.text",
+                    "com.ibm.icu.impl.units",
+                    "com.ibm.icu.lang",
+                    "com.ibm.icu.math",
+                    "com.ibm.icu.number",
+                    "com.ibm.icu.text",
+                    "com.ibm.icu.util"
+                ],
                 "sha256": "2b4d8d4e098e86aa5f905ec81c46751d218b16afd3f7fc02b64f80dd20fffa20",
                 "url": "https://repo1.maven.org/maven2/com/ibm/icu/icu4j/70.1/icu4j-70.1.jar"
             },
@@ -883,6 +990,11 @@
                     "https://maven.google.com/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar",
                     "https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"
                 ],
+                "packages": [
+                    "javax.annotation",
+                    "javax.annotation.security",
+                    "javax.annotation.sql"
+                ],
                 "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
                 "url": "https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"
             },
@@ -894,6 +1006,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/javax/inject/javax.inject/1/javax.inject-1.jar",
                     "https://repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar"
+                ],
+                "packages": [
+                    "javax.inject"
                 ],
                 "sha256": "91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff",
                 "url": "https://repo1.maven.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar"
@@ -911,6 +1026,38 @@
                     "https://maven.google.com/junit/junit/4.12/junit-4.12.jar",
                     "https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"
                 ],
+                "packages": [
+                    "junit.extensions",
+                    "junit.framework",
+                    "junit.runner",
+                    "junit.textui",
+                    "org.junit",
+                    "org.junit.experimental",
+                    "org.junit.experimental.categories",
+                    "org.junit.experimental.max",
+                    "org.junit.experimental.results",
+                    "org.junit.experimental.runners",
+                    "org.junit.experimental.theories",
+                    "org.junit.experimental.theories.internal",
+                    "org.junit.experimental.theories.suppliers",
+                    "org.junit.internal",
+                    "org.junit.internal.builders",
+                    "org.junit.internal.matchers",
+                    "org.junit.internal.requests",
+                    "org.junit.internal.runners",
+                    "org.junit.internal.runners.model",
+                    "org.junit.internal.runners.rules",
+                    "org.junit.internal.runners.statements",
+                    "org.junit.matchers",
+                    "org.junit.rules",
+                    "org.junit.runner",
+                    "org.junit.runner.manipulation",
+                    "org.junit.runner.notification",
+                    "org.junit.runners",
+                    "org.junit.runners.model",
+                    "org.junit.runners.parameterized",
+                    "org.junit.validator"
+                ],
                 "sha256": "59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a",
                 "url": "https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar"
             },
@@ -922,6 +1069,67 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/assertj/assertj-core/3.12.1/assertj-core-3.12.1.jar",
                     "https://repo1.maven.org/maven2/org/assertj/assertj-core/3.12.1/assertj-core-3.12.1.jar"
+                ],
+                "packages": [
+                    "org.assertj.core.annotations",
+                    "org.assertj.core.api",
+                    "org.assertj.core.api.exception",
+                    "org.assertj.core.api.filter",
+                    "org.assertj.core.api.iterable",
+                    "org.assertj.core.api.recursive.comparison",
+                    "org.assertj.core.condition",
+                    "org.assertj.core.configuration",
+                    "org.assertj.core.data",
+                    "org.assertj.core.description",
+                    "org.assertj.core.error",
+                    "org.assertj.core.error.future",
+                    "org.assertj.core.error.uri",
+                    "org.assertj.core.extractor",
+                    "org.assertj.core.groups",
+                    "org.assertj.core.internal",
+                    "org.assertj.core.internal.bytebuddy",
+                    "org.assertj.core.internal.bytebuddy.agent.builder",
+                    "org.assertj.core.internal.bytebuddy.asm",
+                    "org.assertj.core.internal.bytebuddy.build",
+                    "org.assertj.core.internal.bytebuddy.description",
+                    "org.assertj.core.internal.bytebuddy.description.annotation",
+                    "org.assertj.core.internal.bytebuddy.description.enumeration",
+                    "org.assertj.core.internal.bytebuddy.description.field",
+                    "org.assertj.core.internal.bytebuddy.description.method",
+                    "org.assertj.core.internal.bytebuddy.description.modifier",
+                    "org.assertj.core.internal.bytebuddy.description.type",
+                    "org.assertj.core.internal.bytebuddy.dynamic",
+                    "org.assertj.core.internal.bytebuddy.dynamic.loading",
+                    "org.assertj.core.internal.bytebuddy.dynamic.scaffold",
+                    "org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline",
+                    "org.assertj.core.internal.bytebuddy.dynamic.scaffold.subclass",
+                    "org.assertj.core.internal.bytebuddy.implementation",
+                    "org.assertj.core.internal.bytebuddy.implementation.attribute",
+                    "org.assertj.core.internal.bytebuddy.implementation.auxiliary",
+                    "org.assertj.core.internal.bytebuddy.implementation.bind",
+                    "org.assertj.core.internal.bytebuddy.implementation.bind.annotation",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode.assign",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.primitive",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.reference",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode.collection",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode.constant",
+                    "org.assertj.core.internal.bytebuddy.implementation.bytecode.member",
+                    "org.assertj.core.internal.bytebuddy.jar.asm",
+                    "org.assertj.core.internal.bytebuddy.jar.asm.commons",
+                    "org.assertj.core.internal.bytebuddy.jar.asm.signature",
+                    "org.assertj.core.internal.bytebuddy.matcher",
+                    "org.assertj.core.internal.bytebuddy.pool",
+                    "org.assertj.core.internal.bytebuddy.utility",
+                    "org.assertj.core.internal.bytebuddy.utility.privilege",
+                    "org.assertj.core.internal.bytebuddy.utility.visitor",
+                    "org.assertj.core.matcher",
+                    "org.assertj.core.presentation",
+                    "org.assertj.core.util",
+                    "org.assertj.core.util.diff",
+                    "org.assertj.core.util.diff.myers",
+                    "org.assertj.core.util.introspection",
+                    "org.assertj.core.util.xml"
                 ],
                 "sha256": "6c8df781573fa85a6f0ea3d024d34e9f8f52e5f0d0f3f5cb1b1eaad3887932db",
                 "url": "https://repo1.maven.org/maven2/org/assertj/assertj-core/3.12.1/assertj-core-3.12.1.jar"
@@ -935,6 +1143,167 @@
                     "https://maven.google.com/org/bouncycastle/bcprov-jdk15on/1.68/bcprov-jdk15on-1.68.jar",
                     "https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.68/bcprov-jdk15on-1.68.jar"
                 ],
+                "packages": [
+                    "org.bouncycastle",
+                    "org.bouncycastle.asn1",
+                    "org.bouncycastle.asn1.anssi",
+                    "org.bouncycastle.asn1.bc",
+                    "org.bouncycastle.asn1.bsi",
+                    "org.bouncycastle.asn1.cmc",
+                    "org.bouncycastle.asn1.cmp",
+                    "org.bouncycastle.asn1.cms",
+                    "org.bouncycastle.asn1.cms.ecc",
+                    "org.bouncycastle.asn1.crmf",
+                    "org.bouncycastle.asn1.cryptlib",
+                    "org.bouncycastle.asn1.cryptopro",
+                    "org.bouncycastle.asn1.dvcs",
+                    "org.bouncycastle.asn1.eac",
+                    "org.bouncycastle.asn1.edec",
+                    "org.bouncycastle.asn1.esf",
+                    "org.bouncycastle.asn1.ess",
+                    "org.bouncycastle.asn1.est",
+                    "org.bouncycastle.asn1.gm",
+                    "org.bouncycastle.asn1.gnu",
+                    "org.bouncycastle.asn1.iana",
+                    "org.bouncycastle.asn1.icao",
+                    "org.bouncycastle.asn1.isara",
+                    "org.bouncycastle.asn1.isismtt",
+                    "org.bouncycastle.asn1.isismtt.ocsp",
+                    "org.bouncycastle.asn1.isismtt.x509",
+                    "org.bouncycastle.asn1.iso",
+                    "org.bouncycastle.asn1.kisa",
+                    "org.bouncycastle.asn1.microsoft",
+                    "org.bouncycastle.asn1.misc",
+                    "org.bouncycastle.asn1.mozilla",
+                    "org.bouncycastle.asn1.nist",
+                    "org.bouncycastle.asn1.nsri",
+                    "org.bouncycastle.asn1.ntt",
+                    "org.bouncycastle.asn1.ocsp",
+                    "org.bouncycastle.asn1.oiw",
+                    "org.bouncycastle.asn1.pkcs",
+                    "org.bouncycastle.asn1.rosstandart",
+                    "org.bouncycastle.asn1.sec",
+                    "org.bouncycastle.asn1.smime",
+                    "org.bouncycastle.asn1.teletrust",
+                    "org.bouncycastle.asn1.tsp",
+                    "org.bouncycastle.asn1.ua",
+                    "org.bouncycastle.asn1.util",
+                    "org.bouncycastle.asn1.x500",
+                    "org.bouncycastle.asn1.x500.style",
+                    "org.bouncycastle.asn1.x509",
+                    "org.bouncycastle.asn1.x509.qualified",
+                    "org.bouncycastle.asn1.x509.sigi",
+                    "org.bouncycastle.asn1.x9",
+                    "org.bouncycastle.crypto",
+                    "org.bouncycastle.crypto.agreement",
+                    "org.bouncycastle.crypto.agreement.jpake",
+                    "org.bouncycastle.crypto.agreement.kdf",
+                    "org.bouncycastle.crypto.agreement.srp",
+                    "org.bouncycastle.crypto.commitments",
+                    "org.bouncycastle.crypto.digests",
+                    "org.bouncycastle.crypto.ec",
+                    "org.bouncycastle.crypto.encodings",
+                    "org.bouncycastle.crypto.engines",
+                    "org.bouncycastle.crypto.examples",
+                    "org.bouncycastle.crypto.generators",
+                    "org.bouncycastle.crypto.io",
+                    "org.bouncycastle.crypto.kems",
+                    "org.bouncycastle.crypto.macs",
+                    "org.bouncycastle.crypto.modes",
+                    "org.bouncycastle.crypto.modes.gcm",
+                    "org.bouncycastle.crypto.modes.kgcm",
+                    "org.bouncycastle.crypto.paddings",
+                    "org.bouncycastle.crypto.params",
+                    "org.bouncycastle.crypto.parsers",
+                    "org.bouncycastle.crypto.prng",
+                    "org.bouncycastle.crypto.prng.drbg",
+                    "org.bouncycastle.crypto.signers",
+                    "org.bouncycastle.crypto.util",
+                    "org.bouncycastle.i18n",
+                    "org.bouncycastle.i18n.filter",
+                    "org.bouncycastle.iana",
+                    "org.bouncycastle.its.asn1",
+                    "org.bouncycastle.jcajce",
+                    "org.bouncycastle.jcajce.interfaces",
+                    "org.bouncycastle.jcajce.io",
+                    "org.bouncycastle.jcajce.provider.asymmetric",
+                    "org.bouncycastle.jcajce.provider.asymmetric.dh",
+                    "org.bouncycastle.jcajce.provider.asymmetric.dsa",
+                    "org.bouncycastle.jcajce.provider.asymmetric.dstu",
+                    "org.bouncycastle.jcajce.provider.asymmetric.ec",
+                    "org.bouncycastle.jcajce.provider.asymmetric.ecgost",
+                    "org.bouncycastle.jcajce.provider.asymmetric.ecgost12",
+                    "org.bouncycastle.jcajce.provider.asymmetric.edec",
+                    "org.bouncycastle.jcajce.provider.asymmetric.elgamal",
+                    "org.bouncycastle.jcajce.provider.asymmetric.gost",
+                    "org.bouncycastle.jcajce.provider.asymmetric.ies",
+                    "org.bouncycastle.jcajce.provider.asymmetric.rsa",
+                    "org.bouncycastle.jcajce.provider.asymmetric.util",
+                    "org.bouncycastle.jcajce.provider.asymmetric.x509",
+                    "org.bouncycastle.jcajce.provider.config",
+                    "org.bouncycastle.jcajce.provider.digest",
+                    "org.bouncycastle.jcajce.provider.drbg",
+                    "org.bouncycastle.jcajce.provider.keystore",
+                    "org.bouncycastle.jcajce.provider.keystore.bc",
+                    "org.bouncycastle.jcajce.provider.keystore.bcfks",
+                    "org.bouncycastle.jcajce.provider.keystore.pkcs12",
+                    "org.bouncycastle.jcajce.provider.symmetric",
+                    "org.bouncycastle.jcajce.provider.symmetric.util",
+                    "org.bouncycastle.jcajce.provider.util",
+                    "org.bouncycastle.jcajce.spec",
+                    "org.bouncycastle.jcajce.util",
+                    "org.bouncycastle.jce",
+                    "org.bouncycastle.jce.exception",
+                    "org.bouncycastle.jce.interfaces",
+                    "org.bouncycastle.jce.netscape",
+                    "org.bouncycastle.jce.provider",
+                    "org.bouncycastle.jce.spec",
+                    "org.bouncycastle.math",
+                    "org.bouncycastle.math.ec",
+                    "org.bouncycastle.math.ec.custom.djb",
+                    "org.bouncycastle.math.ec.custom.gm",
+                    "org.bouncycastle.math.ec.custom.sec",
+                    "org.bouncycastle.math.ec.endo",
+                    "org.bouncycastle.math.ec.rfc7748",
+                    "org.bouncycastle.math.ec.rfc8032",
+                    "org.bouncycastle.math.ec.tools",
+                    "org.bouncycastle.math.field",
+                    "org.bouncycastle.math.raw",
+                    "org.bouncycastle.pqc.asn1",
+                    "org.bouncycastle.pqc.crypto",
+                    "org.bouncycastle.pqc.crypto.gmss",
+                    "org.bouncycastle.pqc.crypto.gmss.util",
+                    "org.bouncycastle.pqc.crypto.lms",
+                    "org.bouncycastle.pqc.crypto.mceliece",
+                    "org.bouncycastle.pqc.crypto.newhope",
+                    "org.bouncycastle.pqc.crypto.qtesla",
+                    "org.bouncycastle.pqc.crypto.rainbow",
+                    "org.bouncycastle.pqc.crypto.rainbow.util",
+                    "org.bouncycastle.pqc.crypto.sphincs",
+                    "org.bouncycastle.pqc.crypto.util",
+                    "org.bouncycastle.pqc.crypto.xmss",
+                    "org.bouncycastle.pqc.jcajce.interfaces",
+                    "org.bouncycastle.pqc.jcajce.provider",
+                    "org.bouncycastle.pqc.jcajce.provider.gmss",
+                    "org.bouncycastle.pqc.jcajce.provider.lms",
+                    "org.bouncycastle.pqc.jcajce.provider.mceliece",
+                    "org.bouncycastle.pqc.jcajce.provider.newhope",
+                    "org.bouncycastle.pqc.jcajce.provider.qtesla",
+                    "org.bouncycastle.pqc.jcajce.provider.rainbow",
+                    "org.bouncycastle.pqc.jcajce.provider.sphincs",
+                    "org.bouncycastle.pqc.jcajce.provider.util",
+                    "org.bouncycastle.pqc.jcajce.provider.xmss",
+                    "org.bouncycastle.pqc.jcajce.spec",
+                    "org.bouncycastle.pqc.math.linearalgebra",
+                    "org.bouncycastle.util",
+                    "org.bouncycastle.util.encoders",
+                    "org.bouncycastle.util.io",
+                    "org.bouncycastle.util.io.pem",
+                    "org.bouncycastle.util.test",
+                    "org.bouncycastle.x509",
+                    "org.bouncycastle.x509.extension",
+                    "org.bouncycastle.x509.util"
+                ],
                 "sha256": "f732a46c8de7e2232f2007c682a21d1f4cc8a8a0149b6b7bd6aa1afdc65a0f8d",
                 "url": "https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.68/bcprov-jdk15on-1.68.jar"
             },
@@ -946,6 +1315,39 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar",
                     "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar"
+                ],
+                "packages": [
+                    "org.checkerframework.checker.compilermsgs.qual",
+                    "org.checkerframework.checker.fenum.qual",
+                    "org.checkerframework.checker.formatter",
+                    "org.checkerframework.checker.formatter.qual",
+                    "org.checkerframework.checker.guieffect.qual",
+                    "org.checkerframework.checker.i18n.qual",
+                    "org.checkerframework.checker.i18nformatter",
+                    "org.checkerframework.checker.i18nformatter.qual",
+                    "org.checkerframework.checker.index.qual",
+                    "org.checkerframework.checker.initialization.qual",
+                    "org.checkerframework.checker.interning.qual",
+                    "org.checkerframework.checker.lock.qual",
+                    "org.checkerframework.checker.nullness",
+                    "org.checkerframework.checker.nullness.qual",
+                    "org.checkerframework.checker.optional.qual",
+                    "org.checkerframework.checker.propkey.qual",
+                    "org.checkerframework.checker.regex",
+                    "org.checkerframework.checker.regex.qual",
+                    "org.checkerframework.checker.signature.qual",
+                    "org.checkerframework.checker.signedness",
+                    "org.checkerframework.checker.signedness.qual",
+                    "org.checkerframework.checker.tainting.qual",
+                    "org.checkerframework.checker.units",
+                    "org.checkerframework.checker.units.qual",
+                    "org.checkerframework.common.aliasing.qual",
+                    "org.checkerframework.common.reflection.qual",
+                    "org.checkerframework.common.util.report.qual",
+                    "org.checkerframework.common.value.qual",
+                    "org.checkerframework.dataflow.qual",
+                    "org.checkerframework.framework.qual",
+                    "org.checkerframework.framework.util"
                 ],
                 "sha256": "64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a",
                 "url": "https://repo1.maven.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar"
@@ -959,6 +1361,9 @@
                     "https://maven.google.com/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar",
                     "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar"
                 ],
+                "packages": [
+                    "org.codehaus.mojo.animal_sniffer"
+                ],
                 "sha256": "92654f493ecfec52082e76354f0ebf87648dc3d5cec2e3c3cdb947c016747a53",
                 "url": "https://repo1.maven.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar"
             },
@@ -970,6 +1375,11 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
                     "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+                ],
+                "packages": [
+                    "org.hamcrest",
+                    "org.hamcrest.core",
+                    "org.hamcrest.internal"
                 ],
                 "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
                 "url": "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
@@ -987,6 +1397,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/ow2/asm/asm-analysis/9.2/asm-analysis-9.2.jar",
                     "https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/9.2/asm-analysis-9.2.jar"
+                ],
+                "packages": [
+                    "org.objectweb.asm.tree.analysis"
                 ],
                 "sha256": "878fbe521731c072d14d2d65b983b1beae6ad06fda0007b6a8bae81f73f433c4",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/9.2/asm-analysis-9.2.jar"
@@ -1008,6 +1421,9 @@
                     "https://maven.google.com/org/ow2/asm/asm-commons/9.2/asm-commons-9.2.jar",
                     "https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/9.2/asm-commons-9.2.jar"
                 ],
+                "packages": [
+                    "org.objectweb.asm.commons"
+                ],
                 "sha256": "be4ce53138a238bb522cd781cf91f3ba5ce2f6ca93ec62d46a162a127225e0a6",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/9.2/asm-commons-9.2.jar"
             },
@@ -1023,6 +1439,9 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/ow2/asm/asm-tree/9.2/asm-tree-9.2.jar",
                     "https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/9.2/asm-tree-9.2.jar"
+                ],
+                "packages": [
+                    "org.objectweb.asm.tree"
                 ],
                 "sha256": "aabf9bd23091a4ebfc109c1f3ee7cf3e4b89f6ba2d3f51c5243f16b3cffae011",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/9.2/asm-tree-9.2.jar"
@@ -1044,6 +1463,9 @@
                     "https://maven.google.com/org/ow2/asm/asm-util/9.2/asm-util-9.2.jar",
                     "https://repo1.maven.org/maven2/org/ow2/asm/asm-util/9.2/asm-util-9.2.jar"
                 ],
+                "packages": [
+                    "org.objectweb.asm.util"
+                ],
                 "sha256": "ff5b3cd331ae8a9a804768280da98f50f424fef23dd3c788bb320e08c94ee598",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm-util/9.2/asm-util-9.2.jar"
             },
@@ -1056,6 +1478,10 @@
                     "https://maven.google.com/org/ow2/asm/asm/9.2/asm-9.2.jar",
                     "https://repo1.maven.org/maven2/org/ow2/asm/asm/9.2/asm-9.2.jar"
                 ],
+                "packages": [
+                    "org.objectweb.asm",
+                    "org.objectweb.asm.signature"
+                ],
                 "sha256": "b9d4fe4d71938df38839f0eca42aaaa64cf8b313d678da036f0cb3ca199b47f5",
                 "url": "https://repo1.maven.org/maven2/org/ow2/asm/asm/9.2/asm-9.2.jar"
             },
@@ -1067,6 +1493,12 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/robolectric/annotations/4.8.1/annotations-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/annotations/4.8.1/annotations-4.8.1.jar"
+                ],
+                "packages": [
+                    "org.robolectric.annotation",
+                    "org.robolectric.annotation.experimental",
+                    "org.robolectric.annotation.internal",
+                    "org.robolectric.shadow.api"
                 ],
                 "sha256": "d3924abb4c9f7c20df582e4553ac13203bb40b7c367bf5bf776a9acbb252e181",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/annotations/4.8.1/annotations-4.8.1.jar"
@@ -1108,6 +1540,9 @@
                     "https://maven.google.com/org/robolectric/junit/4.8.1/junit-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/junit/4.8.1/junit-4.8.1.jar"
                 ],
+                "packages": [
+                    "org.robolectric.internal"
+                ],
                 "sha256": "1475e1a271dce425d95ef53e837c07542023d718b0a320a9af6b879fa26c49ac",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/junit/4.8.1/junit-4.8.1.jar"
             },
@@ -1137,6 +1572,9 @@
                     "https://maven.google.com/org/robolectric/nativeruntime/4.8.1/nativeruntime-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/nativeruntime/4.8.1/nativeruntime-4.8.1.jar"
                 ],
+                "packages": [
+                    "org.robolectric.nativeruntime"
+                ],
                 "sha256": "62e3e2de0e205a5a9a017f71de661d9529ac1a1f6bf4014609493a0ec95178f8",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/nativeruntime/4.8.1/nativeruntime-4.8.1.jar"
             },
@@ -1161,6 +1599,12 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/robolectric/pluginapi/4.8.1/pluginapi-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/pluginapi/4.8.1/pluginapi-4.8.1.jar"
+                ],
+                "packages": [
+                    "org.robolectric.internal.dependency",
+                    "org.robolectric.pluginapi",
+                    "org.robolectric.pluginapi.config",
+                    "org.robolectric.pluginapi.perf"
                 ],
                 "sha256": "bea89e22d02b946563cf320312bb3eb479f8f31aa9cf96f65ce35c2b80cd02bc",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/pluginapi/4.8.1/pluginapi-4.8.1.jar"
@@ -1192,6 +1636,10 @@
                     "https://maven.google.com/org/robolectric/plugins-maven-dependency-resolver/4.8.1/plugins-maven-dependency-resolver-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/plugins-maven-dependency-resolver/4.8.1/plugins-maven-dependency-resolver-4.8.1.jar"
                 ],
+                "packages": [
+                    "org.robolectric",
+                    "org.robolectric.internal.dependency"
+                ],
                 "sha256": "dc87b3d6c55f5a6691246038ef4ba53311f406c784c8d9469d1f1112f885f72d",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/plugins-maven-dependency-resolver/4.8.1/plugins-maven-dependency-resolver-4.8.1.jar"
             },
@@ -1222,6 +1670,13 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/robolectric/resources/4.8.1/resources-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/resources/4.8.1/resources-4.8.1.jar"
+                ],
+                "packages": [
+                    "org.robolectric",
+                    "org.robolectric.manifest",
+                    "org.robolectric.res",
+                    "org.robolectric.res.android",
+                    "org.robolectric.res.builder"
                 ],
                 "sha256": "fd15dedf3721e46412c23c238a0b905166fbfba65628db546b1c121546d4712a",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/resources/4.8.1/resources-4.8.1.jar"
@@ -1285,6 +1740,16 @@
                     "https://maven.google.com/org/robolectric/robolectric/4.8.1/robolectric-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/robolectric/4.8.1/robolectric-4.8.1.jar"
                 ],
+                "packages": [
+                    "org.robolectric",
+                    "org.robolectric.android",
+                    "org.robolectric.android.internal",
+                    "org.robolectric.internal",
+                    "org.robolectric.internal.dependency",
+                    "org.robolectric.junit.rules",
+                    "org.robolectric.plugins",
+                    "org.robolectric.util"
+                ],
                 "sha256": "c17a5358ca9f1adb5d182bda0cf276efa01a0cc1a7ba456325ecffd6e9c70fef",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/robolectric/4.8.1/robolectric-4.8.1.jar"
             },
@@ -1328,6 +1793,14 @@
                     "https://maven.google.com/org/robolectric/sandbox/4.8.1/sandbox-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/sandbox/4.8.1/sandbox-4.8.1.jar"
                 ],
+                "packages": [
+                    "org.robolectric.config",
+                    "org.robolectric.fakes",
+                    "org.robolectric.interceptors",
+                    "org.robolectric.internal.bytecode",
+                    "org.robolectric.sandbox",
+                    "org.robolectric.util"
+                ],
                 "sha256": "ec132754fbd4a9b0c6658a2d3b12a2c6c2f2f56dfbd4ab1bd429441853697a41",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/sandbox/4.8.1/sandbox-4.8.1.jar"
             },
@@ -1356,6 +1829,13 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/robolectric/shadowapi/4.8.1/shadowapi-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/shadowapi/4.8.1/shadowapi-4.8.1.jar"
+                ],
+                "packages": [
+                    "org.robolectric.annotation.internal",
+                    "org.robolectric.config",
+                    "org.robolectric.internal",
+                    "org.robolectric.shadow.api",
+                    "org.robolectric.util"
                 ],
                 "sha256": "48ea81a61603d316f971a1c59f74b66d5914a8a5f96f657c8a57a3a5104455fb",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/shadowapi/4.8.1/shadowapi-4.8.1.jar"
@@ -1413,6 +1893,18 @@
                     "https://maven.google.com/org/robolectric/shadows-framework/4.8.1/shadows-framework-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/shadows-framework/4.8.1/shadows-framework-4.8.1.jar"
                 ],
+                "packages": [
+                    "android.media",
+                    "android.webkit",
+                    "org.robolectric",
+                    "org.robolectric.android",
+                    "org.robolectric.android.controller",
+                    "org.robolectric.android.internal",
+                    "org.robolectric.android.util.concurrent",
+                    "org.robolectric.fakes",
+                    "org.robolectric.shadows",
+                    "org.robolectric.shadows.util"
+                ],
                 "sha256": "5fda3468ab58877ade2fab5c0a954a947a7b89d67c4e9eeda939eb8a91e1bf34",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/shadows-framework/4.8.1/shadows-framework-4.8.1.jar"
             },
@@ -1449,6 +1941,9 @@
                     "https://maven.google.com/org/robolectric/utils-reflector/4.8.1/utils-reflector-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/utils-reflector/4.8.1/utils-reflector-4.8.1.jar"
                 ],
+                "packages": [
+                    "org.robolectric.util.reflector"
+                ],
                 "sha256": "d17357e5254e1e14ee258fc1604bbe011aa425fe5e7c768a04fd043476e41267",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/utils-reflector/4.8.1/utils-reflector-4.8.1.jar"
             },
@@ -1480,6 +1975,11 @@
                 "mirror_urls": [
                     "https://maven.google.com/org/robolectric/utils/4.8.1/utils-4.8.1.jar",
                     "https://repo1.maven.org/maven2/org/robolectric/utils/4.8.1/utils-4.8.1.jar"
+                ],
+                "packages": [
+                    "org.robolectric",
+                    "org.robolectric.util",
+                    "org.robolectric.util.inject"
                 ],
                 "sha256": "c40afc0a140aada6830b3c2f7a331ad96d8e2f2a905458b6624b8fb12f7552d4",
                 "url": "https://repo1.maven.org/maven2/org/robolectric/utils/4.8.1/utils-4.8.1.jar"
