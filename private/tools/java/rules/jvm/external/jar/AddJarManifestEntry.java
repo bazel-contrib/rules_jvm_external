@@ -38,11 +38,7 @@ import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
  */
 public class AddJarManifestEntry {
 
-  private static final long DEFAULT_TIMESTAMP =
-      LocalDateTime.of(2010, 1, 1, 0, 0, 0)
-          .atZone(ZoneId.systemDefault())
-          .toInstant()
-          .toEpochMilli();
+  private static final LocalDateTime DEFAULT_TIMESTAMP = LocalDateTime.of(2010, 1, 1, 0, 0, 0);
   // Visible for testing
   public static final Attributes.Name AUTOMATIC_MODULE_NAME = new Attributes.Name("Automatic-Module-Name");
   // Collected from https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Keyword
@@ -195,7 +191,8 @@ public class AddJarManifestEntry {
         amendManifest(source, manifest, toAdd, toRemove, makeSafe);
 
         ZipEntry newManifestEntry = new ZipEntry(JarFile.MANIFEST_NAME);
-        newManifestEntry.setTime(DEFAULT_TIMESTAMP);
+        newManifestEntry.setTime(
+                DEFAULT_TIMESTAMP.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         zos.putNextEntry(newManifestEntry);
         manifest.write(zos);
 
@@ -204,20 +201,14 @@ public class AddJarManifestEntry {
           JarEntry sourceEntry = entries.nextElement();
           String name = sourceEntry.getName();
 
-          ZipEntry outEntry = new ZipEntry(name);
-          outEntry.setMethod(sourceEntry.getMethod());
-          outEntry.setTime(sourceEntry.getTime());
-          outEntry.setComment(sourceEntry.getComment());
-          outEntry.setExtra(sourceEntry.getExtra());
-
           if (JarFile.MANIFEST_NAME.equals(name)) {
             continue;
           }
 
-          if (sourceEntry.getMethod() == ZipEntry.STORED) {
-            outEntry.setSize(sourceEntry.getSize());
-            outEntry.setCrc(sourceEntry.getCrc());
-          }
+          ZipEntry outEntry = new ZipEntry(sourceEntry);
+
+          // Force compressed size recalculation as it might differ
+          outEntry.setCompressedSize(-1);
 
           try (InputStream in = jarFile.getInputStream(sourceEntry)) {
             zos.putNextEntry(outEntry);
