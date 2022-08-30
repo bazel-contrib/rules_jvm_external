@@ -1,3 +1,5 @@
+load("//:defs.bzl", "artifact")
+
 java_library(
     name = "byte-streams",
     srcs = ["ByteStreams.java"],
@@ -22,6 +24,6 @@ java_test(
     test_class = "rules.jvm.external.HasherTest",
     deps = [
         ":hasher",
-        "@maven//:org_hamcrest_hamcrest",
+        artifact("org.hamcrest:hamcrest"),
     ],
 )
