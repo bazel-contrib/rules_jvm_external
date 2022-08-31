@@ -1,6 +1,9 @@
 package com.jvm.external.jar;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,17 +18,19 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MergeJarsTest {
 
@@ -351,6 +356,82 @@ public class MergeJarsTest {
     }
   }
 
+  @Test
+  public void shouldAddMissingDirectories() throws IOException {
+    Path input = temp.newFile("example.jar").toPath();
+    createJar(input, ImmutableMap.of("foo/bar/baz.txt", "Hello, World!"));
+
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[] {
+            "--output", output.toAbsolutePath().toString(),
+            "--sources", input.toAbsolutePath().toString(),
+    });
+
+    List<String> dirNames = readDirNames(output);
+
+    assertTrue(dirNames.toString(), dirNames.contains("foo/"));
+    assertTrue(dirNames.toString(), dirNames.contains("foo/bar/"));
+  }
+
+  @Test
+  public void shouldNotBeConfusedBySimilarNamesWhenCreatingDirectories() throws IOException {
+    Path input = temp.newFile("example.jar").toPath();
+    createJar(input, ImmutableMap.of(
+            "foo/bar/baz.txt", "Hello, World!",
+            "foo/bar/baz/qux.txt", "Goodbye, cruel World!"));
+
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[] {
+            "--output", output.toAbsolutePath().toString(),
+            "--sources", input.toAbsolutePath().toString(),
+    });
+
+    List<String> dirNames = readDirNames(output);
+
+    assertTrue(dirNames.toString(), dirNames.contains("foo/"));
+    assertTrue(dirNames.toString(), dirNames.contains("foo/bar/"));
+    assertTrue(dirNames.toString(), dirNames.contains("foo/bar/baz/"));
+
+    Map<String, String> contents = readJar(output);
+    assertEquals("Hello, World!", contents.get("foo/bar/baz.txt"));
+    assertEquals("Goodbye, cruel World!", contents.get("foo/bar/baz/qux.txt"));
+  }
+
+  @Test
+  public void orderingOfAutomaticallyCreatedDirectoriesIsConduciveToSensibleUnpacking() throws IOException {
+    Path input = temp.newFile("example.jar").toPath();
+    createJar(input, ImmutableMap.of(
+            "foo/bar/baz/qux/quux.txt", "Greetings, fellow mortal",
+            "foo/bar/baz.txt", "Hello, World!"));
+
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[] {
+            "--output", output.toAbsolutePath().toString(),
+            "--sources", input.toAbsolutePath().toString(),
+    });
+
+    // We want `foo/` to appear before `foo/bar/` and so on so that a simple unzipper can
+    // just walk the zip, creating directories as it goes, and have everything work the
+    // way we expect.
+    List<String> dirNames = readDirNames(output);
+
+    int indexOfFoo = dirNames.indexOf("foo/");
+    int indexOfBar = dirNames.indexOf("foo/bar/");
+
+    assertTrue(indexOfBar > indexOfFoo);
+
+    int indexOfBaz = dirNames.indexOf("foo/bar/baz/");
+
+    assertTrue(indexOfBaz > indexOfBar);
+
+    int indexOfQux = dirNames.indexOf("foo/bar/baz/qux/");
+
+    assertTrue(indexOfQux > indexOfBaz);
+  }
+
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
          ZipOutputStream zos = new ZipOutputStream(os)) {
@@ -398,5 +479,23 @@ public class MergeJarsTest {
     }
 
     return builder.build();
+  }
+
+  private static List<String> readDirNames(Path output) throws IOException {
+    // Ordering matters! Retain insertion order
+    ImmutableList.Builder<String> dirNames = ImmutableList.builder();
+
+    try (InputStream is = Files.newInputStream(output);
+         ZipInputStream zis = new ZipInputStream(is)) {
+      ZipEntry entry = zis.getNextEntry();
+      while (entry != null) {
+        if (entry.isDirectory()) {
+          dirNames.add(entry.getName());
+        }
+        entry = zis.getNextEntry();
+      }
+    }
+
+    return dirNames.build();
   }
 }
