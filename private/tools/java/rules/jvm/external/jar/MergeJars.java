@@ -18,22 +18,19 @@
 package rules.jvm.external.jar;
 
 import rules.jvm.external.ByteStreams;
+import rules.jvm.external.zip.StableZipEntry;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -43,7 +40,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -56,14 +52,6 @@ import static rules.jvm.external.jar.DuplicateEntryStrategy.LAST_IN_WINS;
 
 
 public class MergeJars {
-
-  // File time is taken from the epoch (1970-01-01T00:00:00Z), but zip files
-  // have a different epoch. Oof. Make something sensible up.
-  private static final FileTime DOS_EPOCH = FileTime.from(Instant.parse("1985-02-01T00:00:00.00Z"));
-
-  // ZIP timestamps have a resolution of 2 seconds.
-  // see http://www.info-zip.org/FAQ.html#limits
-  public static final long MINIMUM_TIMESTAMP_INCREMENT = 2000L;
 
   public static void main(String[] args) throws IOException {
     Path out = null;
@@ -189,13 +177,11 @@ public class MergeJars {
       jos.setLevel(BEST_COMPRESSION);
 
       // Write the manifest by hand to ensure the date is good
-      JarEntry entry = new JarEntry("META-INF/");
-      entry = resetTime(entry);
+      ZipEntry entry = new StableZipEntry("META-INF/");
       jos.putNextEntry(entry);
       jos.closeEntry();
 
-      entry = new JarEntry("META-INF/MANIFEST.MF");
-      entry = resetTime(entry);
+      entry = new StableZipEntry("META-INF/MANIFEST.MF");
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       manifest.write(bos);
       entry.setSize(bos.size());
@@ -205,14 +191,12 @@ public class MergeJars {
 
       if (!allServices.isEmpty()) {
         if (!createdDirectories.contains("META-INF/services/")) {
-          entry = new JarEntry("META-INF/services/");
-          entry = resetTime(entry);
+          entry = new StableZipEntry( "META-INF/services/");
           jos.putNextEntry(entry);
           jos.closeEntry();
         }
         for (Map.Entry<String, Set<String>> kv : allServices.entrySet()) {
-          entry = new JarEntry("META-INF/services/" + kv.getKey());
-          entry = resetTime(entry);
+          entry = new StableZipEntry("META-INF/services/" + kv.getKey());
           bos = new ByteArrayOutputStream();
           bos.write(String.join("\n", kv.getValue()).getBytes());
           entry.setSize(bos.size());
@@ -228,8 +212,7 @@ public class MergeJars {
       // We should never enter this loop without there being any sources
       for (Map.Entry<String, Path> pathAndSource : fileToSourceJar.entrySet()) {
         // Get the original entry
-        JarEntry je = new JarEntry(pathAndSource.getKey());
-        je = resetTime(je);
+        ZipEntry je = new StableZipEntry(pathAndSource.getKey());
         jos.putNextEntry(je);
 
         if (je.isDirectory()) {
@@ -290,27 +273,6 @@ public class MergeJars {
     }
 
     return path;
-  }
-
-  private static void delete(Path toDelete) throws IOException {
-    Files.walk(toDelete)
-            .sorted(Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
-  }
-
-  // Returns the normalized timestamp for a jar entry based on its name. This is necessary since
-  // javac will, when loading a class X, prefer a source file to a class file, if both files have
-  // the same timestamp. Therefore, we need to adjust the timestamp for class files to slightly
-  // after the normalized time.
-  // https://github.com/bazelbuild/bazel/blob/master/src/java_tools/buildjar/java/com/google/devtools/build/buildjar/jarhelper/JarHelper.java#L124
-  private static JarEntry resetTime(JarEntry entry) {
-    if (entry.getName().endsWith(".class")) {
-      entry.setTime(DOS_EPOCH.toMillis() + MINIMUM_TIMESTAMP_INCREMENT);
-    } else {
-      entry.setTime(DOS_EPOCH.toMillis());
-    }
-    return entry;
   }
 
   private static Manifest merge(Manifest into, Manifest from) {

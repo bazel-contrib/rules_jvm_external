@@ -47,5 +47,6 @@ java_binary(
     ],
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
+        "//private/tools/java/rules/jvm/external/zip",
     ],
 )
