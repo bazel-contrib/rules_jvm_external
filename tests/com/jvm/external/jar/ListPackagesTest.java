@@ -1,10 +1,11 @@
-package rules.jvm.external.jar;
+package com.jvm.external.jar;
 
 import static org.junit.Assert.assertEquals;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import java.nio.file.Path;
 import org.junit.Test;
+import rules.jvm.external.jar.ListPackages;
 
 import java.nio.file.Paths;
 import java.io.IOException;
