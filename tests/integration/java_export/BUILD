@@ -14,6 +14,10 @@ java_test(
     deps = [
         "//private/tools/java/rules/jvm/external/maven:MavenPublisher_deploy.jar",
         artifact("com.google.guava:guava"),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
         artifact("org.hamcrest:hamcrest"),
     ],
 )
@@ -31,6 +35,10 @@ java_test(
     deps = [
         ":project",
         artifact("com.google.guava:guava"),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
         artifact("org.hamcrest:hamcrest"),
     ],
 )
