@@ -14,16 +14,6 @@ java_library(
     srcs = ["Hasher.java"],
     visibility = [
         "//private/tools:__subpackages__",
-    ],
-)
-
-java_test(
-    name = "HasherTest",
-    size = "small",
-    srcs = ["HasherTest.java"],
-    test_class = "rules.jvm.external.HasherTest",
-    deps = [
-        ":hasher",
-        artifact("org.hamcrest:hamcrest"),
+        "//tests/com/jvm/external:__pkg__",
     ],
 )

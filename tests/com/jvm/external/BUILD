@@ -45,6 +45,21 @@ java_test(
 )
 
 java_test(
+    name = "HasherTest",
+    size = "small",
+    srcs = ["HasherTest.java"],
+    test_class = "rules.jvm.external.HasherTest",
+    deps = [
+        "//private/tools/java/rules/jvm/external:hasher",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact("org.hamcrest:hamcrest"),
+    ],
+)
+
+java_test(
     name = "JsonArtifactsTest",
     srcs = ["JsonArtifactsTest.java"],
     test_class = "com.jvm.external.JsonArtifactsTest",
