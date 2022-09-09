@@ -17,7 +17,6 @@ http_file(
 )
 
 # Begin Skylib dependencies
-
 http_archive(
     name = "bazel_skylib",
     sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
@@ -35,21 +34,29 @@ bazel_skylib_workspace()
 
 http_archive(
     name = "io_bazel_stardoc",
-    sha256 = "4a355dccc713458071f441f3dafd7452b3111c53cde554d0847b9a82d657149e",
-    strip_prefix = "stardoc-4378e9b6bb2831de7143580594782f538f461180",
-    url = "https://github.com/bazelbuild/stardoc/archive/4378e9b6bb2831de7143580594782f538f461180.zip",
+    sha256 = "05fb57bb4ad68a360470420a3b6f5317e4f722839abc5b17ec4ef8ed465aaa47",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/stardoc/releases/download/0.5.2/stardoc-0.5.2.tar.gz",
+        "https://github.com/bazelbuild/stardoc/releases/download/0.5.2/stardoc-0.5.2.tar.gz",
+    ],
 )
+
+load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
+
+stardoc_repositories()
 
 http_archive(
     name = "io_bazel_rules_kotlin",
-    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.7.0-RC-2/rules_kotlin_release.tgz"],
     sha256 = "946747acdbeae799b085d12b240ec346f775ac65236dfcf18aa0cd7300f6de78",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.7.0-RC-2/rules_kotlin_release.tgz"],
 )
 
 load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+
 kotlin_repositories()
 
 load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
+
 kt_register_toolchains()
 
 # Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
@@ -533,13 +540,13 @@ maven_install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0"
+        "com.example:kt:1.0.0",
     ],
+    fail_on_missing_checksum = True,
     repositories = [
         "m2Local",
         "https://repo1.maven.org/maven2",
     ],
-    fail_on_missing_checksum = True
 )
 
 maven_install(
@@ -547,14 +554,14 @@ maven_install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0"
+        "com.example:kt:1.0.0",
     ],
+    # jar won't have checksums for this test case
+    fail_on_missing_checksum = False,
     repositories = [
         "m2Local",
         "https://repo1.maven.org/maven2",
     ],
-    # jar won't have checksums for this test case
-    fail_on_missing_checksum = False
 )
 
 http_file(
@@ -590,7 +597,7 @@ http_file(
     sha256 = "d2e015fca7130e79af2f4608dc54415e4b10b592d77333decb4b1a274c185050",
     urls = [
         "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/1.8.2/junit-platform-commons-1.8.2.jar",
-    ]
+    ],
 )
 
 # End test dependencies
