@@ -1,11 +1,20 @@
+load("//:defs.bzl", "artifact")
+
 java_test(
     name = "ArtifactExclusionsTest",
     srcs = ["ArtifactExclusionsTest.java"],
     test_class = "com.jvm.external.ArtifactExclusionsTest",
     deps = [
-        "@exclusion_testing//:com_google_guava_guava",
-        "@maven//:org_hamcrest_hamcrest",
-        "@maven//:org_hamcrest_hamcrest_core",
+        artifact(
+            "com.google.guava:guava",
+            repository_name = "exclusion_testing",
+        ),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact("org.hamcrest:hamcrest"),
+        artifact("org.hamcrest:hamcrest_core"),
     ],
 )
 
@@ -14,11 +23,39 @@ java_test(
     srcs = ["GlobalArtifactExclusionsTest.java"],
     test_class = "com.jvm.external.GlobalArtifactExclusionsTest",
     deps = [
-        "@global_exclusion_testing//:com_diffplug_durian_durian_core",
-        "@global_exclusion_testing//:com_google_guava_guava",
-        "@global_exclusion_testing//:com_squareup_okhttp3_okhttp",
-        "@maven//:org_hamcrest_hamcrest",
-        "@maven//:org_hamcrest_hamcrest_core",
+        artifact(
+            "com.diffplug.durian:durian-core",
+            repository_name = "global_exclusion_testing",
+        ),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact(
+            "com.google.guava:guava",
+            repository_name = "global_exclusion_testing",
+        ),
+        artifact(
+            "com.squareup.okhttp3:okhttp",
+            repository_name = "global_exclusion_testing",
+        ),
+        artifact("org.hamcrest:hamcrest"),
+        artifact("org.hamcrest:hamcrest-core"),
+    ],
+)
+
+java_test(
+    name = "HasherTest",
+    size = "small",
+    srcs = ["HasherTest.java"],
+    test_class = "rules.jvm.external.HasherTest",
+    deps = [
+        "//private/tools/java/rules/jvm/external:hasher",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact("org.hamcrest:hamcrest"),
     ],
 )
 
@@ -27,8 +64,18 @@ java_test(
     srcs = ["JsonArtifactsTest.java"],
     test_class = "com.jvm.external.JsonArtifactsTest",
     deps = [
-        "@json_artifacts_testing//:io_quarkus_quarkus_maven_plugin",
-        "@json_artifacts_testing//:org_json_json",
+        artifact(
+            "io.quarkus:quarkus-maven-plugin",
+            repository_name = "json_artifacts_testing",
+        ),
+        artifact(
+            "org.json:json",
+            repository_name = "json_artifacts_testing",
+        ),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
     ],
 )
 
@@ -37,8 +84,12 @@ java_test(
     srcs = ["NeverlinkTest.java"],
     test_class = "com.jvm.external.NeverlinkTest",
     deps = [
-        "@maven//:com_google_guava_guava",
-        "@maven//:org_hamcrest_hamcrest",
+        artifact("com.google.guava:guava"),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact("org.hamcrest:hamcrest"),
     ],
 )
 
@@ -49,7 +100,11 @@ java_test(
     test_class = "com.jvm.external.UnsafeSharedCacheTest",
     deps = [
         "//tests/integration:guava_import",
-        "@maven//:org_hamcrest_hamcrest",
-        "@maven//:org_hamcrest_hamcrest_core",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact("org.hamcrest:hamcrest"),
+        artifact("org.hamcrest:hamcrest-core"),
     ],
 )

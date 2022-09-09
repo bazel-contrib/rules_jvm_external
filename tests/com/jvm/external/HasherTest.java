@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import rules.jvm.external.Hasher;
 
 public class HasherTest {
 
