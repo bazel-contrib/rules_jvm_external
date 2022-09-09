@@ -22,6 +22,6 @@ public class Main {
         // Make sure we can import something from the selenium-api jar
         // We don't want to fire up a full driver, because we might not
         // have access to the binaries.
-        WebDriver = null;
+        WebDriver driver = null;
     }
 }

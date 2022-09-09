@@ -6,6 +6,5 @@ java_binary(
     deps = [
         artifact("com.google.guava:guava"),
         artifact("org.seleniumhq.selenium:selenium-api"),
-        artifact("org.seleniumhq.selenium:selenium-chrome-driver"),
     ],
 )
