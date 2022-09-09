@@ -1043,6 +1043,10 @@ def _coursier_fetch_impl(repository_ctx):
         primary_artifact_path = infer_artifact_path_from_primary_and_repos(primary_url, repository_urls)
 
         mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
+        if primary_url in mirror_urls:
+            # http_file tries URLs in order, so putting the URL that actually worked first
+            # minimizes repository fetch 404s. See: https://github.com/bazelbuild/rules_jvm_external/issues/349
+            mirror_urls = [primary_url] + [url for url in mirror_urls if url != primary_url]
         artifact.update({"mirror_urls": mirror_urls})
 
         files_to_inspect.append(repository_ctx.path(artifact["file"]))
