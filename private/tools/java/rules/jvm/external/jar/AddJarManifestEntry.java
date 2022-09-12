@@ -158,7 +158,7 @@ public class AddJarManifestEntry {
       return;
     }
 
-    addEntryToManifest(out, source, toAdd, toRemove, makeSafe);
+    new AddJarManifestEntry().addEntryToManifest(out, source, toAdd, toRemove, makeSafe);
   }
 
   private static boolean isJarSigned(Path source) throws IOException {
@@ -176,7 +176,7 @@ public class AddJarManifestEntry {
     return false;
   }
 
-  public static void addEntryToManifest(
+  public void addEntryToManifest(
           Path out,
           Path source,
           List<String> toAdd,
@@ -236,7 +236,7 @@ public class AddJarManifestEntry {
     }
   }
 
-  private static void amendManifest(
+  private void amendManifest(
           Path jar,
           Manifest manifest,
           List<String> toAdd,
@@ -254,7 +254,7 @@ public class AddJarManifestEntry {
     }
   }
 
-  private static Manifest checkAutomaticModuleName(Path jar, Manifest manifest) {
+  private Manifest checkAutomaticModuleName(Path jar, Manifest manifest) {
     if (!manifest.getMainAttributes().containsKey(AUTOMATIC_MODULE_NAME)) {
       return manifest;
     }
@@ -318,7 +318,7 @@ public class AddJarManifestEntry {
     return manifest;
   }
 
-  private static Manifest removeEntryAndPrintWarning(Manifest manifest, Attributes.Name key, String warning) {
+  private Manifest removeEntryAndPrintWarning(Manifest manifest, Attributes.Name key, String warning) {
     manifest.getMainAttributes().remove(key);
     // We want this warning to be printed to the screen
     System.err.println(warning);
