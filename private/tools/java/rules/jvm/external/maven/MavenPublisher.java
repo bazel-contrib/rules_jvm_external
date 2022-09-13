@@ -78,20 +78,21 @@ public class MavenPublisher {
 
     // Calculate md5 and sha1 for each of the inputs
     Path pom = Paths.get(args[5]);
-    Path binJar = Paths.get(args[6]);
-    Path srcJar = Paths.get(args[7]);
-    Path docJar;
-    if (!args[8].isEmpty()) {
-      docJar = Paths.get(args[8]);
-    } else {
-      docJar = null;
-    }
+    Path binJar = getPathIfSet(args[6]);
+    Path srcJar = getPathIfSet(args[7]);
+    Path docJar = getPathIfSet(args[8]);
 
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
       futures.add(upload(repo, credentials, coords, ".pom", pom));
-      futures.add(upload(repo, credentials, coords, ".jar", binJar));
-      futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar));
+
+      if (binJar != null) {
+        futures.add(upload(repo, credentials, coords, ".jar", binJar));
+      }
+
+      if (srcJar != null) {
+        futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar));
+      }
 
       if (docJar != null) {
         futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar));
@@ -102,6 +103,13 @@ public class MavenPublisher {
     } finally {
       EXECUTOR.shutdown();
     }
+  }
+
+  private static Path getPathIfSet(String arg) {
+    if (!arg.isEmpty()) {
+      return Paths.get(arg);
+    }
+    return null;
   }
 
   private static boolean isSchemeSupported(String repo) {

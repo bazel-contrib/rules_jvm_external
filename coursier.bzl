@@ -16,7 +16,7 @@ load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "is_maven_local_path")
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
-load("//private:java_utilities.bzl", "parse_java_version")
+load("//private:java_utilities.bzl", "build_java_argsfile_content", "parse_java_version")
 load("//private:proxy.bzl", "get_java_proxy_args")
 load(
     "//private:versions.bzl",
@@ -816,7 +816,7 @@ def make_coursier_dep_tree(
             java_args = cmd[1:]
             repository_ctx.file(
                 "java_argsfile",
-                "\n".join([str(f) for f in java_args]) + "\n",
+                build_java_argsfile_content(java_args),
                 executable = False,
             )
             cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
@@ -1043,6 +1043,10 @@ def _coursier_fetch_impl(repository_ctx):
         primary_artifact_path = infer_artifact_path_from_primary_and_repos(primary_url, repository_urls)
 
         mirror_urls = [url + "/" + primary_artifact_path for url in repository_urls]
+        if primary_url in mirror_urls:
+            # http_file tries URLs in order, so putting the URL that actually worked first
+            # minimizes repository fetch 404s. See: https://github.com/bazelbuild/rules_jvm_external/issues/349
+            mirror_urls = [primary_url] + [url for url in mirror_urls if url != primary_url]
         artifact.update({"mirror_urls": mirror_urls})
 
         files_to_inspect.append(repository_ctx.path(artifact["file"]))

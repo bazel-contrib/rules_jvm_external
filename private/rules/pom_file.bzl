@@ -1,41 +1,5 @@
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
-
-def _format_dep(unpacked):
-    return "".join([
-        "        <dependency>\n",
-        "            <groupId>%s</groupId>\n" % unpacked.groupId,
-        "            <artifactId>%s</artifactId>\n" % unpacked.artifactId,
-        "            <version>%s</version>\n" % unpacked.version,
-        ("            <type>%s</type>\n" % unpacked.type) if unpacked.type and unpacked.type != "jar" else "",
-        ("            <scope>%s</scope>\n" % unpacked.scope) if unpacked.scope and unpacked.scope != "compile" else "",
-        "        </dependency>",
-    ])
-
-def _unpack_coordinates(coords):
-    """Takes a maven coordinate and unpacks it into a struct with fields
-    `groupId`, `artifactId`, `version`, `type`, `scope`
-    where type and scope are optional.
-
-    Assumes following maven coordinate syntax:
-    groupId:artifactId[:type[:scope]]:version
-    """
-    if not coords:
-        return None
-
-    parts = coords.split(":")
-    nparts = len(parts)
-    if nparts < 3 or nparts > 5:
-        fail("Unparsed: %s" % coords)
-
-    version = parts[-1]
-    parts = dict(enumerate(parts[:-1]))
-    return struct(
-        groupId = parts.get(0),
-        artifactId = parts.get(1),
-        type = parts.get(2),
-        scope = parts.get(3),
-        version = version,
-    )
+load(":maven_utils.bzl", "generate_pom")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
@@ -44,26 +8,12 @@ def _pom_file_impl(ctx):
 
     info = ctx.attr.target[MavenInfo]
 
-    coordinates = _unpack_coordinates(info.coordinates)
-    substitutions = {
-        "{groupId}": coordinates.groupId,
-        "{artifactId}": coordinates.artifactId,
-        "{version}": coordinates.version,
-        "{type}": coordinates.type or "jar",
-        "{scope}": coordinates.scope or "compile",
-    }
-
-    deps = []
-    for dep in sorted(info.maven_deps.to_list()):
-        unpacked = _unpack_coordinates(dep)
-        deps.append(_format_dep(unpacked))
-    substitutions.update({"{dependencies}": "\n".join(deps)})
-
-    out = ctx.actions.declare_file("%s.xml" % ctx.label.name)
-    ctx.actions.expand_template(
-        template = ctx.file.pom_template,
-        output = out,
-        substitutions = substitutions,
+    out = generate_pom(
+        ctx,
+        coordinates = info.coordinates,
+        versioned_dep_coordinates = sorted(info.maven_deps.to_list()),
+        pom_template = ctx.file.pom_template,
+        out_name = "%s.xml" % ctx.label.name,
     )
 
     return [

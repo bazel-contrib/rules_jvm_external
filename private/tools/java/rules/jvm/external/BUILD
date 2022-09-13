@@ -1,3 +1,5 @@
+load("//:defs.bzl", "artifact")
+
 java_library(
     name = "byte-streams",
     srcs = ["ByteStreams.java"],
@@ -12,16 +14,6 @@ java_library(
     srcs = ["Hasher.java"],
     visibility = [
         "//private/tools:__subpackages__",
-    ],
-)
-
-java_test(
-    name = "HasherTest",
-    size = "small",
-    srcs = ["HasherTest.java"],
-    test_class = "rules.jvm.external.HasherTest",
-    deps = [
-        ":hasher",
-        "@maven//:org_hamcrest_hamcrest",
+        "//tests/com/jvm/external:__pkg__",
     ],
 )

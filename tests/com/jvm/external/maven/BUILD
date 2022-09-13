@@ -10,7 +10,15 @@ java_test(
     test_class = "com.jvm.external.maven.OutdatedTest",
     deps = [
         "//private/tools/java/rules/jvm/external/maven:outdated",
-        "@outdated//:org_apache_maven_maven_artifact",
         artifact("com.google.guava:guava"),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+        artifact(
+            "org.apache.maven:maven-artifact",
+            repository_name = "outdated",
+        ),
+        artifact("org.hamcrest:hamcrest"),
     ],
 )
