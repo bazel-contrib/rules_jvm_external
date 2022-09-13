@@ -22,4 +22,5 @@ maven_bom(
         "//src/main/java/com/github/bazelbuild/rulesjvmexternal/example/io",
     ],
     maven_coordinates = "com.example:bazel-example-bom:0.0.1",
+    dependencies_maven_coordinates = "com.example:bazel-example-dependencies:0.0.1",
 )

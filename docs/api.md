@@ -77,7 +77,6 @@ the template file:
   * `{version}`: Replaced by the maven coordinates version.
   * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
   * `{scope}`: Replaced by the maven coordinates type, if present (defaults to "compile")
-  * `{parent}`: Replaced by a `<groupId>`, `<artifactId>`, and `<version>` set of tags.
   * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
     by java_library targets within the artifact.
 
@@ -118,41 +117,60 @@ Generated rules:
 ## maven_bom
 
 <pre>
-maven_bom(<a href="#maven_bom-name">name</a>, <a href="#maven_bom-maven_coordinates">maven_coordinates</a>, <a href="#maven_bom-java_exports">java_exports</a>, <a href="#maven_bom-tags">tags</a>, <a href="#maven_bom-testonly">testonly</a>, <a href="#maven_bom-visibility">visibility</a>)
+maven_bom(<a href="#maven_bom-name">name</a>, <a href="#maven_bom-maven_coordinates">maven_coordinates</a>, <a href="#maven_bom-java_exports">java_exports</a>, <a href="#maven_bom-bom_pom_template">bom_pom_template</a>, <a href="#maven_bom-dependencies_maven_coordinates">dependencies_maven_coordinates</a>,
+          <a href="#maven_bom-dependencies_pom_template">dependencies_pom_template</a>, <a href="#maven_bom-tags">tags</a>, <a href="#maven_bom-testonly">testonly</a>, <a href="#maven_bom-visibility">visibility</a>)
 </pre>
 
-Generates a Maven BOM `pom.xml` file.
+Generates a Maven BOM `pom.xml` file and an optional "dependencies" `pom.xml`.
 
-The generated BOM will contain maven dependencies that are shared between two
-or more of the `java_exports`. This will also generate `pom.xml` files for
-each of the `java_exports`. Within those `pom.xml`s, only dependencies that are
-unique to the `java_export` will have the `version` tag. Dependencies which are
-listed in the BOM will omit the `version` tag.
+The generated BOM will contain a list of all the coordinates of the
+`java_export` targets in the `java_exports` parameters. An optional
+dependencies artifact will be created if the parameter
+`dependencies_maven_coordinates` is set.
+
+Both the BOM and dependencies artifact can be templatised to support
+customisation, but a sensible default template will be used if none is
+provided. The template used is derived from the (optional)
+`pom_template` argument, and the following substitutions are performed on
+the template file:
+
+  * `{groupId}`: Replaced with the maven coordinates group ID.
+  * `{artifactId}`: Replaced with the maven coordinates artifact ID.
+  * `{version}`: Replaced by the maven coordinates version.
+  * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
+    by java_library targets within the artifact.
+
+To publish, call the implicit `*.publish` target(s).
 
 The maven repository may accessed locally using a `file://` URL, or
 remotely using an `https://` URL. The following flags may be set
 using `--define`:
 
-  gpg_sign: Whether to sign artifacts using GPG
-  maven_repo: A URL for the repo to use. May be "https" or "file".
-  maven_user: The user name to use when uploading to the maven repository.
-  maven_password: The password to use when uploading to the maven repository.
+  * `gpg_sign`: Whether to sign artifacts using GPG
+  * `maven_repo`: A URL for the repo to use. May be "https" or "file".
+  * `maven_user`: The user name to use when uploading to the maven repository.
+  * `maven_password`: The password to use when uploading to the maven repository.
 
 When signing with GPG, the current default key is used.
 
-    Args:
-      name: A unique name for this rule.
-      maven_coordinates: The maven coordinates of this BOM in `groupId:artifactId:version` form.
-      java_exports: A list of `java_export` targets that are used to generate the BOM.
+Generated rules:
+  * `name`: The BOM file itself.
+  * `name.publish`: To be executed by `bazel run` to publish the BOM to a maven repo
+  * `name-dependencies`: The BOM file for the dependencies `pom.xml`. Only generated if `dependencies_maven_coordinates` is set.
+  * `name-dependencies.publish`: To be executed by `bazel run` to publish the dependencies `pom.xml` to a maven rpo. Only generated if `dependencies_maven_coordinates` is set.
+
 
 **PARAMETERS**
 
 
 | Name  | Description | Default Value |
 | :------------- | :------------- | :------------- |
-| <a id="maven_bom-name"></a>name |  <p align="center"> - </p>   |  none |
-| <a id="maven_bom-maven_coordinates"></a>maven_coordinates |  <p align="center"> - </p>   |  none |
-| <a id="maven_bom-java_exports"></a>java_exports |  <p align="center"> - </p>   |  none |
+| <a id="maven_bom-name"></a>name |  A unique name for this rule.   |  none |
+| <a id="maven_bom-maven_coordinates"></a>maven_coordinates |  The maven coordinates of this BOM in <code>groupId:artifactId:version</code> form.   |  none |
+| <a id="maven_bom-java_exports"></a>java_exports |  A list of <code>java_export</code> targets that are used to generate the BOM.   |  none |
+| <a id="maven_bom-bom_pom_template"></a>bom_pom_template |  A template used for generating the <code>pom.xml</code> of the BOM at <code>maven_coordinates</code> (optional)   |  <code>None</code> |
+| <a id="maven_bom-dependencies_maven_coordinates"></a>dependencies_maven_coordinates |  The maven coordinates of a dependencies artifact to generate in GAV format. If empty, none will be generated. (optional)   |  <code>None</code> |
+| <a id="maven_bom-dependencies_pom_template"></a>dependencies_pom_template |  A template used for generating the <code>pom.xml</code> of the dependencies artifact at <code>dependencies_maven_coordinates</code> (optional)   |  <code>None</code> |
 | <a id="maven_bom-tags"></a>tags |  <p align="center"> - </p>   |  <code>None</code> |
 | <a id="maven_bom-testonly"></a>testonly |  <p align="center"> - </p>   |  <code>None</code> |
 | <a id="maven_bom-visibility"></a>visibility |  <p align="center"> - </p>   |  <code>None</code> |

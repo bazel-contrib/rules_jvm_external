@@ -35,7 +35,6 @@ def java_export(
       * `{version}`: Replaced by the maven coordinates version.
       * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
       * `{scope}`: Replaced by the maven coordinates type, if present (defaults to "compile")
-      * `{parent}`: Replaced by a `<groupId>`, `<artifactId>`, and `<version>` set of tags.
       * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
         by java_library targets within the artifact.
 
@@ -188,9 +187,9 @@ def maven_export(
         name = "%s.bom-fragment" % name,
         maven_coordinates = maven_coordinates,
         artifact = ":%s" % lib_name,
-        src_artifact = "%s-maven-source" % name,
-        javadoc_artifact = None if "no-javadocs" in tags else "%s-docs" % name,
-        pom_template = pom_template,
+        src_artifact = ":%s-maven-source" % name,
+        javadoc_artifact = None if "no-javadocs" in tags else ":%s-docs" % name,
+        pom = ":%s-pom" % name,
         testonly = testonly,
         tags = tags,
         visibility = visibility,

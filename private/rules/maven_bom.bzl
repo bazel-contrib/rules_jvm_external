@@ -1,5 +1,5 @@
 load(":maven_bom_fragment.bzl", "MavenBomFragmentInfo")
-load(":maven_publish.bzl", "MavenPublishInfo")
+load(":maven_publish.bzl", "maven_publish")
 load(":maven_utils.bzl", "generate_pom", "unpack_coordinates")
 
 def _label(label_or_string):
@@ -23,132 +23,23 @@ def _label(label_or_string):
 def _maven_bom_impl(ctx):
     fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
 
-    # We only want to include an entry in the BOM if it's a dependency of
-    # more than one `java_export` we're wrapping.
-
-    # Begin by construct a mapping between a particular dependency and "things that depend upon it"
-    dep2export = {}
-    for fragment in fragments:
-        for dep in fragment.maven_info.maven_deps.to_list():
-            existing = dep2export.get(dep, [])
-            existing.append(fragment.coordinates)
-            dep2export[dep] = existing
-
-    # Next, gather those dependencies that have more than one "things that depend upon it"
-    shared_deps = [dep for (dep, list) in dep2export.items() if len(list) > 1]
-    coordinates_to_exclude = [f.coordinates for f in fragments]
-    shared_deps = [dep for dep in shared_deps if dep not in coordinates_to_exclude]
-
-    # And, finally, let's generate the publishing script
-    maven_repo = ctx.var.get("maven_repo", "''")
-    gpg_sign = ctx.var.get("gpg_sign", "'false'")
-    user = ctx.var.get("maven_user", "''")
-    password = ctx.var.get("maven_password", "''")
-
-    upload_script = "#!/usr/bin/env bash\nset -eufo pipefail\n\n"
+    combined_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments])
 
     bom = generate_pom(
         ctx,
         coordinates = ctx.attr.maven_coordinates,
-        versioned_dep_coordinates = shared_deps,
+        versioned_dep_coordinates = [f[MavenBomFragmentInfo].coordinates for f in ctx.attr.fragments],
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
-        indent = 12,
     )
-
-    files = [bom]
-    upload_script += """echo "Uploading {coordinates} to {maven_repo}"
-{uploader} {maven_repo} {gpg_sign} {user} {password} {coordinates} {pom} '' '' ''
-""".format(
-        uploader = ctx.executable._uploader.short_path,
-        coordinates = ctx.attr.maven_coordinates,
-        gpg_sign = gpg_sign,
-        maven_repo = maven_repo,
-        password = password,
-        user = user,
-        pom = bom.short_path,
-    )
-
-    # Now generate a `pom.xml` for each `java_export` we've been given
-    poms = {}
-    for fragment in fragments:
-        info = fragment.maven_info
-        versioned = []
-        unversioned = []
-        for dep in fragment.maven_info.maven_deps.to_list():
-            if dep in shared_deps:
-                unversioned.append(dep)
-            else:
-                versioned.append(dep)
-
-        unpacked = unpack_coordinates(fragment.coordinates)
-
-        pom = generate_pom(
-            ctx,
-            coordinates = fragment.coordinates,
-            parent = ctx.attr.maven_coordinates,
-            versioned_dep_coordinates = versioned,
-            unversioned_dep_coordinates = unversioned,
-            pom_template = fragment.pom_template,
-            out_name = "%s-%s-pom.xml" % (unpacked.groupId, unpacked.artifactId),
-        )
-        poms.update({"%s-pom" % fragment.coordinates: pom})
-
-        javadocs_short_path = fragment.javadocs.short_path if fragment.javadocs else "''"
-
-        upload_script += """echo "Uploading {coordinates} to {maven_repo}"
-{uploader} {maven_repo} {gpg_sign} {user} {password} {coordinates} {pom} {artifact_jar} {source_jar} {javadoc}
-""".format(
-            uploader = ctx.executable._uploader.short_path,
-            coordinates = info.coordinates,
-            gpg_sign = gpg_sign,
-            maven_repo = maven_repo,
-            password = password,
-            user = user,
-            pom = pom.short_path,
-            artifact_jar = fragment.artifact.short_path,
-            source_jar = fragment.srcs.short_path,
-            javadoc = javadocs_short_path,
-        )
-        files.extend([pom, fragment.artifact, fragment.srcs])
-        if fragment.javadocs:
-            files.append(fragment.javadocs)
-
-    executable = ctx.actions.declare_file("%s-upload.sh" % ctx.label.name)
-    ctx.actions.write(
-        output = executable,
-        is_executable = True,
-        content = upload_script,
-    )
-
-    pom2outputgroup = {coord: depset([pom]) for (coord, pom) in poms.items()}
 
     return [
-        DefaultInfo(
-            files = depset([bom] + poms.values() + [executable]),
-            executable = executable,
-            runfiles = ctx.runfiles(
-                files = files,
-                collect_data = True,
-            ).merge(ctx.attr._uploader[DefaultInfo].data_runfiles),
-        ),
-        MavenPublishInfo(
-            coordinates = ctx.attr.maven_coordinates,
-            artifact_jar = None,
-            javadocs = None,
-            source_jar = None,
-            pom = bom,
-        ),
-        OutputGroupInfo(
-            bom = [bom],
-            **pom2outputgroup
-        ),
+        DefaultInfo(files = depset([bom])),
     ]
 
 _maven_bom = rule(
     _maven_bom_impl,
     doc = """Create a Maven BOM file (`pom.xml`) for the given targets.""",
-    executable = True,
     attrs = {
         "maven_coordinates": attr.string(
             mandatory = True,
@@ -158,11 +49,44 @@ _maven_bom = rule(
             default = "//private/templates:bom.tpl",
             allow_single_file = True,
         ),
-        "_uploader": attr.label(
-            executable = True,
-            cfg = "host",
-            default = "//private/tools/java/rules/jvm/external/maven:MavenPublisher",
-            allow_files = True,
+        "fragments": attr.label_list(
+            providers = [
+                [MavenBomFragmentInfo],
+            ],
+        ),
+    },
+)
+
+def _maven_dependencies_bom_impl(ctx):
+    fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
+
+    combined_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments])
+
+    unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
+    dependencies_bom = generate_pom(
+        ctx,
+        coordinates = ctx.attr.maven_coordinates,
+        versioned_dep_coordinates = combined_deps.to_list() + ["%s:%s:pom:import:%s" % (unpacked.groupId, unpacked.artifactId, unpacked.version)],
+        pom_template = ctx.file.pom_template,
+        out_name = "%s.xml" % ctx.label.name,
+        indent = 12,
+    )
+
+    return [
+        DefaultInfo(files = depset([dependencies_bom])),
+    ]
+
+_maven_dependencies_bom = rule(
+    _maven_dependencies_bom_impl,
+    doc = """Create a Maven dependencies `pom.xml` for the given targets.""",
+    attrs = {
+        "maven_coordinates": attr.string(
+            mandatory = True,
+        ),
+        "pom_template": attr.label(
+            doc = "Template file to use for the pom.xml",
+            default = "//private/templates:dependencies-bom.tpl",
+            allow_single_file = True,
         ),
         "fragments": attr.label_list(
             providers = [
@@ -172,30 +96,61 @@ _maven_bom = rule(
     },
 )
 
-def maven_bom(name, maven_coordinates, java_exports, tags = None, testonly = None, visibility = None):
-    """Generates a Maven BOM `pom.xml` file.
+def maven_bom(
+        name,
+        maven_coordinates,
+        java_exports,
+        bom_pom_template = None,
+        dependencies_maven_coordinates = None,
+        dependencies_pom_template = None,
+        tags = None,
+        testonly = None,
+        visibility = None):
+    """Generates a Maven BOM `pom.xml` file and an optional "dependencies" `pom.xml`.
 
-    The generated BOM will contain maven dependencies that are shared between two
-    or more of the `java_exports`. This will also generate `pom.xml` files for
-    each of the `java_exports`. Within those `pom.xml`s, only dependencies that are
-    unique to the `java_export` will have the `version` tag. Dependencies which are
-    listed in the BOM will omit the `version` tag.
+    The generated BOM will contain a list of all the coordinates of the
+    `java_export` targets in the `java_exports` parameters. An optional
+    dependencies artifact will be created if the parameter
+    `dependencies_maven_coordinates` is set.
+
+    Both the BOM and dependencies artifact can be templatised to support
+    customisation, but a sensible default template will be used if none is
+    provided. The template used is derived from the (optional)
+    `pom_template` argument, and the following substitutions are performed on
+    the template file:
+
+      * `{groupId}`: Replaced with the maven coordinates group ID.
+      * `{artifactId}`: Replaced with the maven coordinates artifact ID.
+      * `{version}`: Replaced by the maven coordinates version.
+      * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
+        by java_library targets within the artifact.
+
+    To publish, call the implicit `*.publish` target(s).
 
     The maven repository may accessed locally using a `file://` URL, or
     remotely using an `https://` URL. The following flags may be set
     using `--define`:
 
-      gpg_sign: Whether to sign artifacts using GPG
-      maven_repo: A URL for the repo to use. May be "https" or "file".
-      maven_user: The user name to use when uploading to the maven repository.
-      maven_password: The password to use when uploading to the maven repository.
+      * `gpg_sign`: Whether to sign artifacts using GPG
+      * `maven_repo`: A URL for the repo to use. May be "https" or "file".
+      * `maven_user`: The user name to use when uploading to the maven repository.
+      * `maven_password`: The password to use when uploading to the maven repository.
 
     When signing with GPG, the current default key is used.
 
-        Args:
-          name: A unique name for this rule.
-          maven_coordinates: The maven coordinates of this BOM in `groupId:artifactId:version` form.
-          java_exports: A list of `java_export` targets that are used to generate the BOM.
+    Generated rules:
+      * `name`: The BOM file itself.
+      * `name.publish`: To be executed by `bazel run` to publish the BOM to a maven repo
+      * `name-dependencies`: The BOM file for the dependencies `pom.xml`. Only generated if `dependencies_maven_coordinates` is set.
+      * `name-dependencies.publish`: To be executed by `bazel run` to publish the dependencies `pom.xml` to a maven rpo. Only generated if `dependencies_maven_coordinates` is set.
+
+    Args:
+      name: A unique name for this rule.
+      maven_coordinates: The maven coordinates of this BOM in `groupId:artifactId:version` form.
+      bom_pom_template: A template used for generating the `pom.xml` of the BOM at `maven_coordinates` (optional)
+      dependencies_maven_coordinates: The maven coordinates of a dependencies artifact to generate in GAV format. If empty, none will be generated. (optional)
+      dependencies_pom_template: A template used for generating the `pom.xml` of the dependencies artifact at `dependencies_maven_coordinates` (optional)
+      java_exports: A list of `java_export` targets that are used to generate the BOM.
     """
     fragments = []
     labels = [_label(je) for je in java_exports]
@@ -204,7 +159,38 @@ def maven_bom(name, maven_coordinates, java_exports, tags = None, testonly = Non
     _maven_bom(
         name = name,
         maven_coordinates = maven_coordinates,
+        pom_template = bom_pom_template,
         fragments = fragments,
         tags = tags,
+        testonly = testonly,
         visibility = visibility,
     )
+
+    maven_publish(
+        name = "%s.publish" % name,
+        coordinates = maven_coordinates,
+        pom = name,
+        tags = tags,
+        testonly = testonly,
+        visibility = visibility,
+    )
+
+    if dependencies_maven_coordinates:
+        _maven_dependencies_bom(
+            name = "%s-dependencies" % name,
+            maven_coordinates = dependencies_maven_coordinates,
+            pom_template = dependencies_pom_template,
+            fragments = fragments,
+            tags = tags,
+            testonly = testonly,
+            visibility = visibility,
+        )
+
+        maven_publish(
+            name = "%s-dependencies.publish" % name,
+            coordinates = dependencies_maven_coordinates,
+            pom = "%s-dependencies" % name,
+            tags = tags,
+            testonly = testonly,
+            visibility = visibility,
+        )

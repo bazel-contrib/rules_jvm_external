@@ -3,15 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-{parent}
-    </parent>
-
     <groupId>{groupId}</groupId>
     <artifactId>{artifactId}</artifactId>
     <version>{version}</version>
+    <packaging>pom</packaging>
 
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
 {dependencies}
-    </dependencies>
+        </dependencies>
+    </dependencyManagement>
 </project>
