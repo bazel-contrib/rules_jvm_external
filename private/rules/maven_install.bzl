@@ -25,7 +25,8 @@ def maven_install(
         fail_if_repin_required = False,
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
-        duplicate_version_warning = "warn"):
+        duplicate_version_warning = "warn",
+        license_json = None):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -74,6 +75,7 @@ def maven_install(
       duplicate_version_warning: What to do if an artifact is specified multiple times. If "error" then
         fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default
         is "warn".
+      license_json: text goes here
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -126,6 +128,7 @@ def maven_install(
         use_starlark_android_rules = use_starlark_android_rules,
         aar_import_bzl_label = aar_import_bzl_label,
         duplicate_version_warning = duplicate_version_warning,
+        license_json = license_json,
     )
 
     if maven_install_json != None:
@@ -148,4 +151,5 @@ def maven_install(
             duplicate_version_warning = duplicate_version_warning,
             use_starlark_android_rules = use_starlark_android_rules,
             aar_import_bzl_label = aar_import_bzl_label,
+            license_json = license_json,
         )

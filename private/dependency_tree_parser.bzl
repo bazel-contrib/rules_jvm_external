@@ -60,7 +60,7 @@ def _deduplicate_list(items):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
+def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies, license_info):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -91,7 +91,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 artifact_path = artifact["file"]
                 # Skip the maven local dependencies if requested
                 if skip_maven_local_dependencies and is_maven_local_path(artifact_path):
-                    continue    
+                    continue
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
                     target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
@@ -316,6 +316,14 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                 target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % v for v in default_visibilities])))
                 alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % v for v in default_visibilities]))
 
+            target_import_string.append("\tapplicable_licenses = [")
+
+            if artifact["coord"] in license_info:
+                licenses = license_info[artifact["coord"]]
+                for license in licenses:
+                    target_import_string.append("\t\t\":%s\"," % (license["name"]))
+            target_import_string.append("\t],")
+
             # 9. Finish the java_import rule.
             #
             # java_import(
@@ -345,6 +353,26 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
+
+            # 12. If there is a corresponding license for the artifact, create a license target.
+                        # https://github.com/bazelbuild/rules_license/blob/main/rules/providers.bzl#L26
+                        #
+            #             license(
+            #               name = "license-org.hamcrest:hamcrest.library:1.3",
+            #               copyright_notice = "Copyright 2018",
+            #               license_kinds = [
+            #                               "@rules_license//licenses/spdx:BSD-1-Clause",
+            #                           ],
+            #               license_text = "LICENSE-org.hamcrest:hamcrest.library:1.3",
+            #               package_name = "org.hamcrest:hamcrest.library:1.3",
+            #               package_url = "URL from which this package was downloaded.",
+            #               package_version = "Human readable version string",
+            #               rule = "From whence this came",
+            #             )
+            if artifact["coord"] in license_info:
+                for license in license_info[artifact["coord"]]:
+                    all_imports.append("license(\n\tname = \"%s\",\n\tlicense_text = \"%s\",\n\tpackage_name = \"%s\",\n\tcopyright_notice = \"%s\",\n\tlicense_kinds = %s\n)" %
+                                        (license["name"], license["license_text"], license["package_name"], license["copyright_notice"], license["license_kinds"]))
 
             # 11. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.

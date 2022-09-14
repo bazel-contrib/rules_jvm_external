@@ -98,6 +98,9 @@ jvm_import = rule(
         "_stamp_manifest": attr.label(
             default = "@rules_jvm_external//settings:stamp_manifest",
         ),
+        "_licenses": attr.bool(
+            default = True,
+        ),
     },
     implementation = _jvm_import_impl,
     provides = [JavaInfo],
