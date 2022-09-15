@@ -72,6 +72,29 @@ load("//:setup.bzl", "rules_jvm_external_setup")
 
 rules_jvm_external_setup()
 
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "493bb318d98bb7492cb30e534ad33df2fc5539b43d4dcc4e294a5cc60a126902",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.5.4/rules_nodejs-5.5.4.tar.gz"],
+)
+
+load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+
+build_bazel_rules_nodejs_dependencies()
+
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+
+node_repositories(
+    node_version = "16.17.0",
+    yarn_version = "1.22.19",
+)
+
+yarn_install(
+    name = "npm",
+    package_json = "//:package.json",
+    yarn_lock = "//:yarn.lock",
+)
+
 # Begin test dependencies
 
 load("//:defs.bzl", "maven_install")
