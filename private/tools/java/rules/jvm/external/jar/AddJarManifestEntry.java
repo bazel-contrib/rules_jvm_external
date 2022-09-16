@@ -1,6 +1,7 @@
 package rules.jvm.external.jar;
 
 import rules.jvm.external.ByteStreams;
+import rules.jvm.external.zip.StableZipEntry;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -9,8 +10,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +37,6 @@ import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
  */
 public class AddJarManifestEntry {
 
-  private static final LocalDateTime DEFAULT_TIMESTAMP = LocalDateTime.of(2010, 1, 1, 0, 0, 0);
   // Visible for testing
   public static final Attributes.Name AUTOMATIC_MODULE_NAME = new Attributes.Name("Automatic-Module-Name");
   // Collected from https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Keyword
@@ -190,9 +188,7 @@ public class AddJarManifestEntry {
         }
         amendManifest(source, manifest, toAdd, toRemove, makeSafe);
 
-        ZipEntry newManifestEntry = new ZipEntry(JarFile.MANIFEST_NAME);
-        newManifestEntry.setTime(
-                DEFAULT_TIMESTAMP.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        ZipEntry newManifestEntry = new StableZipEntry(JarFile.MANIFEST_NAME);
         zos.putNextEntry(newManifestEntry);
         manifest.write(zos);
 
