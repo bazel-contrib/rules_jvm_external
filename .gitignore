@@ -1,4 +1,5 @@
 /*.class
+/node_modules
 bazel-*
 .ijwb
 .DS_Store
