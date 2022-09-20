@@ -3,6 +3,7 @@ load("//:defs.bzl", "artifact", "java_export", "maven_bom")
 
 maven_bom(
     name = "bom",
+    dependencies_maven_coordinates = "com.example:bom-deps:1.0.0",
     java_exports = [
         ":one-dep",
         ":two-deps",
@@ -10,40 +11,16 @@ maven_bom(
     maven_coordinates = "com.example:bom:1.0.0",
 )
 
-filegroup(
-    name = "generated-one-dep-pom",
-    srcs = [":bom"],
-    output_group = "com.example:one-dep:1.0.0-pom",
-)
-
-diff_test(
-    name = "validate-one-dep",
-    file1 = ":generated-one-dep-pom",
-    file2 = "one-dep.golden.xml",
-)
-
-filegroup(
-    name = "generated-two-deps-pom",
-    srcs = [":bom"],
-    output_group = "com.example:two-deps:1.0.0-pom",
-)
-
-diff_test(
-    name = "validate-two-deps",
-    file1 = ":generated-two-deps-pom",
-    file2 = "two-deps.golden.xml",
-)
-
-filegroup(
-    name = "bom-file",
-    srcs = [":bom"],
-    output_group = "bom",
-)
-
 diff_test(
     name = "validate-bom",
-    file1 = ":bom-file",
+    file1 = ":bom",
     file2 = "bom.golden.xml",
+)
+
+diff_test(
+    name = "validate-dependencies-bom",
+    file1 = ":bom-dependencies",
+    file2 = "bom-dependencies.golden.xml",
 )
 
 java_export(
