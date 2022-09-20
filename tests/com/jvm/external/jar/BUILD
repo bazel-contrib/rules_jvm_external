@@ -7,6 +7,7 @@ java_test(
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
         "//private/tools/java/rules/jvm/external/jar:AddJarManifestEntry",
+        "//private/tools/java/rules/jvm/external/zip",
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",

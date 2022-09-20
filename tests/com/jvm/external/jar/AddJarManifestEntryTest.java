@@ -8,16 +8,18 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import rules.jvm.external.jar.AddJarManifestEntry;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -202,6 +204,36 @@ public class AddJarManifestEntryTest {
     }
   }
 
+  @Test
+  public void shouldNotBeAffectedByTimezone() throws IOException {
+    Path inputJar = temp.newFile("first.jar").toPath();
+
+    createJar(inputJar, null, ImmutableMap.of("com/example/A.class", "Hello, World!"));
+
+    Path outputJarOne = temp.newFile("out1.jar").toPath();
+    Path outputJarTwo = temp.newFile("out2.jar").toPath();
+
+    writeJarInTimezone(inputJar, outputJarOne, "EST");
+    writeJarInTimezone(inputJar, outputJarTwo, "PST");
+
+    assertArrayEquals(Files.readAllBytes(outputJarOne), Files.readAllBytes(outputJarTwo));
+  }
+
+  @Test
+  public void shouldNotBeAffectedByTimezoneWithExtendedTimestamps() throws IOException {
+    Path inputJar = temp.newFile("first.jar").toPath();
+
+    createJar(inputJar, null, ImmutableMap.of("com/example/A.class", "Hello, World!"), true);
+
+    Path outputJarOne = temp.newFile("out1.jar").toPath();
+    Path outputJarTwo = temp.newFile("out2.jar").toPath();
+
+    writeJarInTimezone(inputJar, outputJarOne, "EST");
+    writeJarInTimezone(inputJar, outputJarTwo, "PST");
+
+    assertArrayEquals(Files.readAllBytes(outputJarOne), Files.readAllBytes(outputJarTwo));
+  }
+
   /**
    * There are jars in the wild which cannot be unpacked by zip or bazel's
    * own zipper. These fail to unpack because the jar contains a directory
@@ -359,24 +391,48 @@ public class AddJarManifestEntryTest {
     return jar;
   }
 
-  private void createJar(Path outputTo, Manifest manifest, Map<String, String> pathToContents) throws IOException {
+  private void createJar(Path outputTo, Manifest manifest, Map<String, String> pathToContents)
+          throws IOException {
+    createJar(outputTo, manifest, pathToContents, false);
+  }
+
+  private void createJar(
+          Path outputTo,
+          Manifest manifest,
+          Map<String, String> pathToContents,
+          boolean setExtendedTimestamps)
+          throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
          ZipOutputStream zos = new JarOutputStream(os)) {
 
       if (manifest != null) {
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
         ZipEntry manifestEntry = new ZipEntry(JarFile.MANIFEST_NAME);
+
         zos.putNextEntry(manifestEntry);
         manifest.write(zos);
       }
 
       for (Map.Entry<String, String> entry : pathToContents.entrySet()) {
         ZipEntry ze = new ZipEntry(entry.getKey());
+        if (setExtendedTimestamps) {
+          ze.setLastModifiedTime(FileTime.from(Instant.now()));
+        }
         zos.putNextEntry(ze);
         zos.write(entry.getValue().getBytes(UTF_8));
         zos.closeEntry();
       }
     }
+  }
+
+  private void writeJarInTimezone(Path inputJar, Path outputJar, String timeZone) throws IOException {
+    final TimeZone previousTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
+    AddJarManifestEntry.main(new String[]{
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--source", inputJar.toAbsolutePath().toString(),
+            "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+    TimeZone.setDefault(previousTimeZone);
   }
 
   private Map<String, String> readJar(Path jar) throws IOException {
