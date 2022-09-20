@@ -1,5 +1,5 @@
 load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@npm//:doctoc/package_json.bzl", "bin")
 
 sh_binary(
     name = "mirror_coursier",
@@ -33,8 +33,6 @@ genrule(
     visibility = ["//:__pkg__"],
 )
 
-nodejs_binary(
+bin.doctoc_binary(
     name = "doctoc",
-    data = ["@npm//doctoc"],
-    entry_point = {"@npm//:node_modules/doctoc": "doctoc.js"},
 )
