@@ -7,7 +7,6 @@
     <artifactId>{artifactId}</artifactId>
     <version>{version}</version>
     <packaging>pom</packaging>
-    <scope>import</scope>
 
     <dependencyManagement>
         <dependencies>

@@ -6,7 +6,7 @@ MavenBomFragmentInfo = provider(
         "artifact": "The `maven_project_jar` that forms the main artifact",
         "srcs": "The src-jar of the artifact",
         "javadocs": "The javadocs of the artifact. May be `None`",
-        "pom_template": "The `pom.xml` template file",
+        "pom": "The `pom.xml` template file",
         "maven_info": "The `MavenInfo` of `artifact`",
     },
 )
@@ -18,7 +18,7 @@ def _maven_bom_fragment_impl(ctx):
             artifact = ctx.file.artifact,
             srcs = ctx.file.src_artifact,
             javadocs = ctx.file.javadoc_artifact,
-            pom_template = ctx.file.pom_template,
+            pom = ctx.file.pom,
             maven_info = ctx.attr.artifact[MavenInfo],
         ),
     ]
@@ -50,10 +50,9 @@ maven_bom_fragment = rule(
             doc = """The javadoc jar generated from the `artifact`""",
             allow_single_file = True,
         ),
-        "pom_template": attr.label(
-            doc = """The template to use when generating the `pom.xml` file""",
+        "pom": attr.label(
+            doc = "The pom file of the generated `artifact`",
             allow_single_file = True,
-            default = "//private/templates:pom-with-parent.tpl",
         ),
     },
     provides = [

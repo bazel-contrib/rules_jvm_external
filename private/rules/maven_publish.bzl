@@ -22,6 +22,8 @@ def _maven_publish_impl(ctx):
     user = ctx.var.get("maven_user", "''")
     password = ctx.var.get("maven_password", "''")
 
+    artifacts_short_path = ctx.file.artifact_jar.short_path if ctx.file.artifact_jar else "''"
+    source_short_path = ctx.file.source_jar.short_path if ctx.file.source_jar else "''"
     javadocs_short_path = ctx.file.javadocs.short_path if ctx.file.javadocs else "''"
 
     ctx.actions.write(
@@ -35,17 +37,17 @@ def _maven_publish_impl(ctx):
             password = password,
             user = user,
             pom = ctx.file.pom.short_path,
-            artifact_jar = ctx.file.artifact_jar.short_path,
-            source_jar = ctx.file.source_jar.short_path,
+            artifact_jar = artifacts_short_path,
+            source_jar = source_short_path,
             javadoc = javadocs_short_path,
         ),
     )
 
-    files = [
-        ctx.file.artifact_jar,
-        ctx.file.pom,
-        ctx.file.source_jar,
-    ]
+    files = [ctx.file.pom]
+    if ctx.file.artifact_jar:
+        files.append(ctx.file.artifact_jar)
+    if ctx.file.source_jar:
+        files.append(ctx.file.source_jar)
     if ctx.file.javadocs:
         files.append(ctx.file.javadocs)
 
@@ -95,16 +97,14 @@ When signing with GPG, the current default key is used.
             allow_single_file = True,
         ),
         "artifact_jar": attr.label(
-            mandatory = True,
             allow_single_file = True,
         ),
         "source_jar": attr.label(
-            mandatory = True,
             allow_single_file = True,
         ),
         "_uploader": attr.label(
             executable = True,
-            cfg = "host",
+            cfg = "exec",
             default = "//private/tools/java/rules/jvm/external/maven:MavenPublisher",
             allow_files = True,
         ),
