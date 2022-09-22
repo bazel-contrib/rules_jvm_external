@@ -17,7 +17,7 @@ java_test(
         ),
         artifact(
             "org.apache.maven:maven-artifact",
-            repository_name = "outdated",
+            repository_name = "rules_jvm_external_deps",
         ),
         artifact("org.hamcrest:hamcrest"),
     ],

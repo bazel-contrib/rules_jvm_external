@@ -28,6 +28,9 @@ java_binary(
     main_class = "rules.jvm.external.maven.Outdated",
     visibility = ["//visibility:public"],
     deps = [
-        "@outdated//:org_apache_maven_maven_artifact",
+        artifact(
+            "org.apache.maven:maven-artifact",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )

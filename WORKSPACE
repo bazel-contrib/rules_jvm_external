@@ -101,16 +101,6 @@ load("//:defs.bzl", "maven_install")
 load("//:specs.bzl", "maven")
 
 maven_install(
-    name = "outdated",
-    artifacts = [
-        "org.apache.maven:maven-artifact:3.6.3",
-    ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-)
-
-maven_install(
     artifacts = [
         "com.google.guava:guava:27.0-jre",
         "org.hamcrest:hamcrest-core:2.1",
