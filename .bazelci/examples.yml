@@ -183,3 +183,21 @@ tasks:
     # correctly on Windows.
     build_targets:
       - "//..."
+  bzlmod-linux:
+    name: "bzlmod example"
+    platform: ubuntu1804
+    working_directory: examples/bzlmod
+    build_targets:
+      - "//..."
+  bzlmod-macos:
+    name: "bzlmod example"
+    platform: macos
+    working_directory: examples/bzlmod
+    build_targets:
+      - "//..."
+  bzlmod-windows:
+    name: "bzlmod example"
+    platform: windows
+    working_directory: examples/bzlmod
+    build_targets:
+      - "//..."
