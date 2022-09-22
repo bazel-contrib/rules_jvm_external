@@ -28,4 +28,5 @@ maven.install(
 use_repo(
     maven,
     "maven",
+    "unpinned_maven",
 )
