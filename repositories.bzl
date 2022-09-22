@@ -12,6 +12,7 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             "com.google.cloud:google-cloud-core:1.93.10",
             "com.google.cloud:google-cloud-storage:1.113.4",
             "com.google.code.gson:gson:2.9.0",
+            "org.apache.maven:maven-artifact:3.8.6",
             "software.amazon.awssdk:s3:2.17.183",
         ],
         maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
