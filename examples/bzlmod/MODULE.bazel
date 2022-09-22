@@ -1,9 +1,9 @@
 module(
     name = "rules_jvm_external_examples_bzlmod",
-    version = "5.0.0",
+    version = "4.2.2",
 )
 
-bazel_dep(name = "rules_jvm_external", version = "5.0.0")
+bazel_dep(name = "rules_jvm_external", version = "4.2.2")
 
 local_path_override(
     module_name = "rules_jvm_external",  # matches the name of the `bazel_dep`
