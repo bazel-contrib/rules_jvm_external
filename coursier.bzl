@@ -79,6 +79,11 @@ sh_binary(
         "outdated.artifacts",
         "outdated.repositories"
     ],
+    args = [
+        "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
+        "$(location outdated.artifacts)",
+        "$(location outdated.repositories)",
+    ],
     visibility = ["//visibility:public"],
 )
 """
