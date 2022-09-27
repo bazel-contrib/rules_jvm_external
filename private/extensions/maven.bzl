@@ -111,9 +111,10 @@ def _parse_artifact(spec):
             "version": unpacked.version,
         }
         if unpacked.type:
-            to_return.extend({"classifier": unpacked.type})
+            to_return.update({"classifier": unpacked.type})
 
         return to_return
+
     return spec
 
 def _logical_or(source, key, default_value, new_value):
@@ -216,7 +217,9 @@ def _maven_impl(mctx):
                 to_add.update({"version": artifact.testonly})
 
             if artifact.exclusions:
-                to_add.update({"exclusions": artifact.exclusions})
+                artifact_exclusions = []
+                _add_exclusions(artifact.exclusions, artifact_exclusions)
+                to_add.update({"exclusions": artifact_exclusions})
 
             existing_artifacts.append(to_add)
             repo["artifacts"] = existing_artifacts
