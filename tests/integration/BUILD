@@ -23,6 +23,7 @@ genquery(
         "@testonly_testing//:com_google_code_findbugs_jsr305",
         "@testonly_testing//:com_google_auto_value_auto_value_annotations_1_6_3",
         "@testonly_testing//:com_google_auto_value_auto_value_annotations",
+        "@testonly_testing//:defs",
         "@testonly_testing//:outdated",
         "@testonly_testing//:pin",
     ],
