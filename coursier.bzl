@@ -29,11 +29,22 @@ load(
 _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
 {aar_import_statement}
 
 {imports}
+
+# Required by stardoc if the repo is ever frozen
+bzl_library(
+   name = "defs",
+   srcs = ["defs.bzl"],
+   deps = [
+       "@rules_jvm_external//:implementation",
+   ],
+   visibility = ["//visibility:public"],
+)
 """
 
 DEFAULT_AAR_IMPORT_LABEL = "@build_bazel_rules_android//android:rules.bzl"
