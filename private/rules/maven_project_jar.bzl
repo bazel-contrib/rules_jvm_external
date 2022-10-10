@@ -8,7 +8,7 @@ def _combine_jars(ctx, merge_jars, inputs, excludes, output):
 
     ctx.actions.run(
         mnemonic = "MergeJars",
-        inputs = inputs + excludes,
+        inputs = depset(transitive = [inputs, excludes]),
         outputs = [output],
         executable = merge_jars,
         arguments = [args],
@@ -27,10 +27,10 @@ def _maven_project_jar_impl(ctx):
     _combine_jars(
         ctx,
         ctx.executable._merge_jars,
-        artifact_jars,
+        depset(artifact_jars),
         depset(transitive =
                    [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
-                   [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]).to_list(),
+                   [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]),
         bin_jar,
     )
 
@@ -38,8 +38,8 @@ def _maven_project_jar_impl(ctx):
     _combine_jars(
         ctx,
         ctx.executable._merge_jars,
-        artifact_srcs,
-        depset(transitive = [ji.transitive_source_jars for ji in info.dep_infos.to_list()]).to_list(),
+        depset(artifact_srcs),
+        depset(transitive = [ji.transitive_source_jars for ji in info.dep_infos.to_list()]),
         src_jar,
     )
 
