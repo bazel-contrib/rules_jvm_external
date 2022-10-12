@@ -153,7 +153,7 @@ def maven_export(
             name = docs_jar,
             deps = [
                 ":%s-project" % name,
-            ],
+            ] + deploy_env,
             javadocopts = javadocopts,
             visibility = visibility,
             tags = tags,
