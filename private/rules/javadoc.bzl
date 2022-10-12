@@ -2,7 +2,7 @@ def generate_javadoc(ctx, javadoc, source_jars, classpath, javadocopts, output):
     args = ctx.actions.args()
     args.add_all(["--out", output])
     args.add_all(source_jars, before_each = "--in")
-    args.add_all(classpath.to_list(), before_each = "--cp")
+    args.add_all(classpath, before_each = "--cp")
     args.add_all(javadocopts)
 
     ctx.actions.run(
