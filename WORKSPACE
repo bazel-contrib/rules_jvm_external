@@ -16,21 +16,13 @@ http_file(
     urls = [COURSIER_CLI_GITHUB_ASSET_URL],
 )
 
-# Begin Skylib dependencies
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-    ],
-)
+load("//:repositories.bzl", "rules_jvm_external_deps")
 
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+rules_jvm_external_deps()
 
-bazel_skylib_workspace()
+load("//:setup.bzl", "rules_jvm_external_setup")
 
-# End Skylib dependencies
+rules_jvm_external_setup()
 
 http_archive(
     name = "io_bazel_stardoc",
@@ -63,14 +55,6 @@ kt_register_toolchains()
 # usage of Stardoc (scripts/generate_docs) doesn't require any of these
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
-
-load("//:repositories.bzl", "rules_jvm_external_deps")
-
-rules_jvm_external_deps()
-
-load("//:setup.bzl", "rules_jvm_external_setup")
-
-rules_jvm_external_setup()
 
 http_archive(
     name = "build_bazel_rules_nodejs",
