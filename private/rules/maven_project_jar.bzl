@@ -39,7 +39,9 @@ def _maven_project_jar_impl(ctx):
         ctx,
         ctx.executable._merge_jars,
         depset(artifact_srcs),
-        depset(transitive = [ji.transitive_source_jars for ji in info.dep_infos.to_list()]),
+        depset(transitive =
+                   [ji.transitive_source_jars for ji in info.dep_infos.to_list()] +
+                   [jar[JavaInfo].transitive_source_jars for jar in ctx.attr.deploy_env]),
         src_jar,
     )
 

@@ -116,3 +116,31 @@ sh_test(
         "@bazel_tools//tools/bash/runfiles",
     ],
 )
+
+filegroup(
+    name = "deploy-env-sources",
+    srcs = [":deploy-env-project"],
+    output_group = "maven_source",
+)
+
+genrule(
+    name = "list-deploy-env-sources",
+    srcs = [
+        ":deploy-env-sources",
+    ],
+    outs = ["sources.txt"],
+    cmd = "for SRC in $(SRCS); do jar tf $$SRC >> $@; done",
+)
+
+sh_test(
+    name = "check-deploy-env-sources",
+    srcs = [
+        "check-deploy-env-sources.sh",
+    ],
+    data = [
+        ":sources.txt",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+)
