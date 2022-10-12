@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -430,6 +433,35 @@ public class MergeJarsTest {
     int indexOfQux = dirNames.indexOf("foo/bar/baz/qux/");
 
     assertTrue(indexOfQux > indexOfBaz);
+  }
+
+  @Test
+  public void mergedJarManifestSpecialAttributesAreHandled() throws IOException {
+    // This is required to allow JarInputStream to read the manifest properly
+    Path inputOne = temp.newFile("one.jar").toPath();
+
+    Manifest firstManifest = new Manifest();
+    firstManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    firstManifest.getMainAttributes().put(new Attributes.Name("First"), "foo");
+    firstManifest.getMainAttributes().put(new Attributes.Name("Target-Label"), "@secret_corp//:foo");
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    firstManifest.write(bos);
+
+    createJar(
+            inputOne,
+            ImmutableMap.of(
+                    "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[]{
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString()});
+
+    try (JarFile jar = new JarFile(outputJar.toFile())) {
+      assertTrue(jar.getManifest().getMainAttributes().containsKey(new Attributes.Name("Created-By")));
+      assertFalse(jar.getManifest().getMainAttributes().containsKey(new Attributes.Name("Target-Label")));
+    }
   }
 
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {

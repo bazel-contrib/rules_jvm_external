@@ -169,6 +169,9 @@ public class MergeJars {
     }
 
     manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "mergejars");
+    // Bazel labels are an internal detail of the project producing the merged
+    // jar and not useful for consumers.
+    manifest.getMainAttributes().remove(new Attributes.Name("Target-Label"));
 
     // Now create the output jar
     Files.createDirectories(out.getParent());
