@@ -8,5 +8,5 @@ exports_files(["stamp_manifest.bzl"])
 
 stamp_manifest(
     name = "stamp_manifest",
-    build_setting_default = False,
+    build_setting_default = True,
 )
