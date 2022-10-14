@@ -998,7 +998,7 @@ def _coursier_fetch_impl(repository_ctx):
             # This file comes from maven local, so handle it in two different ways depending if
             # dependency pinning is used:
             # a) If the repository is unpinned, we keep the file as is, but clear the url to skip it
-            # b) Otherwise, we clear the url and also simlink the file from the mavel local directory
+            # b) Otherwise, we clear the url and also simlink the file from the maven local directory
             #    to file within the repository rule workspace
             print("Assuming maven local for artifact: %s" % artifact["coord"])
             artifact.update({"url": None})
