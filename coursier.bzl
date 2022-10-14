@@ -1039,6 +1039,17 @@ def _coursier_fetch_impl(repository_ctx):
         # The primary_url is the url from which Coursier downloaded the jar from. It looks like this:
         # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
         primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
+
+
+        # Coursier prepends the username from the provided credentials if needed to authenticate
+        # with the repository. We remove it from the url and file attributes if only the username is present
+        # and no password, as it has noe function and obfuscates changes to the pinned json
+        credential_marker = primary_url.find("@")
+        if credential_marker > -1:
+          potential_credentials = primary_url[:credential_marker+1].removeprefix(protocol + "://")
+          if len(potential_credentials.split(':')) == 1:
+            primary_url = primary_url.replace(potential_credentials, "")
+
         artifact.update({"url": primary_url})
 
         # The repository for the primary_url has to be one of the repositories provided through
