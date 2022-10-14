@@ -191,10 +191,18 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
-        # Make a symlink from the absolute path of the artifact to the relative
-        # path within the output_base/external.
-        artifact_relative_path = "v1" + absolute_path_parts[1]
-        repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
+      relative_path = absolute_path_parts[1]
+      # Coursier prefixes private repositories with the username, which obfuscates
+      # changes to the pinned json so we remove it from the relative path.
+      credential_marker = relative_path.find("%40")
+      if credential_marker > -1:
+        user_prefix = relative_path[:credential_marker+3].split("/")[-1]
+        relative_path = relative_path.replace(user_prefix, "")
+
+      # Make a symlink from the absolute path of the artifact to the relative
+      # path within the output_base/external.
+      artifact_relative_path = "v1" + relative_path
+      repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
 
 # Relativize an absolute path to an artifact in maven local.
