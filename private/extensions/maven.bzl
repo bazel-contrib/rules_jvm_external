@@ -102,21 +102,6 @@ _override = tag_class(
     },
 )
 
-def _parse_artifact(spec):
-    if type(spec) == "string":
-        unpacked = unpack_coordinates(spec)
-        to_return = {
-            "artifact": unpacked.artifactId,
-            "group": unpacked.groupId,
-            "version": unpacked.version,
-        }
-        if unpacked.type:
-            to_return.update({"classifier": unpacked.type})
-
-        return to_return
-
-    return spec
-
 def _logical_or(source, key, default_value, new_value):
     current = source.get(key, default_value)
     source[key] = current or new_value
@@ -134,10 +119,12 @@ def _fail_if_different(attribute, current, next, allowed_default_values):
     fail("Expected values for '%s' to be either default or the same. Instead got: %s and %s" % (attribute, current, next))
 
 def _add_exclusions(exclusions, excluded_artifacts):
-    for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
-        encoded = _json.write_exclusion_spec(exclusion)
-        if encoded not in exclusions:
-            exclusions.append(encoded)
+    to_return = [] + excluded_artifacts
+
+    for exclusion in parse.parse_exclusion_spec_list(exclusions):
+        if exclusion not in to_return:
+            to_return.append(exclusion)
+    return to_return
 
 def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
     known_name = repo_name_2_module_name.get(repo_name)
@@ -218,7 +205,7 @@ def _maven_impl(mctx):
 
             if artifact.exclusions:
                 artifact_exclusions = []
-                _add_exclusions(artifact.exclusions, artifact_exclusions)
+                artifact_exclusions = _add_exclusions(artifact.exclusions, artifact_exclusions)
                 to_add.update({"exclusions": artifact_exclusions})
 
             existing_artifacts.append(to_add)
@@ -308,8 +295,8 @@ def _maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
-        artifacts = [_parse_artifact(a) for a in repo["artifacts"]]
-        artifacts_json = [json.encode(a) for a in artifacts]
+        artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
+        artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
 
         coursier_fetch(
             # Name this repository "unpinned_{name}" if the user specified a
