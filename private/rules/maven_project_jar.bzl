@@ -73,7 +73,13 @@ def _maven_project_jar_impl(ctx):
     )
 
     return [
-        DefaultInfo(files = depset([bin_jar])),
+        DefaultInfo(
+            files = depset([bin_jar]),
+            # Workaround for https://github.com/bazelbuild/bazel/issues/15043
+            # Bazel's native rule such as sh_test do not pick up 'files' in
+            # DefaultInfo for a target in 'data'.
+            data_runfiles = ctx.runfiles([bin_jar]),
+        ),
         OutputGroupInfo(
             maven_artifact = [bin_jar],
             maven_source = [src_jar],
