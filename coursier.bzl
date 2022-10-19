@@ -295,7 +295,8 @@ def _compute_dependency_tree_signature(artifacts):
 # Visible for testing
 def compute_dependency_inputs_signature(artifacts, repositories):
     artifact_inputs = []
-    for artifact in artifacts:
+
+    for artifact in sorted(artifacts):
         parsed = json.decode(artifact)
 
         # Sort the keys to provide a stable order
