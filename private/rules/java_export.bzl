@@ -58,9 +58,11 @@ def java_export(
       name: A unique name for this target
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
-      deploy_env: A list of labels of java targets to exclude from the generated jar
+      deploy_env: A list of labels of Java targets to exclude from the generated jar.
+        [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
+        supported.
       visibility: The visibility of the target
-      kwargs: These are passed to [`java_library`](https://docs.bazel.build/versions/master/be/java.html#java_library),
+      kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
     """
 
