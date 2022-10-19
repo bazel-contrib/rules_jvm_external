@@ -34,6 +34,22 @@ def _maven_project_jar_impl(ctx):
         bin_jar,
     )
 
+    # Bazel's java_binary has a deploy_env attribute that only supports java_binary targets.
+    # Unfortunately, java_binary targets only expose their runtime classpath via the native
+    # JavaRuntimeClasspathProvider that is not accessible from Starlark, so maven_project_jar can't
+    # handle java_binary targets in deploy_env.
+    #
+    # Since this behavior is the direct opposite and thus likely to cause confusion, we try to
+    # detect this situation and fail with a descriptive error. As we can't detect the rule type of a
+    # target directly, we instead fail if the runtime classpath in its JavaInfo is empty. If this
+    # happens for java_library, it is also something we want to report.
+    for deploy_dep in ctx.attr.deploy_env:
+        if not deploy_dep[JavaInfo].transitive_runtime_jars and not deploy_dep[JavaInfo].runtime_output_jars:
+            fail("{dep} is misplaced in attribute 'deploy_env' of java_export target {target} as it has an empty runtime classpath (java_binary targets are not supported)".format(
+                dep = deploy_dep,
+                target = ctx.label,
+            ))
+
     src_jar = ctx.actions.declare_file("%s-src.jar" % ctx.label.name)
     _combine_jars(
         ctx,
