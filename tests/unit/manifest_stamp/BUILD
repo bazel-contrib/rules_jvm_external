@@ -30,9 +30,6 @@ diff_test(
         "//conditions:default": "guava_MANIFEST.MF.golden.unix",
     }),
     file2 = "guava_MANIFEST.MF",
-    # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/283): Fix reproducibility issues.
-    # This test requires --//settings:stamp_manifest.
-    tags = ["manual"],
 )
 
 genrule(
