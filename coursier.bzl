@@ -602,18 +602,14 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
-    repository_ctx.file(
-        "defs.bzl",
-        "\n".join(http_files),
-        executable = False,
-    )
-
-    netrc_contents = "\n".join(
-        netrc_lines + get_netrc_lines_from_entries(netrc_entries),
-    )
+    repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
     repository_ctx.file(
         "netrc",
-        netrc_contents,
+        "\n".join(
+            repository_ctx.attr.additional_netrc_lines +
+            get_home_netrc_contents(repository_ctx).splitlines() +
+            get_netrc_lines_from_entries(netrc_entries),
+        ),
         executable = False,
     )
 
@@ -879,7 +875,7 @@ def make_coursier_dep_tree(
         # value to prevent Coursier from writing into home directories.
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
-        environment["COURSIER_CACHE"] = str(repository_ctx.path(coursier_cache_location))
+        environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
 
     # If we are using Java 9 or higher we can use an argsfile to avoid command line length limits
     java_path = _java_path(repository_ctx)
@@ -897,14 +893,6 @@ def make_coursier_dep_tree(
             )
             cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
 
-    # print("coursier env:", environment)
-    # cmd = [
-    #     "pwd",
-    #     "&&",
-    #     "find",
-    #     ".",
-    # ]
-    print("coursier cmd:", cmd)
     exec_result = _execute(
         repository_ctx,
         cmd,
@@ -917,9 +905,6 @@ def make_coursier_dep_tree(
     )
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
-
-    print("stdout:", exec_result.stdout)
-    print("stderr:", exec_result.stderr)
 
     return deduplicate_and_sort_artifacts(
         json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
