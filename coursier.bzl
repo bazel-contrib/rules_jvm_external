@@ -10,7 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
@@ -99,14 +99,13 @@ sh_binary(
 )
 """
 
+COURSIER_PROPERTIES_FILENAME = "credentials.properties"
+
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
-
-def _is_linux(repository_ctx):
-    return repository_ctx.os.name.find("linux") != -1
 
 def _is_macos(repository_ctx):
     return repository_ctx.os.name.find("mac") != -1
@@ -374,6 +373,46 @@ def get_netrc_lines_from_entries(netrc_entries):
                 netrc_lines.append("password {}".format(password))
     return netrc_lines
 
+def get_coursier_credentials_properties_lines_from_entries(netrc_entries):
+    """Translates the parsed netrc metadata into coursier credentials properties format.
+
+    See https://github.com/coursier/coursier/blob/master/doc/docs/other-credentials.md#property-file
+
+    input:
+
+    ```netrc
+    machine github.com
+    login ghp_000000000000000000000000000000000000
+    password x-oauth-basic
+    ```
+
+    output:
+
+    ```java-properties-file
+    machine0.host=github.com
+    machine0.username=ghp_000000000000000000000000000000000000
+    machine0.password=x-oauth-basic
+    ```
+
+    Args:
+        netrc_entries: a Dict<string,Dict<string,string>> where the key is a the machine name
+        and value is a dictionary of netrc metadata.
+    Returns:
+        a List<string> for the netrc file
+    """
+    lines = []
+    n = 0
+    for machine, params in sorted(netrc_entries.items()):
+        n += 1
+        prefix = "machine%d" % n
+        lines.append("# --- %s ---" % machine)
+        lines.append(prefix + ".host=" + machine)
+        if "login" in params:
+            lines.append(prefix + ".username=" + params["login"])
+        if "password" in params:
+            lines.append(prefix + ".password=" + params["password"])
+    return lines
+
 def get_home_netrc_contents(repository_ctx):
     # Copied with a ctx -> repository_ctx rename from tools/build_defs/repo/http.bzl's _get_auth.
     # Need to keep updated with improvements in source since we cannot load private methods.
@@ -561,16 +600,20 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
-    repository_ctx.file("defs.bzl", "\n".join(http_files), executable = False)
-    repository_ctx.file(
-        "netrc",
-        "\n".join(
-            repository_ctx.attr.additional_netrc_lines +
-            get_home_netrc_contents(repository_ctx).splitlines() +
-            get_netrc_lines_from_entries(netrc_entries),
-        ),
-        executable = False,
+    defs_bzl_contents = "\n".join(http_files)
+    repository_ctx.file("defs.bzl", defs_bzl_contents)
+
+    netrc_contents = "\n".join(
+        repository_ctx.attr.additional_netrc_lines +
+        get_home_netrc_contents(repository_ctx).splitlines() +
+        get_netrc_lines_from_entries(netrc_entries),
     )
+    repository_ctx.file("netrc", netrc_contents)
+
+    coursier_properties_contents = "\n".join(
+        get_coursier_credentials_properties_lines_from_entries(parse_netrc(netrc_contents)),
+    )
+    repository_ctx.file(COURSIER_PROPERTIES_FILENAME, coursier_properties_contents)
 
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
@@ -808,7 +851,9 @@ def make_coursier_dep_tree(
             cmd.append("--javadoc")
         cmd.append("--default=true")
 
-    environment = {}
+    environment = {
+        "COURSIER_CREDENTIALS": repository_ctx.path(COURSIER_PROPERTIES_FILENAME),
+    }
     if not use_unsafe_shared_cache and not repository_ctx.attr.name.startswith("unpinned_"):
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
