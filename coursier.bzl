@@ -692,6 +692,8 @@ def remove_auth_from_url(url):
     return new_url
 
 def _write_coursier_credentials_properties_file(repository_ctx):
+    if not repository_ctx.attr.use_credential_file:
+        return
     coursier_properties_contents = "\n".join(
         get_coursier_credentials_properties_lines_from_entries(
             parse_netrc(get_home_netrc_contents(repository_ctx)),
@@ -847,7 +849,7 @@ def make_coursier_dep_tree(
     if len(exclusion_lines) > 0:
         repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-    if repository_ctx.use_credential_file:
+    if repository_ctx.attr.use_credential_file:
         cmd.extend(["--credential-file", repository_ctx.path(COURSIER_PROPERTIES_FILENAME).realpath])
     for repository in repositories:
         cmd.extend(["--repository", repository["repo_url"]])
@@ -1380,6 +1382,7 @@ coursier_fetch = repository_rule(
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "use_credential_file": attr.bool(default = True, doc = "Whether to pass coursier --credentials-file argument (derived from the ~/.netrc file)."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "duplicate_version_warning": attr.string(
             doc = """What to do if there are duplicate artifacts
