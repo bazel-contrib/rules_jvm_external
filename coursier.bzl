@@ -852,7 +852,7 @@ def make_coursier_dep_tree(
         cmd.append("--default=true")
 
     environment = {
-        "COURSIER_CREDENTIALS": repository_ctx.path(COURSIER_PROPERTIES_FILENAME),
+        "COURSIER_CREDENTIALS": str(repository_ctx.path(COURSIER_PROPERTIES_FILENAME)),
     }
     if not use_unsafe_shared_cache and not repository_ctx.attr.name.startswith("unpinned_"):
         coursier_cache_location = get_coursier_cache_or_default(
