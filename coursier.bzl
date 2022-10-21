@@ -497,6 +497,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         ),
     )
 
+    _write_coursier_credentials_properties_file(repository_ctx)
+
     # Validation steps for maven_install.json.
 
     # First, validate that we can parse the JSON file.
@@ -600,20 +602,20 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
-    defs_bzl_contents = "\n".join(http_files)
-    repository_ctx.file("defs.bzl", defs_bzl_contents)
+    repository_ctx.file(
+        "defs.bzl",
+        "\n".join(http_files),
+        executable = False,
+    )
 
     netrc_contents = "\n".join(
-        repository_ctx.attr.additional_netrc_lines +
-        get_home_netrc_contents(repository_ctx).splitlines() +
-        get_netrc_lines_from_entries(netrc_entries),
+        netrc_lines + get_netrc_lines_from_entries(netrc_entries),
     )
-    repository_ctx.file("netrc", netrc_contents)
-
-    coursier_properties_contents = "\n".join(
-        get_coursier_credentials_properties_lines_from_entries(parse_netrc(netrc_contents)),
+    repository_ctx.file(
+        "netrc",
+        netrc_contents,
+        executable = False,
     )
-    repository_ctx.file(COURSIER_PROPERTIES_FILENAME, coursier_properties_contents)
 
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
@@ -692,6 +694,18 @@ def remove_auth_from_url(url):
     userless_host = host[last_index + 1:]
     new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
+
+def _write_coursier_credentials_properties_file(repository_ctx):
+    coursier_properties_contents = "\n".join(
+        get_coursier_credentials_properties_lines_from_entries(
+            parse_netrc(get_home_netrc_contents(repository_ctx)),
+        ),
+    )
+    repository_ctx.file(
+        COURSIER_PROPERTIES_FILENAME,
+        coursier_properties_contents,
+        executable = False,
+    )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
     """Returns the artifact path inferred by comparing primary_url with urls in repository_urls.
@@ -837,6 +851,8 @@ def make_coursier_dep_tree(
     if len(exclusion_lines) > 0:
         repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
+    if repository_ctx.use_credential_file:
+        cmd.extend(["--credential-file", repository_ctx.path(COURSIER_PROPERTIES_FILENAME).realpath])
     for repository in repositories:
         cmd.extend(["--repository", repository["repo_url"]])
         if "credentials" in repository:
@@ -851,9 +867,7 @@ def make_coursier_dep_tree(
             cmd.append("--javadoc")
         cmd.append("--default=true")
 
-    environment = {
-        "COURSIER_CREDENTIALS": str(repository_ctx.path(COURSIER_PROPERTIES_FILENAME)),
-    }
+    environment = {}
     if not use_unsafe_shared_cache and not repository_ctx.attr.name.startswith("unpinned_"):
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
@@ -865,7 +879,7 @@ def make_coursier_dep_tree(
         # value to prevent Coursier from writing into home directories.
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
-        environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+        environment["COURSIER_CACHE"] = str(repository_ctx.path(coursier_cache_location))
 
     # If we are using Java 9 or higher we can use an argsfile to avoid command line length limits
     java_path = _java_path(repository_ctx)
@@ -883,6 +897,14 @@ def make_coursier_dep_tree(
             )
             cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
 
+    # print("coursier env:", environment)
+    # cmd = [
+    #     "pwd",
+    #     "&&",
+    #     "find",
+    #     ".",
+    # ]
+    print("coursier cmd:", cmd)
     exec_result = _execute(
         repository_ctx,
         cmd,
@@ -895,6 +917,9 @@ def make_coursier_dep_tree(
     )
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
+
+    print("stdout:", exec_result.stdout)
+    print("stderr:", exec_result.stderr)
 
     return deduplicate_and_sort_artifacts(
         json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
@@ -926,6 +951,8 @@ def _coursier_fetch_impl(repository_ctx):
 
     repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
     _download_jq(repository_ctx)
+
+    _write_coursier_credentials_properties_file(repository_ctx)
 
     # Try running coursier once
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
@@ -1306,6 +1333,7 @@ pinned_coursier_fetch = repository_rule(
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "use_credential_file": attr.bool(default = True, doc = "Whether to pass coursier --credentials-file argument (derived from the ~/.netrc file)."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "duplicate_version_warning": attr.string(
             doc = """What to do if there are duplicate artifacts
