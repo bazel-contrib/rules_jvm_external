@@ -269,10 +269,105 @@ def _repository_credentials(repository_spec):
 
     credentials = repository_spec["credentials"]
 
+    return _coursier_credential(hostname, credentials["user"], credentials["password"])
+
+def _coursier_credential(hostname, username, password):
     # See https://get-coursier.io/docs/other-credentials.html#inline for docs on this format
-    return hostname + " " + credentials["user"] + ":" + credentials["password"]
+    return hostname + " " + username + ":" + password
+
+# TODO: replace with 'load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")'
+# once bazel 5.x+ is the minimum allowed bazel version
+def _parse_netrc(contents, filename = None):
+    """Utility function to parse at least a basic .netrc file.
+
+    Args:
+      contents: input for the parser.
+      filename: filename to use in error messages, if any.
+    Returns:
+      dict mapping a machine names to a dict with the information provided
+      about them
+    """
+
+    # Parse the file. This is mainly a token-based update of a simple state
+    # machine, but we need to keep the line structure to correctly determine
+    # the end of a `macdef` command.
+    netrc = {}
+    currentmachinename = None
+    currentmachine = {}
+    macdef = None
+    currentmacro = ""
+    cmd = None
+    for line in contents.splitlines():
+        if line.startswith("#"):
+            # Comments start with #. Ignore these lines.
+            continue
+        elif macdef:
+            # as we're in a macro, just determine if we reached the end.
+            if line:
+                currentmacro += line + "\n"
+            else:
+                # reached end of macro, add it
+                currentmachine[macdef] = currentmacro
+                macdef = None
+                currentmacro = ""
+        else:
+            # Essentially line.split(None) which starlark does not support.
+            tokens = [
+                w.strip()
+                for w in line.split(" ")
+                if len(w.strip()) > 0
+            ]
+            for token in tokens:
+                if cmd:
+                    # we have a command that expects another argument
+                    if cmd == "machine":
+                        # a new machine definition was provided, so save the
+                        # old one, if present
+                        if not currentmachinename == None:
+                            netrc[currentmachinename] = currentmachine
+                        currentmachine = {}
+                        currentmachinename = token
+                    elif cmd == "macdef":
+                        macdef = "macdef %s" % (token,)
+                        # a new macro definition; the documentation says
+                        # "its contents begin with the next .netrc line [...]",
+                        # so should there really be tokens left in the current
+                        # line, they're not part of the macro.
+
+                    else:
+                        currentmachine[cmd] = token
+                    cmd = None
+                elif token in [
+                    "machine",
+                    "login",
+                    "password",
+                    "account",
+                    "macdef",
+                ]:
+                    # command takes one argument
+                    cmd = token
+                elif token == "default":
+                    # defines the default machine; again, store old machine
+                    if not currentmachinename == None:
+                        netrc[currentmachinename] = currentmachine
+
+                    # We use the empty string for the default machine, as that
+                    # can never be a valid hostname ("default" could be, in the
+                    # default search domain).
+                    currentmachinename = ""
+                    currentmachine = {}
+                else:
+                    if filename == None:
+                        filename = "a .netrc file"
+                    fail("Unexpected token '%s' while reading %s" %
+                         (token, filename))
+    if not currentmachinename == None:
+        netrc[currentmachinename] = currentmachine
+    return netrc
 
 utils = struct(
     artifact_coordinate = _artifact_to_coord,
     repo_credentials = _repository_credentials,
+    coursier_credential = _coursier_credential,
+    parse_netrc = _parse_netrc,
 )

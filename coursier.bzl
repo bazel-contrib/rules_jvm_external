@@ -98,8 +98,6 @@ sh_binary(
 )
 """
 
-COURSIER_PROPERTIES_FILENAME = "credentials.properties"
-
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
@@ -224,96 +222,6 @@ def _java_path(repository_ctx):
     elif repository_ctx.which("java") != None:
         return repository_ctx.which("java")
     return None
-
-# TODO: replace with 'load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")'
-# once bazel 5.x+ is the minimum allowed bazel version
-def _parse_netrc(contents, filename = None):
-    """Utility function to parse at least a basic .netrc file.
-
-    Args:
-      contents: input for the parser.
-      filename: filename to use in error messages, if any.
-    Returns:
-      dict mapping a machine names to a dict with the information provided
-      about them
-    """
-
-    # Parse the file. This is mainly a token-based update of a simple state
-    # machine, but we need to keep the line structure to correctly determine
-    # the end of a `macdef` command.
-    netrc = {}
-    currentmachinename = None
-    currentmachine = {}
-    macdef = None
-    currentmacro = ""
-    cmd = None
-    for line in contents.splitlines():
-        if line.startswith("#"):
-            # Comments start with #. Ignore these lines.
-            continue
-        elif macdef:
-            # as we're in a macro, just determine if we reached the end.
-            if line:
-                currentmacro += line + "\n"
-            else:
-                # reached end of macro, add it
-                currentmachine[macdef] = currentmacro
-                macdef = None
-                currentmacro = ""
-        else:
-            # Essentially line.split(None) which starlark does not support.
-            tokens = [
-                w.strip()
-                for w in line.split(" ")
-                if len(w.strip()) > 0
-            ]
-            for token in tokens:
-                if cmd:
-                    # we have a command that expects another argument
-                    if cmd == "machine":
-                        # a new machine definition was provided, so save the
-                        # old one, if present
-                        if not currentmachinename == None:
-                            netrc[currentmachinename] = currentmachine
-                        currentmachine = {}
-                        currentmachinename = token
-                    elif cmd == "macdef":
-                        macdef = "macdef %s" % (token,)
-                        # a new macro definition; the documentation says
-                        # "its contents begin with the next .netrc line [...]",
-                        # so should there really be tokens left in the current
-                        # line, they're not part of the macro.
-
-                    else:
-                        currentmachine[cmd] = token
-                    cmd = None
-                elif token in [
-                    "machine",
-                    "login",
-                    "password",
-                    "account",
-                    "macdef",
-                ]:
-                    # command takes one argument
-                    cmd = token
-                elif token == "default":
-                    # defines the default machine; again, store old machine
-                    if not currentmachinename == None:
-                        netrc[currentmachinename] = currentmachine
-
-                    # We use the empty string for the default machine, as that
-                    # can never be a valid hostname ("default" could be, in the
-                    # default search domain).
-                    currentmachinename = ""
-                    currentmachine = {}
-                else:
-                    if filename == None:
-                        filename = "a .netrc file"
-                    fail("Unexpected token '%s' while reading %s" %
-                         (token, filename))
-    if not currentmachinename == None:
-        netrc[currentmachinename] = currentmachine
-    return netrc
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
@@ -462,46 +370,6 @@ def get_netrc_lines_from_entries(netrc_entries):
                 netrc_lines.append("password {}".format(password))
     return netrc_lines
 
-def get_coursier_credentials_properties_lines_from_entries(netrc_entries):
-    """Translates the parsed netrc metadata into coursier credentials properties format.
-
-    See https://github.com/coursier/coursier/blob/master/doc/docs/other-credentials.md#property-file
-
-    input:
-
-    ```netrc
-    machine github.com
-    login ghp_000000000000000000000000000000000000
-    password x-oauth-basic
-    ```
-
-    output:
-
-    ```java-properties-file
-    machine0.host=github.com
-    machine0.username=ghp_000000000000000000000000000000000000
-    machine0.password=x-oauth-basic
-    ```
-
-    Args:
-        netrc_entries: a Dict<string,Dict<string,string>> where the key is a the machine name
-        and value is a dictionary of netrc metadata.
-    Returns:
-        a List<string> for the netrc file
-    """
-    lines = []
-    n = 0
-    for machine, params in sorted(netrc_entries.items()):
-        n += 1
-        prefix = "machine%d" % n
-        lines.append("# --- %s ---" % machine)
-        lines.append(prefix + ".host=" + machine)
-        if "login" in params:
-            lines.append(prefix + ".username=" + params["login"])
-        if "password" in params:
-            lines.append(prefix + ".password=" + params["password"])
-    return lines
-
 def get_home_netrc_contents(repository_ctx):
     # Copied with a ctx -> repository_ctx rename from tools/build_defs/repo/http.bzl's _get_auth.
     # Need to keep updated with improvements in source since we cannot load private methods.
@@ -585,8 +453,6 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_ctx.path("imported_maven_install.json"),
         ),
     )
-
-    _write_coursier_credentials_properties_file(repository_ctx)
 
     # Validation steps for maven_install.json.
 
@@ -780,20 +646,6 @@ def remove_auth_from_url(url):
     new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
     return new_url
 
-def _write_coursier_credentials_properties_file(repository_ctx):
-    if not repository_ctx.attr.use_credential_file:
-        return
-    coursier_properties_contents = "\n".join(
-        get_coursier_credentials_properties_lines_from_entries(
-            _parse_netrc(get_home_netrc_contents(repository_ctx)),
-        ),
-    )
-    repository_ctx.file(
-        COURSIER_PROPERTIES_FILENAME,
-        coursier_properties_contents,
-        executable = False,
-    )
-
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
     """Returns the artifact path inferred by comparing primary_url with urls in repository_urls.
 
@@ -938,12 +790,13 @@ def make_coursier_dep_tree(
     if len(exclusion_lines) > 0:
         repository_ctx.file("exclusion-file.txt", "\n".join(exclusion_lines), False)
         cmd.extend(["--local-exclude-file", "exclusion-file.txt"])
-    if repository_ctx.attr.use_credential_file:
-        cmd.extend(["--credential-file", repository_ctx.path(COURSIER_PROPERTIES_FILENAME).realpath])
     for repository in repositories:
         cmd.extend(["--repository", repository["repo_url"]])
         if "credentials" in repository:
             cmd.extend(["--credentials", utils.repo_credentials(repository)])
+    for machine, props in utils.parse_netrc(get_home_netrc_contents(repository_ctx)):
+        if login in props and password in props:
+            cmd.extend(["--credentials", utils.coursier_credential(machine, props["login"], props["password"])])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
 
@@ -1027,8 +880,6 @@ def _coursier_fetch_impl(repository_ctx):
 
     repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
     _download_jq(repository_ctx)
-
-    _write_coursier_credentials_properties_file(repository_ctx)
 
     # Try running coursier once
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
@@ -1409,7 +1260,6 @@ pinned_coursier_fetch = repository_rule(
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
-        "use_credential_file": attr.bool(default = True, doc = "Whether to pass coursier --credentials-file argument (derived from the ~/.netrc file)."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "duplicate_version_warning": attr.string(
             doc = """What to do if there are duplicate artifacts
@@ -1471,7 +1321,6 @@ coursier_fetch = repository_rule(
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
-        "use_credential_file": attr.bool(default = True, doc = "Whether to pass coursier --credentials-file argument (derived from the ~/.netrc file)."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "duplicate_version_warning": attr.string(
             doc = """What to do if there are duplicate artifacts
