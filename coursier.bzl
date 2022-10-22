@@ -10,7 +10,6 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
@@ -225,6 +224,96 @@ def _java_path(repository_ctx):
     elif repository_ctx.which("java") != None:
         return repository_ctx.which("java")
     return None
+
+# TODO: replace with 'load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")'
+# once bazel 5.x+ is the minimum allowed bazel version
+def _parse_netrc(contents, filename = None):
+    """Utility function to parse at least a basic .netrc file.
+
+    Args:
+      contents: input for the parser.
+      filename: filename to use in error messages, if any.
+    Returns:
+      dict mapping a machine names to a dict with the information provided
+      about them
+    """
+
+    # Parse the file. This is mainly a token-based update of a simple state
+    # machine, but we need to keep the line structure to correctly determine
+    # the end of a `macdef` command.
+    netrc = {}
+    currentmachinename = None
+    currentmachine = {}
+    macdef = None
+    currentmacro = ""
+    cmd = None
+    for line in contents.splitlines():
+        if line.startswith("#"):
+            # Comments start with #. Ignore these lines.
+            continue
+        elif macdef:
+            # as we're in a macro, just determine if we reached the end.
+            if line:
+                currentmacro += line + "\n"
+            else:
+                # reached end of macro, add it
+                currentmachine[macdef] = currentmacro
+                macdef = None
+                currentmacro = ""
+        else:
+            # Essentially line.split(None) which starlark does not support.
+            tokens = [
+                w.strip()
+                for w in line.split(" ")
+                if len(w.strip()) > 0
+            ]
+            for token in tokens:
+                if cmd:
+                    # we have a command that expects another argument
+                    if cmd == "machine":
+                        # a new machine definition was provided, so save the
+                        # old one, if present
+                        if not currentmachinename == None:
+                            netrc[currentmachinename] = currentmachine
+                        currentmachine = {}
+                        currentmachinename = token
+                    elif cmd == "macdef":
+                        macdef = "macdef %s" % (token,)
+                        # a new macro definition; the documentation says
+                        # "its contents begin with the next .netrc line [...]",
+                        # so should there really be tokens left in the current
+                        # line, they're not part of the macro.
+
+                    else:
+                        currentmachine[cmd] = token
+                    cmd = None
+                elif token in [
+                    "machine",
+                    "login",
+                    "password",
+                    "account",
+                    "macdef",
+                ]:
+                    # command takes one argument
+                    cmd = token
+                elif token == "default":
+                    # defines the default machine; again, store old machine
+                    if not currentmachinename == None:
+                        netrc[currentmachinename] = currentmachine
+
+                    # We use the empty string for the default machine, as that
+                    # can never be a valid hostname ("default" could be, in the
+                    # default search domain).
+                    currentmachinename = ""
+                    currentmachine = {}
+                else:
+                    if filename == None:
+                        filename = "a .netrc file"
+                    fail("Unexpected token '%s' while reading %s" %
+                         (token, filename))
+    if not currentmachinename == None:
+        netrc[currentmachinename] = currentmachine
+    return netrc
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
@@ -696,7 +785,7 @@ def _write_coursier_credentials_properties_file(repository_ctx):
         return
     coursier_properties_contents = "\n".join(
         get_coursier_credentials_properties_lines_from_entries(
-            parse_netrc(get_home_netrc_contents(repository_ctx)),
+            _parse_netrc(get_home_netrc_contents(repository_ctx)),
         ),
     )
     repository_ctx.file(
