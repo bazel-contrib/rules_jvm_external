@@ -235,7 +235,17 @@ def _repo_credentials_test_impl(ctx):
     )
     return unittest.end(env)
 
+def _coursier_credential_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "github.com: myuser:mypass",
+        utils.coursier_credential("github.com", "myuser", "mypass"),
+    )
+    return unittest.end(env)
+
 repo_credentials_test = unittest.make(_repo_credentials_test_impl)
+coursier_credential_test = unittest.make(_coursier_credential_test_impl)
 
 def artifact_specs_test_suite():
     unittest.suite(
@@ -264,4 +274,5 @@ def artifact_specs_test_suite():
     unittest.suite(
         "util_tests",
         repo_credentials_test,
+        coursier_credential_test,
     )
