@@ -10,6 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
+
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
@@ -103,6 +104,9 @@ def _is_verbose(repository_ctx):
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
+
+def _is_linux(repository_ctx):
+    return repository_ctx.os.name.find("linux") != -1
 
 def _is_macos(repository_ctx):
     return repository_ctx.os.name.find("mac") != -1
