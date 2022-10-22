@@ -272,8 +272,33 @@ def _repository_credentials(repository_spec):
     return _coursier_credential(hostname, credentials["user"], credentials["password"])
 
 def _coursier_credential(hostname, username, password):
-    # See https://get-coursier.io/docs/other-credentials.html#inline for docs on this format
+    """format a coursier credential
+
+    See https://get-coursier.io/docs/other-credentials.html#inline for docs on this format
+
+    Args:
+        hostname: the host string
+        username: the user string
+        password: the pass string
+    Returns:
+        the credential string
+    """
     return hostname + " " + username + ":" + password
+
+def _netrc_credentials(netrc_content):
+    """return a list of credentials from netrc content
+
+    Args:
+        netrc_content: a Dict<string,Dict<string,string>> from parse_netrc.
+    Returns:
+        a List<string> for the coursier cli --credentials option.
+    """
+    credentials = []
+    for machine, props in _parse_netrc(netrc_content).items():
+        if machine and "login" in props and "password" in props:
+            credential = _coursier_credential(machine, props["login"], props["password"])
+            credentials.append(credential)
+    return credentials
 
 # copied from https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/repo/utils.bzl.
 # replace with 'load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")'
@@ -368,7 +393,7 @@ def _parse_netrc(contents, filename = None):
 
 utils = struct(
     artifact_coordinate = _artifact_to_coord,
-    repo_credentials = _repository_credentials,
-    coursier_credential = _coursier_credential,
+    netrc_credentials = _netrc_credentials,
     parse_netrc = _parse_netrc,
+    repo_credentials = _repository_credentials,
 )

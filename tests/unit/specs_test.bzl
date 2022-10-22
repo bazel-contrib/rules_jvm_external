@@ -235,13 +235,46 @@ def _repo_credentials_test_impl(ctx):
     )
     return unittest.end(env)
 
-def _coursier_credential_test_impl(ctx):
+def _netrc_credentials_test_impl(ctx):
     env = unittest.begin(ctx)
-    asserts.equals(
-        env,
-        "github.com myuser:mypass",
-        utils.coursier_credential("github.com", "myuser", "mypass"),
-    )
+    test_cases = [
+        {
+            # degenerate case
+            "content": "",
+            "want": [],
+        },
+        {
+            # skips missing login
+            "content": "machine example.com password qwerty",
+            "want": [],
+        },
+        {
+            # skips missing password
+            "content": "machine example.com login bob",
+            "want": [],
+        },
+        {
+            # produces single credential
+            "content": "machine example.com login bob password qwerty",
+            "want": ["example.com bob:qwerty"],
+        },
+        {
+            # produces multiple credentials
+            "content": """
+machine example.com login bob password qwerty
+machine github.com login alice password qwerty
+""",
+            "want": [
+                "example.com bob:qwerty",
+                "github.com alice:qwerty",
+            ],
+        },
+    ]
+    for tc in test_cases:
+        content = tc["content"]
+        want = tc["want"]
+        got = utils.netrc_credentials(content)
+        asserts.equals(env, want, got)
     return unittest.end(env)
 
 def _parse_netrc_test_impl(ctx):
@@ -259,23 +292,36 @@ def _parse_netrc_test_impl(ctx):
         },
         {
             # multiline
-            "content": "machine example.com\nlogin daniel\npassword qwerty",
-            "want": {"example.com": {"login": "daniel", "password": "qwerty"}},
+            "content": "machine example.com\nlogin bob\npassword qwerty",
+            "want": {"example.com": {"login": "bob", "password": "qwerty"}},
         },
         {
             # singleline
-            "content": "machine example.com login daniel password qwerty",
-            "want": {"example.com": {"login": "daniel", "password": "qwerty"}},
+            "content": "machine example.com login bob password qwerty",
+            "want": {"example.com": {"login": "bob", "password": "qwerty"}},
         },
         {
             # singleline (multiple entries)
             "content": """
-machine example.com login daniel password qwerty
+machine example.com login bob password qwerty
 machine github.com login alice password qwerty
 """,
             "want": {
-                "example.com": {"login": "daniel", "password": "qwerty"},
+                "example.com": {"login": "bob", "password": "qwerty"},
                 "github.com": {"login": "alice", "password": "qwerty"},
+            },
+        },
+        {
+            # multiple entries, same host.  It only records the last login user.
+            # This would appear to be a limitation of the parse_netrc function in
+            # the bazel utils.bzl, but since we are planning to use that upstream
+            # function in the future anyway, accepting as-is here.
+            "content": """
+machine example.com login bob password qwerty
+machine example.com login alice password qwerty
+""",
+            "want": {
+                "example.com": {"login": "alice", "password": "qwerty"},
             },
         },
         {
@@ -286,11 +332,11 @@ machine github.com login alice password qwerty
         {
             # default (at end, with another entry)
             "content": """
-machine example.com login daniel password qwerty
+machine example.com login bob password qwerty
 default login anonymous password user@domain
 """,
             "want": {
-                "example.com": {"login": "daniel", "password": "qwerty"},
+                "example.com": {"login": "bob", "password": "qwerty"},
                 "": {"login": "anonymous", "password": "user@domain"},
             },
         },
@@ -314,7 +360,7 @@ quit
     return unittest.end(env)
 
 repo_credentials_test = unittest.make(_repo_credentials_test_impl)
-coursier_credential_test = unittest.make(_coursier_credential_test_impl)
+netrc_credentials_test = unittest.make(_netrc_credentials_test_impl)
 parse_netrc_test = unittest.make(_parse_netrc_test_impl)
 
 def artifact_specs_test_suite():
@@ -344,6 +390,6 @@ def artifact_specs_test_suite():
     unittest.suite(
         "util_tests",
         repo_credentials_test,
-        coursier_credential_test,
+        netrc_credentials_test,
         parse_netrc_test,
     )

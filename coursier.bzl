@@ -798,9 +798,8 @@ def make_coursier_dep_tree(
         cmd.extend(["--repository", repository["repo_url"]])
         if "credentials" in repository:
             cmd.extend(["--credentials", utils.repo_credentials(repository)])
-    for machine, props in utils.parse_netrc(get_home_netrc_contents(repository_ctx)):
-        if machine and "login" in props and "password" in props:
-            cmd.extend(["--credentials", utils.coursier_credential(machine, props["login"], props["password"])])
+    for credential in utils.netrc_credentials(get_home_netrc_contents(repository_ctx)):
+        cmd.extend(["--credentials", credential])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
 
