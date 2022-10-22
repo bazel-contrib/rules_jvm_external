@@ -268,9 +268,31 @@ def _parse_netrc_test_impl(ctx):
             "want": {"example.com": {"login": "daniel", "password": "qwerty"}},
         },
         {
+            # singleline (multiple entries)
+            "content": """
+machine example.com login daniel password qwerty
+machine github.com login alice password qwerty
+""",
+            "want": {
+                "example.com": {"login": "daniel", "password": "qwerty"},
+                "github.com": {"login": "alice", "password": "qwerty"},
+            },
+        },
+        {
             # default
             "content": "default login anonymous password user@domain",
             "want": {"": {"login": "anonymous", "password": "user@domain"}},
+        },
+        {
+            # default (at end, with another entry)
+            "content": """
+machine example.com login daniel password qwerty
+default login anonymous password user@domain
+""",
+            "want": {
+                "example.com": {"login": "daniel", "password": "qwerty"},
+                "": {"login": "anonymous", "password": "user@domain"},
+            },
         },
         {
             # macdef (skipped)

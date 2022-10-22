@@ -275,8 +275,9 @@ def _coursier_credential(hostname, username, password):
     # See https://get-coursier.io/docs/other-credentials.html#inline for docs on this format
     return hostname + " " + username + ":" + password
 
-# TODO: replace with 'load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")'
-# once bazel 5.x+ is the minimum allowed bazel version
+# copied from https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/repo/utils.bzl.
+# replace with 'load("@bazel_tools//tools/build_defs/repo:utils.bzl", "parse_netrc")'
+# once bazel 5.x+ is the minimum allowed bazel version.
 def _parse_netrc(contents, filename = None):
     """Utility function to parse at least a basic .netrc file.
 
