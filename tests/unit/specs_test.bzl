@@ -239,13 +239,61 @@ def _coursier_credential_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        "github.com: myuser:mypass",
+        "github.com myuser:mypass",
         utils.coursier_credential("github.com", "myuser", "mypass"),
     )
     return unittest.end(env)
 
+def _parse_netrc_test_impl(ctx):
+    env = unittest.begin(ctx)
+    test_cases = [
+        {
+            # degenerate case
+            "content": "",
+            "want": {},
+        },
+        {
+            # skips comments
+            "content": "# machine github.com\nlogin ghp_XXX\npassword x-oauth-basic",
+            "want": {},
+        },
+        {
+            # multiline
+            "content": "machine example.com\nlogin daniel\npassword qwerty",
+            "want": {"example.com": {"login": "daniel", "password": "qwerty"}},
+        },
+        {
+            # singleline
+            "content": "machine example.com login daniel password qwerty",
+            "want": {"example.com": {"login": "daniel", "password": "qwerty"}},
+        },
+        {
+            # default
+            "content": "default login anonymous password user@domain",
+            "want": {"": {"login": "anonymous", "password": "user@domain"}},
+        },
+        {
+            # macdef (skipped)
+            "content": """
+machine ftp.cdrom.com login username password password
+macdef init
+binary
+get /games/game1.zip /home/username/game1.zip
+quit
+            """,
+            "want": {"ftp.cdrom.com": {"login": "username", "password": "password"}},
+        },
+    ]
+    for tc in test_cases:
+        content = tc["content"]
+        want = tc["want"]
+        got = utils.parse_netrc(content)
+        asserts.equals(env, want, got)
+    return unittest.end(env)
+
 repo_credentials_test = unittest.make(_repo_credentials_test_impl)
 coursier_credential_test = unittest.make(_coursier_credential_test_impl)
+parse_netrc_test = unittest.make(_parse_netrc_test_impl)
 
 def artifact_specs_test_suite():
     unittest.suite(
@@ -275,4 +323,5 @@ def artifact_specs_test_suite():
         "util_tests",
         repo_credentials_test,
         coursier_credential_test,
+        parse_netrc_test,
     )
