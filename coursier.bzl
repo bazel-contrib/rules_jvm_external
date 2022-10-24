@@ -798,6 +798,9 @@ def make_coursier_dep_tree(
         cmd.extend(["--repository", repository["repo_url"]])
         if "credentials" in repository:
             cmd.extend(["--credentials", utils.repo_credentials(repository)])
+    if repository_ctx.attr.use_credentials_from_home_netrc_file:
+        for credential in utils.netrc_credentials(get_home_netrc_contents(repository_ctx)):
+            cmd.extend(["--credentials", credential])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
 
@@ -1259,6 +1262,7 @@ pinned_coursier_fetch = repository_rule(
         "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
         "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
+        "use_credentials_from_home_netrc_file": attr.bool(default = False, doc = "Whether to include coursier credentials gathered from the user home ~/.netrc file"),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
@@ -1293,6 +1297,7 @@ coursier_fetch = repository_rule(
         "fetch_sources": attr.bool(default = False),
         "fetch_javadoc": attr.bool(default = False),
         "use_unsafe_shared_cache": attr.bool(default = False),
+        "use_credentials_from_home_netrc_file": attr.bool(default = False, doc = "Whether to include coursier credentials gathered from the user home ~/.netrc file"),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "version_conflict_policy": attr.string(
