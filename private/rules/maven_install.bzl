@@ -1,5 +1,5 @@
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
-load("//:specs.bzl", _json = "json", "parse")
+load("//:specs.bzl", "parse", _json = "json")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 
@@ -22,6 +22,7 @@ def maven_install(
         jetify = False,
         jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
         additional_netrc_lines = [],
+        use_credentials_from_home_netrc_file = False,
         fail_if_repin_required = False,
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
@@ -37,6 +38,7 @@ def maven_install(
 
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
+      fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
       fetch_sources: Additionally fetch source JARs.
       fetch_javadoc: Additionally fetch javadoc JARs.
       use_unsafe_shared_cache: Download artifacts into a persistent shared cache on disk. Unsafe as Bazel is
@@ -63,6 +65,7 @@ def maven_install(
       jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
       additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
+      use_credentials_from_home_netrc_file: Whether to pass machine login credentials from the ~/.netrc file to coursier.
       fail_if_repin_required: Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the `maven_install_json` to have been set.
       use_starlark_android_rules: Whether to use the native or Starlark version
         of the Android rules. Default is False.
@@ -123,6 +126,7 @@ def maven_install(
         resolve_timeout = resolve_timeout,
         jetify = jetify,
         jetify_include_list = jetify_include_list,
+        use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
         use_starlark_android_rules = use_starlark_android_rules,
         aar_import_bzl_label = aar_import_bzl_label,
         duplicate_version_warning = duplicate_version_warning,
@@ -146,6 +150,7 @@ def maven_install(
             additional_netrc_lines = additional_netrc_lines,
             fail_if_repin_required = fail_if_repin_required,
             duplicate_version_warning = duplicate_version_warning,
+            use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
             use_starlark_android_rules = use_starlark_android_rules,
             aar_import_bzl_label = aar_import_bzl_label,
         )
