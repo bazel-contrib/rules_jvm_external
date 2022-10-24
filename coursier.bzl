@@ -10,6 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
+
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
@@ -103,6 +104,9 @@ def _is_verbose(repository_ctx):
 
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
+
+def _is_linux(repository_ctx):
+    return repository_ctx.os.name.find("linux") != -1
 
 def _is_macos(repository_ctx):
     return repository_ctx.os.name.find("mac") != -1
@@ -795,9 +799,8 @@ def make_coursier_dep_tree(
         if "credentials" in repository:
             cmd.extend(["--credentials", utils.repo_credentials(repository)])
     if repository_ctx.attr.use_credentials_from_home_netrc_file:
-        for machine, props in utils.parse_netrc(get_home_netrc_contents(repository_ctx)):
-            if login in props and password in props:
-                cmd.extend(["--credentials", utils.coursier_credential(machine, props["login"], props["password"])])
+        for credential in utils.netrc_credentials(get_home_netrc_contents(repository_ctx)):
+            cmd.extend(["--credentials", credential])
     for a in excluded_artifacts:
         cmd.extend(["--exclude", ":".join([a["group"], a["artifact"]])])
 
