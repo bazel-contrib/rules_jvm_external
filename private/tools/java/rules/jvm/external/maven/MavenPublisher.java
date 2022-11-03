@@ -360,7 +360,7 @@ public class MavenPublisher {
     private final String user;
     private final String password;
 
-    public BasicAuthCredentials(String user, String password ) {
+    public BasicAuthCredentials(String user, String password) {
       this.user = user == null || user.isEmpty() ? null : user;
       this.password = password == null || password.isEmpty() ? null : password;
     }
