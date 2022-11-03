@@ -17,6 +17,9 @@
 
 package rules.jvm.external.maven;
 
+import com.google.auth.Credentials;
+import com.google.auth.RequestMetadataCallback;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -39,7 +42,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +63,7 @@ public class MavenPublisher {
 
   private static final Logger LOG = Logger.getLogger(MavenPublisher.class.getName());
   private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
-  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://", "s3://"};
+  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://", "s3://", "artifactregistry://"};
 
   public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
     String repo = args[0];
@@ -67,7 +72,8 @@ public class MavenPublisher {
               + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
-    Credentials credentials = new Credentials(args[2], args[3], Boolean.parseBoolean(args[1]));
+    boolean gpgSign = Boolean.parseBoolean(args[1]);
+    Credentials credentials = new BasicAuthCredentials(args[2], args[3]);
 
     List<String> parts = Arrays.asList(args[4].split(":"));
     if (parts.size() != 3) {
@@ -84,18 +90,18 @@ public class MavenPublisher {
 
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
-      futures.add(upload(repo, credentials, coords, ".pom", pom));
+      futures.add(upload(repo, credentials, coords, ".pom", pom, gpgSign));
 
       if (binJar != null) {
-        futures.add(upload(repo, credentials, coords, ".jar", binJar));
+        futures.add(upload(repo, credentials, coords, ".jar", binJar, gpgSign));
       }
 
       if (srcJar != null) {
-        futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar));
+        futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar, gpgSign));
       }
 
       if (docJar != null) {
-        futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar));
+        futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar, gpgSign));
       }
 
       CompletableFuture<Void> all = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -126,7 +132,8 @@ public class MavenPublisher {
     Credentials credentials,
     Coordinates coords,
     String append,
-    Path item) throws IOException, InterruptedException {
+    Path item,
+    boolean gpgSign) throws IOException, InterruptedException {
 
     String base = String.format(
       "%s/%s/%s/%s/%s-%s",
@@ -149,7 +156,7 @@ public class MavenPublisher {
     uploads.add(upload(String.format("%s%s.md5", base, append), credentials, md5));
     uploads.add(upload(String.format("%s%s.sha1", base, append), credentials, sha1));
 
-    if (credentials.getGpgSign()) {
+    if (gpgSign) {
       uploads.add(upload(String.format("%s%s.asc", base, append), credentials, sign(item)));
       uploads.add(upload(String.format("%s%s.md5.asc", base, append), credentials, sign(md5)));
       uploads.add(upload(String.format("%s%s.sha1.asc", base, append), credentials, sign(sha1)));
@@ -184,6 +191,8 @@ public class MavenPublisher {
       callable = gcsUpload(targetUrl, toUpload);
     } else if (targetUrl.startsWith("s3://")) {
       callable = s3upload(targetUrl, toUpload);
+    } else if (targetUrl.startsWith("artifactregistry://")) {
+      callable = arUpload(targetUrl, toUpload);
     } else {
       callable = writeFile(targetUrl, toUpload);
     }
@@ -208,10 +217,15 @@ public class MavenPublisher {
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("PUT");
       connection.setDoOutput(true);
-      if (credentials.getUser() != null) {
-        String basicAuth = Base64.getEncoder().encodeToString(
-          String.format("%s:%s", credentials.getUser(), credentials.getPassword()).getBytes(US_ASCII));
-        connection.setRequestProperty("Authorization", "Basic " + basicAuth);
+      if (credentials != null) {
+        if (!credentials.hasRequestMetadataOnly()) {
+          throw new RuntimeException("Unsupported credentials");
+        }
+        if (credentials.hasRequestMetadata()) {
+          credentials.getRequestMetadata().forEach((k, l) -> {
+            l.forEach(v -> connection.addRequestProperty(k, v));
+          });
+        }
       }
       connection.setRequestProperty("Content-Length", "" + Files.size(toUpload));
 
@@ -289,6 +303,14 @@ public class MavenPublisher {
     };
   }
 
+  private static Callable<Void> arUpload(String targetUrl, Path toUpload) {
+    return () -> {
+      Credentials cred = GoogleCredentials.getApplicationDefault();
+      String url = "https://" + targetUrl.substring(19);
+      return httpUpload(url, cred, toUpload).call();
+    };
+  }
+
   private static Path sign(Path toSign) throws IOException, InterruptedException {
     LOG.info("Signing " + toSign);
 
@@ -334,27 +356,46 @@ public class MavenPublisher {
     }
   }
 
-  private static class Credentials {
+  private static class BasicAuthCredentials extends Credentials {
     private final String user;
     private final String password;
-    private final boolean gpgSign;
 
-    public Credentials(String user, String password, boolean gpgSign) {
+    public BasicAuthCredentials(String user, String password ) {
       this.user = user == null || user.isEmpty() ? null : user;
       this.password = password == null || password.isEmpty() ? null : password;
-      this.gpgSign = gpgSign;
     }
 
-    public String getUser() {
-      return user;
+    @Override
+    public String getAuthenticationType() {
+      return "Basic";
     }
 
-    public String getPassword() {
-      return password;
+    @Override
+    public Map<String,List<String>> getRequestMetadata() {
+      return Collections.singletonMap(
+        "Authorization", Collections.singletonList(
+          "Basic " + Base64.getEncoder().encodeToString(
+          String.format("%s:%s", user, password).getBytes(US_ASCII)))
+      );
     }
 
-    public boolean getGpgSign() {
-      return gpgSign;
+    @Override
+    public Map<String,List<String>> getRequestMetadata(URI uri) {
+      return getRequestMetadata();
+    }
+
+    @Override
+    public boolean hasRequestMetadata() {
+      return true;
+    }
+
+    @Override
+    public boolean hasRequestMetadataOnly() {
+      return true;
+    }
+
+    @Override
+    public void refresh() {
     }
   }
 }
