@@ -1081,6 +1081,10 @@ Or, to publish to an Amazon S3 bucket:
 
 `bazel run --define "maven_repo=s3://example-bucket/repository" //user_project:exported_lib.publish`
 
+Or, to publish to a GCP Artifact Registry:
+
+`bazel run --define "maven_repo=artifactregistry://us-west1-maven.pkg.dev/project/repository" //user_project:exported_lib.publish`
+
 When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
 

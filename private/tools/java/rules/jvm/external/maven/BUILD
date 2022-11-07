@@ -8,6 +8,14 @@ java_binary(
     deps = [
         "//private/tools/java/rules/jvm/external:byte-streams",
         artifact(
+            "com.google.auth:google-auth-library-oauth2-http",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "com.google.auth:google-auth-library-credentials",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "com.google.cloud:google-cloud-storage",
             repository_name = "rules_jvm_external_deps",
         ),
