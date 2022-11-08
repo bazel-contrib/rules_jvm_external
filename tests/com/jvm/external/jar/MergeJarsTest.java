@@ -436,6 +436,26 @@ public class MergeJarsTest {
   }
 
   @Test
+  public void shouldCreateIntermediateDirectoriesEvenIfTheyExistInTheSourceJar() throws IOException {
+    Path input = temp.newFile("example.jar").toPath();
+    createJar(input, ImmutableMap.of(
+            "foo/", "",
+            "foo/bar", "",
+            "foo/bar/baz.txt", "cheese"));
+
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(new String[] {
+            "--output", output.toAbsolutePath().toString(),
+            "--sources", input.toAbsolutePath().toString(),
+    });
+
+    List<String> dirNames = readDirNames(output);
+    assertTrue(dirNames.contains("foo/"));
+    assertTrue(dirNames.contains("foo/bar/"));
+  }
+
+  @Test
   public void mergedJarManifestSpecialAttributesAreHandled() throws IOException {
     // This is required to allow JarInputStream to read the manifest properly
     Path inputOne = temp.newFile("one.jar").toPath();
@@ -471,7 +491,9 @@ public class MergeJarsTest {
       for (Map.Entry<String, String> entry : pathToContents.entrySet()) {
         ZipEntry ze = new StableZipEntry(entry.getKey());
         zos.putNextEntry(ze);
-        zos.write(entry.getValue().getBytes(UTF_8));
+        if (!ze.isDirectory()) {
+          zos.write(entry.getValue().getBytes(UTF_8));
+        }
         zos.closeEntry();
       }
     }

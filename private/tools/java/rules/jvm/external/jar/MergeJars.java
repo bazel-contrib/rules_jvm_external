@@ -118,7 +118,6 @@ public class MergeJars {
     Map<String, Path> fileToSourceJar = new TreeMap<>();
     Map<String, byte[]> fileHashCodes = new HashMap<>();
 
-    Set<String> createdDirectories = new HashSet<>();
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
            ZipInputStream zis = new ZipInputStream(fis)) {
@@ -144,10 +143,7 @@ public class MergeJars {
             continue;
           }
 
-          if (entry.isDirectory() && createdDirectories.add(entry.getName())) {
-            fileToSourceJar.put(entry.getName(), source);
-            createdDirectories.add(entry.getName());
-          } else {
+          if (!entry.isDirectory()) {
             // Duplicate files, however may not be. We need the hash to determine
             // whether we should do anything.
             byte[] hash = hash(zis);
@@ -175,6 +171,9 @@ public class MergeJars {
 
     // Now create the output jar
     Files.createDirectories(out.getParent());
+
+    Set<String> createdDirectories = new HashSet<>();
+
     try (OutputStream os = Files.newOutputStream(out);
          JarOutputStream jos = new JarOutputStream(os)) {
       jos.setMethod(DEFLATED);
