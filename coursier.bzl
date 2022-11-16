@@ -875,6 +875,11 @@ def _download_jq(repository_ctx):
     for (os, value) in JQ_VERSIONS.items():
         repository_ctx.download(value.url, "jq-%s" % os, sha256 = value.sha256, executable = True)
 
+def remove_prefix(s, prefix):
+    if s.startswith(prefix):
+        return s[len(prefix):]
+    return s
+
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
@@ -1050,7 +1055,7 @@ def _coursier_fetch_impl(repository_ctx):
         # and no password, as it has noe function and obfuscates changes to the pinned json
         credential_marker = primary_url.find("@")
         if credential_marker > -1:
-          potential_credentials = primary_url[:credential_marker+1].removeprefix(protocol + "://")
+          potential_credentials = remove_prefix(primary_url[:credential_marker+1], protocol + "://")
           if len(potential_credentials.split(':')) == 1:
             primary_url = primary_url.replace(potential_credentials, "")
 
