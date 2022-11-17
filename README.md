@@ -1088,6 +1088,17 @@ Or, to publish to a GCP Artifact Registry:
 When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
 
+## IPv6 support
+
+Certain IPv4/IPv6 dual-stack environments may require flags to override the default settings for downloading dependencies, for both Bazel's native downloader and Coursier as a downloader:
+
+Add: 
+
+* `startup --host_jvm_args=-Djava.net.preferIPv6Addresses=true` to your `.bazelrc` file for Bazel's native downloader.
+* `-Djava.net.preferIPv6Addresses=true to the `COURSIER_OPTS` environment variable to provide JVM options for Coursier.
+
+For more information, read the [official docs for IPv6 support in Bazel](https://bazel.build/docs/external#support-for-ipv6).
+
 ## Demo
 
 You can find demos in the [`examples/`](./examples/) directory.
