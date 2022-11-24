@@ -9,7 +9,7 @@ _DEFAULT_REPOSITORIES = [
     "https://maven.google.com",
 ]
 
-def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
+def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES, fail_if_repin_required = True, strict_visibility = True):
     maybe(
         http_archive,
         name = "bazel_skylib",
@@ -32,7 +32,7 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             "software.amazon.awssdk:s3:2.17.183",
         ],
         maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
-        fail_if_repin_required = True,
-        strict_visibility = True,
+        fail_if_repin_required = fail_if_repin_required,
+        strict_visibility = strict_visibility,
         repositories = repositories,
     )
