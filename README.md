@@ -1092,7 +1092,7 @@ signing, and the `gpg` binary needs to be installed on the machine.
 
 Certain IPv4/IPv6 dual-stack environments may require flags to override the default settings for downloading dependencies, for both Bazel's native downloader and Coursier as a downloader:
 
-Add: 
+Add:
 
 * `startup --host_jvm_args=-Djava.net.preferIPv6Addresses=true` to your `.bazelrc` file for Bazel's native downloader.
 * `-Djava.net.preferIPv6Addresses=true to the `COURSIER_OPTS` environment variable to provide JVM options for Coursier.
@@ -1120,6 +1120,8 @@ $ RJE_VERBOSE=true bazel run @unpinned_maven//:pin
 ```
 
 ### Tests
+
+In order to run tests, your system must have an Android SDK installed. You can install the Android SDK using [Android Studio](https://developer.android.com/studio), or through most system package managers.
 
 ```
 $ bazel test //...
