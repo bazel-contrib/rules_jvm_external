@@ -37,6 +37,7 @@ Table of Contents
          * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
          * [Jetifier](#jetifier)
          * [Duplicate artifact warning](#duplicate-artifact-warning)
+         * [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
       * [Publishing to external repositories](#publishing-to-external-repositories)
       * [Demo](#demo)
@@ -964,6 +965,49 @@ Assume you'd like to override Coursier's memory settings:
 
 ```bash
 COURSIER_OPTS="-Xms1g -Xmx4g"
+```
+
+### Resolving issues with nonstandard system default JDKs
+
+Try to use OpenJDK explicitly if your machine or environment is set up to use a non-standard default implementation of the JDK and you encounter errors similar to the following:
+
+```
+java.lang.NullPointerException
+	at java.base/jdk.internal.reflect.UnsafeFieldAccessorImpl.ensureObj(UnsafeFieldAccessorImpl.java:58)
+	at java.base/jdk.internal.reflect.UnsafeObjectFieldAccessorImpl.get(UnsafeObjectFieldAccessorImpl.java:36)
+	at java.base/java.lang.reflect.Field.get(Field.java:418)
+	at org.robolectric.shadows.ShadowActivityThread$_ActivityThread_$$Reflector0.getActivities(Unknown Source)
+	at org.robolectric.shadows.ShadowActivityThread.reset(ShadowActivityThread.java:277)
+	at org.robolectric.Shadows.reset(Shadows.java:2499)
+	at org.robolectric.android.internal.AndroidTestEnvironment.resetState(AndroidTestEnvironment.java:640)
+	at org.robolectric.RobolectricTestRunner.lambda$finallyAfterTest$0(RobolectricTestRunner.java:361)
+	at org.robolectric.util.PerfStatsCollector.measure(PerfStatsCollector.java:86)
+	at org.robolectric.RobolectricTestRunner.finallyAfterTest(RobolectricTestRunner.java:359)
+	at org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:296)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:99)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:830)
+```
+
+or
+
+```
+java.lang.UnsatisfiedLinkError: libstdc++.so.6: cannot open shared object file: No such file or directory
+	at java.base/java.lang.ClassLoader$NativeLibrary.load0(Native Method)
+	at java.base/java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:2444)
+	at java.base/java.lang.ClassLoader$NativeLibrary.loadLibrary(ClassLoader.java:2500)
+	at java.base/java.lang.ClassLoader.loadLibrary0(ClassLoader.java:2716)
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2629)
+	at java.base/java.lang.Runtime.load0(Runtime.java:769)
+	at java.base/java.lang.System.load(System.java:1840)
+	at org.conscrypt.NativeLibraryUtil.loadLibrary(NativeLibraryUtil.java:52)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+  ...
 ```
 
 ## Exporting and consuming artifacts from external repositories
