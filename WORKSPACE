@@ -57,27 +57,38 @@ kt_register_toolchains()
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
 http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "493bb318d98bb7492cb30e534ad33df2fc5539b43d4dcc4e294a5cc60a126902",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.5.4/rules_nodejs-5.5.4.tar.gz"],
+    name = "aspect_rules_js",
+    sha256 = "0707a425093704fab05fb91c3a4b62cf22dca18ea334d8a72f156d4c18e8db90",
+    strip_prefix = "rules_js-1.3.1",
+    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.3.1.tar.gz",
 )
 
-load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 
-build_bazel_rules_nodejs_dependencies()
+rules_js_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
-node_repositories(
+nodejs_register_toolchains(
+    name = "nodejs",
     node_version = "16.17.0",
-    yarn_version = "1.22.19",
 )
 
-yarn_install(
+load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock")
+
+npm_translate_lock(
     name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+    # Workaround https://github.com/textlint/textlint/issues/903
+    public_hoist_packages = {
+        "mdast-util-gfm-autolink-literal": [""],
+    }
 )
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()
 
 # Begin test dependencies
 
