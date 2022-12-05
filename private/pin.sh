@@ -13,7 +13,7 @@ if [ "{predefined_maven_install}" = "True" ]; then
     echo "Successfully pinned resolved artifacts for @{repository_name}, $maven_install_json_loc is now up-to-date."
 else
     echo "Successfully pinned resolved artifacts for @{repository_name} in $maven_install_json_loc." \
-      "This file should be checked in your version control system."
+      "This file should be checked into your version control system."
     echo
     echo "Next, please update your WORKSPACE file by adding the maven_install_json attribute" \
       "and loading pinned_maven_install from @{repository_name}//:defs.bzl".
