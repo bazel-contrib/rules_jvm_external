@@ -191,18 +191,19 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
-      relative_path = absolute_path_parts[1]
-      # Coursier prefixes private repositories with the username, which obfuscates
-      # changes to the pinned json so we remove it from the relative path.
-      credential_marker = relative_path.find("%40")
-      if credential_marker > -1:
-        user_prefix = relative_path[:credential_marker+3].split("/")[-1]
-        relative_path = relative_path.replace(user_prefix, "")
+        relative_path = absolute_path_parts[1]
 
-      # Make a symlink from the absolute path of the artifact to the relative
-      # path within the output_base/external.
-      artifact_relative_path = "v1" + relative_path
-      repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
+        # Coursier prefixes private repositories with the username, which obfuscates
+        # changes to the pinned json so we remove it from the relative path.
+        credential_marker = relative_path.find("%40")
+        if credential_marker > -1:
+            user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
+            relative_path = relative_path.replace(user_prefix, "")
+
+        # Make a symlink from the absolute path of the artifact to the relative
+        # path within the output_base/external.
+        artifact_relative_path = "v1" + relative_path
+        repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
 
 # Relativize an absolute path to an artifact in maven local.
@@ -1049,15 +1050,14 @@ def _coursier_fetch_impl(repository_ctx):
         # https://repo1.maven.org/maven2/org/threeten/threetenbp/1.3.3/threetenbp-1.3.3.jar
         primary_url = "".join(primary_url_parts).replace("%3A", ":").replace("%40", "@")
 
-
         # Coursier prepends the username from the provided credentials if needed to authenticate
         # with the repository. We remove it from the url and file attributes if only the username is present
         # and no password, as it has noe function and obfuscates changes to the pinned json
         credential_marker = primary_url.find("@")
         if credential_marker > -1:
-          potential_credentials = remove_prefix(primary_url[:credential_marker+1], protocol + "://")
-          if len(potential_credentials.split(':')) == 1:
-            primary_url = primary_url.replace(potential_credentials, "")
+            potential_credentials = remove_prefix(primary_url[:credential_marker + 1], protocol + "://")
+            if len(potential_credentials.split(":")) == 1:
+                primary_url = primary_url.replace(potential_credentials, "")
 
         artifact.update({"url": primary_url})
 

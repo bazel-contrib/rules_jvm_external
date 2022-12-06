@@ -15,7 +15,7 @@
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
 
-load ("//:specs.bzl", "parse")
+load("//:specs.bzl", "parse")
 
 SUPPORTED_PACKAGING_TYPES = [
     "jar",
@@ -38,7 +38,7 @@ PLATFORM_CLASSIFIER = [
     "linux-x86_64",
     "osx-aarch_64",
     "osx-x86_64",
-    "windows-x86_64"
+    "windows-x86_64",
 ]
 
 def strip_packaging_and_classifier(coord):
@@ -80,7 +80,6 @@ def get_classifier(coord):
     # Get classifier from the following maven coordinate
     return parse.parse_maven_coordinate(coord).get("classifier", None)
 
-
 def escape(string):
     for char in [".", "-", ":", "/", "+"]:
         string = string.replace(char, "_")
@@ -88,4 +87,4 @@ def escape(string):
 
 def is_maven_local_path(absolute_path):
     # Return whether or not the provided absolute path corresponds to maven local
-    return absolute_path and len(absolute_path.split(".m2/repository")) == 2 
+    return absolute_path and len(absolute_path.split(".m2/repository")) == 2
