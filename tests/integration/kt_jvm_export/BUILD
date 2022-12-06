@@ -3,8 +3,8 @@ load("//:kt_defs.bzl", "kt_jvm_export")
 kt_jvm_export(
     name = "test",
     srcs = [
-        "Main.kt",
         "Dependency.kt",
+        "Main.kt",
     ],
     maven_coordinates = "com.example:kt:1.0.0",
 )

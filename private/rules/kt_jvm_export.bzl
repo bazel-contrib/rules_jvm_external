@@ -84,5 +84,5 @@ def kt_jvm_export(
         tags,
         testonly,
         lib_name,
-        javadocopts
+        javadocopts,
     )
