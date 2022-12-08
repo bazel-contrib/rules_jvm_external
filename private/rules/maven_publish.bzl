@@ -22,6 +22,8 @@ def _maven_publish_impl(ctx):
     user = ctx.var.get("maven_user", "''")
     password = ctx.var.get("maven_password", "''")
 
+    # Expand maven coordinates for any variables to be replaced.
+    coordinates = ctx.expand_make_variables("coordinates", ctx.attr.coordinates,{})
     artifacts_short_path = ctx.file.artifact_jar.short_path if ctx.file.artifact_jar else "''"
     source_short_path = ctx.file.source_jar.short_path if ctx.file.source_jar else "''"
     javadocs_short_path = ctx.file.javadocs.short_path if ctx.file.javadocs else "''"
@@ -31,7 +33,7 @@ def _maven_publish_impl(ctx):
         is_executable = True,
         content = _TEMPLATE.format(
             uploader = ctx.executable._uploader.short_path,
-            coordinates = ctx.attr.coordinates,
+            coordinates = coordinates,
             gpg_sign = gpg_sign,
             maven_repo = maven_repo,
             password = password,
@@ -61,7 +63,7 @@ def _maven_publish_impl(ctx):
             ).merge(ctx.attr._uploader[DefaultInfo].data_runfiles),
         ),
         MavenPublishInfo(
-            coordinates = ctx.attr.coordinates,
+            coordinates = coordinates,
             artifact_jar = ctx.file.artifact_jar,
             javadocs = ctx.file.javadocs,
             source_jar = ctx.file.source_jar,
