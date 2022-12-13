@@ -1,5 +1,4 @@
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
-load("//private/rules:maven_utils.bzl", "unpack_coordinates")
 load("//:specs.bzl", "parse", _json = "json")
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load(":download_pinned_deps.bzl", "download_pinned_deps")

@@ -1,16 +1,12 @@
 package rules.jvm.external.javadoc;
 
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Scanner;
 
 /**
- * Compares two java version numbers by splitting on periods and comparing
- * numerical values. Only designed for handling java version numbers, and
- * so isn't generalised or particularly robust.
- * <p>
- * Replaced by {@code Runtime.Version} in Java 9, but we need to support
- * java 8 too.
+ * Compares two java version numbers by splitting on periods and comparing numerical values. Only
+ * designed for handling java version numbers, and so isn't generalised or particularly robust.
+ *
+ * <p>Replaced by {@code Runtime.Version} in Java 9, but we need to support java 8 too.
  */
 public class Version implements Comparable<Version> {
 

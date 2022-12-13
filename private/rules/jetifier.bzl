@@ -31,7 +31,7 @@ jetify = rule(
         "_jetifier": attr.label(
             executable = True,
             default = Label("@rules_jvm_external//third_party/jetifier"),
-            cfg = "host",
+            cfg = "exec",
         ),
     },
     implementation = _jetify_impl,

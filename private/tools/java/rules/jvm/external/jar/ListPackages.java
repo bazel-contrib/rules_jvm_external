@@ -21,7 +21,8 @@ import java.util.zip.ZipInputStream;
 
 public class ListPackages {
 
-  private static final Predicate<String> IS_NUMERIC_VERSION = Pattern.compile("[1-9][0-9]*").asPredicate();
+  private static final Predicate<String> IS_NUMERIC_VERSION =
+      Pattern.compile("[1-9][0-9]*").asPredicate();
 
   public static void main(String[] args) throws IOException {
     if (args.length != 2 || !"--argsfile".equals(args[0])) {
@@ -29,24 +30,26 @@ public class ListPackages {
       System.exit(1);
     }
 
-    TreeMap<String, SortedSet<String>> index = Files.lines(Paths.get(args[1]))
-        .parallel()
-        .map(path -> {
-          try {
-            SortedSet<String> packages = process(Paths.get(path));
-            return new AbstractMap.SimpleEntry<>(path, packages);
-          } catch (IOException e) {
-            throw new UncheckedIOException(e);
-          }
-        })
-        .collect(Collectors.toMap(
-            entry -> entry.getKey(),
-            entry -> entry.getValue(),
-            (left, right) -> {
-              throw new RuntimeException("Duplicate keys detected but not expected");
-            },
-            TreeMap::new
-        ));
+    TreeMap<String, SortedSet<String>> index =
+        Files.lines(Paths.get(args[1]))
+            .parallel()
+            .map(
+                path -> {
+                  try {
+                    SortedSet<String> packages = process(Paths.get(path));
+                    return new AbstractMap.SimpleEntry<>(path, packages);
+                  } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                  }
+                })
+            .collect(
+                Collectors.toMap(
+                    entry -> entry.getKey(),
+                    entry -> entry.getValue(),
+                    (left, right) -> {
+                      throw new RuntimeException("Duplicate keys detected but not expected");
+                    },
+                    TreeMap::new));
     System.out.println(new Gson().toJson(index));
   }
 
@@ -60,7 +63,8 @@ public class ListPackages {
         if (!entry.getName().endsWith(".class")) {
           continue;
         }
-        if ("module-info.class".equals(entry.getName()) || entry.getName().endsWith("/module-info.class")) {
+        if ("module-info.class".equals(entry.getName())
+            || entry.getName().endsWith("/module-info.class")) {
           continue;
         }
         packages.add(extractPackageName(entry.getName()));
@@ -76,7 +80,10 @@ public class ListPackages {
     }
     int skip = 0;
     // As per https://docs.oracle.com/en/java/javase/13/docs/specs/jar/jar.html
-    if (parts.length > 3 && "META-INF".equals(parts[0]) && "versions".equals(parts[1]) && isNumericVersion(parts[2])) {
+    if (parts.length > 3
+        && "META-INF".equals(parts[0])
+        && "versions".equals(parts[1])
+        && isNumericVersion(parts[2])) {
       skip = 3;
     }
 

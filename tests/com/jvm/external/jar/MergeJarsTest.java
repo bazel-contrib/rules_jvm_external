@@ -1,16 +1,11 @@
 package com.jvm.external.jar;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.*;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import rules.jvm.external.jar.MergeJars;
-import rules.jvm.external.zip.StableZipEntry;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,33 +13,30 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.*;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import rules.jvm.external.jar.MergeJars;
+import rules.jvm.external.zip.StableZipEntry;
 
 public class MergeJarsTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @Rule public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void shouldGenerateAnEmptyJarIfNoSourcesAreGiven() throws IOException {
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{"--output", outputJar.toAbsolutePath().toString()});
+    MergeJars.main(new String[] {"--output", outputJar.toAbsolutePath().toString()});
 
     assertTrue(Files.exists(outputJar));
     assertTrue(Files.size(outputJar) > 0);
@@ -57,9 +49,11 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and one file
@@ -77,10 +71,12 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString(),
-      "--sources", inputTwo.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and one file
@@ -100,10 +96,12 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString(),
-      "--sources", inputTwo.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and one file
@@ -112,7 +110,8 @@ public class MergeJarsTest {
   }
 
   @Test
-  public void shouldBeAbleToSpecifyThatFirstSeenClassShouldBeIncludedInMergedJar() throws IOException {
+  public void shouldBeAbleToSpecifyThatFirstSeenClassShouldBeIncludedInMergedJar()
+      throws IOException {
     // Create jars with names such that the first is sorted after the second
     Path inputOne = temp.newFile("beta.jar").toPath();
     createJar(inputOne, ImmutableMap.of("com/example/A.class", "Hello, World!"));
@@ -122,11 +121,13 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString(),
-      "--sources", inputTwo.toAbsolutePath().toString(),
-      "--duplicates", "first-wins"});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--duplicates", "first-wins"
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and one file
@@ -145,11 +146,13 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString(),
-      "--sources", inputTwo.toAbsolutePath().toString(),
-      "--duplicates", "are-errors"});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--duplicates", "are-errors"
+        });
   }
 
   @Test
@@ -163,11 +166,13 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString(),
-      "--sources", inputTwo.toAbsolutePath().toString(),
-      "--duplicates", "are-errors"});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--duplicates", "are-errors"
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and one file
@@ -178,20 +183,25 @@ public class MergeJarsTest {
   @Test
   public void shouldUseDifferentTimesForSourceAndClassFiles() throws IOException {
     Path inputOne = temp.newFile("first.jar").toPath();
-    createJar(inputOne, new ImmutableMap.Builder<String, String>()
-      .put("com/example/A.class", "Hello, Class!")
-      .put("com/example/A.java", "Hello, Source!")
-      .build());
+    createJar(
+        inputOne,
+        new ImmutableMap.Builder<String, String>()
+            .put("com/example/A.class", "Hello, Class!")
+            .put("com/example/A.java", "Hello, Source!")
+            .build());
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", inputOne.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString()
+        });
 
     Map<String, Long> entryTimestamps = readJarTimeStamps(outputJar);
     assertEquals(3, entryTimestamps.size());
-    assertTrue(entryTimestamps.get("com/example/A.class") > entryTimestamps.get("com/example/A.java"));
+    assertTrue(
+        entryTimestamps.get("com/example/A.class") > entryTimestamps.get("com/example/A.java"));
   }
 
   @Test
@@ -199,20 +209,22 @@ public class MergeJarsTest {
     // Create jars with names such that the first is sorted after the second
     Path includeFrom = temp.newFile("include.jar").toPath();
     createJar(
-      includeFrom,
-      ImmutableMap.of(
-        "com/example/A.class", "Hello, World!",
-        "com/example/B.class", "I like cheese!"));
+        includeFrom,
+        ImmutableMap.of(
+            "com/example/A.class", "Hello, World!",
+            "com/example/B.class", "I like cheese!"));
 
     Path excludeFrom = temp.newFile("exclude.jar").toPath();
     createJar(excludeFrom, ImmutableMap.of("com/example/A.class", "Something else!"));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", includeFrom.toAbsolutePath().toString(),
-      "--exclude", excludeFrom.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", includeFrom.toAbsolutePath().toString(),
+          "--exclude", excludeFrom.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and one file
@@ -224,20 +236,19 @@ public class MergeJarsTest {
   public void shouldNotIncludeManifestOrMetaInfEntriesFromExclusions() throws IOException {
     // Create jars with names such that the first is sorted after the second
     Path includeFrom = temp.newFile("include.jar").toPath();
-    createJar(
-      includeFrom,
-      ImmutableMap.of(
-        "META-INF/foo", "Hello, World!"));
+    createJar(includeFrom, ImmutableMap.of("META-INF/foo", "Hello, World!"));
 
     Path excludeFrom = temp.newFile("exclude.jar").toPath();
     createJar(excludeFrom, ImmutableMap.of("META-INF/foo", "Something else!"));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--sources", includeFrom.toAbsolutePath().toString(),
-      "--exclude", excludeFrom.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", includeFrom.toAbsolutePath().toString(),
+          "--exclude", excludeFrom.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
     // We expect the manifest and the one meta inf entry
@@ -255,10 +266,12 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--sources", inputTwo.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
 
@@ -273,7 +286,7 @@ public class MergeJarsTest {
 
     // We actually need the directory entries this time
     try (OutputStream os = Files.newOutputStream(inputOne);
-         ZipOutputStream zos = new ZipOutputStream(os)) {
+        ZipOutputStream zos = new ZipOutputStream(os)) {
       ZipEntry e = new ZipEntry("META-INF/services/");
       zos.putNextEntry(e);
       zos.closeEntry();
@@ -285,7 +298,7 @@ public class MergeJarsTest {
 
     Path inputTwo = temp.newFile("two.jar").toPath();
     try (OutputStream os = Files.newOutputStream(inputTwo);
-         ZipOutputStream zos = new ZipOutputStream(os)) {
+        ZipOutputStream zos = new ZipOutputStream(os)) {
       ZipEntry e = new ZipEntry("META-INF/services/");
       zos.putNextEntry(e);
       zos.closeEntry();
@@ -297,11 +310,12 @@ public class MergeJarsTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--sources", inputTwo.toAbsolutePath().toString()});
-
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString()
+        });
 
     Map<String, String> contents = readJar(outputJar);
     assertTrue(contents.containsKey("META-INF/services/one.txt"));
@@ -321,11 +335,11 @@ public class MergeJarsTest {
 
     // Note: none of these jars have the manifest as one of the first two entries
     createJar(
-            inputOne,
-            ImmutableMap.of(
-                    "META-INF/MANA", "Yellow!",
-                    "META-INF/MANB", "Red!",
-                    "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
+        inputOne,
+        ImmutableMap.of(
+            "META-INF/MANA", "Yellow!",
+            "META-INF/MANB", "Red!",
+            "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
 
     Path inputTwo = temp.newFile("two.jar").toPath();
 
@@ -336,26 +350,29 @@ public class MergeJarsTest {
     secondManifest.write(bos);
 
     createJar(
-            inputTwo,
-            ImmutableMap.of(
-                    "META-INF/MANC", "Purple!",
-                    "META-INF/MAND", "Green!",
-                    "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
+        inputTwo,
+        ImmutableMap.of(
+            "META-INF/MANC", "Purple!",
+            "META-INF/MAND", "Green!",
+            "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--sources", inputTwo.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString()
+        });
 
     try (InputStream is = Files.newInputStream(outputJar);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
       Set<String> names = new HashSet<>();
       names.add(zis.getNextEntry().getName());
       names.add(zis.getNextEntry().getName());
 
-      assertTrue("Manifest is not one of the first entries.", names.contains("META-INF/MANIFEST.MF"));
+      assertTrue(
+          "Manifest is not one of the first entries.", names.contains("META-INF/MANIFEST.MF"));
     }
   }
 
@@ -366,10 +383,11 @@ public class MergeJarsTest {
 
     Path output = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[] {
-            "--output", output.toAbsolutePath().toString(),
-            "--sources", input.toAbsolutePath().toString(),
-    });
+    MergeJars.main(
+        new String[] {
+          "--output", output.toAbsolutePath().toString(),
+          "--sources", input.toAbsolutePath().toString(),
+        });
 
     List<String> dirNames = readDirNames(output);
 
@@ -380,16 +398,19 @@ public class MergeJarsTest {
   @Test
   public void shouldNotBeConfusedBySimilarNamesWhenCreatingDirectories() throws IOException {
     Path input = temp.newFile("example.jar").toPath();
-    createJar(input, ImmutableMap.of(
+    createJar(
+        input,
+        ImmutableMap.of(
             "foo/bar/baz.txt", "Hello, World!",
             "foo/bar/baz/qux.txt", "Goodbye, cruel World!"));
 
     Path output = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[] {
-            "--output", output.toAbsolutePath().toString(),
-            "--sources", input.toAbsolutePath().toString(),
-    });
+    MergeJars.main(
+        new String[] {
+          "--output", output.toAbsolutePath().toString(),
+          "--sources", input.toAbsolutePath().toString(),
+        });
 
     List<String> dirNames = readDirNames(output);
 
@@ -403,18 +424,22 @@ public class MergeJarsTest {
   }
 
   @Test
-  public void orderingOfAutomaticallyCreatedDirectoriesIsConduciveToSensibleUnpacking() throws IOException {
+  public void orderingOfAutomaticallyCreatedDirectoriesIsConduciveToSensibleUnpacking()
+      throws IOException {
     Path input = temp.newFile("example.jar").toPath();
-    createJar(input, ImmutableMap.of(
+    createJar(
+        input,
+        ImmutableMap.of(
             "foo/bar/baz/qux/quux.txt", "Greetings, fellow mortal",
             "foo/bar/baz.txt", "Hello, World!"));
 
     Path output = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[] {
-            "--output", output.toAbsolutePath().toString(),
-            "--sources", input.toAbsolutePath().toString(),
-    });
+    MergeJars.main(
+        new String[] {
+          "--output", output.toAbsolutePath().toString(),
+          "--sources", input.toAbsolutePath().toString(),
+        });
 
     // We want `foo/` to appear before `foo/bar/` and so on so that a simple unzipper can
     // just walk the zip, creating directories as it goes, and have everything work the
@@ -436,19 +461,23 @@ public class MergeJarsTest {
   }
 
   @Test
-  public void shouldCreateIntermediateDirectoriesEvenIfTheyExistInTheSourceJar() throws IOException {
+  public void shouldCreateIntermediateDirectoriesEvenIfTheyExistInTheSourceJar()
+      throws IOException {
     Path input = temp.newFile("example.jar").toPath();
-    createJar(input, ImmutableMap.of(
+    createJar(
+        input,
+        ImmutableMap.of(
             "foo/", "",
             "foo/bar", "",
             "foo/bar/baz.txt", "cheese"));
 
     Path output = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[] {
-            "--output", output.toAbsolutePath().toString(),
-            "--sources", input.toAbsolutePath().toString(),
-    });
+    MergeJars.main(
+        new String[] {
+          "--output", output.toAbsolutePath().toString(),
+          "--sources", input.toAbsolutePath().toString(),
+        });
 
     List<String> dirNames = readDirNames(output);
     assertTrue(dirNames.contains("foo/"));
@@ -463,30 +492,33 @@ public class MergeJarsTest {
     Manifest firstManifest = new Manifest();
     firstManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
     firstManifest.getMainAttributes().put(new Attributes.Name("First"), "foo");
-    firstManifest.getMainAttributes().put(new Attributes.Name("Target-Label"), "@secret_corp//:foo");
+    firstManifest
+        .getMainAttributes()
+        .put(new Attributes.Name("Target-Label"), "@secret_corp//:foo");
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     firstManifest.write(bos);
 
-    createJar(
-            inputOne,
-            ImmutableMap.of(
-                    "META-INF/MANIFEST.MF", bos.toString("UTF-8")));
+    createJar(inputOne, ImmutableMap.of("META-INF/MANIFEST.MF", bos.toString("UTF-8")));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    MergeJars.main(new String[]{
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString()
+        });
 
     try (JarFile jar = new JarFile(outputJar.toFile())) {
-      assertTrue(jar.getManifest().getMainAttributes().containsKey(new Attributes.Name("Created-By")));
-      assertFalse(jar.getManifest().getMainAttributes().containsKey(new Attributes.Name("Target-Label")));
+      assertTrue(
+          jar.getManifest().getMainAttributes().containsKey(new Attributes.Name("Created-By")));
+      assertFalse(
+          jar.getManifest().getMainAttributes().containsKey(new Attributes.Name("Target-Label")));
     }
   }
 
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
-         ZipOutputStream zos = new ZipOutputStream(os)) {
+        ZipOutputStream zos = new ZipOutputStream(os)) {
 
       for (Map.Entry<String, String> entry : pathToContents.entrySet()) {
         ZipEntry ze = new StableZipEntry(entry.getKey());
@@ -503,7 +535,7 @@ public class MergeJarsTest {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
     try (InputStream is = Files.newInputStream(jar);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
 
       for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
         if (entry.isDirectory()) {
@@ -521,7 +553,7 @@ public class MergeJarsTest {
     ImmutableMap.Builder<String, Long> builder = ImmutableMap.builder();
 
     try (InputStream is = Files.newInputStream(jar);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
 
       for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
         if (entry.isDirectory()) {
@@ -540,7 +572,7 @@ public class MergeJarsTest {
     ImmutableList.Builder<String> dirNames = ImmutableList.builder();
 
     try (InputStream is = Files.newInputStream(output);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
       ZipEntry entry = zis.getNextEntry();
       while (entry != null) {
         if (entry.isDirectory()) {

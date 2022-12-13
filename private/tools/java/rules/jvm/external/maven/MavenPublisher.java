@@ -17,15 +17,16 @@
 
 package rules.jvm.external.maven;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import com.google.auth.Credentials;
-import com.google.auth.RequestMetadataCallback;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import rules.jvm.external.ByteStreams;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,23 +53,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
+import rules.jvm.external.ByteStreams;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class MavenPublisher {
 
   private static final Logger LOG = Logger.getLogger(MavenPublisher.class.getName());
   private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
-  private static final String[] SUPPORTED_SCHEMES = {"file:/", "https://", "gs://", "s3://", "artifactregistry://"};
+  private static final String[] SUPPORTED_SCHEMES = {
+    "file:/", "https://", "gs://", "s3://", "artifactregistry://"
+  };
 
-  public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+  public static void main(String[] args)
+      throws IOException, InterruptedException, ExecutionException, TimeoutException {
     String repo = args[0];
     if (!isSchemeSupported(repo)) {
-      throw new IllegalArgumentException("Repository must be accessed via the supported schemes: "
+      throw new IllegalArgumentException(
+          "Repository must be accessed via the supported schemes: "
               + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
@@ -104,7 +106,8 @@ public class MavenPublisher {
         futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar, gpgSign));
       }
 
-      CompletableFuture<Void> all = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+      CompletableFuture<Void> all =
+          CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
       all.get(30, MINUTES);
     } finally {
       EXECUTOR.shutdown();
@@ -128,21 +131,23 @@ public class MavenPublisher {
   }
 
   private static CompletableFuture<Void> upload(
-    String repo,
-    Credentials credentials,
-    Coordinates coords,
-    String append,
-    Path item,
-    boolean gpgSign) throws IOException, InterruptedException {
+      String repo,
+      Credentials credentials,
+      Coordinates coords,
+      String append,
+      Path item,
+      boolean gpgSign)
+      throws IOException, InterruptedException {
 
-    String base = String.format(
-      "%s/%s/%s/%s/%s-%s",
-      repo.replaceAll("/$", ""),
-      coords.groupId.replace('.', '/'),
-      coords.artifactId,
-      coords.version,
-      coords.artifactId,
-      coords.version);
+    String base =
+        String.format(
+            "%s/%s/%s/%s/%s-%s",
+            repo.replaceAll("/$", ""),
+            coords.groupId.replace('.', '/'),
+            coords.artifactId,
+            coords.version,
+            coords.artifactId,
+            coords.version);
 
     byte[] toHash = Files.readAllBytes(item);
     Path md5 = Files.createTempFile(item.getFileName().toString(), ".md5");
@@ -183,7 +188,8 @@ public class MavenPublisher {
     }
   }
 
-  private static CompletableFuture<Void> upload(String targetUrl, Credentials credentials, Path toUpload) {
+  private static CompletableFuture<Void> upload(
+      String targetUrl, Credentials credentials, Path toUpload) {
     Callable<Void> callable;
     if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
       callable = httpUpload(targetUrl, credentials, toUpload);
@@ -198,18 +204,20 @@ public class MavenPublisher {
     }
 
     CompletableFuture<Void> toReturn = new CompletableFuture<>();
-    EXECUTOR.submit(() -> {
-      try {
-        callable.call();
-        toReturn.complete(null);
-      } catch (Exception e) {
-        toReturn.completeExceptionally(e);
-      }
-    });
+    EXECUTOR.submit(
+        () -> {
+          try {
+            callable.call();
+            toReturn.complete(null);
+          } catch (Exception e) {
+            toReturn.completeExceptionally(e);
+          }
+        });
     return toReturn;
   }
 
-  private static Callable<Void> httpUpload(String targetUrl, Credentials credentials, Path toUpload) {
+  private static Callable<Void> httpUpload(
+      String targetUrl, Credentials credentials, Path toUpload) {
     return () -> {
       LOG.info(String.format("Uploading to %s", targetUrl));
       URL url = new URL(targetUrl);
@@ -222,9 +230,12 @@ public class MavenPublisher {
           throw new RuntimeException("Unsupported credentials");
         }
         if (credentials.hasRequestMetadata()) {
-          credentials.getRequestMetadata().forEach((k, l) -> {
-            l.forEach(v -> connection.addRequestProperty(k, v));
-          });
+          credentials
+              .getRequestMetadata()
+              .forEach(
+                  (k, l) -> {
+                    l.forEach(v -> connection.addRequestProperty(k, v));
+                  });
         }
       }
       connection.setRequestProperty("Content-Length", "" + Files.size(toUpload));
@@ -281,7 +292,7 @@ public class MavenPublisher {
       LOG.info(String.format("Copying %s to gs://%s/%s", toUpload, bucketName, path));
       BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, path).build();
       try (WriteChannel writer = storage.writer(blobInfo);
-            InputStream is = Files.newInputStream(toUpload)) {
+          InputStream is = Files.newInputStream(toUpload)) {
         ByteStreams.copy(is, Channels.newOutputStream(writer));
       }
 
@@ -320,22 +331,34 @@ public class MavenPublisher {
     Path dir = Files.createTempDirectory("maven-sign");
     Path file = dir.resolve(toSign.getFileName() + ".asc");
 
-    Process gpg = new ProcessBuilder(
-        "gpg", "--use-agent", "--armor", "--detach-sign", "--no-tty",
-        "-o", file.toAbsolutePath().toString(), toSign.toAbsolutePath().toString())
-        .inheritIO()
-        .start();
+    Process gpg =
+        new ProcessBuilder(
+                "gpg",
+                "--use-agent",
+                "--armor",
+                "--detach-sign",
+                "--no-tty",
+                "-o",
+                file.toAbsolutePath().toString(),
+                toSign.toAbsolutePath().toString())
+            .inheritIO()
+            .start();
     gpg.waitFor();
     if (gpg.exitValue() != 0) {
       throw new IllegalStateException("Unable to sign: " + toSign);
     }
 
     // Verify the signature
-    Process verify = new ProcessBuilder(
-      "gpg", "--verify", "--verbose", "--verbose",
-      file.toAbsolutePath().toString(), toSign.toAbsolutePath().toString())
-      .inheritIO()
-      .start();
+    Process verify =
+        new ProcessBuilder(
+                "gpg",
+                "--verify",
+                "--verbose",
+                "--verbose",
+                file.toAbsolutePath().toString(),
+                toSign.toAbsolutePath().toString())
+            .inheritIO()
+            .start();
     verify.waitFor();
     if (verify.exitValue() != 0) {
       throw new IllegalStateException("Unable to verify signature of " + toSign);
@@ -371,16 +394,17 @@ public class MavenPublisher {
     }
 
     @Override
-    public Map<String,List<String>> getRequestMetadata() {
+    public Map<String, List<String>> getRequestMetadata() {
       return Collections.singletonMap(
-        "Authorization", Collections.singletonList(
-          "Basic " + Base64.getEncoder().encodeToString(
-          String.format("%s:%s", user, password).getBytes(US_ASCII)))
-      );
+          "Authorization",
+          Collections.singletonList(
+              "Basic "
+                  + Base64.getEncoder()
+                      .encodeToString(String.format("%s:%s", user, password).getBytes(US_ASCII))));
     }
 
     @Override
-    public Map<String,List<String>> getRequestMetadata(URI uri) {
+    public Map<String, List<String>> getRequestMetadata(URI uri) {
       return getRequestMetadata();
     }
 
@@ -395,7 +419,6 @@ public class MavenPublisher {
     }
 
     @Override
-    public void refresh() {
-    }
+    public void refresh() {}
   }
 }

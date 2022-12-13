@@ -16,20 +16,18 @@
 
 package com.example.bazel;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -41,8 +39,9 @@ public class GreeterTest {
    * Use {@link ActivityScenarioRule} to create and launch the activity under test, and close it
    * after test completes. This is a replacement for {@link androidx.test.rule.ActivityTestRule}.
    */
-  @Rule public ActivityScenarioRule<MainActivity> activityScenarioRule
-      = new ActivityScenarioRule<>(MainActivity.class);
+  @Rule
+  public ActivityScenarioRule<MainActivity> activityScenarioRule =
+      new ActivityScenarioRule<>(MainActivity.class);
 
   @Test
   public void clickButton_shouldShowGreeting() {

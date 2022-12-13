@@ -14,19 +14,16 @@
 
 package com.example.bazel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import android.app.Activity;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.android.controller.ActivityController;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-/**
- * Junit Test using Robolectric with AssertJ matchers.
- */
+/** Junit Test using Robolectric with AssertJ matchers. */
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
   @Test

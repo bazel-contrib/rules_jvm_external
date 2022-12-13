@@ -1,9 +1,10 @@
 package rules.jvm.external;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +13,6 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /** A migration tool from native.maven_jar to rules_jvm_external's maven_install. */
 public class MavenJarMigrator {
@@ -42,9 +41,10 @@ public class MavenJarMigrator {
   private static void checkPrerequisites() throws InterruptedException, IOException {
     // Assert that buildozer exists on PATH.
     if (getProcessBuilder("buildozer", "-version").start().waitFor() != 0) {
-      throw new AssertionError("buildozer is not found on your PATH. Download "
-          + "buildozer for your platform from https://github.com/bazelbuild/buildtools/releases "
-          + "and put the executable in your PATH.");
+      throw new AssertionError(
+          "buildozer is not found on your PATH. Download buildozer for your platform from"
+              + " https://github.com/bazelbuild/buildtools/releases and put the executable in your"
+              + " PATH.");
     }
   }
 

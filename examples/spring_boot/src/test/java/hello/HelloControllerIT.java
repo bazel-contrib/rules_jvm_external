@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URL;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,13 +18,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class HelloControllerIT {
 
-  @LocalServerPort
-  private int port;
+  @LocalServerPort private int port;
 
   private URL base;
 
-  @Autowired
-  private TestRestTemplate template;
+  @Autowired private TestRestTemplate template;
 
   @Before
   public void setUp() throws Exception {
@@ -34,8 +31,7 @@ public class HelloControllerIT {
 
   @Test
   public void getHello() throws Exception {
-    ResponseEntity<String> response = template.getForEntity(base.toString(),
-        String.class);
+    ResponseEntity<String> response = template.getForEntity(base.toString(), String.class);
     assertThat(response.getBody(), equalTo("Greetings from Spring Boot!"));
   }
 }
