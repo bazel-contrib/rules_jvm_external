@@ -1,5 +1,18 @@
 load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
+load("//private/rules:artifact.bzl", "artifact")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+genrule(
+    name = "buildifier-bin",
+    srcs = select({
+        "@bazel_tools//src/conditions:darwin_arm64": ["@buildifier-macos-arm64//file"],
+        "@bazel_tools//src/conditions:darwin_x86_64": ["@buildifier-macos-x86_64//file"],
+        "@bazel_tools//src/conditions:linux_aarch64": ["@buildifier-linux-arm64//file"],
+        "@bazel_tools//src/conditions:linux_x86_64": ["@buildifier-linux-x86_64//file"],
+    }),
+    outs = ["buildifier"],
+    cmd = "cp $< $@",
+)
 
 sh_binary(
     name = "mirror_coursier",
@@ -37,4 +50,46 @@ nodejs_binary(
     name = "doctoc",
     data = ["@npm//doctoc"],
     entry_point = {"@npm//:node_modules/doctoc": "doctoc.js"},
+)
+
+java_binary(
+    name = "google-java-format",
+    jvm_flags = [
+        "--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    ],
+    main_class = "com.google.googlejavaformat.java.Main",
+    runtime_deps = [
+        artifact(
+            "com.google.googlejavaformat:google-java-format",
+            repository_name = "rules_jvm_external_deps",
+        ),
+    ],
+)
+
+genrule(
+    name = "format",
+    outs = ["run-formats.sh"],
+    cmd = """cat >$@ << EOL
+#!/usr/bin/env bash
+set -eufo pipefail
+
+cwd="\\$${BUILD_WORKSPACE_DIRECTORY:=\\$$(pwd)}"
+
+# Format java code
+find "\\$$cwd" -type f -name "*.java" |  xargs "$(location :google-java-format)" --replace
+
+# Run buildifier
+$(location :buildifier) --lint fix --mode fix -r "\\$$cwd"
+
+EOL
+""",
+    executable = True,
+    tools = [
+        ":buildifier",
+        ":google-java-format",
+    ],
 )
