@@ -117,6 +117,13 @@ def _is_file(repository_ctx, path):
 def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
+def _shell_quote(s):
+    # Lifted from
+    #   https://github.com/bazelbuild/bazel-skylib/blob/6a17363a3c27dde70ab5002ad9f2e29aff1e1f4b/lib/shell.bzl#L49
+    # because this file cannot load symbols from bazel_skylib since commit
+    # 47505f644299aa2483d0df06c2bb2c7aa10d26d4.
+    return "'" + s.replace("'", "'\\''") + "'"
+
 def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_message = None):
     if progress_message:
         repository_ctx.report_progress(progress_message)
@@ -427,7 +434,7 @@ def _add_outdated_files(repository_ctx, artifacts, repositories):
         repository_ctx.attr._outdated,
         {
             "{repository_name}": repository_ctx.name,
-            "{proxy_opts}": " ".join(_get_java_proxy_args(repository_ctx)),
+            "{proxy_opts}": " ".join([_shell_quote(arg) for arg in _get_java_proxy_args(repository_ctx)]),
         },
         executable = True,
     )

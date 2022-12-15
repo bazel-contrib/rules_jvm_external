@@ -18,7 +18,7 @@ def _java_proxy_parsing_no_scheme_test_impl(ctx):
             "-Dhttp.proxyPort=8888",
             "-Dhttps.proxyHost=localhost",
             "-Dhttps.proxyPort=8843",
-            "-Dhttp.nonProxyHosts='google.com'",
+            "-Dhttp.nonProxyHosts=google.com",
         ],
         get_java_proxy_args("localhost:8888", "localhost:8843", "google.com"),
     )
@@ -35,7 +35,7 @@ def _java_proxy_parsing_no_user_test_impl(ctx):
             "-Dhttp.proxyPort=80",
             "-Dhttps.proxyHost=secureexample.com",
             "-Dhttps.proxyPort=443",
-            "-Dhttp.nonProxyHosts='google.com'",
+            "-Dhttp.nonProxyHosts=google.com",
         ],
         get_java_proxy_args("http://example.com:80", "https://secureexample.com:443", "google.com"),
     )
@@ -50,7 +50,7 @@ def _java_proxy_parsing_no_port_test_impl(ctx):
         [
             "-Dhttp.proxyHost=example.com",
             "-Dhttps.proxyHost=secureexample.com",
-            "-Dhttp.nonProxyHosts='google.com'",
+            "-Dhttp.nonProxyHosts=google.com",
         ],
         get_java_proxy_args("http://example.com", "https://secureexample.com", "google.com"),
     )
@@ -67,7 +67,7 @@ def _java_proxy_parsing_trailing_slash_test_impl(ctx):
             "-Dhttp.proxyPort=80",
             "-Dhttps.proxyHost=secureexample.com",
             "-Dhttps.proxyPort=443",
-            "-Dhttp.nonProxyHosts='google.com'",
+            "-Dhttp.nonProxyHosts=google.com",
         ],
         get_java_proxy_args("http://example.com:80", "https://secureexample.com:443/", "google.com"),
     )
@@ -88,7 +88,7 @@ def _java_proxy_parsing_all_test_impl(ctx):
             "-Dhttps.proxyPassword=pass2",
             "-Dhttps.proxyHost=secureexample.com",
             "-Dhttps.proxyPort=443",
-            "-Dhttp.nonProxyHosts='google.com|localhost'",
+            "-Dhttp.nonProxyHosts=google.com|localhost",
         ],
         get_java_proxy_args("http://user1:pass1@example.com:80", "https://user2:pass2@secureexample.com:443", "google.com,localhost"),
     )

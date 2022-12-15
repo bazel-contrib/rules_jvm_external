@@ -73,6 +73,6 @@ def get_java_proxy_args(http_proxy, https_proxy, no_proxy):
     if no_proxy:
         if no_proxy.startswith("."):
             no_proxy = "*" + no_proxy
-        proxy_args.append("-Dhttp.nonProxyHosts='%s'" % no_proxy.replace(",", "|").replace("|.", "|*."))
+        proxy_args.append("-Dhttp.nonProxyHosts=%s" % no_proxy.replace(",", "|").replace("|.", "|*."))
 
     return proxy_args
