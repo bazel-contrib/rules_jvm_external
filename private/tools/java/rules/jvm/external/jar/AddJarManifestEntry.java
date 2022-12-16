@@ -1,7 +1,7 @@
 package rules.jvm.external.jar;
 
-import rules.jvm.external.ByteStreams;
-import rules.jvm.external.zip.StableZipEntry;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -27,78 +27,80 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
+import rules.jvm.external.ByteStreams;
+import rules.jvm.external.zip.StableZipEntry;
 
 /*
- * A class that will add an entry to the manifest and keep the same modification
- # times of the jar entries.
- */
+* A class that will add an entry to the manifest and keep the same modification
+# times of the jar entries.
+*/
 public class AddJarManifestEntry {
 
   // Visible for testing
-  public static final Attributes.Name AUTOMATIC_MODULE_NAME = new Attributes.Name("Automatic-Module-Name");
+  public static final Attributes.Name AUTOMATIC_MODULE_NAME =
+      new Attributes.Name("Automatic-Module-Name");
   // Collected from https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Keyword
-  private static final Collection<String> ILLEGAL_PACKAGE_NAMES = Collections.unmodifiableCollection(Arrays.asList(
-          "abstract",
-          "assert",
-          "boolean",
-          "break",
-          "byte",
-          "case",
-          "catch",
-          "char",
-          "class",
-          "const",
-          "continue",
-          "default",
-          "do",
-          "double",
-          "else",
-          "enum",
-          "extends",
-          "final",
-          "finally",
-          "float",
-          "for",
-          "goto",
-          "if",
-          "implements",
-          "import",
-          "instanceof",
-          "int",
-          "interface",
-          "long",
-          "native",
-          "new",
-          "package",
-          "private",
-          "protected",
-          "public",
-          "return",
-          "short",
-          "static",
-          "strictfp",
-          "super",
-          "switch",
-          "synchronized",
-          "this",
-          "throw",
-          "throws",
-          "transient",
-          "try",
-          "void",
-          "volatile",
-          "while",
-          "_",
+  private static final Collection<String> ILLEGAL_PACKAGE_NAMES =
+      Collections.unmodifiableCollection(
+          Arrays.asList(
+              "abstract",
+              "assert",
+              "boolean",
+              "break",
+              "byte",
+              "case",
+              "catch",
+              "char",
+              "class",
+              "const",
+              "continue",
+              "default",
+              "do",
+              "double",
+              "else",
+              "enum",
+              "extends",
+              "final",
+              "finally",
+              "float",
+              "for",
+              "goto",
+              "if",
+              "implements",
+              "import",
+              "instanceof",
+              "int",
+              "interface",
+              "long",
+              "native",
+              "new",
+              "package",
+              "private",
+              "protected",
+              "public",
+              "return",
+              "short",
+              "static",
+              "strictfp",
+              "super",
+              "switch",
+              "synchronized",
+              "this",
+              "throw",
+              "throws",
+              "transient",
+              "try",
+              "void",
+              "volatile",
+              "while",
+              "_",
 
-          // Additionally, these can't be used in identifiers:
-          // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Identifier
-          "false",
-          "true",
-          "null",
-          "var"));
+              // Additionally, these can't be used in identifiers:
+              // https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-Identifier
+              "false",
+              "true",
+              "null",
+              "var"));
 
   public static void verboseLog(String logline) {
     // To make this work you need to add 'use_default_shell_env = True' to the
@@ -138,7 +140,8 @@ public class AddJarManifestEntry {
           break;
 
         default:
-          throw new IllegalArgumentException("Unable to parse command line: " + Arrays.toString(args));
+          throw new IllegalArgumentException(
+              "Unable to parse command line: " + Arrays.toString(args));
       }
     }
 
@@ -157,7 +160,7 @@ public class AddJarManifestEntry {
 
   private static boolean isJarSigned(Path source) throws IOException {
     try (InputStream is = Files.newInputStream(source);
-         JarInputStream jis = new JarInputStream(is)) {
+        JarInputStream jis = new JarInputStream(is)) {
       for (ZipEntry entry = jis.getNextEntry(); entry != null; entry = jis.getNextJarEntry()) {
         if (entry.isDirectory()) {
           continue;
@@ -171,14 +174,11 @@ public class AddJarManifestEntry {
   }
 
   public void addEntryToManifest(
-          Path out,
-          Path source,
-          List<String> toAdd,
-          List<String> toRemove,
-          boolean makeSafe) throws IOException {
+      Path out, Path source, List<String> toAdd, List<String> toRemove, boolean makeSafe)
+      throws IOException {
     try (JarFile jarFile = new JarFile(source.toFile(), false)) {
       try (OutputStream fos = Files.newOutputStream(out);
-           ZipOutputStream zos = new JarOutputStream(new BufferedOutputStream(fos))) {
+          ZipOutputStream zos = new JarOutputStream(new BufferedOutputStream(fos))) {
 
         // Rewrite the manifest first
         Manifest manifest = jarFile.getManifest();
@@ -212,7 +212,8 @@ public class AddJarManifestEntry {
           } catch (ZipException e) {
             if (e.getMessage().contains("duplicate entry:")) {
               // If there is a duplicate entry we keep the first one we saw.
-              verboseLog("WARN: Skipping duplicate jar entry " + outEntry.getName() + " in " + source);
+              verboseLog(
+                  "WARN: Skipping duplicate jar entry " + outEntry.getName() + " in " + source);
               continue;
             } else {
               throw e;
@@ -224,16 +225,15 @@ public class AddJarManifestEntry {
   }
 
   private void amendManifest(
-          Path jar,
-          Manifest manifest,
-          List<String> toAdd,
-          List<String> toRemove,
-          boolean makeSafe) {
+      Path jar, Manifest manifest, List<String> toAdd, List<String> toRemove, boolean makeSafe) {
     manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "AddJarManifestEntry");
-    toAdd.forEach(manifestEntry -> {
-      String[] manifestEntryParts = manifestEntry.split(":", 2);
-      manifest.getMainAttributes().put(new Attributes.Name(manifestEntryParts[0]), manifestEntryParts[1]);
-    });
+    toAdd.forEach(
+        manifestEntry -> {
+          String[] manifestEntryParts = manifestEntry.split(":", 2);
+          manifest
+              .getMainAttributes()
+              .put(new Attributes.Name(manifestEntryParts[0]), manifestEntryParts[1]);
+        });
     toRemove.forEach(name -> manifest.getMainAttributes().remove(new Attributes.Name(name)));
 
     if (makeSafe) {
@@ -246,15 +246,16 @@ public class AddJarManifestEntry {
       return manifest;
     }
 
-    // The automatic module name must be a valid java package name. What is a valid java package name?
+    // The automatic module name must be a valid java package name. What is a valid java package
+    // name?
     // https://docs.oracle.com/javase/specs/jls/se11/html/jls-7.html#jls-7.4 has the answer
     String name = manifest.getMainAttributes().getValue(AUTOMATIC_MODULE_NAME);
     if (name == null || name.isEmpty()) {
       return removeEntryAndPrintWarning(
-              manifest,
-              AUTOMATIC_MODULE_NAME,
-              "An empty automatic module was detected. This is not allowed by the java module system: " +
-                      jar.getFileName());
+          manifest,
+          AUTOMATIC_MODULE_NAME,
+          "An empty automatic module was detected. This is not allowed by the java module system: "
+              + jar.getFileName());
     }
 
     StringTokenizer tokenizer = new StringTokenizer(name, ".");
@@ -262,42 +263,40 @@ public class AddJarManifestEntry {
       String part = tokenizer.nextToken().trim();
       if (part.isEmpty()) {
         return removeEntryAndPrintWarning(
-                manifest,
-                AUTOMATIC_MODULE_NAME,
-                String.format("Automatic module name '%s' contains an empty part: %s",
-                        name,
-                        jar.getFileName()));
+            manifest,
+            AUTOMATIC_MODULE_NAME,
+            String.format(
+                "Automatic module name '%s' contains an empty part: %s", name, jar.getFileName()));
       }
 
       if (!Character.isJavaIdentifierStart(part.charAt(0))) {
         return removeEntryAndPrintWarning(
-                manifest,
-                AUTOMATIC_MODULE_NAME,
-                String.format("Automatic module name '%s' does not start with a character a java package name can start with ('%s'): %s",
-                        name,
-                        part,
-                        jar.getFileName()));
+            manifest,
+            AUTOMATIC_MODULE_NAME,
+            String.format(
+                "Automatic module name '%s' does not start with a character a java package name can"
+                    + " start with ('%s'): %s",
+                name, part, jar.getFileName()));
       }
 
       for (int i = 1; i < part.length(); i++) {
         if (ILLEGAL_PACKAGE_NAMES.contains(part)) {
           return removeEntryAndPrintWarning(
-                  manifest,
-                  AUTOMATIC_MODULE_NAME,
-                  String.format("Automatic module name '%s' contains reserved java keyword ('%s'): %s",
-                          name,
-                          part,
-                          jar.getFileName()));
+              manifest,
+              AUTOMATIC_MODULE_NAME,
+              String.format(
+                  "Automatic module name '%s' contains reserved java keyword ('%s'): %s",
+                  name, part, jar.getFileName()));
         }
 
         if (!Character.isJavaIdentifierPart(part.charAt(i))) {
           return removeEntryAndPrintWarning(
-                  manifest,
-                  AUTOMATIC_MODULE_NAME,
-                  String.format("Automatic module name '%s' contains a character ('%s') that may not be used in a java identifier: %s",
-                          name,
-                          part.charAt(i),
-                          jar.getFileName()));
+              manifest,
+              AUTOMATIC_MODULE_NAME,
+              String.format(
+                  "Automatic module name '%s' contains a character ('%s') that may not be used in a"
+                      + " java identifier: %s",
+                  name, part.charAt(i), jar.getFileName()));
         }
       }
     }
@@ -305,7 +304,8 @@ public class AddJarManifestEntry {
     return manifest;
   }
 
-  private Manifest removeEntryAndPrintWarning(Manifest manifest, Attributes.Name key, String warning) {
+  private Manifest removeEntryAndPrintWarning(
+      Manifest manifest, Attributes.Name key, String warning) {
     manifest.getMainAttributes().remove(key);
     // We want this warning to be printed to the screen
     System.err.println(warning);

@@ -1,5 +1,3 @@
-load("//:defs.bzl", "artifact")
-
 java_library(
     name = "byte-streams",
     srcs = ["ByteStreams.java"],

@@ -17,14 +17,8 @@
 
 package rules.jvm.external.javadoc;
 
-import rules.jvm.external.ByteStreams;
-import rules.jvm.external.zip.StableZipEntry;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import javax.tools.DocumentationTool;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,8 +41,13 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import javax.tools.DocumentationTool;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
+import javax.tools.ToolProvider;
+import rules.jvm.external.ByteStreams;
+import rules.jvm.external.zip.StableZipEntry;
 
 public class JavadocJarMaker {
 
@@ -88,11 +87,13 @@ public class JavadocJarMaker {
     }
 
     if (sourceJars.isEmpty()) {
-      throw new IllegalArgumentException("At least one input just must be specified via the --in flag");
+      throw new IllegalArgumentException(
+          "At least one input just must be specified via the --in flag");
     }
 
     if (out == null) {
-      throw new IllegalArgumentException("The output jar location must be specified via the --out flag");
+      throw new IllegalArgumentException(
+          "The output jar location must be specified via the --out flag");
     }
 
     Path dir = Files.createTempDirectory("javadocs");
@@ -100,9 +101,13 @@ public class JavadocJarMaker {
     tempDirs.add(dir);
 
     DocumentationTool tool = ToolProvider.getSystemDocumentationTool();
-    try (StandardJavaFileManager fileManager = tool.getStandardFileManager(null, Locale.getDefault(), UTF_8)) {
-      fileManager.setLocation(DocumentationTool.Location.DOCUMENTATION_OUTPUT, Arrays.asList(dir.toFile()));
-      fileManager.setLocation(StandardLocation.CLASS_PATH, classpath.stream().map(Path::toFile).collect(Collectors.toSet()));
+    try (StandardJavaFileManager fileManager =
+        tool.getStandardFileManager(null, Locale.getDefault(), UTF_8)) {
+      fileManager.setLocation(
+          DocumentationTool.Location.DOCUMENTATION_OUTPUT, Arrays.asList(dir.toFile()));
+      fileManager.setLocation(
+          StandardLocation.CLASS_PATH,
+          classpath.stream().map(Path::toFile).collect(Collectors.toSet()));
 
       Set<JavaFileObject> sources = new HashSet<>();
       Set<String> topLevelPackages = new HashSet<>();
@@ -115,7 +120,7 @@ public class JavadocJarMaker {
       // True if we're just exporting a set of modules
       if (sources.isEmpty()) {
         try (OutputStream os = Files.newOutputStream(out);
-             ZipOutputStream zos = new ZipOutputStream(os)) {
+            ZipOutputStream zos = new ZipOutputStream(os)) {
           // It's enough to just create the thing
         }
         return;
@@ -123,11 +128,16 @@ public class JavadocJarMaker {
 
       if (!classpath.isEmpty()) {
         options.add("-cp");
-        options.add(classpath.stream().map(String::valueOf).collect(Collectors.joining(File.pathSeparator)));
+        options.add(
+            classpath.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(File.pathSeparator)));
       }
       Version version = Version.parse(System.getProperty("java.version"));
 
-      options.addAll(Arrays.asList("-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"));
+      options.addAll(
+          Arrays.asList(
+              "-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"));
 
       // Generate frames if we can. Java prior to v9 generates frames automatically.
       // In Java 13, the flag was removed.
@@ -148,7 +158,8 @@ public class JavadocJarMaker {
       sources.forEach(obj -> options.add(obj.getName()));
 
       Writer writer = new StringWriter();
-      DocumentationTool.DocumentationTask task = tool.getTask(writer, fileManager, null, null, options, sources);
+      DocumentationTool.DocumentationTask task =
+          tool.getTask(writer, fileManager, null, null, options, sources);
       Boolean result = task.call();
       if (result == null || !result) {
         System.err.println("javadoc " + String.join(" ", options));
@@ -157,34 +168,35 @@ public class JavadocJarMaker {
       }
 
       try (OutputStream os = Files.newOutputStream(out);
-           ZipOutputStream zos = new ZipOutputStream(os);
-           Stream<Path> walk = Files.walk(outputTo)) {
+          ZipOutputStream zos = new ZipOutputStream(os);
+          Stream<Path> walk = Files.walk(outputTo)) {
 
         walk.sorted(Comparator.naturalOrder())
-          .forEachOrdered(path -> {
-            if (path.equals(outputTo)) {
-              return;
-            }
+            .forEachOrdered(
+                path -> {
+                  if (path.equals(outputTo)) {
+                    return;
+                  }
 
-            try {
-              if (Files.isDirectory(path)) {
-                String name = outputTo.relativize(path) + "/";
-                ZipEntry entry = new StableZipEntry(name);
-                zos.putNextEntry(entry);
-                zos.closeEntry();
-              } else {
-                String name = outputTo.relativize(path).toString();
-                ZipEntry entry = new StableZipEntry(name);
-                zos.putNextEntry(entry);
-                try (InputStream is = Files.newInputStream(path)) {
-                  ByteStreams.copy(is, zos);
-                }
-                zos.closeEntry();
-              }
-            } catch (IOException e) {
-              throw new UncheckedIOException(e);
-            }
-          });
+                  try {
+                    if (Files.isDirectory(path)) {
+                      String name = outputTo.relativize(path) + "/";
+                      ZipEntry entry = new StableZipEntry(name);
+                      zos.putNextEntry(entry);
+                      zos.closeEntry();
+                    } else {
+                      String name = outputTo.relativize(path).toString();
+                      ZipEntry entry = new StableZipEntry(name);
+                      zos.putNextEntry(entry);
+                      try (InputStream is = Files.newInputStream(path)) {
+                        ByteStreams.copy(is, zos);
+                      }
+                      zos.closeEntry();
+                    }
+                  } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                  }
+                });
       }
     }
     tempDirs.forEach(JavadocJarMaker::delete);
@@ -193,22 +205,22 @@ public class JavadocJarMaker {
   private static void delete(Path toDelete) {
     try {
       Files.walk(toDelete)
-              .sorted(Comparator.reverseOrder())
-              .map(Path::toFile)
-              .forEach(File::delete);
+          .sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
 
-
   private static void readSourceFiles(
-    Path unpackTo,
-    StandardJavaFileManager fileManager,
-    Set<Path> sourceJars,
-    Set<JavaFileObject> sources,
-    Set<String> topLevelPackages,
-    Set<String> fileNames) throws IOException {
+      Path unpackTo,
+      StandardJavaFileManager fileManager,
+      Set<Path> sourceJars,
+      Set<JavaFileObject> sources,
+      Set<String> topLevelPackages,
+      Set<String> fileNames)
+      throws IOException {
 
     for (Path jar : sourceJars) {
       if (!Files.exists(jar)) {

@@ -10,7 +10,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,10 +20,8 @@ import org.xml.sax.SAXException;
 public class Outdated {
   public static String getReleaseVersion(String repository, String groupId, String artifactId) {
     String url =
-        String.format("%s/%s/%s/maven-metadata.xml",
-            repository,
-            groupId.replaceAll("\\.", "/"),
-            artifactId);
+        String.format(
+            "%s/%s/%s/maven-metadata.xml", repository, groupId.replaceAll("\\.", "/"), artifactId);
 
     DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder documentBuilder;
@@ -96,13 +93,14 @@ public class Outdated {
     if (versions == null || versions.getLength() == 0) {
       verboseLog(
           String.format(
-              "Could not find <release> tag and empty <versions> tag for %s, returning null version",
+              "Could not find <release> tag and empty <versions> tag for %s, returning null"
+                  + " version",
               documentUrl));
       return null;
     }
 
     // Grab last version in the list.
-    return versions.item(versions.getLength() -1).getTextContent();
+    return versions.item(versions.getLength() - 1).getTextContent();
   }
 
   public static Element getFirstChildElement(Element element, String tagName) {
@@ -133,10 +131,15 @@ public class Outdated {
     String artifactsFilePath = args[0];
     String repositoriesFilePath = args[1];
 
-    List<String> artifacts = Files.readAllLines(Paths.get(artifactsFilePath), StandardCharsets.UTF_8);
-    List<String> repositories = Files.readAllLines(Paths.get(repositoriesFilePath), StandardCharsets.UTF_8);
+    List<String> artifacts =
+        Files.readAllLines(Paths.get(artifactsFilePath), StandardCharsets.UTF_8);
+    List<String> repositories =
+        Files.readAllLines(Paths.get(repositoriesFilePath), StandardCharsets.UTF_8);
 
-    System.out.println(String.format("Checking for updates of %d artifacts against the following repositories:", artifacts.size()));
+    System.out.println(
+        String.format(
+            "Checking for updates of %d artifacts against the following repositories:",
+            artifacts.size()));
     for (String repository : repositories) {
       System.out.println(String.format("\t%s", repository));
     }
@@ -159,8 +162,12 @@ public class Outdated {
       for (String repository : repositories) {
         releaseVersion = getReleaseVersion(repository, groupId, artifactId);
         if (releaseVersion != null) {
-          verboseLog(String.format("Found version [%s] for %s:%s in %s", releaseVersion, groupId, artifactId, repository));
-          // Should we search all repositories in the list for latest version instead of just the first
+          verboseLog(
+              String.format(
+                  "Found version [%s] for %s:%s in %s",
+                  releaseVersion, groupId, artifactId, repository));
+          // Should we search all repositories in the list for latest version instead of just the
+          // first
           // repository that has a version?
           break;
         }
@@ -168,8 +175,10 @@ public class Outdated {
 
       if (releaseVersion == null) {
         verboseLog(String.format("Could not find version for %s:%s", groupId, artifactId));
-      } else if (new ComparableVersion(releaseVersion).compareTo(new ComparableVersion(version)) > 0) {
-        System.out.println(String.format("%s:%s [%s -> %s]", groupId, artifactId, version, releaseVersion));
+      } else if (new ComparableVersion(releaseVersion).compareTo(new ComparableVersion(version))
+          > 0) {
+        System.out.println(
+            String.format("%s:%s [%s -> %s]", groupId, artifactId, version, releaseVersion));
         foundUpdates = true;
       }
     }

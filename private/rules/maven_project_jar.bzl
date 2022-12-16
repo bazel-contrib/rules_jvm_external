@@ -137,7 +137,7 @@ single artifact that other teams can download and use.
         # so use our own.
         "_merge_jars": attr.label(
             executable = True,
-            cfg = "host",
+            cfg = "exec",
             default = "//private/tools/java/rules/jvm/external/jar:MergeJars",
         ),
         "_java_toolchain": attr.label(

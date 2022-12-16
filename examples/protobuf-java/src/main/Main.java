@@ -13,8 +13,8 @@
 // limitations under the License.
 package rules.jvm.external;
 
-import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import rules.jvm.external.AddressBookProtos.Person;
 
 public class Main {

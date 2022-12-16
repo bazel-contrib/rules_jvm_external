@@ -20,9 +20,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
-/**
- * Main class for the Bazel Android "Hello, World" app.
- */
+/** Main class for the Bazel Android "Hello, World" app. */
 public class MainActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {

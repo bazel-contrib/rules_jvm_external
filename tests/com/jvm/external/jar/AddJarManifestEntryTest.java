@@ -1,13 +1,19 @@
 package com.jvm.external.jar;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.jar.Attributes.Name.CLASS_PATH;
+import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static rules.jvm.external.jar.AddJarManifestEntry.AUTOMATIC_MODULE_NAME;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import rules.jvm.external.jar.AddJarManifestEntry;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,22 +34,14 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.jar.Attributes.Name.CLASS_PATH;
-import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static rules.jvm.external.jar.AddJarManifestEntry.AUTOMATIC_MODULE_NAME;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import rules.jvm.external.jar.AddJarManifestEntry;
 
 public class AddJarManifestEntryTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @Rule public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void shouldAddEntryToManifest() throws IOException {
@@ -52,23 +50,31 @@ public class AddJarManifestEntryTest {
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(new Attributes.Name("Hello-World"), "hello");
 
-    createJar(inputOne, manifest, new ImmutableMap.Builder<String, String>()
-           .put("com/example/A.class", "Hello, World!")
-           .put("com/example/B.class", "Hello, World Again!")
-           .build());
+    createJar(
+        inputOne,
+        manifest,
+        new ImmutableMap.Builder<String, String>()
+            .put("com/example/A.class", "Hello, World!")
+            .put("com/example/B.class", "Hello, World Again!")
+            .build());
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    AddJarManifestEntry.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--source", inputOne.toAbsolutePath().toString(),
-      "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+    AddJarManifestEntry.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--source", inputOne.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+        });
 
     Map<String, String> contents = readJar(outputJar);
     assertEquals(3, contents.size());
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Manifest-Version: 1.0"));
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Hello-World: hello"));
-    assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Target-Label: @maven//:com_google_guava_guava"));
+    assertTrue(
+        contents
+            .get("META-INF/MANIFEST.MF")
+            .contains("Target-Label: @maven//:com_google_guava_guava"));
   }
 
   @Test
@@ -78,15 +84,20 @@ public class AddJarManifestEntryTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    AddJarManifestEntry.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--source", inputOne.toAbsolutePath().toString(),
-      "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+    AddJarManifestEntry.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--source", inputOne.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+        });
 
     Map<String, String> contents = readJar(outputJar);
     assertEquals(2, contents.size());
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Manifest-Version: 1.0"));
-    assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Target-Label: @maven//:com_google_guava_guava"));
+    assertTrue(
+        contents
+            .get("META-INF/MANIFEST.MF")
+            .contains("Target-Label: @maven//:com_google_guava_guava"));
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Created-By: AddJarManifestEntry"));
   }
 
@@ -97,10 +108,12 @@ public class AddJarManifestEntryTest {
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    AddJarManifestEntry.main(new String[]{
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--source", inputOne.toAbsolutePath().toString(),
-            "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+    AddJarManifestEntry.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--source", inputOne.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+        });
 
     List<String> entries = readJarEntries(outputJar);
     assertEquals(2, entries.size());
@@ -113,23 +126,33 @@ public class AddJarManifestEntryTest {
     Path inputOne = temp.newFile("first.jar").toPath();
 
     Manifest manifest = new Manifest();
-    manifest.getMainAttributes().put(new Attributes.Name("Target-Label"), "@maven//:org_hamcrest_hamcrest");
+    manifest
+        .getMainAttributes()
+        .put(new Attributes.Name("Target-Label"), "@maven//:org_hamcrest_hamcrest");
 
-    createJar(inputOne, manifest, new ImmutableMap.Builder<String, String>()
-           .put("com/example/A.class", "Hello, World!")
-           .build());
+    createJar(
+        inputOne,
+        manifest,
+        new ImmutableMap.Builder<String, String>()
+            .put("com/example/A.class", "Hello, World!")
+            .build());
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
-    AddJarManifestEntry.main(new String[]{
-      "--output", outputJar.toAbsolutePath().toString(),
-      "--source", inputOne.toAbsolutePath().toString(),
-      "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+    AddJarManifestEntry.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--source", inputOne.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+        });
 
     Map<String, String> contents = readJar(outputJar);
     assertEquals(2, contents.size());
     assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Manifest-Version: 1.0"));
-    assertTrue(contents.get("META-INF/MANIFEST.MF").contains("Target-Label: @maven//:com_google_guava_guava"));
+    assertTrue(
+        contents
+            .get("META-INF/MANIFEST.MF")
+            .contains("Target-Label: @maven//:com_google_guava_guava"));
   }
 
   @Test
@@ -141,10 +164,12 @@ public class AddJarManifestEntryTest {
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
     createJar(input, manifest, ImmutableMap.of("META-INF/SOME_FILE.SF", ""));
 
-    AddJarManifestEntry.main(new String[]{
-            "--output", output.toAbsolutePath().toString(),
-            "--source", input.toAbsolutePath().toString(),
-            "--manifest-entry", "Target-Label:@boo//:scary"});
+    AddJarManifestEntry.main(
+        new String[] {
+          "--output", output.toAbsolutePath().toString(),
+          "--source", input.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@boo//:scary"
+        });
 
     byte[] in = Files.readAllBytes(input);
     byte[] out = Files.readAllBytes(output);
@@ -165,14 +190,15 @@ public class AddJarManifestEntryTest {
 
     Path outJar = temp.newFile("output.jar").toPath();
 
-    AddJarManifestEntry.main(new String[]{
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--remove-entry", "Class-Path"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--remove-entry", "Class-Path"
+        });
 
     try (InputStream is = Files.newInputStream(outJar);
-         JarInputStream jis = new JarInputStream(is)) {
+        JarInputStream jis = new JarInputStream(is)) {
       Manifest read = jis.getManifest();
 
       assertEquals("Roquefort", read.getMainAttributes().get(name));
@@ -190,14 +216,15 @@ public class AddJarManifestEntryTest {
     createJar(inJar, manifest, new HashMap<>());
 
     Path outJar = temp.newFile("output.jar").toPath();
-    AddJarManifestEntry.main(new String[]{
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--remove-entry", "Class-Path"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--remove-entry", "Class-Path"
+        });
 
     try (InputStream is = Files.newInputStream(outJar);
-         JarInputStream jis = new JarInputStream(is)) {
+        JarInputStream jis = new JarInputStream(is)) {
       Manifest read = jis.getManifest();
 
       assertNull(read.getMainAttributes().get(CLASS_PATH));
@@ -235,17 +262,16 @@ public class AddJarManifestEntryTest {
   }
 
   /**
-   * There are jars in the wild which cannot be unpacked by zip or bazel's
-   * own zipper. These fail to unpack because the jar contains a directory
-   * and a file that would unpack to the same path. Make sure our header
-   * jar creator handles this.
+   * There are jars in the wild which cannot be unpacked by zip or bazel's own zipper. These fail to
+   * unpack because the jar contains a directory and a file that would unpack to the same path. Make
+   * sure our header jar creator handles this.
    */
   @Test
   public void shouldBeAbleToCopeWithUnpackableJars() throws IOException {
     Path inJar = temp.newFile("input.jar").toPath();
 
     try (OutputStream is = Files.newOutputStream(inJar);
-         JarOutputStream jos = new JarOutputStream(is)) {
+        JarOutputStream jos = new JarOutputStream(is)) {
       ZipEntry entry = new ZipEntry("foo");
       jos.putNextEntry(entry);
       jos.write("Hello, World!".getBytes(UTF_8));
@@ -257,17 +283,17 @@ public class AddJarManifestEntryTest {
     Path outJar = temp.newFile("output.jar").toPath();
 
     // No exception is a Good Thing
-    AddJarManifestEntry.main(new String[]{
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--remove-entry", "Class-Path"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--remove-entry", "Class-Path"
+        });
   }
 
   /**
-   * One pattern for making "executable jars" is to use a preamble to
-   * the zip archive. When this is done `ZipInputStream` wrongly
-   * indicates that there are no entries in the jar, which means that
+   * One pattern for making "executable jars" is to use a preamble to the zip archive. When this is
+   * done `ZipInputStream` wrongly indicates that there are no entries in the jar, which means that
    * the header jar generated is empty, which leads to obvious issues.
    */
   @Test
@@ -275,11 +301,11 @@ public class AddJarManifestEntryTest {
     Path tempJar = temp.newFile("regular.jar").toPath();
 
     createJar(
-            tempJar,
-            null,
-            ImmutableMap.of(
-                    "Foo.class", "0xDECAFBAD",
-                    "Bar.class", "0xDEADBEEF"));
+        tempJar,
+        null,
+        ImmutableMap.of(
+            "Foo.class", "0xDECAFBAD",
+            "Bar.class", "0xDEADBEEF"));
 
     // Write the preamble. We do things this way because a plain text
     // file is not a valid zip file.
@@ -287,17 +313,18 @@ public class AddJarManifestEntryTest {
     Files.write(inJar, "#!/bin/bash\necho Hello, World\n\n".getBytes(UTF_8));
 
     try (InputStream is = Files.newInputStream(tempJar);
-         OutputStream os = Files.newOutputStream(inJar, StandardOpenOption.APPEND)) {
+        OutputStream os = Files.newOutputStream(inJar, StandardOpenOption.APPEND)) {
       ByteStreams.copy(is, os);
     }
 
     Path outJar = temp.newFile("output.jar").toPath();
 
-    AddJarManifestEntry.main(new String[] {
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+        });
 
     try (JarFile jarFile = new JarFile(outJar.toFile())) {
       assertNotNull(jarFile.getEntry("Foo.class"));
@@ -310,11 +337,12 @@ public class AddJarManifestEntryTest {
     Path inJar = createJarWithAutomaticModuleName("it.will.be.fine");
     Path outJar = temp.newFile("output.jar").toPath();
 
-    AddJarManifestEntry.main(new String[] {
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--make-safe"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--make-safe"
+        });
 
     Manifest manifest = readManifest(outJar);
     String name = manifest.getMainAttributes().getValue(AUTOMATIC_MODULE_NAME);
@@ -327,11 +355,12 @@ public class AddJarManifestEntryTest {
     Path inJar = createJarWithAutomaticModuleName("");
     Path outJar = temp.newFile("output.jar").toPath();
 
-    AddJarManifestEntry.main(new String[] {
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--make-safe"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--make-safe"
+        });
 
     Manifest manifest = readManifest(outJar);
 
@@ -344,11 +373,12 @@ public class AddJarManifestEntryTest {
     Path inJar = createJarWithAutomaticModuleName("some.invalid.package-name");
     Path outJar = temp.newFile("output.jar").toPath();
 
-    AddJarManifestEntry.main(new String[] {
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--make-safe"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--make-safe"
+        });
 
     Manifest manifest = readManifest(outJar);
 
@@ -361,11 +391,12 @@ public class AddJarManifestEntryTest {
     Path inJar = createJarWithAutomaticModuleName("some.boolean.package.name");
     Path outJar = temp.newFile("output.jar").toPath();
 
-    AddJarManifestEntry.main(new String[] {
-            "--source", inJar.toAbsolutePath().toString(),
-            "--output", outJar.toAbsolutePath().toString(),
-            "--make-safe"
-    });
+    AddJarManifestEntry.main(
+        new String[] {
+          "--source", inJar.toAbsolutePath().toString(),
+          "--output", outJar.toAbsolutePath().toString(),
+          "--make-safe"
+        });
 
     Manifest manifest = readManifest(outJar);
 
@@ -374,7 +405,7 @@ public class AddJarManifestEntryTest {
 
   private Manifest readManifest(Path fromJar) throws IOException {
     try (InputStream is = Files.newInputStream(fromJar);
-         JarInputStream jis = new JarInputStream(is)) {
+        JarInputStream jis = new JarInputStream(is)) {
       return jis.getManifest();
     }
   }
@@ -392,18 +423,18 @@ public class AddJarManifestEntryTest {
   }
 
   private void createJar(Path outputTo, Manifest manifest, Map<String, String> pathToContents)
-          throws IOException {
+      throws IOException {
     createJar(outputTo, manifest, pathToContents, false);
   }
 
   private void createJar(
-          Path outputTo,
-          Manifest manifest,
-          Map<String, String> pathToContents,
-          boolean setExtendedTimestamps)
-          throws IOException {
+      Path outputTo,
+      Manifest manifest,
+      Map<String, String> pathToContents,
+      boolean setExtendedTimestamps)
+      throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
-         ZipOutputStream zos = new JarOutputStream(os)) {
+        ZipOutputStream zos = new JarOutputStream(os)) {
 
       if (manifest != null) {
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -425,20 +456,23 @@ public class AddJarManifestEntryTest {
     }
   }
 
-  private void writeJarInTimezone(Path inputJar, Path outputJar, String timeZone) throws IOException {
+  private void writeJarInTimezone(Path inputJar, Path outputJar, String timeZone)
+      throws IOException {
     final TimeZone previousTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
-    AddJarManifestEntry.main(new String[]{
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--source", inputJar.toAbsolutePath().toString(),
-            "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"});
+    AddJarManifestEntry.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--source", inputJar.toAbsolutePath().toString(),
+          "--manifest-entry", "Target-Label:@maven//:com_google_guava_guava"
+        });
     TimeZone.setDefault(previousTimeZone);
   }
 
   private Map<String, String> readJar(Path jar) throws IOException {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
     try (InputStream is = Files.newInputStream(jar);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
       for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
         if (entry.isDirectory()) {
           continue;
@@ -452,7 +486,7 @@ public class AddJarManifestEntryTest {
   private List<String> readJarEntries(Path jar) throws IOException {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
     try (InputStream is = Files.newInputStream(jar);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
       for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
         if (entry.isDirectory()) {
           continue;

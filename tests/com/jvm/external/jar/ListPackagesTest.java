@@ -3,14 +3,13 @@ package com.jvm.external.jar;
 import static org.junit.Assert.assertEquals;
 
 import com.google.devtools.build.runfiles.Runfiles;
-import java.nio.file.Path;
-import org.junit.Test;
-import rules.jvm.external.jar.ListPackages;
-
-import java.nio.file.Paths;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.junit.Test;
+import rules.jvm.external.jar.ListPackages;
 
 public class ListPackagesTest {
   @Test
@@ -19,8 +18,7 @@ public class ListPackagesTest {
         "hamcrest_core_for_test/file/hamcrest-core-1.3.jar",
         "org.hamcrest",
         "org.hamcrest.core",
-        "org.hamcrest.internal"
-    );
+        "org.hamcrest.internal");
   }
 
   @Test
@@ -35,8 +33,7 @@ public class ListPackagesTest {
         "com.google.gson.internal.reflect",
         "com.google.gson.internal.sql",
         "com.google.gson.reflect",
-        "com.google.gson.stream"
-    );
+        "com.google.gson.stream");
   }
 
   @Test
@@ -48,15 +45,12 @@ public class ListPackagesTest {
         "org.junit.platform.commons.function",
         "org.junit.platform.commons.logging",
         "org.junit.platform.commons.support",
-        "org.junit.platform.commons.util"
-    );
+        "org.junit.platform.commons.util");
   }
 
   @Test
   public void noPackages() throws Exception {
-    doTest(
-        "hamcrest_core_srcs_for_test/file/hamcrest-core-1.3-sources.jar"
-    );
+    doTest("hamcrest_core_srcs_for_test/file/hamcrest-core-1.3-sources.jar");
   }
 
   private void doTest(String runfileJar, String... expectedPackages) throws IOException {

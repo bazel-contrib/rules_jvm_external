@@ -56,7 +56,7 @@ javadoc = rule(
         ),
         "_javadoc": attr.label(
             default = "//private/tools/java/rules/jvm/external/javadoc",
-            cfg = "host",
+            cfg = "exec",
             executable = True,
         ),
     },

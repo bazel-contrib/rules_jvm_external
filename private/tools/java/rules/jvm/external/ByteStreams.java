@@ -27,5 +27,4 @@ public class ByteStreams {
       sink.write(buffer, 0, read);
     }
   }
-
 }

@@ -17,8 +17,9 @@
 
 package rules.jvm.external.jar;
 
-import rules.jvm.external.ByteStreams;
-import rules.jvm.external.zip.StableZipEntry;
+import static java.util.zip.Deflater.BEST_COMPRESSION;
+import static java.util.zip.ZipOutputStream.DEFLATED;
+import static rules.jvm.external.jar.DuplicateEntryStrategy.LAST_IN_WINS;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,11 +46,8 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
-import static java.util.zip.Deflater.BEST_COMPRESSION;
-import static java.util.zip.ZipOutputStream.DEFLATED;
-import static rules.jvm.external.jar.DuplicateEntryStrategy.LAST_IN_WINS;
-
+import rules.jvm.external.ByteStreams;
+import rules.jvm.external.zip.StableZipEntry;
 
 public class MergeJars {
 
@@ -84,7 +82,8 @@ public class MergeJars {
           break;
 
         default:
-          throw new IllegalArgumentException("Unable to parse command line: " + Arrays.toString(args));
+          throw new IllegalArgumentException(
+              "Unable to parse command line: " + Arrays.toString(args));
       }
     }
 
@@ -92,7 +91,7 @@ public class MergeJars {
     if (sources.isEmpty()) {
       // Just write an empty jar and leave
       try (OutputStream fos = Files.newOutputStream(out);
-           JarOutputStream jos = new JarOutputStream(fos)) {
+          JarOutputStream jos = new JarOutputStream(fos)) {
         // This space left blank deliberately
       }
       return;
@@ -120,7 +119,7 @@ public class MergeJars {
 
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
-           ZipInputStream zis = new ZipInputStream(fis)) {
+          ZipInputStream zis = new ZipInputStream(fis)) {
 
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
@@ -130,14 +129,16 @@ public class MergeJars {
             continue;
           }
 
-          if ("META-INF/".equals(entry.getName()) ||
-                  (!entry.getName().startsWith("META-INF/") && excludedPaths.contains(entry.getName()))) {
+          if ("META-INF/".equals(entry.getName())
+              || (!entry.getName().startsWith("META-INF/")
+                  && excludedPaths.contains(entry.getName()))) {
             continue;
           }
 
           if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) {
             String servicesName = entry.getName().substring("META-INF/services/".length());
-            Set<String> services = allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
+            Set<String> services =
+                allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
             String content = new String(ByteStreams.toByteArray(zis));
             services.addAll(Arrays.asList(content.split("\n")));
             continue;
@@ -153,7 +154,8 @@ public class MergeJars {
               fileHashCodes.put(entry.getName(), hash);
             } else {
               byte[] originalHashCode = fileHashCodes.get(entry.getName());
-              boolean replace = onDuplicate.isReplacingCurrent(entry.getName(), originalHashCode, hash);
+              boolean replace =
+                  onDuplicate.isReplacingCurrent(entry.getName(), originalHashCode, hash);
               if (replace) {
                 fileToSourceJar.put(entry.getName(), source);
                 fileHashCodes.put(entry.getName(), hash);
@@ -175,7 +177,7 @@ public class MergeJars {
     Set<String> createdDirectories = new HashSet<>();
 
     try (OutputStream os = Files.newOutputStream(out);
-         JarOutputStream jos = new JarOutputStream(os)) {
+        JarOutputStream jos = new JarOutputStream(os)) {
       jos.setMethod(DEFLATED);
       jos.setLevel(BEST_COMPRESSION);
 
@@ -195,7 +197,7 @@ public class MergeJars {
 
       if (!allServices.isEmpty()) {
         if (!createdDirectories.contains("META-INF/services/")) {
-          entry = new StableZipEntry( "META-INF/services/");
+          entry = new StableZipEntry("META-INF/services/");
           jos.putNextEntry(entry);
           jos.closeEntry();
           createdDirectories.add(entry.getName());
@@ -260,7 +262,8 @@ public class MergeJars {
     }
   }
 
-  private static void createDirectories(JarOutputStream jos, String name, Set<String> createdDirs) throws IOException {
+  private static void createDirectories(JarOutputStream jos, String name, Set<String> createdDirs)
+      throws IOException {
     if (!name.endsWith("/")) {
       int slashIndex = name.lastIndexOf('/');
       if (slashIndex != -1) {
@@ -295,8 +298,8 @@ public class MergeJars {
 
     for (Path exclude : excludes) {
       try (InputStream is = Files.newInputStream(exclude);
-      BufferedInputStream bis = new BufferedInputStream(is);
-      ZipInputStream jis = new ZipInputStream(bis)) {
+          BufferedInputStream bis = new BufferedInputStream(is);
+          ZipInputStream jis = new ZipInputStream(bis)) {
         ZipEntry entry;
         while ((entry = jis.getNextEntry()) != null) {
           if (entry.isDirectory()) {
@@ -329,14 +332,16 @@ public class MergeJars {
       attributes.forEach((key, value) -> into.getMainAttributes().put(key, value));
     }
 
-    from.getEntries().forEach((key, value) -> {
-      Attributes attrs = into.getAttributes(key);
-      if (attrs == null) {
-        attrs = new Attributes();
-        into.getEntries().put(key, attrs);
-      }
-      attrs.putAll(value);
-    });
+    from.getEntries()
+        .forEach(
+            (key, value) -> {
+              Attributes attrs = into.getAttributes(key);
+              if (attrs == null) {
+                attrs = new Attributes();
+                into.getEntries().put(key, attrs);
+              }
+              attrs.putAll(value);
+            });
 
     return into;
   }
@@ -351,7 +356,7 @@ public class MergeJars {
       while ((read = inputStream.read(buf)) != -1) {
         digest.update(buf, 0, read);
       }
-     return digest.digest();
+      return digest.digest();
     } catch (IOException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
