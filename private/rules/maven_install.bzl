@@ -26,7 +26,9 @@ def maven_install(
         fail_if_repin_required = False,
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
-        duplicate_version_warning = "warn"):
+        duplicate_version_warning = "warn",
+        workspace_prefix_for_pinned_deps = "",
+        ):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -77,6 +79,10 @@ def maven_install(
       duplicate_version_warning: What to do if an artifact is specified multiple times. If "error" then
         fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default
         is "warn".
+      workspace_prefix_for_pinned_deps: Prefix to use for names of http_file if using pinned dependencies.
+        For example, with the default empty string, `maven_install` creates intermediate dependencies like
+        `@junit_junit`. With a prefix "my_deps_", the intermediate workspace names becomes
+        `@my_deps_junit_junit`. This is useful to avoid workspace name pollution during migration.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -153,4 +159,5 @@ def maven_install(
             use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
             use_starlark_android_rules = use_starlark_android_rules,
             aar_import_bzl_label = aar_import_bzl_label,
+            workspace_prefix_for_pinned_deps = workspace_prefix_for_pinned_deps,
         )

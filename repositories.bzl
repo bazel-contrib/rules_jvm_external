@@ -36,4 +36,5 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
         fail_if_repin_required = True,
         strict_visibility = True,
         repositories = repositories,
+        workspace_prefix_for_pinned_deps = "_rules_jvm_external_deps",
     )
