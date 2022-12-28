@@ -21,6 +21,7 @@ _artifact = tag_class(
         "testonly": attr.bool(),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
+        "dev_dependency": attr.bool(),
     },
 )
 
@@ -72,6 +73,7 @@ _install = tag_class(
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "lock_file": attr.label(),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
+        "dev_dependencies": attr.bool(),
 
         # When using an unpinned repo
         "excluded_artifacts": attr.string_list(doc = "Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs", default = []),  # list of artifacts to exclude
@@ -177,6 +179,8 @@ def _maven_impl(mctx):
             overrides.update({override.coordinates: to_use})
 
         for artifact in mod.tags.artifact:
+            if artifact.dev_dependency and not mod.is_root:
+                continue
             _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
 
             repo = repos.get(artifact.name, {})
@@ -212,6 +216,8 @@ def _maven_impl(mctx):
             repos[artifact.name] = repo
 
         for install in mod.tags.install:
+            if install.dev_dependencies and not mod.is_root:
+                continue
             _check_repo_name(repo_name_2_module_name, install.name, mod.name)
 
             repo = repos.get(install.name, {})
