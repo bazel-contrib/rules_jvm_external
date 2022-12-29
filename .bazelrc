@@ -11,5 +11,18 @@ build --explicit_java_test_deps
 test --verbose_failures
 test --test_output=errors
 
+# Every JVM creates a temporary performance instrumentation file in
+# /tmp/hsperfdata_$USERNAME/$PID. When we use sandboxing, we use PID
+# namespaces, which means that the PIDs are virtualized and all
+# running JVMs believe they are PID 2.
+#
+# This means that they all open/ftruncate/mmap the same file and that
+# gives you SIGBUS eventually, because "It tries to read an address
+# that no longer exists from an mmap'd file".
+#
+# https://github.com/bazelbuild/bazel/issues/3236#issuecomment-310776024
+
+build --sandbox_tmpfs_path=/tmp
+
 # Allows the examples to extend the default bazelrc
 try-import %workspace%/.bazelrc.example
