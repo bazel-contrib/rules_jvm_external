@@ -33,9 +33,9 @@ JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     # skip artifacts without any urls (ie: maven local artifacts)
-    if not artifact.get("url"):
+    if not len(artifact["urls"]):
         return ""
-    http_file_repository = escape(artifact["coord"])
+    http_file_repository = escape(artifact["coordinates"])
     return "\n".join([
         "genrule(",
         "     name = \"%s_extension\"," % http_file_repository,
@@ -60,7 +60,7 @@ def _deduplicate_list(items):
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
+def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -86,8 +86,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
     srcjar_paths = None
     if repository_ctx.attr.fetch_sources:
         srcjar_paths = {}
-        for artifact in dep_tree["dependencies"]:
-            if get_classifier(artifact["coord"]) == "sources":
+        for artifact in dependencies:
+            if get_classifier(artifact["coordinates"]) == "sources":
                 artifact_path = artifact["file"]
 
                 # Skip the maven local dependencies if requested
@@ -95,7 +95,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
                     continue
                 if artifact_path != None and artifact_path not in seen_imports:
                     seen_imports[artifact_path] = True
-                    target_label = escape(strip_packaging_and_classifier_and_version(artifact["coord"]))
+                    target_label = escape(strip_packaging_and_classifier_and_version(artifact["coordinates"]))
                     srcjar_paths[target_label] = artifact_path
                     if repository_ctx.attr.maven_install_json:
                         all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
@@ -108,26 +108,26 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
         jetify_include_dict[jetify_include_artifact] = None
 
     # Iterate through the list of artifacts, and generate the target declaration strings.
-    for artifact in dep_tree["dependencies"]:
+    for artifact in dependencies:
         artifact_path = artifact["file"]
-        simple_coord = strip_packaging_and_classifier_and_version(artifact["coord"])
+        simple_coord = strip_packaging_and_classifier_and_version(artifact["coordinates"])
         target_label = escape(simple_coord)
         alias_visibility = ""
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
             pass
-        elif repository_ctx.attr.fetch_sources and get_classifier(artifact["coord"]) == "sources":
+        elif repository_ctx.attr.fetch_sources and get_classifier(artifact["coordinates"]) == "sources":
             # We already processed the sources above, so skip them here.
             pass
-        elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coord"]) == "javadoc":
+        elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coordinates"]) == "javadoc":
             seen_imports[target_label] = True
             all_imports.append(
                 "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_path),
             )
-        elif get_packaging(artifact["coord"]) == "json":
+        elif get_packaging(artifact["coordinates"]) == "json":
             seen_imports[target_label] = True
-            versioned_target_alias_label = "%s_extension" % escape(artifact["coord"])
+            versioned_target_alias_label = "%s_extension" % escape(artifact["coordinates"])
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label),
             )
@@ -211,7 +211,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             # Dedupe dependencies here. Sometimes coursier will return "x.y:z:aar:version" and "x.y:z:version" in the
             # same list of dependencies.
             target_import_labels = []
-            for dep in artifact["directDependencies"]:
+            for dep in artifact["deps"]:
                 if get_packaging(dep) == "json":
                     continue
                 stripped_dep = strip_packaging_and_classifier_and_version(dep)
@@ -219,8 +219,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
 
                 # If we have matching artifacts with platform classifiers, skip adding this dependency.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
-                if match_group_and_artifact(artifact["coord"], dep) and \
-                   get_classifier(artifact["coord"]) in PLATFORM_CLASSIFIER and \
+                if match_group_and_artifact(artifact["coordinates"], dep) and \
+                   get_classifier(artifact["coordinates"]) in PLATFORM_CLASSIFIER and \
                    get_classifier(dep) in PLATFORM_CLASSIFIER:
                     continue
 
@@ -252,8 +252,8 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   ],
 
             target_import_string.append("\ttags = [")
-            target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coord"])
-            target_import_string.append("\t\t\"maven_url=%s\"," % artifact["url"])
+            target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coordinates"])
+            target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
             target_import_string.append("\t],")
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
@@ -343,7 +343,7 @@ def _generate_imports(repository_ctx, dep_tree, explicit_artifacts, neverlink_ar
             #   name = "org_hamcrest_hamcrest_library_1_3",
             #   actual = "org_hamcrest_hamcrest_library",
             # )
-            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
+            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coordinates"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 
