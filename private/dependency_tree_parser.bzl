@@ -383,7 +383,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             target_import_string.append("\texports = [")
 
             target_import_labels = []
-            for dep in artifact["dependencies"]:
+            for dep in artifact.get("dependencies", []):
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
@@ -393,7 +393,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             target_import_labels = _deduplicate_list(target_import_labels)
 
             target_import_string.append("".join(target_import_labels) + "\t],")
-            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coord"])
+            target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % artifact["coordinates"])
 
             if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
                 target_import_string.append("\tvisibility = [\"//visibility:public\"],")
@@ -406,7 +406,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
 
             all_imports.append("\n".join(target_import_string))
 
-            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coord"]))
+            versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coordinates"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 

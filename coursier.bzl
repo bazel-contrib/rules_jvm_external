@@ -1125,10 +1125,9 @@ def _coursier_fetch_impl(repository_ctx):
     })
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    dependencies = [create_dependency(d) for d in dep_tree["dependencies"]]
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
         repository_ctx = repository_ctx,
-        dependencies = [d for d in dependencies if d],
+        dependencies = [create_dependency(d) for d in dep_tree["dependencies"]],
         explicit_artifacts = {
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts

@@ -50,20 +50,19 @@ def _compute_lock_file_hash(lock_file_contents):
     return hash(repr(sorted(signature_inputs)))
 
 def create_dependency(dep):
-    if not dep.get("url") and not dep.get("file"):
-        return None
-
     url = dep.get("url")
     if url:
         urls = [_remove_auth_from_url(url)]
         urls.extend([_remove_auth_from_url(u) for u in dep.get("mirror_urls", []) if u != url])
-    else:
+    elif dep.get("file"):
         urls = ["file://%s" % dep["file"]]
+    else:
+        urls = []
 
     return {
         "coordinates": dep["coord"],
-        "file": dep["file"],
-        "sha256": dep["sha256"],
+        "file": dep.get("file"),
+        "sha256": dep.get("sha256"),
         "deps": dep["directDependencies"],
         "urls": urls,
     }
