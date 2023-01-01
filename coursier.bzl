@@ -468,23 +468,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path(repository_ctx.attr.maven_install_json),
         repository_ctx.path("imported_maven_install.json"),
     )
-    maven_install_json_content = json.decode(
-        repository_ctx.read(
-            repository_ctx.path("imported_maven_install.json"),
-        ),
-    )
+    maven_install_json_content = json.decode( repository_ctx.read(repository_ctx.attr.maven_install_json))
 
     # Validation steps for maven_install.json.
 
-    # First, validate that we can parse the JSON file.
-    if maven_install_json_content == None:
-        fail("Failed to parse %s. Is this file valid JSON? The file may have been corrupted." % repository_ctx.path(repository_ctx.attr.maven_install_json) +
-             "Consider regenerating maven_install.json with the following steps:\n" +
-             "  1. Remove the maven_install_json attribute from your `maven_install` declaration for `@%s`.\n" % repository_ctx.name +
-             "  2. Regenerate `maven_install.json` by running the command: bazel run @%s//:pin" % repository_ctx.name +
-             "  3. Add `maven_install_json = \"//:maven_install.json\"` into your `maven_install` declaration.")
-
-    # Then, validate that there's a dependency_tree element in the parsed JSON.
+    # Validate that there's a dependency_tree element in the parsed JSON.
     if maven_install_json_content.get("dependency_tree") == None:
         fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json) +
              "It is not a valid maven_install.json file. Has this " +
