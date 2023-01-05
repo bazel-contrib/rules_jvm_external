@@ -18,6 +18,7 @@ java_library(
 
 java_binary(
     name = "hasher-tool",
+    main_class = "rules.jvm.external.Hasher",
     visibility = [
         "//scripts:__pkg__",
     ],

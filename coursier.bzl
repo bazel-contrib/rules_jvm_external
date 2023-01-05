@@ -468,7 +468,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path(repository_ctx.attr.maven_install_json),
         repository_ctx.path("imported_maven_install.json"),
     )
-    maven_install_json_content = json.decode( repository_ctx.read(repository_ctx.attr.maven_install_json))
+    maven_install_json_content = json.decode(repository_ctx.read(repository_ctx.attr.maven_install_json))
 
     # Validation steps for maven_install.json.
 
