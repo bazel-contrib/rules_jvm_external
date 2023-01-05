@@ -49,6 +49,12 @@ bzl_library(
 )
 """
 
+_BUILD_VENDOR = """
+load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
+
+{vendor_targets}
+"""
+
 DEFAULT_AAR_IMPORT_LABEL = "@build_bazel_rules_android//android:rules.bzl"
 
 _AAR_IMPORT_STATEMENT = """\
@@ -473,7 +479,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     )
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
+    (generated_imports, jar_versionless_target_labels, generated_vendor_targets) = parser.generate_imports(
         repository_ctx = repository_ctx,
         dependencies = importer.get_artifacts(maven_install_json_content),
         explicit_artifacts = {
@@ -508,6 +514,14 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+        ),
+        executable = False,
+    )
+
+    repository_ctx.file(
+        "BUILD.vendor",
+        (_BUILD_VENDOR).format(
+            vendor_targets = generated_vendor_targets,
         ),
         executable = False,
     )
@@ -1036,7 +1050,7 @@ def _coursier_fetch_impl(repository_ctx):
     )
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
+    (generated_imports, jar_versionless_target_labels, _) = parser.generate_imports(
         repository_ctx = repository_ctx,
         dependencies = v2_lock_file.get_artifacts(lock_file_contents),
         explicit_artifacts = {

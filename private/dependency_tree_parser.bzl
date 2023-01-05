@@ -107,6 +107,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
     for jetify_include_artifact in repository_ctx.attr.jetify_include_list:
         jetify_include_dict[jetify_include_artifact] = None
 
+    artifact_paths = []
+    vendor_targets = []
+
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dependencies:
         artifact_path = artifact["file"]
@@ -344,6 +347,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             target_import_string.append(")")
 
             all_imports.append("\n".join(target_import_string))
+            vendor_targets.append("\n".join(target_import_string))
 
             # 10. Create a versionless alias target
             #
@@ -354,6 +358,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coordinates"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
+            file_group_target_string = "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n%s)" % (target_label + "_file", artifact_path, alias_visibility)
+            all_imports.append(file_group_target_string)
+            vendor_targets.append(file_group_target_string)
 
             # 11. If using maven_install.json, use a genrule to copy the file from the http_file
             # repository into this repository.
@@ -366,6 +373,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # )
             if repository_ctx.attr.maven_install_json:
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
+
+            # 12. collect the artifact_path for the filegroup rule collecting all necessary sources for vendoring
+            artifact_paths.append("\"%s\"" % artifact_path)
 
         else:  # artifact_path == None:
             # Special case for certain artifacts that only come with a POM file.
@@ -418,7 +428,10 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 
-    return ("\n".join(all_imports), jar_versionless_target_labels)
+    all_imports.append("filegroup(\n\tname = \"srcs\",\n\tsrcs = [\n\t\t%s,\n\t],\n\tvisibility = [\"//visibility:public\"],\n)" %
+                       (",\n\t\t".join(["\"BUILD.vendor\"", "\"defs.bzl\"", "\"WORKSPACE\""] + artifact_paths)))
+
+    return ("\n".join(all_imports), jar_versionless_target_labels, "\n".join(vendor_targets))
 
 parser = struct(
     generate_imports = _generate_imports,
