@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 
 load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
+load("//private/rules:v1_lock_file.bzl", "create_dependency", "v1_lock_file")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "is_maven_local_path")
@@ -468,26 +469,27 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path(repository_ctx.attr.maven_install_json),
         repository_ctx.path("imported_maven_install.json"),
     )
-    maven_install_json_content = json.decode( repository_ctx.read(repository_ctx.attr.maven_install_json))
+    maven_install_json_content = json.decode(repository_ctx.read(repository_ctx.attr.maven_install_json))
 
+    importer = v1_lock_file
     # Validation steps for maven_install.json.
 
     # Validate that there's a dependency_tree element in the parsed JSON.
-    if maven_install_json_content.get("dependency_tree") == None:
+    if not importer.is_valid_lock_file(maven_install_json_content):
         fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json) +
              "It is not a valid maven_install.json file. Has this " +
              "file been modified manually?")
 
-    dep_tree = maven_install_json_content["dependency_tree"]
+    input_artifacts_hash = importer.get_input_artifacts_hash(maven_install_json_content)
 
     # Then, check to see if we need to repin our deps because inputs have changed
-    if dep_tree.get("__INPUT_ARTIFACTS_HASH") == None:
+    if input_artifacts_hash == None:
         print("NOTE: %s_install.json does not contain a signature of the required artifacts. " % repository_ctx.name +
               "This feature ensures that the build does not use stale dependencies when the inputs " +
               "have changed. To generate this signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
     else:
         computed_artifacts_hash = compute_dependency_inputs_signature(repository_ctx.attr.artifacts, repository_ctx.attr.repositories)
-        if computed_artifacts_hash != dep_tree.get("__INPUT_ARTIFACTS_HASH"):
+        if computed_artifacts_hash != input_artifacts_hash:
             if _fail_if_repin_required(repository_ctx):
                 fail("%s_install.json contains an invalid input signature and must be regenerated. " % (repository_ctx.name) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
@@ -502,13 +504,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % repository_ctx.name +
                       "Consider running 'bazel run @unpinned_%s//:pin'" % repository_ctx.name)
 
-    dep_tree_signature = dep_tree.get("__RESOLVED_ARTIFACTS_HASH")
+    dep_tree_signature = importer.get_lock_file_hash(maven_install_json_content)
 
     if dep_tree_signature == None:
         print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name +
               "This feature ensures that the file is not modified manually. To generate this " +
               "signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
-    elif _compute_dependency_tree_signature(dep_tree["dependencies"]) != dep_tree_signature:
+    elif importer.compute_lock_file_hash(maven_install_json_content) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         fail("%s_install.json contains an invalid signature and may be corrupted. " % repository_ctx.name +
@@ -529,37 +531,25 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "def pinned_maven_install():",
     ]
     maven_artifacts = []
-    netrc_entries = {}
+    netrc_entries = importer.get_netrc_entries(maven_install_json_content)
 
-    for artifact in dep_tree["dependencies"]:
-        if artifact.get("url") != None:
-            http_file_repository_name = escape(artifact["coord"])
-            maven_artifacts.extend([artifact["coord"]])
-            http_files.extend([
-                "    http_file(",
-                "        name = \"%s\"," % http_file_repository_name,
-                "        sha256 = \"%s\"," % artifact["sha256"],
-                # repository_ctx should point to external/$repository_ctx.name
-                # The http_file should point to external/$http_file_repository_name
-                # File-path is relative defined from http_file traveling to repository_ctx.
-                "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
-            ])
-            if artifact.get("mirror_urls") != None:
-                http_files.append("        urls = %s," % repr(
-                    [remove_auth_from_url(url) for url in artifact["mirror_urls"]],
-                ))
-                netrc_entries = add_netrc_entries_from_mirror_urls(netrc_entries, artifact["mirror_urls"])
-            else:
-                # For backwards compatibility. mirror_urls is a field added in a
-                # later version than the url field, so not all maven_install.json
-                # contains the mirror_urls field.
-                http_files.append("        urls = [\"%s\"]," % artifact["url"])
-            http_files.append("        downloaded_file_path = \"%s\"," % artifact["file"])
-            http_files.append("    )")
-        elif is_maven_local_path(artifact["file"]):
-            # This file comes from maven local, so instead of creating an http_file for it, we simply
-            # symlink the file from the mavel local directory to file within the repository rule workspace
-            artifact.update({"file": _relativize_and_symlink_file_in_maven_local(repository_ctx, artifact["file"])})
+    for artifact in importer.get_artifacts(maven_install_json_content):
+        http_file_repository_name = escape(artifact["coordinates"])
+        maven_artifacts.extend([artifact["coordinates"]])
+        http_files.extend([
+            "    http_file(",
+            "        name = \"%s\"," % http_file_repository_name,
+            "        sha256 = \"%s\"," % artifact["sha256"],
+            # repository_ctx should point to external/$repository_ctx.name
+            # The http_file should point to external/$http_file_repository_name
+            # File-path is relative defined from http_file traveling to repository_ctx.
+            "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
+        ])
+        http_files.append("        urls = %s," % repr(
+            [remove_auth_from_url(url) for url in artifact["urls"]],
+        ))
+        http_files.append("        downloaded_file_path = \"%s\"," % artifact["file"])
+        http_files.append("    )")
 
     http_files.extend(_get_jq_http_files())
 
@@ -579,7 +569,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
         repository_ctx = repository_ctx,
-        dep_tree = dep_tree,
+        dependencies = importer.get_artifacts(maven_install_json_content),
         explicit_artifacts = {
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
@@ -1137,7 +1127,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
         repository_ctx = repository_ctx,
-        dep_tree = dep_tree,
+        dependencies = [create_dependency(d) for d in dep_tree["dependencies"]],
         explicit_artifacts = {
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts

@@ -67,6 +67,7 @@ bzl_library(
         "//private/rules:maven_publish.bzl",
         "//private/rules:maven_utils.bzl",
         "//private/rules:pom_file.bzl",
+        "//private/rules:v1_lock_file.bzl",
         "//settings:stamp_manifest.bzl",
     ],
     visibility = [
