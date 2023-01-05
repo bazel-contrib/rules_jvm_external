@@ -129,7 +129,9 @@ def _parse_maven_coordinate_string(mvn_coord):
     group = pieces[0]
     artifact = pieces[1]
 
-    if len(pieces) == 3:
+    if len(pieces) == 2:
+        return {"group": group, "artifact": artifact, "version": ""}
+    elif len(pieces) == 3:
         version = pieces[2]
         return {"group": group, "artifact": artifact, "version": version}
     elif len(pieces) == 4:
@@ -142,7 +144,7 @@ def _parse_maven_coordinate_string(mvn_coord):
         version = pieces[4]
         return {"group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier, "version": version}
     else:
-        fail("Could not parse maven coordinate", attr = mvn_coord)
+        fail("Could not parse maven coordinate: %s" % mvn_coord)
 
 def _parse_repository_spec_list(repository_specs):
     """

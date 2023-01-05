@@ -111,7 +111,7 @@ load("//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
-        "com.google.guava:guava:27.0-jre",
+        "com.google.guava:guava:31.1-jre",
         "org.hamcrest:hamcrest-core:2.1",
     ],
     maven_install_json = "@rules_jvm_external//:maven_install.json",
@@ -246,6 +246,16 @@ maven_install(
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
         "https://packages.confluent.io/maven/",
+    ],
+)
+
+# Grab com.google.ar.sceneform:rendering because we overrode it above
+http_file(
+    name = "com.google.ar.sceneform_rendering",
+    downloaded_file_path = "rendering-1.10.0.aar",
+    sha256 = "d2f6cd1d54eee0d5557518d1edcf77a3ba37494ae94f9bb862e570ee426a3431",
+    urls = [
+        "https://dl.google.com/android/maven2/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
     ],
 )
 
@@ -541,6 +551,23 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+maven_install(
+    name = "v1_lock_file_format",
+    artifacts = [
+        # Coordinates that are in no other `maven_install`
+        "io.ous:jtoml:2.0.0",
+    ],
+    generate_compat_repositories = True,
+    maven_install_json = "//tests/custom_maven_install:v1_lock_file_format_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@v1_lock_file_format//:defs.bzl", v1_lock_file_format_pinned_maven_install = "pinned_maven_install")
+
+v1_lock_file_format_pinned_maven_install()
 
 http_file(
     name = "hamcrest_core_for_test",

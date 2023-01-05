@@ -11,18 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-def _remove_auth_from_url(url):
-    """Returns url without `user:pass@` or `user@`."""
-    if "@" not in url:
-        return url
-    protocol, url_parts = _split_url(url)
-    host = url_parts[0]
-    if "@" not in host:
-        return url
-    last_index = host.rfind("@", 0, None)
-    userless_host = host[last_index + 1:]
-    new_url = "{}://{}".format(protocol, "/".join([userless_host] + url_parts[1:]))
-    return new_url
+load(":urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url")
 
 def _is_valid_lock_file(lock_file_contents):
     dep_tree = lock_file_contents.get("dependency_tree")
@@ -80,8 +69,8 @@ def _compute_lock_file_hash(lock_file_contents):
 def create_dependency(dep):
     url = dep.get("url")
     if url:
-        urls = [_remove_auth_from_url(url)]
-        urls.extend([_remove_auth_from_url(u) for u in dep.get("mirror_urls", []) if u != url])
+        urls = [remove_auth_from_url(url)]
+        urls.extend([remove_auth_from_url(u) for u in dep.get("mirror_urls", []) if u != url])
     elif dep.get("file"):
         urls = ["file://%s" % dep["file"]]
     else:
@@ -108,52 +97,10 @@ def _get_artifacts(lock_file_contents):
 
     return to_return
 
-def _split_url(url):
-    protocol = url[:url.find("://")]
-    url_without_protocol = url[url.find("://") + 3:]
-    url_parts = url_without_protocol.split("/")
-    return protocol, url_parts
-
-def _extract_netrc_from_auth_url(url):
-    """Return a dict showing the netrc machine, login, and password extracted from a url.
-
-    Returns:
-        A dict that is empty if there were no credentials in the url.
-        A dict that has three keys -- machine, login, password -- with their respective values. These values should be
-        what is needed for the netrc entry of the same name except for password whose value may be empty meaning that
-        there is no password for that login.
-    """
-    if "@" not in url:
-        return {}
-    protocol, url_parts = _split_url(url)
-    login_password_host = url_parts[0]
-    if "@" not in login_password_host:
-        return {}
-    login_password, host = login_password_host.rsplit("@", 1)
-    login_password_split = login_password.split(":", 1)
-    login = login_password_split[0]
-
-    # If password is not provided, then this will be a 1-length split
-    if len(login_password_split) < 2:
-        password = None
-    else:
-        password = login_password_split[1]
-    if not host:
-        fail("Got a blank host from: {}".format(url))
-    if not login:
-        fail("Got a blank login from: {}".format(url))
-
-    # Do not fail for blank password since that is sometimes a thing
-    return {
-        "machine": host,
-        "login": login,
-        "password": password,
-    }
-
-def _add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls):
+def add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls):
     """Add a url's auth credentials into a netrc dict of form return[machine][login] = password."""
     for url in mirror_urls:
-        entry = _extract_netrc_from_auth_url(url)
+        entry = extract_netrc_from_auth_url(url)
         if not entry:
             continue
         machine = entry["machine"]
@@ -180,7 +127,7 @@ def _get_netrc_entries(lock_file_contents):
     netrc_entries = {}
     for dep in raw_deps:
         if dep.get("mirror_urls"):
-            netrc_entries = _add_netrc_entries_from_mirror_urls(netrc_entries, dep["mirror_urls"])
+            netrc_entries = add_netrc_entries_from_mirror_urls(netrc_entries, dep["mirror_urls"])
 
     return netrc_entries
 

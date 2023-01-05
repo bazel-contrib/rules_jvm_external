@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+readonly maven_unsorted_file="$1"
 readonly maven_install_json_loc={maven_install_location}
-# `jq` is a platform-specific dependency with an unpredictable path.
-# Note that $(rootpath) will always give external/unpinned_maven/jq, however under --nolegacy_external_runfiles
-# there is only pin.runfiles/unpinned_maven/jq not also pin.runfiles/user_repo/external/unpinned_maven/jq
-# So replace leading external/ with ../
-readonly jq=${1/#external\//..\/}
-readonly maven_unsorted_file="$2"
-"$jq" --sort-keys --indent 4 '.dependency_tree.dependencies|=sort_by(.coord) | .dependency_tree.dependencies[].dependencies|=sort_by(.) | .dependency_tree.dependencies[].directDependencies|=sort_by(.)' < "$maven_unsorted_file" > $maven_install_json_loc
+
+cp "$maven_unsorted_file" "$maven_install_json_loc"
+
 if [ "{predefined_maven_install}" = "True" ]; then
     echo "Successfully pinned resolved artifacts for @{repository_name}, $maven_install_json_loc is now up-to-date."
 else

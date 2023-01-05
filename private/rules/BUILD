@@ -14,5 +14,7 @@ exports_files([
     "maven_publish.bzl",
     "maven_utils.bzl",
     "pom_file.bzl",
+    "urls.bzl",
     "v1_lock_file.bzl",
+    "v2_lock_file.bzl",
 ])

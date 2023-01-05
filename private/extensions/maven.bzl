@@ -1,4 +1,6 @@
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
+load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
+load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load("//:specs.bzl", "parse", _json = "json")
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
@@ -323,9 +325,14 @@ def _maven_impl(mctx):
         if repo.get("lock_file"):
             lock_file = json.decode(mctx.read(mctx.path(repo.get("lock_file"))))
 
-            dep_tree = lock_file["dependency_tree"]
+            if v2_lock_file.is_valid_lock_file(lock_file):
+                artifacts = v2_lock_file.get_artifacts(lock_file)
+            elif v1_lock_file.is_valid_lock_file(lock_file):
+                artifacts = v1_lock_file.get_artifacts(lock_file)
+            else:
+                fail("Unable to determine lock file version: %s" % repo.get("lock_file"))
 
-            created = download_pinned_deps(dep_tree = dep_tree, artifacts = artifacts, existing_repos = existing_repos)
+            created = download_pinned_deps(artifacts = artifacts, existing_repos = existing_repos)
             existing_repos.extend(created)
 
             pinned_coursier_fetch(

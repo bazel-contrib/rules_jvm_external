@@ -11,6 +11,16 @@ def unpack_coordinates(coords):
 
     parts = coords.split(":")
     nparts = len(parts)
+
+    if nparts == 2:
+        return struct(
+            groupId = parts[0],
+            artifactId = parts[1],
+            type = None,
+            scope = None,
+            version = None,
+        )
+
     if nparts < 3 or nparts > 5:
         fail("Unparsed: %s" % coords)
 
