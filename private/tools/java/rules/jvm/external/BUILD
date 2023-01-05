@@ -15,3 +15,13 @@ java_library(
         "//tests/com/jvm/external:__pkg__",
     ],
 )
+
+java_binary(
+    name = "hasher-tool",
+    visibility = [
+        "//scripts:__pkg__",
+    ],
+    runtime_deps = [
+        ":hasher",
+    ],
+)
