@@ -107,9 +107,9 @@ genrule(
 set -eufo pipefail
 
 root="\\$$BUILD_WORKSPACE_DIRECTORY/private/tools/prebuilt"
-cp "$(location //private/tools/java/rules/jvm/external:hasher-tool_deploy.jar)" "\\$$root/hasher_deploy.jar"
-cp "$(location //private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar)" "\\$$root/list_packages_deploy.jar"
-cp "$(location //private/tools/java/rules/jvm/external/maven:outdated_deploy.jar)" "\\$$root/outdated_deploy.jar"
+cp -f "$(location //private/tools/java/rules/jvm/external:hasher-tool_deploy.jar)" "\\$$root/hasher_deploy.jar"
+cp -f "$(location //private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar)" "\\$$root/list_packages_deploy.jar"
+cp -f "$(location //private/tools/java/rules/jvm/external/maven:outdated_deploy.jar)" "\\$$root/outdated_deploy.jar"
 
 EOF
 """,
