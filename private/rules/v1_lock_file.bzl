@@ -1,3 +1,16 @@
+# Copyright 2023 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+
 def _remove_auth_from_url(url):
     """Returns url without `user:pass@` or `user@`."""
     if "@" not in url:
@@ -12,7 +25,23 @@ def _remove_auth_from_url(url):
     return new_url
 
 def _is_valid_lock_file(lock_file_contents):
-    return lock_file_contents.get("dependency_tree") != None
+    dep_tree = lock_file_contents.get("dependency_tree")
+
+    if not dep_tree:
+        return False
+
+    # The version should match
+    if "0.1.0" != dep_tree.get("version"):
+        return False
+
+    # And we need dependencies
+    if not dep_tree.get("dependencies"):
+        return False
+
+    # At this point, we'll only discover problems as we try and generate
+    # the build files.
+    return True
+
 
 def _get_input_artifacts_hash(lock_file_contents):
     dep_tree = lock_file_contents.get("dependency_tree", {})
