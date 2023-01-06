@@ -94,24 +94,22 @@ EOL
     ],
 )
 
-genrule(
+sh_binary(
     name = "refresh-prebuilts",
     srcs = [
+        "copy-prebuilts.sh",
+    ],
+    args = [
+        "$(location //private/tools/java/rules/jvm/external:hasher-tool_deploy.jar)",
+        "hasher_deploy.jar",
+        "$(location //private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar)",
+        "list_packages_deploy.jar",
+        "$(location //private/tools/java/rules/jvm/external/maven:outdated_deploy.jar)",
+        "outdated_deploy.jar",
+    ],
+    data = [
         "//private/tools/java/rules/jvm/external:hasher-tool_deploy.jar",
         "//private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar",
         "//private/tools/java/rules/jvm/external/maven:outdated_deploy.jar",
     ],
-    outs = ["refresh-prebuilts.sh"],
-    cmd = """cat >$@ <<EOF
-#!/usr/bin/env bash
-set -eufo pipefail
-
-root="\\$$BUILD_WORKSPACE_DIRECTORY/private/tools/prebuilt"
-cp -f "$(location //private/tools/java/rules/jvm/external:hasher-tool_deploy.jar)" "\\$$root/hasher_deploy.jar"
-cp -f "$(location //private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar)" "\\$$root/list_packages_deploy.jar"
-cp -f "$(location //private/tools/java/rules/jvm/external/maven:outdated_deploy.jar)" "\\$$root/outdated_deploy.jar"
-
-EOF
-""",
-    executable = True,
 )
