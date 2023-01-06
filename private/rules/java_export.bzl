@@ -116,6 +116,8 @@ def maven_export(
 
     """
 
+    deploy_env = deploy_env if deploy_env else []
+
     # Merge the jars to create the maven project jar
     maven_project_jar(
         name = "%s-project" % name,
