@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,7 +22,41 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Outdated {
-  public static String getReleaseVersion(String repository, String groupId, String artifactId) {
+  // This list came from
+  // https://github.com/apache/maven/blob/master/maven-artifact/src/main/java/org/apache/maven/artifact/versioning/ComparableVersion.java#L307
+  // and unfortunately ComparableVerison does not expose this in any public methods.
+  private static final List<String> MAVEN_PRE_RELEASE_QUALIFIERS =
+      Arrays.asList("alpha", "beta", "milestone", "cr", "rc", "snapshot", "sp");
+
+  public static class ArtifactReleaseInfo {
+    public String releaseVersion;
+    public String preReleaseVersion;
+
+    public ArtifactReleaseInfo(String releaseVersion, String preReleaseVersion) {
+      this.releaseVersion = releaseVersion;
+      this.preReleaseVersion = preReleaseVersion;
+    }
+
+    public boolean hasReleaseVersionGreatherThan(String version) {
+      if (releaseVersion == null) {
+        return false;
+      } else {
+        return new ComparableVersion(releaseVersion).compareTo(new ComparableVersion(version)) > 0;
+      }
+    }
+
+    public boolean hasPreReleaseVersionGreatherThan(String version) {
+      if (preReleaseVersion == null) {
+        return false;
+      } else {
+        return new ComparableVersion(preReleaseVersion).compareTo(new ComparableVersion(version))
+            > 0;
+      }
+    }
+  }
+
+  public static ArtifactReleaseInfo getReleaseVersion(
+      String repository, String groupId, String artifactId) {
     String url =
         String.format(
             "%s/%s/%s/maven-metadata.xml", repository, groupId.replaceAll("\\.", "/"), artifactId);
@@ -41,7 +79,16 @@ public class Outdated {
     return getReleaseVersion(document, url);
   }
 
-  public static String getReleaseVersion(Document document, String documentUrl) {
+  private static boolean isPreRelease(String version) {
+    String canonicalVersion = new ComparableVersion(version).getCanonical();
+    verboseLog(
+        String.format(
+            "Checking canonical version: %s of version: %s for pre-release qualifiers",
+            canonicalVersion, version));
+    return MAVEN_PRE_RELEASE_QUALIFIERS.stream().anyMatch(canonicalVersion::contains);
+  }
+
+  public static ArtifactReleaseInfo getReleaseVersion(Document document, String documentUrl) {
     // example maven-metadata.xml
     // <metadata>
     //   <versioning>
@@ -72,35 +119,62 @@ public class Outdated {
       return null;
     }
 
+    String releaseVersion = null;
+    String preReleaseVersion = null;
     // Note: we may want to add a flag to allow people to look for updates against
     // "latest" instead of "release"
     NodeList release = versioningElement.getElementsByTagName("release");
-    if (release != null && release.getLength() > 0) {
-      return release.item(0).getTextContent();
+    if (release.getLength() > 0) {
+      String version = release.item(0).getTextContent();
+      if (isPreRelease(version)) {
+        preReleaseVersion = version;
+        verboseLog(String.format("Found pre-release version: %s", version));
+      } else {
+        return new ArtifactReleaseInfo(version, null);
+      }
+    } else {
+      verboseLog(
+          String.format(
+              "Could not find <release> tag for %s, returning null version", documentUrl));
     }
 
-    // No release info, default to the last version in the list.
+    // If the release xml tag is missing then use the last version in the versions list.
     Element versionsElement = getFirstChildElement(versioningElement, "versions");
     if (versionsElement == null) {
       verboseLog(
           String.format(
-              "Could not find <release> or <versions> tag for %s, returning null version",
-              documentUrl));
-      return null;
+              "Could not find <versions> tag for %s, returning null version", documentUrl));
+      if (preReleaseVersion != null) {
+        return new ArtifactReleaseInfo(null, preReleaseVersion);
+      } else {
+        return null;
+      }
     }
 
     NodeList versions = versionsElement.getElementsByTagName("version");
-    if (versions == null || versions.getLength() == 0) {
+    if (versions.getLength() == 0) {
       verboseLog(
-          String.format(
-              "Could not find <release> tag and empty <versions> tag for %s, returning null"
-                  + " version",
-              documentUrl));
-      return null;
+          String.format("Found empty <versions> tag for %s, returning null version", documentUrl));
+      if (preReleaseVersion != null) {
+        return new ArtifactReleaseInfo(null, preReleaseVersion);
+      } else {
+        return null;
+      }
     }
 
-    // Grab last version in the list.
-    return versions.item(versions.getLength() - 1).getTextContent();
+    TreeSet<String> sortedVersions = new TreeSet<>(Comparator.comparing(ComparableVersion::new));
+    for (int i = 0; i < versions.getLength(); i++) {
+      sortedVersions.add(versions.item(i).getTextContent());
+    }
+    for (String version : sortedVersions.descendingSet()) {
+      if (!isPreRelease(version)) {
+        verboseLog(String.format("Found non-pre-release version: %s", version));
+        releaseVersion = version;
+        break;
+      }
+    }
+
+    return new ArtifactReleaseInfo(releaseVersion, preReleaseVersion);
   }
 
   public static Element getFirstChildElement(Element element, String tagName) {
@@ -123,18 +197,35 @@ public class Outdated {
   public static void main(String[] args) throws IOException {
     verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
 
-    if (args.length != 2) {
-      System.out.println("Usage: outdated <artifact_file_path> <repositories_file_path>");
-      System.exit(1);
+    Path artifactsFilePath = null;
+    Path repositoriesFilePath = null;
+    boolean useLegacyOutputFormat = false;
+
+    for (int i = 0; i < args.length; i++) {
+      switch (args[i]) {
+        case "--artifacts-file":
+          artifactsFilePath = Paths.get(args[++i]);
+          break;
+
+        case "--repositories-file":
+          repositoriesFilePath = Paths.get(args[++i]);
+          break;
+
+        case "--legacy-output":
+          useLegacyOutputFormat = true;
+          break;
+
+        default:
+          throw new IllegalArgumentException(
+              "Unable to parse command line: " + Arrays.toString(args));
+      }
     }
 
-    String artifactsFilePath = args[0];
-    String repositoriesFilePath = args[1];
+    Objects.requireNonNull(artifactsFilePath, "Artifacts file must be set.");
+    Objects.requireNonNull(repositoriesFilePath, "Repositories file must be set.");
 
-    List<String> artifacts =
-        Files.readAllLines(Paths.get(artifactsFilePath), StandardCharsets.UTF_8);
-    List<String> repositories =
-        Files.readAllLines(Paths.get(repositoriesFilePath), StandardCharsets.UTF_8);
+    List<String> artifacts = Files.readAllLines(artifactsFilePath, StandardCharsets.UTF_8);
+    List<String> repositories = Files.readAllLines(repositoriesFilePath, StandardCharsets.UTF_8);
 
     System.out.println(
         String.format(
@@ -158,28 +249,61 @@ public class Outdated {
       String artifactId = artifactParts[1];
       String version = artifactParts[2];
 
-      String releaseVersion = null;
+      ArtifactReleaseInfo artifactReleaseInfo = null;
       for (String repository : repositories) {
-        releaseVersion = getReleaseVersion(repository, groupId, artifactId);
-        if (releaseVersion != null) {
+        artifactReleaseInfo = getReleaseVersion(repository, groupId, artifactId);
+
+        if (artifactReleaseInfo != null) {
+          // We return the result from the first repository instead of searching all repositories
+          // for the artifact
           verboseLog(
               String.format(
-                  "Found version [%s] for %s:%s in %s",
-                  releaseVersion, groupId, artifactId, repository));
-          // Should we search all repositories in the list for latest version instead of just the
-          // first
-          // repository that has a version?
+                  "Found release version [%s] and pre-release version [%s] for %s:%s in %s",
+                  artifactReleaseInfo.releaseVersion,
+                  artifactReleaseInfo.preReleaseVersion,
+                  groupId,
+                  artifactId,
+                  repository));
           break;
         }
       }
 
-      if (releaseVersion == null) {
+      if (artifactReleaseInfo == null) {
         verboseLog(String.format("Could not find version for %s:%s", groupId, artifactId));
-      } else if (new ComparableVersion(releaseVersion).compareTo(new ComparableVersion(version))
-          > 0) {
-        System.out.println(
-            String.format("%s:%s [%s -> %s]", groupId, artifactId, version, releaseVersion));
-        foundUpdates = true;
+      } else {
+        if (artifactReleaseInfo.hasPreReleaseVersionGreatherThan(version)) {
+          if (useLegacyOutputFormat) {
+            System.out.println(
+                String.format(
+                    "%s:%s [%s -> %s]",
+                    groupId, artifactId, version, artifactReleaseInfo.preReleaseVersion));
+
+          } else {
+            if (artifactReleaseInfo.hasReleaseVersionGreatherThan(version)) {
+              System.out.println(
+                  String.format(
+                      "%s:%s [%s -> %s] (pre-release: %s)",
+                      groupId,
+                      artifactId,
+                      version,
+                      artifactReleaseInfo.releaseVersion,
+                      artifactReleaseInfo.preReleaseVersion));
+            } else {
+              System.out.println(
+                  String.format(
+                      "%s:%s [%s] (pre-release: %s)",
+                      groupId, artifactId, version, artifactReleaseInfo.preReleaseVersion));
+            }
+          }
+          foundUpdates = true;
+
+        } else if (artifactReleaseInfo.hasReleaseVersionGreatherThan(version)) {
+          System.out.println(
+              String.format(
+                  "%s:%s [%s -> %s]",
+                  groupId, artifactId, version, artifactReleaseInfo.releaseVersion));
+          foundUpdates = true;
+        }
       }
     }
 

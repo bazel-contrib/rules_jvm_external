@@ -1,11 +1,15 @@
 package com.jvm.external.maven;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -22,6 +26,8 @@ import org.w3c.dom.Document;
 import rules.jvm.external.maven.Outdated;
 
 public class OutdatedTest {
+  private static final String OS = System.getProperty("os.name").toLowerCase();
+
   private final PrintStream originalOut = System.out;
 
   @Rule public TemporaryFolder temp = new TemporaryFolder();
@@ -39,10 +45,10 @@ public class OutdatedTest {
     ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
     try {
       System.setOut(new PrintStream(outdatedOutput));
-
       Outdated.main(
           new String[] {
-            artifactsFile.toAbsolutePath().toString(), repositoriesFile.toAbsolutePath().toString()
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
           });
     } finally {
       System.setOut(originalOut);
@@ -68,10 +74,10 @@ public class OutdatedTest {
     ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
     try {
       System.setOut(new PrintStream(outdatedOutput));
-
       Outdated.main(
           new String[] {
-            artifactsFile.toAbsolutePath().toString(), repositoriesFile.toAbsolutePath().toString()
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
           });
     } finally {
       System.setOut(originalOut);
@@ -102,10 +108,10 @@ public class OutdatedTest {
     ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
     try {
       System.setOut(new PrintStream(outdatedOutput));
-
       Outdated.main(
           new String[] {
-            artifactsFile.toAbsolutePath().toString(), repositoriesFile.toAbsolutePath().toString()
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
           });
     } finally {
       System.setOut(originalOut);
@@ -121,8 +127,259 @@ public class OutdatedTest {
     assertThat(outdatedOutput.toString(), containsString("com.squareup:javapoet [1.11.1 -> "));
   }
 
+  @Test
+  public void artifactHasUpdateAndPreReleaseUpdate() throws IOException {
+    if (OS.indexOf("win") != -1) {
+      // On Windows we get a java.io.FileNotFoundException for the maven-metadata.xml specified as
+      // 'data' to the test
+      return;
+    }
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(
+        artifactsFile,
+        Arrays.asList("com.example.release-and-prerelease:test-artifact:11.0.0"),
+        StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile,
+        Arrays.asList(
+            new File("tests/com/jvm/external/maven/resources").toURI().toURL().toString()),
+        StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(
+        outdatedOutput.toString(),
+        containsString(
+            "com.example.release-and-prerelease:test-artifact [11.0.0 -> 11.0.12] (pre-release:"
+                + " 12.0.1.alpha4)"));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+
+    // Test with legacy output
+    outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString(),
+            "--legacy-output"
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(
+        outdatedOutput.toString(),
+        containsString(
+            "com.example.release-and-prerelease:test-artifact [11.0.0 -> 12.0.1.alpha4]"));
+    assertThat(outdatedOutput.toString(), not(containsString("pre-release")));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+  }
+
+  @Test
+  public void artifactHasOnlyPreReleaseUpdate() throws IOException {
+    if (OS.indexOf("win") != -1) {
+      // On Windows we get a java.io.FileNotFoundException for the maven-metadata.xml specified as
+      // 'data' to the test
+      return;
+    }
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(
+        artifactsFile,
+        Arrays.asList("com.example.prerelease:test-artifact:11.0.0"),
+        StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile,
+        Arrays.asList(
+            new File("tests/com/jvm/external/maven/resources").toURI().toURL().toString()),
+        StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(
+        outdatedOutput.toString(),
+        containsString(
+            "com.example.prerelease:test-artifact [11.0.0] (pre-release:" + " 12.0.1.alpha4)"));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+
+    // Test with legacy output
+    outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString(),
+            "--legacy-output"
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("com.example.prerelease:test-artifact [11.0.0 -> 12.0.1.alpha4]"));
+    assertThat(outdatedOutput.toString(), not(containsString("pre-release")));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+  }
+
+  @Test
+  public void artifactOnlyHasNonPreReleaseUpdate() throws IOException {
+    if (OS.indexOf("win") != -1) {
+      // On Windows we get a java.io.FileNotFoundException for the maven-metadata.xml specified as
+      // 'data' to the test
+      return;
+    }
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(
+        artifactsFile,
+        Arrays.asList("com.example.release:test-artifact:11.0.0"),
+        StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile,
+        Arrays.asList(
+            new File("tests/com/jvm/external/maven/resources").toURI().toURL().toString()),
+        StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("com.example.release:test-artifact [11.0.0 -> 11.0.12]"));
+    assertThat(outdatedOutput.toString(), not(containsString("pre-release")));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+
+    // Test with legacy output
+    outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString(),
+            "--legacy-output"
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("com.example.release:test-artifact [11.0.0 -> 11.0.12]"));
+    assertThat(outdatedOutput.toString(), not(containsString("pre-release")));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+  }
+
+  @Test
+  public void artifactHasNoUpdateAndNoPreReleaseUpdate() throws IOException {
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(
+        artifactsFile, Arrays.asList("com.example:test-artifact:11.0.0"), StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile,
+        Arrays.asList(
+            new File("tests/com/jvm/external/maven/resources").toURI().toURL().toString()),
+        StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(outdatedOutput.toString(), not(containsString("test-artifact")));
+    assertThat(outdatedOutput.toString(), not(containsString("pre-release")));
+    assertThat(outdatedOutput.toString(), containsString("No updates found"));
+
+    // Test with legacy output
+    outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString(),
+            "--legacy-output"
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(outdatedOutput.toString(), not(containsString("test-artifact")));
+    assertThat(outdatedOutput.toString(), not(containsString("pre-release")));
+    assertThat(outdatedOutput.toString(), containsString("No updates found"));
+  }
+
   private static Document getTestDocument(String name) {
-    String resourceName = "tests/com/jvm/external/maven/" + name;
+    String resourceName = "tests/com/jvm/external/maven/resources/" + name;
     try (InputStream in =
         Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName)) {
       DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -137,13 +394,37 @@ public class OutdatedTest {
   @Test
   public void shouldWorkForAnArtifactMissingReleaseMetadata() throws IOException {
     Document testDocument = getTestDocument("maven-metadata-javax-inject.xml");
-    assertThat(Outdated.getReleaseVersion(testDocument, "testDoc"), equalTo("1"));
+    Outdated.ArtifactReleaseInfo releaseInfo = Outdated.getReleaseVersion(testDocument, "testDoc");
+    assertThat(releaseInfo, is(notNullValue()));
+    assertThat(releaseInfo.releaseVersion, equalTo("1"));
+    assertThat(releaseInfo.preReleaseVersion, is(nullValue()));
   }
 
   // https://github.com/bazelbuild/rules_jvm_external/issues/507
   @Test
   public void grabsLastVersionWhenArtifactMissingReleaseMetadata() throws IOException {
     Document testDocument = getTestDocument("maven-metadata-multiple-versions.xml");
-    assertThat(Outdated.getReleaseVersion(testDocument, "testDoc"), equalTo("2"));
+    Outdated.ArtifactReleaseInfo releaseInfo = Outdated.getReleaseVersion(testDocument, "testDoc");
+    assertThat(releaseInfo, is(notNullValue()));
+    assertThat(releaseInfo.releaseVersion, equalTo("2"));
+    assertThat(releaseInfo.preReleaseVersion, is(nullValue()));
+  }
+
+  @Test
+  public void grabsLastVersionWorksWhenReleaseIsPreRelease() throws IOException {
+    Document testDocument = getTestDocument("maven-metadata-unsorted-versions.xml");
+    Outdated.ArtifactReleaseInfo releaseInfo = Outdated.getReleaseVersion(testDocument, "testDoc");
+    assertThat(releaseInfo, is(notNullValue()));
+    assertThat(releaseInfo.releaseVersion, equalTo("11.0.12"));
+    assertThat(releaseInfo.preReleaseVersion, equalTo("12.0.1.alpha4"));
+  }
+
+  @Test
+  public void worksWithCommonsVersions() throws IOException {
+    Document testDocument = getTestDocument("maven-metadata-commons-collections.xml");
+    Outdated.ArtifactReleaseInfo releaseInfo = Outdated.getReleaseVersion(testDocument, "testDoc");
+    assertThat(releaseInfo, is(notNullValue()));
+    assertThat(releaseInfo.releaseVersion, equalTo("20040616"));
+    assertThat(releaseInfo.preReleaseVersion, is(nullValue()));
   }
 }

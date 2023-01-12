@@ -89,7 +89,7 @@ sh_binary(
     data = [
         "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
         "outdated.artifacts",
-        "outdated.repositories"
+        "outdated.repositories",
     ],
     args = [
         "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
