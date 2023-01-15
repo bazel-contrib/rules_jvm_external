@@ -92,19 +92,3 @@ java_test(
         artifact("org.hamcrest:hamcrest"),
     ],
 )
-
-java_test(
-    name = "UnsafeSharedCacheTest",
-    srcs = ["UnsafeSharedCacheTest.java"],
-    tags = ["manual"],
-    test_class = "com.jvm.external.UnsafeSharedCacheTest",
-    deps = [
-        "//tests/integration:guava_import",
-        artifact(
-            "junit:junit",
-            repository_name = "regression_testing",
-        ),
-        artifact("org.hamcrest:hamcrest"),
-        artifact("org.hamcrest:hamcrest-core"),
-    ],
-)

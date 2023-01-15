@@ -82,8 +82,6 @@ tasks:
     test_targets:
       - "//..."
       # manual tests
-      # commented out until https://github.com/bazelbuild/rules_jvm_external/issues/610 is fixed for Java 11
-      # - "//tests/com/jvm/external:UnsafeSharedCacheTest"
   windows:
     environment:
       # This tests custom cache locations.
