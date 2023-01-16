@@ -41,3 +41,39 @@ java_export(
         artifact("com.google.guava:guava"),
     ],
 )
+
+maven_bom(
+    name = "transitive-bom",
+    dependencies_maven_coordinates = "com.example:bom-transitive-deps:1.0.0",
+    java_exports = [
+        # This dep depends on `:one-dep` and `:two-dep`, but we include `:one-dep`
+        # here. That means that we expect the BOM to include the two deps listed
+        # here, and the dependencies-bom should contain `:two-dep` plus guava
+        ":transitive-dep",
+        ":one-dep",
+        # But not the second!
+    ],
+    maven_coordinates = "com.example:bom-transitive:1.0.0",
+)
+
+java_export(
+    name = "transitive-dep",
+    srcs = ["TransitiveDep.java"],
+    maven_coordinates = "com.example:transitive:1.0.0",
+    deps = [
+        ":one-dep",
+        ":two-deps",
+    ],
+)
+
+diff_test(
+    name = "validate-transitive-bom",
+    file1 = ":transitive-bom",
+    file2 = "transitive-bom.golden.xml",
+)
+
+diff_test(
+    name = "validate-transitive-dependencies-bom",
+    file1 = ":transitive-bom-dependencies",
+    file2 = "transitive-bom-dependencies.golden.xml",
+)

@@ -23,8 +23,6 @@ def _label(label_or_string):
 def _maven_bom_impl(ctx):
     fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
 
-    combined_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments])
-
     bom = generate_pom(
         ctx,
         coordinates = ctx.attr.maven_coordinates,
@@ -60,13 +58,17 @@ _maven_bom = rule(
 def _maven_dependencies_bom_impl(ctx):
     fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
 
-    combined_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments])
+    # We want to include all the dependencies that aren't
+    # included in the main BOM
+    first_order_deps = [f[MavenBomFragmentInfo].coordinates for f in ctx.attr.fragments]
+    all_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments]).to_list()
+    combined_deps = [a for a in all_deps if a not in first_order_deps]
 
     unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
     dependencies_bom = generate_pom(
         ctx,
         coordinates = ctx.attr.maven_coordinates,
-        versioned_dep_coordinates = combined_deps.to_list() + ["%s:%s:pom:import:%s" % (unpacked.groupId, unpacked.artifactId, unpacked.version)],
+        versioned_dep_coordinates = combined_deps + ["%s:%s:pom:import:%s" % (unpacked.groupId, unpacked.artifactId, unpacked.version)],
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
         indent = 12,
