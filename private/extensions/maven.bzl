@@ -77,7 +77,6 @@ _install = tag_class(
         "excluded_artifacts": attr.string_list(doc = "Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs", default = []),  # list of artifacts to exclude
         "fail_on_missing_checksum": attr.bool(default = True),
         "resolve_timeout": attr.int(default = 600),
-        "use_unsafe_shared_cache": attr.bool(default = False),
         "version_conflict_policy": attr.string(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
 
@@ -162,7 +161,6 @@ def _maven_impl(mctx):
     # - strict_visibility: bool. A logical OR over all `strict_visibility` for all `install` tags with the same name.
     # - strict_visibility_value: a string list. Build will fail is duplicated and different.
     # - use_starlark_android_rules: bool. A logical OR over all `use_starlark_android_rules` for all `install` tags with the same name.
-    # - use_unsafe_shared_cache: bool. A logical OR over all `use_unsafe_shared_cache` for all `install` tags with the same name.
     # - version_conflict_policy: string. Fails build if different and not a default.
 
     # Mapping of `name`s to `bazel_module.name` This will allow us to warn users when more than
@@ -245,7 +243,6 @@ def _maven_impl(mctx):
             _logical_or(repo, "jetify", False, install.jetify)
             _logical_or(repo, "strict_visibility", False, install.strict_visibility)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
-            _logical_or(repo, "use_unsafe_shared_cache", False, install.use_unsafe_shared_cache)
 
             repo["version_conflict_policy"] = _fail_if_different(
                 "version_conflict_policy",
@@ -308,7 +305,6 @@ def _maven_impl(mctx):
             fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
             fetch_sources = repo.get("fetch_sources"),
             fetch_javadoc = repo.get("fetch_javadoc"),
-            use_unsafe_shared_cache = repo.get("use_unsafe_shared_cache"),
             excluded_artifacts = repo.get("excluded_artifacts"),
             generate_compat_repositories = False,
             version_conflict_policy = repo.get("version_conflict_policy"),

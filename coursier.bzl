@@ -198,7 +198,7 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     # TODO(jin): allow custom cache locations
     coursier_cache_path = get_coursier_cache_or_default(
         repository_ctx,
-        repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"),
+        repository_ctx.attr.name.startswith("unpinned_"),
     ).replace("//", "/")
     absolute_path_parts = absolute_path.split(coursier_cache_path)
     if len(absolute_path_parts) != 2:
@@ -753,7 +753,6 @@ def make_coursier_dep_tree(
         fail_on_missing_checksum,
         fetch_sources,
         fetch_javadoc,
-        use_unsafe_shared_cache,
         timeout,
         report_progress_prefix = ""):
     # Set up artifact exclusion, if any. From coursier fetch --help:
@@ -811,10 +810,10 @@ def make_coursier_dep_tree(
         cmd.append("--default=true")
 
     environment = {}
-    if not use_unsafe_shared_cache and not repository_ctx.attr.name.startswith("unpinned_"):
+    if not repository_ctx.attr.name.startswith("unpinned_"):
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
-            use_unsafe_shared_cache,
+            False,
         )
         cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
 
@@ -934,7 +933,6 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.attr.fail_on_missing_checksum,
         repository_ctx.attr.fetch_sources,
         repository_ctx.attr.fetch_javadoc,
-        repository_ctx.attr.use_unsafe_shared_cache,
         repository_ctx.attr.resolve_timeout,
     )
 
@@ -965,7 +963,6 @@ def _coursier_fetch_impl(repository_ctx):
             repository_ctx.attr.fail_on_missing_checksum,
             repository_ctx.attr.fetch_sources,
             repository_ctx.attr.fetch_javadoc,
-            repository_ctx.attr.use_unsafe_shared_cache,
             repository_ctx.attr.resolve_timeout,
             report_progress_prefix = "Second pass for Jetified Artifacts: ",
         )
@@ -1008,7 +1005,7 @@ def _coursier_fetch_impl(repository_ctx):
             files_to_inspect.append(repository_ctx.path(artifact["file"]))
             continue
 
-        if repository_ctx.attr.use_unsafe_shared_cache or repository_ctx.attr.name.startswith("unpinned_"):
+        if repository_ctx.attr.name.startswith("unpinned_"):
             artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"])})
 
         # Coursier saves the artifacts into a subdirectory structure
@@ -1310,7 +1307,6 @@ coursier_fetch = repository_rule(
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
         "fetch_javadoc": attr.bool(default = False),
-        "use_unsafe_shared_cache": attr.bool(default = False),
         "use_credentials_from_home_netrc_file": attr.bool(default = False, doc = "Whether to include coursier credentials gathered from the user home ~/.netrc file"),
         "excluded_artifacts": attr.string_list(default = []),  # list of artifacts to exclude
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
