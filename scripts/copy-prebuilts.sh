@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -eufo pipefail
 
-root="$BUILD_WORKSPACE_DIRECTORY/private/tools/prebuilt"
+root="$BUILD_WORKSPACE_DIRECTORY/$1"
+shift
 
 while (( "$#" )); do
   src="$1"

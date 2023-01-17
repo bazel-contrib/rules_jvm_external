@@ -100,6 +100,7 @@ sh_binary(
         "copy-prebuilts.sh",
     ],
     args = [
+        "private/tools/prebuilt",
         "$(location //private/tools/java/rules/jvm/external:hasher-tool_deploy.jar)",
         "hasher_deploy.jar",
         "$(location //private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar)",
