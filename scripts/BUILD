@@ -93,3 +93,24 @@ EOL
         ":google-java-format",
     ],
 )
+
+sh_binary(
+    name = "refresh-prebuilts",
+    srcs = [
+        "copy-prebuilts.sh",
+    ],
+    args = [
+        "private/tools/prebuilt",
+        "$(location //private/tools/java/rules/jvm/external:hasher-tool_deploy.jar)",
+        "hasher_deploy.jar",
+        "$(location //private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar)",
+        "list_packages_deploy.jar",
+        "$(location //private/tools/java/rules/jvm/external/maven:outdated_deploy.jar)",
+        "outdated_deploy.jar",
+    ],
+    data = [
+        "//private/tools/java/rules/jvm/external:hasher-tool_deploy.jar",
+        "//private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar",
+        "//private/tools/java/rules/jvm/external/maven:outdated_deploy.jar",
+    ],
+)
