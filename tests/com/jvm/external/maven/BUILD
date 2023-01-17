@@ -3,9 +3,11 @@ load("//:defs.bzl", "artifact")
 java_test(
     name = "OutdatedTest",
     srcs = ["OutdatedTest.java"],
+    data = [
+        "//tests/com/jvm/external/maven/resources",
+    ],
     resources = [
-        ":maven-metadata-javax-inject.xml",
-        ":maven-metadata-multiple-versions.xml",
+        "//tests/com/jvm/external/maven/resources",
     ],
     test_class = "com.jvm.external.maven.OutdatedTest",
     deps = [
