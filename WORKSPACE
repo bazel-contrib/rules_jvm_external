@@ -125,35 +125,6 @@ load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 
 maven_install(
-    name = "unsafe_shared_cache",
-    artifacts = [
-        "com.google.guava:guava:27.0-jre",
-    ],
-    fetch_sources = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-    use_unsafe_shared_cache = True,
-)
-
-maven_install(
-    name = "unsafe_shared_cache_with_pinning",
-    artifacts = [
-        "com.google.guava:guava:27.0-jre",
-    ],
-    fetch_sources = True,
-    maven_install_json = "//tests/custom_maven_install:unsafe_shared_cache_with_pinning_install.json",
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-    use_unsafe_shared_cache = True,
-)
-
-load("@unsafe_shared_cache_with_pinning//:defs.bzl", "pinned_maven_install")
-
-pinned_maven_install()
-
-maven_install(
     name = "exclusion_testing",
     artifacts = [
         maven.artifact(
@@ -357,21 +328,6 @@ maven_install(
 load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
 
 pinned_maven_install()
-
-# https://github.com/bazelbuild/rules_jvm_external/issues/311
-maven_install(
-    name = "duplicate_artifacts_test",
-    artifacts = [
-        "com.typesafe.play:play_2.11:2.5.19",
-        "org.scalatestplus.play:scalatestplus-play_2.11:2.0.1",
-    ],
-    fetch_sources = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-    use_unsafe_shared_cache = True,
-    version_conflict_policy = "pinned",
-)
 
 maven_install(
     name = "jetify_all_test",

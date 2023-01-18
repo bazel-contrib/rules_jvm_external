@@ -98,20 +98,11 @@ function test_outdated_no_external_runfiles() {
   expect_log "junit:junit \[4.12"
 }
 
-test_xdg_cache_home() {
-  readonly cachedir=/tmp/${test}-cache
-  XDG_CACHE_HOME=$cachedir bazel run @unsafe_shared_cache//:pin >> "$TEST_LOG" 2>&1
-  rm -f unsafe_shared_cache_install.json
-  rm -rf $cachedir
-  expect_log "Successfully pinned resolved artifacts"
-}
-
 TESTS=(
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
   "test_outdated"
   "test_outdated_no_external_runfiles"
-  "test_xdg_cache_home"
   "test_m2local_testing_found_local_artifact_through_pin"
   "test_m2local_testing_found_local_artifact_through_build"
   "test_m2local_testing_found_local_artifact_after_build_copy"

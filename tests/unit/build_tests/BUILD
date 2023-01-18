@@ -50,13 +50,6 @@ build_test(
 )
 
 build_test(
-    name = "unsafe_shared_cache_with_pinning",
-    targets = [
-        "@unsafe_shared_cache_with_pinning//:com_google_guava_guava",
-    ],
-)
-
-build_test(
     name = "strict_version",
     targets = [
         "@strict_visibility_testing//:org_apache_tomcat_tomcat_catalina",
