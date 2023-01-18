@@ -12,9 +12,9 @@ See the `/examples/bzlmod` folder in this repository for a complete, tested exam
 
 First, you must enable bzlmod.
 Note, the Bazel team plans to enable it by default starting in version 7.0.
-The simplest way is by adding a line to your `.bazelrc` like so:
-```sh
-$ echo common --enable_bzlmod >> .bazelrc
+The simplest way is by adding this line to your `.bazelrc`:
+```
+common --enable_bzlmod
 ```
 
 Now, create a `MODULE.bazel` file in the root of your workspace, containing:
@@ -70,6 +70,6 @@ Now you'll be able to use the same `@unpinned_maven//:pin` operation described i
 
 ## Known issues
 
-- https://github.com/bazelbuild/rules_jvm_external/issues/827
-- `java_grpc_library`: https://github.com/bazelbuild/bazel-central-registry/issues/353
-- Java Gazelle extension: https://github.com/bazel-contrib/rules_jvm/issues/123
+- Some error messages print instructions that don't apply under bzlmod, e.g. https://github.com/bazelbuild/rules_jvm_external/issues/827
+- The `java_grpc_library` rule [isn't available](https://github.com/bazelbuild/bazel-central-registry/issues/353)
+- Java Gazelle extension [isn't available](https://github.com/bazel-contrib/rules_jvm/issues/123)
