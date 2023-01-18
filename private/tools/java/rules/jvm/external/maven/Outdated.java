@@ -26,7 +26,7 @@ public class Outdated {
   // https://github.com/apache/maven/blob/master/maven-artifact/src/main/java/org/apache/maven/artifact/versioning/ComparableVersion.java#L307
   // and unfortunately ComparableVerison does not expose this in any public methods.
   private static final List<String> MAVEN_PRE_RELEASE_QUALIFIERS =
-      Arrays.asList("alpha", "beta", "milestone", "cr", "rc", "snapshot", "sp");
+      Arrays.asList("alpha", "beta", "milestone", "cr", "rc", "snapshot");
 
   public static class ArtifactReleaseInfo {
     public String releaseVersion;
