@@ -42,7 +42,6 @@ def _is_valid_lock_file(lock_file_contents):
     # the build files.
     return True
 
-
 def _get_input_artifacts_hash(lock_file_contents):
     dep_tree = lock_file_contents.get("dependency_tree", {})
     return dep_tree.get("__INPUT_ARTIFACTS_HASH")
