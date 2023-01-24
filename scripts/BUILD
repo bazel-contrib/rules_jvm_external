@@ -1,6 +1,10 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 load("//private/rules:artifact.bzl", "artifact")
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+exports_files([
+])
 
 genrule(
     name = "buildifier-bin",
@@ -25,16 +29,16 @@ genrule(
     name = "generate_base_docs",
     srcs = [
         "//:docs/includes/main_functions_header.md",
-        "//:defs.md",
+        "defs.md",
         "//:docs/includes/spec_functions_header.md",
-        "//:specs.md",
+        "specs.md",
     ],
     outs = ["generate_base_docs.md"],
     cmd = """cat \
     $(location //:docs/includes/main_functions_header.md) \
-    $(location //:defs.md) \
+    $(location :defs.md) \
     $(location //:docs/includes/spec_functions_header.md) \
-    $(location //:specs.md) > $@""",
+    $(location :specs.md) > $@""",
 )
 
 genrule(
@@ -46,10 +50,50 @@ genrule(
     visibility = ["//:__pkg__"],
 )
 
+sh_binary(
+    name = "generate-docs",
+    srcs = [
+        "copy-prebuilts.sh",
+    ],
+    args = [
+        "docs",
+        "$(location :generate_api_reference)",
+        "api.md",
+    ],
+    data = [
+        ":generate_api_reference",
+    ],
+)
+
 nodejs_binary(
     name = "doctoc",
     data = ["@npm//doctoc"],
     entry_point = {"@npm//:node_modules/doctoc": "doctoc.js"},
+)
+
+stardoc(
+    name = "defs",
+    out = "defs.md",
+    input = "//:defs.bzl",
+    symbol_names = [
+        "javadoc",
+        "java_export",
+        "maven_bom",
+        "maven_install",
+    ],
+    deps = ["//:implementation"],
+)
+
+stardoc(
+    name = "specs",
+    out = "specs.md",
+    input = "//:specs.bzl",
+    symbol_names = [
+        "maven.artifact",
+        "maven.repository",
+        "maven.exclusion",
+    ],
+    deps = ["//:implementation"],
 )
 
 java_binary(
