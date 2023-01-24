@@ -2,6 +2,8 @@ package com.github.bazelbuild.rules_jvm_external.coursier;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class NebulaFormat {
     Map<String, Set<String>> deps = new TreeMap<>();
     Map<String, Set<String>> packages = new TreeMap<>();
     Map<String, Set<String>> repos = new LinkedHashMap<>();
-    repositories.forEach(r -> repos.put(r, new TreeSet<>()));
+    repositories.forEach(r -> repos.put(stripAuthenticationInformation(r), new TreeSet<>()));
 
     Set<String> skipped = new TreeSet<>();
     Map<String, String> files = new TreeMap<>();
@@ -115,5 +117,24 @@ public class NebulaFormat {
                   return l;
                 },
                 TreeMap::new));
+  }
+
+  private String stripAuthenticationInformation(String possibleUri) {
+    try {
+      URI uri = new URI(possibleUri);
+      URI stripped =
+          new URI(
+              uri.getScheme(),
+              null,
+              uri.getHost(),
+              uri.getPort(),
+              uri.getPath(),
+              uri.getQuery(),
+              uri.getFragment());
+      return stripped.toString();
+    } catch (URISyntaxException e) {
+      // Do nothing: we may not have been given a URI, but something like `m2local/`
+    }
+    return possibleUri;
   }
 }
