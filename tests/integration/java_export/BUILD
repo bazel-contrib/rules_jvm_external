@@ -5,14 +5,14 @@ java_test(
     name = "PublishShapeTest",
     srcs = ["PublishShapeTest.java"],
     data = [
-        "//private/tools/java/rules/jvm/external/maven:MavenPublisher_deploy.jar",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:MavenPublisher_deploy.jar",
     ],
     jvm_flags = [
-        "-Ddeploy.jar=$(location //private/tools/java/rules/jvm/external/maven:MavenPublisher_deploy.jar)",
+        "-Ddeploy.jar=$(location //private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:MavenPublisher_deploy.jar)",
     ],
     test_class = "com.jvm.external.jvm_export.PublishShapeTest",
     deps = [
-        "//private/tools/java/rules/jvm/external/maven:MavenPublisher_deploy.jar",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:MavenPublisher_deploy.jar",
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",

@@ -138,7 +138,7 @@ single artifact that other teams can download and use.
         "_merge_jars": attr.label(
             executable = True,
             cfg = "exec",
-            default = "//private/tools/java/rules/jvm/external/jar:MergeJars",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:MergeJars",
         ),
         "_java_toolchain": attr.label(
             default = "@bazel_tools//tools/jdk:current_java_toolchain",

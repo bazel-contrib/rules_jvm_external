@@ -107,7 +107,7 @@ When signing with GPG, the current default key is used.
         "_uploader": attr.label(
             executable = True,
             cfg = "exec",
-            default = "//private/tools/java/rules/jvm/external/maven:MavenPublisher",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:MavenPublisher",
             allow_files = True,
         ),
     },
