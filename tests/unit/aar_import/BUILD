@@ -18,7 +18,7 @@ load(":aar_import_test.bzl", "aar_import_test_suite")
 aar_import(
     name = "aar_import_that_consumes_the_downloaded_file_directly",
     # Will produce an error if the downloaded file does not have the `.aar` file extension
-    aar = "@com_android_support_appcompat_v7_28_0_0//file:file",
+    aar = "@com_android_support_appcompat_v7_aar_28_0_0//file:file",
 )
 
 build_test(

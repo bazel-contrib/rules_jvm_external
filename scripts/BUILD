@@ -107,8 +107,11 @@ sh_binary(
         "list_packages_deploy.jar",
         "$(location //private/tools/java/rules/jvm/external/maven:outdated_deploy.jar)",
         "outdated_deploy.jar",
+        "$(location //private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:LockFileConverter_deploy.jar)",
+        "lock_file_converter_deploy.jar",
     ],
     data = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:LockFileConverter_deploy.jar",
         "//private/tools/java/rules/jvm/external:hasher-tool_deploy.jar",
         "//private/tools/java/rules/jvm/external/jar:ListPackages_deploy.jar",
         "//private/tools/java/rules/jvm/external/maven:outdated_deploy.jar",

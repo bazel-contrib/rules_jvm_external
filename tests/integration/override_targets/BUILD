@@ -20,7 +20,7 @@ android_binary(
 # for more information.
 aar_import(
     name = "sceneform_rendering",
-    aar = "@regression_testing//:v1/https/maven.google.com/com/google/ar/sceneform/rendering/1.10.0/rendering-1.10.0.aar",
+    aar = "@com.google.ar.sceneform_rendering//file",
     tags = ["maven_coordinates=com.google.ar.sceneform:rendering:aar:1.10.0"],
     visibility = ["@regression_testing//:__subpackages__"],
     deps = [

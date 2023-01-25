@@ -98,6 +98,12 @@ function test_outdated_no_external_runfiles() {
   expect_log "junit:junit \[4.12"
 }
 
+function test_v1_lock_file_format() {
+  # Because we run with `-e` this command succeeding is enough to
+  # know that the v1 lock file format was parsed successfully
+  bazel build @v1_lock_file_format//:io_ous_jtoml >> "$TEST_LOG" 2>&1
+}
+
 TESTS=(
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
@@ -106,6 +112,7 @@ TESTS=(
   "test_m2local_testing_found_local_artifact_through_pin"
   "test_m2local_testing_found_local_artifact_through_build"
   "test_m2local_testing_found_local_artifact_after_build_copy"
+  "test_v1_lock_file_format"
 )
 
 function run_tests() {

@@ -159,6 +159,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 jar_versionless_target_labels.append(target_label)
             elif packaging == "aar":
                 import_rule = "aar_import"
+                jar_versionless_target_labels.append(target_label)
             else:
                 fail("Unsupported packaging type: " + packaging)
             jetify = jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict)
@@ -212,10 +213,16 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["deps"]:
+                # Deps originally had a version number, but now they're stripped of that
+                # after we moved to either massaging the lock file or the new lock file
+                # format. However, all the code in this block assumes that they have one,
+                # and the logic for parsing coordinates assumes one is present. So fake it.
+                dep = "%s:1.0.0" % dep
+
                 if get_packaging(dep) == "json":
                     continue
                 stripped_dep = strip_packaging_and_classifier_and_version(dep)
-                dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
+                dep_target_label = escape(stripped_dep)
 
                 # If we have matching artifacts with platform classifiers, skip adding this dependency.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
@@ -253,7 +260,10 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
 
             target_import_string.append("\ttags = [")
             target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coordinates"])
-            target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
+            if len(artifact["urls"]):
+                target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
+            else:
+                target_import_string.append("\t\t\"maven_url=None\",")
             target_import_string.append("\t],")
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
