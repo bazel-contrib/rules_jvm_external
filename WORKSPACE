@@ -556,7 +556,7 @@ maven_install(
     name = "v1_lock_file_format",
     artifacts = [
         # Coordinates that are in no other `maven_install`
-        "io.ous:jtoml:2.0.0",
+        "org.seleniumhq.selenium:selenium-remote-driver:4.8.0",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:v1_lock_file_format_install.json",

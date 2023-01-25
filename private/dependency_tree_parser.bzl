@@ -213,12 +213,6 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # same list of dependencies.
             target_import_labels = []
             for dep in artifact["deps"]:
-                # Deps originally had a version number, but now they're stripped of that
-                # after we moved to either massaging the lock file or the new lock file
-                # format. However, all the code in this block assumes that they have one,
-                # and the logic for parsing coordinates assumes one is present. So fake it.
-                dep = "%s:1.0.0" % dep
-
                 if get_packaging(dep) == "json":
                     continue
                 stripped_dep = strip_packaging_and_classifier_and_version(dep)

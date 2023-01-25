@@ -126,11 +126,17 @@ def _get_artifacts(lock_file_contents):
             else:
                 file = _to_m2_path(root_unpacked)
 
+            # Deps originally had a version number, but now they're stripped of that
+            # after we moved to this lock file format. However, all the code in the
+            # rest of the repo assumes that the deps will be have them. Since we don't
+            # expect those deps to matter, fake it.
+            deps = [dep + ":1.0.0" for dep in dependencies.get(key, [])]
+
             artifacts.append({
                 "coordinates": coordinates,
                 "sha256": shasum,
                 "file": file,
-                "deps": dependencies.get(key, []),
+                "deps": deps,
                 "urls": urls,
             })
 
