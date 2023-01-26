@@ -68,6 +68,11 @@ Support for Bazel versions before `4.0.0` is only available on rules_jvm_externa
 
 ## Usage
 
+> New: on Bazel 6, you can use bzlmod instead of following directions below.
+> See [bzlmod](./docs/bzlmod.md).
+> Expect rough edges and incomplete support as bzlmod is still a new feature as of early 2023.
+> Note, bzlmod is expected to be on-by-default in Bazel 7.0.
+
 List the top-level Maven artifacts and servers in the WORKSPACE:
 
 ```python
