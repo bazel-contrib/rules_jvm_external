@@ -12,8 +12,6 @@ tasks:
     test_targets:
       - "//..."
       # manual tests
-      # TODO: Re-enable after fixing https://github.com/bazelbuild/rules_jvm_external/issues/375
-      # - "//tests/com/jvm/external:UnsafeSharedCacheTest"
   rbe_ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -22,7 +20,7 @@ tasks:
       - "//..."
       # These tests are currently incompatible with RBE
       - "-//tests/integration/override_targets"
-      - "-//tests/com/jvm/external/maven:OutdatedTest"
+      - "-//tests/com/github/bazelbuild/rules_jvm_external/maven:OutdatedTest"
   ubuntu1804_4_0_0:
     platform: ubuntu1804
     bazel: 4.0.0
