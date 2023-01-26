@@ -130,7 +130,7 @@ def _get_artifacts(lock_file_contents):
             # after we moved to this lock file format. However, all the code in the
             # rest of the repo assumes that the deps will be have them. Since we don't
             # expect those deps to matter, fake it.
-            deps = [dep + ":1.0.0" for dep in dependencies.get(key, [])]
+            deps = [dep + ":3.141.59-fake" for dep in dependencies.get(key, [])]
 
             artifacts.append({
                 "coordinates": coordinates,
