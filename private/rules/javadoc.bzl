@@ -55,7 +55,7 @@ javadoc = rule(
             """,
         ),
         "_javadoc": attr.label(
-            default = "//private/tools/java/rules/jvm/external/javadoc",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:javadoc",
             cfg = "exec",
             executable = True,
         ),

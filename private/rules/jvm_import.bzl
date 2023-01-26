@@ -93,7 +93,7 @@ jvm_import = rule(
         "_add_jar_manifest_entry": attr.label(
             executable = True,
             cfg = "exec",
-            default = "//private/tools/java/rules/jvm/external/jar:AddJarManifestEntry",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
         ),
         "_stamp_manifest": attr.label(
             default = "@rules_jvm_external//settings:stamp_manifest",
