@@ -22,7 +22,6 @@ Table of Contents
       * [Advanced usage](#advanced-usage)
          * [Fetch source JARs](#fetch-source-jars)
          * [Checksum verification](#checksum-verification)
-         * [Using a persistent artifact cache](#using-a-persistent-artifact-cache)
          * [artifact helper macro](#artifact-helper-macro)
          * [Multiple maven_install declarations for isolated artifact version trees](#multiple-maven_install-declarations-for-isolated-artifact-version-trees)
          * [Detailed dependency information specifications](#detailed-dependency-information-specifications)
