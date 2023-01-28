@@ -29,6 +29,7 @@ maven.install(
         # from your build.gradle or pom.xml file.
         "org.seleniumhq.selenium:selenium-java:4.4.0",
     ],
+)
 use_repo(maven, "maven")
 ```
 
