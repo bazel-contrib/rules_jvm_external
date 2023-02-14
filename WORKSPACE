@@ -236,6 +236,16 @@ maven_install(
         "org.junit:junit-bom:5.3.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/686
         "io.netty:netty-tcnative-boringssl-static:2.0.51.Final",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/852
+        maven.artifact(
+            artifact = "jaxb-ri",
+            exclusions = [
+                "com.sun.xml.bind:jaxb-samples",
+                "com.sun.xml.bind:jaxb-release-documentation",
+            ],
+            group = "com.sun.xml.bind",
+            version = "2.3.6",
+        ),
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
