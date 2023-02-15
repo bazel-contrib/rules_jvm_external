@@ -5,6 +5,13 @@
 #
 # Add a new test to the TESTS array and send all output to TEST_LOG
 
+function test_dependency_aggregation() {
+  bazel query --notool_deps 'deps(@regression_testing//:com_sun_xml_bind_jaxb_ri)' >> "$TEST_LOG" 2>&1
+
+  # This is a transitive dep of @regression_testing//:com_sun_xml_bind_jaxb_ri
+  expect_log @regression_testing//:com_sun_xml_bind_jaxb_xjc
+}
+
 function test_duplicate_version_warning() {
   bazel run @duplicate_version_warning//:pin >> "$TEST_LOG" 2>&1
   rm -f duplicate_version_warning_install.json
@@ -105,6 +112,7 @@ function test_v1_lock_file_format() {
 }
 
 TESTS=(
+  "test_dependency_aggregation"
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
   "test_outdated"

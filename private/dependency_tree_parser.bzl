@@ -387,7 +387,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             target_import_string.append("\texports = [")
 
             target_import_labels = []
-            for dep in artifact.get("dependencies", []):
+            for dep in artifact.get("deps", []):
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
