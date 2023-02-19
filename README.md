@@ -1136,3 +1136,13 @@ generate API documentation in the [docs](docs/) directory using
 
 Note that this script has a dependency on the `doctoc` NPM package to automate
 generating the table of contents. Install it with `npm -g i doctoc`.
+
+### Installing the Android SDK on macOS
+
+```
+brew install android-commandlinetools
+export ANDROID_HOME="$(brew --prefix)/share/android-commandlinetools"
+sdkmanager "build-tools;33.0.1" "cmdline-tools;latest" "ndk;25.1.8937393" "platform-tools" "platforms;android-33"
+```
+
+You can add the `export ANDROID_HOME` to your `.zshrc` or similar config file.
