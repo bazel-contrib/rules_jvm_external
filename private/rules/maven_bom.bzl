@@ -64,7 +64,7 @@ def _maven_dependencies_bom_impl(ctx):
     all_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments]).to_list()
     combined_deps = [a for a in all_deps if a not in first_order_deps]
 
-    unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
+    unpacked = unpack_coordinates(ctx.attr.bom_coordinates)
     dependencies_bom = generate_pom(
         ctx,
         coordinates = ctx.attr.maven_coordinates,
@@ -94,6 +94,10 @@ _maven_dependencies_bom = rule(
             providers = [
                 [MavenBomFragmentInfo],
             ],
+        ),
+        "bom_coordinates": attr.string(
+            doc = "Coordinates of the bom to include",
+            mandatory = True,
         ),
     },
 )
@@ -183,6 +187,7 @@ def maven_bom(
             maven_coordinates = dependencies_maven_coordinates,
             pom_template = dependencies_pom_template,
             fragments = fragments,
+            bom_coordinates = maven_coordinates,
             tags = tags,
             testonly = testonly,
             visibility = visibility,
