@@ -77,12 +77,11 @@ def kt_jvm_export(
     maven_export(
         name,
         maven_coordinates,
-        maven_coordinates_tags,
+        lib_name,
         deploy_env,
         pom_template,
         visibility,
         tags,
         testonly,
-        lib_name,
         javadocopts,
     )
