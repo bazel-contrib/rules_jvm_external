@@ -22,7 +22,7 @@ function test_prebuilts_are_up_to_date() {
 
     echo "Comparing $file_name" >> "$TEST_LOG"
 
-    different="$(comm -3 <(jar tvf "$temp/$file_name" | grep -v build-data.properties) <(jar tvf "private/tools/prebuilt/$file_name" | grep -v build-data.properties))"
+    different="$(comm -3 <(jar tvf "$temp/$file_name" | grep -v build-data.properties | sort) <(jar tvf "private/tools/prebuilt/$file_name" | grep -v build-data.properties | sort))"
 
     if [ -n "$different" ]; then
       echo "$different" >> "$TEST_LOG" 2>&1
