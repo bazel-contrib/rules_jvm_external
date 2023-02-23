@@ -320,10 +320,10 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             elif repository_ctx.attr.generate_compat_repositories:
                 target_visibilities.append("@%s//:__subpackages__" % target_label)
             else:
-                target_visibilities.append("%s" % repository_ctx.attr.strict_visibility_value)
+                target_visibilities.extend(repository_ctx.attr.strict_visibility_value)
 
-            target_import_string.append("\tvisibility = [%s]," % (",".join(['"%s"' % t for t in target_visibilities])))
-            alias_visibility = "\tvisibility = [%s],\n" % (",".join(['"%s"' % t for t in target_visibilities]))
+            target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % t for t in target_visibilities])))
+            alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % t for t in target_visibilities]))
 
             # 9. Finish the java_import rule.
             #
