@@ -78,3 +78,14 @@ build_test(
         "@maven_install_in_custom_location//:com_google_guava_guava",
     ],
 )
+
+build_test(
+    name = "compat_repository_alias_strict_version",
+    targets = [
+        "@strict_visibility_with_compat_testing//:com_google_http_client_google_http_client_gson",
+        "@com_google_http_client_google_http_client_gson//jar",
+        # Transitive compat alias will fail unless
+        # @strict_visibility_with_compat_testing//:com_google_http_client_google_http_client is visible to it
+        "@com_google_http_client_google_http_client//jar",
+    ],
+)

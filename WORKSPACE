@@ -339,6 +339,23 @@ maven_install(
 )
 
 maven_install(
+    name = "strict_visibility_with_compat_testing",
+    artifacts = [
+        # Must not be in any other maven_install where generate_compat_repositories = True
+        "com.google.http-client:google-http-client-gson:1.42.3",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    strict_visibility = True,
+    generate_compat_repositories = True,
+)
+
+load("@strict_visibility_with_compat_testing//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
+maven_install(
     name = "maven_install_in_custom_location",
     artifacts = ["com.google.guava:guava:27.0-jre"],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_install.json",
