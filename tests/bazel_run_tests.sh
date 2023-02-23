@@ -5,13 +5,6 @@
 #
 # Add a new test to the TESTS array and send all output to TEST_LOG
 
-function test_docs_are_up_to_date() {
-  before_docs="$(git status)"
-  bazel run //scripts:generate-docs >> "$TEST_LOG" 2>&1
-  after_docs="$(git status)"
-  expect_same "$before_docs" "$after_docs"
-}
-
 function test_formatting_is_okay() {
   before_format="$(git status)"
   bazel run //scripts:format >> "$TEST_LOG" 2>&1
@@ -26,10 +19,27 @@ function test_prebuilts_are_up_to_date() {
 
   for i in private/tools/prebuilt/*.jar; do
     file_name=$(basename $i)
-    before="$(jar tvf "$temp/$file_name" | grep -v build-data.properties)"
-    after="$(jar tvf "private/tools/prebuilt/$file_name" | grep -v build-data.properties)"
-    expect_same "$before" "$after"
+
+    echo "Comparing $file_name" >> "$TEST_LOG"
+
+    different="$(comm -3 <(jar tvf "$temp/$file_name" | grep -v build-data.properties) <(jar tvf "private/tools/prebuilt/$file_name" | grep -v build-data.properties))"
+
+    if [ -n "$different" ]; then
+      echo "$different" >> "$TEST_LOG" 2>&1
+
+      printf "FAILED\n"
+      cat $TEST_LOG
+      DUMPED_TEST_LOG=1
+      return 1
+    fi
   done
+}
+
+function test_docs_are_up_to_date() {
+  before_docs="$(git status)"
+  bazel run //scripts:generate-docs >> "$TEST_LOG" 2>&1
+  after_docs="$(git status)"
+  expect_same "$before_docs" "$after_docs"
 }
 
 function test_dependency_aggregation() {
