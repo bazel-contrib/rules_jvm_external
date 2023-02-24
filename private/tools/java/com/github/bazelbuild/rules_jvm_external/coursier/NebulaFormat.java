@@ -20,7 +20,7 @@ public class NebulaFormat {
     this.repositories = repositories;
   }
 
-  public Map<String, Object> render(Set<DependencyInfo> infos) {
+  public Map<String, Object> render(Set<DependencyInfo> infos, Map<String, Object> conflicts) {
     boolean isUsingM2Local =
         repositories.stream().map(String::toLowerCase).anyMatch(repo -> repo.equals("m2local/"));
 
@@ -98,6 +98,9 @@ public class NebulaFormat {
     lock.put("repositories", repos);
 
     lock.put("skipped", skipped);
+    if (conflicts != null && !conflicts.isEmpty()) {
+      lock.put("conflict_resolution", conflicts);
+    }
     lock.put("files", files);
 
     lock.put("version", "2");
