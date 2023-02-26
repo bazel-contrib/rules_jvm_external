@@ -14,8 +14,10 @@ def _java_proxy_parsing_no_scheme_test_impl(ctx):
     asserts.equals(
         env,
         [
+            "-Dhttp.proxyProtocol=http",
             "-Dhttp.proxyHost=localhost",
             "-Dhttp.proxyPort=8888",
+            "-Dhttps.proxyProtocol=https",
             "-Dhttps.proxyHost=localhost",
             "-Dhttps.proxyPort=8843",
             "-Dhttp.nonProxyHosts=google.com",
@@ -31,8 +33,10 @@ def _java_proxy_parsing_no_user_test_impl(ctx):
     asserts.equals(
         env,
         [
+            "-Dhttp.proxyProtocol=http",
             "-Dhttp.proxyHost=example.com",
             "-Dhttp.proxyPort=80",
+            "-Dhttps.proxyProtocol=https",
             "-Dhttps.proxyHost=secureexample.com",
             "-Dhttps.proxyPort=443",
             "-Dhttp.nonProxyHosts=google.com",
@@ -48,7 +52,9 @@ def _java_proxy_parsing_no_port_test_impl(ctx):
     asserts.equals(
         env,
         [
+            "-Dhttp.proxyProtocol=http",
             "-Dhttp.proxyHost=example.com",
+            "-Dhttps.proxyProtocol=https",
             "-Dhttps.proxyHost=secureexample.com",
             "-Dhttp.nonProxyHosts=google.com",
         ],
@@ -63,8 +69,10 @@ def _java_proxy_parsing_trailing_slash_test_impl(ctx):
     asserts.equals(
         env,
         [
+            "-Dhttp.proxyProtocol=http",
             "-Dhttp.proxyHost=example.com",
             "-Dhttp.proxyPort=80",
+            "-Dhttps.proxyProtocol=https",
             "-Dhttps.proxyHost=secureexample.com",
             "-Dhttps.proxyPort=443",
             "-Dhttp.nonProxyHosts=google.com",
@@ -80,10 +88,12 @@ def _java_proxy_parsing_all_test_impl(ctx):
     asserts.equals(
         env,
         [
+            "-Dhttp.proxyProtocol=http",
             "-Dhttp.proxyUser=user1",
             "-Dhttp.proxyPassword=pass1",
             "-Dhttp.proxyHost=example.com",
             "-Dhttp.proxyPort=80",
+            "-Dhttps.proxyProtocol=https",
             "-Dhttps.proxyUser=user2",
             "-Dhttps.proxyPassword=pass2",
             "-Dhttps.proxyHost=secureexample.com",
