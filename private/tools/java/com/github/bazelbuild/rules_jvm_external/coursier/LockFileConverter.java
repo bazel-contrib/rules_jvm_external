@@ -76,8 +76,9 @@ public class LockFileConverter {
 
     LockFileConverter converter = new LockFileConverter(repositories, unsortedJson);
     Set<DependencyInfo> infos = converter.getDependencies();
+    Map<String, Object> conflicts = converter.getConflicts();
 
-    Map<String, Object> rendered = new NebulaFormat(repositories).render(infos);
+    Map<String, Object> rendered = new NebulaFormat(repositories).render(infos, conflicts);
 
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
@@ -96,6 +97,15 @@ public class LockFileConverter {
   public LockFileConverter(Set<String> repositories, Path unsortedJson) {
     this.repositories = Objects.requireNonNull(repositories);
     this.unsortedJson = Objects.requireNonNull(unsortedJson);
+  }
+
+  private Map<String, Object> getConflicts() {
+    Map<String, Object> depTree = readDepTree();
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> conflicts =
+        (Map<String, Object>) depTree.getOrDefault("conflict_resolution", Collections.EMPTY_MAP);
+    return conflicts;
   }
 
   public Set<DependencyInfo> getDependencies() {

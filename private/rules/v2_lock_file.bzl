@@ -155,6 +155,8 @@ def _render_lock_file(lock_file_contents, input_hash):
         "  \"__INPUT_ARTIFACTS_HASH\": %s," % input_hash,
         "  \"__RESOLVED_ARTIFACTS_HASH\": %s," % _compute_lock_file_hash(lock_file_contents),
     ]
+    if lock_file_contents.get("conflict_resolution"):
+        contents.append("  \"conflict_resolution\": %s," % json.encode_indent(lock_file_contents["conflict_resolution"], prefix = "  ", indent = "  "))
     contents.append("  \"artifacts\": %s," % json.encode_indent(lock_file_contents["artifacts"], prefix = "  ", indent = "  "))
     contents.append("  \"dependencies\": %s," % json.encode_indent(lock_file_contents["dependencies"], prefix = "  ", indent = "  "))
     if lock_file_contents.get("skipped"):
