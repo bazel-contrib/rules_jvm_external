@@ -41,6 +41,9 @@ def get_java_proxy_args(http_proxy, https_proxy, no_proxy):
     proxy_args = []
 
     if http_proxy:
+        # We only need to set proxyProtocol until https://github.com/coursier/coursier/pull/2701
+        # is merged and we can update coursier
+        proxy_args.append("-Dhttp.proxyProtocol=http")
         proxy_user = _get_proxy_user(http_proxy)
         if proxy_user:
             proxy_args.append("-Dhttp.proxyUser=%s" % proxy_user)
@@ -55,6 +58,9 @@ def get_java_proxy_args(http_proxy, https_proxy, no_proxy):
             proxy_args.append("-Dhttp.proxyPort=%s" % proxy_port)
 
     if https_proxy:
+        # We only need to set proxyProtocol until https://github.com/coursier/coursier/pull/2701
+        # is merged and we can update coursier
+        proxy_args.append("-Dhttps.proxyProtocol=https")
         proxy_user = _get_proxy_user(https_proxy)
         if proxy_user:
             proxy_args.append("-Dhttps.proxyUser=%s" % proxy_user)

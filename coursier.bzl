@@ -713,9 +713,17 @@ def make_coursier_dep_tree(
         if parse_java_version(exec_result.stdout + exec_result.stderr) > 8:
             java_cmd = cmd[0]
             java_args = cmd[1:]
+
+            argsfile_content = build_java_argsfile_content(java_args)
+            if _is_verbose(repository_ctx):
+                repository_ctx.execute(
+                    ["echo", "\nargsfile_content:\n%s" % argsfile_content],
+                    quiet = False,
+                )
+
             repository_ctx.file(
                 "java_argsfile",
-                build_java_argsfile_content(java_args),
+                argsfile_content,
                 executable = False,
             )
             cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
