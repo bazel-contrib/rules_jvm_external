@@ -246,6 +246,13 @@ maven_install(
             group = "com.sun.xml.bind",
             version = "2.3.6",
         ),
+        # https://github.com/bazelbuild/rules_jvm_external/issues/865
+        maven.artifact(
+            artifact = "google-api-services-compute",
+            classifier = "javadoc",
+            group = "com.google.apis",
+            version = "v1-rev235-1.25.0",
+        ),
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
@@ -629,6 +636,16 @@ http_file(
     sha256 = "d2e015fca7130e79af2f4608dc54415e4b10b592d77333decb4b1a274c185050",
     urls = [
         "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/1.8.2/junit-platform-commons-1.8.2.jar",
+    ],
+)
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/865
+http_file(
+    name = "google_api_services_compute_javadoc_for_test",
+    downloaded_file_path = "google-api-services-compute-v1-rev235-1.25.0-javadoc.jar",
+    sha256 = "b03be5ee8effba3bfbaae53891a9c01d70e2e3bd82ad8889d78e641b22bd76c2",
+    urls = [
+        "https://repo1.maven.org/maven2/com/google/apis/google-api-services-compute/v1-rev235-1.25.0/google-api-services-compute-v1-rev235-1.25.0-javadoc.jar",
     ],
 )
 
