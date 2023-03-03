@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 public class ListPackages {
@@ -57,17 +58,20 @@ public class ListPackages {
     SortedSet<String> packages = new TreeSet<>();
     try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
         ZipInputStream zis = new ZipInputStream(fis)) {
-
-      ZipEntry entry;
-      while ((entry = zis.getNextEntry()) != null) {
-        if (!entry.getName().endsWith(".class")) {
-          continue;
+      try {
+        ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
+          if (!entry.getName().endsWith(".class")) {
+            continue;
+          }
+          if ("module-info.class".equals(entry.getName())
+              || entry.getName().endsWith("/module-info.class")) {
+            continue;
+          }
+          packages.add(extractPackageName(entry.getName()));
         }
-        if ("module-info.class".equals(entry.getName())
-            || entry.getName().endsWith("/module-info.class")) {
-          continue;
-        }
-        packages.add(extractPackageName(entry.getName()));
+      } catch (ZipException e) {
+        System.err.printf("Caught ZipException: %s%n", e);
       }
     }
     return packages;

@@ -20,6 +20,7 @@ java_test(
     name = "ListPackagesTest",
     srcs = ["ListPackagesTest.java"],
     data = [
+        "@google_api_services_compute_javadoc_for_test//file",
         "@gson_for_test//file",
         "@hamcrest_core_for_test//file",
         "@hamcrest_core_srcs_for_test//file",

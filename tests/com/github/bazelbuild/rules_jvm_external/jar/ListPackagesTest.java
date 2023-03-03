@@ -52,6 +52,12 @@ public class ListPackagesTest {
     doTest("hamcrest_core_srcs_for_test/file/hamcrest-core-1.3-sources.jar");
   }
 
+  @Test
+  public void invalidCRC() throws Exception {
+    doTest(
+        "google_api_services_compute_javadoc_for_test/file/google-api-services-compute-v1-rev235-1.25.0-javadoc.jar");
+  }
+
   private void doTest(String runfileJar, String... expectedPackages) throws IOException {
     SortedSet<String> expected = sortedSet(expectedPackages);
     Path jar = Paths.get(Runfiles.create().rlocation(runfileJar));
