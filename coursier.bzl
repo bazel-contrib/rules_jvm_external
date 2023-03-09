@@ -436,6 +436,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
         "def pinned_maven_install():",
+        "    pass",  # Keep it syntactically correct in case of empty dependencies.
     ]
     maven_artifacts = []
     netrc_entries = importer.get_netrc_entries(maven_install_json_content)
