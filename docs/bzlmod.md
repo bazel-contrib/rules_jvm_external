@@ -17,11 +17,11 @@ The simplest way is by adding this line to your `.bazelrc`:
 common --enable_bzlmod
 ```
 
-Now, create a `MODULE.bazel` file in the root of your workspace, containing:
+Now, create a `MODULE.bazel` file in the root of your workspace,
+setting the `version` to the latest one available on https://registry.bazel.build/modules/rules_jvm_external:
 
 ```starlark
-# FIXME: use latest release from https://registry.bazel.build/modules/rules_jvm_external
-bazel_dep(name = "rules_jvm_external", version = "4.5")
+bazel_dep(name = "rules_jvm_external", version = "...")
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     artifacts = [
