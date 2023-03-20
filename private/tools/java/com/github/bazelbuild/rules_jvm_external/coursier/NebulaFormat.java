@@ -71,7 +71,7 @@ public class NebulaFormat {
               .map(Objects::toString)
               .forEach(
                   repo -> {
-                    repos.getOrDefault(repo, new TreeSet<>()).add(key);
+                    repos.getOrDefault(stripAuthenticationInformation(repo), new TreeSet<>()).add(key);
                   });
 
           deps.put(
