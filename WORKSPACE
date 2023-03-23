@@ -351,11 +351,11 @@ maven_install(
         # Must not be in any other maven_install where generate_compat_repositories = True
         "com.google.http-client:google-http-client-gson:1.42.3",
     ],
+    generate_compat_repositories = True,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
     strict_visibility = True,
-    generate_compat_repositories = True,
 )
 
 load("@strict_visibility_with_compat_testing//:compat.bzl", "compat_repositories")

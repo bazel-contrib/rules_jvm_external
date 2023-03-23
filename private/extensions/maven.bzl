@@ -1,3 +1,5 @@
+load("//private:compat_repository.bzl", "compat_repository")
+load("//private:coursier_utilities.bzl", "escape")
 load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
@@ -74,6 +76,9 @@ _install = tag_class(
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
         "lock_file": attr.label(),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
+        "generate_compat_repositories": attr.bool(
+            doc = "Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
+        ),
 
         # When using an unpinned repo
         "excluded_artifacts": attr.string_list(doc = "Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs", default = []),  # list of artifacts to exclude
@@ -155,6 +160,7 @@ def _maven_impl(mctx):
     # - fail_on_missing_checksum: bool. A logical OR over all `fail_on_missing_checksum` for all `install` tags with the same name.
     # - fetch_javadoc: bool. A logical OR over all `fetch_javadoc` for all `install` tags with the same name.
     # - fetch_sources: bool. A logical OR over all `fetch_sources` for all `install` tags with the same name.
+    # - generate_compat_repositories: bool. A logical OR over all `generate_compat_repositories` for all `install` tags with the same name.
     # - jetify: bool. A logical OR over all `jetify` for all `install` tags with the same name.
     # - jetify_include_list: string list. Accumulated from all `install` tags
     # - lock_file: the lock file to use, if present. Multiple lock files will cause the build to fail.
@@ -242,6 +248,7 @@ def _maven_impl(mctx):
             _logical_or(repo, "fail_on_missing_checksum", False, install.fail_on_missing_checksum)
             _logical_or(repo, "fetch_sources", False, install.fetch_sources)
             _logical_or(repo, "fetch_javadoc", False, install.fetch_javadoc)
+            _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
             _logical_or(repo, "jetify", False, install.jetify)
             _logical_or(repo, "strict_visibility", False, install.strict_visibility)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
@@ -321,6 +328,19 @@ def _maven_impl(mctx):
             aar_import_bzl_label = repo.get("aar_import_bzl_label"),
             duplicate_version_warning = repo.get("duplicate_version_warning"),
         )
+
+        if repo.get("generate_compat_repositories"):
+            seen = []
+            for artifact in artifacts:
+                versionless = escape(artifact["group"] + "_" + artifact["artifact"])
+                if versionless in seen:
+                    continue
+                seen.append(versionless)
+                compat_repository(
+                    name = versionless,
+                    generating_repository = name,
+                    target_name = versionless,
+                )
 
         if repo.get("lock_file"):
             lock_file = json.decode(mctx.read(mctx.path(repo.get("lock_file"))))
