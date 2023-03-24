@@ -1121,6 +1121,7 @@ def _coursier_fetch_impl(repository_ctx):
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
         "def pinned_maven_install():",
+        "    pass",  # Ensure we're syntactically correct even if no deps are added
     ]
     repository_ctx.file(
         "defs.bzl",
