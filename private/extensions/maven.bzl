@@ -295,7 +295,8 @@ def _maven_impl(mctx):
     for (name, repo) in repos.items():
         artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
         artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
-
+        excluded_artifacts = parse.parse_exclusion_spec_list(repo["excluded_artifacts"])
+        excluded_artifacts_json = [_json.write_exclusion_spec(a) for a in excluded_artifacts]
         coursier_fetch(
             # Name this repository "unpinned_{name}" if the user specified a
             # maven_install.json file. The actual @{name} repository will be
@@ -307,7 +308,7 @@ def _maven_impl(mctx):
             fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
             fetch_sources = repo.get("fetch_sources"),
             fetch_javadoc = repo.get("fetch_javadoc"),
-            excluded_artifacts = repo.get("excluded_artifacts"),
+            excluded_artifacts = excluded_artifacts_json,
             generate_compat_repositories = False,
             version_conflict_policy = repo.get("version_conflict_policy"),
             override_targets = overrides,
