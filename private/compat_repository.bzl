@@ -15,11 +15,13 @@ alias(
 """
 
 def _compat_repository_impl(repository_ctx):
+    target_name = repository_ctx.attr.target_name if repository_ctx.attr.target_name else repository_ctx.name
+
     repository_ctx.file(
         "jar/BUILD",
         _JAR_BUILD.format(
             generating_repository = repository_ctx.attr.generating_repository,
-            target_name = repository_ctx.name,
+            target_name = target_name,
         ),
         executable = False,
     )
@@ -29,7 +31,7 @@ def _compat_repository_impl(repository_ctx):
         _ROOT_BUILD.format(
             repository_name = repository_ctx.name,
             generating_repository = repository_ctx.attr.generating_repository,
-            target_name = repository_ctx.name,
+            target_name = target_name,
         ),
         executable = False,
     )
@@ -38,5 +40,6 @@ compat_repository = repository_rule(
     implementation = _compat_repository_impl,
     attrs = {
         "generating_repository": attr.string(default = "maven"),
+        "target_name": attr.string(),
     },
 )
