@@ -572,6 +572,23 @@ maven_install(
 )
 
 maven_install(
+    name = "m2local_testing_repin",
+    artifacts = [
+        # this is a test jar built for integration
+        # tests in this repo
+        "com.example:kt:1.0.0",
+    ],
+    maven_install_json = "//tests/custom_maven_install:m2local_testing_with_pinned_file_install.json",
+    repositories = [
+        "m2Local",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@m2local_testing_repin//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+
+maven_install(
     name = "m2local_testing_without_checksum",
     artifacts = [
         # this is a test jar built for integration
