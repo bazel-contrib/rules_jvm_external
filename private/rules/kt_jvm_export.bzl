@@ -1,6 +1,8 @@
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load("//private/rules:java_export.bzl", "maven_export")
 
+KOTLIN_STDLIB = "@com_github_jetbrains_kotlin//:kotlin-stdlib"
+
 def kt_jvm_export(
         name,
         maven_coordinates,
@@ -66,6 +68,12 @@ def kt_jvm_export(
 
     javadocopts = kwargs.pop("javadocopts", [])
 
+    # ensure that the kotlin-stdlib is included in deploy_env
+    if KOTLIN_STDLIB not in deploy_env:
+        updated_deploy_env = deploy_env + [KOTLIN_STDLIB]
+    else:
+        updated_deploy_env = deploy_env
+
     # Construct the kt_jvm_library we'll export from here.
     kt_jvm_library(
         name = lib_name,
@@ -78,7 +86,7 @@ def kt_jvm_export(
         name,
         maven_coordinates,
         lib_name,
-        deploy_env,
+        updated_deploy_env,
         pom_template,
         visibility,
         tags,
