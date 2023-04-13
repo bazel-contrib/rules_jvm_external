@@ -110,6 +110,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dependencies:
         artifact_path = artifact["file"]
+        # Skip the maven local dependencies if requested
+        if skip_maven_local_dependencies and is_maven_local_path(artifact_path):
+            continue
         simple_coord = strip_packaging_and_classifier_and_version(artifact["coordinates"])
         target_label = escape(simple_coord)
         alias_visibility = ""
