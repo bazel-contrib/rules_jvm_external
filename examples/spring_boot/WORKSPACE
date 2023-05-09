@@ -32,7 +32,7 @@ maven_install(
     fetch_sources = True,
     maven_install_json = "//:maven_install.json",
     repositories = [
-        "https://repo1.error.maven.org/maven2",
+        "https://repo1.maven.org/maven2",
         "https://repo.maven.apache.org/maven2/",
     ],
     version_conflict_policy = "pinned",
