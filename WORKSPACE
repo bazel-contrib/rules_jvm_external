@@ -586,6 +586,7 @@ maven_install(
 )
 
 load("@m2local_testing_repin//:defs.bzl", "pinned_maven_install")
+
 pinned_maven_install()
 
 maven_install(
@@ -698,3 +699,27 @@ rbe_preconfig(
 load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
 
 maven_jar_migrator_repositories()
+
+# Located at the end, because it's only used in tests
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "6fc9b6efc18acb2fd5fb3bcf981572539c3432600042b662a162c1226b362426",
+    strip_prefix = "protobuf-21.10",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.10/protobuf-all-21.10.tar.gz",
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+maven_install(
+    name = "java_export_exclusion_testing",
+    artifacts = [
+        "com.google.protobuf:protobuf-java:3.6.1",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:java_export_exclusion_testing_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)

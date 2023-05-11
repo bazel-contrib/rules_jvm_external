@@ -1,6 +1,6 @@
 load(":javadoc.bzl", "javadoc")
 load(":maven_bom_fragment.bzl", "maven_bom_fragment")
-load(":maven_project_jar.bzl", "maven_project_jar")
+load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES", "maven_project_jar")
 load(":maven_publish.bzl", "maven_publish")
 load(":pom_file.bzl", "pom_file")
 
@@ -8,6 +8,7 @@ def java_export(
         name,
         maven_coordinates,
         deploy_env = [],
+        excluded_workspaces = {name: None for name in DEFAULT_EXCLUDED_WORKSPACES},
         pom_template = None,
         visibility = None,
         tags = [],
@@ -61,6 +62,10 @@ def java_export(
       deploy_env: A list of labels of Java targets to exclude from the generated jar.
         [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
         supported.
+      excluded_workspaces: A dict of strings representing the workspace names of artifacts
+        that should not be included in the maven jar to a `Label` pointing to the dependency
+        that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
+        with an extra dependency.
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -85,6 +90,7 @@ def java_export(
         maven_coordinates,
         lib_name,
         deploy_env,
+        excluded_workspaces,
         pom_template,
         visibility,
         tags,
@@ -97,6 +103,7 @@ def maven_export(
         maven_coordinates,
         lib_name,
         deploy_env = [],
+        excluded_workspaces = {},
         pom_template = None,
         visibility = None,
         tags = [],
@@ -150,6 +157,10 @@ def maven_export(
       deploy_env: A list of labels of Java targets to exclude from the generated jar.
         [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
         supported.
+      excluded_workspaces: A dict of strings representing the workspace names of artifacts
+        that should not be included in the maven jar to a `Label` pointing to the dependency
+        that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
+        with an extra dependency.
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -158,13 +169,19 @@ def maven_export(
 
     # Sometimes users pass `None` as the value for attributes. Guard against this
     deploy_env = deploy_env if deploy_env else []
+    excluded_workspaces = excluded_workspaces if excluded_workspaces else []
     javadocopts = javadocopts if javadocopts else []
+    tags = tags if tags else []
+
+    additional_dependencies = {label: name for (name, label) in excluded_workspaces.items() if label}
 
     # Merge the jars to create the maven project jar
     maven_project_jar(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
         deploy_env = deploy_env,
+        excluded_workspaces = excluded_workspaces.keys(),
+        additional_dependencies = additional_dependencies,
         visibility = visibility,
         tags = tags + maven_coordinates_tags,
         testonly = testonly,
@@ -210,6 +227,7 @@ def maven_export(
         name = "%s-pom" % name,
         target = ":%s" % lib_name,
         pom_template = pom_template,
+        additional_dependencies = additional_dependencies,
         visibility = visibility,
         tags = tags,
         testonly = testonly,
