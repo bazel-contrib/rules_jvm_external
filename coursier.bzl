@@ -60,10 +60,13 @@ sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
     args = [
-      "$(location :unsorted_deps.json)",
+      "$(rlocationpath :unsorted_deps.json)",
     ],
     data = [
         ":unsorted_deps.json",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
     ],
     visibility = ["//visibility:public"],
 )
