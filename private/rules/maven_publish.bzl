@@ -11,7 +11,7 @@ MavenPublishInfo = provider(
 _TEMPLATE = """#!/usr/bin/env bash
 
 echo "Uploading {coordinates} to {maven_repo}"
-{uploader} {maven_repo} {gpg_sign} {user} {password} {coordinates} {pom} {artifact_jar} {source_jar} {javadoc}
+{uploader} "{maven_repo}" "{gpg_sign}" "{user}" "{password}" "{coordinates}" "{pom}" "{artifact}" "{source_jar}" "{javadoc}"
 """
 
 def _maven_publish_impl(ctx):
