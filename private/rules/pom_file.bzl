@@ -25,7 +25,10 @@ def _pom_file_impl(ctx):
     )
 
     return [
-        DefaultInfo(files = depset([out])),
+        DefaultInfo(
+            files = depset([out]),
+            data_runfiles = ctx.runfiles([out]),
+        ),
         OutputGroupInfo(
             pom = depset([out]),
         ),

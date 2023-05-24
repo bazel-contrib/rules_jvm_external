@@ -22,3 +22,5 @@ if ! grep -q Main.java "$sources_file"; then
   echo "Missing main source file from jar"
   exit 1
 fi
+
+exit 2

@@ -15,7 +15,6 @@ jar_file=$(rlocation rules_jvm_external/tests/integration/java_export/with-proto
 # Calling rlocation will also call `set -e` (see line 9)
 set +e
 
-echo $jar_file
 found=$(jar tvf "${jar_file}" | grep "com/google/protobuf")
 
 if [ "$found" ]; then
@@ -26,7 +25,6 @@ fi
 pom_file=$(rlocation rules_jvm_external/tests/integration/java_export/with-proto-dep-pom.xml)
 set +e
 
-echo $pom_file
 found=$(cat "${pom_file}" | grep "protobuf-java")
 
 if [ "$found" ]; then
@@ -34,12 +32,11 @@ if [ "$found" ]; then
   exit 1
 fi
 
-pom_file=$(rlocation rules_jvm_external/tests/integration/java_export/with-added-dependency-pom.xml)
+pom_file_with_deps=$(rlocation rules_jvm_external/tests/integration/java_export/with-added-dependency-pom.xml)
 set +e
 
-echo $pom_file
 # Test will fail if we don't find the dep
-found=$(cat "${pom_file}" | grep "protobuf-java")
+found=$(cat "${pom_file_with_deps}" | grep "protobuf-java")
 if [ ! "$found" ]; then
   echo "Did not find expected dependency on protobuf when none listed"
   exit 1
