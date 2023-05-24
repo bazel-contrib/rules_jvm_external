@@ -218,6 +218,8 @@ def maven_export(
                 ":%s-project" % name,
             ] + deploy_env,
             javadocopts = javadocopts,
+            excluded_workspaces = excluded_workspaces.keys(),
+            additional_dependencies = additional_dependencies,
             visibility = visibility,
             tags = tags,
             testonly = testonly,

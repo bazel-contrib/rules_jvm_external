@@ -716,10 +716,14 @@ protobuf_deps()
 maven_install(
     name = "java_export_exclusion_testing",
     artifacts = [
-        "com.google.protobuf:protobuf-java:3.6.1",
+        "com.google.protobuf:protobuf-java:3.23.1",
     ],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:java_export_exclusion_testing_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
 )
+
+load("@java_export_exclusion_testing//:defs.bzl", _java_export_exclusion_testing_pinned_maven_install = "pinned_maven_install")
+
+_java_export_exclusion_testing_pinned_maven_install()
