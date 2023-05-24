@@ -96,12 +96,12 @@ def maven_export(
         name,
         maven_coordinates,
         lib_name,
-        deploy_env=[],
-        pom_template=None,
-        visibility=None,
-        tags=[],
-        testonly=False,
-        javadocopts=[]):
+        deploy_env = [],
+        pom_template = None,
+        visibility = None,
+        tags = [],
+        testonly = False,
+        javadocopts = []):
     """
     All arguments are the same as java_export with the addition of:
       lib_name: Name of the library that has been built.
@@ -155,6 +155,10 @@ def maven_export(
         and so may contain any valid parameter for that rule.
     """
     maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
+
+    # Sometimes users pass `None` as the value for attributes. Guard against this
+    deploy_env = deploy_env if deploy_env else []
+    javadocopts = javadocopts if javadocopts else []
 
     # Merge the jars to create the maven project jar
     maven_project_jar(
