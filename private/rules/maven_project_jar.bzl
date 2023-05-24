@@ -1,4 +1,25 @@
 load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "calculate_artifact_source_jars", "has_maven_deps")
+load(":maven_utils.bzl", "determine_additional_dependencies")
+
+DEFAULT_EXCLUDED_WORKSPACES = [
+    # Note: we choose to drop the dependency entirely because
+    #       we can't be sure which coordinate the user has
+    #       chosen for protobuf.
+    "com_google_protobuf",
+]
+
+def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
+    to_return = []
+
+    for jar in jar_files:
+        owner = jar.owner
+
+        if owner and owner.workspace_name in excluded_workspaces:
+            continue
+
+        to_return.append(jar)
+
+    return to_return
 
 def _combine_jars(ctx, merge_jars, inputs, excludes, output):
     args = ctx.actions.args()
@@ -20,7 +41,20 @@ def _maven_project_jar_impl(ctx):
 
     # Identify the subset of JavaInfo to include in the artifact
     artifact_jars = calculate_artifact_jars(info)
-    artifact_srcs = calculate_artifact_source_jars(info)
+
+    # We need to know the additional dependencies we might need to add
+    additional_deps = [dep[JavaInfo] for dep in determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)]
+
+    # And now we strip out dependencies if they're not needed
+    artifact_jars = _strip_excluded_workspace_jars(
+        artifact_jars,
+        ctx.attr.excluded_workspaces,
+    )
+
+    artifact_srcs = _strip_excluded_workspace_jars(
+        calculate_artifact_source_jars(info),
+        ctx.attr.excluded_workspaces,
+    )
 
     # Merge together all the binary jars
     bin_jar = ctx.actions.declare_file("%s.jar" % ctx.label.name)
@@ -84,7 +118,7 @@ def _maven_project_jar_impl(ctx):
         source_jar = src_jar,
 
         # TODO: calculate runtime_deps too
-        deps = info.dep_infos.to_list(),
+        deps = info.dep_infos.to_list() + additional_deps,
         exports = exported_infos,
     )
 
@@ -132,6 +166,18 @@ single artifact that other teams can download and use.
                 [JavaInfo],
             ],
             allow_empty = True,
+        ),
+        "excluded_workspaces": attr.string_list(
+            doc = "A list of bazel workspace names to exclude from the generated jar",
+            allow_empty = True,
+            default = DEFAULT_EXCLUDED_WORKSPACES,
+        ),
+        "additional_dependencies": attr.label_keyed_string_dict(
+            doc = "Mapping of `Label`s to the excluded workspace names. Note that this must match the values passed to the `pom_file` rule so the `pom.xml` correctly lists these dependencies.",
+            allow_empty = True,
+            providers = [
+                [JavaInfo],
+            ],
         ),
         # Bazel's own singlejar doesn't respect java service files,
         # so use our own.

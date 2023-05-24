@@ -128,3 +128,21 @@ def generate_pom(
     )
 
     return out
+
+def determine_additional_dependencies(jar_files, additional_dependencies):
+    """Takes a dict of {`Label`: workspace_name} and returns the `Label`s where any `jar_files match a `workspace_name."""
+    to_return = []
+
+    for jar in jar_files:
+        owner = jar.owner
+
+        # If we can't tell who the owner is, let's assume things are fine
+        if not owner:
+            continue
+
+        for (dep, name) in additional_dependencies.items():
+            if (name == owner.workspace_name) and dep:
+                if not dep in to_return:
+                    to_return.append(dep)
+
+    return to_return

@@ -1,5 +1,6 @@
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load("//private/rules:java_export.bzl", "maven_export")
+load(":java_export.bzl", "maven_export")
+load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
 
 KOTLIN_STDLIB = "@com_github_jetbrains_kotlin//:kotlin-stdlib"
 
@@ -7,6 +8,7 @@ def kt_jvm_export(
         name,
         maven_coordinates,
         deploy_env = [],
+        excluded_workspaces = {name: None for name in DEFAULT_EXCLUDED_WORKSPACES},
         pom_template = None,
         visibility = None,
         tags = [],
@@ -83,13 +85,14 @@ def kt_jvm_export(
     )
 
     maven_export(
-        name,
-        maven_coordinates,
-        lib_name,
-        updated_deploy_env,
-        pom_template,
-        visibility,
-        tags,
-        testonly,
-        javadocopts,
+        name = name,
+        maven_coordinates = maven_coordinates,
+        lib_name = lib_name,
+        deploy_env = updated_deploy_env,
+        excluded_workspaces = excluded_workspaces,
+        pom_template = pom_template,
+        visibility = visibility,
+        tags = tags,
+        testonly = testonly,
+        javadocopts = javadocopts,
     )

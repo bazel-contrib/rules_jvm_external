@@ -1,5 +1,5 @@
-load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
-load(":maven_utils.bzl", "generate_pom")
+load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "has_maven_deps")
+load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
@@ -8,16 +8,27 @@ def _pom_file_impl(ctx):
 
     info = ctx.attr.target[MavenInfo]
 
+    artifact_jars = calculate_artifact_jars(info)
+    additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
+
+    all_maven_deps = info.maven_deps.to_list()
+    for dep in additional_deps:
+        for coords in dep[MavenInfo].as_maven_dep.to_list():
+            all_maven_deps.append(coords)
+
     out = generate_pom(
         ctx,
         coordinates = info.coordinates,
-        versioned_dep_coordinates = sorted(info.maven_deps.to_list()),
+        versioned_dep_coordinates = sorted(all_maven_deps),
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
     )
 
     return [
-        DefaultInfo(files = depset([out])),
+        DefaultInfo(
+            files = depset([out]),
+            data_runfiles = ctx.runfiles([out]),
+        ),
         OutputGroupInfo(
             pom = depset([out]),
         ),
@@ -46,6 +57,16 @@ The following substitutions are performed on the template file:
         "target": attr.label(
             doc = "The rule to base the pom file on. Must be a java_library and have a maven_coordinate tag.",
             mandatory = True,
+            providers = [
+                [JavaInfo],
+            ],
+            aspects = [
+                has_maven_deps,
+            ],
+        ),
+        "additional_dependencies": attr.label_keyed_string_dict(
+            doc = "Mapping of `Label`s to the excluded workspace names",
+            allow_empty = True,
             providers = [
                 [JavaInfo],
             ],

@@ -12,6 +12,7 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 set -euox pipefail
 
 sources_file=$(rlocation rules_jvm_external/tests/integration/java_export/sources.txt)
+set +e
 
 if grep -q Dependency.java "$sources_file"; then
   echo "Unexpectedly found dependency source file in jar"

@@ -144,3 +144,56 @@ sh_test(
         "@bazel_tools//tools/bash/runfiles",
     ],
 )
+
+proto_library(
+    name = "example_proto",
+    srcs = ["example.proto"],
+    deps = [
+        # It's important that we pull our dep from `@com_google_protobuf`
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+java_proto_library(
+    name = "example-proto-library",
+    deps = [":example_proto"],
+)
+
+java_export(
+    name = "with-proto-dep",
+    maven_coordinates = "com.example:example-with-proto:0.0.1",
+    tags = [
+        # Because we know that there's a dep on protobuf, but we've not
+        # told bazel where to find it. Code will compile, but the javadoc
+        # generation will fail because it wants more! More! More!
+        "no-javadocs",
+    ],
+    runtime_deps = [":example-proto-library"],
+)
+
+java_export(
+    name = "with-added-dependency",
+    excluded_workspaces = {
+        "com_google_protobuf": artifact(
+            "com.google.protobuf:protobuf-java",
+            repository_name = "java_export_exclusion_testing",
+        ),
+    },
+    maven_coordinates = "com.example:example-with-proto:0.0.1",
+    runtime_deps = [":example-proto-library"],
+)
+
+sh_test(
+    name = "check-excluded-packages-are-excluded",
+    srcs = [
+        "check-excluded-packages-are-excluded.sh",
+    ],
+    data = [
+        ":with-added-dependency-pom",
+        ":with-proto-dep",
+        ":with-proto-dep-pom",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+)

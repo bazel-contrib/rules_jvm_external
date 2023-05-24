@@ -1,3 +1,6 @@
+load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
+load(":maven_utils.bzl", "determine_additional_dependencies")
+
 def generate_javadoc(ctx, javadoc, source_jars, classpath, javadocopts, output):
     args = ctx.actions.args()
     args.add_all(["--out", output])
@@ -19,7 +22,9 @@ def _javadoc_impl(ctx):
 
     jar_file = ctx.actions.declare_file("%s.jar" % ctx.attr.name)
 
-    classpath = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps])
+    # Gather additional files to add to the classpath
+    additional_deps = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps])
+    classpath = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps] + [additional_deps])
 
     # javadoc options and javac options overlap, but we cannot
     # necessarily rely on those to derive the javadoc options we need
@@ -53,6 +58,18 @@ javadoc = rule(
             Note sources and classpath are derived from the deps. Any additional
             options can be passed here.
             """,
+        ),
+        "excluded_workspaces": attr.string_list(
+            doc = "A list of bazel workspace names to exclude from the generated jar",
+            allow_empty = True,
+            default = DEFAULT_EXCLUDED_WORKSPACES,
+        ),
+        "additional_dependencies": attr.label_keyed_string_dict(
+            doc = "Mapping of `Label`s to the excluded workspace names. Note that this must match the values passed to the `pom_file` rule so the `pom.xml` correctly lists these dependencies.",
+            allow_empty = True,
+            providers = [
+                [JavaInfo],
+            ],
         ),
         "_javadoc": attr.label(
             default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:javadoc",
