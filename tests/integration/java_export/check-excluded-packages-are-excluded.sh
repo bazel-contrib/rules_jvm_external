@@ -44,5 +44,3 @@ if [ ! "$found" ]; then
   echo "Did not find expected dependency on protobuf when none listed"
   exit 1
 fi
-
-exit 2
