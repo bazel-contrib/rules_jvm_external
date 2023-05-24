@@ -162,6 +162,12 @@ java_proto_library(
 java_export(
     name = "with-proto-dep",
     maven_coordinates = "com.example:example-with-proto:0.0.1",
+    tags = [
+        # Because we know that there's a dep on protobuf, but we've not
+        # told bazel where to find it. Code will compile, but the javadoc
+        # generation will fail because it wants more! More! More!
+        "no-javadocs",
+    ],
     runtime_deps = [":example-proto-library"],
 )
 

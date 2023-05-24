@@ -25,7 +25,6 @@ def _javadoc_impl(ctx):
     # Gather additional files to add to the classpath
     additional_deps = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps])
     classpath = depset(transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps] + [additional_deps])
-    print("Classpath", classpath.to_list())
 
     # javadoc options and javac options overlap, but we cannot
     # necessarily rely on those to derive the javadoc options we need
