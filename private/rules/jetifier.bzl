@@ -13,12 +13,18 @@ def _jetify_impl(ctx):
             jetify_args.add("-o", jetified_outfile)
             jetify_args.add("-i", artifact)
             jetify_args.add("-timestampsPolicy", "keepPrevious")
+            jetify_args.use_param_file("@%s", use_always = True)
+            jetify_args.set_param_file_format("multiline")
             ctx.actions.run(
                 mnemonic = "Jetify",
                 inputs = [artifact],
                 outputs = [jetified_outfile],
                 progress_message = "Jetifying {}".format(artifact.owner),
                 executable = ctx.executable._jetifier,
+                execution_requirements = {
+                    "supports-workers" : "1",
+                    "supports-multiplex-workers": "1",
+                },
                 arguments = [jetify_args],
             )
             outfiles.append(jetified_outfile)

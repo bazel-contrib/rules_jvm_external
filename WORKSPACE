@@ -38,6 +38,12 @@ load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
 stardoc_repositories()
 
 http_archive(
+    name = "android_tools",
+    sha256 = "1afa4b7e13c82523c8b69e87f8d598c891ec7e2baa41d9e24e08becd723edb4d",
+    url = "https://mirror.bazel.build/bazel_android_tools/android_tools_pkg-0.27.0.tar.gz",
+)
+
+http_archive(
     name = "io_bazel_rules_kotlin",
     sha256 = "946747acdbeae799b085d12b240ec346f775ac65236dfcf18aa0cd7300f6de78",
     urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.7.0-RC-2/rules_kotlin_release.tgz"],
