@@ -36,15 +36,20 @@ def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     if not len(artifact["urls"]):
         return ""
     http_file_repository = escape(artifact["coordinates"])
-    return "\n".join([
+    genrule = [
         "genrule(",
         "     name = \"%s_extension\"," % http_file_repository,
         "     srcs = [\"@%s//file\"]," % http_file_repository,
         "     outs = [\"%s\"]," % artifact["file"],
         "     cmd = \"cp $< $@\",",
+    ]
+    if get_packaging(artifact["coordinates"]) == "exe":
+        genrule.append("     executable = True,")
+    genrule.extend([
         "     visibility = [%s]" % (",".join(["\"%s\"" % v for v in visibilities])),
         ")",
     ])
+    return "\n".join(genrule)
 
 def _deduplicate_list(items):
     seen_items = {}
@@ -110,6 +115,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dependencies:
         artifact_path = artifact["file"]
+
         # Skip the maven local dependencies if requested
         if skip_maven_local_dependencies and is_maven_local_path(artifact_path):
             continue
@@ -128,7 +134,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             all_imports.append(
                 "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_path),
             )
-        elif get_packaging(artifact["coordinates"]) == "json":
+        elif get_packaging(artifact["coordinates"]) in ("exe", "json"):
             seen_imports[target_label] = True
             versioned_target_alias_label = "%s_extension" % escape(artifact["coordinates"])
             all_imports.append(

@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 
 # Regression tests for particular artifacts that revealed problems for this
 # project.
@@ -19,6 +20,23 @@ build_test(
         "@regression_testing//:com_fasterxml_jackson_jackson_bom",
         "@regression_testing//:org_junit_junit_bom",
         "@regression_testing//:io_netty_netty_tcnative_boringssl_static",
+        "@regression_testing//:com_google_protobuf_protoc_linux_x86_64",
+        "@regression_testing//:com_google_protobuf_protoc_osx_aarch_64",
+    ],
+)
+
+# Note: skylib's `native_test` would fail on "Exec format error" under the other platform, hence the following 2 steps
+[native_binary(
+    name = "src_that_refers_to_a_valid_executable_{}_target".format(platform),
+    src = "@regression_testing//:com_google_protobuf_protoc_{}".format(platform),
+    out = "protoc_{}.exe".format(platform),
+) for platform in ("linux_x86_64", "osx_aarch_64")]
+
+build_test(
+    name = "native_binaries_indeed_refer_to_valid_executable_targets",
+    targets = [
+        "src_that_refers_to_a_valid_executable_{}_target".format(platform)
+        for platform in ("linux_x86_64", "osx_aarch_64")
     ],
 )
 

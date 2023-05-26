@@ -253,6 +253,10 @@ maven_install(
             group = "com.google.apis",
             version = "v1-rev235-1.25.0",
         ),
+        # https://github.com/bazelbuild/rules_jvm_external/issues/907
+        # Any two platforms to ensure that it doesn't work _only_ under the host operating system
+        "com.google.protobuf:protoc:exe:linux-x86_64:3.21.12",
+        "com.google.protobuf:protoc:exe:osx-aarch_64:3.21.12",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
