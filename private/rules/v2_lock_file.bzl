@@ -43,10 +43,13 @@ def _compute_lock_file_hash(lock_file_contents):
     return hash(repr(to_hash))
 
 def _to_m2_path(unpacked):
-    path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
+    # For maven release repositoty, the path is {group}/{artifact}/{version}/{artifact}-{version}
+    # For maven snapshot repository, the path is {group}/{artifact}/{version with SNAPSHOT}/{artifact}-{version without SNAPSHOT}-{timestamp}-{buildNumber}
+    path = "{group}/{artifact}/{version}/{artifact}-{stripped_version}".format(
         artifact = unpacked["artifactId"],
         group = unpacked["groupId"].replace(".", "/"),
         version = unpacked["version"],
+        stripped_version = unpacked["version"].replace("-SNAPSHOT", "")
     )
 
     classifier = unpacked.get("scope", "jar")
