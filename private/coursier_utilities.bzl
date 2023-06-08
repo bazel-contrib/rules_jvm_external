@@ -23,6 +23,7 @@ SUPPORTED_PACKAGING_TYPES = [
     "aar",
     "bundle",
     "eclipse-plugin",
+    "exe",
     "orbit",
     "test-jar",
     "hk2-jar",
