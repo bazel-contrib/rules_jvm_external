@@ -662,16 +662,15 @@ def make_coursier_dep_tree(
 
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
 
-    sanitized_artifact_coordinates = []
-
+    fetch_artifact_coordinates = []
     for coord in artifact_coordinates:
         # Undo any `,type=` suffix from `utils.artifact_coordinate` so coursier can form correct urls.
-        sanitized_artifact_coordinates.append(
-            ",".join([c for c in coord.split(",") if not c.startswith("type=")])
+        fetch_artifact_coordinates.append(
+            ",".join([c for c in coord.split(",") if not c.startswith("type=")]),
         )
-
     cmd.extend(["fetch"])
-    cmd.extend(sanitized_artifact_coordinates)
+    cmd.extend(fetch_artifact_coordinates)
+
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
             # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
