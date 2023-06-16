@@ -667,20 +667,12 @@ def make_coursier_dep_tree(
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
             # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
-            if "classifier" in coord:
-                print("ARTEM look! coord=" + coord + " has classifier!")
+            result = [
+                         "--force-version",
+                         ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
+                     ] if ",classifier" in coord and ",type" in coord else ["--force-version", coord.split(",classifier=")[0]]
 
-            if "type" in coord:
-                print("ARTEM look! coord=" + coord + " has type!")
-                
-            a = ["--force-version", coord.split(",classifier=")[0]]
-            print("ARTEM look! a=" + str(a))
-            b = [
-                "--force-version",
-                ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
-            ]
-            print("ARTEM look! b=" + str(b))
-            cmd.extend(b)
+            cmd.extend(result)
     cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src", "doc"])])
     cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
