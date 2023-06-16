@@ -254,7 +254,7 @@ json = struct(
 # Coursier expects artifacts to be defined in the form `group:artifact:version`, but it also supports some attributes:
 # `url`, `ext`, `classifier`, `exclude` and `type`.
 # In contrast with group, artifact and version, the attributes are a key=value comma-separated string appended at the end,
-# For example: `coursier fetch group:artifact:version,classifier=xxx,url=yyy`
+# For example: `coursier fetch group:artifact:version,classifier=xxx,type=yyy`
 #
 def _artifact_to_coord(artifact):
     classifier = (",classifier=" + artifact["classifier"]) if artifact.get("classifier") != None else ""
