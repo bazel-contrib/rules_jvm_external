@@ -665,8 +665,6 @@ def make_coursier_dep_tree(
     fetch_artifact_coordinates = []
     for coord in artifact_coordinates:
         # Undo any `,type=` suffix from `utils.artifact_coordinate` so coursier can form correct urls.
-        #    "net.bytebuddy:byte-buddy-agent:1.14.4,type=jar,classifier=agent"
-        # -> "net.bytebuddy:byte-buddy-agent:1.14.4,classifier=agent"
         fetch_artifact_coordinates.append(
             ",".join([c for c in coord.split(",") if not c.startswith("type=")]),
         )
@@ -676,9 +674,6 @@ def make_coursier_dep_tree(
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
             # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
-            #    "net.bytebuddy:byte-buddy-agent:1.14.4,type=jar,classifier=agent"
-            # -> "net.bytebuddy:byte-buddy-agent:1.14.4"
-
             cmd.extend([
                 "--force-version",
                 ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
