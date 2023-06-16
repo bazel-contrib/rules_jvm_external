@@ -690,7 +690,7 @@ def make_coursier_dep_tree(
                 print("ARTEM look! b=" + str(b) + " coord=" + str(coord))
                 print("ARTEM look! c=" + str(c) + " coord=" + str(coord))
 
-            cmd.extend(c)
+            cmd.extend(b)
     cmd.extend(["--artifact-type", ",".join(SUPPORTED_PACKAGING_TYPES + ["src", "doc"])])
     cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
