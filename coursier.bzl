@@ -666,7 +666,7 @@ def make_coursier_dep_tree(
     sanitized_artifact_coordinates = []
 
     for coord in artifact_coordinates:
-        sanitized_artifact_coordinates.append(coord.split(",")[0])
+        sanitized_artifact_coordinates.append(",".join([c for c in coord.split(",") if not c.startswith("type=")]))
 
     cmd.extend(sanitized_artifact_coordinates)
     if version_conflict_policy == "pinned":
