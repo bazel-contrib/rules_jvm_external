@@ -663,7 +663,12 @@ def make_coursier_dep_tree(
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
     cmd.extend(["fetch"])
 
-    cmd.extend(artifact_coordinates)
+    sanitized_artifact_coordinates = []
+
+    for coord in artifact_coordinates:
+        sanitized_artifact_coordinates.append(coord.split(",")[0])
+
+    cmd.extend(sanitized_artifact_coordinates)
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
             # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
