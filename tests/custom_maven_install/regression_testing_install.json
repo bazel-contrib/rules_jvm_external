@@ -1441,7 +1441,7 @@
     "org.openjfx:javafx-base": {
       "shasums": {
         "jar": "c5084a74417a89c69a0c122fae96a4b70bf619fc3d6218ea102a4047ec85ad04",
-        "mac": "2d8052a08fd2e5d98e1d5a16d724ea5dd02102879de20a193225f57199803983"
+        "linux": "2ebf6fa2cbbe1c8b4f7780e06e97beb038f644d5ecf9f15a41c5e88ee0ef9cf1"
       },
       "version": "11.0.1"
     },
