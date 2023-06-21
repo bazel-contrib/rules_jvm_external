@@ -1,0 +1,1 @@
+build --experimental_google_legacy_api # Needed to use ProguardSpecProvider
