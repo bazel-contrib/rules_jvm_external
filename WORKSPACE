@@ -257,6 +257,10 @@ maven_install(
         # Any two platforms to ensure that it doesn't work _only_ under the host operating system
         "com.google.protobuf:protoc:exe:linux-x86_64:3.21.12",
         "com.google.protobuf:protoc:exe:osx-aarch_64:3.21.12",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/917
+        # androidx core-testing POM has "exclusion" for "byte-buddy" but it should be downloaded as mockito-core dependency.
+        "org.mockito:mockito-core:jar:3.3.3",
+        "androidx.arch.core:core-testing:aar:2.1.0",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",

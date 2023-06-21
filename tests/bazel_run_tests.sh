@@ -124,6 +124,13 @@ function test_v1_lock_file_format() {
   bazel build @v1_lock_file_format//:io_ous_jtoml >> "$TEST_LOG" 2>&1
 }
 
+function test_dependency_pom_exclusion() {
+  bazel query --notool_deps 'deps(@regression_testing//:org_mockito_mockito_core)' >> "$TEST_LOG" 2>&1
+
+  # byte-buddy should be a dependency of "mockito-core" even though "androidx.arch.core:core-testing" has exclusion rule for it in POM
+  expect_log "@regression_testing//:net_bytebuddy_byte_buddy"
+}
+
 TESTS=(
   "test_dependency_aggregation"
   "test_duplicate_version_warning"
@@ -135,6 +142,7 @@ TESTS=(
   "test_m2local_testing_found_local_artifact_through_build"
   "test_m2local_testing_found_local_artifact_after_build_copy"
   "test_v1_lock_file_format"
+  "test_dependency_pom_exclusion"
 )
 
 function run_tests() {
