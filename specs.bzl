@@ -258,7 +258,7 @@ json = struct(
 #
 def _artifact_to_coord(artifact):
     classifier = (",classifier=" + artifact["classifier"]) if artifact.get("classifier") != None else ""
-    type = (",type=" + artifact["packaging"]) if artifact.get("packaging") != None else ""
+    type = (",type=" + artifact["packaging"]) if artifact.get("packaging") not in (None, "jar") else ""
     return artifact["group"] + ":" + artifact["artifact"] + ":" + artifact["version"] + classifier + type
 
 #
