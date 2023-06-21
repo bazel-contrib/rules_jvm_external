@@ -57,6 +57,8 @@ build:remote_android --strategy=DexBuilder=remote
 build:remote_android --noexperimental_check_desugar_deps # Workaround for singlejar incompatibility with RBE
 build:remote_android --incompatible_strict_action_env
 
+build:remote_android --experimental_google_legacy_api # Needed to use ProguardSpecProvider
+
 build:docker-sandbox --experimental_docker_image=gcr.io/di-cloud-exp/rbe-ubuntu16-04-android:latest
 build:docker-sandbox --experimental_docker_privileged
 
