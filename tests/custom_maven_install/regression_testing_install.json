@@ -2365,7 +2365,7 @@
       "org.objenesis:objenesis"
     ],
     "org.openjfx:javafx-base": [
-      "org.openjfx:javafx-base:jar:mac"
+      "org.openjfx:javafx-base:jar:linux"
     ],
     "org.ow2.asm:asm-analysis": [
       "org.ow2.asm:asm-tree"
@@ -5535,7 +5535,7 @@
       "org.objenesis.instantiator.util",
       "org.objenesis.strategy"
     ],
-    "org.openjfx:javafx-base:jar:mac": [
+    "org.openjfx:javafx-base:jar:linux": [
       "com.sun.javafx",
       "com.sun.javafx.beans",
       "com.sun.javafx.binding",
@@ -5940,7 +5940,7 @@
       "org.mockito:mockito-core",
       "org.objenesis:objenesis",
       "org.openjfx:javafx-base",
-      "org.openjfx:javafx-base:jar:mac",
+      "org.openjfx:javafx-base:jar:linux",
       "org.ow2.asm:asm",
       "org.ow2.asm:asm-analysis",
       "org.ow2.asm:asm-commons",
@@ -6200,7 +6200,7 @@
       "org.mockito:mockito-core",
       "org.objenesis:objenesis",
       "org.openjfx:javafx-base",
-      "org.openjfx:javafx-base:jar:mac",
+      "org.openjfx:javafx-base:jar:linux",
       "org.ow2.asm:asm",
       "org.ow2.asm:asm-analysis",
       "org.ow2.asm:asm-commons",
@@ -6460,7 +6460,7 @@
       "org.mockito:mockito-core",
       "org.objenesis:objenesis",
       "org.openjfx:javafx-base",
-      "org.openjfx:javafx-base:jar:mac",
+      "org.openjfx:javafx-base:jar:linux",
       "org.ow2.asm:asm",
       "org.ow2.asm:asm-analysis",
       "org.ow2.asm:asm-commons",
