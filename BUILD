@@ -70,6 +70,7 @@ bzl_library(
         "//private/rules:urls.bzl",
         "//private/rules:v1_lock_file.bzl",
         "//private/rules:v2_lock_file.bzl",
+        "//settings:extract_proguard_config.bzl",
         "//settings:stamp_manifest.bzl",
     ],
     visibility = [
