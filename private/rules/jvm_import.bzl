@@ -8,6 +8,7 @@
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
+load("//settings:extract_proguard_config.bzl", "ExtractProguardConfigProvider")
 
 def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:
@@ -29,6 +30,26 @@ def _jvm_import_impl(ctx):
         )
     else:
         outjar = injar
+
+    proguard_info = []
+    if ctx.attr._extract_proguard_config[ExtractProguardConfigProvider].extract_proguard_config:
+        spec = ctx.actions.declare_file("%s_proguard.pro" % injar.basename.split(".jar")[0])
+
+        args = ctx.actions.args()
+        args.add("--jar_to_spec", "%s:%s" % (injar.path, spec.path))
+
+        ctx.actions.run(
+            inputs = [injar],
+            outputs = [spec],
+            executable = ctx.executable._proguard_config_extractor,
+            arguments = [args],
+            mnemonic = "ExtractProguardSpec",
+            progress_message = "Extracting proguard config of %s" % ctx.label,
+        )
+
+        proguard_info = [
+            ProguardSpecProvider(depset(direct = [spec])),
+        ]
 
     compilejar = ctx.actions.declare_file("header_" + injar.basename, sibling = injar)
     args = ctx.actions.args()
@@ -69,7 +90,7 @@ def _jvm_import_impl(ctx):
             ],
             neverlink = ctx.attr.neverlink,
         ),
-    ]
+    ] + proguard_info
 
 jvm_import = rule(
     attrs = {
@@ -95,8 +116,16 @@ jvm_import = rule(
             cfg = "exec",
             default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
         ),
+        "_proguard_config_extractor": attr.label(
+            executable = True,
+            cfg = "exec",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:ExtractProguardConfig",
+        ),
         "_stamp_manifest": attr.label(
             default = "@rules_jvm_external//settings:stamp_manifest",
+        ),
+        "_extract_proguard_config": attr.label(
+            default = "@rules_jvm_external//settings:extract_proguard_config",
         ),
     },
     implementation = _jvm_import_impl,
