@@ -1,5 +1,4 @@
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
-load(":maven_utils.bzl", "determine_additional_dependencies")
 
 def generate_javadoc(ctx, javadoc, source_jars, classpath, javadocopts, output):
     args = ctx.actions.args()
