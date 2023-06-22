@@ -777,7 +777,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     coursier_url_from_env = repository_ctx.os.environ.get("COURSIER_URL")
     if coursier_url_from_env != None:
-        coursier_download_urls.append(coursier_url_from_env)
+        coursier_download_urls.insert(0, coursier_url_from_env)
 
     repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
