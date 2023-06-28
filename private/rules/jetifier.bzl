@@ -2,6 +2,8 @@ load("//:specs.bzl", "parse")
 load(":jetifier_maven_map.bzl", "jetifier_maven_map")
 load(":jvm_import.bzl", "jvm_import")
 
+_DEPRECATION_MESSAGE = "Please update your dependencies to no longer require jetification."
+
 def _jetify_impl(ctx):
     srcs = ctx.attr.srcs
     outfiles = []
@@ -40,6 +42,7 @@ jetify = rule(
 def jetify_aar_import(name, aar, _aar_import = None, visibility = None, **kwargs):
     jetify(
         name = "jetified_" + name,
+        deprecation = _DEPRECATION_MESSAGE,
         srcs = [aar],
         visibility = visibility,
     )
@@ -57,6 +60,7 @@ def jetify_aar_import(name, aar, _aar_import = None, visibility = None, **kwargs
 def jetify_jvm_import(name, jars, visibility = None, **kwargs):
     jetify(
         name = "jetified_" + name,
+        deprecation = _DEPRECATION_MESSAGE,
         srcs = jars,
         visibility = visibility,
     )

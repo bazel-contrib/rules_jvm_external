@@ -75,6 +75,9 @@ def maven_install(
         fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default
         is "warn".
     """
+    if jetify:
+        print("Jetify use has been deprecated. Please manually update your `artifacts` to avoid requiring this tool.")
+
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(_json.write_repository_spec(repository))
