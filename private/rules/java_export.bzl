@@ -248,7 +248,7 @@ def maven_export(
         coordinates = maven_coordinates,
         pom = "%s-pom" % name,
         artifact = ":%s-maven-artifact" % name,
-        classifier_artifacts = {v: k for (k, v) in classifier_artifacts.items()},
+        classifier_artifacts = {v: k for (k, v) in classifier_artifacts.items() if v},
         visibility = visibility,
         tags = tags,
         testonly = testonly,
