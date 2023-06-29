@@ -239,6 +239,7 @@ def maven_export(
         testonly = testonly,
     )
 
+    classifier_artifacts = dict(classifier_artifacts)  # unfreeze
     classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
     classifier_artifacts.setdefault("javadoc", docs_jar)
 
