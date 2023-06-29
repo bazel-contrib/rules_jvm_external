@@ -13,6 +13,7 @@ def java_export(
         visibility = None,
         tags = [],
         testonly = None,
+        classifier_artifacts = {},
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
@@ -66,6 +67,7 @@ def java_export(
         that should not be included in the maven jar to a `Label` pointing to the dependency
         that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
         with an extra dependency.
+      classifier_artifacts: A dict of classifier -> artifact of additional artifacts to publish to Maven.
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -96,6 +98,7 @@ def java_export(
         tags,
         testonly,
         javadocopts,
+        classifier_artifacts = classifier_artifacts,
     )
 
 def maven_export(
@@ -108,7 +111,8 @@ def maven_export(
         visibility = None,
         tags = [],
         testonly = False,
-        javadocopts = []):
+        javadocopts = [],
+        classifier_artifacts = {}):
     """
     All arguments are the same as java_export with the addition of:
       lib_name: Name of the library that has been built.
@@ -235,13 +239,15 @@ def maven_export(
         testonly = testonly,
     )
 
+    classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
+    classifier_artifacts.setdefault("javadoc", docs_jar)
+
     maven_publish(
         name = "%s.publish" % name,
         coordinates = maven_coordinates,
         pom = "%s-pom" % name,
-        javadocs = docs_jar,
-        artifact_jar = ":%s-maven-artifact" % name,
-        source_jar = ":%s-maven-source" % name,
+        artifact = ":%s-maven-artifact" % name,
+        classifier_artifacts = {v: k for (k, v) in classifier_artifacts.items()},
         visibility = visibility,
         tags = tags,
         testonly = testonly,

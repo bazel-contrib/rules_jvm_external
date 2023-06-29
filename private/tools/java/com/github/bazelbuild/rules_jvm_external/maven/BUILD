@@ -24,6 +24,10 @@ java_binary(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
+            "com.google.guava:guava",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "software.amazon.awssdk:s3",
             repository_name = "rules_jvm_external_deps",
         ),
