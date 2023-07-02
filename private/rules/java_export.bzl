@@ -20,11 +20,12 @@ def java_export(
     also generates an implicit `name.publish` target that can be run to publish
     maven artifacts derived from this macro to a maven repository. The publish
     rule understands the following variables (declared using `--define` when
-    using `bazel run`):
+    using `bazel run`, or as environment variables in ALL_CAPS form):
 
-      * `maven_repo`: A URL for the repo to use. May be "https" or "file".
-      * `maven_user`: The user name to use when uploading to the maven repository.
-      * `maven_password`: The password to use when uploading to the maven repository.
+      * `maven_repo`: A URL for the repo to use. May be "https" or "file". Can also be set with environment variable `MAVEN_REPO`.
+      * `maven_user`: The user name to use when uploading to the maven repository. Can also be set with environment variable `MAVEN_USER`.
+      * `maven_password`: The password to use when uploading to the maven repository. Can also be set with environment variable `MAVEN_PASSWORD`.
+
 
     This macro also generates a `name-pom` target that creates the `pom.xml` file
     associated with the artifacts. The template used is derived from the (optional)

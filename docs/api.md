@@ -32,7 +32,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## javadoc
 
 <pre>
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -43,7 +43,9 @@ Generate a javadoc from all the `deps`
 | Name  | Description | Type | Mandatory | Default |
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="javadoc-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
+| <a id="javadoc-additional_dependencies"></a>additional_dependencies |  Mapping of <code>Label</code>s to the excluded workspace names. Note that this must match the values passed to the <code>pom_file</code> rule so the <code>pom.xml</code> correctly lists these dependencies.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: Label -> String</a> | optional | <code>{}</code> |
 | <a id="javadoc-deps"></a>deps |  The java libraries to generate javadocs for.<br><br>          The source jars of each dep will be used to generate the javadocs.           Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | required |  |
+| <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional | <code>["com_google_protobuf"]</code> |
 | <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options.             Note sources and classpath are derived from the deps. Any additional             options can be passed here.   | List of strings | optional | <code>[]</code> |
 
 
@@ -62,11 +64,12 @@ This macro can be used as a drop-in replacement for `java_library`, but
 also generates an implicit `name.publish` target that can be run to publish
 maven artifacts derived from this macro to a maven repository. The publish
 rule understands the following variables (declared using `--define` when
-using `bazel run`):
+using `bazel run`, or as environment variables in ALL_CAPS form):
 
-  * `maven_repo`: A URL for the repo to use. May be "https" or "file".
-  * `maven_user`: The user name to use when uploading to the maven repository.
-  * `maven_password`: The password to use when uploading to the maven repository.
+  * `maven_repo`: A URL for the repo to use. May be "https" or "file". Can also be set with environment variable `MAVEN_REPO`.
+  * `maven_user`: The user name to use when uploading to the maven repository. Can also be set with environment variable `MAVEN_USER`.
+  * `maven_password`: The password to use when uploading to the maven repository. Can also be set with environment variable `MAVEN_PASSWORD`.
+
 
 This macro also generates a `name-pom` target that creates the `pom.xml` file
 associated with the artifacts. The template used is derived from the (optional)

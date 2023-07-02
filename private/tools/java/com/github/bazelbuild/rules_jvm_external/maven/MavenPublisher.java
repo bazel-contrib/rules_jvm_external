@@ -65,21 +65,35 @@ public class MavenPublisher {
     "file:/", "https://", "gs://", "s3://", "artifactregistry://"
   };
 
+  private static String getArg(String[] args, String envName, int argPos) {
+    String envVal = System.getenv(envName);
+    if (envVal != null) {
+      return envVal;
+    }
+    if (argPos < args.length) {
+      return args[argPos];
+    }
+    return null;
+  }
+
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException, TimeoutException {
-    String repo = args[0];
+    String repo = getArg(args, "MAVEN_REPO", 0);
     if (!isSchemeSupported(repo)) {
       throw new IllegalArgumentException(
           "Repository must be accessed via the supported schemes: "
               + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
-    boolean gpgSign = Boolean.parseBoolean(args[1]);
-    Credentials credentials = new BasicAuthCredentials(args[2], args[3]);
+    boolean gpgSign = Boolean.parseBoolean(getArg(args, "GPG_SIGN", 1));
+    Credentials credentials = new BasicAuthCredentials(
+            getArg(args, "MAVEN_USER", 2),
+            getArg(args, "MAVEN_PASSWORD", 3)
+    );
 
     List<String> parts = Arrays.asList(args[4].split(":"));
     if (parts.size() != 3) {
-      throw new IllegalArgumentException("Coordinates must be a triplet: " + Arrays.toString(args));
+      throw new IllegalArgumentException("Coordinates must be a triplet: " + Arrays.toString(parts.toArray()));
     }
 
     Coordinates coords = new Coordinates(parts.get(0), parts.get(1), parts.get(2));
