@@ -106,12 +106,12 @@ Generated rules:
 | <a id="java_export-name"></a>name |  A unique name for this target   |  none |
 | <a id="java_export-maven_coordinates"></a>maven_coordinates |  The maven coordinates for this target.   |  none |
 | <a id="java_export-deploy_env"></a>deploy_env |  A list of labels of Java targets to exclude from the generated jar. [<code>java_binary</code>](https://bazel.build/reference/be/java#java_binary) targets are *not* supported.   |  <code>[]</code> |
-| <a id="java_export-classifier_artifacts"></a>classifier_artifacts | A dict of classifier -> label of additional artifacts to publish.|<code>{}</code>|
 | <a id="java_export-excluded_workspaces"></a>excluded_workspaces |  A dict of strings representing the workspace names of artifacts that should not be included in the maven jar to a <code>Label</code> pointing to the dependency that workspace should be replaced by, or <code>None</code> if the exclusion shouldn't be replaced with an extra dependency.   |  <code>{"com_google_protobuf": None}</code> |
 | <a id="java_export-pom_template"></a>pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
 | <a id="java_export-visibility"></a>visibility |  The visibility of the target   |  <code>None</code> |
 | <a id="java_export-tags"></a>tags |  <p align="center"> - </p>   |  <code>[]</code> |
 | <a id="java_export-testonly"></a>testonly |  <p align="center"> - </p>   |  <code>None</code> |
+| <a id="java_export-classifier_artifacts"></a>classifier_artifacts |  A dict of classifier -&gt; artifact of additional artifacts to publish to Maven.   |  <code>{}</code> |
 | <a id="java_export-kwargs"></a>kwargs |  <p align="center"> - </p>   |  none |
 
 
