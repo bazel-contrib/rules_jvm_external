@@ -1065,7 +1065,7 @@ In order to publish the artifact, use `bazel run`:
 
 Or, to publish to (eg) Sonatype's OSS repo:
 
-```python
+```shell
 MAVEN_USER=example_user MAVEN_PASSWORD=hunter2 bazel run --stamp \
   --define "maven_repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" \
   --define gpg_sign=true \
