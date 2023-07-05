@@ -176,6 +176,7 @@ def maven_export(
     excluded_workspaces = excluded_workspaces if excluded_workspaces else []
     javadocopts = javadocopts if javadocopts else []
     tags = tags if tags else []
+    classifier_artifacts = classifier_artifacts if classifier_artifacts else {}
 
     additional_dependencies = {label: name for (name, label) in excluded_workspaces.items() if label}
 
