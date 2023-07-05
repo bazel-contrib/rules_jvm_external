@@ -29,7 +29,12 @@ def _maven_publish_impl(ctx):
 
     classifier_artifacts_dict = {}
     for target, classifier in ctx.attr.classifier_artifacts.items():
-        file = target.files.to_list()[0]
+        target_files = target.files.to_list()
+        if not target_files:
+            fail("Target {} for classifier \"{}\" of {} has no files in its output.".format(target, classifier, coordinates))
+        if len(target_files) > 1:
+            print("WARNING: Target {} for classifier \"{}\" of {} has more than one file in its output, using the first one.".format(target, classifier, coordinates))
+        file = target_files[0]
         classifier_artifacts_dict[classifier] = file
 
     ctx.actions.write(

@@ -179,6 +179,8 @@ def maven_export(
 
     additional_dependencies = {label: name for (name, label) in excluded_workspaces.items() if label}
 
+    classifier_artifacts = dict(classifier_artifacts)  # unfreeze
+
     # Merge the jars to create the maven project jar
     maven_project_jar(
         name = "%s-project" % name,
@@ -212,6 +214,7 @@ def maven_export(
         tags = tags,
         testonly = testonly,
     )
+    classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
 
     docs_jar = None
     if not "no-javadocs" in tags:
@@ -228,6 +231,7 @@ def maven_export(
             tags = tags,
             testonly = testonly,
         )
+        classifier_artifacts.setdefault("javadoc", docs_jar)
 
     pom_file(
         name = "%s-pom" % name,
@@ -238,10 +242,6 @@ def maven_export(
         tags = tags,
         testonly = testonly,
     )
-
-    classifier_artifacts = dict(classifier_artifacts)  # unfreeze
-    classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
-    classifier_artifacts.setdefault("javadoc", docs_jar)
 
     maven_publish(
         name = "%s.publish" % name,
