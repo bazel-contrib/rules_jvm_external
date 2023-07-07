@@ -9,14 +9,17 @@ MavenPublishInfo = provider(
 )
 
 _TEMPLATE = """#!/usr/bin/env bash
-maven_repo='{maven_repo}'
-echo Uploading '{coordinates}' to "${{MAVEN_REPO:-$maven_repo}}"
-{uploader} '{maven_repo}' '{gpg_sign}' '{user}' '{password}' '{coordinates}' '{pom}' '{artifact_jar}' '{source_jar}' '{javadoc}'
+export MAVEN_REPO="${{MAVEN_REPO:-{maven_repo}}}"
+export GPG_SIGN="${{GPG_SIGN:-{gpg_sign}}}"
+export MAVEN_USER="${{MAVEN_USER:-{user}}}"
+export MAVEN_PASSWORD="${{MAVEN_PASSWORD:-{password}}}"
+echo Uploading '{coordinates}' to "${{MAVEN_REPO}}"
+{uploader} '{coordinates}' '{pom}' '{artifact_jar}' '{source_jar}' '{javadoc}'
 """
 
 def _escape_arg(str):
-    # Escape a string that will be single quoted in bash and might contain single quotes.
-    return str.replace("'", "'\\''")
+    # Escape a string that will be double quoted in bash and might contain double quotes.
+    return str.replace('"', "\\\"").replace("$", "\\$")
 
 def _maven_publish_impl(ctx):
     executable = ctx.actions.declare_file("%s-publisher" % ctx.attr.name)
@@ -26,7 +29,7 @@ def _maven_publish_impl(ctx):
     user = ctx.var.get("maven_user", "")
     password = ctx.var.get("maven_password", "")
     if password:
-        print("WARNING: using --define to set maven_password is unsafe. Set env var MAVEN_PASSWORD=xxx instead.")
+        print("WARNING: using --define to set maven_password is insecure. Set env var MAVEN_PASSWORD=xxx instead.")
 
     # Expand maven coordinates for any variables to be replaced.
     coordinates = ctx.expand_make_variables("coordinates", ctx.attr.coordinates, {})

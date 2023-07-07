@@ -65,33 +65,22 @@ public class MavenPublisher {
     "file:/", "https://", "gs://", "s3://", "artifactregistry://"
   };
 
-  private static String getArg(String[] args, String envName, int argPos) {
-    String envVal = System.getenv(envName);
-    if (envVal != null) {
-      return envVal;
-    }
-    if (argPos < args.length) {
-      return args[argPos];
-    }
-    return null;
-  }
-
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException, TimeoutException {
-    String repo = getArg(args, "MAVEN_REPO", 0);
+    String repo = System.getenv("MAVEN_REPO");
     if (!isSchemeSupported(repo)) {
       throw new IllegalArgumentException(
           "Repository must be accessed via the supported schemes: "
               + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
-    boolean gpgSign = Boolean.parseBoolean(getArg(args, "GPG_SIGN", 1));
+    boolean gpgSign = Boolean.parseBoolean(System.getenv("GPG_SIGN"));
     Credentials credentials = new BasicAuthCredentials(
-            getArg(args, "MAVEN_USER", 2),
-            getArg(args, "MAVEN_PASSWORD", 3)
+            System.getenv("MAVEN_USER"),
+            System.getenv("MAVEN_PASSWORD")
     );
 
-    List<String> parts = Arrays.asList(args[4].split(":"));
+    List<String> parts = Arrays.asList(args[0].split(":"));
     if (parts.size() != 3) {
       throw new IllegalArgumentException("Coordinates must be a triplet: " + Arrays.toString(parts.toArray()));
     }
@@ -99,10 +88,10 @@ public class MavenPublisher {
     Coordinates coords = new Coordinates(parts.get(0), parts.get(1), parts.get(2));
 
     // Calculate md5 and sha1 for each of the inputs
-    Path pom = Paths.get(args[5]);
-    Path binJar = getPathIfSet(args[6]);
-    Path srcJar = getPathIfSet(args[7]);
-    Path docJar = getPathIfSet(args[8]);
+    Path pom = Paths.get(args[1]);
+    Path binJar = getPathIfSet(args[2]);
+    Path srcJar = getPathIfSet(args[3]);
+    Path docJar = getPathIfSet(args[4]);
 
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
