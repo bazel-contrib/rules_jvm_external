@@ -82,10 +82,6 @@ public class PublishShapeTest {
                 "java",
                 "-jar",
                 deployJar.toAbsolutePath().toString(),
-                "", // Set this via env var
-                "false", // No gpg signing
-                "", // User name
-                "", // Password,
                 coordinates,
                 pomXml.getAbsolutePath(),
                 stubJar.getAbsolutePath(),
@@ -93,6 +89,9 @@ public class PublishShapeTest {
                 stubJar.getAbsolutePath())
             .redirectErrorStream(true);
     pb.environment().put("MAVEN_REPO", repoRoot.toURI().toASCIIString());
+    pb.environment().put("MAVEN_USER", "");
+    pb.environment().put("MAVEN_PASSWORD", "");
+    pb.environment().put("GPG_SIGN", "false");
     Process process = pb.start();
 
     process.waitFor();
