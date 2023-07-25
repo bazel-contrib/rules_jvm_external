@@ -15,7 +15,7 @@ export GPG_SIGN="${{GPG_SIGN:-{gpg_sign}}}"
 export MAVEN_USER="${{MAVEN_USER:-{user}}}"
 export MAVEN_PASSWORD="${{MAVEN_PASSWORD:-{password}}}"
 echo Uploading "{coordinates}" to "${{MAVEN_REPO}}"
-{uploader} "{coordinates}" '{pom}' '{artifact}' '{classifier_artifacts}'
+{uploader} $@ "{coordinates}" '{pom}' '{artifact}' '{classifier_artifacts}'
 """
 
 def _escape_arg(str):
