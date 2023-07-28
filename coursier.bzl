@@ -392,46 +392,60 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     input_artifacts_hash = importer.get_input_artifacts_hash(maven_install_json_content)
 
+    # With Bzlmod, repository_ctx.name is the mangled ("canonical") name of the repository, so we
+    # use the user_provided_name attribute to get the original name (always set by maven_install).
+    user_provided_name = repository_ctx.attr.user_provided_name or repository_ctx.name
+    if user_provided_name == repository_ctx.name:
+        unpinned_repo = "unpinned_" + repository_ctx.name
+    else:
+        # Generate a canonical label pointing to the pin target so that users don't have to use_repo
+        # the unpinned_ repo with Bzlmod.
+        unpinned_repo = "@{}unpinned_{}".format(
+            repository_ctx.name[:-len(user_provided_name)],
+            user_provided_name,
+        )
+    pin_target = "@{}//:pin".format(unpinned_repo)
+
     # Then, check to see if we need to repin our deps because inputs have changed
     if input_artifacts_hash == None:
-        print("NOTE: %s_install.json does not contain a signature of the required artifacts. " % repository_ctx.name +
+        print("NOTE: %s_install.json does not contain a signature of the required artifacts. " % user_provided_name +
               "This feature ensures that the build does not use stale dependencies when the inputs " +
-              "have changed. To generate this signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
+              "have changed. To generate this signature, run 'bazel run %s'." % pin_target)
     else:
         computed_artifacts_hash = compute_dependency_inputs_signature(repository_ctx.attr.artifacts, repository_ctx.attr.repositories)
         if computed_artifacts_hash != input_artifacts_hash:
             if _fail_if_repin_required(repository_ctx):
-                fail("%s_install.json contains an invalid input signature and must be regenerated. " % (repository_ctx.name) +
+                fail("%s_install.json contains an invalid input signature and must be regenerated. " % (user_provided_name) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
-                     "%s_install.json and re-pin the artifacts, either run:\n" % repository_ctx.name +
-                     " REPIN=1 bazel run @unpinned_%s//:pin\n" % repository_ctx.name +
+                     "%s_install.json and re-pin the artifacts, either run:\n" % user_provided_name +
+                     " REPIN=1 bazel run %s\n" % pin_target +
                      "or:\n" +
                      " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
-                     " 2) Run 'bazel run @unpinned_%s//:pin'\n" % repository_ctx.name +
+                     " 2) Run 'bazel run %s'\n" % pin_target +
                      " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n")
             else:
-                print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % repository_ctx.name +
-                      "Consider running 'bazel run @unpinned_%s//:pin'" % repository_ctx.name)
+                print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % user_provided_name +
+                      "Consider running 'bazel run %s'" % pin_target)
 
     dep_tree_signature = importer.get_lock_file_hash(maven_install_json_content)
 
     if dep_tree_signature == None:
-        print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % repository_ctx.name +
+        print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % user_provided_name +
               "This feature ensures that the file is not modified manually. To generate this " +
-              "signature, run 'bazel run @unpinned_%s//:pin'." % repository_ctx.name)
+              "signature, run 'bazel run %s'." % pin_target)
     elif importer.compute_lock_file_hash(maven_install_json_content) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         fail("%s_install.json contains an invalid signature (expected %s and got %s) and may be corrupted. " % (
-                 repository_ctx.name,
+                 user_provided_name,
                  dep_tree_signature,
                  importer.compute_lock_file_hash(maven_install_json_content),
              ) +
              "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
-             "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % repository_ctx.name +
+             "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % user_provided_name +
              "  1) In your WORKSPACE file, comment or remove the 'maven_install_json' attribute in 'maven_install'.\n" +
-             "  2) Run 'bazel run @%s//:pin'.\n" % repository_ctx.name +
+             "  2) Run 'bazel run %s'.\n" % pin_target +
              "  3) Uncomment or re-add the 'maven_install_json' attribute in 'maven_install'.\n\n")
 
     # Create the list of http_file repositories for each of the artifacts
@@ -1167,6 +1181,7 @@ pinned_coursier_fetch = repository_rule(
     attrs = {
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
+        "user_provided_name": attr.string(),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fetch_sources": attr.bool(default = False),
@@ -1216,6 +1231,7 @@ coursier_fetch = repository_rule(
         "_pin": attr.label(default = "//private:pin.sh"),
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
+        "user_provided_name": attr.string(),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
