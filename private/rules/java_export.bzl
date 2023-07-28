@@ -169,7 +169,7 @@ def maven_export(
 
     # Sometimes users pass `None` as the value for attributes. Guard against this
     deploy_env = deploy_env if deploy_env else []
-    excluded_workspaces = excluded_workspaces if excluded_workspaces else []
+    excluded_workspaces = excluded_workspaces if excluded_workspaces else {}
     javadocopts = javadocopts if javadocopts else []
     tags = tags if tags else []
 
