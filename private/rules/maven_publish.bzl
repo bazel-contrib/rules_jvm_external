@@ -9,10 +9,17 @@ MavenPublishInfo = provider(
 )
 
 _TEMPLATE = """#!/usr/bin/env bash
-
-echo "Uploading {coordinates} to {maven_repo}"
-{uploader} '{maven_repo}' '{gpg_sign}' '{user}' '{password}' '{coordinates}' '{pom}' '{artifact_jar}' '{source_jar}' '{javadoc}'
+export MAVEN_REPO="${{MAVEN_REPO:-{maven_repo}}}"
+export GPG_SIGN="${{GPG_SIGN:-{gpg_sign}}}"
+export MAVEN_USER="${{MAVEN_USER:-{user}}}"
+export MAVEN_PASSWORD="${{MAVEN_PASSWORD:-{password}}}"
+echo Uploading "{coordinates}" to "${{MAVEN_REPO}}"
+{uploader} "{coordinates}" '{pom}' '{artifact_jar}' '{source_jar}' '{javadoc}'
 """
+
+def _escape_arg(str):
+    # Escape a string that will be double quoted in bash and might contain double quotes.
+    return str.replace('"', "\\\"").replace("$", "\\$")
 
 def _maven_publish_impl(ctx):
     executable = ctx.actions.declare_file("%s-publisher" % ctx.attr.name)
@@ -21,6 +28,8 @@ def _maven_publish_impl(ctx):
     gpg_sign = ctx.var.get("gpg_sign", "false")
     user = ctx.var.get("maven_user", "")
     password = ctx.var.get("maven_password", "")
+    if password:
+        print("WARNING: using --define to set maven_password is insecure. Set env var MAVEN_PASSWORD=xxx instead.")
 
     # Expand maven coordinates for any variables to be replaced.
     coordinates = ctx.expand_make_variables("coordinates", ctx.attr.coordinates, {})
@@ -33,11 +42,11 @@ def _maven_publish_impl(ctx):
         is_executable = True,
         content = _TEMPLATE.format(
             uploader = ctx.executable._uploader.short_path,
-            coordinates = coordinates,
-            gpg_sign = gpg_sign,
-            maven_repo = maven_repo,
-            password = password,
-            user = user,
+            coordinates = _escape_arg(coordinates),
+            gpg_sign = _escape_arg(gpg_sign),
+            maven_repo = _escape_arg(maven_repo),
+            password = _escape_arg(password),
+            user = _escape_arg(user),
             pom = ctx.file.pom.short_path,
             artifact_jar = artifacts_short_path,
             source_jar = source_short_path,
@@ -77,7 +86,7 @@ maven_publish = rule(
 
 The maven repository may accessed locally using a `file://` URL, or
 remotely using an `https://` URL. The following flags may be set
-using `--define`:
+using `--define` or via environment variables (in all caps, e.g. `MAVEN_REPO`):
 
   gpg_sign: Whether to sign artifacts using GPG
   maven_repo: A URL for the repo to use. May be "https" or "file".
