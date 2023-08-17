@@ -16,9 +16,12 @@ def _pom_file_impl(ctx):
         for coords in dep[MavenInfo].as_maven_dep.to_list():
             all_maven_deps.append(coords)
 
+    # Expand maven coordinates for any variables to be replaced.
+    coordinates = ctx.expand_make_variables("coordinates", info.coordinates, ctx.var)
+
     out = generate_pom(
         ctx,
-        coordinates = info.coordinates,
+        coordinates = coordinates,
         versioned_dep_coordinates = sorted(all_maven_deps),
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,

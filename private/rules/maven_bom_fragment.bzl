@@ -13,6 +13,9 @@ MavenBomFragmentInfo = provider(
 
 def _maven_bom_fragment_impl(ctx):
     java_info = ctx.attr.artifact[JavaInfo]
+    
+    # Expand maven coordinates for any variables to be replaced.
+    coordinates = ctx.expand_make_variables("coordinates", ctx.attr.maven_coordinates, ctx.var)
 
     # Since Bazel 5.0.0
     if "java_outputs" in dir(java_info):
@@ -29,7 +32,7 @@ def _maven_bom_fragment_impl(ctx):
 
     return [
         MavenBomFragmentInfo(
-            coordinates = ctx.attr.maven_coordinates,
+            coordinates = coordinates,
             artifact = artifact_jar,
             srcs = ctx.file.src_artifact,
             javadocs = ctx.file.javadoc_artifact,

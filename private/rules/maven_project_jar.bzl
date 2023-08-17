@@ -190,4 +190,5 @@ single artifact that other teams can download and use.
             default = "@bazel_tools//tools/jdk:current_java_toolchain",
         ),
     },
+    toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
 )

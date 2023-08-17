@@ -76,22 +76,22 @@ public class PublishShapeTest {
     // We'd prefer to use `bazel run`, but this is a reasonable proxy for
     // ./uploader {maven_repo} {gpg_sign} {user} {password} {coordinates} pom.xml artifact.jar
     // source.jar doc.jar
-    Process process =
+    ProcessBuilder pb =
         new ProcessBuilder()
             .command(
                 "java",
                 "-jar",
                 deployJar.toAbsolutePath().toString(),
-                repoRoot.toURI().toASCIIString(),
-                "false", // No gpg signing
-                "", // User name
-                "", // Password,
                 coordinates,
                 pomXml.getAbsolutePath(),
                 stubJar.getAbsolutePath(),
                 String.format("javadoc=%s,sources=%s", stubJar.getAbsolutePath(), stubJar.getAbsolutePath()))
-            .redirectErrorStream(true)
-            .start();
+            .redirectErrorStream(true);
+    pb.environment().put("MAVEN_REPO", repoRoot.toURI().toASCIIString());
+    pb.environment().put("MAVEN_USER", "");
+    pb.environment().put("MAVEN_PASSWORD", "");
+    pb.environment().put("GPG_SIGN", "false");
+    Process process = pb.start();
 
     process.waitFor();
 
