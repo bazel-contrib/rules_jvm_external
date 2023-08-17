@@ -3,8 +3,9 @@ MavenPublishInfo = provider(
         "coordinates": "Maven coordinates for the project, which may be None",
         "pom": "Pom.xml file for metdata",
         "javadocs": "Javadoc jar file for documentation files",
-        "artifact_jar": "Jar with the code and metadata for execution",
+        "artifact": "Primary artifact to be published, typically a jar",
         "source_jar": "Jar with the source code for review",
+        "classifier_artifacts": "Dict of extra artifacts to be published under classifiers",
     },
 )
 
@@ -14,7 +15,7 @@ export GPG_SIGN="${{GPG_SIGN:-{gpg_sign}}}"
 export MAVEN_USER="${{MAVEN_USER:-{user}}}"
 export MAVEN_PASSWORD="${{MAVEN_PASSWORD:-{password}}}"
 echo Uploading "{coordinates}" to "${{MAVEN_REPO}}"
-{uploader} "{coordinates}" '{pom}' '{artifact_jar}' '{source_jar}' '{javadoc}'
+{uploader} "{coordinates}" '{pom}' '{artifact}' '{classifier_artifacts}'
 """
 
 def _escape_arg(str):
@@ -33,9 +34,17 @@ def _maven_publish_impl(ctx):
 
     # Expand maven coordinates for any variables to be replaced.
     coordinates = ctx.expand_make_variables("coordinates", ctx.attr.coordinates, {})
-    artifacts_short_path = ctx.file.artifact_jar.short_path if ctx.file.artifact_jar else ""
-    source_short_path = ctx.file.source_jar.short_path if ctx.file.source_jar else ""
-    javadocs_short_path = ctx.file.javadocs.short_path if ctx.file.javadocs else ""
+    artifacts_short_path = ctx.file.artifact.short_path if ctx.file.artifact else ""
+
+    classifier_artifacts_dict = {}
+    for target, classifier in ctx.attr.classifier_artifacts.items():
+        target_files = target.files.to_list()
+        if not target_files:
+            fail("Target {} for classifier \"{}\" of {} has no files in its output.".format(target, classifier, coordinates))
+        if len(target_files) > 1:
+            print("WARNING: Target {} for classifier \"{}\" of {} has more than one file in its output, using the first one.".format(target, classifier, coordinates))
+        file = target_files[0]
+        classifier_artifacts_dict[classifier] = file
 
     ctx.actions.write(
         output = executable,
@@ -48,19 +57,14 @@ def _maven_publish_impl(ctx):
             password = _escape_arg(password),
             user = _escape_arg(user),
             pom = ctx.file.pom.short_path,
-            artifact_jar = artifacts_short_path,
-            source_jar = source_short_path,
-            javadoc = javadocs_short_path,
+            artifact = artifacts_short_path,
+            classifier_artifacts = ",".join(["{}={}".format(classifier, file.short_path) for (classifier, file) in classifier_artifacts_dict.items()]),
         ),
     )
 
-    files = [ctx.file.pom]
-    if ctx.file.artifact_jar:
-        files.append(ctx.file.artifact_jar)
-    if ctx.file.source_jar:
-        files.append(ctx.file.source_jar)
-    if ctx.file.javadocs:
-        files.append(ctx.file.javadocs)
+    files = [ctx.file.pom] + ctx.files.classifier_artifacts
+    if ctx.file.artifact:
+        files.append(ctx.file.artifact)
 
     return [
         DefaultInfo(
@@ -73,9 +77,10 @@ def _maven_publish_impl(ctx):
         ),
         MavenPublishInfo(
             coordinates = coordinates,
-            artifact_jar = ctx.file.artifact_jar,
-            javadocs = ctx.file.javadocs,
-            source_jar = ctx.file.source_jar,
+            artifact = ctx.file.artifact,
+            classifier_artifacts = classifier_artifacts_dict,
+            javadocs = classifier_artifacts_dict.get("javadoc"),
+            source_jar = classifier_artifacts_dict.get("sources"),
             pom = ctx.file.pom,
         ),
     ]
@@ -104,15 +109,10 @@ When signing with GPG, the current default key is used.
             mandatory = True,
             allow_single_file = True,
         ),
-        "javadocs": attr.label(
+        "artifact": attr.label(
             allow_single_file = True,
         ),
-        "artifact_jar": attr.label(
-            allow_single_file = True,
-        ),
-        "source_jar": attr.label(
-            allow_single_file = True,
-        ),
+        "classifier_artifacts": attr.label_keyed_string_dict(allow_files = True),
         "_uploader": attr.label(
             executable = True,
             cfg = "exec",

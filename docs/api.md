@@ -114,6 +114,7 @@ Generated rules:
 | <a id="java_export-visibility"></a>visibility |  The visibility of the target   |  <code>None</code> |
 | <a id="java_export-tags"></a>tags |  <p align="center"> - </p>   |  <code>[]</code> |
 | <a id="java_export-testonly"></a>testonly |  <p align="center"> - </p>   |  <code>None</code> |
+| <a id="java_export-classifier_artifacts"></a>classifier_artifacts |  A dict of classifier -&gt; artifact of additional artifacts to publish to Maven.   |  <code>{}</code> |
 | <a id="java_export-kwargs"></a>kwargs |  <p align="center"> - </p>   |  none |
 
 

@@ -28,6 +28,7 @@ import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,24 +90,26 @@ public class MavenPublisher {
 
     // Calculate md5 and sha1 for each of the inputs
     Path pom = Paths.get(args[1]);
-    Path binJar = getPathIfSet(args[2]);
-    Path srcJar = getPathIfSet(args[3]);
-    Path docJar = getPathIfSet(args[4]);
+    Path mainArtifact = getPathIfSet(args[2]);
 
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
       futures.add(upload(repo, credentials, coords, ".pom", pom, gpgSign));
 
-      if (binJar != null) {
-        futures.add(upload(repo, credentials, coords, ".jar", binJar, gpgSign));
+      if (mainArtifact != null) {
+        String ext = com.google.common.io.Files.getFileExtension(mainArtifact.getFileName().toString());
+        futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, gpgSign));
       }
 
-      if (srcJar != null) {
-        futures.add(upload(repo, credentials, coords, "-sources.jar", srcJar, gpgSign));
-      }
-
-      if (docJar != null) {
-        futures.add(upload(repo, credentials, coords, "-javadoc.jar", docJar, gpgSign));
+      if(args.length > 3) {
+        List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[3]);
+        for(String artifactTuple : extraArtifactTuples) {
+          String[] splits = artifactTuple.split("=");
+          String classifier = splits[0];
+          Path artifact = Paths.get(splits[1]);
+          String ext = com.google.common.io.Files.getFileExtension(splits[1]);
+          futures.add(upload(repo, credentials, coords, String.format("-%s.%s", classifier, ext), artifact, gpgSign));
+        }
       }
 
       CompletableFuture<Void> all =
