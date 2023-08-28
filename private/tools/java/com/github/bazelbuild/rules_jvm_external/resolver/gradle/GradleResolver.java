@@ -13,8 +13,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
-
-import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -25,7 +23,6 @@ import java.util.logging.Logger;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.UnresolvedDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -251,15 +248,13 @@ public class GradleResolver implements Resolver {
       throw new IllegalStateException("Unable to resolve inputs");
     }
 
-
-
-//    config.getDependencies().stream()
-//            .filter(dep -> dep instanceof ExternalModuleDependency)
-//            .map(dep -> (ExternalModuleDependency) dep)
-//            .forEach(dep -> {
-//              String requiredVersion = dep.getVersionConstraint().getRequiredVersion();
-//              System.err.println(dep + " -> " + requiredVersion);
-//            });
+    //    config.getDependencies().stream()
+    //            .filter(dep -> dep instanceof ExternalModuleDependency)
+    //            .map(dep -> (ExternalModuleDependency) dep)
+    //            .forEach(dep -> {
+    //              String requiredVersion = dep.getVersionConstraint().getRequiredVersion();
+    //              System.err.println(dep + " -> " + requiredVersion);
+    //            });
 
     return coordinatesVisitor.getDependencyGraph();
   }

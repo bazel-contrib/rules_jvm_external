@@ -7,10 +7,8 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.ImmutableGraph;
 import com.google.common.graph.MutableGraph;
-
 import java.util.Collection;
 import java.util.Objects;
-
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -67,15 +65,18 @@ public class CoordinatesVisitor implements DependencyArtifactsVisitor {
     }
 
     Collection<? extends DependencyGraphEdge> edges = to.getIncomingEdges();
-    edges.forEach(edge -> {
-      System.out.println(edge);
-      Dependency dep = edge.getOriginalDependency();
-      if (dep instanceof ExternalModuleDependency) {
-        ExternalModuleDependency emd = (ExternalModuleDependency) dep;
-        String requiredVersion = emd.getVersionConstraint().getRequiredVersion();
-        System.out.printf("%s:%s:%s -> %s%n", dep.getGroup(), dep.getName(), dep.getVersion(), requiredVersion);
-      }
-    });
+    edges.forEach(
+        edge -> {
+          System.err.println(edge);
+          Dependency dep = edge.getOriginalDependency();
+          if (dep instanceof ExternalModuleDependency) {
+            ExternalModuleDependency emd = (ExternalModuleDependency) dep;
+            String requiredVersion = emd.getVersionConstraint().getRequiredVersion();
+            System.err.printf(
+                "%s:%s:%s -> %s%n",
+                dep.getGroup(), dep.getName(), dep.getVersion(), requiredVersion);
+          }
+        });
 
     // The root node of the graph is a project, but all other nodes should be dependencies we want
     // to track
@@ -118,9 +119,7 @@ public class CoordinatesVisitor implements DependencyArtifactsVisitor {
       DependencyGraphNode from,
       LocalFileDependencyMetadata fileDependency,
       int artifactSetId,
-      ArtifactSet artifactSet) {
-    System.err.println("Hello");
-  }
+      ArtifactSet artifactSet) {}
 
   @Override
   public void finishArtifacts() {}
