@@ -135,7 +135,7 @@ public class Downloader {
           repos.add(repo);
           downloaded = true;
 
-          if (cacheDownloads) {
+          if (cacheDownloads && !cachedResult.equals(path)) {
             try {
               Files.createDirectories(cachedResult.getParent());
               Files.copy(path, cachedResult, REPLACE_EXISTING);
