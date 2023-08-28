@@ -4,6 +4,7 @@ import static com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadE
 import static com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent.Stage.STARTING;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.http.HttpClient.Redirect.ALWAYS;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -48,6 +49,7 @@ public class Downloader {
   private final Set<URI> repos;
   private final EventListener listener;
   private final Path outputDir;
+  private final boolean cacheDownloads;
   private final HttpClient client;
 
   public Downloader(
@@ -55,11 +57,13 @@ public class Downloader {
       Path localRepository,
       Collection<URI> repositories,
       EventListener listener,
-      Path outputDir) {
+      Path outputDir,
+      boolean cacheDownloads) {
     this.localRepository = localRepository;
     this.repos = ImmutableSet.copyOf(repositories);
     this.listener = listener;
     this.outputDir = outputDir;
+    this.cacheDownloads = cacheDownloads;
 
     HttpClient.Builder builder =
         HttpClient.newBuilder()
@@ -116,15 +120,35 @@ public class Downloader {
       path = cachedResult;
     }
 
+    String rjeAssumePresent = System.getenv("RJE_ASSUME_PRESENT");
+    boolean assumedDownloaded = false;
+    if (rjeAssumePresent != null) {
+      assumedDownloaded = "1".equals(rjeAssumePresent) || Boolean.parseBoolean(rjeAssumePresent);
+    }
+
     boolean downloaded = false;
     for (URI repo : this.repos) {
       if (path == null) {
+        LOG.fine(String.format("Downloading %s%n", coords));
         path = get(repo, repoPath);
         if (path != null) {
           repos.add(repo);
           downloaded = true;
+
+          if (cacheDownloads) {
+            try {
+              Files.createDirectories(cachedResult.getParent());
+              Files.copy(path, cachedResult, REPLACE_EXISTING);
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          }
         }
-      } else if (head(repo, repoPath)) {
+      } else if (assumedDownloaded) { // path is set
+        LOG.fine(String.format("Assuming %s is cached%n", coords));
+        downloaded = true;
+      } else if (head(repo, repoPath)) { // path is set
+        LOG.fine(String.format("Checking head of %s%n", coords));
         repos.add(repo);
         downloaded = true;
       }

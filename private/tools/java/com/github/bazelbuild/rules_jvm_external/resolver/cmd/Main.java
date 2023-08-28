@@ -125,6 +125,11 @@ public class Main {
     listener.onEvent(new PhaseEvent("Downloading dependencies"));
 
     ResolutionRequest request = config.getResolutionRequest();
+    String rjeUnsafeCache = System.getenv("RJE_UNSAFE_CACHE");
+    boolean cacheResults = false;
+    if (rjeUnsafeCache != null) {
+      cacheResults = "1".equals(rjeUnsafeCache) || Boolean.parseBoolean(rjeUnsafeCache);
+    }
 
     Downloader downloader =
         new Downloader(
@@ -132,7 +137,8 @@ public class Main {
             request.getLocalCache(),
             request.getRepositories(),
             listener,
-            outputDir);
+            outputDir,
+            cacheResults);
 
     List<CompletableFuture<Set<DependencyInfo>>> futures = new LinkedList<>();
 

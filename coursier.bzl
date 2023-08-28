@@ -779,6 +779,8 @@ coursier_fetch = repository_rule(
         "COURSIER_CACHE",
         "COURSIER_OPTS",
         "COURSIER_URL",
+        "RJE_ASSUME_PRESENT",
+        "RJE_UNSAFE_CACHE",
         "RJE_VERBOSE",
         "XDG_CACHE_HOME",
     ],

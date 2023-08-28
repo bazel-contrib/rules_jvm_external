@@ -41,6 +41,14 @@ public class Config {
     boolean jetifyEnabled = false;
     Set<Coordinates> jetify = new HashSet<>();
 
+    String envUseUnsafeCache = System.getenv("RJE_UNSAFE_CACHE");
+    System.err.println("RJE_UNSAFE_CACHE: " + envUseUnsafeCache);
+    if (envUseUnsafeCache != null) {
+      if ("1".equals(envUseUnsafeCache) || Boolean.parseBoolean(envUseUnsafeCache)) {
+        request.useUnsafeSharedCache(true);
+      }
+    }
+
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
         case "--argsfile":
