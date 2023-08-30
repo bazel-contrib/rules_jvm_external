@@ -242,7 +242,7 @@ def _maven_impl(mctx):
                     ))
                 repo["lock_file"] = install.lock_file
 
-            repo["excluded_artifacts"] = _add_exclusions(exclusions, install.excluded_artifacts)
+            repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + _add_exclusions(exclusions, install.excluded_artifacts)
 
             _logical_or(repo, "fail_if_repin_required", False, install.fail_if_repin_required)
             _logical_or(repo, "fail_on_missing_checksum", False, install.fail_on_missing_checksum)
