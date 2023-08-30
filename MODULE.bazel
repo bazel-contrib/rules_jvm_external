@@ -31,7 +31,18 @@ maven.install(
     lock_file = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
 )
 
+maven.install(
+    name = "example",
+    artifacts = [
+        "com.google.guava:guava:31.1-jre",
+    ],
+    exclusions = [
+        "com.google.code.gson:gson:2.9.0",
+    ],
+)
+
 use_repo(
     maven,
     "rules_jvm_external_deps",
+    "example",
 )
