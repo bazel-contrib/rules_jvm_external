@@ -10,7 +10,7 @@ public class ExternalConfig {
   private Set<String> repositories;
   private Set<String> globalExclusions;
   private Set<ConfigArtifact> artifacts;
-  private Set<String> boms;
+  private Set<ConfigArtifact> boms;
 
   private boolean fetchSources;
   private boolean fetchJavadoc;
@@ -34,7 +34,7 @@ public class ExternalConfig {
     return artifacts == null ? ImmutableSet.of() : ImmutableSet.copyOf(artifacts);
   }
 
-  public Set<String> getBomCoordinates() {
+  public Set<ConfigArtifact> getBoms() {
     return boms == null ? ImmutableSet.of() : ImmutableSet.copyOf(boms);
   }
 

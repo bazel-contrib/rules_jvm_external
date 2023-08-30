@@ -6,6 +6,7 @@ load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
+        boms = [],
         artifacts = [],
         fail_on_missing_checksum = True,
         fetch_sources = False,
@@ -36,6 +37,7 @@ def maven_install(
       repositories: A list of Maven repository URLs, specified in lookup order.
 
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
+      boms: A list of Maven artifact coordinates in the form of `group:artifact:version` to use as BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
       fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
       fetch_sources: Additionally fetch source JARs.
@@ -79,6 +81,10 @@ def maven_install(
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(_json.write_repository_spec(repository))
 
+    boms_json_strings = []
+    for bom in parse.parse_artifact_spec_list(boms):
+        boms_json_strings.append(_json.write_artifact_spec(bom))
+
     artifacts_json_strings = []
     for artifact in parse.parse_artifact_spec_list(artifacts):
         artifacts_json_strings.append(_json.write_artifact_spec(artifact))
@@ -108,6 +114,7 @@ def maven_install(
         # invocation after this.
         name = name if maven_install_json == None else "unpinned_" + name,
         repositories = repositories_json_strings,
+        boms = boms_json_strings,
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
         fetch_sources = fetch_sources,

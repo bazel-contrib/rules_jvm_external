@@ -455,6 +455,16 @@ def _coursier_fetch_impl(repository_ctx):
     # Deserialize the spec blobs
     repositories = [json.decode(r) for r in repository_ctx.attr.repositories]
 
+    boms = []
+    for bom in repository_ctx.attr.boms:
+        updated_bom = {}
+        updated_bom.update(json.decode(bom))
+        exclusions = ["%s:%s" % (e["group"], e["artifact"]) for e in updated_bom.get("exclusions", [])]
+        updated_bom["exclusions"] = exclusions
+        boms.append(updated_bom)
+
+    _check_artifacts_are_unique(boms, repository_ctx.attr.duplicate_version_warning)
+
     artifacts = []
     for artifact in repository_ctx.attr.artifacts:
         updated_artifact = {}
@@ -479,6 +489,7 @@ def _coursier_fetch_impl(repository_ctx):
         content = json.encode_indent(
             {
                 "repositories": [r["repo_url"] for r in repositories],
+                "boms": boms,
                 "artifacts": artifacts,
                 "fetchSources": repository_ctx.attr.fetch_sources,
                 "fetchJavadoc": repository_ctx.attr.fetch_javadoc,
@@ -717,6 +728,7 @@ coursier_fetch = repository_rule(
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
+        "boms": attr.string_list(),  # list of BOM objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),

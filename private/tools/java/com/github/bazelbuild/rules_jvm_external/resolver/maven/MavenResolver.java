@@ -63,7 +63,10 @@ public class MavenResolver implements Resolver {
     this.listener = listener;
   }
 
-  private Dependency createBom(Coordinates coordinates) {
+  private Dependency createBom(
+      com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact) {
+    Coordinates coordinates = artifact.getCoordinates();
+
     Dependency bom =
         new Dependency(
             new DefaultArtifact(
@@ -73,7 +76,11 @@ public class MavenResolver implements Resolver {
                 "",
                 coordinates.getVersion()),
             JavaScopes.RUNTIME);
-    return bom.setScope("import");
+
+    Set<Exclusion> excluded =
+        artifact.getExclusions().stream().map(this::createExclusion).collect(Collectors.toSet());
+
+    return bom.setScope("import").setExclusions(excluded);
   }
 
   private Dependency createDependency(

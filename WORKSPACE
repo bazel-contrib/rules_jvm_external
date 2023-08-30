@@ -597,9 +597,9 @@ maven_install(
         # The version of this will be set by the BOM
         "io.netty:netty-codec",
     ],
-    #    boms = [
-    #        "io.netty:netty-bom:4.1.89.Final",
-    #    ],
+    boms = [
+        "io.netty:netty-bom:4.1.89.Final",
+    ],
     repositories = [
         "https://repo1.maven.org/maven2",
     ],

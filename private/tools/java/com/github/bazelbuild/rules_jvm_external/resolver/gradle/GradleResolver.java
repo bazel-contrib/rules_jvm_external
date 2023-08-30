@@ -152,10 +152,18 @@ public class GradleResolver implements Resolver {
 
     DependencyHandler dependencyHandler = services.get(DependencyHandler.class);
 
-    for (Coordinates bom : request.getBoms()) {
+    for (Artifact bom : request.getBoms()) {
+      Coordinates coords = bom.getCoordinates();
+
       Dependency bomDep =
           dependencyHandler.enforcedPlatform(
-              String.format("%s:%s:%s", bom.getGroupId(), bom.getArtifactId(), bom.getVersion()));
+              String.format(
+                  "%s:%s:%s", coords.getGroupId(), coords.getArtifactId(), coords.getVersion()));
+
+      bom.getExclusions().stream()
+          .map(ex -> Map.of("group", ex.getGroupId(), "module", ex.getArtifactId()))
+          .forEach(ex -> ((ModuleDependency) bomDep).exclude(ex));
+
       config.getDependencies().add(bomDep);
     }
 

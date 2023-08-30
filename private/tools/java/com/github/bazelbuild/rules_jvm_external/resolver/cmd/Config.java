@@ -137,9 +137,27 @@ public class Config {
 
       config.getRepositories().forEach(request::addRepository);
 
-      config.getBomCoordinates().forEach(request::addBom);
-
       config.getGlobalExclusions().forEach(request::exclude);
+
+      config
+          .getBoms()
+          .forEach(
+              art -> {
+                StringBuilder coords =
+                    new StringBuilder()
+                        .append(art.getGroupId())
+                        .append(":")
+                        .append(art.getArtifactId())
+                        .append(":")
+                        .append("pom")
+                        .append(":")
+                        .append(art.getVersion());
+                request.addBom(
+                    coords.toString(),
+                    art.getExclusions().stream()
+                        .map(c -> c.getGroupId() + ":" + c.getArtifactId())
+                        .toArray(String[]::new));
+              });
 
       config
           .getArtifacts()

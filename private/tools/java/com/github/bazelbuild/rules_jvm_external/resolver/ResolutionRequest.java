@@ -23,7 +23,7 @@ public class ResolutionRequest {
 
   private final List<URI> repos = new ArrayList<>();
   private final List<Artifact> dependencies = new ArrayList<>();
-  private final List<Coordinates> boms = new ArrayList<>();
+  private final List<Artifact> boms = new ArrayList<>();
   private final Set<Coordinates> globalExclusions = new HashSet<>();
   private boolean useUnsafeSharedCache;
   private Path userHome;
@@ -45,14 +45,23 @@ public class ResolutionRequest {
     return this;
   }
 
-  public ResolutionRequest addBom(String coordinates) {
+  public ResolutionRequest addBom(String coordinates, String... exclusions) {
     Objects.requireNonNull(coordinates, "BOM coordinates");
 
     Coordinates coords = new Coordinates(coordinates);
     Coordinates bom =
         new Coordinates(
             coords.getGroupId(), coords.getArtifactId(), "pom", "", coords.getVersion());
-    boms.add(bom);
+    Artifact artifact =
+        new Artifact(bom, Stream.of(exclusions).map(Coordinates::new).collect(Collectors.toSet()));
+
+    return addBom(artifact);
+  }
+
+  public ResolutionRequest addBom(Artifact artifact) {
+    Objects.requireNonNull(artifact, "Artifact");
+
+    boms.add(artifact);
 
     return this;
   }
@@ -114,7 +123,7 @@ public class ResolutionRequest {
     return Collections.unmodifiableList(dependencies);
   }
 
-  public List<Coordinates> getBoms() {
+  public List<Artifact> getBoms() {
     return Collections.unmodifiableList(boms);
   }
 

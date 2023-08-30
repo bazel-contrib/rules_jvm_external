@@ -34,6 +34,7 @@ _install = tag_class(
         "resolver": attr.string(values = ["gradle", "maven"], default = "gradle", doc = "Resolver to use. Only applies in the root module."),
 
         # Actual artifacts and overrides
+        "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
         "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
 
@@ -225,6 +226,8 @@ def _maven_impl(mctx):
 
             repo = repos.get(install.name, {})
 
+            repo["boms"] = repo.get("boms", [])
+
             artifacts = repo.get("artifacts", [])
             repo["artifacts"] = artifacts + install.artifacts
 
@@ -307,6 +310,8 @@ def _maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
+        boms = parse.parse_artifact_spec_list(repo["boms"])
+        boms_json = [_json.write_artifact_spec(b) for b in boms]
         artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
         artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
         excluded_artifacts = parse.parse_exclusion_spec_list(repo["excluded_artifacts"])
@@ -319,6 +324,7 @@ def _maven_impl(mctx):
             name = "unpinned_" + name if repo.get("lock_file") else name,
             resolver = resolver,
             repositories = repo.get("repositories"),
+            boms = boms_json,
             artifacts = artifacts_json,
             fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
             fetch_sources = repo.get("fetch_sources"),
