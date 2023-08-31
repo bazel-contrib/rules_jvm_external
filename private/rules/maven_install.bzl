@@ -18,6 +18,7 @@ def maven_install(
         override_targets = {},
         strict_visibility = False,
         strict_visibility_value = ["//visibility:private"],
+        resolver = None,
         resolve_timeout = 600,
         jetify = False,
         jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
@@ -60,6 +61,7 @@ def maven_install(
         visible to user's rules.
       strict_visibility_value: Allows changing transitive dependencies strict visibility scope from private
         to specified scopes list.
+      resolver: The dependency resolver to use.
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
       jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
       jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
@@ -114,6 +116,7 @@ def maven_install(
         # invocation after this.
         name = name if maven_install_json == None else "unpinned_" + name,
         repositories = repositories_json_strings,
+        resolver = resolver,
         boms = boms_json_strings,
         artifacts = artifacts_json_strings,
         fail_on_missing_checksum = fail_on_missing_checksum,
