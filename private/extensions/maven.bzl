@@ -297,10 +297,9 @@ def _maven_impl(mctx):
             )
 
             # Get the longest timeout
-            timeout = repo.get("resolve_timeout", install.resolve_timeout)
+            timeout = repo.get("resolve_timeout", 0)
             if install.resolve_timeout > timeout:
-                timout = install.resolve_timeout
-            repo["resolve_timeout"] = timeout
+                repo["resolve_timeout"] = install.resolve_timeout
 
             # If this is the root module, grab the resolver, if any
             if mod.is_root:
