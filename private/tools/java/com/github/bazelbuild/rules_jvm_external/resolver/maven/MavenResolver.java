@@ -307,11 +307,11 @@ public class MavenResolver implements Resolver {
       Artifact root,
       List<Dependency> managedDependencies,
       List<Dependency> allDependencies) {
-
     CollectRequest collectRequest = new CollectRequest();
     collectRequest.setRootArtifact(root);
     collectRequest.setRequestContext(JavaScopes.RUNTIME);
 
+    collectRequest.setManagedDependencies(managedDependencies);
     collectRequest.setDependencies(allDependencies);
 
     for (RemoteRepository repository : repositories) {
