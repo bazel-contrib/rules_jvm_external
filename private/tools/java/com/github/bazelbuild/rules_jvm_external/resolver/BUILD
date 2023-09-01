@@ -6,6 +6,7 @@ java_library(
     javacopts = [
         "--release",
         "8",
+        "-Xlint:-options",
     ],
     visibility = [
         "//private/tools/java:__subpackages__",
