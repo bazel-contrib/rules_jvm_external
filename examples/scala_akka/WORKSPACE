@@ -24,13 +24,11 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
 
-RULES_SCALA_VERSION = "e4560ac332e9da731c1e50a76af2579c55836a5c"
-
 http_archive(
     name = "io_bazel_rules_scala",
-    sha256 = "ccf19e8f966022eaaca64da559c6140b23409829cb315f2eff5dc3e757fb6ad8",
-    strip_prefix = "rules_scala-%s" % RULES_SCALA_VERSION,
-    url = "https://github.com/bazelbuild/rules_scala/archive/%s.zip" % RULES_SCALA_VERSION,
+    sha256 = "cc590e644b2d5c6a87344af5e2c683017fdc85516d9d64b37f15d33badf2e84c",
+    strip_prefix = "rules_scala-6.1.0",
+    url = "https://github.com/bazelbuild/rules_scala/releases/download/v6.1.0/rules_scala-v6.1.0.tar.gz",
 )
 
 load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
@@ -83,6 +81,7 @@ maven_install(
         "org.scalaz:scalaz-concurrent_2.12:7.2.27",
         "org.slf4j:slf4j-api:1.7.26",
         "org.slf4j:slf4j-simple:1.7.26",
+        "org.scalatest:scalatest-wordspec_2.12:3.2.9",
     ],
     fetch_sources = True,
     maven_install_json = "//:maven_install.json",
