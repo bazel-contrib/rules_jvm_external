@@ -142,6 +142,8 @@ tasks:
     name: "Scala example"
     platform: ubuntu1804
     working_directory: examples/scala_akka
+    shell_command: 
+      - "bazel run @unpinned_maven//:pin"
     build_targets:
     - "//..."
     test_targets:
@@ -150,6 +152,8 @@ tasks:
     name: "Scala example"
     platform: macos
     working_directory: examples/scala_akka
+    shell_command: 
+      - "bazel run @unpinned_maven//:pin"
     build_targets:
     - "//..."
     test_targets:
@@ -158,6 +162,8 @@ tasks:
     name: "Scala example"
     platform: windows
     working_directory: examples/scala_akka
+    shell_command: 
+      - "bazel run @unpinned_maven//:pin"
     build_targets:
     - "//..."
     # test_targets:
