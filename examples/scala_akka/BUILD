@@ -23,6 +23,7 @@ test_dependencies = [
     "@maven//:com_typesafe_akka_akka_http_testkit_2_12",
     "@maven//:com_typesafe_akka_akka_stream_testkit_2_12",
     "@maven//:org_mockito_mockito_core",
+    "@maven//:org_scalatest_scalatest_wordspec_2_12",
 ] + lib_dependencies
 
 scala_library(

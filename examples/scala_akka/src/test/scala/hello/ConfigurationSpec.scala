@@ -1,9 +1,11 @@
 package hello
 
-import org.scalatest.{Inside, Matchers, WordSpec}
+import org.scalatest.Inside
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 import scalaz.\/-
 
-class ConfigurationSpec extends WordSpec with Matchers with Inside {
+class ConfigurationSpec extends AnyWordSpec with Matchers with Inside {
   Configuration.getClass.getSimpleName should {
     "should parse reference configuration" in {
       val sut = Configuration.parse
