@@ -252,6 +252,9 @@ public class LockFileConverter {
                 file, coord));
       }
       String version = pathSubstring.substring(0, index);
+      if (version.endsWith("-SNAPSHOT")) {
+        version = version.substring(0, version.length()-9);
+      }
 
       // After the version, there should be nothing left but a file name
       pathSubstring = pathSubstring.substring(version.length() + 1);
