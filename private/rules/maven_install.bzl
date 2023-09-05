@@ -152,4 +152,6 @@ def maven_install(
             use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
             use_starlark_android_rules = use_starlark_android_rules,
             aar_import_bzl_label = aar_import_bzl_label,
+            # Extra arguments only used for hash generation
+            excluded_artifacts = excluded_artifacts_json_strings,
         )

@@ -286,19 +286,32 @@ def _windows_check(repository_ctx):
 # Compute a signature of the list of artifacts that will be used to build
 # the dependency tree. This is used as a check to see whether the dependency
 # tree needs to be repinned.
+# Returns a tuple where the first element is the currently used hash, and the
+# second element is a list of hashes in previous formats. This is to allow for
+# upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def compute_dependency_inputs_signature(artifacts, repositories):
+def _stable_artifact(artifact):
+    parsed = json.decode(artifact)
+
+    # Sort the keys to provide a stable order
+    keys = sorted(parsed.keys())
+    return ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
+
+def compute_dependency_inputs_signature(artifacts, repositories, excluded_artifacts):
     artifact_inputs = []
+    excluded_artifact_inputs = []
 
     for artifact in sorted(artifacts):
-        parsed = json.decode(artifact)
+        artifact_inputs.append(_stable_artifact(artifact))
 
-        # Sort the keys to provide a stable order
-        keys = sorted(parsed.keys())
-        flattened = ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
-        artifact_inputs.append(flattened)
-    return hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
+    for artifacts in sorted(excluded_artifacts):
+        excluded_artifact_inputs.append(_stable_artifact(artifacts))
+
+    old_hash = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
+    new_hash = old_hash ^ hash(repr(sorted(excluded_artifact_inputs)))
+
+    return (new_hash, [old_hash])
 
 def get_netrc_lines_from_entries(netrc_entries):
     netrc_lines = []
@@ -412,18 +425,30 @@ def _pinned_coursier_fetch_impl(repository_ctx):
               "This feature ensures that the build does not use stale dependencies when the inputs " +
               "have changed. To generate this signature, run 'bazel run %s'." % pin_target)
     else:
-        computed_artifacts_hash = compute_dependency_inputs_signature(repository_ctx.attr.artifacts, repository_ctx.attr.repositories)
-        if computed_artifacts_hash != input_artifacts_hash:
+        computed_artifacts_hash, old_hashes = compute_dependency_inputs_signature(
+            repository_ctx.attr.artifacts,
+            repository_ctx.attr.repositories,
+            repository_ctx.attr.excluded_artifacts,
+        )
+        repin_instructions = (
+            " REPIN=1 bazel run %s\n" % pin_target +
+            "or:\n" +
+            " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
+            " 2) Run 'bazel run %s'\n" % pin_target +
+            " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n"
+        )
+        if input_artifacts_hash in old_hashes:
+            print(
+                "WARNING: %s_install.json contains an outdated input signature. " % (user_provided_name) +
+                "It is recommended that you regenerate it by running either:\n" + repin_instructions,
+            )
+        elif computed_artifacts_hash != input_artifacts_hash:
             if _fail_if_repin_required(repository_ctx):
                 fail("%s_install.json contains an invalid input signature and must be regenerated. " % (user_provided_name) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
                      "%s_install.json and re-pin the artifacts, either run:\n" % user_provided_name +
-                     " REPIN=1 bazel run %s\n" % pin_target +
-                     "or:\n" +
-                     " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
-                     " 2) Run 'bazel run %s'\n" % pin_target +
-                     " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n")
+                     repin_instructions)
             else:
                 print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % user_provided_name +
                       "Consider running 'bazel run %s'" % pin_target)
@@ -1051,11 +1076,17 @@ def _coursier_fetch_impl(repository_ctx):
 
     lock_file_contents = json.decode(result.stdout)
 
+    inputs_hash, _ = compute_dependency_inputs_signature(
+        repository_ctx.attr.artifacts,
+        repository_ctx.attr.repositories,
+        repository_ctx.attr.excluded_artifacts,
+    )
+
     repository_ctx.file(
         "unsorted_deps.json",
         content = v2_lock_file.render_lock_file(
             lock_file_contents,
-            compute_dependency_inputs_signature(repository_ctx.attr.artifacts, repository_ctx.attr.repositories),
+            inputs_hash,
         ),
     )
 
@@ -1219,6 +1250,7 @@ pinned_coursier_fetch = repository_rule(
                 "none",
             ],
         ),
+        "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
     },
     implementation = _pinned_coursier_fetch_impl,
 )
