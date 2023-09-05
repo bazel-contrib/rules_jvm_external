@@ -283,6 +283,13 @@ def _windows_check(repository_ctx):
                  "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
                  "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
 
+def _stable_artifact(artifact):
+    parsed = json.decode(artifact)
+
+    # Sort the keys to provide a stable order
+    keys = sorted(parsed.keys())
+    return ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
+
 # Compute a signature of the list of artifacts that will be used to build
 # the dependency tree. This is used as a check to see whether the dependency
 # tree needs to be repinned.
@@ -291,13 +298,6 @@ def _windows_check(repository_ctx):
 # upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def _stable_artifact(artifact):
-    parsed = json.decode(artifact)
-
-    # Sort the keys to provide a stable order
-    keys = sorted(parsed.keys())
-    return ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
-
 def compute_dependency_inputs_signature(artifacts, repositories, excluded_artifacts):
     artifact_inputs = []
     excluded_artifact_inputs = []
