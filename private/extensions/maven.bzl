@@ -206,7 +206,7 @@ def _maven_impl(mctx):
                 to_add.update({"neverlink": artifact.neverlink})
 
             if artifact.testonly:
-                to_add.update({"version": artifact.testonly})
+                to_add.update({"testonly": artifact.testonly})
 
             if artifact.exclusions:
                 artifact_exclusions = []
