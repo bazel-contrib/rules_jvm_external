@@ -308,10 +308,14 @@ def compute_dependency_inputs_signature(artifacts, repositories, excluded_artifa
     for artifacts in sorted(excluded_artifacts):
         excluded_artifact_inputs.append(_stable_artifact(artifacts))
 
-    old_hash = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
-    new_hash = old_hash ^ hash(repr(sorted(excluded_artifact_inputs)))
+    v1_sig = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
 
-    return (new_hash, [old_hash])
+    hash_parts = [sorted(artifact_inputs), sorted(repositories), sorted(excluded_artifact_inputs)]
+    current_version_sig = 0
+    for part in hash_parts:
+        current_version_sig ^= hash(repr(part))
+
+    return (current_version_sig, [v1_sig])
 
 def get_netrc_lines_from_entries(netrc_entries):
     netrc_lines = []
