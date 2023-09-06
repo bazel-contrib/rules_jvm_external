@@ -34,7 +34,7 @@ public class Config {
     this.netrc = Netrc.fromUserHome();
 
     ResolutionRequest request = new ResolutionRequest();
-    Resolver resolver = new MavenResolver(netrc, listener);
+    Resolver resolver = new GradleResolver(netrc, listener);
     boolean fetchSources = false;
     boolean fetchJavadoc = false;
     Path output = null;
