@@ -55,7 +55,7 @@ Generate a javadoc from all the `deps`
 
 <pre>
 java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>,
-            <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-kwargs">kwargs</a>)
+            <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-classifier_artifacts">classifier_artifacts</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
 
 Extends `java_library` to allow maven artifacts to be uploaded.
@@ -89,7 +89,7 @@ runtime dependencies for the following tags:
 
   * `maven_coordinates=group:artifact:type:version`: Specifies a dependency of
     this artifact.
-  * `maven:compile_only`: Specifies that this dependency should not be listed
+  * `maven:compile-only`: Specifies that this dependency should not be listed
     as a dependency of the artifact being generated.
 
 To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.

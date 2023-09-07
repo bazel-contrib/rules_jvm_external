@@ -44,7 +44,7 @@ def kt_jvm_export(
 
       * `maven_coordinates=group:artifact:type:version`: Specifies a dependency of
         this artifact.
-      * `maven:compile_only`: Specifies that this dependency should not be listed
+      * `maven:compile-only`: Specifies that this dependency should not be listed
         as a dependency of the artifact being generated.
 
     To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.

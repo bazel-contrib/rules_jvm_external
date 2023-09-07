@@ -34,7 +34,7 @@ _EMPTY_INFO = MavenInfo(
 )
 
 _MAVEN_PREFIX = "maven_coordinates="
-_STOP_TAGS = ["maven:compile-only", "no-maven"]
+_STOP_TAGS = ["maven:compile-only", "maven:compile_only", "no-maven"]
 
 def read_coordinates(tags):
     coordinates = []
