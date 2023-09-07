@@ -25,19 +25,6 @@ load("//:setup.bzl", "rules_jvm_external_setup")
 rules_jvm_external_setup()
 
 http_archive(
-    name = "io_bazel_stardoc",
-    sha256 = "3fd8fec4ddec3c670bd810904e2e33170bedfe12f90adf943508184be458c8bb",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/stardoc/releases/download/0.5.3/stardoc-0.5.3.tar.gz",
-        "https://github.com/bazelbuild/stardoc/releases/download/0.5.3/stardoc-0.5.3.tar.gz",
-    ],
-)
-
-load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
-
-stardoc_repositories()
-
-http_archive(
     name = "io_bazel_rules_kotlin",
     sha256 = "946747acdbeae799b085d12b240ec346f775ac65236dfcf18aa0cd7300f6de78",
     urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.7.0-RC-2/rules_kotlin_release.tgz"],
@@ -50,6 +37,19 @@ kotlin_repositories()
 load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
 
 kt_register_toolchains()
+
+http_archive(
+    name = "io_bazel_stardoc",
+    sha256 = "3fd8fec4ddec3c670bd810904e2e33170bedfe12f90adf943508184be458c8bb",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/stardoc/releases/download/0.5.3/stardoc-0.5.3.tar.gz",
+        "https://github.com/bazelbuild/stardoc/releases/download/0.5.3/stardoc-0.5.3.tar.gz",
+    ],
+)
+
+load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
+
+stardoc_repositories()
 
 # Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
 # usage of Stardoc (scripts/generate_docs) doesn't require any of these
