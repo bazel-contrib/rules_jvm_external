@@ -132,7 +132,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
         elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coordinates"]) == "javadoc":
             seen_imports[target_label] = True
             all_imports.append(
-                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n)" % (target_label, artifact_path),
+                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, artifact_path),
             )
         elif get_packaging(artifact["coordinates"]) in ("exe", "json"):
             seen_imports[target_label] = True
