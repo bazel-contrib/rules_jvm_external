@@ -84,6 +84,7 @@ def java_export(
     javadocopts = kwargs.pop("javadocopts", [])
     doc_deps = kwargs.pop("doc_deps", [])
     doc_url = kwargs.pop("doc_url", "")
+    toolchains = kwargs.pop("toolchains", [])
 
     # Construct the java_library we'll export from here.
     native.java_library(
@@ -108,6 +109,7 @@ def java_export(
         classifier_artifacts = classifier_artifacts,
         doc_deps = doc_deps,
         doc_url = doc_url,
+        toolchains = toolchains,
     )
 
 def maven_export(
@@ -124,7 +126,8 @@ def maven_export(
         classifier_artifacts = {},
         *,
         doc_deps = [],
-        doc_url = ""):
+        doc_url = "",
+        toolchains = None):
     """
     All arguments are the same as java_export with the addition of:
       lib_name: Name of the library that has been built.
@@ -210,6 +213,7 @@ def maven_export(
         visibility = visibility,
         tags = tags + maven_coordinates_tags,
         testonly = testonly,
+        toolchains = toolchains,
     )
 
     native.filegroup(
@@ -251,6 +255,7 @@ def maven_export(
             visibility = visibility,
             tags = tags,
             testonly = testonly,
+            toolchains = toolchains,
         )
         classifier_artifacts.setdefault("javadoc", docs_jar)
 
@@ -262,6 +267,7 @@ def maven_export(
         visibility = visibility,
         tags = tags,
         testonly = testonly,
+        toolchains = toolchains,
     )
 
     maven_publish(
@@ -273,6 +279,7 @@ def maven_export(
         visibility = visibility,
         tags = tags,
         testonly = testonly,
+        toolchains = toolchains,
     )
 
     # We may want to aggregate several `java_export` targets into a single Maven BOM POM
@@ -287,6 +294,7 @@ def maven_export(
         testonly = testonly,
         tags = tags,
         visibility = visibility,
+        toolchains = toolchains,
     )
 
     # Finally, alias the primary output
