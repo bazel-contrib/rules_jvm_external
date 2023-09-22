@@ -269,6 +269,8 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 target_import_string.append("\t\t\"maven_url=None\",")
             if neverlink_artifacts.get(simple_coord):
                 target_import_string.append("\t\t\"maven:compile-only\",")
+            if artifact.get("sha256"):
+                target_import_string.append("\t\t\"maven_sha256=%s\"," % artifact["sha256"])
             target_import_string.append("\t],")
 
             # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
