@@ -60,12 +60,22 @@ def _deduplicate_list(items):
             unique_items.append(item)
     return unique_items
 
+def _find_repository_url(artifact_url, repositories):
+    longest_match = None
+    for repository in repositories:
+        if artifact_url.startswith(repository):
+            if len(repository) > len(longest_match or ""):
+                longest_match = repository
+    return longest_match
+
 # Generate BUILD file with jvm_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
 # tree.
 #
 # Made function public for testing.
 def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
+    repository_urls = [json.decode(repository)["repo_url"] for repository in repository_ctx.attr.repositories]
+
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
 
@@ -265,6 +275,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             target_import_string.append("\t\t\"maven_coordinates=%s\"," % artifact["coordinates"])
             if len(artifact["urls"]):
                 target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
+                repository_url = _find_repository_url(artifact["urls"][0], repository_urls)
+                if repository_url:
+                    target_import_string.append("\t\t\"maven_repository=%s\"," % repository_url)
             else:
                 target_import_string.append("\t\t\"maven_url=None\",")
             if neverlink_artifacts.get(simple_coord):
