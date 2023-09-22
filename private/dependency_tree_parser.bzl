@@ -30,9 +30,6 @@ load(
 )
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
-    # skip artifacts without any urls (ie: maven local artifacts)
-    if not len(artifact["urls"]):
-        return ""
     http_file_repository = escape(artifact["coordinates"])
 
     file = artifact.get("out", artifact["file"])
