@@ -22,6 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
 import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -57,6 +58,7 @@ public class JavadocJarMaker {
   public static void main(String[] args) throws IOException {
     Set<Path> sourceJars = new HashSet<>();
     Path out = null;
+    Path elementList = null;
     Set<Path> classpath = new HashSet<>();
     List<String> options = new ArrayList<>();
 
@@ -78,6 +80,11 @@ public class JavadocJarMaker {
         case "--out":
           next = args[++i];
           out = Paths.get(next);
+          break;
+
+        case "--element-list":
+          next = args[++i];
+          elementList = Paths.get(next);
           break;
 
         default:
@@ -165,6 +172,14 @@ public class JavadocJarMaker {
         System.err.println("javadoc " + String.join(" ", options));
         System.err.println(writer);
         return;
+      }
+
+      Path generatedElementList = outputTo.resolve("element-list");
+      try {
+        Files.copy(generatedElementList, elementList);
+      } catch (FileNotFoundException e) {
+        // Do not fail the action if the generated element-list couldn't be found.
+        Files.createFile(generatedElementList);
       }
 
       try (OutputStream os = Files.newOutputStream(out);

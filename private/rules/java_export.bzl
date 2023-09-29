@@ -69,6 +69,10 @@ def java_export(
         that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
         with an extra dependency.
       classifier_artifacts: A dict of classifier -> artifact of additional artifacts to publish to Maven.
+      doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
+        (if not using `tags = ["no-javadoc"]`)
+      doc_url: The URL at which the generated `javadoc` will be hosted (if not using
+        `tags = ["no-javadoc"]`).
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -78,6 +82,8 @@ def java_export(
     lib_name = "%s-lib" % name
 
     javadocopts = kwargs.pop("javadocopts", [])
+    doc_deps = kwargs.pop("doc_deps", [])
+    doc_url = kwargs.pop("doc_url", "")
 
     # Construct the java_library we'll export from here.
     native.java_library(
@@ -100,6 +106,8 @@ def java_export(
         testonly,
         javadocopts,
         classifier_artifacts = classifier_artifacts,
+        doc_deps = doc_deps,
+        doc_url = doc_url,
     )
 
 def maven_export(
@@ -113,7 +121,10 @@ def maven_export(
         tags = [],
         testonly = False,
         javadocopts = [],
-        classifier_artifacts = {}):
+        classifier_artifacts = {},
+        *,
+        doc_deps = [],
+        doc_url = ""):
     """
     All arguments are the same as java_export with the addition of:
       lib_name: Name of the library that has been built.
@@ -166,6 +177,10 @@ def maven_export(
         that should not be included in the maven jar to a `Label` pointing to the dependency
         that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
         with an extra dependency.
+      doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
+        (if not using `tags = ["no-javadoc"]`)
+      doc_url: The URL at which the generated `javadoc` will be hosted (if not using
+        `tags = ["no-javadoc"]`).
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -176,6 +191,8 @@ def maven_export(
     deploy_env = deploy_env if deploy_env else []
     excluded_workspaces = excluded_workspaces if excluded_workspaces else {}
     javadocopts = javadocopts if javadocopts else []
+    doc_url = doc_url if doc_url else ""
+    doc_deps = doc_deps if doc_deps else []
     tags = tags if tags else []
     classifier_artifacts = classifier_artifacts if classifier_artifacts else {}
 
@@ -227,6 +244,8 @@ def maven_export(
                 ":%s-project" % name,
             ] + deploy_env,
             javadocopts = javadocopts,
+            doc_deps = doc_deps,
+            doc_url = doc_url,
             excluded_workspaces = excluded_workspaces.keys(),
             additional_dependencies = additional_dependencies,
             visibility = visibility,
