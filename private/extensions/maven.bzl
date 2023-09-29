@@ -376,6 +376,7 @@ def _maven_impl(mctx):
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
+                excluded_artifacts = repo.get("excluded_artifacts"),
             )
 
 maven = module_extension(
