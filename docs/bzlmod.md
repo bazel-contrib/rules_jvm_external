@@ -69,6 +69,27 @@ use_repo(maven, "maven", "unpinned_maven")
 Now you'll be able to use the same `@unpinned_maven//:pin` operation described in the
 [workspace instructions](/README.md#updating-maven_installjson).
 
+## Artifact exclusion
+
+The non-bzlmod instructions for how to configure `exclusions` [from the README](../README.md#artifact-exclusion)
+don't work as shown for bzlmod; it's not possible to "inline" them as shown (it will cause an `ERROR: in tag at
+<root>/MODULE.bazel:22:14, error converting value for attribute artifacts: expected value of type 'string' for
+element 9 of artifacts, but got None (NoneType)`). Split it like this instead:
+
+```starlark
+# https://github.com/grpc/grpc-java/issues/10576
+maven.artifact(
+    artifact = "grpc-core",
+    exclusions = ["io.grpc:grpc-util"],
+    group = "io.grpc",
+    version = "1.58.0",  # Keep version in sync with below!
+)
+maven.install(
+    artifacts = [
+        "junit:junit:4.13.2",
+        ...
+```
+
 ## Known issues
 
 - Some error messages print instructions that don't apply under bzlmod, e.g. https://github.com/bazelbuild/rules_jvm_external/issues/827
