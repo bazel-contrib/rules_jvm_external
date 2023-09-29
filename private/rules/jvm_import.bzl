@@ -8,6 +8,7 @@
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
+load("@rules_java//java:defs.bzl", "JavaInfo")
 
 def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:

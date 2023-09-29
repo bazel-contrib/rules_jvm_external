@@ -1,4 +1,5 @@
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
+load("@rules_java//java:defs.bzl", "JavaInfo")
 
 MavenBomFragmentInfo = provider(
     fields = {
@@ -13,7 +14,7 @@ MavenBomFragmentInfo = provider(
 
 def _maven_bom_fragment_impl(ctx):
     java_info = ctx.attr.artifact[JavaInfo]
-    
+
     # Expand maven coordinates for any variables to be replaced.
     coordinates = ctx.expand_make_variables("coordinates", ctx.attr.maven_coordinates, ctx.var)
 

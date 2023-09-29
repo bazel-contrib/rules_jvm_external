@@ -1,3 +1,5 @@
+load("@rules_java//java:defs.bzl", "JavaInfo")
+
 MavenInfo = provider(
     fields = {
         # Fields to do with maven coordinates

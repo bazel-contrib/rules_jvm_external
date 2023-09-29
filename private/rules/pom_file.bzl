@@ -1,5 +1,6 @@
 load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "has_maven_deps")
 load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom")
+load("@rules_java//java:defs.bzl", "JavaInfo")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates

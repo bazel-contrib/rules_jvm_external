@@ -1,4 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+load("@rules_java//java:defs.bzl", "JavaInfo")
 
 def _does_aar_import_have_srcjar_impl(ctx):
     env = analysistest.begin(ctx)
