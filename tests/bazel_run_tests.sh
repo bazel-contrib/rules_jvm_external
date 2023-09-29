@@ -22,7 +22,7 @@ function test_duplicate_version_warning() {
   expect_log "Successfully pinned resolved artifacts"
 }
 
-function test_m2local_testing_found_local_artifact_through_pin() {
+function test_m2local_testing_found_local_artifact_through_pin_and_build() {
   m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
@@ -31,6 +31,7 @@ function test_m2local_testing_found_local_artifact_through_pin() {
   # Publish a maven artifact locally - com.example.kt:1.0.0
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
   bazel run @m2local_testing//:pin >> "$TEST_LOG" 2>&1
+  bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -f m2local_testing_install.json
   rm -rf ${jar_dir}
 
@@ -38,12 +39,13 @@ function test_m2local_testing_found_local_artifact_through_pin() {
   expect_log "Successfully pinned resolved artifacts"
 }
 
-function test_unpinned_m2local_testing_found_local_artifact_through_pin() {
+function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build() {
   m2local_dir="~/.m2/repository"
   mkdir -p ${m2local_dir}
   # Publish a maven artifact locally - com.example.kt:1.0.0
   bazel run --define maven_repo="file://${HOME}/.m2/repository" //tests/integration/kt_jvm_export:test.publish 
   bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
+  bazel build @m2local_testing_repin//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -f m2local_testing_install.json
   rm -rf ~/.m2/repository
 
@@ -137,8 +139,8 @@ TESTS=(
   "test_duplicate_version_warning_same_version"
   "test_outdated"
   "test_outdated_no_external_runfiles"
-  "test_m2local_testing_found_local_artifact_through_pin"
-  "test_unpinned_m2local_testing_found_local_artifact_through_pin"
+  "test_m2local_testing_found_local_artifact_through_pin_and_build"
+  "test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_m2local_testing_found_local_artifact_through_build"
   "test_m2local_testing_found_local_artifact_after_build_copy"
   "test_v1_lock_file_format"
