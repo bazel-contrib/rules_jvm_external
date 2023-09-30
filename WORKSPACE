@@ -10,18 +10,6 @@ load(
     "COURSIER_CLI_SHA256",
 )
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-    name = "rules_java",
-    urls = [
-        "https://github.com/bazelbuild/rules_java/releases/download/6.3.1/rules_java-6.3.1.tar.gz",
-    ],
-    sha256 = "117a1227cdaf813a20a1bba78a9f2d8fb30841000c33e2f2d2a640bd224c9282",
-)
-load("@rules_java//java:repositories.bzl", "rules_java_dependencies", "rules_java_toolchains")
-rules_java_dependencies()
-rules_java_toolchains()
-
 http_file(
     name = COURSIER_CLI_HTTP_FILE_NAME,
     sha256 = COURSIER_CLI_SHA256,

@@ -12,6 +12,15 @@ _DEFAULT_REPOSITORIES = [
 def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
     maybe(
         http_archive,
+        name = "rules_java",
+        urls = [
+            "https://github.com/bazelbuild/rules_java/releases/download/6.3.1/rules_java-6.3.1.tar.gz",
+        ],
+        sha256 = "117a1227cdaf813a20a1bba78a9f2d8fb30841000c33e2f2d2a640bd224c9282",
+    )
+
+    maybe(
+        http_archive,
         name = "bazel_skylib",
         sha256 = "66ffd9315665bfaafc96b52278f57c7e2dd09f5ede279ea6d39b2be471e7e3aa",
         urls = [

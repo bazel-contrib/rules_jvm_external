@@ -4,6 +4,7 @@ exports_files([
     "java_export.bzl",
     "javadoc.bzl",
     "jetifier.bzl",
+    "jetifier_rules.bzl",
     "jetifier_maven_map.bzl",
     "jvm_import.bzl",
     "kt_jvm_export.bzl",

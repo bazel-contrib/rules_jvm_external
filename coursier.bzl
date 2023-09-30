@@ -33,7 +33,7 @@ _BUILD = """
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
-load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
+load("@rules_jvm_external//private/rules:jetifier_rules.bzl", "jetify_aar_import", "jetify_jvm_import")
 {aar_import_statement}
 
 {imports}
