@@ -100,6 +100,8 @@ sh_binary(
 )
 """
 
+EMPTY_FILE_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
@@ -1078,6 +1080,19 @@ def _coursier_fetch_impl(repository_ctx):
         if file == None:
             continue
         path = str(repository_ctx.path(file))
+
+        # Sometimes it happens that coursier sees jar files with 0 bytes.
+        # Treat them as if coursier found no file in the first place.
+        if shas[path] == EMPTY_FILE_SHA256:
+            print("Found empty file for artifact: %s" % artifact)
+            artifact["file"] = None
+
+            # Restore attributes set earlier in this function.
+            if artifact.get("mirror_urls") != None:
+                artifact.pop("mirror_urls")
+            if artifact.get("url") != None:
+                artifact.pop("url")
+            continue
         artifact.update({"sha256": shas[path]})
         artifact.update({"packages": jars_to_packages[path]})
 
