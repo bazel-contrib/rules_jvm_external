@@ -22,6 +22,53 @@ function test_duplicate_version_warning() {
   expect_log "Successfully pinned resolved artifacts"
 }
 
+function test_m2local_testing_ignore_file_if_empty() {
+  m2local_dir="${HOME}/.m2/repository"
+  jar_dir="${m2local_dir}/com/example/kt/1.0.0"
+  rm -rf ${jar_dir}
+  mkdir -p ${m2local_dir}
+  bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
+  # Publish a maven artifact locally - com.example.kt:1.0.0
+  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+
+  # Imitate an empty sources jar.
+  rm -rf ${jar_dir}/kt-1.0.0-sources.jar*
+  touch ${jar_dir}/kt-1.0.0-sources.jar
+  echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
+
+  bazel run @m2local_testing_fetch_sources//:pin >> "$TEST_LOG" 2>&1
+  expect_not_in_file '"sources": "' m2local_testing_fetch_sources_install.json
+
+  rm -f m2local_testing_fetch_sources_install.json
+  rm -rf ${jar_dir}
+
+  expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
+  expect_log "Successfully pinned resolved artifacts"
+}
+
+function test_unpinned_m2local_testing_ignore_file_if_empty() {
+  m2local_dir="${HOME}/.m2/repository"
+  jar_dir="${m2local_dir}/com/example/kt/1.0.0"
+  rm -rf ${jar_dir}
+  mkdir -p ${m2local_dir}
+  bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
+  # Publish a maven artifact locally - com.example.kt:1.0.0
+  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+
+  # Imitate an empty sources jar.
+  rm -rf ${jar_dir}/kt-1.0.0-sources.jar*
+  touch ${jar_dir}/kt-1.0.0-sources.jar
+  echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
+
+  bazel run @unpinned_m2local_testing_fetch_sources_repin//:pin >> "$TEST_LOG" 2>&1
+  expect_not_in_file '"sources": "' tests/custom_maven_install/m2local_testing_fetch_sources_with_pinned_file_install.json
+
+  rm -rf ${jar_dir}
+
+  expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
+  expect_log "Successfully pinned resolved artifacts"
+}
+
 function test_m2local_testing_found_local_artifact_through_pin_and_build() {
   m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
@@ -143,6 +190,8 @@ TESTS=(
   "test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_m2local_testing_found_local_artifact_through_build"
   "test_m2local_testing_found_local_artifact_after_build_copy"
+  "test_m2local_testing_ignore_file_if_empty"
+  "test_unpinned_m2local_testing_ignore_file_if_empty"
   "test_v1_lock_file_format"
   "test_dependency_pom_exclusion"
 )
@@ -158,6 +207,18 @@ function run_tests() {
     printf "PASSED\n"
     rm -f "$TEST_LOG"
   done
+}
+
+function expect_not_in_file() {
+  local pattern=$1
+  local file=$2
+  local message=${3:-Expected not to find regexp \""$pattern"\", but it was found}
+  grep -sq -- "$pattern" $file || return 0
+
+  printf "FAILED\n"
+  cat $file
+  printf "FAILURE: $message\n"
+  return 1
 }
 
 function expect_log() {
