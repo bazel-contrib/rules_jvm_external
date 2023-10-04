@@ -1081,10 +1081,10 @@ def _coursier_fetch_impl(repository_ctx):
             continue
         path = str(repository_ctx.path(file))
 
-        # Sometimes it happens that coursier sees jar files with 0 bytes.
-        # Treat them as if coursier found no file in the first place.
-        if shas[path] == EMPTY_FILE_SHA256:
-            print("Found empty file for artifact: %s" % artifact)
+        if repository_ctx.attr.ignore_empty_files and shas[path] == EMPTY_FILE_SHA256:
+            # Sometimes it happens that coursier sees jar files with 0 bytes.
+            # Treat them as if coursier found no file in the first place.
+            print("Ignoring empty file for artifact: %s" % artifact)
             artifact["file"] = None
 
             # Restore attributes set earlier in this function.
@@ -1357,6 +1357,7 @@ coursier_fetch = repository_rule(
                 "none",
             ],
         ),
+        "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
     },
     environ = [
         "JAVA_HOME",

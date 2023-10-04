@@ -93,6 +93,7 @@ _install = tag_class(
                 "pinned",
             ],
         ),
+        "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
     },
 )
 
@@ -164,6 +165,7 @@ def _maven_impl(mctx):
     # - strict_visibility_value: a string list. Build will fail is duplicated and different.
     # - use_starlark_android_rules: bool. A logical OR over all `use_starlark_android_rules` for all `install` tags with the same name.
     # - version_conflict_policy: string. Fails build if different and not a default.
+    # - ignore_empty_files: Treat jars that are empty as if they were not found.
 
     # Mapping of `name`s to `bazel_module.name` This will allow us to warn users when more than
     # module attempts to update a maven repo (which is normally undesired behaviour)
@@ -245,6 +247,7 @@ def _maven_impl(mctx):
             _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
             _logical_or(repo, "strict_visibility", False, install.strict_visibility)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
+            _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
 
             repo["version_conflict_policy"] = _fail_if_different(
                 "version_conflict_policy",
@@ -314,6 +317,7 @@ def _maven_impl(mctx):
             use_starlark_android_rules = repo.get("use_starlark_android_rules"),
             aar_import_bzl_label = repo.get("aar_import_bzl_label"),
             duplicate_version_warning = repo.get("duplicate_version_warning"),
+            ignore_empty_files = repo.get("ignore_empty_files"),
         )
 
         if repo.get("generate_compat_repositories"):

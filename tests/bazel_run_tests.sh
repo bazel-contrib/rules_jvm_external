@@ -22,7 +22,8 @@ function test_duplicate_version_warning() {
   expect_log "Successfully pinned resolved artifacts"
 }
 
-function test_m2local_testing_ignore_file_if_empty() {
+function test_m2local_testing_ignore_empty_files() {
+  # Testing ignore_empty_files with m2local, as it's the easiest way to imitate an empty jar file.
   m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
@@ -36,17 +37,18 @@ function test_m2local_testing_ignore_file_if_empty() {
   touch ${jar_dir}/kt-1.0.0-sources.jar
   echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
 
-  bazel run @m2local_testing_fetch_sources//:pin >> "$TEST_LOG" 2>&1
-  expect_not_in_file '"sources": "' m2local_testing_fetch_sources_install.json
+  bazel run @m2local_testing_ignore_empty_files//:pin >> "$TEST_LOG" 2>&1
+  expect_not_in_file '"sources": "' m2local_testing_ignore_empty_files_install.json
 
-  rm -f m2local_testing_fetch_sources_install.json
+  rm -f m2local_testing_ignore_empty_files_install.json
   rm -rf ${jar_dir}
 
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
   expect_log "Successfully pinned resolved artifacts"
 }
 
-function test_unpinned_m2local_testing_ignore_file_if_empty() {
+function test_unpinned_m2local_testing_ignore_empty_files() {
+  # Testing ignore_empty_files with m2local, as it's the easiest way to imitate an empty jar file.
   m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
@@ -60,8 +62,8 @@ function test_unpinned_m2local_testing_ignore_file_if_empty() {
   touch ${jar_dir}/kt-1.0.0-sources.jar
   echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
 
-  bazel run @unpinned_m2local_testing_fetch_sources_repin//:pin >> "$TEST_LOG" 2>&1
-  expect_not_in_file '"sources": "' tests/custom_maven_install/m2local_testing_fetch_sources_with_pinned_file_install.json
+  bazel run @unpinned_m2local_testing_ignore_empty_files_repin//:pin >> "$TEST_LOG" 2>&1
+  expect_not_in_file '"sources": "' tests/custom_maven_install/m2local_testing_ignore_empty_files_with_pinned_file_install.json
 
   rm -rf ${jar_dir}
 
@@ -190,8 +192,8 @@ TESTS=(
   "test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_m2local_testing_found_local_artifact_through_build"
   "test_m2local_testing_found_local_artifact_after_build_copy"
-  "test_m2local_testing_ignore_file_if_empty"
-  "test_unpinned_m2local_testing_ignore_file_if_empty"
+  "test_m2local_testing_ignore_empty_files"
+  "test_unpinned_m2local_testing_ignore_empty_files"
   "test_v1_lock_file_format"
   "test_dependency_pom_exclusion"
 )

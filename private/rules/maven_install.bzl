@@ -23,7 +23,8 @@ def maven_install(
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
         duplicate_version_warning = "warn",
-        repin_instructions = None):
+        repin_instructions = None,
+        ignore_empty_files = False):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -71,6 +72,7 @@ def maven_install(
         fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default
         is "warn".
       repin_instructions: Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.
+      ignore_empty_files: Treat jars that are empty as if they were not found.
     """
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
@@ -121,6 +123,7 @@ def maven_install(
         use_starlark_android_rules = use_starlark_android_rules,
         aar_import_bzl_label = aar_import_bzl_label,
         duplicate_version_warning = duplicate_version_warning,
+        ignore_empty_files = ignore_empty_files,
     )
 
     if maven_install_json != None:
