@@ -3,7 +3,7 @@ java_library(
     srcs = glob(["*.java"]),
     javacopts = [
         "--release",
-        "8",
+        "11",
         "-Xlint:-options",
     ],
     visibility = [

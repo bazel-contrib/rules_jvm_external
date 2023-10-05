@@ -5,7 +5,7 @@ java_library(
     srcs = glob(["*.java"]),
     javacopts = [
         "--release",
-        "8",
+        "11",
     ],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
@@ -21,7 +21,7 @@ java_binary(
     name = "LockFileConverter",
     javacopts = [
         "--release",
-        "8",
+        "11",
     ],
     main_class = "com.github.bazelbuild.rules_jvm_external.coursier.LockFileConverter",
     visibility = ["//visibility:public"],
