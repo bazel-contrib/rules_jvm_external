@@ -1,6 +1,5 @@
 load("//private:compat_repository.bzl", "compat_repository")
 load("//private:coursier_utilities.bzl", "escape")
-load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load("//:specs.bzl", "parse", _json = "json")
@@ -53,8 +52,6 @@ _install = tag_class(
 
         # Android support
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
-        "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
-        "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
 
         # Configuration "stuff"
@@ -161,8 +158,6 @@ def _maven_impl(mctx):
     # - fetch_javadoc: bool. A logical OR over all `fetch_javadoc` for all `install` tags with the same name.
     # - fetch_sources: bool. A logical OR over all `fetch_sources` for all `install` tags with the same name.
     # - generate_compat_repositories: bool. A logical OR over all `generate_compat_repositories` for all `install` tags with the same name.
-    # - jetify: bool. A logical OR over all `jetify` for all `install` tags with the same name.
-    # - jetify_include_list: string list. Accumulated from all `install` tags
     # - lock_file: the lock file to use, if present. Multiple lock files will cause the build to fail.
     # - overrides: a dict mapping `artfifactId:groupId` to Bazel label.
     # - repositories: the list of repositories to pull files from.
@@ -249,7 +244,6 @@ def _maven_impl(mctx):
             _logical_or(repo, "fetch_sources", False, install.fetch_sources)
             _logical_or(repo, "fetch_javadoc", False, install.fetch_javadoc)
             _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
-            _logical_or(repo, "jetify", False, install.jetify)
             _logical_or(repo, "strict_visibility", False, install.strict_visibility)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
 
@@ -269,12 +263,6 @@ def _maven_impl(mctx):
 
             additional_netrc_lines = repo.get("additional_netrc_lines", []) + getattr(install, "additional_netrc_lines", [])
             repo["additional_netrc_lines"] = additional_netrc_lines
-
-            jetify_include_list = repo.get("jetify_include_list", [])
-            for include in getattr(install, "jetify_include_list", []):
-                if include not in jetify_include_list:
-                    jetify_include_list.append(include)
-            repo["jetify_include_list"] = jetify_include_list
 
             repo["aar_import_bzl_label"] = _fail_if_different(
                 "aar_import_bzl_label",
@@ -324,8 +312,6 @@ def _maven_impl(mctx):
             strict_visibility_value = repo.get("strict_visibility_value"),
             maven_install_json = repo.get("lock_file"),
             resolve_timeout = repo.get("resolve_timeout"),
-            jetify = repo.get("jetify"),
-            jetify_include_list = repo.get("jetify_include_list"),
             use_starlark_android_rules = repo.get("use_starlark_android_rules"),
             aar_import_bzl_label = repo.get("aar_import_bzl_label"),
             duplicate_version_warning = repo.get("duplicate_version_warning"),
@@ -369,8 +355,6 @@ def _maven_impl(mctx):
                 override_targets = overrides,
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
-                jetify = repo.get("jetify"),
-                jetify_include_list = repo.get("jetify_include_list"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
                 fail_if_repin_required = repo.get("fail_if_repin_required"),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),

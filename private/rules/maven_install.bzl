@@ -1,7 +1,6 @@
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
-load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL")
 
 def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
@@ -18,8 +17,6 @@ def maven_install(
         strict_visibility = False,
         strict_visibility_value = ["//visibility:private"],
         resolve_timeout = 600,
-        jetify = False,
-        jetify_include_list = JETIFY_INCLUDE_LIST_JETIFY_ALL,
         additional_netrc_lines = [],
         use_credentials_from_home_netrc_file = False,
         fail_if_repin_required = False,
@@ -59,8 +56,6 @@ def maven_install(
       strict_visibility_value: Allows changing transitive dependencies strict visibility scope from private
         to specified scopes list.
       resolve_timeout: The execution timeout of resolving and fetching artifacts.
-      jetify: Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.
-      jetify_include_list: List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.
       additional_netrc_lines: Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).
       use_credentials_from_home_netrc_file: Whether to pass machine login credentials from the ~/.netrc file to coursier.
       fail_if_repin_required: Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the `maven_install_json` to have been set.
@@ -75,9 +70,6 @@ def maven_install(
         fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default
         is "warn".
     """
-    if jetify:
-        print("Jetify use has been deprecated. Please manually update your `artifacts` to avoid requiring this tool.")
-
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(_json.write_repository_spec(repository))
@@ -123,8 +115,6 @@ def maven_install(
         strict_visibility_value = strict_visibility_value,
         maven_install_json = maven_install_json,
         resolve_timeout = resolve_timeout,
-        jetify = jetify,
-        jetify_include_list = jetify_include_list,
         use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
         use_starlark_android_rules = use_starlark_android_rules,
         aar_import_bzl_label = aar_import_bzl_label,
@@ -144,8 +134,6 @@ def maven_install(
             override_targets = override_targets,
             strict_visibility = strict_visibility,
             strict_visibility_value = strict_visibility_value,
-            jetify = jetify,
-            jetify_include_list = jetify_include_list,
             additional_netrc_lines = additional_netrc_lines,
             fail_if_repin_required = fail_if_repin_required,
             duplicate_version_warning = duplicate_version_warning,

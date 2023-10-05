@@ -29,8 +29,6 @@ load(
     "strip_packaging_and_classifier_and_version",
 )
 
-JETIFY_INCLUDE_LIST_JETIFY_ALL = ["*"]
-
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     # skip artifacts without any urls (ie: maven local artifacts)
     if not len(artifact["urls"]):
@@ -115,13 +113,6 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                     if repository_ctx.attr.maven_install_json:
                         all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
 
-    jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
-
-    # Write artifacts to dict to achieve O(1) lookup instead of O(n).
-    jetify_include_dict = {}
-    for jetify_include_artifact in repository_ctx.attr.jetify_include_list:
-        jetify_include_dict[jetify_include_artifact] = None
-
     # Iterate through the list of artifacts, and generate the target declaration strings.
     for artifact in dependencies:
         artifact_path = artifact["file"]
@@ -167,7 +158,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
 
             # 1. Generate the rule class.
             #
-            # (jetify_)(jvm|aar)_import(
+            # (jvm|aar)_import(
             #
             packaging = artifact_path.split(".").pop()
             if packaging == "jar":
@@ -181,9 +172,6 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 jar_versionless_target_labels.append(target_label)
             else:
                 fail("Unsupported packaging type: " + packaging)
-            jetify = jetify_all or (repository_ctx.attr.jetify and simple_coord in jetify_include_dict)
-            if jetify:
-                import_rule = "jetify_" + import_rule
             target_import_string = [import_rule + "("]
 
             # 2. Generate the target label.
@@ -210,11 +198,6 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 target_import_string.append("\taar = \"%s\"," % artifact_path)
                 if srcjar_paths != None and target_label in srcjar_paths:
                     target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
-                if jetify and repository_ctx.attr.use_starlark_android_rules:
-                    # Because jetifier.bzl cannot conditionally import the starlark rules
-                    # (it's not a generated file), inject the aar_import rule from
-                    # the load statement in the generated file.
-                    target_import_string.append("\t_aar_import = aar_import,")
 
             # 4. Generate the deps attribute with references to other target labels.
             #

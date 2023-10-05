@@ -57,8 +57,6 @@ bzl_library(
         "//private/rules:has_maven_deps.bzl",
         "//private/rules:java_export.bzl",
         "//private/rules:javadoc.bzl",
-        "//private/rules:jetifier.bzl",
-        "//private/rules:jetifier_maven_map.bzl",
         "//private/rules:jvm_import.bzl",
         "//private/rules:maven_bom.bzl",
         "//private/rules:maven_bom_fragment.bzl",
