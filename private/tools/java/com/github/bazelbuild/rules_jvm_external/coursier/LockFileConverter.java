@@ -256,21 +256,66 @@ public class LockFileConverter {
       // After the version, there should be nothing left but a file name
       pathSubstring = pathSubstring.substring(version.length() + 1);
 
-      // Now we know the version, we can calculate the expected file name. For now, ignore
-      // the fact that there may be a classifier. We're going to derive that if necessary.
-      String expectedFileName = coord.getArtifactId() + "-" + version;
+      String remainder;
+      String dirVersion;
+      if (version.endsWith("-SNAPSHOT")) {
+        String baseVersion = version.substring(0, version.length() - "-SNAPSHOT".length());
 
-      index = pathSubstring.indexOf(expectedFileName);
-      if (index == -1) {
-        throw new IllegalArgumentException(
-            String.format(
-                "Expected file name (%s) not found in path (%s). Current coordinates are %s",
-                expectedFileName, file, coord));
+        String expectedFileName = coord.getArtifactId() + "-" + baseVersion + "YYYYMMDD-HHMMSS.N+";
+
+        index = pathSubstring.indexOf(baseVersion);
+        if (index == -1) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Expected artifact (%s) not found in path (%s). Current coordinates are %s",
+                  expectedFileName, file, coord));
+        }
+        index = index + baseVersion.length();
+        int snapshotVersionStart = index;
+
+        // Skip over the YYYYMMDD part.
+        if (pathSubstring.charAt(index + 9) != '.') {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Expected artifact (%s) not found in path (%s). Current coordinates are %s",
+                  expectedFileName, file, coord));
+        }
+        index = index + 9;
+
+        // Skip over the HHMMSS part.
+        if (pathSubstring.charAt(index + 7) != '-') {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Expected artifact (%s) not found in path (%s). Current coordinates are %s",
+                  expectedFileName, file, coord));
+        }
+        index = index + 7;
+
+        // Skip over the variable-length build number.
+        index = pathSubstring.indexOf(".", index + 1);
+
+        remainder = pathSubstring.substring(index);
+        dirVersion = version;
+        version = baseVersion + pathSubstring.substring(snapshotVersionStart, index);
+      } else {
+        // Now we know the version, we can calculate the expected file name. For now, ignore
+        // the fact that there may be a classifier. We're going to derive that if necessary.
+        String expectedFileName = coord.getArtifactId() + "-" + version;
+
+        index = pathSubstring.indexOf(expectedFileName);
+        if (index == -1) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Expected file name (%s) not found in path (%s). Current coordinates are %s",
+                  expectedFileName, file, coord));
+        }
+
+        remainder = pathSubstring.substring(expectedFileName.length());
+        dirVersion = null;
       }
 
       String classifier = "";
       String extension = "";
-      String remainder = pathSubstring.substring(expectedFileName.length());
 
       if (remainder.isEmpty()) {
         throw new IllegalArgumentException(
@@ -303,7 +348,7 @@ public class LockFileConverter {
       toReturn.put(
           coord,
           new Coordinates(
-              coord.getGroupId(), coord.getArtifactId(), extension, classifier, version));
+              coord.getGroupId(), coord.getArtifactId(), extension, classifier, version, dirVersion));
     }
 
     return toReturn;
