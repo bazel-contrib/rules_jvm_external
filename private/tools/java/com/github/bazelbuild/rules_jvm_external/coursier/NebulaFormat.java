@@ -57,6 +57,10 @@ public class NebulaFormat {
           Map<String, Object> artifactValue =
               artifacts.computeIfAbsent(shortKey, k -> new TreeMap<>());
           artifactValue.put("version", coords.getVersion());
+          String dirVersion = coords.getDirVersion();
+          if (dirVersion != null) {
+            artifactValue.put("dirVersion", coords.getDirVersion());
+          }
 
           String classifier = coords.getClassifier();
           if (classifier == null || classifier.isEmpty()) {

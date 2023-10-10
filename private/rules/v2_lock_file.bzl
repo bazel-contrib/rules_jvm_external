@@ -43,11 +43,20 @@ def _compute_lock_file_hash(lock_file_contents):
     return hash(repr(to_hash))
 
 def _to_m2_path(unpacked):
-    path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
-        artifact = unpacked["artifactId"],
-        group = unpacked["groupId"].replace(".", "/"),
-        version = unpacked["version"],
-    )
+    version = unpacked["version"]
+    if "dirVersion" in unpacked:
+        path = "{group}/{artifact}/{dirVersion}/{artifact}-{version}".format(
+            artifact = unpacked["artifactId"],
+            group = unpacked["groupId"].replace(".", "/"),
+            version = unpacked["version"],
+            dirVersion = unpacked["dirVersion"],
+        )
+    else:
+        path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
+            artifact = unpacked["artifactId"],
+            group = unpacked["groupId"].replace(".", "/"),
+            version = unpacked["version"],
+        )
 
     classifier = unpacked.get("scope", "jar")
     if not classifier:
@@ -104,6 +113,8 @@ def _get_artifacts(lock_file_contents):
             "artifactId": parts[1],
             "version": data["version"],
         }
+        if "dirVersion" in data:
+            root_unpacked["dirVersion"] = data["dirVersion"]
         if len(parts) > 2:
             root_unpacked["type"] = parts[2]
         else:
