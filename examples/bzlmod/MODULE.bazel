@@ -16,6 +16,7 @@ maven.artifact(
     artifact = "guava",
     group = "com.google.guava",
     version = "31.1-jre",
+    exclusions = ["com.google.code.findbugs:jsr305"],
 )
 
 maven.install(

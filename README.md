@@ -527,6 +527,9 @@ maven_install(
 )
 ```
 
+Note [when using `bzlmod`](docs/bzlmod.md) the syntax in `MODULE.bazel` is
+different than shown above.
+
 ### Artifact exclusion
 
 If you want to exclude an artifact from the transitive closure of a top level
