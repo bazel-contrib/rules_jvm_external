@@ -11,10 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
-load("//private/rules:urls.bzl", "remove_auth_from_url")
-load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
-load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load("//:specs.bzl", "parse", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "is_maven_local_path")
@@ -27,6 +23,10 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
+load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
+load("//private/rules:urls.bzl", "remove_auth_from_url")
+load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
+load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 
 _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
