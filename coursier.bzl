@@ -360,12 +360,20 @@ def _add_outdated_files(repository_ctx, artifacts, repositories):
         executable = True,
     )
 
+def is_repin_required(repository_ctx):
+    env_var_names = repository_ctx.os.environ.keys()
+    return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
+
 def _fail_if_repin_required(repository_ctx):
     if not repository_ctx.attr.fail_if_repin_required:
         return False
 
-    env_var_names = repository_ctx.os.environ.keys()
-    return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
+    return is_repin_required()
+
+def print_if_not_repinning(repository_ctx, *args):
+    if not is_repin_required(repository_ctx):
+        return
+    print(*args)
 
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
@@ -393,7 +401,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     if v1_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v1_lock_file
-        print("Lock file should be updated. Please run `REPIN=1 bazel run @unpinned_%s//:pin`" % repository_ctx.name)
+        print_if_not_repinning(
+            repository_ctx,
+            "Lock file should be updated. Please run `REPIN=1 bazel run @unpinned_%s//:pin`" % repository_ctx.name,
+        )
     elif v2_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v2_lock_file
     else:
@@ -425,9 +436,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     # Then, check to see if we need to repin our deps because inputs have changed
     if input_artifacts_hash == None:
-        print("NOTE: %s_install.json does not contain a signature of the required artifacts. " % user_provided_name +
-              "This feature ensures that the build does not use stale dependencies when the inputs " +
-              "have changed. To generate this signature, run 'bazel run %s'." % pin_target)
+        print_if_not_repinning(
+            repository_ctx,
+            "NOTE: %s_install.json does not contain a signature of the required artifacts. " % user_provided_name +
+            "This feature ensures that the build does not use stale dependencies when the inputs " +
+            "have changed. To generate this signature, run 'bazel run %s'." % pin_target,
+        )
     else:
         computed_artifacts_hash, old_hashes = compute_dependency_inputs_signature(
             repository_ctx.attr.artifacts,
@@ -442,7 +456,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n"
         )
         if input_artifacts_hash in old_hashes:
-            print(
+            print_if_not_repinning(
+                repository_ctx,
                 "WARNING: %s_install.json contains an outdated input signature. " % (user_provided_name) +
                 "It is recommended that you regenerate it by running either:\n" + repin_instructions,
             )
@@ -454,15 +469,21 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                      "%s_install.json and re-pin the artifacts, either run:\n" % user_provided_name +
                      repin_instructions)
             else:
-                print("The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % user_provided_name +
-                      "Consider running 'bazel run %s'" % pin_target)
+                print_if_not_repinning(
+                    repository_ctx,
+                    "The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % user_provided_name +
+                    "Consider running 'bazel run %s'" % pin_target,
+                )
 
     dep_tree_signature = importer.get_lock_file_hash(maven_install_json_content)
 
     if dep_tree_signature == None:
-        print("NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % user_provided_name +
-              "This feature ensures that the file is not modified manually. To generate this " +
-              "signature, run 'bazel run %s'." % pin_target)
+        print_if_not_repinning(
+            repository_ctx,
+            "NOTE: %s_install.json does not contain a signature entry of the dependency tree. " % user_provided_name +
+            "This feature ensures that the file is not modified manually. To generate this " +
+            "signature, run 'bazel run %s'." % pin_target,
+        )
     elif importer.compute_lock_file_hash(maven_install_json_content) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
