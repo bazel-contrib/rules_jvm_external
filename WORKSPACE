@@ -2,6 +2,8 @@ workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = "androidsdk")
 
+android_ndk_repository(name = "androidndk")
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "//private:versions.bzl",
@@ -26,8 +28,8 @@ rules_jvm_external_setup()
 
 http_archive(
     name = "io_bazel_rules_kotlin",
-    sha256 = "946747acdbeae799b085d12b240ec346f775ac65236dfcf18aa0cd7300f6de78",
-    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.7.0-RC-2/rules_kotlin_release.tgz"],
+    sha256 = "fd92a98bd8a8f0e1cdcb490b93f5acef1f1727ed992571232d33de42395ca9b3",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.7.1/rules_kotlin_release.tgz"],
 )
 
 load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
