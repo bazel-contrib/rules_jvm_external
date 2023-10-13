@@ -10,8 +10,23 @@ tasks:
       - bazel run @unpinned_maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
+      - "--"
       - "//..."
+      # Test Android targets separately, see below.
+      - "-//tests/integration/override_targets/..."
+      - "-//tests/unit/aar_import/..."
       # manual tests
+  android_ubuntu1804:
+    name: Android Tests
+    platform: ubuntu1804
+    test_flags:
+      # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/978):
+      #   These tests are not compatible with Android platforms, so use the legacy mode
+      - "--noincompatible_enable_android_toolchain_resolution"
+    test_targets:
+      - "--"
+      - "//tests/unit/aar_import/..."
+      - "//tests/integration/override_targets/..."
   rbe_ubuntu1604:
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -20,6 +35,7 @@ tasks:
       - "//..."
       # These tests are currently incompatible with RBE
       - "-//tests/integration/override_targets"
+      - "-//tests/unit/aar_import/..."
       - "-//tests/com/github/bazelbuild/rules_jvm_external/maven:OutdatedTest"
   ubuntu1804_4_0_0:
     platform: ubuntu1804
