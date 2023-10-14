@@ -1,5 +1,6 @@
-load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
+load("@npm//:defs.bzl", "npm_link_all_packages")
 
 exports_files(["defs.bzl"])
 
@@ -12,6 +13,8 @@ exports_files(
     ],
     visibility = ["//scripts:__pkg__"],
 )
+
+npm_link_all_packages()
 
 stardoc(
     name = "defs",

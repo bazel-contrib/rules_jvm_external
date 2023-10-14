@@ -140,8 +140,11 @@ def determine_additional_dependencies(jar_files, additional_dependencies):
         if not owner:
             continue
 
+        # Users don't know how `bzlmod` mangles workspace names, but we do
+        workspace_name = owner.workspace_name.partition("~")[0]
+
         for (dep, name) in additional_dependencies.items():
-            if (name == owner.workspace_name) and dep:
+            if (name == workspace_name) and dep:
                 if not dep in to_return:
                     to_return.append(dep)
 

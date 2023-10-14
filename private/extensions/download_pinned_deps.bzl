@@ -5,13 +5,13 @@ def escape(string):
         string = string.replace(char, "_")
     return string.replace("[", "").replace("]", "").split(",")[0]
 
-def download_pinned_deps(artifacts, existing_repos):
+def download_pinned_deps(artifacts, http_files):
     seen_repo_names = []
 
     for artifact in artifacts:
         http_file_repository_name = escape(artifact["coordinates"])
 
-        if http_file_repository_name in existing_repos:
+        if http_file_repository_name in http_files:
             continue
 
         urls = artifact["urls"]
@@ -19,6 +19,7 @@ def download_pinned_deps(artifacts, existing_repos):
             continue
 
         seen_repo_names.append(http_file_repository_name)
+        http_files.append(http_file_repository_name)
 
         http_file(
             name = http_file_repository_name,

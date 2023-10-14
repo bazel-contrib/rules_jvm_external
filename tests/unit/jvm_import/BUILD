@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load(":jvm_import_test.bzl", "jvm_import_test_suite")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load(":jvm_import_test.bzl", "jvm_import_test_suite")
 
 java_import(
     name = "java_import_that_consumes_the_downloaded_file_directly",

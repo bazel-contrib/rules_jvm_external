@@ -1,9 +1,9 @@
 load("//private:compat_repository.bzl", "compat_repository")
-load("//private:coursier_utilities.bzl", "escape")
+load("//private:coursier_utilities.bzl", "escape", "strip_packaging_and_classifier_and_version")
+load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//:specs.bzl", "parse", _json = "json")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
-load("//:specs.bzl", "parse", _json = "json")
-load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
 
 DEFAULT_REPOSITORIES = [
@@ -37,7 +37,7 @@ _install = tag_class(
 
         # What do we fetch?
         "fetch_javadoc": attr.bool(default = False),
-        "fetch_sources": attr.bool(default = True),
+        "fetch_sources": attr.bool(default = False),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
@@ -142,9 +142,48 @@ def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
             module_name,
         ))
 
+def _to_maven_coords(artifact):
+    coords = "%s:%s" % (artifact.get("group"), artifact.get("artifact"))
+
+    extension = artifact.get("packaging", "jar")
+    if not extension:
+        extension = "jar"
+    classifier = artifact.get("classifier", "jar")
+    if not classifier:
+        classifier = "jar"
+
+    if classifier != "jar":
+        coords += ":%s:%s" % (extension, classifier)
+    elif extension != "jar":
+        coords += ":%s" % extension
+    coords += ":%s" % artifact.get("version")
+
+    return coords
+
+def _generate_compat_repos(name, existing_compat_repos, artifacts):
+    seen = []
+
+    for artifact in artifacts:
+        coords = _to_maven_coords(artifact)
+        versionless = escape(strip_packaging_and_classifier_and_version(coords))
+        if versionless in existing_compat_repos:
+            continue
+        seen.append(versionless)
+        existing_compat_repos.append(versionless)
+        compat_repository(
+            name = versionless,
+            generating_repository = name,
+            target_name = versionless,
+        )
+
+    return seen
+
 def _maven_impl(mctx):
     repos = {}
     overrides = {}
+    exclusions = {}
+    http_files = []
+    compat_repos = []
 
     # Iterate over all the tags we care about. For each `name` we want to construct
     # a dict with the following keys:
@@ -292,8 +331,17 @@ def _maven_impl(mctx):
     for (name, repo) in repos.items():
         artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
         artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
-        excluded_artifacts = parse.parse_exclusion_spec_list(repo["excluded_artifacts"])
+        excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
         excluded_artifacts_json = [_json.write_exclusion_spec(a) for a in excluded_artifacts]
+
+        if len(repo.get("repositories", [])) == 0:
+            existing_repos = []
+            for repository in parse.parse_repository_spec_list(DEFAULT_REPOSITORIES):
+                repo_string = _json.write_repository_spec(repository)
+                if repo_string not in existing_repos:
+                    existing_repos.append(repo_string)
+            repo["repositories"] = existing_repos
+
         coursier_fetch(
             # Name this repository "unpinned_{name}" if the user specified a
             # maven_install.json file. The actual @{name} repository will be
@@ -320,18 +368,9 @@ def _maven_impl(mctx):
             ignore_empty_files = repo.get("ignore_empty_files"),
         )
 
-        if repo.get("generate_compat_repositories"):
-            seen = []
-            for artifact in artifacts:
-                versionless = escape(artifact["group"] + "_" + artifact["artifact"])
-                if versionless in seen:
-                    continue
-                seen.append(versionless)
-                compat_repository(
-                    name = versionless,
-                    generating_repository = name,
-                    target_name = versionless,
-                )
+        if repo.get("generate_compat_repositories") and not repo.get("lock_file"):
+            seen = _generate_compat_repos(name, compat_repos, artifacts)
+            compat_repos.extend(seen)
 
         if repo.get("lock_file"):
             lock_file = json.decode(mctx.read(mctx.path(repo.get("lock_file"))))
@@ -343,7 +382,7 @@ def _maven_impl(mctx):
             else:
                 fail("Unable to determine lock file version: %s" % repo.get("lock_file"))
 
-            created = download_pinned_deps(artifacts = artifacts, existing_repos = existing_repos)
+            created = download_pinned_deps(artifacts = artifacts, http_files = http_files)
             existing_repos.extend(created)
 
             pinned_coursier_fetch(
@@ -365,6 +404,11 @@ def _maven_impl(mctx):
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 excluded_artifacts = excluded_artifacts_json,
             )
+
+            if repo.get("generate_compat_repositories"):
+                all_artifacts = parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts])
+                seen = _generate_compat_repos(name, compat_repos, parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts]))
+                compat_repos.extend(seen)
 
 maven = module_extension(
     _maven_impl,

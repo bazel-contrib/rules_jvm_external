@@ -19,8 +19,11 @@ genrule(
     outs = [
         "guava_MANIFEST.MF",
     ],
-    cmd = "$(JAVABASE)/bin/jar xf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
+    cmd = "$(location //tests/com/github/bazelbuild/rules_jvm_external/manifest:Print) $< | grep -E '^Bundle-Version|Target-Label' | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
     toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
+    tools = [
+        "//tests/com/github/bazelbuild/rules_jvm_external/manifest:Print",
+    ],
 )
 
 diff_test(
@@ -37,8 +40,11 @@ genrule(
     outs = [
         "signed_MANIFEST.MF",
     ],
-    cmd = "$(JAVABASE)/bin/jar xf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
+    cmd = "$(location //tests/com/github/bazelbuild/rules_jvm_external/manifest:Print) $< | grep -E '^Bundle-Version|Target-Label' | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
     toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
+    tools = [
+        "//tests/com/github/bazelbuild/rules_jvm_external/manifest:Print",
+    ],
 )
 
 # Signed jars don't get a Target-Label because adding contents to the

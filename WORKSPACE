@@ -1,18 +1,18 @@
 workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = "androidsdk")
+
 android_ndk_repository(name = "androidndk")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "//private:versions.bzl",
     "COURSIER_CLI_GITHUB_ASSET_URL",
-    "COURSIER_CLI_HTTP_FILE_NAME",
     "COURSIER_CLI_SHA256",
 )
 
 http_file(
-    name = COURSIER_CLI_HTTP_FILE_NAME,
+    name = "coursier_cli",
     sha256 = COURSIER_CLI_SHA256,
     urls = [COURSIER_CLI_GITHUB_ASSET_URL],
 )
@@ -693,14 +693,22 @@ rbe_preconfig(
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "6fc9b6efc18acb2fd5fb3bcf981572539c3432600042b662a162c1226b362426",
-    strip_prefix = "protobuf-21.10",
-    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.10/protobuf-all-21.10.tar.gz",
+    sha256 = "e07046fbac432b05adc1fd1318c6f19ab1b0ec0655f7f4e74627d9713959a135",
+    strip_prefix = "protobuf-21.7",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.7/protobuf-all-21.7.tar.gz",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
+
+# When using `bzlmod` this gets pulled in as `protobuf`
+http_archive(
+    name = "protobuf",
+    sha256 = "e07046fbac432b05adc1fd1318c6f19ab1b0ec0655f7f4e74627d9713959a135",
+    strip_prefix = "protobuf-21.7",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.7/protobuf-all-21.7.tar.gz",
+)
 
 maven_install(
     name = "java_export_exclusion_testing",

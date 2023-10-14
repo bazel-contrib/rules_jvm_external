@@ -3,6 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "doctoc": "^2.2.0"
+    "doctoc": "^2.2.1"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "@textlint/markdown-to-ast": {
+        "dependencies": {
+          "mdast-util-gfm-autolink-literal": "*"
+        }
+      }
+    }
   }
 }
