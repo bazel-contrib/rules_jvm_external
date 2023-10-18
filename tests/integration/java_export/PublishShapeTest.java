@@ -85,7 +85,8 @@ public class PublishShapeTest {
                 coordinates,
                 pomXml.getAbsolutePath(),
                 stubJar.getAbsolutePath(),
-                String.format("javadoc=%s,sources=%s", stubJar.getAbsolutePath(), stubJar.getAbsolutePath()))
+                String.format(
+                    "javadoc=%s,sources=%s", stubJar.getAbsolutePath(), stubJar.getAbsolutePath()))
             .redirectErrorStream(true);
     pb.environment().put("MAVEN_REPO", repoRoot.toURI().toASCIIString());
     pb.environment().put("MAVEN_USER", "");
