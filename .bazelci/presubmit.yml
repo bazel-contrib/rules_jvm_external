@@ -27,16 +27,6 @@ tasks:
       - "--"
       - "//tests/unit/aar_import/..."
       - "//tests/integration/override_targets/..."
-  rbe_ubuntu1604:
-    shell_commands:
-      - bazel run @unpinned_regression_testing//:pin
-    test_targets:
-      - "--"
-      - "//..."
-      # These tests are currently incompatible with RBE
-      - "-//tests/integration/override_targets"
-      - "-//tests/unit/aar_import/..."
-      - "-//tests/com/github/bazelbuild/rules_jvm_external/maven:OutdatedTest"
   ubuntu1804_4_0_0:
     platform: ubuntu1804
     bazel: 4.0.0
