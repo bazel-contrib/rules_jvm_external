@@ -32,7 +32,7 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## javadoc
 
 <pre>
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -45,6 +45,8 @@ Generate a javadoc from all the `deps`
 | <a id="javadoc-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
 | <a id="javadoc-additional_dependencies"></a>additional_dependencies |  Mapping of <code>Label</code>s to the excluded workspace names. Note that this must match the values passed to the <code>pom_file</code> rule so the <code>pom.xml</code> correctly lists these dependencies.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: Label -> String</a> | optional | <code>{}</code> |
 | <a id="javadoc-deps"></a>deps |  The java libraries to generate javadocs for.<br><br>          The source jars of each dep will be used to generate the javadocs.           Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | required |  |
+| <a id="javadoc-doc_deps"></a>doc_deps |  <code>javadoc</code> targets referenced by the current target.<br><br>            Use this to automatically add appropriate <code>-linkoffline</code> javadoc options to resolve             references to packages documented by the given javadoc targets that have <code>url</code>             specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional | <code>[]</code> |
+| <a id="javadoc-doc_url"></a>doc_url |  The URL at which this documentation will be hosted.<br><br>            This information is only used by javadoc targets depending on this target.   | String | optional | <code>""</code> |
 | <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional | <code>["com_google_protobuf"]</code> |
 | <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options.             Note sources and classpath are derived from the deps. Any additional             options can be passed here.   | List of strings | optional | <code>[]</code> |
 
@@ -190,9 +192,9 @@ Generated rules:
 maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-fetch_javadoc">fetch_javadoc</a>,
               <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>,
               <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>, <a href="#maven_install-strict_visibility_value">strict_visibility_value</a>,
-              <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-jetify">jetify</a>, <a href="#maven_install-jetify_include_list">jetify_include_list</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>,
-              <a href="#maven_install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>, <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>,
-              <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven_install-duplicate_version_warning">duplicate_version_warning</a>)
+              <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>, <a href="#maven_install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>,
+              <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>,
+              <a href="#maven_install-duplicate_version_warning">duplicate_version_warning</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -220,8 +222,6 @@ and fetch Maven artifacts transitively.
 | <a id="maven_install-strict_visibility"></a>strict_visibility |  Controls visibility of transitive dependencies. If <code>True</code>, transitive dependencies are private and invisible to user's rules. If <code>False</code>, transitive dependencies are public and visible to user's rules.   |  <code>False</code> |
 | <a id="maven_install-strict_visibility_value"></a>strict_visibility_value |  Allows changing transitive dependencies strict visibility scope from private to specified scopes list.   |  <code>["//visibility:private"]</code> |
 | <a id="maven_install-resolve_timeout"></a>resolve_timeout |  The execution timeout of resolving and fetching artifacts.   |  <code>600</code> |
-| <a id="maven_install-jetify"></a>jetify |  Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.   |  <code>False</code> |
-| <a id="maven_install-jetify_include_list"></a>jetify_include_list |  List of artifacts that need to be jetified in <code>groupId:artifactId</code> format. By default all artifacts are jetified if <code>jetify</code> is set to True.   |  <code>["*"]</code> |
 | <a id="maven_install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by <code>http_file</code> (with <code>maven_install_json</code> only).   |  <code>[]</code> |
 | <a id="maven_install-use_credentials_from_home_netrc_file"></a>use_credentials_from_home_netrc_file |  Whether to pass machine login credentials from the ~/.netrc file to coursier.   |  <code>False</code> |
 | <a id="maven_install-fail_if_repin_required"></a>fail_if_repin_required |  Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the <code>maven_install_json</code> to have been set.   |  <code>False</code> |

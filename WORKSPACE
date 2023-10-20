@@ -383,37 +383,6 @@ load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 
 maven_install(
-    name = "jetify_all_test",
-    artifacts = [
-        "com.google.guava:guava:27.0-jre",
-        "com.android.support:appcompat-v7:28.0.0",
-        "com.android.support:swiperefreshlayout:28.0.0",
-    ],
-    jetify = True,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://maven.google.com",
-    ],
-)
-
-maven_install(
-    name = "jetify_include_list_test",
-    artifacts = [
-        "com.google.guava:guava:27.0-jre",
-        "com.android.support:appcompat-v7:28.0.0",
-        "com.android.support:swiperefreshlayout:28.0.0",
-    ],
-    jetify = True,
-    jetify_include_list = [
-        "com.android.support:appcompat-v7",
-    ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://maven.google.com",
-    ],
-)
-
-maven_install(
     name = "duplicate_version_warning",
     artifacts = [
         "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
@@ -483,7 +452,6 @@ maven_install(
         "androidx.work:work-runtime:2.6.0",
     ],
     fetch_sources = True,
-    jetify = False,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
@@ -500,22 +468,6 @@ maven_install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     fetch_sources = False,
-    repositories = [
-        "https://repo1.maven.org/maven2",
-        "https://maven.google.com",
-    ],
-    use_starlark_android_rules = True,
-)
-
-maven_install(
-    name = "starlark_aar_import_with_jetify_test",
-    # Not actually necessary since this is the default value, but useful for
-    # testing.
-    aar_import_bzl_label = "@build_bazel_rules_android//android:rules.bzl",
-    artifacts = [
-        "com.android.support:appcompat-v7:28.0.0",
-    ],
-    jetify = True,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",

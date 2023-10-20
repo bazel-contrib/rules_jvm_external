@@ -36,13 +36,6 @@ build_test(
 )
 
 build_test(
-    name = "starlark_aar_import_with_jetify_test",
-    targets = [
-        "@starlark_aar_import_with_jetify_test//:com_android_support_appcompat_v7_28_0_0",
-    ],
-)
-
-build_test(
     name = "starlark_aar_import_with_sources_test",
     targets = [
         "@starlark_aar_import_with_sources_test//:androidx_work_work_runtime_2_6_0",

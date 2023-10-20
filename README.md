@@ -34,7 +34,6 @@ Table of Contents
             * [Repository remapping](#repository-remapping)
          * [Hiding transitive dependencies](#hiding-transitive-dependencies)
          * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
-         * [Jetifier](#jetifier)
          * [Duplicate artifact warning](#duplicate-artifact-warning)
          * [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
@@ -867,36 +866,6 @@ maven_install(
         # ...
     ],
     resolve_timeout = 900
-)
-```
-
-### Jetifier
-
-As part of the [Android
-Jetpack](https://medium.com/google-developer-experts/converting-your-android-app-to-jetpack-85aecfce34d3)
-migration, convert legacy Android support library (`com.android.support`)
-libraries to rely on new AndroidX packages using the
-[Jetifier](https://developer.android.com/studio/command-line/jetifier) tool.
-Enable jetification by specifying `jetify = True` in `maven_install.`
-Control which artifacts to jetify with `jetify_include_list` — list of artifacts that need to be jetified in `groupId:artifactId` format.
-By default all artifacts are jetified if `jetify` is set to True.
-
-NOTE: There is a performance penalty to using jetifier due to modifying fetched binaries, fetching
-additional `AndroidX` artifacts, and modifying the maven dependency graph.
-
-```python
-maven_install(
-    artifacts = [
-        # ...
-    ],
-    repositories = [
-        # ...
-    ],
-    jetify = True,
-    # Optional
-    jetify_include_list = [
-        "exampleGroupId:exampleArtifactId",
-    ],
 )
 ```
 

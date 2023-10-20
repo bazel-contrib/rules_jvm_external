@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("//:specs.bzl", "parse", "utils")
+load("//:specs.bzl", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "is_maven_local_path")
-load("//private:dependency_tree_parser.bzl", "JETIFY_INCLUDE_LIST_JETIFY_ALL", "parser")
+load("//private:dependency_tree_parser.bzl", "parser")
 load("//private:java_utilities.bzl", "build_java_argsfile_content", "parse_java_version")
 load("//private:proxy.bzl", "get_java_proxy_args")
 load(
@@ -23,7 +23,6 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
-load("//private/rules:jetifier.bzl", "jetify_artifact_dependencies", "jetify_maven_coord")
 load("//private/rules:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
@@ -33,7 +32,6 @@ _BUILD = """
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
-load("@rules_jvm_external//private/rules:jetifier.bzl", "jetify_aar_import", "jetify_jvm_import")
 {aar_import_statement}
 
 {imports}
@@ -893,44 +891,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.attr.resolve_timeout,
     )
 
-    # Fetch all possible jetified artifacts. We will wire them up later.
-    if repository_ctx.attr.jetify:
-        extra_jetify_artifacts = []
-        for artifact in dep_tree["dependencies"]:
-            artifact_coord = parse.parse_maven_coordinate(artifact["coord"])
-            jetify_coord_tuple = jetify_maven_coord(
-                artifact_coord["group"],
-                artifact_coord["artifact"],
-                artifact_coord["version"],
-            )
-            if jetify_coord_tuple:
-                artifact_coord["group"] = jetify_coord_tuple[0]
-                artifact_coord["artifact"] = jetify_coord_tuple[1]
-                artifact_coord["version"] = jetify_coord_tuple[2]
-                extra_jetify_artifacts.append(artifact_coord)
-        dep_tree = make_coursier_dep_tree(
-            repository_ctx,
-            # Order is important due to version conflict resolution. "pinned" will take the last
-            # version that is provided so having the explicit artifacts last makes those versions
-            # stick.
-            extra_jetify_artifacts + artifacts,
-            excluded_artifacts,
-            repositories,
-            repository_ctx.attr.version_conflict_policy,
-            repository_ctx.attr.fail_on_missing_checksum,
-            repository_ctx.attr.fetch_sources,
-            repository_ctx.attr.fetch_javadoc,
-            repository_ctx.attr.resolve_timeout,
-            report_progress_prefix = "Second pass for Jetified Artifacts: ",
-        )
-
-    # Reconstruct the original URLs from the relative path to the artifact,
-    # which encodes the URL components for the protocol, domain, and path to
-    # the file.
-
     files_to_inspect = []
-    jetify_include_dict = {k: None for k in repository_ctx.attr.jetify_include_list}
-    jetify_all = repository_ctx.attr.jetify and repository_ctx.attr.jetify_include_list == JETIFY_INCLUDE_LIST_JETIFY_ALL
 
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
@@ -940,10 +901,6 @@ def _coursier_fetch_impl(repository_ctx):
 
         coord_split = artifact["coord"].split(":")
         coord_unversioned = "{}:{}".format(coord_split[0], coord_split[1])
-        should_jetify = jetify_all or (repository_ctx.attr.jetify and coord_unversioned in jetify_include_dict)
-        if should_jetify:
-            artifact["directDependencies"] = jetify_artifact_dependencies(artifact["directDependencies"])
-            artifact["dependencies"] = jetify_artifact_dependencies(artifact["dependencies"])
 
         # Normalize paths in place here.
         artifact.update({"file": _normalize_to_unix_path(artifact["file"])})
@@ -1254,8 +1211,6 @@ pinned_coursier_fetch = repository_rule(
             default = False,
         ),
         "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
-        "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
-        "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
         "use_credentials_from_home_netrc_file": attr.bool(default = False, doc = "Whether to include coursier credentials gathered from the user home ~/.netrc file"),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
@@ -1321,8 +1276,6 @@ coursier_fetch = repository_rule(
         ),
         "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
         "resolve_timeout": attr.int(default = 600),
-        "jetify": attr.bool(doc = "Runs the AndroidX [Jetifier](https://developer.android.com/studio/command-line/jetifier) tool on artifacts specified in jetify_include_list. If jetify_include_list is not specified, run Jetifier on all artifacts.", default = False),
-        "jetify_include_list": attr.string_list(doc = "List of artifacts that need to be jetified in `groupId:artifactId` format. By default all artifacts are jetified if `jetify` is set to True.", default = JETIFY_INCLUDE_LIST_JETIFY_ALL),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "duplicate_version_warning": attr.string(
