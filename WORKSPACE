@@ -657,10 +657,6 @@ rbe_preconfig(
     toolchain = "ubuntu1804-bazel-java11",
 )
 
-load("//migration:maven_jar_migrator_deps.bzl", "maven_jar_migrator_repositories")
-
-maven_jar_migrator_repositories()
-
 # Located at the end, because it's only used in tests
 
 http_archive(
