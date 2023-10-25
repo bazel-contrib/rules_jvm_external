@@ -25,7 +25,7 @@ public class StableZipEntry extends ZipEntry {
 
   // File time is taken from the epoch (1970-01-01T00:00:00Z), but zip files
   // have a different epoch. Oof. Make something sensible up.
-  private static final LocalDateTime DOS_EPOCH = LocalDateTime.of(1985, 2, 1, 0, 0);
+  private static final LocalDateTime DOS_EPOCH = LocalDateTime.of(2010, 1, 1, 0, 0);
   // ZIP timestamps have a resolution of 2 seconds.
   // see http://www.info-zip.org/FAQ.html#limits
   private static final long MINIMUM_TIMESTAMP_INCREMENT = 2000L;
