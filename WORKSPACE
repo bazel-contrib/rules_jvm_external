@@ -783,3 +783,28 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+maven_install(
+    name = "maven_resolved",
+    artifacts = [
+        "org.seleniumhq.selenium:selenium-java",
+        maven.artifact(
+            testonly = True,
+            artifact = "auto-value-annotations",
+            exclusions = [
+                "org.slf4j:slf4j-api",
+            ],
+            group = "com.google.auto.value",
+            version = "1.6.3",
+        ),
+    ],
+    boms = [
+        "org.seleniumhq.selenium:selenium-bom:4.14.1",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
+    resolver = "maven",
+)
+
+load("@maven_resolved//:defs.bzl", _maven_resolved_maven_install = "pinned_maven_install")
+
+_maven_resolved_maven_install()

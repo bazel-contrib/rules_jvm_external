@@ -61,7 +61,7 @@ public class ListPackagesTest {
   private void doTest(String runfileJar, String... expectedPackages) throws IOException {
     SortedSet<String> expected = sortedSet(expectedPackages);
     Path jar = Paths.get(Runfiles.create().rlocation(runfileJar));
-    SortedSet<String> packages = ListPackages.process(jar);
+    SortedSet<String> packages = new ListPackages().getPackages(jar);
     assertEquals(expected, packages);
   }
 

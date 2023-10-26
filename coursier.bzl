@@ -37,6 +37,7 @@ _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 {aar_import_statement}
 
@@ -80,14 +81,6 @@ sh_binary(
 )
 """
 
-_BUILD_PIN_ALIAS = """
-# Alias to unpinned to allow pinning
-alias(
-  name = "pin",
-  actual = "{unpinned_pin_target}",
-)
-"""
-
 _BUILD_OUTDATED = """
 sh_binary(
     name = "outdated",
@@ -107,6 +100,20 @@ sh_binary(
 """
 
 EMPTY_FILE_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+_IN_REPO_PIN = """
+pin_dependencies(
+    name = "pin",
+    boms = {boms},
+    artifacts = {artifacts},
+    excluded_artifacts = {excluded_artifacts},
+    repositories = {repos},
+    fetch_sources = {fetch_sources},
+    fetch_javadocs = {fetch_javadocs},
+    lock_file = {lock_file},
+    visibility = ["//visibility:public"],
+)
+"""
 
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
@@ -403,8 +410,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     artifacts = []
     for artifact in repository_ctx.attr.artifacts:
         artifacts.append(json.decode(artifact))
-
     _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
+
+    boms = []
+    for bom in repository_ctx.attr.boms:
+        boms.append(json.decode(bom))
+    _check_artifacts_are_unique(boms, repository_ctx.attr.duplicate_version_warning)
 
     # Read Coursier state from maven_install.json.
     repository_ctx.symlink(
@@ -621,15 +632,35 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         executable = False,
     )
 
+    if repository_ctx.attr.resolver == "coursier":
+        pin_target = ""
+    else:
+        package_path = repository_ctx.attr.maven_install_json.package
+        file_name = repository_ctx.attr.maven_install_json.name
+        if package_path == "":
+            lock_file_location = file_name  # e.g. some.json
+        else:
+            lock_file_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
+
+        pin_target = _IN_REPO_PIN.format(
+            boms = repr(repository_ctx.attr.boms),
+            artifacts = repr(repository_ctx.attr.artifacts),
+            excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
+            repos = repr(repository_ctx.attr.repositories),
+            fetch_sources = repr(repository_ctx.attr.fetch_sources),
+            fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
+            lock_file = repr(lock_file_location),
+        )
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_PIN_ALIAS + _BUILD_OUTDATED).format(
+        (_BUILD + _BUILD_OUTDATED).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
             unpinned_pin_target = unpinned_pin_target,
-        ),
+        ) + pin_target,
         executable = False,
     )
 
@@ -1275,8 +1306,10 @@ pinned_coursier_fetch = repository_rule(
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),
+        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "maven"], default = "coursier"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
+        "boms": attr.string_list(),  # list of bom objects, each as json
         "fetch_sources": attr.bool(default = False),
         "fetch_javadoc": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
@@ -1314,6 +1347,7 @@ pinned_coursier_fetch = repository_rule(
             doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default.",
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
+        "_workspace_label": attr.label(default = Label("@//does/not:exist")),
     },
     implementation = _pinned_coursier_fetch_impl,
 )

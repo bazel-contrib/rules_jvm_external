@@ -302,6 +302,15 @@ load("@bar//:defs.bzl", bar_pinned_maven_install = "pinned_maven_install")
 bar_pinned_maven_install()
 ```
 
+### Support for Maven BOM files
+
+Support for Maven BOMs can be enabled by switching the resolver used by `maven_install` to one that supports Maven BOMs.
+This can be done by setting the `resolver` attribute to `maven`. The new resolver will likely result in different
+resolutions than the existing resolver, so it is advised to re-run your dependencies pin.
+
+The new resolver requires you to use a `maven_install_json` file, though if you have not yet pinned your dependencies,
+this can simply be an empty file.
+
 ## Generated targets
 
 For the `junit:junit` example, using `bazel query @maven//:all --output=build`, we can see that the rule generated these targets:

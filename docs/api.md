@@ -174,12 +174,13 @@ Generated rules:
 ## maven_install
 
 <pre>
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-fetch_javadoc">fetch_javadoc</a>,
-              <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>,
-              <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>, <a href="#maven_install-strict_visibility_value">strict_visibility_value</a>,
-              <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>, <a href="#maven_install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>,
-              <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>,
-              <a href="#maven_install-duplicate_version_warning">duplicate_version_warning</a>, <a href="#maven_install-repin_instructions">repin_instructions</a>, <a href="#maven_install-ignore_empty_files">ignore_empty_files</a>)
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-boms">boms</a>, <a href="#maven_install-resolver">resolver</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>,
+              <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
+              <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
+              <a href="#maven_install-strict_visibility_value">strict_visibility_value</a>, <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>,
+              <a href="#maven_install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>, <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>,
+              <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven_install-duplicate_version_warning">duplicate_version_warning</a>,
+              <a href="#maven_install-repin_instructions">repin_instructions</a>, <a href="#maven_install-ignore_empty_files">ignore_empty_files</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -196,6 +197,8 @@ and fetch Maven artifacts transitively.
 | <a id="maven_install-name"></a>name |  A unique name for this Bazel external repository.   |  <code>"maven"</code> |
 | <a id="maven_install-repositories"></a>repositories |  A list of Maven repository URLs, specified in lookup order.<br><br>Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".   |  <code>[]</code> |
 | <a id="maven_install-artifacts"></a>artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact:version</code>.   |  <code>[]</code> |
+| <a id="maven_install-boms"></a>boms |  <p align="center"> - </p>   |  <code>[]</code> |
+| <a id="maven_install-resolver"></a>resolver |  <p align="center"> - </p>   |  <code>"coursier"</code> |
 | <a id="maven_install-fail_on_missing_checksum"></a>fail_on_missing_checksum |  fail the fetch if checksum attributes are not present.   |  <code>True</code> |
 | <a id="maven_install-fetch_sources"></a>fetch_sources |  Additionally fetch source JARs.   |  <code>False</code> |
 | <a id="maven_install-fetch_javadoc"></a>fetch_javadoc |  Additionally fetch javadoc JARs.   |  <code>False</code> |

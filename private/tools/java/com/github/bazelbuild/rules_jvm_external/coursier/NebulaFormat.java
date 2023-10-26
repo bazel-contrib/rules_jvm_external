@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -16,8 +17,9 @@ import java.util.stream.Collectors;
 public class NebulaFormat {
   private final Set<String> repositories;
 
-  public NebulaFormat(Set<String> repositories) {
-    this.repositories = repositories;
+  public NebulaFormat(Collection<String> repositories) {
+    // Ordering matters for the repositories
+    this.repositories = new LinkedHashSet<>(repositories);
   }
 
   public Map<String, Object> render(Set<DependencyInfo> infos, Map<String, Object> conflicts) {
@@ -136,7 +138,14 @@ public class NebulaFormat {
               uri.getPath(),
               uri.getQuery(),
               uri.getFragment());
-      return stripped.toString();
+
+      String toReturn = stripped.toString();
+
+      if (stripped.getQuery() == null && uri.getFragment() == null && !toReturn.endsWith("/")) {
+        toReturn += "/";
+      }
+
+      return toReturn;
     } catch (URISyntaxException e) {
       // Do nothing: we may not have been given a URI, but something like `m2local/`
     }

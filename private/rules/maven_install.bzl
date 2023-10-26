@@ -1,11 +1,14 @@
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
+load("//private/rules:generate_pin_repository.bzl", "generate_pin_repository")
 
 def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
         artifacts = [],
+        boms = [],
+        resolver = "coursier",
         fail_on_missing_checksum = True,
         fetch_sources = False,
         fetch_javadoc = False,
@@ -74,6 +77,12 @@ def maven_install(
       repin_instructions: Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.
       ignore_empty_files: Treat jars that are empty as if they were not found.
     """
+    if len(boms) and resolver == "coursier":
+        fail("The coursier resolver does not support resolving Maven BOMs. Please use another resolver.")
+
+    if resolver != "coursier" and not maven_install_json:
+        fail("Only the coursier resolver supports build time resolution. Please set `maven_install_json`. An empty file will work.")
+
     repositories_json_strings = []
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(_json.write_repository_spec(repository))
@@ -81,6 +90,10 @@ def maven_install(
     artifacts_json_strings = []
     for artifact in parse.parse_artifact_spec_list(artifacts):
         artifacts_json_strings.append(_json.write_artifact_spec(artifact))
+
+    boms_json_strings = []
+    for bom in parse.parse_artifact_spec_list(boms):
+        boms_json_strings.append(_json.write_artifact_spec(bom))
 
     excluded_artifacts_json_strings = []
     for exclusion in parse.parse_exclusion_spec_list(excluded_artifacts):
@@ -99,39 +112,46 @@ def maven_install(
     # to update the maven_install() declaration in the WORKSPACE, run
     # @unpinned_maven//:pin / Coursier to update maven_install.json, and bazel build
     # //... immediately after with the updated artifacts.
-
-    coursier_fetch(
-        # Name this repository "unpinned_{name}" if the user specified a
-        # maven_install.json file. The actual @{name} repository will be
-        # created from the maven_install.json file in the coursier_fetch
-        # invocation after this.
-        name = name if maven_install_json == None else "unpinned_" + name,
-        repositories = repositories_json_strings,
-        artifacts = artifacts_json_strings,
-        fail_on_missing_checksum = fail_on_missing_checksum,
-        fetch_sources = fetch_sources,
-        fetch_javadoc = fetch_javadoc,
-        excluded_artifacts = excluded_artifacts_json_strings,
-        generate_compat_repositories = generate_compat_repositories,
-        version_conflict_policy = version_conflict_policy,
-        override_targets = override_targets,
-        strict_visibility = strict_visibility,
-        strict_visibility_value = strict_visibility_value,
-        maven_install_json = maven_install_json,
-        resolve_timeout = resolve_timeout,
-        use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
-        use_starlark_android_rules = use_starlark_android_rules,
-        aar_import_bzl_label = aar_import_bzl_label,
-        duplicate_version_warning = duplicate_version_warning,
-        ignore_empty_files = ignore_empty_files,
-    )
+    if resolver != "coursier":
+        generate_pin_repository(
+            name = "unpinned_" + name,
+            unpinned_name = name,
+        )
+    else:
+        coursier_fetch(
+            # Name this repository "unpinned_{name}" if the user specified a
+            # maven_install.json file. The actual @{name} repository will be
+            # created from the maven_install.json file in the coursier_fetch
+            # invocation after this.
+            name = name if maven_install_json == None else "unpinned_" + name,
+            repositories = repositories_json_strings,
+            artifacts = artifacts_json_strings,
+            fail_on_missing_checksum = fail_on_missing_checksum,
+            fetch_sources = fetch_sources,
+            fetch_javadoc = fetch_javadoc,
+            excluded_artifacts = excluded_artifacts_json_strings,
+            generate_compat_repositories = generate_compat_repositories,
+            version_conflict_policy = version_conflict_policy,
+            override_targets = override_targets,
+            strict_visibility = strict_visibility,
+            strict_visibility_value = strict_visibility_value,
+            maven_install_json = maven_install_json,
+            resolve_timeout = resolve_timeout,
+            use_credentials_from_home_netrc_file = use_credentials_from_home_netrc_file,
+            use_starlark_android_rules = use_starlark_android_rules,
+            aar_import_bzl_label = aar_import_bzl_label,
+            duplicate_version_warning = duplicate_version_warning,
+            ignore_empty_files = ignore_empty_files,
+        )
 
     if maven_install_json != None:
         # Create the repository generated from a maven_install.json file.
         pinned_coursier_fetch(
             name = name,
+            resolver = resolver,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
+            boms = boms_json_strings,
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
             fetch_javadoc = fetch_javadoc,
