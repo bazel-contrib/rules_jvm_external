@@ -303,8 +303,8 @@ def compute_dependency_inputs_signature(artifacts, repositories, excluded_artifa
     for artifact in sorted(artifacts):
         artifact_inputs.append(_stable_artifact(artifact))
 
-    for artifacts in sorted(excluded_artifacts):
-        excluded_artifact_inputs.append(_stable_artifact(artifacts))
+    for artifact in sorted(excluded_artifacts):
+        excluded_artifact_inputs.append(_stable_artifact(artifact))
 
     v1_sig = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
 
@@ -366,10 +366,10 @@ def _fail_if_repin_required(repository_ctx):
     if not repository_ctx.attr.fail_if_repin_required:
         return False
 
-    return is_repin_required()
+    return is_repin_required(repository_ctx)
 
 def print_if_not_repinning(repository_ctx, *args):
-    if not is_repin_required(repository_ctx):
+    if is_repin_required(repository_ctx):
         return
     print(*args)
 

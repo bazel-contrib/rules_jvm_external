@@ -120,8 +120,8 @@ def _fail_if_different(attribute, current, next, allowed_default_values):
 
     fail("Expected values for '%s' to be either default or the same. Instead got: %s and %s" % (attribute, current, next))
 
-def _add_exclusions(exclusions, excluded_artifacts):
-    to_return = [] + excluded_artifacts
+def _add_exclusions(exclusions):
+    to_return = []
 
     for exclusion in parse.parse_exclusion_spec_list(exclusions):
         if exclusion not in to_return:
@@ -144,7 +144,6 @@ def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
 def _maven_impl(mctx):
     repos = {}
     overrides = {}
-    exclusions = {}
 
     # Iterate over all the tags we care about. For each `name` we want to construct
     # a dict with the following keys:
@@ -205,7 +204,7 @@ def _maven_impl(mctx):
 
             if artifact.exclusions:
                 artifact_exclusions = []
-                artifact_exclusions = _add_exclusions(artifact.exclusions, artifact_exclusions)
+                artifact_exclusions = _add_exclusions(artifact.exclusions + artifact_exclusions)
                 to_add.update({"exclusions": artifact_exclusions})
 
             existing_artifacts.append(to_add)
@@ -237,7 +236,7 @@ def _maven_impl(mctx):
                     ))
                 repo["lock_file"] = install.lock_file
 
-            repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + _add_exclusions(exclusions, install.excluded_artifacts)
+            repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
 
             _logical_or(repo, "fail_if_repin_required", False, install.fail_if_repin_required)
             _logical_or(repo, "fail_on_missing_checksum", False, install.fail_on_missing_checksum)
@@ -360,7 +359,7 @@ def _maven_impl(mctx):
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
-                excluded_artifacts = repo.get("excluded_artifacts"),
+                excluded_artifacts = excluded_artifacts_json,
             )
 
 maven = module_extension(
