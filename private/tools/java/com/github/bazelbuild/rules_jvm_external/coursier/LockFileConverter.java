@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -169,8 +170,8 @@ public class LockFileConverter {
           new DependencyInfo(
               coords,
               repos,
-              file == null ? null : Paths.get(file),
-              (String) coursierDep.get("sha256"),
+              Optional.ofNullable(file).map(Paths::get),
+              Optional.ofNullable((String) coursierDep.get("sha256")),
               directDeps,
               packages));
     }

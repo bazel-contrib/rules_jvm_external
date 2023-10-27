@@ -111,3 +111,17 @@ java_library(
         ),
     ],
 )
+
+# Depend on something from the maven-resolved repo to ensure that things like the
+# artifacts hash is consistent
+genquery(
+    name = "maven-resolved-is-ok",
+    testonly = True,
+    expression = "deps(@maven_resolved//:org_seleniumhq_selenium_selenium_java)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@maven_resolved//:org_seleniumhq_selenium_selenium_java"],
+    deps = [],
+)

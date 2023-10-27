@@ -2,8 +2,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.google.common.base.Strings;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class MavenRepositoryPath {
 
@@ -36,26 +34,5 @@ public class MavenRepositoryPath {
 
   public String getPath() {
     return path;
-  }
-
-  public URI getUri(URI baseUri) {
-    String path = baseUri.getPath();
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-    path += getPath();
-
-    try {
-      return new URI(
-          baseUri.getScheme(),
-          baseUri.getUserInfo(),
-          baseUri.getHost(),
-          baseUri.getPort(),
-          path,
-          baseUri.getQuery(),
-          baseUri.getFragment());
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

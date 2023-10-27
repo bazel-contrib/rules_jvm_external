@@ -51,6 +51,7 @@ def _pin_dependencies_impl(ctx):
     )
 
     input_hash = compute_dependency_inputs_signature(
+        ctx.attr.boms,
         ctx.attr.artifacts,
         ctx.attr.repositories,
         ctx.attr.excluded_artifacts,

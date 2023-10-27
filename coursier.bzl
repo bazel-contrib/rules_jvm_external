@@ -115,6 +115,14 @@ pin_dependencies(
 )
 """
 
+_BUILD_PIN_ALIAS = """
+# Alias to unpinned to allow pinning
+alias(
+  name = "pin",
+  actual = "{unpinned_pin_target}",
+)
+"""
+
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
@@ -319,9 +327,13 @@ def _stable_artifact(artifact):
 # upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def compute_dependency_inputs_signature(artifacts, repositories, excluded_artifacts):
+def compute_dependency_inputs_signature(boms, artifacts, repositories, excluded_artifacts):
     artifact_inputs = []
     excluded_artifact_inputs = []
+
+    if boms and len(boms):
+        for bom in sorted(boms):
+            artifact_inputs.append(_stable_artifact(bom))
 
     for artifact in sorted(artifacts):
         artifact_inputs.append(_stable_artifact(artifact))
@@ -489,6 +501,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         )
     else:
         computed_artifacts_hash, old_hashes = compute_dependency_inputs_signature(
+            repository_ctx.attr.boms,
             repository_ctx.attr.artifacts,
             repository_ctx.attr.repositories,
             repository_ctx.attr.excluded_artifacts,
@@ -504,7 +517,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 fail("%s_install.json contains an invalid input signature and must be regenerated. " % (user_provided_name) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
-                     "%s_install.json and re-pin the artifacts, either run:\n" % user_provided_name +
+                     "%s_install.json and re-pin the artifacts, please run:\n" % user_provided_name +
                      repin_instructions)
             else:
                 print_if_not_repinning(
@@ -633,7 +646,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     )
 
     if repository_ctx.attr.resolver == "coursier":
-        pin_target = ""
+        pin_target = _BUILD_PIN_ALIAS.format(unpinned_pin_target = unpinned_pin_target)
     else:
         package_path = repository_ctx.attr.maven_install_json.package
         file_name = repository_ctx.attr.maven_install_json.name
@@ -1170,6 +1183,10 @@ def _coursier_fetch_impl(repository_ctx):
     lock_file_contents = json.decode(result.stdout)
 
     inputs_hash, _ = compute_dependency_inputs_signature(
+        # We are in `coursier_fetch`, and we've decided to require lock files when
+        # using a resolver that can resolve using boms. As such, we lack the `boms`
+        # attr, so pass in an empty array here, which is what we expect.
+        [],
         repository_ctx.attr.artifacts,
         repository_ctx.attr.repositories,
         repository_ctx.attr.excluded_artifacts,

@@ -19,6 +19,19 @@ java_test(
 )
 
 java_test(
+    name = "CoordinatesTest",
+    srcs = ["CoordinatesTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.CoordinatesTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing",
+        ),
+    ],
+)
+
+java_test(
     name = "GlobalArtifactExclusionsTest",
     srcs = ["GlobalArtifactExclusionsTest.java"],
     test_class = "com.github.bazelbuild.rules_jvm_external.GlobalArtifactExclusionsTest",

@@ -1,91 +1,59 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.remote;
 
-import static com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent.Stage.COMPLETE;
-import static com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent.Stage.STARTING;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.http.HttpClient.Redirect.ALWAYS;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepositoryPath;
-import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
-import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.net.Authenticator;
-import java.net.ConnectException;
-import java.net.PasswordAuthentication;
-import java.net.ProxySelector;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.FileAlreadyExistsException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class Downloader {
 
   private static final Logger LOG = Logger.getLogger(Downloader.class.getName());
   // Lifted from RealisedMavenModuleResolveMetadata in Gradle's source
   private static final Set<String> JAR_PACKAGINGS =
-      ImmutableSet.of("jar", "ejb", "bundle", "maven-plugin", "eclipse-plugin");
+      Set.of("jar", "ejb", "bundle", "maven-plugin", "eclipse-plugin");
   // Packaging types (extensions) we know don't have fallbacks. I know `jar` is in both sets.
   private static final Set<String> NO_FALLBACK_PACKAGINGS =
-      ImmutableSet.of("jar", "tar.gz", "tar.bz2", "tar", "zip", "exe", "dll", "so");
-  private static final Set<String> NO_FALLBACK_CLASSIFIERS = ImmutableSet.of("sources", "javadoc");
+      Set.of("jar", "tar.gz", "tar.bz2", "tar", "zip", "exe", "dll", "so");
+  private static final Set<String> NO_FALLBACK_CLASSIFIERS = Set.of("sources", "javadoc");
   private final Path localRepository;
   private final Set<URI> repos;
-  private final EventListener listener;
-  private final Path outputDir;
   private final boolean cacheDownloads;
-  private final HttpClient client;
+  private final HttpDownloader httpDownloader;
 
   public Downloader(
       Netrc netrc,
       Path localRepository,
       Collection<URI> repositories,
       EventListener listener,
-      Path outputDir,
       boolean cacheDownloads) {
     this.localRepository = localRepository;
-    this.repos = ImmutableSet.copyOf(repositories);
-    this.listener = listener;
-    this.outputDir = outputDir;
+    this.repos = Set.copyOf(repositories);
     this.cacheDownloads = cacheDownloads;
-
-    HttpClient.Builder builder =
-        HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(300))
-            .followRedirects(ALWAYS)
-            .proxy(ProxySelector.getDefault());
-    Authenticator authenticator =
-        new Authenticator() {
-          @Override
-          protected PasswordAuthentication getPasswordAuthentication() {
-            String host = getRequestingHost();
-            Netrc.Credential credential = netrc.getCredential(host);
-            if (credential == null) {
-              return null;
-            }
-            return new PasswordAuthentication(
-                credential.account(), credential.password().toCharArray());
-          }
-        };
-    builder = builder.authenticator(authenticator);
-    client = builder.build();
+    this.httpDownloader = new HttpDownloader(netrc, listener);
   }
 
   public DownloadResult download(Coordinates coords) {
@@ -103,22 +71,57 @@ public class Downloader {
       result = performDownload(coords.setExtension("jar"));
     }
 
-    if (result == null) {
-      throw new UriNotFoundException("Unable to download from any repo: " + coords);
+    if (result != null) {
+      return result;
     }
-    return result;
+
+    // Are we dealing with a packaging dep? Download the `pom.xml` and check
+    String originalTarget = new MavenRepositoryPath(coords).getPath();
+    String pomName = String.format("%s-%s.pom", coords.getArtifactId(), coords.getVersion());
+    String pom = Paths.get(originalTarget).getParent().resolve(pomName).toString();
+
+    DownloadResult pomResult = performDownload(coords, pom);
+    if (pomResult == null) {
+      throw new RuntimeException("Unable to find pom result for " + coords + " -> " + pom);
+    }
+    if (pomResult.getPath().isPresent()) {
+      // Quick hack to try and get the packaging from the pom file. We
+      // _could_ try and build the model properly, but this quick and dirty
+      // check should be sufficient
+
+      try (InputStream is = Files.newInputStream(pomResult.getPath().get());
+          BufferedInputStream bis = new BufferedInputStream(is)) {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = builder.parse(bis);
+        doc.normalizeDocument();
+
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String value = xPath.compile("//project/packaging").evaluate(doc);
+
+        if ("pom".equals(value)) {
+          // We have an aggregating result.
+          return new DownloadResult(coords, pomResult.getRepositories(), null, null);
+        }
+      } catch (IOException
+          | ParserConfigurationException
+          | SAXException
+          | XPathExpressionException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    throw new UriNotFoundException("Unable to download from any repo: " + coords);
   }
 
-  private DownloadResult performDownload(Coordinates coords) {
-    MavenRepositoryPath repoPath = new MavenRepositoryPath(coords);
+  private DownloadResult performDownload(Coordinates coordsToUse, String path) {
+    Set<URI> repos = new LinkedHashSet<>();
 
-    ImmutableSet.Builder<URI> repos = ImmutableSet.builder();
-    Path path = null;
+    Path pathInRepo = null;
 
     // Check the local cache for the path first
-    Path cachedResult = localRepository.resolve(repoPath.getPath());
+    Path cachedResult = localRepository.resolve(path);
     if (Files.exists(cachedResult)) {
-      path = cachedResult;
+      pathInRepo = cachedResult;
     }
 
     String rjeAssumePresent = System.getenv("RJE_ASSUME_PRESENT");
@@ -129,27 +132,27 @@ public class Downloader {
 
     boolean downloaded = false;
     for (URI repo : this.repos) {
-      if (path == null) {
-        LOG.fine(String.format("Downloading %s%n", coords));
-        path = get(repo, repoPath);
-        if (path != null) {
+      if (pathInRepo == null) {
+        LOG.fine(String.format("Downloading %s%n", coordsToUse));
+        pathInRepo = httpDownloader.get(buildUri(repo, path));
+        if (pathInRepo != null) {
           repos.add(repo);
           downloaded = true;
 
-          if (cacheDownloads && !cachedResult.equals(path)) {
+          if (cacheDownloads && !cachedResult.equals(pathInRepo)) {
             try {
               Files.createDirectories(cachedResult.getParent());
-              Files.copy(path, cachedResult, REPLACE_EXISTING);
+              Files.copy(pathInRepo, cachedResult, REPLACE_EXISTING);
             } catch (IOException e) {
               throw new UncheckedIOException(e);
             }
           }
         }
       } else if (assumedDownloaded) { // path is set
-        LOG.fine(String.format("Assuming %s is cached%n", coords));
+        LOG.fine(String.format("Assuming %s is cached%n", coordsToUse));
         downloaded = true;
-      } else if (head(repo, repoPath)) { // path is set
-        LOG.fine(String.format("Checking head of %s%n", coords));
+      } else if (httpDownloader.head(buildUri(repo, path))) { // path is set
+        LOG.fine(String.format("Checking head of %s%n", coordsToUse));
         repos.add(repo);
         downloaded = true;
       }
@@ -159,9 +162,35 @@ public class Downloader {
       return null;
     }
 
-    String sha256 = calculateSha256(path);
+    String sha256 = calculateSha256(pathInRepo);
 
-    return new DownloadResult(coords, repos.build(), path, sha256);
+    return new DownloadResult(coordsToUse, Set.copyOf(repos), pathInRepo, sha256);
+  }
+
+  private URI buildUri(URI baseUri, String pathInRepo) {
+    String path = baseUri.getPath();
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
+    path += pathInRepo;
+
+    try {
+      return new URI(
+          baseUri.getScheme(),
+          baseUri.getUserInfo(),
+          baseUri.getHost(),
+          baseUri.getPort(),
+          path,
+          baseUri.getQuery(),
+          baseUri.getFragment());
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private DownloadResult performDownload(Coordinates coords) {
+    MavenRepositoryPath repoPath = new MavenRepositoryPath(coords);
+    return performDownload(coords, repoPath.getPath());
   }
 
   private boolean isFallbackAvailable(Coordinates coords) {
@@ -179,93 +208,6 @@ public class Downloader {
     }
 
     return !JAR_PACKAGINGS.contains(extension);
-  }
-
-  private Path get(URI repo, MavenRepositoryPath repoPath) {
-    URI uriToGet = repoPath.getUri(repo);
-
-    if ("file".equals(uriToGet.getScheme())) {
-      Path path = Paths.get(uriToGet);
-      if (Files.exists(path)) {
-        return path;
-      }
-      return null;
-    }
-
-    HttpRequest request = startPreparingRequest(uriToGet).GET().build();
-
-    HttpResponse<InputStream> response =
-        makeRequest(request, HttpResponse.BodyHandlers.ofInputStream());
-    if (!isSuccessful(response)) {
-      return null;
-    }
-
-    String fileName = repoPath.getPath();
-
-    Path path = outputDir.resolve(fileName);
-    try {
-      Files.createDirectories(path.getParent());
-
-      try (OutputStream os = Files.newOutputStream(path, CREATE_NEW);
-          BufferedOutputStream bos = new BufferedOutputStream(os)) {
-        response.body().transferTo(bos);
-      }
-    } catch (FileAlreadyExistsException e) {
-      // Race condition, file already downloaded
-      return path;
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-
-    return path;
-  }
-
-  private boolean head(URI repo, MavenRepositoryPath repoPath) {
-    URI uriToGet = repoPath.getUri(repo);
-
-    if ("file".equals(uriToGet.getScheme())) {
-      Path path = Paths.get(uriToGet);
-      return Files.exists(path);
-    }
-
-    HttpRequest request =
-        startPreparingRequest(uriToGet).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
-
-    HttpResponse<Void> response = makeRequest(request, HttpResponse.BodyHandlers.discarding());
-
-    return isSuccessful(response);
-  }
-
-  private <X> HttpResponse<X> makeRequest(
-      HttpRequest request, HttpResponse.BodyHandler<X> handler) {
-    listener.onEvent(new DownloadEvent(STARTING, request.uri().toString()));
-    LOG.fine("Downloading " + request.uri());
-
-    try {
-      return client.send(request, handler);
-    } catch (ConnectException e) {
-      // Unable to connect to the remote server. Report the URL as not being found
-      return new EmptyResponse<>(request, HTTP_NOT_FOUND);
-    } catch (IOException e) {
-      // But in all other cases, get very upset.
-      throw new UncheckedIOException(e);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
-    } finally {
-      listener.onEvent(new DownloadEvent(COMPLETE, request.uri().toString()));
-    }
-  }
-
-  private HttpRequest.Builder startPreparingRequest(URI uri) {
-    return HttpRequest.newBuilder()
-        .uri(uri)
-        .header("User-Agent", "rules_jvm_external resolver")
-        .timeout(Duration.ofMinutes(10));
-  }
-
-  private boolean isSuccessful(HttpResponse<?> response) {
-    return response.statusCode() > 199 && response.statusCode() < 300;
   }
 
   private String calculateSha256(Path path) {

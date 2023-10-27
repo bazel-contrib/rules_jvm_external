@@ -52,7 +52,7 @@ public class NebulaFormat {
             shortKey += ":" + coords.getExtension();
           }
 
-          if (info.getPath() == null || info.getSha256() == null) {
+          if (info.getPath().isEmpty() || info.getSha256().isEmpty()) {
             skipped.add(key);
           }
 
@@ -60,14 +60,16 @@ public class NebulaFormat {
               artifacts.computeIfAbsent(shortKey, k -> new TreeMap<>());
           artifactValue.put("version", coords.getVersion());
 
-          String classifier = coords.getClassifier();
-          if (classifier == null || classifier.isEmpty()) {
+          String classifier;
+          if (coords.getClassifier() == null || coords.getClassifier().isEmpty()) {
             classifier = "jar";
+          } else {
+            classifier = coords.getClassifier();
           }
           @SuppressWarnings("unchecked")
           Map<String, String> shasums =
               (Map<String, String>) artifactValue.computeIfAbsent("shasums", k -> new TreeMap<>());
-          shasums.put(classifier, info.getSha256());
+          info.getSha256().ifPresent(sha -> shasums.put(classifier, sha));
 
           info.getRepositories().stream()
               .map(Objects::toString)
@@ -86,14 +88,14 @@ public class NebulaFormat {
                   .collect(Collectors.toCollection(TreeSet::new)));
           packages.put(key, info.getPackages());
 
-          if (info.getPath() != null) {
+          if (info.getPath().isPresent()) {
             // Regularise paths to UNIX format
-            files.put(key, info.getPath().toString().replace('\\', '/'));
+            files.put(key, info.getPath().get().toString().replace('\\', '/'));
           }
         });
 
     Map<String, Object> lock = new LinkedHashMap<>();
-    lock.put("artifacts", artifacts);
+    lock.put("artifacts", ensureArtifactsAllHaveAtLeastOneShaSum(artifacts));
     lock.put("dependencies", removeEmptyItems(deps));
     lock.put("packages", removeEmptyItems(packages));
     if (isUsingM2Local) {
@@ -110,6 +112,19 @@ public class NebulaFormat {
     lock.put("version", "2");
 
     return lock;
+  }
+
+  private Map<String, Map<String, Object>> ensureArtifactsAllHaveAtLeastOneShaSum(
+      Map<String, Map<String, Object>> artifacts) {
+    for (Map<String, Object> item : artifacts.values()) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> shasums = (Map<String, Object>) item.get("shasums");
+      if (shasums == null || !shasums.isEmpty()) {
+        continue;
+      }
+      shasums.put("jar", null);
+    }
+    return artifacts;
   }
 
   private <K, V extends Collection> Map<K, V> removeEmptyItems(Map<K, V> input) {

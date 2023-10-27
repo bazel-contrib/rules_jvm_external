@@ -41,8 +41,8 @@ public class Coordinates implements Comparable<Coordinates> {
       classifier = "";
       version = parts[3];
     } else {
-      extension = parts[2];
-      classifier = parts[3];
+      extension = "".equals(parts[2]) ? "jar" : parts[2];
+      classifier = "jar".equals(parts[3]) ? "" : parts[3];
       version = parts[4];
     }
   }
@@ -52,7 +52,8 @@ public class Coordinates implements Comparable<Coordinates> {
     this.groupId = Objects.requireNonNull(groupId, "Group ID");
     this.artifactId = Objects.requireNonNull(artifactId, "Artifact ID");
     this.extension = extension == null || extension.isEmpty() ? "jar" : extension;
-    this.classifier = classifier == null || classifier.isEmpty() ? "" : classifier;
+    this.classifier =
+        classifier == null || classifier.isEmpty() || "jar".equals(classifier) ? "" : classifier;
     this.version = version == null || version.isEmpty() ? "" : version;
   }
 

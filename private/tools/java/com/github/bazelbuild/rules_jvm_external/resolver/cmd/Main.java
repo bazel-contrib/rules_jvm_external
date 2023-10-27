@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -48,10 +49,8 @@ public class Main {
       ImmutableSet.of("artifacts", "dependencies", "packages", "repositories", "version");
 
   public static void main(String[] args) throws IOException {
-    Path outputDir = Files.createTempDirectory("resolver");
-
-    Set<DependencyInfo> infos = null;
-    Path output = null;
+    Set<DependencyInfo> infos;
+    Path output;
     try (EventListener listener = createEventListener()) {
       Config config = new Config(listener, args);
 
@@ -61,7 +60,7 @@ public class Main {
 
       Graph<Coordinates> resolved = resolver.resolve(request);
 
-      infos = getInfos(listener, config, outputDir, resolved);
+      infos = getInfos(listener, config, resolved);
 
       listener.onEvent(new PhaseEvent("Building lock file"));
       output = config.getOutput();
@@ -115,16 +114,16 @@ public class Main {
   private static EventListener createEventListener() {
     boolean termAvailable = !Objects.equals(System.getenv().get("TERM"), "dumb");
     boolean consoleAvailable = System.console() != null;
-    if (termAvailable && consoleAvailable) {
-      return new AnsiConsoleListener();
-    } else if (System.getenv("RJE_VERBOSE") != null) {
+    if (System.getenv("RJE_VERBOSE") != null) {
       return new PlainConsoleListener();
-    }
+    } else if (termAvailable && consoleAvailable) {
+      return new AnsiConsoleListener();
+    } 
     return new NullListener();
   }
 
   private static Set<DependencyInfo> getInfos(
-      EventListener listener, Config config, Path outputDir, Graph<Coordinates> resolved) {
+      EventListener listener, Config config, Graph<Coordinates> resolved) {
     listener.onEvent(new PhaseEvent("Downloading dependencies"));
 
     ResolutionRequest request = config.getResolutionRequest();
@@ -140,7 +139,6 @@ public class Main {
             request.getLocalCache(),
             request.getRepositories(),
             listener,
-            outputDir,
             cacheResults);
 
     List<CompletableFuture<Set<DependencyInfo>>> futures = new LinkedList<>();
@@ -225,11 +223,16 @@ public class Main {
     DownloadResult result = downloader.download(coords);
 
     SortedSet<String> packages;
-    try {
-      packages = new ListPackages().getPackages(result.getPath());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+    if (result.getPath().isPresent()) {
+      try {
+        packages = new ListPackages().getPackages(result.getPath().get());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    } else {
+      packages = new TreeSet<>();
     }
+
     toReturn.add(
         new DependencyInfo(
             coords,

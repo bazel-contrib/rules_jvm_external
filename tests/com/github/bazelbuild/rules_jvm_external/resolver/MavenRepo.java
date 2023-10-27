@@ -33,50 +33,72 @@ public class MavenRepo {
     }
   }
 
+  public MavenRepo add(Model item, Coordinates... deps) {
+    // The coordinates we use need not be terribly complicated
+    Coordinates coords =
+        new Coordinates(
+            item.getGroupId(), item.getArtifactId(), item.getPackaging(), null, item.getVersion());
+
+    return add(coords, item, deps);
+  }
+
   public MavenRepo add(Coordinates coords, Coordinates... deps) {
+    Model model = new Model();
+    model.setGroupId(coords.getGroupId());
+    model.setArtifactId(coords.getArtifactId());
+    model.setVersion(coords.getVersion());
+
+    return add(coords, model, deps);
+  }
+
+  private MavenRepo add(Coordinates coords, Model ofCoordinates, Coordinates... deps) {
     try {
-      // Create the directory
-      Path dir = root.resolve(new MavenRepositoryPath(coords).getPath()).getParent();
-      Files.createDirectories(dir);
+      writePomFile(ofCoordinates, deps);
+      if (!"pom".equals(coords.getExtension())) {
+        writeFile(coords);
+      }
 
-      writePomFile(dir, coords, deps);
-      writeFile(coords);
-
-      Files.createDirectories(dir);
       return this;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
 
-  private void writePomFile(Path dir, Coordinates coords, Coordinates... deps) throws IOException {
-    Model model = new Model();
+  public MavenRepo writePomFile(Model model) throws IOException {
     model.setModelVersion("4.0.0");
-    model.setGroupId(coords.getGroupId());
-    model.setArtifactId(coords.getArtifactId());
-    model.setVersion(coords.getVersion());
 
+    Coordinates coords =
+        new Coordinates(model.getGroupId(), model.getArtifactId(), null, null, model.getVersion());
+    Path dir = root.resolve(new MavenRepositoryPath(coords).getPath()).getParent();
+    Files.createDirectories(dir);
+
+    Path pomFile = dir.resolve(model.getArtifactId() + "-" + model.getVersion() + ".pom");
+    try (BufferedWriter writer = Files.newBufferedWriter(pomFile)) {
+      new MavenXpp3Writer().write(writer, model);
+    }
+    writeSha1File(pomFile);
+
+    return this;
+  }
+
+  private void writePomFile(Model model, Coordinates... deps) throws IOException {
     for (Coordinates dep : deps) {
       Dependency mavenDep = new Dependency();
       mavenDep.setGroupId(dep.getGroupId());
       mavenDep.setArtifactId(dep.getArtifactId());
       mavenDep.setVersion(dep.getVersion());
-      mavenDep.setClassifier(dep.getClassifier());
+      if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
+        mavenDep.setClassifier(dep.getClassifier());
+      }
       mavenDep.setType(dep.getExtension());
 
       model.addDependency(mavenDep);
     }
 
-    Path pomFile = dir.resolve(coords.getArtifactId() + "-" + coords.getVersion() + ".pom");
-    try (BufferedWriter writer = Files.newBufferedWriter(pomFile)) {
-      new MavenXpp3Writer().write(writer, model);
-    }
-    writeSha1File(pomFile);
+    writePomFile(model);
   }
 
   private void writeFile(Coordinates coords) throws IOException {
-    String ext = coords.getExtension();
-
     Path output = root.resolve(new MavenRepositoryPath(coords).getPath());
     // We don't read the contents, it just needs to exist
     Files.write(output, "Hello, World!".getBytes(UTF_8));

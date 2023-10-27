@@ -20,12 +20,16 @@ class ConsoleRepositoryListener extends AbstractRepositoryListener implements Cl
 
   @Override
   public void artifactDownloading(RepositoryEvent event) {
-    listener.onEvent(new DownloadEvent(STARTING, MavenCoordinates.asString(event.getArtifact())));
+    listener.onEvent(
+        new DownloadEvent(
+            STARTING, MavenCoordinates.asCoordinates(event.getArtifact()).toString()));
   }
 
   @Override
   public void artifactDownloaded(RepositoryEvent event) {
-    listener.onEvent(new DownloadEvent(COMPLETE, MavenCoordinates.asString(event.getArtifact())));
+    listener.onEvent(
+        new DownloadEvent(
+            COMPLETE, MavenCoordinates.asCoordinates(event.getArtifact()).toString()));
   }
 
   public void setPhase(String phaseDescription) {

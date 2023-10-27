@@ -1,5 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.cmd;
 
+import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
@@ -143,15 +144,12 @@ public class Config {
           .getArtifacts()
           .forEach(
               art -> {
-                StringBuilder coords = new StringBuilder();
-                coords.append(art.getGroupId()).append(":").append(art.getArtifactId());
-                if (art.getExtension() != null) {
-                  coords.append(":").append(art.getExtension());
-                }
-                if (art.getClassifier() != null) {
-                  coords.append(":").append(art.getClassifier());
-                }
-                coords.append(":").append(art.getVersion());
+                Coordinates coords = new Coordinates(
+                        art.getGroupId(),
+                        art.getArtifactId(),
+                        art.getExtension(),
+                        art.getClassifier(),
+                        art.getVersion());
                 request.addArtifact(
                     coords.toString(),
                     art.getExclusions().stream()

@@ -96,6 +96,7 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    resolver = "coursier",
 )
 
 load("@maven//:defs.bzl", "pinned_maven_install")
@@ -170,6 +171,20 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+)
+
+load("@multiple_lock_files//:defs.bzl", _multiple_lock_files_pinned_maven_install = "pinned_maven_install")
+
+_multiple_lock_files_pinned_maven_install()
+
+maven_install(
+    name = "testing",
+    artifacts = [
+        "com.fasterxml.jackson:jackson-bom:2.9.10",
+        "com.github.fommil.netlib:all:1.1.2",
+    ],
+    maven_install_json = "@//:foo.json",
+    resolver = "maven",
 )
 
 # These artifacts helped discover limitations by the Maven resolver. Each

@@ -478,6 +478,10 @@ get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test = ad
 def _calculate_inputs_hash_does_not_care_about_input_order_test(ctx):
     env = unittest.begin(ctx)
 
+    boms1 = [
+        """{"group": "first", "artifact": "bom", "version": "version"}""",
+        """{"group": "second", "artifact": "bom", "version": "version"}""",
+    ]
     artifacts1 = [
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
         """{"group": "second", "artifact": "artifact", "version": "version"}""",
@@ -487,6 +491,10 @@ def _calculate_inputs_hash_does_not_care_about_input_order_test(ctx):
         "https://repo1.maven.org/maven2",
     ]
 
+    boms2 = [
+        """{"group": "second", "artifact": "bom", "version": "version"}""",
+        """{"group": "first", "artifact": "bom", "version": "version"}""",
+    ]
     artifacts2 = [
         """{"group": "second", "artifact": "artifact", "version": "version"}""",
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
@@ -497,10 +505,8 @@ def _calculate_inputs_hash_does_not_care_about_input_order_test(ctx):
     ]
 
     # Order of artifacts is switched in each hash
-    hash1, _ = compute_dependency_inputs_signature(artifacts1, repositories1, artifacts2)
-    hash2, _ = compute_dependency_inputs_signature(artifacts2, repositories2, artifacts1)
-
-    asserts.equals(env, hash1, hash2)
+    hash1, _ = compute_dependency_inputs_signature(boms1, artifacts1, repositories1, artifacts2)
+    hash2, _ = compute_dependency_inputs_signature(boms2, artifacts2, repositories2, artifacts1)
 
     asserts.equals(env, hash1, hash2)
 
@@ -511,6 +517,10 @@ calculate_inputs_hash_does_not_care_about_input_order_test = add_test(_calculate
 def _calculate_inputs_hash_is_different_for_different_repositories_test(ctx):
     env = unittest.begin(ctx)
 
+    boms1 = [
+        """{"group": "first", "artifact": "bom", "version": "version"}""",
+        """{"group": "second", "artifact": "bom", "version": "version"}""",
+    ]
     artifacts1 = [
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
         """{"group": "second", "artifact": "artifact", "version": "version"}""",
@@ -520,6 +530,10 @@ def _calculate_inputs_hash_is_different_for_different_repositories_test(ctx):
         "https://repo1.maven.org/maven2",
     ]
 
+    boms2 = [
+        """{"group": "second", "artifact": "bom", "version": "version"}""",
+        """{"group": "first", "artifact": "bom", "version": "version"}""",
+    ]
     artifacts2 = [
         """{"group": "second", "artifact": "artifact", "version": "version"}""",
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
@@ -529,8 +543,8 @@ def _calculate_inputs_hash_is_different_for_different_repositories_test(ctx):
     ]
 
     # Order of artifacts is switched in each hash
-    hash1, _ = compute_dependency_inputs_signature(artifacts1, repositories1, [])
-    hash2, _ = compute_dependency_inputs_signature(artifacts2, repositories2, [])
+    hash1, _ = compute_dependency_inputs_signature(boms1, artifacts1, repositories1, [])
+    hash2, _ = compute_dependency_inputs_signature(boms2, artifacts2, repositories2, [])
 
     asserts.false(env, hash1 == hash2)
 
@@ -541,6 +555,10 @@ calculate_inputs_hash_is_different_for_different_repositories_test = add_test(_c
 def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
     env = unittest.begin(ctx)
 
+    boms1 = [
+        """{"group": "first", "artifact": "bom", "version": "version"}""",
+        """{"group": "second", "artifact": "bom", "version": "version"}""",
+    ]
     artifacts1 = [
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
         """{"group": "second", "artifact": "artifact", "version": "version"}""",
@@ -550,6 +568,10 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
         "https://repo1.maven.org/maven2",
     ]
 
+    boms2 = [
+        """{"group": "second", "artifact": "bom", "version": "version"}""",
+        """{"group": "first", "artifact": "bom", "version": "version"}""",
+    ]
     artifacts2 = [
         """{"group": "second", "artifact": "artifact", "version": "version"}""",
         """{"group": "first", "artifact": "artifact", "version": "version"}""",
@@ -557,8 +579,8 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
 
     excluded1 = ["""{"group": "first", "artifact": "artifact", "version": "version1"}"""]
     excluded2 = ["""{"group": "first", "artifact": "artifact", "version": "version2"}"""]
-    hash1, old_hashes1 = compute_dependency_inputs_signature(artifacts1, repositories1, excluded1)
-    hash2, old_hashes2 = compute_dependency_inputs_signature(artifacts1, repositories1, excluded2)
+    hash1, old_hashes1 = compute_dependency_inputs_signature(boms1, artifacts1, repositories1, excluded1)
+    hash2, old_hashes2 = compute_dependency_inputs_signature(boms2, artifacts1, repositories1, excluded2)
 
     asserts.false(env, hash1 == hash2)
     asserts.true(env, old_hashes1[0] == old_hashes2[0])

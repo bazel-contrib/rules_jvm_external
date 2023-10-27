@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,16 +13,16 @@ public class DependencyInfo {
 
   private final Coordinates coordinates;
   private final Set<URI> repos;
-  private final Path path;
-  private final String sha256;
+  private final Optional<Path> path;
+  private final Optional<String> sha256;
   private final Set<Coordinates> dependencies;
   private final Set<String> packages;
 
   public DependencyInfo(
       Coordinates coordinates,
       Set<URI> repos,
-      Path path,
-      String sha256,
+      Optional<Path> path,
+      Optional<String> sha256,
       Set<Coordinates> dependencies,
       Set<String> packages) {
     this.coordinates = coordinates;
@@ -41,7 +42,7 @@ public class DependencyInfo {
     return repos;
   }
 
-  public String getSha256() {
+  public Optional<String> getSha256() {
     return sha256;
   }
 
@@ -53,7 +54,7 @@ public class DependencyInfo {
     return packages;
   }
 
-  public Path getPath() {
+  public Optional<Path> getPath() {
     return path;
   }
 

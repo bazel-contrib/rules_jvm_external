@@ -125,11 +125,12 @@ public class MavenResolver implements Resolver {
     RepositorySystem system = createRepositorySystem();
     ConsoleRepositoryListener consoleLog = new ConsoleRepositoryListener(listener);
     ErrorReportingListener errors = new ErrorReportingListener();
+    CoordinateGatheringListener coordsListener = new CoordinateGatheringListener();
     RepositorySystemSession session =
         prepareSession(
             system,
             new DefaultDependencyManager(),
-            new CompoundListener(consoleLog, errors),
+            new CompoundListener(consoleLog, errors, coordsListener),
             request.getLocalCache());
 
     List<RemoteRepository> repositories = new ArrayList<>(repos.size());
@@ -155,7 +156,10 @@ public class MavenResolver implements Resolver {
         new DefaultDependencyManager().deriveChildManager(depCollectionContext);
     session =
         prepareSession(
-            system, derived, new CompoundListener(consoleLog, errors), request.getLocalCache());
+            system,
+            derived,
+            new CompoundListener(consoleLog, errors, coordsListener),
+            request.getLocalCache());
 
     consoleLog.setPhase("Gathering direct dependency coordinates");
     List<DependencyNode> directDependencies =
@@ -171,7 +175,7 @@ public class MavenResolver implements Resolver {
       throw new RuntimeException(exception);
     }
 
-    return buildGraph(directDependencies);
+    return buildGraph(coordsListener.getRemappings(), directDependencies);
   }
 
   private List<Dependency> overrideDependenciesWithUserChoices(
@@ -244,29 +248,48 @@ public class MavenResolver implements Resolver {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private Graph<Coordinates> buildGraph(Collection<DependencyNode> directDependencies) {
+  private Graph<Coordinates> buildGraph(
+      Map<Coordinates, Coordinates> remappings, Collection<DependencyNode> directDependencies) {
     MutableGraph<Coordinates> toReturn = GraphBuilder.directed().allowsSelfLoops(true).build();
     DependencyVisitor collector =
         new TreeDependencyVisitor(
             new DependencyNodeVisitor(
                 node -> {
-                  String source = MavenCoordinates.asString(node.getArtifact());
-                  Coordinates from = new Coordinates(source);
-                  toReturn.addNode(from);
+                  Artifact artifact = amendArtifact(node.getArtifact());
+                  Coordinates from = MavenCoordinates.asCoordinates(artifact);
+                  Coordinates remapped = remappings.getOrDefault(from, from);
+                  toReturn.addNode(remapped);
 
                   node.getChildren().stream()
                       .map(DependencyNode::getArtifact)
-                      .map(MavenCoordinates::asString)
-                      .map(Coordinates::new)
+                      .map(this::amendArtifact)
+                      .map(MavenCoordinates::asCoordinates)
+                      .map(c -> remappings.getOrDefault(c, c))
                       .forEach(
                           to -> {
                             toReturn.addNode(to);
-                            toReturn.putEdge(from, to);
+                            toReturn.putEdge(remapped, to);
                           });
                 }));
     directDependencies.forEach(node -> node.accept(collector));
 
     return ImmutableGraph.copyOf(toReturn);
+  }
+
+  private Artifact amendArtifact(Artifact artifact) {
+    // If someone has depended on an aggregating pom, the `type` or `extension` will be `pom`.
+    // However, in `rules_jvm_external`, we pretend that these are actually `jar` files, and
+    // then make things up from there.
+    if (!"pom".equals(artifact.getExtension())) {
+      return artifact;
+    }
+
+    return new DefaultArtifact(
+        artifact.getGroupId(),
+        artifact.getArtifactId(),
+        artifact.getClassifier(),
+        null,
+        artifact.getVersion());
   }
 
   private DefaultRepositorySystemSession prepareSession(
@@ -287,6 +310,23 @@ public class MavenResolver implements Resolver {
 
     // Only resolve from repos that we have been asked to use.
     session.setIgnoreArtifactDescriptorRepositories(true);
+
+    Map<Object, Object> configProperties = new HashMap<>();
+    configProperties.putAll(System.getProperties());
+
+    // Use the breadth-first dependency collector. This allows us to work out the dependency graph
+    // in parallel.
+    // This only applies to the step where we calculate the dependency graph, not the actual
+    // downloading of those
+    // dependencies (which is handled by the `Downloader`.
+    configProperties.put("aether.dependencyCollector.impl", "bf");
+    // And set the number of threads to use when figuring out how many dependencies to download in
+    // parallel.
+    configProperties.put(
+        "maven.artifact.threads", String.valueOf(Runtime.getRuntime().availableProcessors()));
+    session.setConfigProperties(Map.copyOf(configProperties));
+
+    session.setSystemProperties(System.getProperties());
 
     return session;
   }

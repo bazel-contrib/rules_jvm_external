@@ -1,25 +1,29 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
+import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenPackagingMappings.mapPackagingToExtension;
+import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenPackagingMappings.mapPackingToClassifier;
+
+import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.Exclusion;
 
 class MavenCoordinates {
 
-  public static String asString(Exclusion exclusion) {
-    return construct(
-        exclusion.getGroupId(),
-        exclusion.getArtifactId(),
-        exclusion.getExtension(),
-        exclusion.getClassifier(),
-        null);
-  }
+  public static Coordinates asCoordinates(Artifact artifact) {
+    // Please excuse the sleight-of-hand here. Turns out that we need to do some finagaling of the
+    // `Artifact` to have a string
+    // we can convert to a `Coordinate`.
 
-  public static String asString(Artifact artifact) {
-    return construct(
+    String classifier = artifact.getClassifier();
+
+    if (classifier == null || classifier.isEmpty()) {
+      classifier = mapPackingToClassifier(artifact.getExtension());
+    }
+
+    return new Coordinates(
         artifact.getGroupId(),
         artifact.getArtifactId(),
-        artifact.getExtension(),
-        artifact.getClassifier(),
+        mapPackagingToExtension(artifact.getExtension()),
+        classifier,
         artifact.getVersion());
   }
 

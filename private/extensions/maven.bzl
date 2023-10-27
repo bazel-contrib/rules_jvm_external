@@ -17,6 +17,8 @@ DEFAULT_REPOSITORIES = [
 
 DEFAULT_NAME = "maven"
 
+_DEFAULT_RESOLVER = "coursier"
+
 _artifact = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
@@ -39,11 +41,15 @@ _install = tag_class(
 
         # Actual artifacts and overrides
         "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
+        "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
 
         # What do we fetch?
         "fetch_javadoc": attr.bool(default = False),
         "fetch_sources": attr.bool(default = False),
+
+        # How do we do artifact resolution?
+        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "maven"], default = _DEFAULT_RESOLVER),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
@@ -267,8 +273,13 @@ def _maven_impl(mctx):
 
             repo = repos.get(install.name, {})
 
+            repo["resolver"] = install.resolver
+
             artifacts = repo.get("artifacts", [])
             repo["artifacts"] = artifacts + install.artifacts
+
+            boms = repo.get("boms", [])
+            repo["boms"] = boms + install.boms
 
             existing_repos = repo.get("repositories", [])
             for repository in parse.parse_repository_spec_list(install.repositories):
@@ -331,7 +342,6 @@ def _maven_impl(mctx):
             repos[install.name] = repo
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
-
     repo_to_lock_file = {}
     for mod in mctx.modules:
         for install in mod.tags.install:
@@ -359,6 +369,8 @@ def _maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
+        boms = parse.parse_artifact_spec_list(repo.get("boms", []))
+        boms_json = [_json.write_artifact_spec(a) for a in boms]
         artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
         artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
         excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
@@ -371,6 +383,8 @@ def _maven_impl(mctx):
                 if repo_string not in existing_repos:
                     existing_repos.append(repo_string)
             repo["repositories"] = existing_repos
+
+        #        print(name, "artifacts ->", artifacts)
 
         coursier_fetch(
             # Name this repository "unpinned_{name}" if the user specified a
@@ -431,9 +445,11 @@ def _maven_impl(mctx):
                 name = name,
                 user_provided_name = name,
                 repositories = repo.get("repositories"),
+                boms = boms_json,
                 artifacts = artifacts_json,
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
+                resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
                 override_targets = overrides,
