@@ -3,6 +3,9 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 java_binary(
     name = "AddJarManifestEntry",
     srcs = ["AddJarManifestEntry.java"],
+    # Disable perfdata to avoid warning on Linux hosts (https://github.com/bazelbuild/bazel/issues/3236)
+    # [warning][perf,memops] Cannot use file /tmp/hsperfdata_user/2 because it is locked by another process (errno = 11)
+    jvm_flags = ["-XX:-UsePerfData"],
     main_class = "com.github.bazelbuild.rules_jvm_external.jar.AddJarManifestEntry",
     visibility = [
         "//visibility:public",
