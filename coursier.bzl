@@ -373,6 +373,13 @@ def print_if_not_repinning(repository_ctx, *args):
         return
     print(*args)
 
+def _contains_git_conflict_markers(file_name, lock_file_content):
+    for line in lock_file_content.splitlines:
+        if line.startswith("<<<<<<<"):
+            print("Conflict markers detected in lock file {}. You should reset the file and repin your dependencies".format(file_name))
+            return True
+    return False
+
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -395,7 +402,16 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path(repository_ctx.attr.maven_install_json),
         repository_ctx.path("imported_maven_install.json"),
     )
-    maven_install_json_content = json.decode(repository_ctx.read(repository_ctx.attr.maven_install_json))
+    lock_file_content = repository_ctx.read(repository_ctx.attr.maven_install_json)
+    if not len(lock_file_content) or _contains_git_conflict_markers(repository_ctx.attr.maven_install_json, lock_file_content):
+        maven_install_json_content = {
+            "artifacts": {},
+            "dependencies": {},
+            "repositories": {},
+            "version": "2",
+        }
+    else:
+        maven_install_json_content = json.decode(repository_ctx.read(repository_ctx.attr.maven_install_json))
 
     if v1_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v1_lock_file
