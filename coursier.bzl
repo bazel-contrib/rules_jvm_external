@@ -374,7 +374,7 @@ def print_if_not_repinning(repository_ctx, *args):
     print(*args)
 
 def _contains_git_conflict_markers(file_name, lock_file_content):
-    for line in lock_file_content.splitlines:
+    for line in lock_file_content.splitlines():
         if line.startswith("<<<<<<<"):
             print("Conflict markers detected in lock file {}. You should reset the file and repin your dependencies".format(file_name))
             return True
