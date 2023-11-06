@@ -76,14 +76,13 @@ public class MavenPublisher {
     }
 
     boolean gpgSign = Boolean.parseBoolean(System.getenv("GPG_SIGN"));
-    Credentials credentials = new BasicAuthCredentials(
-            System.getenv("MAVEN_USER"),
-            System.getenv("MAVEN_PASSWORD")
-    );
+    Credentials credentials =
+        new BasicAuthCredentials(System.getenv("MAVEN_USER"), System.getenv("MAVEN_PASSWORD"));
 
     List<String> parts = Arrays.asList(args[0].split(":"));
     if (parts.size() != 3) {
-      throw new IllegalArgumentException("Coordinates must be a triplet: " + Arrays.toString(parts.toArray()));
+      throw new IllegalArgumentException(
+          "Coordinates must be a triplet: " + Arrays.toString(parts.toArray()));
     }
 
     Coordinates coords = new Coordinates(parts.get(0), parts.get(1), parts.get(2));
@@ -97,18 +96,26 @@ public class MavenPublisher {
       futures.add(upload(repo, credentials, coords, ".pom", pom, gpgSign));
 
       if (mainArtifact != null) {
-        String ext = com.google.common.io.Files.getFileExtension(mainArtifact.getFileName().toString());
+        String ext =
+            com.google.common.io.Files.getFileExtension(mainArtifact.getFileName().toString());
         futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, gpgSign));
       }
 
-      if(args.length > 3) {
+      if (args.length > 3) {
         List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[3]);
-        for(String artifactTuple : extraArtifactTuples) {
+        for (String artifactTuple : extraArtifactTuples) {
           String[] splits = artifactTuple.split("=");
           String classifier = splits[0];
           Path artifact = Paths.get(splits[1]);
           String ext = com.google.common.io.Files.getFileExtension(splits[1]);
-          futures.add(upload(repo, credentials, coords, String.format("-%s.%s", classifier, ext), artifact, gpgSign));
+          futures.add(
+              upload(
+                  repo,
+                  credentials,
+                  coords,
+                  String.format("-%s.%s", classifier, ext),
+                  artifact,
+                  gpgSign));
         }
       }
 
