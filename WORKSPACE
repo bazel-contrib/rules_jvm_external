@@ -684,3 +684,23 @@ maven_install(
 load("@java_export_exclusion_testing//:defs.bzl", _java_export_exclusion_testing_pinned_maven_install = "pinned_maven_install")
 
 _java_export_exclusion_testing_pinned_maven_install()
+
+maven_install(
+    name = "override_target_in_deps",
+    artifacts = [
+        "io.opentelemetry:opentelemetry-sdk:1.28.0",
+        "redis.clients:jedis:5.0.2",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
+    override_targets = {
+        # This is a transitive dep of `opentelemetry-sdk`
+        "io.opentelemetry:opentelemetry-api": "@//tests/integration/override_targets:additional_deps",
+    },
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@override_target_in_deps//:defs.bzl", _override_target_in_deps_maven_install = "pinned_maven_install")
+
+_override_target_in_deps_maven_install()
