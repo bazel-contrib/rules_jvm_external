@@ -27,9 +27,20 @@ tasks:
       - "--"
       - "//tests/unit/aar_import/..."
       - "//tests/integration/override_targets/..."
-  ubuntu1804_4_0_0:
+# TODO: restore once https://github.com/bazelbuild/continuous-integration/issues/1810 is fixed
+#  ubuntu1804_4_2_2:
+#    platform: ubuntu1804
+#    bazel: 4.2.2
+#    shell_commands:
+#      - bazel run @unpinned_regression_testing//:pin
+#      - bazel run @unpinned_maven_install_in_custom_location//:pin
+#      - tests/bazel_run_tests.sh
+#    test_targets:
+#      - "--"
+#      - "//..."
+  ubuntu1804_5_4_0:
     platform: ubuntu1804
-    bazel: 4.0.0
+    bazel: 5.4.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
@@ -37,19 +48,9 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_4_2_2:
+  ubuntu1804_6_4_0:
     platform: ubuntu1804
-    bazel: 4.2.2
-    shell_commands:
-      - bazel run @unpinned_regression_testing//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "--"
-      - "//..."
-  ubuntu1804_5_0_0:
-    platform: ubuntu1804
-    bazel: 5.0.0
+    bazel: 6.4.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
       - bazel run @unpinned_maven_install_in_custom_location//:pin
