@@ -449,13 +449,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         )
     pin_target = "@{}//:pin".format(unpinned_repo)
 
-    repin_instructions = (
-        " REPIN=1 bazel run %s\n" % pin_target +
-        "or:\n" +
-        " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
-        " 2) Run 'bazel run %s'\n" % pin_target +
-        " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n"
-    )
+    repin_instructions = " REPIN=1 bazel run %s\n" % pin_target
 
     # Then, check to see if we need to repin our deps because inputs have changed
     if input_artifacts_hash == None:
