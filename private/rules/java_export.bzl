@@ -227,17 +227,18 @@ def maven_export(
         testonly = testonly,
     )
 
-    native.filegroup(
-        name = "%s-maven-source" % name,
-        srcs = [
-            ":%s-project" % name,
-        ],
-        output_group = "maven_source",
-        visibility = visibility,
-        tags = tags,
-        testonly = testonly,
-    )
-    classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
+    if not "no-sources" in tags:
+        native.filegroup(
+            name = "%s-maven-source" % name,
+            srcs = [
+                 ":%s-project" % name,
+            ],
+            output_group = "maven_source",
+            visibility = visibility,
+            tags = tags,
+            testonly = testonly,
+        )
+        classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
 
     docs_jar = None
     if not "no-javadocs" in tags:
