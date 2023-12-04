@@ -462,6 +462,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     repin_instructions = " REPIN=1 bazel run %s\n" % pin_target
 
+    user_provided_repin_instructions = repository_ctx.attr.repin_instructions
+    repin_instructions = user_provided_repin_instructions if user_provided_repin_instructions else (
+        " REPIN=1 bazel run %s\n" % pin_target
+    )
+
     # Then, check to see if we need to repin our deps because inputs have changed
     if input_artifacts_hash == None:
         print_if_not_repinning(
@@ -1261,6 +1266,9 @@ pinned_coursier_fetch = repository_rule(
                 "warn",
                 "none",
             ],
+        ),
+        "repin_instructions": attr.string(
+            doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default.",
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
     },
