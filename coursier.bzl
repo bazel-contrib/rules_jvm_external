@@ -74,6 +74,14 @@ sh_binary(
 )
 """
 
+_BUILD_PIN_ALIAS = """
+# Alias to unpinned to allow pinning
+alias(
+  name = "pin",
+  actual = "{unpinned_pin_target}",
+)
+"""
+
 _BUILD_OUTDATED = """
 sh_binary(
     name = "outdated",
@@ -447,7 +455,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_ctx.name[:-len(user_provided_name)],
             user_provided_name,
         )
-    pin_target = "@{}//:pin".format(unpinned_repo)
+
+    # pin_target will alias to unpinned_pin_target later on, so we need both.
+    unpinned_pin_target = "@{}//:pin".format(unpinned_repo)
+    pin_target = "@{}//:pin".format(user_provided_name)
 
     repin_instructions = " REPIN=1 bazel run %s\n" % pin_target
 
@@ -592,11 +603,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_OUTDATED).format(
+        (_BUILD + _BUILD_PIN_ALIAS + _BUILD_OUTDATED).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            unpinned_pin_target = unpinned_pin_target,
         ),
         executable = False,
     )
