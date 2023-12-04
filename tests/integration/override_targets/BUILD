@@ -35,7 +35,7 @@ java_library(
     name = "additional_deps",
     visibility = ["//visibility:public"],
     exports = [
-        "@override_target_in_deps//:raw_io_opentelemetry_opentelemetry_api",
+        "@override_target_in_deps//:original_io_opentelemetry_opentelemetry_api",
     ],
     runtime_deps = [
         "@override_target_in_deps//:redis_clients_jedis",

@@ -400,9 +400,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 # Provide the downloaded artifact as a file target.
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
             raw_artifact = dict(artifact)
-            raw_artifact["coordinates"] = "raw_" + artifact["coordinates"]
+            raw_artifact["coordinates"] = "original_" + artifact["coordinates"]
             raw_artifact["maven_coordinates"] = artifact["coordinates"]
-            raw_artifact["out"] = "raw_" + artifact["file"]
+            raw_artifact["out"] = "original_" + artifact["file"]
 
             all_imports.extend(_generate_target(
                 repository_ctx,

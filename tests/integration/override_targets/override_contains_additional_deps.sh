@@ -20,7 +20,7 @@ if ! grep -q "@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk" $de
 fi
 
 # should contain the "raw" dep
-if ! grep -q "@override_target_in_deps//:raw_io_opentelemetry_opentelemetry_api" $deps_file; then
+if ! grep -q "@override_target_in_deps//:original_io_opentelemetry_opentelemetry_api" $deps_file; then
   echo "Unable to find raw API target"
   exit 1
 fi
