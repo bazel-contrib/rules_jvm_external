@@ -30,3 +30,31 @@ aar_import(
         "@regression_testing//:com_google_ar_sceneform_filament_android",
     ],
 )
+
+java_library(
+    name = "additional_deps",
+    visibility = ["//visibility:public"],
+    exports = [
+        "@override_target_in_deps//:original_io_opentelemetry_opentelemetry_api",
+    ],
+    runtime_deps = [
+        "@override_target_in_deps//:redis_clients_jedis",
+    ],
+)
+
+genquery(
+    name = "trace_otel_deps",
+    expression = "deps(@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk)",
+    scope = ["@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk"],
+)
+
+sh_test(
+    name = "override_contains_additional_deps",
+    srcs = ["override_contains_additional_deps.sh"],
+    data = [
+        ":trace_otel_deps",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+)

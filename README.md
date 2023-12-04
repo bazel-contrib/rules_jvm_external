@@ -745,6 +745,14 @@ maven_install(
 Note that the target label contains `@//`, which tells Bazel to reference the
 target relative to your main workspace, instead of the `@maven` workspace.
 
+The dependency that has been overridden is made available prefixed with
+`original_`. That is, in the example above, the version of Guava that was
+resolved could be accessed as `@maven//:original_com_google_guava_guava`.
+The primary use case this is designed to support is to allow specific 
+targets to have additional dependencies added (eg. to ensure a default 
+implementation of key interfaces are available on the classpath without 
+needing to modify every target)
+
 ### Proxies
 
 As with other Bazel repository rules, the standard `http_proxy`, `https_proxy`
