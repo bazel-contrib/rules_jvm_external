@@ -362,7 +362,7 @@ def is_repin_required(repository_ctx):
     env_var_names = repository_ctx.os.environ.keys()
     return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
 
-def _fail_if_repin_required(repository_ctx):
+def _get_fail_if_repin_required(repository_ctx):
     if not repository_ctx.attr.fail_if_repin_required:
         return False
 
@@ -437,6 +437,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     # With Bzlmod, repository_ctx.name is the mangled ("canonical") name of the repository, so we
     # use the user_provided_name attribute to get the original name (always set by maven_install).
     user_provided_name = repository_ctx.attr.user_provided_name or repository_ctx.name
+
     if user_provided_name == repository_ctx.name:
         unpinned_repo = "unpinned_" + repository_ctx.name
     else:
@@ -447,6 +448,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             user_provided_name,
         )
     pin_target = "@{}//:pin".format(unpinned_repo)
+
+    repin_instructions = " REPIN=1 bazel run %s\n" % pin_target
 
     # Then, check to see if we need to repin our deps because inputs have changed
     if input_artifacts_hash == None:
@@ -462,13 +465,6 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_ctx.attr.repositories,
             repository_ctx.attr.excluded_artifacts,
         )
-        repin_instructions = (
-            " REPIN=1 bazel run %s\n" % pin_target +
-            "or:\n" +
-            " 1) Set 'fail_if_repin_required' to 'False' in 'maven_install'\n" +
-            " 2) Run 'bazel run %s'\n" % pin_target +
-            " 3) Reset 'fail_if_repin_required' to 'True' in 'maven_install'\n\n"
-        )
         if input_artifacts_hash in old_hashes:
             print_if_not_repinning(
                 repository_ctx,
@@ -476,7 +472,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 "It is recommended that you regenerate it by running either:\n" + repin_instructions,
             )
         elif computed_artifacts_hash != input_artifacts_hash:
-            if _fail_if_repin_required(repository_ctx):
+            if _get_fail_if_repin_required(repository_ctx):
                 fail("%s_install.json contains an invalid input signature and must be regenerated. " % (user_provided_name) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
@@ -501,16 +497,24 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     elif importer.compute_lock_file_hash(maven_install_json_content) != dep_tree_signature:
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
-        fail("%s_install.json contains an invalid signature (expected %s and got %s) and may be corrupted. " % (
-                 user_provided_name,
-                 dep_tree_signature,
-                 importer.compute_lock_file_hash(maven_install_json_content),
-             ) +
-             "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
-             "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % user_provided_name +
-             "  1) In your WORKSPACE file, comment or remove the 'maven_install_json' attribute in 'maven_install'.\n" +
-             "  2) Run 'bazel run %s'.\n" % pin_target +
-             "  3) Uncomment or re-add the 'maven_install_json' attribute in 'maven_install'.\n\n")
+        if _get_fail_if_repin_required(repository_ctx):
+            fail(
+                "%s_install.json contains an invalid signature (expected %s and got %s) and may be corrupted. " % (
+                    user_provided_name,
+                    dep_tree_signature,
+                    importer.compute_lock_file_hash(maven_install_json_content),
+                ) +
+                "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
+                "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % user_provided_name +
+                repin_instructions,
+            )
+        else:
+            print_if_not_repinning(
+                repository_ctx,
+                "NOTE: %s_install.json does not contain an up to date hash of its contents. " % user_provided_name +
+                "This feature ensures that pinned dependencies are up to date. To generate this " +
+                "signature, run 'bazel run %s'." % pin_target,
+            )
 
     # Create the list of http_file repositories for each of the artifacts
     # in maven_install.json. This will be loaded additionally like so:
