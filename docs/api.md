@@ -94,7 +94,8 @@ runtime dependencies for the following tags:
   * `maven:compile-only`: Specifies that this dependency should not be listed
     as a dependency of the artifact being generated.
 
-To skip generation of the javadoc jar, add the `no-javadocs` tag to the target.
+To skip generation of the javadoc jar, add the `no-javadocs` tag, and to skip
+generation of the sources jar, add the `no-sources` tag to the target.
 
 Generated rules:
   * `name`: A `java_library` that other rules can depend upon.
