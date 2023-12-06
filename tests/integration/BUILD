@@ -69,3 +69,24 @@ diff_test(
     file1 = "version-interval-deps.golden.unix",
     file2 = ":version-interval-deps-sorted.txt",
 )
+
+genquery(
+    name = "forced-versions-deps",
+    expression = "deps(@forcing_versions//:xyz_rogfam_littleproxy)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@forcing_versions//:xyz_rogfam_littleproxy"],
+)
+
+sh_test(
+    name = "verify-forced-version",
+    srcs = ["verify-forced-version.sh"],
+    args = [
+        "$(location :forced-versions-deps)",
+    ],
+    data = [
+        ":forced-versions-deps",
+    ],
+)

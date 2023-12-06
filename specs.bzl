@@ -32,7 +32,7 @@ def _maven_repository(url, user = None, password = None):
         credentials = {"user": user, "password": password}
         return {"repo_url": url, "credentials": credentials}
 
-def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None):
+def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None, force_version = False):
     """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
@@ -45,6 +45,7 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         exclusions: An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).
         neverlink: Determines if this artifact should be part of the runtime classpath.
         testonly: Determines whether this artifact is available for targets not marked as `testonly = True`.
+        force_version: Whether the `version` is non-negotiable.
     """
 
     # Output Schema:
@@ -76,6 +77,8 @@ def _maven_artifact(group, artifact, version, packaging = None, classifier = Non
         maven_artifact["neverlink"] = neverlink
     if testonly != None:
         maven_artifact["testonly"] = testonly
+    if force_version:
+        maven_artifact["force_version"] = True
 
     return maven_artifact
 
@@ -235,8 +238,9 @@ def _artifact_spec_to_json(artifact_spec):
     with_exclusions = with_override_license_types + ((", \"exclusions\": " + exclusion_specs_json) if artifact_spec.get("exclusions") != None else "")
     with_neverlink = with_exclusions + ((", \"neverlink\": " + str(artifact_spec.get("neverlink")).lower()) if artifact_spec.get("neverlink") != None else "")
     with_testonly = with_neverlink + ((", \"testonly\": " + str(artifact_spec.get("testonly")).lower()) if artifact_spec.get("testonly") != None else "")
+    with_forced_version = with_testonly + ((", \"force_version\": true") if artifact_spec.get("force_version") != None else "")
 
-    return with_testonly + " }"
+    return with_forced_version + " }"
 
 json = struct(
     write_repository_credentials_spec = _repository_credentials_spec_to_json,

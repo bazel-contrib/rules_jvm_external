@@ -763,8 +763,17 @@ def make_coursier_dep_tree(
     # Behavior: If root module A excludes module X, but root module B requires X, module X will still be fetched.
     artifact_coordinates = []
     exclusion_lines = []
+    forced_versions = []
     for a in artifacts:
-        artifact_coordinates.append(utils.artifact_coordinate(a))
+        coordinates = utils.artifact_coordinate(a)
+
+        # Special-case handling of specific versions that are requested. Without this, coursier will claim that
+        # if a lower version of a dependency is requested by a transitive dep than what is specified here, a
+        # version mismatch will occur, and this will fail the resolution.
+        if a.get("force_version", False):
+            forced_versions.append(coordinates)
+
+        artifact_coordinates.append(coordinates)
         if "exclusions" in a:
             for e in a["exclusions"]:
                 exclusion_lines.append(":".join([a["group"], a["artifact"]]) +
@@ -778,6 +787,12 @@ def make_coursier_dep_tree(
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
             # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
+            cmd.extend([
+                "--force-version",
+                ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
+            ])
+    else:
+        for coord in forced_versions:
             cmd.extend([
                 "--force-version",
                 ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
