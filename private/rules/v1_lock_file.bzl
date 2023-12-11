@@ -31,6 +31,9 @@ def _is_valid_lock_file(lock_file_contents):
     # the build files.
     return True
 
+def _has_m2local(lock_file_contents):
+    return lock_file_contents.get("m2local", False)
+
 def _get_input_artifacts_hash(lock_file_contents):
     dep_tree = lock_file_contents.get("dependency_tree", {})
     return dep_tree.get("__INPUT_ARTIFACTS_HASH")
@@ -138,4 +141,5 @@ v1_lock_file = struct(
     compute_lock_file_hash = _compute_lock_file_hash,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
+    has_m2local = _has_m2local,
 )

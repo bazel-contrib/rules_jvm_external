@@ -26,6 +26,9 @@ def _is_valid_lock_file(lock_file_contents):
 
     return True
 
+def _has_m2local(lock_file_contents):
+    return lock_file_contents.get("m2local", False)
+
 def _get_input_artifacts_hash(lock_file_contents):
     return lock_file_contents.get("__INPUT_ARTIFACTS_HASH")
 
@@ -189,4 +192,5 @@ v2_lock_file = struct(
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
     render_lock_file = _render_lock_file,
+    has_m2local = _has_m2local,
 )

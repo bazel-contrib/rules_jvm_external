@@ -558,8 +558,18 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             # File-path is relative defined from http_file traveling to repository_ctx.
             "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
         ])
+        if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
+            if _is_windows(repository_ctx):
+                user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")
+            else:
+                user_home = repository_ctx.os.environ.get("HOME")
+            m2local_urls = [
+                "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
+            ]
+        else:
+            m2local_urls = []
         http_files.append("        urls = %s," % repr(
-            [remove_auth_from_url(url) for url in artifact["urls"]],
+            [remove_auth_from_url(url) for url in artifact["urls"] + m2local_urls],
         ))
         http_files.append("        downloaded_file_path = \"%s\"," % artifact["file"])
         http_files.append("    )")
