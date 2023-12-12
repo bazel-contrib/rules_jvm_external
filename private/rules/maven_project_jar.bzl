@@ -67,7 +67,7 @@ def _maven_project_jar_impl(ctx):
     )
 
     # Merge together all the binary jars
-    bin_jar = ctx.actions.declare_file("%s.jar" % ctx.label.name)
+    intermediate_jar = ctx.actions.declare_file("%s.jar" % ctx.label.name)
     _combine_jars(
         ctx,
         ctx.executable._merge_jars,
@@ -75,8 +75,28 @@ def _maven_project_jar_impl(ctx):
         depset(transitive =
                    [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
                    [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]),
-        bin_jar,
+        intermediate_jar,
     )
+
+    # Add manifest lines if necessary
+    if len(ctx.attr.manifest_entries.items()):
+        bin_jar = ctx.actions.declare_file("amended_%s.jar" % ctx.label.name)
+        args = ctx.actions.args()
+        args.add_all(["--source", intermediate_jar, "--output", bin_jar])
+        args.add_all(
+            ["%s:%s" % (k, v) for (k, v) in ctx.attr.manifest_entries.items()],
+            before_each = "--manifest-entry",
+        )
+        ctx.actions.run(
+            executable = ctx.executable._add_jar_manifest_entry,
+            arguments = [args],
+            inputs = [intermediate_jar],
+            outputs = [bin_jar],
+            mnemonic = "AmendManifestEntry",
+            progress_message = "Adding additional manifest entries %s" % ctx.label,
+        )
+    else:
+        bin_jar = intermediate_jar
 
     # Bazel's java_binary has a deploy_env attribute that only supports java_binary targets.
     # Unfortunately, java_binary targets only expose their runtime classpath via the native
@@ -170,6 +190,9 @@ single artifact that other teams can download and use.
                 has_maven_deps,
             ],
         ),
+        "manifest_entries": attr.string_dict(
+            doc = "A dict of `String: String` containing additional manifest entry attributes and values.",
+        ),
         "deploy_env": attr.label_list(
             doc = "A list of targets to exclude from the generated jar",
             providers = [
@@ -188,6 +211,11 @@ single artifact that other teams can download and use.
             providers = [
                 [JavaInfo],
             ],
+        ),
+        "_add_jar_manifest_entry": attr.label(
+            executable = True,
+            cfg = "exec",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
         ),
         # Bazel's own singlejar doesn't respect java service files,
         # so use our own.

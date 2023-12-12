@@ -1,3 +1,4 @@
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("//:defs.bzl", "artifact", "java_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
@@ -90,6 +91,19 @@ java_export(
     tags = [
         "no-javadocs",
     ],
+    deps = [
+        ":dep",
+    ],
+)
+
+java_export(
+    name = "with-manifest",
+    srcs = ["Main.java"],
+    manifest_entries = {
+        "Cheese": "cheddar",
+        "Second-Cheese": "brie",
+    },
+    maven_coordinates = "com.example:manifested:1.0.0",
     deps = [
         ":dep",
     ],
@@ -196,4 +210,25 @@ sh_test(
     deps = [
         "@bazel_tools//tools/bash/runfiles",
     ],
+)
+
+genrule(
+    name = "extract-extra-manifest-lines",
+    srcs = [
+        ":with-manifest",
+    ],
+    outs = [
+        "manifested_MANIFEST.MF",
+    ],
+    cmd = "$(location //tests/com/github/bazelbuild/rules_jvm_external/manifest:Print) $< | grep -E 'Cheese' | sort > $@",
+    toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
+    tools = [
+        "//tests/com/github/bazelbuild/rules_jvm_external/manifest:Print",
+    ],
+)
+
+diff_test(
+    name = "check-manifest-lines-added",
+    file1 = "check-manifest-lines-added-MANIFEST.MF.golden",
+    file2 = ":extract-extra-manifest-lines",
 )
