@@ -32,6 +32,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -130,6 +131,13 @@ public class JavadocJarMaker {
             ZipOutputStream zos = new ZipOutputStream(os)) {
           // It's enough to just create the thing
         }
+
+        // We need to create the element list file so that the bazel rule calling us has the file
+        // be created.
+        if (elementList != null) {
+          Files.write(elementList, "".getBytes(UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        }
+
         return;
       }
 
