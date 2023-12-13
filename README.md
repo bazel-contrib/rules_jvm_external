@@ -876,6 +876,29 @@ maven_install(
     resolve_timeout = 900
 )
 ```
+### Ignoring empty jars
+
+By default, if any fetched jar is empty (has 0 bytes) the corresponding artifact will still be included in the dependency tree.
+
+If you would like to avoid such artifacts, and treat jars that are empty (i.e. their checksum equals the checksum of an
+empty file) as if they were not found, you can set the `ignore_empty_files` attribute in `maven_install` to remove such
+artifacts from coursier's output:
+
+```python
+maven_install(
+    artifacts = [
+        # ...
+    ],
+    repositories = [
+        # ...
+    ],
+    # ...
+    ignore_empty_files = True
+)
+```
+
+This option may be useful if you see empty source jars when `fetch_sources` is enabled.
+
 
 ### Duplicate artifact warning
 

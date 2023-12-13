@@ -567,6 +567,37 @@ maven_install(
 )
 
 maven_install(
+    name = "m2local_testing_ignore_empty_files",
+    artifacts = [
+        # this is a test jar built for integration
+        # tests in this repo
+        "com.example:kt:1.0.0",
+    ],
+    fetch_sources = True,
+    ignore_empty_files = True,
+    repositories = [
+        "m2Local",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
+    name = "m2local_testing_ignore_empty_files_repin",
+    artifacts = [
+        # this is a test jar built for integration
+        # tests in this repo
+        "com.example:kt:1.0.0",
+    ],
+    fetch_sources = True,
+    ignore_empty_files = True,
+    maven_install_json = "//tests/custom_maven_install:m2local_testing_ignore_empty_files_with_pinned_file_install.json",
+    repositories = [
+        "m2Local",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
     name = "v1_lock_file_format",
     artifacts = [
         # Coordinates that are in no other `maven_install`
