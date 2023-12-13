@@ -12,10 +12,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-      # Test Android targets separately, see below.
-      - "-//tests/integration/override_targets/..."
-      - "-//tests/unit/aar_import/..."
-      # manual tests
   android_ubuntu1804:
     name: Android Tests
     platform: ubuntu1804
@@ -25,8 +21,7 @@ tasks:
       - "--noincompatible_enable_android_toolchain_resolution"
     test_targets:
       - "--"
-      - "//tests/unit/aar_import/..."
-      - "//tests/integration/override_targets/..."
+      - "//tests/integration/override_targets:override_targets"
 # TODO: restore once https://github.com/bazelbuild/continuous-integration/issues/1810 is fixed
 #  ubuntu1804_4_2_2:
 #    platform: ubuntu1804
@@ -100,6 +95,5 @@ tasks:
       # https://github.com/bazelbuild/rules_kotlin/issues/179
       # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
       - "-//tests/unit/kotlin/..."
-      - "-//tests/integration/override_targets"
       # https://github.com/bazelbuild/rules_jvm_external/issues/586
       - "-//tests/unit/manifest_stamp:diff_signed_manifest_test"

@@ -19,16 +19,13 @@ genrule(
     outs = [
         "guava_MANIFEST.MF",
     ],
-    cmd = "$(JAVABASE)/bin/jar xf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sort > $@",
+    cmd = "$(JAVABASE)/bin/jar xf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
     toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
 )
 
 diff_test(
     name = "diff_manifest_test",
-    file1 = select({
-        "@bazel_tools//src/conditions:windows": "guava_MANIFEST.MF.golden",
-        "//conditions:default": "guava_MANIFEST.MF.golden.unix",
-    }),
+    file1 = "guava_MANIFEST.MF.golden.unix",
     file2 = "guava_MANIFEST.MF",
 )
 
@@ -40,7 +37,7 @@ genrule(
     outs = [
         "signed_MANIFEST.MF",
     ],
-    cmd = "$(JAVABASE)/bin/jar xf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sort > $@",
+    cmd = "$(JAVABASE)/bin/jar xf $< META-INF/MANIFEST.MF && cat META-INF/MANIFEST.MF | grep -E '^Bundle-Version|Target-Label' | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
     toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
 )
 
@@ -48,9 +45,6 @@ genrule(
 # MANIFEST.MF file breaks the jar signature.
 diff_test(
     name = "diff_signed_manifest_test",
-    file1 = select({
-        "@bazel_tools//src/conditions:windows": "bcprov_MANIFEST.MF.golden",
-        "//conditions:default": "bcprov_MANIFEST.MF.golden.unix",
-    }),
+    file1 = "bcprov_MANIFEST.MF.golden.unix",
     file2 = "signed_MANIFEST.MF",
 )

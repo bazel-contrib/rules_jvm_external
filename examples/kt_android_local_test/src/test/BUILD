@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:android.bzl", "kt_android_local_test")
+load("@rules_kotlin//kotlin:android.bzl", "kt_android_local_test")
 
 kt_android_local_test(
     name = "main_activity_test",

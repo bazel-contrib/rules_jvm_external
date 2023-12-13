@@ -6,6 +6,7 @@ DEFAULT_EXCLUDED_WORKSPACES = [
     #       we can't be sure which coordinate the user has
     #       chosen for protobuf.
     "com_google_protobuf",
+    "protobuf~", # bzlmod module deps are in the form of '@protobuf~<version>'
 ]
 
 def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
@@ -14,8 +15,14 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
     for jar in jar_files:
         owner = jar.owner
 
-        if owner and owner.workspace_name in excluded_workspaces:
-            continue
+        if owner:
+            workspace_name = owner.workspace_name
+            # bzlmod module names use ~ as a separator
+            if "~" in workspace_name:
+                idx = workspace_name.index("~")
+                workspace_name = workspace_name[0:idx+1] # ~ inclusive
+            if workspace_name in excluded_workspaces:
+                continue
 
         to_return.append(jar)
 
