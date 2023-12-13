@@ -1,47 +1,5 @@
 # WORKSPACE
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-    ],
-)
-
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-
-bazel_skylib_workspace()
-
-http_archive(
-    name = "rules_proto",
-    sha256 = "73ebe9d15ba42401c785f9d0aeebccd73bd80bf6b8ac78f74996d31f2c0ad7a6",
-    strip_prefix = "rules_proto-2c0468366367d7ed97a1f702f9cd7155ab3f73c5",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/2c0468366367d7ed97a1f702f9cd7155ab3f73c5.tar.gz",
-        "https://github.com/bazelbuild/rules_proto/archive/2c0468366367d7ed97a1f702f9cd7155ab3f73c5.tar.gz",
-    ],
-)
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-rules_proto_dependencies()
-
-rules_proto_toolchains()
-
-http_archive(
-    name = "com_google_protobuf",
-    sha256 = "e11f901c62f6a35e295b7e9c49123a96ef7a47503afd40ed174860ad4c3f294f",
-    strip_prefix = "protobuf-3.10.0",
-    url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protobuf-all-3.10.0.tar.gz",
-)
-
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
-
 local_repository(
     name = "rules_jvm_external",
     path = "../..",
@@ -59,11 +17,11 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
-        "com.google.protobuf:protobuf-java:3.0.0",
-        "com.google.protobuf:protobuf-java-util:3.0.0",
+        "com.google.protobuf:protobuf-java:3.23.2",
+        "com.google.protobuf:protobuf-java-util:3.23.2",
     ],
     override_targets = {
-        "com.google.protobuf:protobuf-java": "@com_google_protobuf//:protobuf_java",
+        "com.google.protobuf:protobuf-java": "@protobuf//:protobuf_java",
     },
     repositories = [
         "https://repo1.maven.org/maven2",

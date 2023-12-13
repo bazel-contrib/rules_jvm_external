@@ -14,7 +14,7 @@ def _exports_test_impl(ctx):
     tut = env.ctx.attr.target_under_test
     asserts.true(env, JavaInfo in tut_with_aspect, "maven_project_jar should provide JavaInfo")
     java_info = tut[JavaInfo]
-    asserts.equals(env, ["maven_project_jar.jar", "libexported_leaf.jar", "libis_export_has_exports.jar"], [f.basename for f in java_info.transitive_runtime_deps.to_list()])
+    asserts.equals(env, ["maven_project_jar.jar", "libexported_leaf.jar", "libis_export_has_exports.jar"], [f.basename for f in java_info.transitive_runtime_jars.to_list()])
 
     return analysistest.end(env)
 

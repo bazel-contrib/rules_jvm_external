@@ -34,15 +34,12 @@ genrule(
     testonly = 1,
     srcs = [":testonly-deps"],
     outs = ["testonly-deps-sorted.txt"],
-    cmd = "cat $< | sort > $@",
+    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
 )
 
 diff_test(
     name = "testonly_artifacts_test",
-    file1 = select({
-        "@bazel_tools//src/conditions:windows": "testonly-deps.golden",
-        "//conditions:default": "testonly-deps.golden.unix",
-    }),
+    file1 = "testonly-deps.golden.unix",
     file2 = ":testonly-deps-sorted",
 )
 
@@ -64,14 +61,11 @@ genrule(
     testonly = 1,
     srcs = [":version_interval_deps"],
     outs = ["version-interval-deps-sorted.txt"],
-    cmd = "cat $< | sort > $@",
+    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
 )
 
 diff_test(
     name = "version_interval_deps_test",
-    file1 = select({
-        "@bazel_tools//src/conditions:windows": "version-interval-deps.golden.dos",
-        "//conditions:default": "version-interval-deps.golden.unix",
-    }),
+    file1 = "version-interval-deps.golden.unix",
     file2 = ":version-interval-deps-sorted.txt",
 )
