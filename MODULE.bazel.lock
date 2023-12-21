@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "423cc3eb5493b045908f65f3c57df36b26cd0ae9e8a346a34ecf5a3a9f280207",
+  "moduleFileHash": "837e0ea3c72faf31836e0a134bda930c0743c1c99a993b6ac70973520c92b5c4",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -1076,7 +1076,7 @@
         "bazel_skylib": "bazel_skylib@1.4.2",
         "platforms": "platforms@0.0.8",
         "rules_kotlin": "rules_kotlin@1.9.0",
-        "aspect_rules_js": "aspect_rules_js@1.32.6",
+        "aspect_rules_js": "aspect_rules_js@1.34.1",
         "rules_nodejs": "rules_nodejs@5.8.2",
         "protobuf": "protobuf@21.7",
         "rules_android": "rules_android@0.1.1",
@@ -1281,10 +1281,10 @@
         }
       }
     },
-    "aspect_rules_js@1.32.6": {
+    "aspect_rules_js@1.34.1": {
       "name": "aspect_rules_js",
-      "version": "1.32.6",
-      "key": "aspect_rules_js@1.32.6",
+      "version": "1.34.1",
+      "key": "aspect_rules_js@1.34.1",
       "repoName": "aspect_rules_js",
       "executionPlatformsToRegister": [],
       "toolchainsToRegister": [],
@@ -1292,9 +1292,9 @@
         {
           "extensionBzlFile": "@rules_nodejs//nodejs:extensions.bzl",
           "extensionName": "node",
-          "usingModule": "aspect_rules_js@1.32.6",
+          "usingModule": "aspect_rules_js@1.34.1",
           "location": {
-            "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.32.6/MODULE.bazel",
+            "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.34.1/MODULE.bazel",
             "line": 17,
             "column": 21
           },
@@ -1315,9 +1315,9 @@
         {
           "extensionBzlFile": "@aspect_rules_js//npm:extensions.bzl",
           "extensionName": "pnpm",
-          "usingModule": "aspect_rules_js@1.32.6",
+          "usingModule": "aspect_rules_js@1.34.1",
           "location": {
-            "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.32.6/MODULE.bazel",
+            "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.34.1/MODULE.bazel",
             "line": 26,
             "column": 21
           },
@@ -1336,7 +1336,7 @@
               },
               "devDependency": false,
               "location": {
-                "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.32.6/MODULE.bazel",
+                "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.34.1/MODULE.bazel",
                 "line": 27,
                 "column": 10
               }
@@ -1344,10 +1344,27 @@
           ],
           "hasDevUseExtension": false,
           "hasNonDevUseExtension": true
+        },
+        {
+          "extensionBzlFile": "@aspect_bazel_lib//lib:extensions.bzl",
+          "extensionName": "toolchains",
+          "usingModule": "aspect_rules_js@1.34.1",
+          "location": {
+            "file": "https://bcr.bazel.build/modules/aspect_rules_js/1.34.1/MODULE.bazel",
+            "line": 48,
+            "column": 37
+          },
+          "imports": {
+            "coreutils_toolchains": "coreutils_toolchains"
+          },
+          "devImports": [],
+          "tags": [],
+          "hasDevUseExtension": false,
+          "hasNonDevUseExtension": true
         }
       ],
       "deps": {
-        "aspect_bazel_lib": "aspect_bazel_lib@1.31.2",
+        "aspect_bazel_lib": "aspect_bazel_lib@1.39.0",
         "bazel_features": "bazel_features@0.1.0",
         "bazel_skylib": "bazel_skylib@1.4.2",
         "rules_nodejs": "rules_nodejs@5.8.2",
@@ -1359,14 +1376,14 @@
         "bzlFile": "@bazel_tools//tools/build_defs/repo:http.bzl",
         "ruleClassName": "http_archive",
         "attributes": {
-          "name": "aspect_rules_js~1.32.6",
+          "name": "aspect_rules_js~1.34.1",
           "urls": [
-            "https://github.com/aspect-build/rules_js/releases/download/v1.32.6/rules_js-v1.32.6.tar.gz"
+            "https://github.com/aspect-build/rules_js/releases/download/v1.34.1/rules_js-v1.34.1.tar.gz"
           ],
-          "integrity": "sha256-erl3a8yoI682FXehouu5ow0utblOzJZLi+Ng9EP3FLI=",
-          "strip_prefix": "rules_js-1.32.6",
+          "integrity": "sha256-dqBO8hIO4AIx2F0f8BLt4jljczM5rY24H1kHkaAx9kM=",
+          "strip_prefix": "rules_js-1.34.1",
           "remote_patches": {
-            "https://bcr.bazel.build/modules/aspect_rules_js/1.32.6/patches/module_dot_bazel_version.patch": "sha256-hencSyiH4nttUD1ueStXG27YtZv6jUjSJ4rPlE6FFjM="
+            "https://bcr.bazel.build/modules/aspect_rules_js/1.34.1/patches/module_dot_bazel_version.patch": "sha256-50I/binYFl1lISFdPC01BKlkLV0vEOrPWSPjdrhzcZE="
           },
           "remote_patch_strip": 1
         }
@@ -2091,10 +2108,10 @@
         }
       }
     },
-    "aspect_bazel_lib@1.31.2": {
+    "aspect_bazel_lib@1.39.0": {
       "name": "aspect_bazel_lib",
-      "version": "1.31.2",
-      "key": "aspect_bazel_lib@1.31.2",
+      "version": "1.39.0",
+      "key": "aspect_bazel_lib@1.39.0",
       "repoName": "aspect_bazel_lib",
       "executionPlatformsToRegister": [],
       "toolchainsToRegister": [
@@ -2102,27 +2119,90 @@
         "@copy_to_directory_toolchains//:all",
         "@jq_toolchains//:all",
         "@yq_toolchains//:all",
-        "@coreutils_toolchains//:all"
+        "@coreutils_toolchains//:all",
+        "@expand_template_toolchains//:all"
       ],
       "extensionUsages": [
         {
           "extensionBzlFile": "@aspect_bazel_lib//lib:extensions.bzl",
-          "extensionName": "ext",
-          "usingModule": "aspect_bazel_lib@1.31.2",
+          "extensionName": "toolchains",
+          "usingModule": "aspect_bazel_lib@1.39.0",
           "location": {
-            "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.31.2/MODULE.bazel",
-            "line": 14,
-            "column": 20
+            "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+            "line": 16,
+            "column": 37
           },
           "imports": {
             "copy_directory_toolchains": "copy_directory_toolchains",
             "copy_to_directory_toolchains": "copy_to_directory_toolchains",
+            "coreutils_toolchains": "coreutils_toolchains",
+            "expand_template_toolchains": "expand_template_toolchains",
             "jq_toolchains": "jq_toolchains",
-            "yq_toolchains": "yq_toolchains",
-            "coreutils_toolchains": "coreutils_toolchains"
+            "yq_toolchains": "yq_toolchains"
           },
           "devImports": [],
-          "tags": [],
+          "tags": [
+            {
+              "tagName": "copy_directory",
+              "attributeValues": {},
+              "devDependency": false,
+              "location": {
+                "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+                "line": 17,
+                "column": 36
+              }
+            },
+            {
+              "tagName": "copy_to_directory",
+              "attributeValues": {},
+              "devDependency": false,
+              "location": {
+                "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+                "line": 18,
+                "column": 39
+              }
+            },
+            {
+              "tagName": "jq",
+              "attributeValues": {},
+              "devDependency": false,
+              "location": {
+                "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+                "line": 19,
+                "column": 24
+              }
+            },
+            {
+              "tagName": "yq",
+              "attributeValues": {},
+              "devDependency": false,
+              "location": {
+                "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+                "line": 20,
+                "column": 24
+              }
+            },
+            {
+              "tagName": "coreutils",
+              "attributeValues": {},
+              "devDependency": false,
+              "location": {
+                "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+                "line": 21,
+                "column": 31
+              }
+            },
+            {
+              "tagName": "expand_template",
+              "attributeValues": {},
+              "devDependency": false,
+              "location": {
+                "file": "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/MODULE.bazel",
+                "line": 22,
+                "column": 37
+              }
+            }
+          ],
           "hasDevUseExtension": false,
           "hasNonDevUseExtension": true
         }
@@ -2138,16 +2218,17 @@
         "bzlFile": "@bazel_tools//tools/build_defs/repo:http.bzl",
         "ruleClassName": "http_archive",
         "attributes": {
-          "name": "aspect_bazel_lib~1.31.2",
+          "name": "aspect_bazel_lib~1.39.0",
           "urls": [
-            "https://github.com/aspect-build/bazel-lib/releases/download/v1.31.2/bazel-lib-v1.31.2.tar.gz"
+            "https://github.com/aspect-build/bazel-lib/releases/download/v1.39.0/bazel-lib-v1.39.0.tar.gz"
           ],
-          "integrity": "sha256-DadSmcWlJzeyrDlFg5iz8lbkGhpnSOVFfOs6YiUmlIU=",
-          "strip_prefix": "bazel-lib-1.31.2",
+          "integrity": "sha256-TWAQyl47tNcEWwcSBa+o2wbsEesk3j8CPXTXfMp2X2Y=",
+          "strip_prefix": "bazel-lib-1.39.0",
           "remote_patches": {
-            "https://bcr.bazel.build/modules/aspect_bazel_lib/1.31.2/patches/module_dot_bazel_version.patch": "sha256-jkMZDl6anERcexW1zfMsZUGJ8sC5KozKXXJdfOq66z8="
+            "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/patches/go_dev_dep.patch": "sha256-dEFxvx2hBB/tOWlknfRHRXNCdvYpvrxsYHWaMGF2QgA=",
+            "https://bcr.bazel.build/modules/aspect_bazel_lib/1.39.0/patches/module_dot_bazel_version.patch": "sha256-+VfdwcJ7SX02t7AnKMMf6PBdlMhiUYVRN1fe27JG1Ck="
           },
-          "remote_patch_strip": 0
+          "remote_patch_strip": 1
         }
       }
     },
@@ -15687,286 +15768,358 @@
         }
       }
     },
-    "@@aspect_bazel_lib~1.31.2//lib:extensions.bzl%ext": {
+    "@@aspect_bazel_lib~1.39.0//lib:extensions.bzl%toolchains": {
       "general": {
-        "bzlTransitiveDigest": "zDSrX5yvc+OrvJY3m3K9cdsJhAu1HB/ltEZd0RL3dlE=",
+        "bzlTransitiveDigest": "WVp3ybiDkruezsKcenFVzaWS3Ur1RoVs9zg++bcDIy4=",
         "accumulatedFileDigests": {},
         "envVariables": {},
         "generatedRepoSpecs": {
+          "expand_template_windows_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_windows_amd64",
+              "platform": "windows_amd64"
+            }
+          },
           "copy_to_directory_windows_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_to_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
             "ruleClassName": "copy_to_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_to_directory_windows_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_windows_amd64",
               "platform": "windows_amd64"
             }
           },
           "jq": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:jq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:jq_toolchain.bzl",
             "ruleClassName": "jq_host_alias_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~jq"
+              "name": "aspect_bazel_lib~1.39.0~toolchains~jq"
             }
           },
           "jq_darwin_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:jq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:jq_toolchain.bzl",
             "ruleClassName": "jq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~jq_darwin_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~jq_darwin_amd64",
               "platform": "darwin_amd64",
               "version": "1.6"
             }
           },
-          "copy_to_directory_linux_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_to_directory_toolchain.bzl",
+          "expand_template_darwin_arm64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_darwin_arm64",
+              "platform": "darwin_arm64"
+            }
+          },
+          "copy_to_directory_freebsd_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
             "ruleClassName": "copy_to_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_to_directory_linux_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_freebsd_amd64",
+              "platform": "freebsd_amd64"
+            }
+          },
+          "expand_template_linux_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_linux_amd64",
+              "platform": "linux_amd64"
+            }
+          },
+          "copy_to_directory_linux_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
+            "ruleClassName": "copy_to_directory_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_linux_amd64",
               "platform": "linux_amd64"
             }
           },
           "coreutils_darwin_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:coreutils_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:coreutils_toolchain.bzl",
             "ruleClassName": "coreutils_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~coreutils_darwin_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~coreutils_darwin_arm64",
               "platform": "darwin_arm64",
               "version": "0.0.16"
             }
           },
           "coreutils_linux_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:coreutils_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:coreutils_toolchain.bzl",
             "ruleClassName": "coreutils_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~coreutils_linux_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~coreutils_linux_amd64",
               "platform": "linux_amd64",
               "version": "0.0.16"
             }
           },
           "copy_directory_toolchains": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
             "ruleClassName": "copy_directory_toolchains_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_directory_toolchains",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_toolchains",
               "user_repository_name": "copy_directory"
             }
           },
           "copy_to_directory_linux_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_to_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
             "ruleClassName": "copy_to_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_to_directory_linux_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_linux_arm64",
               "platform": "linux_arm64"
             }
           },
           "yq_linux_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_linux_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_linux_amd64",
               "platform": "linux_amd64",
               "version": "4.25.2"
             }
           },
           "copy_to_directory_darwin_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_to_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
             "ruleClassName": "copy_to_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_to_directory_darwin_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_darwin_arm64",
               "platform": "darwin_arm64"
             }
           },
           "copy_directory_darwin_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
             "ruleClassName": "copy_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_directory_darwin_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_darwin_amd64",
               "platform": "darwin_amd64"
             }
           },
           "coreutils_darwin_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:coreutils_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:coreutils_toolchain.bzl",
             "ruleClassName": "coreutils_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~coreutils_darwin_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~coreutils_darwin_amd64",
               "platform": "darwin_amd64",
               "version": "0.0.16"
             }
           },
           "coreutils_linux_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:coreutils_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:coreutils_toolchain.bzl",
             "ruleClassName": "coreutils_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~coreutils_linux_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~coreutils_linux_arm64",
               "platform": "linux_arm64",
               "version": "0.0.16"
             }
           },
           "coreutils_toolchains": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:coreutils_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:coreutils_toolchain.bzl",
             "ruleClassName": "coreutils_toolchains_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~coreutils_toolchains",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~coreutils_toolchains",
               "user_repository_name": "coreutils"
             }
           },
+          "copy_directory_freebsd_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
+            "ruleClassName": "copy_directory_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_freebsd_amd64",
+              "platform": "freebsd_amd64"
+            }
+          },
           "yq_linux_s390x": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_linux_s390x",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_linux_s390x",
               "platform": "linux_s390x",
               "version": "4.25.2"
             }
           },
           "yq": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_host_alias_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq"
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq"
+            }
+          },
+          "expand_template_darwin_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_darwin_amd64",
+              "platform": "darwin_amd64"
             }
           },
           "copy_directory_linux_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
             "ruleClassName": "copy_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_directory_linux_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_linux_amd64",
               "platform": "linux_amd64"
             }
           },
           "jq_darwin_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:jq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:jq_toolchain.bzl",
             "ruleClassName": "jq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~jq_darwin_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~jq_darwin_arm64",
               "platform": "darwin_arm64",
               "version": "1.6"
             }
           },
           "yq_darwin_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_darwin_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_darwin_amd64",
               "platform": "darwin_amd64",
               "version": "4.25.2"
             }
           },
           "copy_directory_linux_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
             "ruleClassName": "copy_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_directory_linux_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_linux_arm64",
+              "platform": "linux_arm64"
+            }
+          },
+          "expand_template_linux_arm64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_linux_arm64",
               "platform": "linux_arm64"
             }
           },
           "jq_linux_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:jq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:jq_toolchain.bzl",
             "ruleClassName": "jq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~jq_linux_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~jq_linux_amd64",
               "platform": "linux_amd64",
               "version": "1.6"
             }
           },
+          "expand_template_toolchains": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_toolchains_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_toolchains",
+              "user_repository_name": "expand_template"
+            }
+          },
           "yq_windows_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_windows_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_windows_amd64",
               "platform": "windows_amd64",
               "version": "4.25.2"
             }
           },
           "copy_to_directory_darwin_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_to_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
             "ruleClassName": "copy_to_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_to_directory_darwin_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_darwin_amd64",
               "platform": "darwin_amd64"
             }
           },
           "jq_windows_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:jq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:jq_toolchain.bzl",
             "ruleClassName": "jq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~jq_windows_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~jq_windows_amd64",
               "platform": "windows_amd64",
               "version": "1.6"
             }
           },
+          "expand_template_freebsd_amd64": {
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:expand_template_toolchain.bzl",
+            "ruleClassName": "expand_template_platform_repo",
+            "attributes": {
+              "name": "aspect_bazel_lib~1.39.0~toolchains~expand_template_freebsd_amd64",
+              "platform": "freebsd_amd64"
+            }
+          },
           "yq_linux_ppc64le": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_linux_ppc64le",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_linux_ppc64le",
               "platform": "linux_ppc64le",
               "version": "4.25.2"
             }
           },
           "copy_to_directory_toolchains": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_to_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_to_directory_toolchain.bzl",
             "ruleClassName": "copy_to_directory_toolchains_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_to_directory_toolchains",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_to_directory_toolchains",
               "user_repository_name": "copy_to_directory"
             }
           },
           "jq_toolchains": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:jq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:jq_toolchain.bzl",
             "ruleClassName": "jq_toolchains_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~jq_toolchains",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~jq_toolchains",
               "user_repository_name": "jq"
             }
           },
           "copy_directory_darwin_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
             "ruleClassName": "copy_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_directory_darwin_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_darwin_arm64",
               "platform": "darwin_arm64"
             }
           },
           "copy_directory_windows_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:copy_directory_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:copy_directory_toolchain.bzl",
             "ruleClassName": "copy_directory_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~copy_directory_windows_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~copy_directory_windows_amd64",
               "platform": "windows_amd64"
             }
           },
           "yq_darwin_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_darwin_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_darwin_arm64",
               "platform": "darwin_arm64",
               "version": "4.25.2"
             }
           },
           "yq_toolchains": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_toolchains_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_toolchains",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_toolchains",
               "user_repository_name": "yq"
             }
           },
           "coreutils_windows_amd64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:coreutils_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:coreutils_toolchain.bzl",
             "ruleClassName": "coreutils_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~coreutils_windows_amd64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~coreutils_windows_amd64",
               "platform": "windows_amd64",
               "version": "0.0.16"
             }
           },
           "yq_linux_arm64": {
-            "bzlFile": "@@aspect_bazel_lib~1.31.2//lib/private:yq_toolchain.bzl",
+            "bzlFile": "@@aspect_bazel_lib~1.39.0//lib/private:yq_toolchain.bzl",
             "ruleClassName": "yq_platform_repo",
             "attributes": {
-              "name": "aspect_bazel_lib~1.31.2~ext~yq_linux_arm64",
+              "name": "aspect_bazel_lib~1.39.0~toolchains~yq_linux_arm64",
               "platform": "linux_arm64",
               "version": "4.25.2"
             }
@@ -15974,9 +16127,9 @@
         }
       }
     },
-    "@@aspect_rules_js~1.32.6//npm:extensions.bzl%npm": {
+    "@@aspect_rules_js~1.34.1//npm:extensions.bzl%npm": {
       "general": {
-        "bzlTransitiveDigest": "G6uxEJT6fiuormNIe0ArvQ9+xYtg1xM13A7asHetEV4=",
+        "bzlTransitiveDigest": "spaWsKgETXCNFk+Q9a8OfjtPX+AayUmN+gmidFmmKsk=",
         "accumulatedFileDigests": {
           "@@//:.npmrc": "f0eda7d025b2cd91357457629a91b77d68b3f828dd9a8fdc40c2f9dc5c2a1a89",
           "@@//:pnpm-lock.yaml": "cd4ab0aa10b00d79523d0ead48159e4c378faafe9feadcba52360c11694f6d1a"
@@ -15984,10 +16137,10 @@
         "envVariables": {},
         "generatedRepoSpecs": {
           "npm__htmlparser2__7.2.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__htmlparser2__7.2.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__htmlparser2__7.2.0",
               "package": "htmlparser2",
               "version": "7.2.0",
               "root_package": "",
@@ -16009,10 +16162,10 @@
             }
           },
           "npm__character-entities__1.2.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__character-entities__1.2.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__character-entities__1.2.4__links",
               "package": "character-entities",
               "version": "1.2.4",
               "dev": false,
@@ -16028,14 +16181,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__domutils__2.8.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__domutils__2.8.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__domutils__2.8.0",
               "package": "domutils",
               "version": "2.8.0",
               "root_package": "",
@@ -16057,10 +16213,10 @@
             }
           },
           "npm__is-decimal__1.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-decimal__1.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-decimal__1.0.4",
               "package": "is-decimal",
               "version": "1.0.4",
               "root_package": "",
@@ -16082,10 +16238,10 @@
             }
           },
           "npm__is-plain-obj__2.1.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-plain-obj__2.1.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-plain-obj__2.1.0__links",
               "package": "is-plain-obj",
               "version": "2.1.0",
               "dev": false,
@@ -16101,14 +16257,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__ms__2.1.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__ms__2.1.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__ms__2.1.2",
               "package": "ms",
               "version": "2.1.2",
               "root_package": "",
@@ -16130,10 +16289,10 @@
             }
           },
           "npm__mdast-util-gfm-autolink-literal__0.1.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-autolink-literal__0.1.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-autolink-literal__0.1.3",
               "package": "mdast-util-gfm-autolink-literal",
               "version": "0.1.3",
               "root_package": "",
@@ -16155,10 +16314,10 @@
             }
           },
           "npm__remark-parse__9.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-parse__9.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-parse__9.0.0",
               "package": "remark-parse",
               "version": "9.0.0",
               "root_package": "",
@@ -16180,10 +16339,10 @@
             }
           },
           "npm__anchor-markdown-header__0.6.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__anchor-markdown-header__0.6.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__anchor-markdown-header__0.6.0",
               "package": "anchor-markdown-header",
               "version": "0.6.0",
               "root_package": "",
@@ -16205,10 +16364,10 @@
             }
           },
           "npm__trough__1.0.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__trough__1.0.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__trough__1.0.5__links",
               "package": "trough",
               "version": "1.0.5",
               "dev": false,
@@ -16224,14 +16383,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__emoji-regex__10.1.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__emoji-regex__10.1.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__emoji-regex__10.1.0",
               "package": "emoji-regex",
               "version": "10.1.0",
               "root_package": "",
@@ -16253,10 +16415,10 @@
             }
           },
           "npm__repeat-string__1.6.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__repeat-string__1.6.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__repeat-string__1.6.1__links",
               "package": "repeat-string",
               "version": "1.6.1",
               "dev": false,
@@ -16272,14 +16434,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__zwitch__1.0.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__zwitch__1.0.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__zwitch__1.0.5__links",
               "package": "zwitch",
               "version": "1.0.5",
               "dev": false,
@@ -16295,14 +16460,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__longest-streak__2.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__longest-streak__2.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__longest-streak__2.0.4__links",
               "package": "longest-streak",
               "version": "2.0.4",
               "dev": false,
@@ -16318,14 +16486,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-to-markdown__0.6.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-to-markdown__0.6.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-to-markdown__0.6.5",
               "package": "mdast-util-to-markdown",
               "version": "0.6.5",
               "root_package": "",
@@ -16347,10 +16518,10 @@
             }
           },
           "npm__bail__1.0.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__bail__1.0.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__bail__1.0.5__links",
               "package": "bail",
               "version": "1.0.5",
               "dev": false,
@@ -16366,14 +16537,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-from-markdown__0.8.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-from-markdown__0.8.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-from-markdown__0.8.5",
               "package": "mdast-util-from-markdown",
               "version": "0.8.5",
               "root_package": "",
@@ -16395,10 +16569,10 @@
             }
           },
           "npm__character-reference-invalid__1.1.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__character-reference-invalid__1.1.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__character-reference-invalid__1.1.4",
               "package": "character-reference-invalid",
               "version": "1.1.4",
               "root_package": "",
@@ -16420,10 +16594,10 @@
             }
           },
           "npm__micromark-extension-gfm-strikethrough__0.6.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-strikethrough__0.6.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-strikethrough__0.6.5__links",
               "package": "micromark-extension-gfm-strikethrough",
               "version": "0.6.5",
               "dev": false,
@@ -16474,14 +16648,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__minimist__1.2.6": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__minimist__1.2.6",
+              "name": "aspect_rules_js~1.34.1~npm~npm__minimist__1.2.6",
               "package": "minimist",
               "version": "1.2.6",
               "root_package": "",
@@ -16503,10 +16680,10 @@
             }
           },
           "npm__is-hexadecimal__1.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-hexadecimal__1.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-hexadecimal__1.0.4__links",
               "package": "is-hexadecimal",
               "version": "1.0.4",
               "dev": false,
@@ -16522,14 +16699,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__traverse__0.6.6": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__traverse__0.6.6",
+              "name": "aspect_rules_js~1.34.1~npm~npm__traverse__0.6.6",
               "package": "traverse",
               "version": "0.6.6",
               "root_package": "",
@@ -16551,10 +16731,10 @@
             }
           },
           "npm__is-alphabetical__1.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-alphabetical__1.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-alphabetical__1.0.4",
               "package": "is-alphabetical",
               "version": "1.0.4",
               "root_package": "",
@@ -16576,10 +16756,10 @@
             }
           },
           "npm__trough__1.0.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__trough__1.0.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__trough__1.0.5",
               "package": "trough",
               "version": "1.0.5",
               "root_package": "",
@@ -16601,10 +16781,10 @@
             }
           },
           "npm__debug__4.3.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__debug__4.3.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__debug__4.3.4__links",
               "package": "debug",
               "version": "4.3.4",
               "dev": false,
@@ -16625,14 +16805,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__traverse__0.6.6__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__traverse__0.6.6__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__traverse__0.6.6__links",
               "package": "traverse",
               "version": "0.6.6",
               "dev": false,
@@ -16648,14 +16831,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__ccount__1.1.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__ccount__1.1.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__ccount__1.1.0__links",
               "package": "ccount",
               "version": "1.1.0",
               "dev": false,
@@ -16671,14 +16857,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__at_types_unist__2.0.6": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_types_unist__2.0.6",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_types_unist__2.0.6",
               "package": "@types/unist",
               "version": "2.0.6",
               "root_package": "",
@@ -16700,10 +16889,10 @@
             }
           },
           "npm__mdast-util-to-markdown__0.6.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-to-markdown__0.6.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-to-markdown__0.6.5__links",
               "package": "mdast-util-to-markdown",
               "version": "0.6.5",
               "dev": false,
@@ -16765,14 +16954,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__remark-frontmatter__3.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-frontmatter__3.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-frontmatter__3.0.0",
               "package": "remark-frontmatter",
               "version": "3.0.0",
               "root_package": "",
@@ -16794,10 +16986,10 @@
             }
           },
           "npm__anchor-markdown-header__0.6.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__anchor-markdown-header__0.6.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__anchor-markdown-header__0.6.0__links",
               "package": "anchor-markdown-header",
               "version": "0.6.0",
               "dev": false,
@@ -16818,14 +17010,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__is-buffer__2.0.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-buffer__2.0.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-buffer__2.0.5__links",
               "package": "is-buffer",
               "version": "2.0.5",
               "dev": false,
@@ -16841,14 +17036,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__micromark-extension-footnote__0.3.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-footnote__0.3.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-footnote__0.3.2",
               "package": "micromark-extension-footnote",
               "version": "0.3.2",
               "root_package": "",
@@ -16870,10 +17068,10 @@
             }
           },
           "npm__micromark__2.11.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark__2.11.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark__2.11.4",
               "package": "micromark",
               "version": "2.11.4",
               "root_package": "",
@@ -16895,10 +17093,10 @@
             }
           },
           "npm__mdast-util-gfm-autolink-literal__0.1.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-autolink-literal__0.1.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-autolink-literal__0.1.3__links",
               "package": "mdast-util-gfm-autolink-literal",
               "version": "0.1.3",
               "dev": false,
@@ -16969,14 +17167,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__unified__9.2.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unified__9.2.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unified__9.2.2",
               "package": "unified",
               "version": "9.2.2",
               "root_package": "",
@@ -16998,10 +17199,10 @@
             }
           },
           "npm__vfile-message__2.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__vfile-message__2.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__vfile-message__2.0.4__links",
               "package": "vfile-message",
               "version": "2.0.4",
               "dev": false,
@@ -17026,14 +17227,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-footnote__0.1.7__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-footnote__0.1.7__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-footnote__0.1.7__links",
               "package": "mdast-util-footnote",
               "version": "0.1.7",
               "dev": false,
@@ -17103,14 +17307,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__debug__4.3.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__debug__4.3.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__debug__4.3.4",
               "package": "debug",
               "version": "4.3.4",
               "root_package": "",
@@ -17132,10 +17339,10 @@
             }
           },
           "npm__emoji-regex__10.1.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__emoji-regex__10.1.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__emoji-regex__10.1.0__links",
               "package": "emoji-regex",
               "version": "10.1.0",
               "dev": false,
@@ -17151,14 +17358,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-to-string__2.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-to-string__2.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-to-string__2.0.0",
               "package": "mdast-util-to-string",
               "version": "2.0.0",
               "root_package": "",
@@ -17180,10 +17390,10 @@
             }
           },
           "npm__underscore__1.13.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__underscore__1.13.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__underscore__1.13.4",
               "package": "underscore",
               "version": "1.13.4",
               "root_package": "",
@@ -17205,10 +17415,10 @@
             }
           },
           "npm__vfile__4.2.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__vfile__4.2.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__vfile__4.2.1__links",
               "package": "vfile",
               "version": "4.2.1",
               "dev": false,
@@ -17241,14 +17451,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-gfm-strikethrough__0.2.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-strikethrough__0.2.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-strikethrough__0.2.3__links",
               "package": "mdast-util-gfm-strikethrough",
               "version": "0.2.3",
               "dev": false,
@@ -17308,14 +17521,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__update-section__0.3.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__update-section__0.3.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__update-section__0.3.3",
               "package": "update-section",
               "version": "0.3.3",
               "root_package": "",
@@ -17337,10 +17553,10 @@
             }
           },
           "npm__micromark-extension-gfm-task-list-item__0.3.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-task-list-item__0.3.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-task-list-item__0.3.3__links",
               "package": "micromark-extension-gfm-task-list-item",
               "version": "0.3.3",
               "dev": false,
@@ -17391,14 +17607,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__entities__3.0.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__entities__3.0.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__entities__3.0.1",
               "package": "entities",
               "version": "3.0.1",
               "root_package": "",
@@ -17420,10 +17639,10 @@
             }
           },
           "npm__micromark-extension-gfm__0.3.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm__0.3.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm__0.3.3",
               "package": "micromark-extension-gfm",
               "version": "0.3.3",
               "root_package": "",
@@ -17445,10 +17664,10 @@
             }
           },
           "npm__mdast-util-gfm-table__0.1.6": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-table__0.1.6",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-table__0.1.6",
               "package": "mdast-util-gfm-table",
               "version": "0.1.6",
               "root_package": "",
@@ -17470,10 +17689,10 @@
             }
           },
           "npm__unified__9.2.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unified__9.2.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unified__9.2.2__links",
               "package": "unified",
               "version": "9.2.2",
               "dev": false,
@@ -17524,14 +17743,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__vfile__4.2.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__vfile__4.2.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__vfile__4.2.1",
               "package": "vfile",
               "version": "4.2.1",
               "root_package": "",
@@ -17553,10 +17775,10 @@
             }
           },
           "npm__extend__3.0.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__extend__3.0.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__extend__3.0.2__links",
               "package": "extend",
               "version": "3.0.2",
               "dev": false,
@@ -17572,14 +17794,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__entities__2.2.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__entities__2.2.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__entities__2.2.0",
               "package": "entities",
               "version": "2.2.0",
               "root_package": "",
@@ -17601,10 +17826,10 @@
             }
           },
           "npm__parse-entities__2.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__parse-entities__2.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__parse-entities__2.0.0__links",
               "package": "parse-entities",
               "version": "2.0.0",
               "dev": false,
@@ -17648,14 +17873,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-find-and-replace__1.1.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-find-and-replace__1.1.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-find-and-replace__1.1.1__links",
               "package": "mdast-util-find-and-replace",
               "version": "1.1.1",
               "dev": false,
@@ -17687,14 +17915,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-footnote__0.1.7": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-footnote__0.1.7",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-footnote__0.1.7",
               "package": "mdast-util-footnote",
               "version": "0.1.7",
               "root_package": "",
@@ -17716,10 +17947,10 @@
             }
           },
           "npm__micromark-extension-footnote__0.3.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-footnote__0.3.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-footnote__0.3.2__links",
               "package": "micromark-extension-footnote",
               "version": "0.3.2",
               "dev": false,
@@ -17770,14 +18001,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__is-decimal__1.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-decimal__1.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-decimal__1.0.4__links",
               "package": "is-decimal",
               "version": "1.0.4",
               "dev": false,
@@ -17793,14 +18027,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__micromark-extension-gfm-table__0.4.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-table__0.4.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-table__0.4.3__links",
               "package": "micromark-extension-gfm-table",
               "version": "0.4.3",
               "dev": false,
@@ -17851,14 +18088,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-frontmatter__0.2.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-frontmatter__0.2.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-frontmatter__0.2.0__links",
               "package": "mdast-util-frontmatter",
               "version": "0.2.0",
               "dev": false,
@@ -17885,14 +18125,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__micromark-extension-gfm__0.3.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm__0.3.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm__0.3.3__links",
               "package": "micromark-extension-gfm",
               "version": "0.3.3",
               "dev": false,
@@ -17963,14 +18206,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__is-hexadecimal__1.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-hexadecimal__1.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-hexadecimal__1.0.4",
               "package": "is-hexadecimal",
               "version": "1.0.4",
               "root_package": "",
@@ -17992,10 +18238,10 @@
             }
           },
           "npm__is-alphabetical__1.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-alphabetical__1.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-alphabetical__1.0.4__links",
               "package": "is-alphabetical",
               "version": "1.0.4",
               "dev": false,
@@ -18011,14 +18257,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__character-reference-invalid__1.1.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__character-reference-invalid__1.1.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__character-reference-invalid__1.1.4__links",
               "package": "character-reference-invalid",
               "version": "1.1.4",
               "dev": false,
@@ -18034,14 +18283,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__domutils__2.8.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__domutils__2.8.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__domutils__2.8.0__links",
               "package": "domutils",
               "version": "2.8.0",
               "dev": false,
@@ -18073,14 +18325,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__remark-frontmatter__3.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-frontmatter__3.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-frontmatter__3.0.0__links",
               "package": "remark-frontmatter",
               "version": "3.0.0",
               "dev": false,
@@ -18111,14 +18366,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__character-entities__1.2.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__character-entities__1.2.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__character-entities__1.2.4",
               "package": "character-entities",
               "version": "1.2.4",
               "root_package": "",
@@ -18140,10 +18398,10 @@
             }
           },
           "npm__micromark-extension-gfm-tagfilter__0.3.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-tagfilter__0.3.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-tagfilter__0.3.0__links",
               "package": "micromark-extension-gfm-tagfilter",
               "version": "0.3.0",
               "dev": false,
@@ -18159,14 +18417,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__minimist__1.2.6__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__minimist__1.2.6__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__minimist__1.2.6__links",
               "package": "minimist",
               "version": "1.2.6",
               "dev": false,
@@ -18182,14 +18443,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__micromark-extension-frontmatter__0.2.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-frontmatter__0.2.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-frontmatter__0.2.2__links",
               "package": "micromark-extension-frontmatter",
               "version": "0.2.2",
               "dev": false,
@@ -18213,14 +18477,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__extend__3.0.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__extend__3.0.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__extend__3.0.2",
               "package": "extend",
               "version": "3.0.2",
               "root_package": "",
@@ -18242,10 +18509,10 @@
             }
           },
           "npm__fault__1.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__fault__1.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__fault__1.0.4",
               "package": "fault",
               "version": "1.0.4",
               "root_package": "",
@@ -18267,10 +18534,10 @@
             }
           },
           "npm__mdast-util-frontmatter__0.2.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-frontmatter__0.2.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-frontmatter__0.2.0",
               "package": "mdast-util-frontmatter",
               "version": "0.2.0",
               "root_package": "",
@@ -18292,10 +18559,10 @@
             }
           },
           "npm__repeat-string__1.6.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__repeat-string__1.6.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__repeat-string__1.6.1",
               "package": "repeat-string",
               "version": "1.6.1",
               "root_package": "",
@@ -18317,10 +18584,10 @@
             }
           },
           "npm__at_textlint_ast-node-types__12.2.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_textlint_ast-node-types__12.2.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_textlint_ast-node-types__12.2.1",
               "package": "@textlint/ast-node-types",
               "version": "12.2.1",
               "root_package": "",
@@ -18342,10 +18609,10 @@
             }
           },
           "npm__at_textlint_ast-node-types__12.2.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_textlint_ast-node-types__12.2.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_textlint_ast-node-types__12.2.1__links",
               "package": "@textlint/ast-node-types",
               "version": "12.2.1",
               "dev": false,
@@ -18361,14 +18628,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__bail__1.0.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__bail__1.0.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__bail__1.0.5",
               "package": "bail",
               "version": "1.0.5",
               "root_package": "",
@@ -18390,10 +18660,10 @@
             }
           },
           "npm__micromark-extension-gfm-tagfilter__0.3.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-tagfilter__0.3.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-tagfilter__0.3.0",
               "package": "micromark-extension-gfm-tagfilter",
               "version": "0.3.0",
               "root_package": "",
@@ -18415,10 +18685,10 @@
             }
           },
           "npm__micromark-extension-gfm-table__0.4.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-table__0.4.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-table__0.4.3",
               "package": "micromark-extension-gfm-table",
               "version": "0.4.3",
               "root_package": "",
@@ -18440,10 +18710,10 @@
             }
           },
           "npm__underscore__1.13.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__underscore__1.13.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__underscore__1.13.4__links",
               "package": "underscore",
               "version": "1.13.4",
               "dev": false,
@@ -18459,14 +18729,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__micromark-extension-gfm-task-list-item__0.3.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-task-list-item__0.3.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-task-list-item__0.3.3",
               "package": "micromark-extension-gfm-task-list-item",
               "version": "0.3.3",
               "root_package": "",
@@ -18488,10 +18761,10 @@
             }
           },
           "npm__unist-util-stringify-position__2.0.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unist-util-stringify-position__2.0.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unist-util-stringify-position__2.0.3__links",
               "package": "unist-util-stringify-position",
               "version": "2.0.3",
               "dev": false,
@@ -18512,14 +18785,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__markdown-table__2.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__markdown-table__2.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__markdown-table__2.0.0",
               "package": "markdown-table",
               "version": "2.0.0",
               "root_package": "",
@@ -18541,10 +18817,10 @@
             }
           },
           "npm__vfile-message__2.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__vfile-message__2.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__vfile-message__2.0.4",
               "package": "vfile-message",
               "version": "2.0.4",
               "root_package": "",
@@ -18566,10 +18842,10 @@
             }
           },
           "npm__micromark-extension-gfm-autolink-literal__0.5.7": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-autolink-literal__0.5.7",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-autolink-literal__0.5.7",
               "package": "micromark-extension-gfm-autolink-literal",
               "version": "0.5.7",
               "root_package": "",
@@ -18591,10 +18867,10 @@
             }
           },
           "npm__remark-gfm__1.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-gfm__1.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-gfm__1.0.0",
               "package": "remark-gfm",
               "version": "1.0.0",
               "root_package": "",
@@ -18616,10 +18892,10 @@
             }
           },
           "npm__character-entities-legacy__1.1.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__character-entities-legacy__1.1.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__character-entities-legacy__1.1.4",
               "package": "character-entities-legacy",
               "version": "1.1.4",
               "root_package": "",
@@ -18641,10 +18917,10 @@
             }
           },
           "npm__doctoc__2.2.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__doctoc__2.2.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__doctoc__2.2.1",
               "package": "doctoc",
               "version": "2.2.1",
               "root_package": "",
@@ -18670,10 +18946,10 @@
             }
           },
           "npm__is-alphanumerical__1.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-alphanumerical__1.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-alphanumerical__1.0.4__links",
               "package": "is-alphanumerical",
               "version": "1.0.4",
               "dev": false,
@@ -18698,14 +18974,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-find-and-replace__1.1.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-find-and-replace__1.1.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-find-and-replace__1.1.1",
               "package": "mdast-util-find-and-replace",
               "version": "1.1.1",
               "root_package": "",
@@ -18727,10 +19006,10 @@
             }
           },
           "npm__ms__2.1.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__ms__2.1.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__ms__2.1.2__links",
               "package": "ms",
               "version": "2.1.2",
               "dev": false,
@@ -18746,14 +19025,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__at_types_unist__2.0.6__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_types_unist__2.0.6__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_types_unist__2.0.6__links",
               "package": "@types/unist",
               "version": "2.0.6",
               "dev": false,
@@ -18769,14 +19051,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-gfm-table__0.1.6__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-table__0.1.6__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-table__0.1.6__links",
               "package": "mdast-util-gfm-table",
               "version": "0.1.6",
               "dev": false,
@@ -18840,14 +19125,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__escape-string-regexp__4.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__escape-string-regexp__4.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__escape-string-regexp__4.0.0__links",
               "package": "escape-string-regexp",
               "version": "4.0.0",
               "dev": false,
@@ -18863,14 +19151,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__at_types_mdast__3.0.10": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_types_mdast__3.0.10",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_types_mdast__3.0.10",
               "package": "@types/mdast",
               "version": "3.0.10",
               "root_package": "",
@@ -18892,10 +19183,10 @@
             }
           },
           "npm__at_types_mdast__3.0.10__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_types_mdast__3.0.10__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_types_mdast__3.0.10__links",
               "package": "@types/mdast",
               "version": "3.0.10",
               "dev": false,
@@ -18916,14 +19207,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-from-markdown__0.8.5__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-from-markdown__0.8.5__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-from-markdown__0.8.5__links",
               "package": "mdast-util-from-markdown",
               "version": "0.8.5",
               "dev": false,
@@ -18990,14 +19284,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__remark-gfm__1.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-gfm__1.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-gfm__1.0.0__links",
               "package": "remark-gfm",
               "version": "1.0.0",
               "dev": false,
@@ -19118,14 +19415,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__update-section__0.3.3__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__update-section__0.3.3__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__update-section__0.3.3__links",
               "package": "update-section",
               "version": "0.3.3",
               "dev": false,
@@ -19141,14 +19441,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-gfm__0.1.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm__0.1.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm__0.1.2__links",
               "package": "mdast-util-gfm",
               "version": "0.1.2",
               "dev": false,
@@ -19251,14 +19554,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__unist-util-is__4.1.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unist-util-is__4.1.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unist-util-is__4.1.0",
               "package": "unist-util-is",
               "version": "4.1.0",
               "root_package": "",
@@ -19280,10 +19586,10 @@
             }
           },
           "npm__micromark-extension-frontmatter__0.2.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-frontmatter__0.2.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-frontmatter__0.2.2",
               "package": "micromark-extension-frontmatter",
               "version": "0.2.2",
               "root_package": "",
@@ -19305,10 +19611,10 @@
             }
           },
           "npm__micromark-extension-gfm-autolink-literal__0.5.7__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-autolink-literal__0.5.7__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-autolink-literal__0.5.7__links",
               "package": "micromark-extension-gfm-autolink-literal",
               "version": "0.5.7",
               "dev": false,
@@ -19359,14 +19665,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__domelementtype__2.3.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__domelementtype__2.3.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__domelementtype__2.3.0",
               "package": "domelementtype",
               "version": "2.3.0",
               "root_package": "",
@@ -19388,10 +19697,10 @@
             }
           },
           "npm__remark-footnotes__3.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-footnotes__3.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-footnotes__3.0.0__links",
               "package": "remark-footnotes",
               "version": "3.0.0",
               "dev": false,
@@ -19467,14 +19776,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-gfm-strikethrough__0.2.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-strikethrough__0.2.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-strikethrough__0.2.3",
               "package": "mdast-util-gfm-strikethrough",
               "version": "0.2.3",
               "root_package": "",
@@ -19496,10 +19808,10 @@
             }
           },
           "npm__entities__2.2.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__entities__2.2.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__entities__2.2.0__links",
               "package": "entities",
               "version": "2.2.0",
               "dev": false,
@@ -19515,14 +19827,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__entities__3.0.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__entities__3.0.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__entities__3.0.1__links",
               "package": "entities",
               "version": "3.0.1",
               "dev": false,
@@ -19538,14 +19853,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__at_textlint_markdown-to-ast__12.2.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_textlint_markdown-to-ast__12.2.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_textlint_markdown-to-ast__12.2.1__links",
               "package": "@textlint/markdown-to-ast",
               "version": "12.2.1",
               "dev": false,
@@ -19742,14 +20060,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-gfm-task-list-item__0.1.6": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-task-list-item__0.1.6",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-task-list-item__0.1.6",
               "package": "mdast-util-gfm-task-list-item",
               "version": "0.1.6",
               "root_package": "",
@@ -19771,10 +20092,10 @@
             }
           },
           "npm__format__0.2.2__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__format__0.2.2__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__format__0.2.2__links",
               "package": "format",
               "version": "0.2.2",
               "dev": false,
@@ -19790,14 +20111,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__unist-util-visit-parents__3.1.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unist-util-visit-parents__3.1.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unist-util-visit-parents__3.1.1",
               "package": "unist-util-visit-parents",
               "version": "3.1.1",
               "root_package": "",
@@ -19819,10 +20143,10 @@
             }
           },
           "npm__markdown-table__2.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__markdown-table__2.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__markdown-table__2.0.0__links",
               "package": "markdown-table",
               "version": "2.0.0",
               "dev": false,
@@ -19843,14 +20167,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__longest-streak__2.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__longest-streak__2.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__longest-streak__2.0.4",
               "package": "longest-streak",
               "version": "2.0.4",
               "root_package": "",
@@ -19872,10 +20199,10 @@
             }
           },
           "npm__mdast-util-gfm-task-list-item__0.1.6__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm-task-list-item__0.1.6__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm-task-list-item__0.1.6__links",
               "package": "mdast-util-gfm-task-list-item",
               "version": "0.1.6",
               "dev": false,
@@ -19935,14 +20262,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__zwitch__1.0.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__zwitch__1.0.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__zwitch__1.0.5",
               "package": "zwitch",
               "version": "1.0.5",
               "root_package": "",
@@ -19964,10 +20294,10 @@
             }
           },
           "npm__is-plain-obj__2.1.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-plain-obj__2.1.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-plain-obj__2.1.0",
               "package": "is-plain-obj",
               "version": "2.1.0",
               "root_package": "",
@@ -19989,10 +20319,10 @@
             }
           },
           "npm__format__0.2.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__format__0.2.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__format__0.2.2",
               "package": "format",
               "version": "0.2.2",
               "root_package": "",
@@ -20014,10 +20344,10 @@
             }
           },
           "npm__is-alphanumerical__1.0.4": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-alphanumerical__1.0.4",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-alphanumerical__1.0.4",
               "package": "is-alphanumerical",
               "version": "1.0.4",
               "root_package": "",
@@ -20039,10 +20369,10 @@
             }
           },
           "npm__domelementtype__2.3.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__domelementtype__2.3.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__domelementtype__2.3.0__links",
               "package": "domelementtype",
               "version": "2.3.0",
               "dev": false,
@@ -20058,14 +20388,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__domhandler__4.3.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__domhandler__4.3.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__domhandler__4.3.1__links",
               "package": "domhandler",
               "version": "4.3.1",
               "dev": false,
@@ -20086,14 +20419,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__remark-parse__9.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-parse__9.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-parse__9.0.0__links",
               "package": "remark-parse",
               "version": "9.0.0",
               "dev": false,
@@ -20159,14 +20495,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__mdast-util-gfm__0.1.2": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-gfm__0.1.2",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-gfm__0.1.2",
               "package": "mdast-util-gfm",
               "version": "0.1.2",
               "root_package": "",
@@ -20188,10 +20527,10 @@
             }
           },
           "npm__mdast-util-to-string__2.0.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__mdast-util-to-string__2.0.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__mdast-util-to-string__2.0.0__links",
               "package": "mdast-util-to-string",
               "version": "2.0.0",
               "dev": false,
@@ -20207,14 +20546,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__is-buffer__2.0.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__is-buffer__2.0.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__is-buffer__2.0.5",
               "package": "is-buffer",
               "version": "2.0.5",
               "root_package": "",
@@ -20236,10 +20578,10 @@
             }
           },
           "npm__dom-serializer__1.4.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__dom-serializer__1.4.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__dom-serializer__1.4.1",
               "package": "dom-serializer",
               "version": "1.4.1",
               "root_package": "",
@@ -20261,10 +20603,10 @@
             }
           },
           "npm__dom-serializer__1.4.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__dom-serializer__1.4.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__dom-serializer__1.4.1__links",
               "package": "dom-serializer",
               "version": "1.4.1",
               "dev": false,
@@ -20293,14 +20635,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__unist-util-is__4.1.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unist-util-is__4.1.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unist-util-is__4.1.0__links",
               "package": "unist-util-is",
               "version": "4.1.0",
               "dev": false,
@@ -20316,14 +20661,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__micromark-extension-gfm-strikethrough__0.6.5": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark-extension-gfm-strikethrough__0.6.5",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark-extension-gfm-strikethrough__0.6.5",
               "package": "micromark-extension-gfm-strikethrough",
               "version": "0.6.5",
               "root_package": "",
@@ -20345,10 +20693,10 @@
             }
           },
           "npm__doctoc__2.2.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__doctoc__2.2.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__doctoc__2.2.1__links",
               "package": "doctoc",
               "version": "2.2.1",
               "dev": false,
@@ -20583,14 +20931,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__parse-entities__2.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__parse-entities__2.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__parse-entities__2.0.0",
               "package": "parse-entities",
               "version": "2.0.0",
               "root_package": "",
@@ -20612,10 +20963,10 @@
             }
           },
           "npm__escape-string-regexp__4.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__escape-string-regexp__4.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__escape-string-regexp__4.0.0",
               "package": "escape-string-regexp",
               "version": "4.0.0",
               "root_package": "",
@@ -20637,10 +20988,10 @@
             }
           },
           "npm__remark-footnotes__3.0.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__remark-footnotes__3.0.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__remark-footnotes__3.0.0",
               "package": "remark-footnotes",
               "version": "3.0.0",
               "root_package": "",
@@ -20662,10 +21013,10 @@
             }
           },
           "npm__unist-util-stringify-position__2.0.3": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unist-util-stringify-position__2.0.3",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unist-util-stringify-position__2.0.3",
               "package": "unist-util-stringify-position",
               "version": "2.0.3",
               "root_package": "",
@@ -20687,10 +21038,10 @@
             }
           },
           "npm__micromark__2.11.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__micromark__2.11.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__micromark__2.11.4__links",
               "package": "micromark",
               "version": "2.11.4",
               "dev": false,
@@ -20739,14 +21090,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_translate_lock.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_translate_lock.bzl",
             "ruleClassName": "npm_translate_lock_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm",
+              "name": "aspect_rules_js~1.34.1~npm~npm",
               "pnpm_lock": "@@//:pnpm-lock.yaml",
               "yarn_lock": "@@//:yarn.lock",
               "update_pnpm_lock": true,
@@ -20755,6 +21109,7 @@
               "patches": {},
               "patch_args": {},
               "custom_postinstalls": {},
+              "package_visibility": {},
               "prod": false,
               "public_hoist_packages": {},
               "dev": false,
@@ -20791,10 +21146,10 @@
             }
           },
           "npm__htmlparser2__7.2.0__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__htmlparser2__7.2.0__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__htmlparser2__7.2.0__links",
               "package": "htmlparser2",
               "version": "7.2.0",
               "dev": false,
@@ -20831,14 +21186,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__unist-util-visit-parents__3.1.1__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__unist-util-visit-parents__3.1.1__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__unist-util-visit-parents__3.1.1__links",
               "package": "unist-util-visit-parents",
               "version": "3.1.1",
               "dev": false,
@@ -20863,14 +21221,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__ccount__1.1.0": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__ccount__1.1.0",
+              "name": "aspect_rules_js~1.34.1~npm~npm__ccount__1.1.0",
               "package": "ccount",
               "version": "1.1.0",
               "root_package": "",
@@ -20892,10 +21253,10 @@
             }
           },
           "npm__fault__1.0.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__fault__1.0.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__fault__1.0.4__links",
               "package": "fault",
               "version": "1.0.4",
               "dev": false,
@@ -20916,14 +21277,17 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "npm__at_textlint_markdown-to-ast__12.2.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__at_textlint_markdown-to-ast__12.2.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__at_textlint_markdown-to-ast__12.2.1",
               "package": "@textlint/markdown-to-ast",
               "version": "12.2.1",
               "root_package": "",
@@ -20945,10 +21309,10 @@
             }
           },
           "npm__domhandler__4.3.1": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__domhandler__4.3.1",
+              "name": "aspect_rules_js~1.34.1~npm~npm__domhandler__4.3.1",
               "package": "domhandler",
               "version": "4.3.1",
               "root_package": "",
@@ -20970,10 +21334,10 @@
             }
           },
           "npm__character-entities-legacy__1.1.4__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~npm~npm__character-entities-legacy__1.1.4__links",
+              "name": "aspect_rules_js~1.34.1~npm~npm__character-entities-legacy__1.1.4__links",
               "package": "character-entities-legacy",
               "version": "1.1.4",
               "dev": false,
@@ -20989,23 +21353,26 @@
               "lifecycle_hooks_env": [],
               "lifecycle_hooks_execution_requirements": [],
               "bins": {},
-              "npm_translate_lock_repo": "npm"
+              "npm_translate_lock_repo": "npm",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           }
         }
       }
     },
-    "@@aspect_rules_js~1.32.6//npm:extensions.bzl%pnpm": {
+    "@@aspect_rules_js~1.34.1//npm:extensions.bzl%pnpm": {
       "general": {
-        "bzlTransitiveDigest": "G6uxEJT6fiuormNIe0ArvQ9+xYtg1xM13A7asHetEV4=",
+        "bzlTransitiveDigest": "spaWsKgETXCNFk+Q9a8OfjtPX+AayUmN+gmidFmmKsk=",
         "accumulatedFileDigests": {},
         "envVariables": {},
         "generatedRepoSpecs": {
           "pnpm__links": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_links",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~pnpm~pnpm__links",
+              "name": "aspect_rules_js~1.34.1~pnpm~pnpm__links",
               "package": "pnpm",
               "version": "8.6.7",
               "dev": false,
@@ -21019,14 +21386,17 @@
                 "no-sandbox"
               ],
               "bins": {},
-              "npm_translate_lock_repo": ""
+              "npm_translate_lock_repo": "",
+              "package_visibility": [
+                "//visibility:public"
+              ]
             }
           },
           "pnpm": {
-            "bzlFile": "@@aspect_rules_js~1.32.6//npm/private:npm_import.bzl",
+            "bzlFile": "@@aspect_rules_js~1.34.1//npm/private:npm_import.bzl",
             "ruleClassName": "npm_import_rule",
             "attributes": {
-              "name": "aspect_rules_js~1.32.6~pnpm~pnpm",
+              "name": "aspect_rules_js~1.34.1~pnpm~pnpm",
               "package": "pnpm",
               "version": "8.6.7",
               "root_package": "",
@@ -21045,7 +21415,7 @@
               "npm_auth_username": "",
               "npm_auth_password": "",
               "lifecycle_hooks": [],
-              "extra_build_content": "load(\"@aspect_rules_js//js:defs.bzl\", \"js_binary\")\njs_binary(name = \"pnpm\", entry_point = \"package/dist/pnpm.cjs\", visibility = [\"//visibility:public\"])",
+              "extra_build_content": "load(\"@aspect_rules_js//js:defs.bzl\", \"js_binary\")\njs_binary(name = \"pnpm\", data = glob([\"package/**\"]), entry_point = \"package/dist/pnpm.cjs\", visibility = [\"//visibility:public\"])",
               "generate_bzl_library_targets": false
             }
           }

@@ -58,27 +58,40 @@ stardoc_repositories()
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
 http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "dcc55f810142b6cf46a44d0180a5a7fb923c04a5061e2e8d8eb05ccccc60864b",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.8.0/rules_nodejs-5.8.0.tar.gz"],
+    name = "aspect_rules_js",
+    sha256 = "76a04ef2120ee00231d85d1ff012ede23963733339ad8db81f590791a031f643",
+    strip_prefix = "rules_js-1.34.1",
+    url = "https://github.com/aspect-build/rules_js/releases/download/v1.34.1/rules_js-v1.34.1.tar.gz",
 )
 
-load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 
-build_bazel_rules_nodejs_dependencies()
+rules_js_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains")
 
-node_repositories(
+nodejs_register_toolchains(
+    name = "nodejs",
     node_version = "16.17.0",
-    yarn_version = "1.22.19",
 )
 
-yarn_install(
+# For convenience, npm_translate_lock does this call automatically.
+# Uncomment if you don't call npm_translate_lock at all.
+#load("@bazel_features//:deps.bzl", "bazel_features_deps")
+#bazel_features_deps()
+
+load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
+
+npm_translate_lock(
     name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
+    npmrc = "@//:.npmrc",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
 )
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()
 
 # Required for buildifier (`//scripts:buildifier`)
 http_file(
