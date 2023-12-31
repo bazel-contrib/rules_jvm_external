@@ -377,12 +377,14 @@ def _maven_impl(mctx):
 
             if v2_lock_file.is_valid_lock_file(lock_file):
                 artifacts = v2_lock_file.get_artifacts(lock_file)
+                importer = v2_lock_file
             elif v1_lock_file.is_valid_lock_file(lock_file):
                 artifacts = v1_lock_file.get_artifacts(lock_file)
+                importer = v1_lock_file
             else:
                 fail("Unable to determine lock file version: %s" % repo.get("lock_file"))
 
-            created = download_pinned_deps(artifacts = artifacts, http_files = http_files)
+            created = download_pinned_deps(mctx = mctx, artifacts = artifacts, http_files = http_files, has_m2local = importer.has_m2local(lock_file))
             existing_repos.extend(created)
 
             pinned_coursier_fetch(

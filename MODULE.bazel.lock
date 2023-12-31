@@ -2599,7 +2599,7 @@
     },
     "//:extensions.bzl%maven": {
       "general": {
-        "bzlTransitiveDigest": "0e1YYTDz7wg9ybd6aD4PtBrDZVM+k5UHpCwxm16uXE0=",
+        "bzlTransitiveDigest": "J7K9N3LjcC7x3FiX4Si2hWi3vr+4dxDZ7iSC8oQLUUI=",
         "accumulatedFileDigests": {
           "@@//:rules_jvm_external_deps_install.json": "f7b381f38c8e0e8529fe2aac36898ccc9b2a7f38aa0fecf911924163437f1752",
           "@@//:maven_install.json": "7c1bac4425b7ce62051600eb59c7a1daa59d124a8189d39fa5ac8122bb6de498",
@@ -3234,6 +3234,18 @@
                 "https://repo.spring.io/plugins-release/io/quarkus/quarkus-core-deployment/1.0.1.Final/quarkus-core-deployment-1.0.1.Final-sources.jar"
               ],
               "downloaded_file_path": "io/quarkus/quarkus-core-deployment/1.0.1.Final/quarkus-core-deployment-1.0.1.Final-sources.jar"
+            }
+          },
+          "com_example_kt_1_0_0": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "name": "_main~maven~com_example_kt_1_0_0",
+              "sha256": "9b91e08175af5e6189f1eedda552c02c0c38c5c9489d1a246609054a5a1fa34d",
+              "urls": [
+                "file:///Users/shs/.m2/repository/com/example/kt/1.0.0/kt-1.0.0.jar"
+              ],
+              "downloaded_file_path": "com/example/kt/1.0.0/kt-1.0.0.jar"
             }
           },
           "com_github_spinalhdl_spinalhdl_core_2_11_1_3_6": {
