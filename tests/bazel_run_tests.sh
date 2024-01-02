@@ -9,7 +9,6 @@ function force_bzlmod_lock_file_to_be_regnerated() {
   # The newly deployed jar won't be in the bazel module lock file, so force
   # that to be regenerated in a way that works with pre-bzlmod versions of
   # Bazel
-  bazel shutdown
   [[ -e MODULE.bazel.lock ]] && rm -f MODULE.bazel.lock
 }
 
@@ -109,7 +108,7 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${HOME}/.m2/repository" //tests/integration/kt_jvm_export:test.publish
+  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
   bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
 
   force_bzlmod_lock_file_to_be_regnerated
