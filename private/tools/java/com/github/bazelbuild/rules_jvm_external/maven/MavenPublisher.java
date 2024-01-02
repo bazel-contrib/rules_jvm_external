@@ -101,7 +101,7 @@ public class MavenPublisher {
         futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, gpgSign));
       }
 
-      if (args.length > 3) {
+      if (args.length > 3 && !args[3].isEmpty()) {
         List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[3]);
         for (String artifactTuple : extraArtifactTuples) {
           String[] splits = artifactTuple.split("=");
