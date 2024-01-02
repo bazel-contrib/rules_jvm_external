@@ -20,6 +20,7 @@ maven.install(
     artifacts = [
         "org.seleniumhq.selenium:selenium-java:4.4.0",
     ],
+    fetch_sources = True,
     lock_file = "//:maven_install.json",
 )
 use_repo(
