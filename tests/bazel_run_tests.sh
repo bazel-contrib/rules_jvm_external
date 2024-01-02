@@ -9,7 +9,7 @@ function force_bzlmod_lock_file_to_be_regnerated() {
   # The newly deployed jar won't be in the bazel module lock file, so force
   # that to be regenerated in a way that works with pre-bzlmod versions of
   # Bazel
-  [[ -e MODULE.bazel.lock ]] && rm -f MODULE.bazel.lock
+  rm -f MODULE.bazel.lock
 }
 
 function test_dependency_aggregation() {
@@ -109,6 +109,10 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   mkdir -p ${m2local_dir}
   # Publish a maven artifact locally - com.example.kt:1.0.0
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+
+  # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
+  bazel clean --expunge >/dev/null 2>&1
+
   bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
 
   force_bzlmod_lock_file_to_be_regnerated
@@ -146,8 +150,8 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   # this is mapping of the two, since bash 3 doesn't support maps
   maven_files_to_copy=(
     "test-docs.jar:kt-1.0.0-javadoc.jar"
-    "test-lib.jar:kt-1.0.0.jar"
-    "test-lib-sources.jar:kt-1.0.0-sources.jar"
+    "test-project.jar:kt-1.0.0.jar"
+    "test-project-src.jar:kt-1.0.0-sources.jar"
     "test-pom.xml:kt-1.0.0.pom"
   )
 
@@ -156,7 +160,7 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   for file_map in "${maven_files_to_copy[@]}"; do
     source="${file_map%%:*}"
     dest="${file_map##*:}"
-    cp "bazel-bin/tests/integration/kt_jvm_export/$source" "${jar_dir}/${dest}"
+    cp -f "bazel-bin/tests/integration/kt_jvm_export/$source" "${jar_dir}/${dest}"
   done
 
   # Clear cache for fresh re-build
