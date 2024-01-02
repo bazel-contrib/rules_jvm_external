@@ -76,6 +76,12 @@ def get_m2local_url(repo_os, path_func, artifact):
         user_home = repo_os.environ.get("HOME")
 
     local_path = artifact["file"]
+
+    if not local_path:
+        # In theory, we could calculate a path, but I'm not entirely sure how we would even get here with a recent
+        # version of the lock file
+        return None
+
     if not local_path.startswith("/"):
         local_path = "%s/.m2/repository/%s" % (user_home, local_path)
 
