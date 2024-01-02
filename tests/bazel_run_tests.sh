@@ -10,7 +10,7 @@ function force_bzlmod_lock_file_to_be_regnerated() {
   # that to be regenerated in a way that works with pre-bzlmod versions of
   # Bazel
   bazel shutdown
-  rm MODULE.bazel.lock
+  [[ -e MODULE.bazel.lock ]] && rm -f MODULE.bazel.lock
 }
 
 function test_dependency_aggregation() {
