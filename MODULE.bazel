@@ -285,6 +285,20 @@ dev_maven.install(
     ],
 )
 dev_maven.install(
+    name = "m2local_testing_without_checksum",
+    artifacts = [
+        # this is a test jar built for integration
+        # tests in this repo
+        "com.example:kt:1.0.0",
+    ],
+    # jar won't have checksums for this test case
+    fail_on_missing_checksum = False,
+    repositories = [
+        "m2Local",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+dev_maven.install(
     name = "manifest_stamp_testing",
     artifacts = [
         "com.google.guava:guava:27.0-jre",
@@ -539,6 +553,7 @@ use_repo(
 
     # Pinned repo
     "m2local_testing_repin",
+    "m2local_testing_without_checksum",
     "unpinned_m2local_testing_repin",
 
     # Pinned repo
