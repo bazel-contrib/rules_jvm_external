@@ -5,6 +5,43 @@
 #
 # Add a new test to the TESTS array and send all output to TEST_LOG
 
+function test_formatting_is_okay() {
+  before_format="$(git status)"
+  bazel run //scripts:format >> "$TEST_LOG" 2>&1
+  after_format="$(git status)"
+  expect_same "$before_format" "$after_format"
+}
+
+function test_prebuilts_are_up_to_date() {
+  temp=$(mktemp -d)
+  cp private/tools/prebuilt/*.jar "$temp"
+  bazel run //scripts:refresh-prebuilts >> "$TEST_LOG" 2>&1
+
+  for i in private/tools/prebuilt/*.jar; do
+    file_name=$(basename $i)
+
+    echo "Comparing $file_name" >> "$TEST_LOG"
+
+    different="$(comm -3 <(jar tvf "$temp/$file_name" | grep -v build-data.properties | sort) <(jar tvf "private/tools/prebuilt/$file_name" | grep -v build-data.properties | sort))"
+
+    if [ -n "$different" ]; then
+      echo "$different" >> "$TEST_LOG" 2>&1
+
+      printf "FAILED\n"
+      cat $TEST_LOG
+      DUMPED_TEST_LOG=1
+      return 1
+    fi
+  done
+}
+
+function test_docs_are_up_to_date() {
+  before_docs="$(git status)"
+  bazel run //scripts:generate-docs >> "$TEST_LOG" 2>&1
+  after_docs="$(git status)"
+  expect_same "$before_docs" "$after_docs"
+}
+
 function test_dependency_aggregation() {
   bazel query --notool_deps 'deps(@regression_testing//:com_sun_xml_bind_jaxb_ri)' >> "$TEST_LOG" 2>&1
 
@@ -183,6 +220,10 @@ function test_dependency_pom_exclusion() {
 }
 
 TESTS=(
+  "test_formatting_is_okay"
+  "test_prebuilts_are_up_to_date"
+  "test_docs_are_up_to_date"
+
   "test_dependency_aggregation"
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
@@ -245,6 +286,20 @@ function expect_not_log() {
   DUMPED_TEST_LOG=1
   printf "FAILURE: $message\n"
   return 1
+}
+
+function expect_same() {
+  local before="$1"
+  local after="$2"
+
+  if [ "$before" != "$after" ]; then
+      diff <(echo "$before") <(echo "$after") >> "$TEST_LOG" 2>&1
+
+      printf "FAILED\n"
+      cat $TEST_LOG
+      DUMPED_TEST_LOG=1
+      return 1
+    fi
 }
 
 function exit_handler() {

@@ -1,7 +1,9 @@
-load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
-exports_files(["defs.bzl"])
+exports_files([
+    "defs.bzl",
+    "specs.bzl",
+])
 
 licenses(["notice"])  # Apache 2.0
 
@@ -11,33 +13,6 @@ exports_files(
         "docs/includes/spec_functions_header.md",
     ],
     visibility = ["//scripts:__pkg__"],
-)
-
-stardoc(
-    name = "defs",
-    out = "defs.md",
-    input = "defs.bzl",
-    symbol_names = [
-        "javadoc",
-        "java_export",
-        "maven_bom",
-        "maven_install",
-    ],
-    visibility = ["//scripts:__pkg__"],
-    deps = ["//:implementation"],
-)
-
-stardoc(
-    name = "specs",
-    out = "specs.md",
-    input = "specs.bzl",
-    symbol_names = [
-        "maven.artifact",
-        "maven.repository",
-        "maven.exclusion",
-    ],
-    visibility = ["//scripts:__pkg__"],
-    deps = ["//:implementation"],
 )
 
 bzl_library(
@@ -81,9 +56,4 @@ bzl_library(
 alias(
     name = "mirror_coursier",
     actual = "//scripts:mirror_coursier",
-)
-
-alias(
-    name = "generate_api_reference",
-    actual = "//scripts:generate_api_reference",
 )
