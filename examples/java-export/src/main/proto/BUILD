@@ -1,5 +1,5 @@
-load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_proto//proto:defs.bzl", "proto_library")
 
 java_library(
     name = "proto",

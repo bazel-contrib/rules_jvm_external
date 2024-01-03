@@ -5,6 +5,13 @@
 #
 # Add a new test to the TESTS array and send all output to TEST_LOG
 
+function force_bzlmod_lock_file_to_be_regenerated() {
+  # The newly deployed jar won't be in the bazel module lock file, so force
+  # that to be regenerated in a way that works with pre-bzlmod versions of
+  # Bazel
+  rm -f MODULE.bazel.lock
+}
+
 function test_dependency_aggregation() {
   bazel query --notool_deps 'deps(@regression_testing//:com_sun_xml_bind_jaxb_ri)' >> "$TEST_LOG" 2>&1
 
@@ -37,6 +44,8 @@ function test_m2local_testing_ignore_empty_files() {
   touch ${jar_dir}/kt-1.0.0-sources.jar
   echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
 
+  force_bzlmod_lock_file_to_be_regenerated
+
   bazel run @m2local_testing_ignore_empty_files//:pin >> "$TEST_LOG" 2>&1
   expect_not_in_file '"sources": "' m2local_testing_ignore_empty_files_install.json
 
@@ -62,6 +71,8 @@ function test_unpinned_m2local_testing_ignore_empty_files() {
   touch ${jar_dir}/kt-1.0.0-sources.jar
   echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
 
+  force_bzlmod_lock_file_to_be_regenerated
+
   bazel run @unpinned_m2local_testing_ignore_empty_files_repin//:pin >> "$TEST_LOG" 2>&1
   expect_not_in_file '"sources": "' tests/custom_maven_install/m2local_testing_ignore_empty_files_with_pinned_file_install.json
 
@@ -80,6 +91,9 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
   # Publish a maven artifact locally - com.example.kt:1.0.0
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
   bazel run @m2local_testing//:pin >> "$TEST_LOG" 2>&1
+
+  force_bzlmod_lock_file_to_be_regenerated
+
   bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -f m2local_testing_install.json
   rm -rf ${jar_dir}
@@ -89,14 +103,23 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
 }
 
 function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build() {
-  m2local_dir="~/.m2/repository"
+  m2local_dir="${HOME}/.m2/repository"
+  jar_dir="${m2local_dir}/com/example/kt/1.0.0"
+  rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${HOME}/.m2/repository" //tests/integration/kt_jvm_export:test.publish 
+  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+
+  # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
+  bazel clean --expunge >/dev/null 2>&1
+
   bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
+
+  force_bzlmod_lock_file_to_be_regenerated
+
   bazel build @m2local_testing_repin//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -f m2local_testing_install.json
-  rm -rf ~/.m2/repository
+  rm -rf ${jar_dir}
 
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
   expect_log "Successfully pinned resolved artifacts"
@@ -110,6 +133,9 @@ function test_m2local_testing_found_local_artifact_through_build() {
   bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
   # Publish a maven artifact locally - com.example.kt:1.0.0
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+
+  force_bzlmod_lock_file_to_be_regenerated
+
   bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -rf ${jar_dir}
 
@@ -124,8 +150,8 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   # this is mapping of the two, since bash 3 doesn't support maps
   maven_files_to_copy=(
     "test-docs.jar:kt-1.0.0-javadoc.jar"
-    "test-lib.jar:kt-1.0.0.jar"
-    "test-lib-sources.jar:kt-1.0.0-sources.jar"
+    "test-project.jar:kt-1.0.0.jar"
+    "test-project-src.jar:kt-1.0.0-sources.jar"
     "test-pom.xml:kt-1.0.0.pom"
   )
 
@@ -134,11 +160,14 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   for file_map in "${maven_files_to_copy[@]}"; do
     source="${file_map%%:*}"
     dest="${file_map##*:}"
-    cp "bazel-bin/tests/integration/kt_jvm_export/$source" "${jar_dir}/${dest}"
+    cp -f "bazel-bin/tests/integration/kt_jvm_export/$source" "${jar_dir}/${dest}"
   done
 
   # Clear cache for fresh re-build
   bazel clean --expunge >> "$TEST_LOG" 2>&1
+
+  force_bzlmod_lock_file_to_be_regenerated
+
   bazel build @m2local_testing_without_checksum//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -rf ${jar_dir}
 

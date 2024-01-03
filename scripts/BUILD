@@ -1,6 +1,5 @@
-load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
+load("@npm//:doctoc/package_json.bzl", doctoc_bin = "bin")
 load("//private/rules:artifact.bzl", "artifact")
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 
 genrule(
     name = "buildifier-bin",
@@ -17,7 +16,7 @@ genrule(
 sh_binary(
     name = "mirror_coursier",
     srcs = [":mirror_coursier.sh"],
-    data = ["@" + COURSIER_CLI_HTTP_FILE_NAME + "//file"],
+    data = ["@coursier_cli//file"],
     visibility = ["//:__pkg__"],
 )
 
@@ -37,19 +36,15 @@ genrule(
     $(location //:specs.md) > $@""",
 )
 
+doctoc_bin.doctoc_binary(name = "doctoc")
+
 genrule(
     name = "generate_api_reference",
     srcs = [":generate_base_docs"],
     outs = ["api.md"],
-    cmd = "cp $(location :generate_base_docs) $@; chmod +w $@; $(location :doctoc) --title '# API Reference' $@",
+    cmd = "cp $(location :generate_base_docs) $@; chmod +w $@; BAZEL_BINDIR=$(BINDIR) $(location :doctoc) --title '# API Reference' $$(pwd)/$@",
     tools = [":doctoc"],
     visibility = ["//:__pkg__"],
-)
-
-nodejs_binary(
-    name = "doctoc",
-    data = ["@npm//doctoc"],
-    entry_point = {"@npm//:node_modules/doctoc": "doctoc.js"},
 )
 
 java_binary(

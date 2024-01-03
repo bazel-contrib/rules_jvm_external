@@ -150,7 +150,7 @@ proto_library(
     srcs = ["example.proto"],
     deps = [
         # It's important that we pull our dep from `@com_google_protobuf`
-        "@com_google_protobuf//:wrappers_proto",
+        "@protobuf//:wrappers_proto",
     ],
 )
 
@@ -174,7 +174,7 @@ java_export(
 java_export(
     name = "with-added-dependency",
     excluded_workspaces = {
-        "com_google_protobuf": artifact(
+        "protobuf": artifact(
             "com.google.protobuf:protobuf-java",
             repository_name = "java_export_exclusion_testing",
         ),

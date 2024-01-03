@@ -1,8 +1,8 @@
 """Unit tests for exports."""
 
+load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 load("//private/rules:has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
-load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 
 def _exports_test_impl(ctx):
     env = analysistest.begin(ctx)

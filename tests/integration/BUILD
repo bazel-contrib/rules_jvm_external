@@ -34,7 +34,7 @@ genrule(
     testonly = 1,
     srcs = [":testonly-deps"],
     outs = ["testonly-deps-sorted.txt"],
-    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
+    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sed -e 's|@.*~|@|g; s|\r||g' | sort > $@",
 )
 
 diff_test(
@@ -61,7 +61,7 @@ genrule(
     testonly = 1,
     srcs = [":version_interval_deps"],
     outs = ["version-interval-deps-sorted.txt"],
-    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sort > $@",
+    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sed -e 's|@.*~|@|g; s|\r||g' | sort > $@",
 )
 
 diff_test(

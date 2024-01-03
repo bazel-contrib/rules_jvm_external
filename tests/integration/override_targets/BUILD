@@ -3,18 +3,18 @@ load("@rules_android//android:rules.bzl", "aar_import")
 
 build_test(
     name = "override_targets",
+    tags = ["manual"],  # https://github.com/bazelbuild/rules_jvm_external/issues/978
     targets = [":app"],
-    tags = ["manual"], # https://github.com/bazelbuild/rules_jvm_external/issues/978
 )
 
 android_binary(
     name = "app",
     custom_package = "not.used",
     manifest = "AndroidManifest.xml",
+    tags = ["manual"],  # https://github.com/bazelbuild/rules_jvm_external/issues/978
     deps = [
         "@regression_testing//:com_google_ar_sceneform_ux_sceneform_ux",
     ],
-    tags = ["manual"], # https://github.com/bazelbuild/rules_jvm_external/issues/978
 )
 
 # rendering-1.10.0.aar is known to have an incomplete list of dependencies in
@@ -24,7 +24,10 @@ android_binary(
 aar_import(
     name = "sceneform_rendering",
     aar = "@com.google.ar.sceneform_rendering//file",
-    tags = ["maven_coordinates=com.google.ar.sceneform:rendering:aar:1.10.0", "manual"],
+    tags = [
+        "manual",
+        "maven_coordinates=com.google.ar.sceneform:rendering:aar:1.10.0",
+    ],
     visibility = ["@regression_testing//:__subpackages__"],
     deps = [
         # Add the missing dependencies
@@ -48,6 +51,10 @@ java_library(
 genquery(
     name = "trace_otel_deps",
     expression = "deps(@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
     scope = ["@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk"],
 )
 

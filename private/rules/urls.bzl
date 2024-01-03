@@ -65,3 +65,27 @@ def extract_netrc_from_auth_url(url):
         "login": login,
         "password": password,
     }
+
+def _is_windows(repository_os):
+    return repository_os.name.find("windows") != -1
+
+def get_m2local_url(repo_os, path_func, artifact):
+    if _is_windows(repo_os):
+        user_home = repo_os.environ.get("USERPROFILE").replace("\\", "/")
+    else:
+        user_home = repo_os.environ.get("HOME")
+
+    local_path = artifact["file"]
+
+    if not local_path:
+        # In theory, we could calculate a path, but I'm not entirely sure how we would even get here with a recent
+        # version of the lock file
+        return None
+
+    if not local_path.startswith("/"):
+        local_path = "%s/.m2/repository/%s" % (user_home, local_path)
+
+    path = path_func(local_path)
+    if path.exists:
+        return "file://%s" % local_path
+    return None

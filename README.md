@@ -1140,7 +1140,8 @@ the following steps will install what you need and set up the
 ```
 brew install android-commandlinetools
 export ANDROID_HOME="$(brew --prefix)/share/android-commandlinetools"
-sdkmanager "build-tools;33.0.1" "cmdline-tools;latest" "ndk;25.1.8937393" "platform-tools" "platforms;android-33"
+sdkmanager "build-tools;33.0.1" "cmdline-tools;latest" "ndk;21.4.7075529" "platform-tools" "platforms;android-33"
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/21.4.7075529"
 ```
 
 You can add the `export ANDROID_HOME` to your `.zshrc` or similar

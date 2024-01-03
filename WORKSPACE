@@ -1,18 +1,18 @@
 workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = "androidsdk")
+
 android_ndk_repository(name = "androidndk")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "//private:versions.bzl",
     "COURSIER_CLI_GITHUB_ASSET_URL",
-    "COURSIER_CLI_HTTP_FILE_NAME",
     "COURSIER_CLI_SHA256",
 )
 
 http_file(
-    name = COURSIER_CLI_HTTP_FILE_NAME,
+    name = "coursier_cli",
     sha256 = COURSIER_CLI_SHA256,
     urls = [COURSIER_CLI_GITHUB_ASSET_URL],
 )
@@ -58,27 +58,40 @@ stardoc_repositories()
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
 http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "dcc55f810142b6cf46a44d0180a5a7fb923c04a5061e2e8d8eb05ccccc60864b",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.8.0/rules_nodejs-5.8.0.tar.gz"],
+    name = "aspect_rules_js",
+    sha256 = "76a04ef2120ee00231d85d1ff012ede23963733339ad8db81f590791a031f643",
+    strip_prefix = "rules_js-1.34.1",
+    url = "https://github.com/aspect-build/rules_js/releases/download/v1.34.1/rules_js-v1.34.1.tar.gz",
 )
 
-load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 
-build_bazel_rules_nodejs_dependencies()
+rules_js_dependencies()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
-node_repositories(
+nodejs_register_toolchains(
+    name = "nodejs",
     node_version = "16.17.0",
-    yarn_version = "1.22.19",
 )
 
-yarn_install(
+# For convenience, npm_translate_lock does this call automatically.
+# Uncomment if you don't call npm_translate_lock at all.
+#load("@bazel_features//:deps.bzl", "bazel_features_deps")
+#bazel_features_deps()
+
+load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
+
+npm_translate_lock(
     name = "npm",
-    package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
+    npmrc = "@//:.npmrc",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
 )
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()
 
 # Required for buildifier (`//scripts:buildifier`)
 http_file(
@@ -693,14 +706,22 @@ rbe_preconfig(
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "6fc9b6efc18acb2fd5fb3bcf981572539c3432600042b662a162c1226b362426",
-    strip_prefix = "protobuf-21.10",
-    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.10/protobuf-all-21.10.tar.gz",
+    sha256 = "e07046fbac432b05adc1fd1318c6f19ab1b0ec0655f7f4e74627d9713959a135",
+    strip_prefix = "protobuf-21.7",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.7/protobuf-all-21.7.tar.gz",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
+
+# When using `bzlmod` this gets pulled in as `protobuf`
+http_archive(
+    name = "protobuf",
+    sha256 = "e07046fbac432b05adc1fd1318c6f19ab1b0ec0655f7f4e74627d9713959a135",
+    strip_prefix = "protobuf-21.7",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v21.7/protobuf-all-21.7.tar.gz",
+)
 
 maven_install(
     name = "java_export_exclusion_testing",
