@@ -5,7 +5,7 @@
 #
 # Add a new test to the TESTS array and send all output to TEST_LOG
 
-function force_bzlmod_lock_file_to_be_regnerated() {
+function force_bzlmod_lock_file_to_be_regenerated() {
   # The newly deployed jar won't be in the bazel module lock file, so force
   # that to be regenerated in a way that works with pre-bzlmod versions of
   # Bazel
@@ -44,7 +44,7 @@ function test_m2local_testing_ignore_empty_files() {
   touch ${jar_dir}/kt-1.0.0-sources.jar
   echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
 
-  force_bzlmod_lock_file_to_be_regnerated
+  force_bzlmod_lock_file_to_be_regenerated
 
   bazel run @m2local_testing_ignore_empty_files//:pin >> "$TEST_LOG" 2>&1
   expect_not_in_file '"sources": "' m2local_testing_ignore_empty_files_install.json
@@ -71,7 +71,7 @@ function test_unpinned_m2local_testing_ignore_empty_files() {
   touch ${jar_dir}/kt-1.0.0-sources.jar
   echo "da39a3ee5e6b4b0d3255bfef95601890afd80709" > ${jar_dir}/kt-1.0.0-sources.jar.sha1
 
-  force_bzlmod_lock_file_to_be_regnerated
+  force_bzlmod_lock_file_to_be_regenerated
 
   bazel run @unpinned_m2local_testing_ignore_empty_files_repin//:pin >> "$TEST_LOG" 2>&1
   expect_not_in_file '"sources": "' tests/custom_maven_install/m2local_testing_ignore_empty_files_with_pinned_file_install.json
@@ -92,7 +92,7 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
   bazel run @m2local_testing//:pin >> "$TEST_LOG" 2>&1
 
-  force_bzlmod_lock_file_to_be_regnerated
+  force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -f m2local_testing_install.json
@@ -115,7 +115,7 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
 
   bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
 
-  force_bzlmod_lock_file_to_be_regnerated
+  force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing_repin//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -f m2local_testing_install.json
@@ -134,7 +134,7 @@ function test_m2local_testing_found_local_artifact_through_build() {
   # Publish a maven artifact locally - com.example.kt:1.0.0
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
 
-  force_bzlmod_lock_file_to_be_regnerated
+  force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -rf ${jar_dir}
@@ -166,7 +166,7 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   # Clear cache for fresh re-build
   bazel clean --expunge >> "$TEST_LOG" 2>&1
 
-  force_bzlmod_lock_file_to_be_regnerated
+  force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing_without_checksum//:com_example_kt >> "$TEST_LOG" 2>&1
   rm -rf ${jar_dir}
