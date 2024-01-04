@@ -94,6 +94,7 @@ _install = tag_class(
             ],
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
+        "repin_instructions": attr.string(doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module."),
     },
 )
 
@@ -325,6 +326,9 @@ def _maven_impl(mctx):
                 timout = install.resolve_timeout
             repo["resolve_timeout"] = timeout
 
+            if mod.is_root:
+                repo["repin_instructions"] = install.repin_instructions
+
             repos[install.name] = repo
 
     existing_repos = []
@@ -405,6 +409,7 @@ def _maven_impl(mctx):
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 excluded_artifacts = excluded_artifacts_json,
+                repin_instructions = repo.get("repin_instructions"),
             )
 
             if repo.get("generate_compat_repositories"):
