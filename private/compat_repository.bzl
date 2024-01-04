@@ -29,7 +29,7 @@ def _compat_repository_impl(repository_ctx):
     repository_ctx.file(
         "BUILD",
         _ROOT_BUILD.format(
-            repository_name = target_name,
+            repository_name = repository_ctx.name.split('~')[-1:][0],
             generating_repository = repository_ctx.attr.generating_repository,
             target_name = target_name,
         ),
