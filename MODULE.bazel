@@ -226,6 +226,23 @@ dev_maven.artifact(
     version = "27.0-jre",
 )
 dev_maven.install(
+    name = "forcing_versions",
+    artifacts = [
+        # And something that depends on a more recent version of guava
+        "xyz.rogfam:littleproxy:2.1.0",
+    ],
+)
+
+# Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,
+# the resolution will fail when using `coursier`
+dev_maven.artifact(
+    name = "forcing_versions",
+    artifact = "guava",
+    force_version = True,
+    group = "com.google.guava",
+    version = "23.3-jre",
+)
+dev_maven.install(
     name = "global_exclusion_testing",
     artifacts = [
         "com.google.guava:guava:27.0-jre",  # depends on animal-sniffer-annotations and j2objc-annotations
@@ -574,6 +591,7 @@ use_repo(
     "duplicate_version_warning",
     "duplicate_version_warning_same_version",
     "exclusion_testing",
+    "forcing_versions",
     "global_exclusion_testing",
     "m2local_testing",
     "m2local_testing_ignore_empty_files",
