@@ -208,9 +208,6 @@ public class MergeJars {
   private static void writeAar(Path out, Path aarSource, Path classesJar) throws IOException {
     try (OutputStream os = Files.newOutputStream(out);
          JarOutputStream jos = new JarOutputStream(os)) {
-      jos.setMethod(DEFLATED);
-      jos.setLevel(BEST_COMPRESSION);
-
       ZipEntry je = new StableZipEntry(classesJar.toFile().getName());
       jos.putNextEntry(je);
 
