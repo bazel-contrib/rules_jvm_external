@@ -231,7 +231,7 @@ def maven_export(
         native.filegroup(
             name = "%s-maven-source" % name,
             srcs = [
-                 ":%s-project" % name,
+                ":%s-project" % name,
             ],
             output_group = "maven_source",
             visibility = visibility,

@@ -135,7 +135,11 @@ public class JavadocJarMaker {
         // We need to create the element list file so that the bazel rule calling us has the file
         // be created.
         if (elementList != null) {
-          Files.write(elementList, "".getBytes(UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+          Files.write(
+              elementList,
+              "".getBytes(UTF_8),
+              StandardOpenOption.CREATE,
+              StandardOpenOption.TRUNCATE_EXISTING);
         }
 
         return;

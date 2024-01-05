@@ -66,24 +66,35 @@ java_binary(
 )
 
 genrule(
-    name = "format",
+    name = "format-script",
     outs = ["run-formats.sh"],
     cmd = """cat >$@ << EOL
 #!/usr/bin/env bash
 set -eufo pipefail
 
 cwd="\\$${BUILD_WORKSPACE_DIRECTORY:=\\$$(pwd)}"
+javaformat="\\$$1"
+buildifier="\\$$2"
 
 # Format java code
-find "\\$$cwd" -type f -name "*.java" |  xargs "$(location :google-java-format)" --replace
+find "\\$$cwd" -type f -name "*.java" |  xargs "\\$${javaformat}" --replace
 
 # Run buildifier
-$(location :buildifier) --lint fix --mode fix -r "\\$$cwd"
+\\$${buildifier} --lint fix --mode fix -r "\\$$cwd"
 
 EOL
 """,
     executable = True,
-    tools = [
+)
+
+sh_binary(
+    name = "format",
+    srcs = [":format-script"],
+    args = [
+        "$(location :google-java-format)",
+        "$(location :buildifier)",
+    ],
+    data = [
         ":buildifier",
         ":google-java-format",
     ],
