@@ -1,6 +1,7 @@
 """Unit tests for exports."""
 
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+load("@rules_java//java:defs.bzl", "JavaInfo")
 load("//private/rules:has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 

@@ -20,6 +20,39 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
         ],
     )
 
+    # The `rules_java` major version is tied to the major version of Bazel that it supports,
+    # so this is different from the version in the MODULE file.
+    major_version = native.bazel_version.partition(".")[0]
+    if major_version == "5":
+        maybe(
+            http_archive,
+            name = "rules_java",
+            urls = [
+                "https://github.com/bazelbuild/rules_java/releases/download/5.5.1/rules_java-5.5.1.tar.gz",
+            ],
+            sha256 = "73b88f34dc251bce7bc6c472eb386a6c2b312ed5b473c81fe46855c248f792e0",
+        )
+
+    elif major_version == "6":
+        maybe(
+            http_archive,
+            name = "rules_java",
+            urls = [
+                "https://github.com/bazelbuild/rules_java/releases/download/6.5.2/rules_java-6.5.2.tar.gz",
+            ],
+            sha256 = "16bc94b1a3c64f2c36ceecddc9e09a643e80937076b97e934b96a8f715ed1eaa",
+        )
+
+    else:
+        maybe(
+            http_archive,
+            name = "rules_java",
+            urls = [
+                "https://github.com/bazelbuild/rules_java/releases/download/7.3.2/rules_java-7.3.2.tar.gz",
+            ],
+            sha256 = "3121a00588b1581bd7c1f9b550599629e5adcc11ba9c65f482bbd5cfe47fdf30",
+        )
+
     maven_install(
         name = "rules_jvm_external_deps",
         artifacts = [

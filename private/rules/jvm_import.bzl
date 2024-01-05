@@ -7,6 +7,7 @@
 # [0]: https://github.com/square/bazel_maven_repository/pull/48
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
+load("@rules_java//java:defs.bzl", "JavaInfo")
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
 
 def _jvm_import_impl(ctx):
