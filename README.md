@@ -720,6 +720,34 @@ $ bazel query @pinning//:all | grep guava_guava
 @pinning//:com_google_guava_guava_25_0_android
 ```
 
+There may be cases where you want the `default` pinning strategy, but
+want one specific dependency to be pinned, no matter what. In these
+cases, you can use the `force_version` attribute on the
+`maven.artifact` helper to ensure this happens.
+
+```starlark
+maven_install(
+    name = "forcing_versions",
+    artifacts = [
+        # Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,
+        # the resolution will fail when using `coursier`
+        maven.artifact(
+            artifact = "guava",
+            force_version = True,
+            group = "com.google.guava",
+            version = "23.3-jre",
+        ),
+        # And something that depends on a more recent version of guava
+        "xyz.rogfam:littleproxy:2.1.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+```
+
+In this case, once pinning is complete, guava `23.3-jre` will be selected.
+
 ### Overriding generated targets
 
 You can override the generated targets for artifacts with a target label of your
