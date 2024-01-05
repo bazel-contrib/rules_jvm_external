@@ -28,12 +28,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -51,12 +54,20 @@ import java.util.zip.ZipInputStream;
 
 public class MergeJars {
 
+  private enum Packaging {
+    JAR, AAR;
+  }
+
   public static void main(String[] args) throws IOException {
     Path out = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
     Set<Path> excludes = new HashSet<>();
     DuplicateEntryStrategy onDuplicate = LAST_IN_WINS;
+    Packaging packaging = Packaging.JAR;
+    PathMatcher aarMatcher = FileSystems.getDefault().getPathMatcher("glob:*.aar");
+    // AAR to build from
+    Path aarSource = null;
 
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
@@ -75,6 +86,9 @@ public class MergeJars {
 
         case "--output":
           out = Paths.get(args[++i]);
+          if (aarMatcher.matches(out.getFileName())) {
+            packaging = Packaging.AAR;
+          }
           break;
 
         case "--sources":
@@ -85,6 +99,15 @@ public class MergeJars {
           throw new IllegalArgumentException(
               "Unable to parse command line: " + Arrays.toString(args));
       }
+    }
+
+    if (packaging == Packaging.AAR) {
+      aarSource = sources.stream()
+              .filter(source ->  aarMatcher.matches(source.getFileName()))
+              .findFirst() // AAR is explicitly only added for top level distribution target, so we _should_ only ever have 1
+              .orElseThrow(() -> new IllegalArgumentException("For AAR packaging, we require a prebuilt AAR that already contains the Android resources that we'll add the transitive source closure to."));
+
+      sources.remove(aarSource);
     }
 
     Objects.requireNonNull(out, "Output path must be set.");
@@ -171,6 +194,56 @@ public class MergeJars {
     // jar and not useful for consumers.
     manifest.getMainAttributes().remove(new Attributes.Name("Target-Label"));
 
+    switch (packaging) {
+      case JAR:
+        writeClassesJar(out, manifest, allServices, sources, fileToSourceJar);
+        break;
+      case AAR:
+        Path classesJar = out.getParent().resolve("classes.jar");
+        writeClassesJar(classesJar, manifest, allServices, sources, fileToSourceJar);
+        writeAar(out, aarSource, classesJar);
+    }
+  }
+
+  private static void writeAar(Path out, Path aarSource, Path classesJar) throws IOException {
+    try (OutputStream os = Files.newOutputStream(out);
+         JarOutputStream jos = new JarOutputStream(os)) {
+      jos.setMethod(DEFLATED);
+      jos.setLevel(BEST_COMPRESSION);
+
+      ZipEntry je = new StableZipEntry(classesJar.toFile().getName());
+      jos.putNextEntry(je);
+
+      try (InputStream is = Files.newInputStream(classesJar)) {
+        ByteStreams.copy(is, jos);
+      }
+      jos.closeEntry();
+
+      try (ZipFile aar = new ZipFile(aarSource.toFile())) {
+        Enumeration<? extends ZipEntry> entries = aar.entries();
+        while (entries.hasMoreElements()) {
+          ZipEntry entry = entries.nextElement();
+
+          // transitive class closure is captured in our classes.jar
+          if ("classes.jar".equals(entry.getName())) {
+            continue;
+          }
+
+          jos.putNextEntry(entry);
+          try (InputStream is = aar.getInputStream(entry)) {
+            ByteStreams.copy(is, jos);
+          }
+          jos.closeEntry();
+        }
+      }
+    }
+  }
+
+  private static void writeClassesJar(Path out,
+                                      Manifest manifest,
+                                      Map<String, Set<String>> allServices,
+                                      Set<Path> sources,
+                                      Map<String, Path> fileToSourceJar) throws IOException {
     // Now create the output jar
     Files.createDirectories(out.getParent());
 
