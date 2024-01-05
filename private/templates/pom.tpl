@@ -6,6 +6,7 @@
     <groupId>{groupId}</groupId>
     <artifactId>{artifactId}</artifactId>
     <version>{version}</version>
+    <packaging>{type}</packaging>
 
     <dependencies>
 {dependencies}
