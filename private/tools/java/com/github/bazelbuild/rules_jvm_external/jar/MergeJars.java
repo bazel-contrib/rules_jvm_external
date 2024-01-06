@@ -48,6 +48,7 @@ import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -164,6 +165,12 @@ public class MergeJars {
                 allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
             String content = new String(ByteStreams.toByteArray(zis));
             services.addAll(Arrays.asList(content.split("\n")));
+            continue;
+          }
+
+          // TODO: Why do we need to do this?? Is there a better way?
+          Pattern rClassMatcher = Pattern.compile("^.*\\/R(\\$.*)?\\.(class|java)");
+          if (rClassMatcher.asMatchPredicate().test(entry.getName())) {
             continue;
           }
 
