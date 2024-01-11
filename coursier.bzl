@@ -182,6 +182,30 @@ def _execute_with_argsfile(
 def _normalize_to_unix_path(path):
     return path.replace("\\", "/")
 
+def _should_use_unsafe_shared_cache(repository_ctx):
+    full_name = repository_ctx.attr.name
+
+    # WORKSPACE mode
+    if full_name.startswith("unpinned_"):
+        return True
+
+    # bzlmod enabled
+    return "~unpinned_" in full_name
+
+def _get_unpinned_repository_name(repository_ctx):
+    full_name = repository_ctx.attr.name
+
+    # WORKSPACE mode
+    if full_name.startswith("unpinned_"):
+        return full_name[len("unpinned_"):]
+
+    # bzlmod enabled
+    tag = "~unpinned_"
+    idx = full_name.find(tag)
+    if idx < 0:
+        fail("unexpected repository name format", full_name)
+    return full_name[idx + len(tag):]
+
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
@@ -200,7 +224,7 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     # TODO(jin): allow custom cache locations
     coursier_cache_path = get_coursier_cache_or_default(
         repository_ctx,
-        repository_ctx.attr.name.startswith("unpinned_"),
+        _should_use_unsafe_shared_cache(repository_ctx),
     ).replace("//", "/")
     absolute_path_parts = absolute_path.split(coursier_cache_path)
     if len(absolute_path_parts) != 2:
@@ -813,7 +837,7 @@ def make_coursier_dep_tree(
         cmd.append("--default=true")
 
     environment = {}
-    if not repository_ctx.attr.name.startswith("unpinned_"):
+    if not _should_use_unsafe_shared_cache(repository_ctx):
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
             False,
@@ -962,13 +986,13 @@ def _coursier_fetch_impl(repository_ctx):
             #    to file within the repository rule workspace
             print("Assuming maven local for artifact: %s" % artifact["coord"])
             artifact.update({"url": None})
-            if not repository_ctx.attr.name.startswith("unpinned_"):
+            if not _should_use_unsafe_shared_cache(repository_ctx):
                 artifact.update({"file": _relativize_and_symlink_file_in_maven_local(repository_ctx, artifact["file"])})
 
             files_to_inspect.append(repository_ctx.path(artifact["file"]))
             continue
 
-        if repository_ctx.attr.name.startswith("unpinned_"):
+        if _should_use_unsafe_shared_cache(repository_ctx):
             artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"])})
 
         # Coursier saves the artifacts into a subdirectory structure
@@ -1154,12 +1178,12 @@ def _coursier_fetch_impl(repository_ctx):
         },
         override_targets = repository_ctx.attr.override_targets,
         # Skip maven local dependencies if generating the unpinned repository
-        skip_maven_local_dependencies = repository_ctx.attr.name.startswith("unpinned_"),
+        skip_maven_local_dependencies = _should_use_unsafe_shared_cache(repository_ctx),
     )
 
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
-    if repository_ctx.name.startswith("unpinned_"):
+    if _should_use_unsafe_shared_cache(repository_ctx):
         repository_name = repository_ctx.name[len("unpinned_"):]
         outdated_build_file_content = ""
     else:
