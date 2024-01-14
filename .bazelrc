@@ -24,5 +24,15 @@ test --test_output=errors
 
 build --sandbox_tmpfs_path=/tmp
 
+# From https://github.com/aspect-build/rules_js/issues/1408 to quite down warnings from rules_js
+# Allow the Bazel server to check directory sources for changes. Ensures that the Bazel server
+# notices when a directory changes, if you have a directory listed in the srcs of some target.
+# Recommended when using
+# [copy_directory](https://github.com/aspect-build/bazel-lib/blob/main/docs/copy_directory.md) and
+# [rules_js](https://github.com/aspect-build/rules_js) since npm package are source directories
+# inputs to copy_directory actions.
+# Docs: https://bazel.build/reference/command-line-reference#flag--host_jvm_args
+startup --host_jvm_args=-DBAZEL_TRACK_SOURCE_DIRECTORIES=1
+
 # Allows the examples to extend the default bazelrc
 try-import %workspace%/.bazelrc.example
