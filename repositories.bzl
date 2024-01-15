@@ -6,7 +6,6 @@ load("//private/rules:maven_install.bzl", "maven_install")
 
 _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
-    "https://maven.google.com",
 ]
 
 def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
