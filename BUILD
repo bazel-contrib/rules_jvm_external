@@ -79,6 +79,9 @@ bzl_library(
         # stardoc.
         "//visibility:public",
     ],
+    deps = [
+        "@rules_java//java:rules",
+    ],
 )
 
 alias(
