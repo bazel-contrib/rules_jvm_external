@@ -1,5 +1,5 @@
 /*.class
-/node_modules
+/scripts/node_modules
 bazel-*
 .ijwb
 .DS_Store

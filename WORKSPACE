@@ -75,18 +75,13 @@ nodejs_register_toolchains(
     node_version = "16.17.0",
 )
 
-# For convenience, npm_translate_lock does this call automatically.
-# Uncomment if you don't call npm_translate_lock at all.
-#load("@bazel_features//:deps.bzl", "bazel_features_deps")
-#bazel_features_deps()
-
 load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
 
 npm_translate_lock(
     name = "npm",
-    npmrc = "@//:.npmrc",
-    pnpm_lock = "//:pnpm-lock.yaml",
-    verify_node_modules_ignored = "//:.bazelignore",
+    npmrc = "@//scripts:.npmrc",
+    pnpm_lock = "@//scripts:pnpm-lock.yaml",
+    verify_node_modules_ignored = "@//:.bazelignore",
 )
 
 load("@npm//:repositories.bzl", "npm_repositories")

@@ -140,13 +140,13 @@ npm = use_extension(
 )
 npm.npm_translate_lock(
     name = "npm",
-    data = ["//:package.json"],
-    npmrc = "//:.npmrc",
-    pnpm_lock = "//:pnpm-lock.yaml",
+    data = ["//scripts:package.json"],
+    npmrc = "//scripts:.npmrc",
+    pnpm_lock = "//scripts:pnpm-lock.yaml",
     quiet = False,
     update_pnpm_lock = True,
     verify_node_modules_ignored = "//:.bazelignore",
-    yarn_lock = "//:yarn.lock",
+    yarn_lock = "//scripts:yarn.lock",
 )
 use_repo(npm, "npm")
 
