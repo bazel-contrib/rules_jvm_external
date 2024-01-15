@@ -25,6 +25,7 @@ _artifact = tag_class(
         "version": attr.string(),
         "packaging": attr.string(),
         "classifier": attr.string(),
+        "force_version": attr.bool(default = False),
         "neverlink": attr.bool(),
         "testonly": attr.bool(),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
@@ -242,6 +243,9 @@ def _maven_impl(mctx):
 
             if artifact.classifier:
                 to_add.update({"classifier": artifact.classifier})
+
+            if artifact.force_version:
+                to_add.update({"force_version": artifact.force_version})
 
             if artifact.neverlink:
                 to_add.update({"neverlink": artifact.neverlink})

@@ -277,7 +277,7 @@ will just generate the repository url.
 
 <pre>
 maven.artifact(<a href="#maven.artifact-group">group</a>, <a href="#maven.artifact-artifact">artifact</a>, <a href="#maven.artifact-version">version</a>, <a href="#maven.artifact-packaging">packaging</a>, <a href="#maven.artifact-classifier">classifier</a>, <a href="#maven.artifact-override_license_types">override_license_types</a>, <a href="#maven.artifact-exclusions">exclusions</a>,
-               <a href="#maven.artifact-neverlink">neverlink</a>, <a href="#maven.artifact-testonly">testonly</a>)
+               <a href="#maven.artifact-neverlink">neverlink</a>, <a href="#maven.artifact-testonly">testonly</a>, <a href="#maven.artifact-force_version">force_version</a>)
 </pre>
 
 Generates the data map for a Maven artifact given the available information about its coordinates.
@@ -296,6 +296,7 @@ Generates the data map for a Maven artifact given the available information abou
 | <a id="maven.artifact-exclusions"></a>exclusions |  An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).   |  <code>None</code> |
 | <a id="maven.artifact-neverlink"></a>neverlink |  Determines if this artifact should be part of the runtime classpath.   |  <code>None</code> |
 | <a id="maven.artifact-testonly"></a>testonly |  Determines whether this artifact is available for targets not marked as <code>testonly = True</code>.   |  <code>None</code> |
+| <a id="maven.artifact-force_version"></a>force_version |  Whether the <code>version</code> is non-negotiable.   |  <code>False</code> |
 
 
 <a id="maven.exclusion"></a>

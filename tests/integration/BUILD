@@ -69,3 +69,27 @@ diff_test(
     file1 = "version-interval-deps.golden.unix",
     file2 = ":version-interval-deps-sorted.txt",
 )
+
+genquery(
+    name = "forced-versions-deps",
+    expression = "deps(@forcing_versions//:xyz_rogfam_littleproxy)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@forcing_versions//:xyz_rogfam_littleproxy"],
+)
+
+genrule(
+    name = "forced-versions-deps-sorted",
+    testonly = 1,
+    srcs = [":forced-versions-deps"],
+    outs = ["forced-versions-deps-sorted.txt"],
+    cmd = "cat $< | sed -e 's|@@|@|g; s|\r||g' | sed -e 's|@.*~|@|g; s|\r||g' | sort > $@",
+)
+
+diff_test(
+    name = "forced-version-deps-test",
+    file1 = "forced-versions-deps.golden.unix",
+    file2 = ":forced-versions-deps-sorted.txt",
+)

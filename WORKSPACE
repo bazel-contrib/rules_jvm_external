@@ -757,3 +757,22 @@ maven_install(
 load("@override_target_in_deps//:defs.bzl", _override_target_in_deps_maven_install = "pinned_maven_install")
 
 _override_target_in_deps_maven_install()
+
+maven_install(
+    name = "forcing_versions",
+    artifacts = [
+        # Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,
+        # the resolution will fail when using `coursier`
+        maven.artifact(
+            artifact = "guava",
+            force_version = True,
+            group = "com.google.guava",
+            version = "23.3-jre",
+        ),
+        # And something that depends on a more recent version of guava
+        "xyz.rogfam:littleproxy:2.1.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
