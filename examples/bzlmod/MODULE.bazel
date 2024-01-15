@@ -1,24 +1,21 @@
 module(
     name = "rules_jvm_external_examples_bzlmod",
-    version = "4.2.2",
+    version = "6.0",
 )
 
-bazel_dep(name = "rules_jvm_external", version = "4.2.2")
-
+bazel_dep(name = "rules_jvm_external", version = "6.0")
 local_path_override(
     module_name = "rules_jvm_external",  # matches the name of the `bazel_dep`
     path = "../..",
 )
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
-
 maven.artifact(
     artifact = "guava",
     exclusions = ["com.google.code.findbugs:jsr305"],
     group = "com.google.guava",
     version = "31.1-jre",
 )
-
 maven.install(
     artifacts = [
         "org.seleniumhq.selenium:selenium-java:4.4.0",
@@ -26,7 +23,6 @@ maven.install(
     fetch_sources = True,
     lock_file = "//:maven_install.json",
 )
-
 use_repo(
     maven,
     "maven",
