@@ -13,7 +13,13 @@
 
 load("//:specs.bzl", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
-load("//private:coursier_utilities.bzl", "SUPPORTED_PACKAGING_TYPES", "escape", "is_maven_local_path")
+load(
+    "//private:coursier_utilities.bzl",
+    "SUPPORTED_PACKAGING_TYPES",
+    "contains_git_conflict_markers",
+    "escape",
+    "is_maven_local_path",
+)
 load("//private:dependency_tree_parser.bzl", "parser")
 load("//private:java_utilities.bzl", "build_java_argsfile_content", "parse_java_version")
 load("//private:proxy.bzl", "get_java_proxy_args")
@@ -383,13 +389,6 @@ def print_if_not_repinning(repository_ctx, *args):
         return
     print(*args)
 
-def _contains_git_conflict_markers(file_name, lock_file_content):
-    for line in lock_file_content.splitlines():
-        if line.startswith("<<<<<<<"):
-            print("Conflict markers detected in lock file {}. You should reset the file and repin your dependencies".format(file_name))
-            return True
-    return False
-
 def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
@@ -413,7 +412,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path("imported_maven_install.json"),
     )
     lock_file_content = repository_ctx.read(repository_ctx.attr.maven_install_json)
-    if not len(lock_file_content) or _contains_git_conflict_markers(repository_ctx.attr.maven_install_json, lock_file_content):
+    if not len(lock_file_content) or contains_git_conflict_markers(repository_ctx.attr.maven_install_json, lock_file_content):
         maven_install_json_content = {
             "artifacts": {},
             "dependencies": {},
@@ -421,7 +420,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             "version": "2",
         }
     else:
-        maven_install_json_content = json.decode(repository_ctx.read(repository_ctx.attr.maven_install_json))
+        maven_install_json_content = json.decode(lock_file_content)
 
     if v1_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v1_lock_file

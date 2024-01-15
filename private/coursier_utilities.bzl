@@ -89,3 +89,10 @@ def escape(string):
 def is_maven_local_path(absolute_path):
     # Return whether or not the provided absolute path corresponds to maven local
     return absolute_path and len(absolute_path.split(".m2/repository")) == 2
+
+def contains_git_conflict_markers(file_name, lock_file_content):
+    for line in lock_file_content.splitlines():
+        if line.startswith("<<<<<<<"):
+            print("Conflict markers detected in lock file {}. You should reset the file and repin your dependencies".format(file_name))
+            return True
+    return False

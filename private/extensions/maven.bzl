@@ -1,7 +1,12 @@
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
-load("//private:coursier_utilities.bzl", "escape", "strip_packaging_and_classifier_and_version")
+load(
+    "//private:coursier_utilities.bzl",
+    "contains_git_conflict_markers",
+    "escape",
+    "strip_packaging_and_classifier_and_version",
+)
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
@@ -377,7 +382,17 @@ def _maven_impl(mctx):
             compat_repos.extend(seen)
 
         if repo.get("lock_file"):
-            lock_file = json.decode(mctx.read(mctx.path(repo.get("lock_file"))))
+            lock_file_content = mctx.read(mctx.path(repo.get("lock_file")))
+
+            if not len(lock_file_content) or contains_git_conflict_markers(repo["lock_file"], lock_file_content):
+                lock_file = {
+                    "artifacts": {},
+                    "dependencies": {},
+                    "repositories": {},
+                    "version": "2",
+                }
+            else:
+                lock_file = json.decode(lock_file_content)
 
             if v2_lock_file.is_valid_lock_file(lock_file):
                 artifacts = v2_lock_file.get_artifacts(lock_file)
