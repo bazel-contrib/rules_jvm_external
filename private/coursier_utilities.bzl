@@ -89,3 +89,18 @@ def escape(string):
 def is_maven_local_path(absolute_path):
     # Return whether or not the provided absolute path corresponds to maven local
     return absolute_path and len(absolute_path.split(".m2/repository")) == 2
+
+def contains_git_conflict_markers(file_name, lock_file_content):
+    for line in lock_file_content.splitlines():
+        if line.startswith("<<<<<<<") or line.startswith(">>>>>>>") or line.startswith("======="):
+            # An expected workflow is for people to do:
+            #
+            # 1. `git pull`
+            # 2. Find a conflict in their lock file
+            # 3. Run `REPIN=1 bazel run @maven//:pin` to fix the problem
+            #
+            # Because of this, we don't want to fail the build, but we do want
+            # to warn users that something is quite right.
+            print("Conflict markers detected in lock file {}. You should reset the file and repin your dependencies".format(file_name))
+            return True
+    return False
