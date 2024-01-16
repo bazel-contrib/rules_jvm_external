@@ -57,37 +57,6 @@ stardoc_repositories()
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
 # https://skydoc.bazel.build/docs/getting_started_stardoc.html
 
-http_archive(
-    name = "aspect_rules_js",
-    sha256 = "76a04ef2120ee00231d85d1ff012ede23963733339ad8db81f590791a031f643",
-    strip_prefix = "rules_js-1.34.1",
-    url = "https://github.com/aspect-build/rules_js/releases/download/v1.34.1/rules_js-v1.34.1.tar.gz",
-)
-
-load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
-
-rules_js_dependencies()
-
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
-
-nodejs_register_toolchains(
-    name = "nodejs",
-    node_version = "16.17.0",
-)
-
-load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
-
-npm_translate_lock(
-    name = "npm",
-    npmrc = "@//scripts:.npmrc",
-    pnpm_lock = "@//scripts:pnpm-lock.yaml",
-    verify_node_modules_ignored = "@//:.bazelignore",
-)
-
-load("@npm//:repositories.bzl", "npm_repositories")
-
-npm_repositories()
-
 # Required for buildifier (`//scripts:buildifier`)
 http_file(
     name = "buildifier-linux-arm64",
