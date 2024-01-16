@@ -1181,6 +1181,3 @@ config file.
 Use [Stardoc](https://skydoc.bazel.build/docs/getting_started_stardoc.html) to
 generate API documentation in the [docs](docs/) directory using
 [generate_docs.sh](scripts/generate_docs.sh).
-
-Note that this script has a dependency on the `doctoc` NPM package to automate
-generating the table of contents. Install it with `npm -g i doctoc`.

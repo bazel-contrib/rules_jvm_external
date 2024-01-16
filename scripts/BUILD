@@ -1,8 +1,4 @@
-load("@npm//:defs.bzl", "npm_link_all_packages")
-load("@npm//scripts:doctoc/package_json.bzl", doctoc_bin = "bin")
 load("//private/rules:artifact.bzl", "artifact")
-
-npm_link_all_packages()
 
 genrule(
     name = "buildifier-bin",
@@ -24,29 +20,19 @@ sh_binary(
 )
 
 genrule(
-    name = "generate_base_docs",
+    name = "generate_api_reference",
     srcs = [
         "//:docs/includes/main_functions_header.md",
         "//:defs.md",
         "//:docs/includes/spec_functions_header.md",
         "//:specs.md",
     ],
-    outs = ["generate_base_docs.md"],
+    outs = ["api.md"],
     cmd = """cat \
     $(location //:docs/includes/main_functions_header.md) \
     $(location //:defs.md) \
     $(location //:docs/includes/spec_functions_header.md) \
     $(location //:specs.md) > $@""",
-)
-
-doctoc_bin.doctoc_binary(name = "doctoc")
-
-genrule(
-    name = "generate_api_reference",
-    srcs = [":generate_base_docs"],
-    outs = ["api.md"],
-    cmd = "cp $(location :generate_base_docs) $@; chmod +w $@; BAZEL_BINDIR=$(BINDIR) $(location :doctoc) --title '# API Reference' $$(pwd)/$@",
-    tools = [":doctoc"],
     visibility = ["//:__pkg__"],
 )
 
