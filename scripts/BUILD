@@ -1,5 +1,8 @@
-load("@npm//:doctoc/package_json.bzl", doctoc_bin = "bin")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//scripts:doctoc/package_json.bzl", doctoc_bin = "bin")
 load("//private/rules:artifact.bzl", "artifact")
+
+npm_link_all_packages()
 
 genrule(
     name = "buildifier-bin",
