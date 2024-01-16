@@ -22,6 +22,7 @@ build_test(
         "@regression_testing//:io_netty_netty_tcnative_boringssl_static",
         "@regression_testing//:com_google_protobuf_protoc_linux_x86_64",
         "@regression_testing//:com_google_protobuf_protoc_osx_aarch_64",
+        "@regression_testing//:build_buf_protovalidate",
     ],
 )
 

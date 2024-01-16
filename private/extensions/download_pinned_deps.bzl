@@ -38,7 +38,8 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
             name = http_file_repository_name,
             sha256 = artifact["sha256"],
             urls = urls,
-            downloaded_file_path = artifact["file"],
+            # https://github.com/bazelbuild/rules_jvm_external/issues/1028
+            downloaded_file_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"],
         )
 
     return seen_repo_names

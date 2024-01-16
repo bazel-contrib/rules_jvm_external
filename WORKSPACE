@@ -240,6 +240,8 @@ maven_install(
         # dependency when the usually omitted "jar" packaging type is specified.
         "org.mockito:mockito-core:jar:3.3.3",
         "androidx.arch.core:core-testing:aar:2.1.0",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1028
+        "build.buf:protovalidate:0.1.9",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
