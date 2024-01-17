@@ -572,6 +572,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         http_files.append("        urls = %s," % repr(
             [remove_auth_from_url(url) for url in artifact["urls"] + m2local_urls],
         ))
+
         # https://github.com/bazelbuild/rules_jvm_external/issues/1028
         # http_rule does not like directories named "build" so prepend v1 to the path.
         download_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"]
