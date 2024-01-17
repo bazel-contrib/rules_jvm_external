@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("//:defs.bzl", "artifact")
 
 genquery(
     name = "testonly-deps",
@@ -92,4 +93,21 @@ diff_test(
     name = "forced-version-deps-test",
     file1 = "forced-versions-deps.golden.unix",
     file2 = ":forced-versions-deps-sorted.txt",
+)
+
+# This target will fail to build if we're not handling merging of maven.install
+# tags properly, and if we don't handle multiple lock files properly.
+java_library(
+    name = "demonstrate_multiple_lock_files_are_okay",
+    exports = [
+        # Dependency from our own `MODULE.bazel
+        artifact(
+            "org.zeromq:jeromq",
+            repository_name = "multiple_lock_files",
+        ),
+        artifact(
+            "redis.clients:jedis",
+            repository_name = "multiple_lock_files",
+        ),
+    ],
 )
