@@ -160,6 +160,18 @@ load("@manifest_stamp_testing//:defs.bzl", "pinned_maven_install")
 
 pinned_maven_install()
 
+maven_install(
+    name = "multiple_lock_files",
+    artifacts = [
+        "org.zeromq:jeromq",
+        "redis.clients:jedis",
+    ],
+    maven_install_json = "//tests/custom_maven_install:multiple_lock_files_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 # These artifacts helped discover limitations by the Maven resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.

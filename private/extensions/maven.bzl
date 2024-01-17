@@ -277,16 +277,6 @@ def _maven_impl(mctx):
                     existing_repos.append(repo_string)
             repo["repositories"] = existing_repos
 
-            if install.lock_file:
-                lock_file = repo.get("lock_file")
-                if lock_file and lock_file != install.lock_file:
-                    fail("There can only be one lock file for the repo %s. Lock files seen were %s and %s" % (
-                        install.name,
-                        lock_file,
-                        install.lock_file,
-                    ))
-                repo["lock_file"] = install.lock_file
-
             repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
 
             _logical_or(repo, "fail_if_repin_required", False, install.fail_if_repin_required)
@@ -339,6 +329,33 @@ def _maven_impl(mctx):
                 repo["repin_instructions"] = install.repin_instructions
 
             repos[install.name] = repo
+
+    # Breaking out the logic for picking lock files, because it's not terribly simple
+
+    repo_to_lock_file = {}
+    for mod in mctx.modules:
+        for install in mod.tags.install:
+            if install.lock_file:
+                entries = repo_to_lock_file.get(install.name, [])
+                if not install.lock_file in entries:
+                    entries.append(install.lock_file)
+                repo_to_lock_file[install.name] = entries
+
+    # The root module always wins when it comes to lock files
+    for mod in mctx.modules:
+        if mod.is_root:
+            for install in mod.tags.install:
+                if install.lock_file:
+                    repo_to_lock_file[install.name] = [install.lock_file]
+
+    # There should be at most one lock file per `name`
+    for repo_name, lock_files in repo_to_lock_file.items():
+        if len(lock_files) > 1:
+            fail("There can only be one lock file for the repo %s. Lock files seen were %s" % (
+                repo_name,
+                ", ".join(lock_files),
+            ))
+        repos.get(repo_name)["lock_file"] = lock_files[0]
 
     existing_repos = []
     for (name, repo) in repos.items():

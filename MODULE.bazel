@@ -114,6 +114,15 @@ bazel_dep(
     dev_dependency = True,
     repo_name = "io_bazel_stardoc",
 )
+bazel_dep(
+    name = "bzlmod_lock_files",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "bzlmod_lock_files",
+    path = "tests/integration/bzlmod_lock_files",
+)
 
 dev_maven = use_extension(
     ":extensions.bzl",
@@ -331,6 +340,12 @@ dev_maven.install(
     name = "maven_install_in_custom_location",
     artifacts = ["com.google.guava:guava:27.0-jre"],
     lock_file = "//tests/custom_maven_install:maven_install.json",
+)
+dev_maven.install(
+    # This name matches the one in `tests/integration/bzlmod_lock_files`
+    name = "multiple_lock_files",
+    artifacts = ["org.zeromq:jeromq:0.5.4"],
+    lock_file = "//tests/custom_maven_install:multiple_lock_files_install.json",
 )
 dev_maven.install(
     name = "override_target_in_deps",
@@ -592,6 +607,9 @@ use_repo(
     # Pinned repo
     "maven_install_in_custom_location",
     "unpinned_maven_install_in_custom_location",
+
+    # Unpinned repo
+    "multiple_lock_files",
 
     # Pinned repo
     "override_target_in_deps",
