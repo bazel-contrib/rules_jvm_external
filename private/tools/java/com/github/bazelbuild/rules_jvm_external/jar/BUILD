@@ -54,3 +54,14 @@ java_binary(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
     ],
 )
+
+java_binary(
+    name = "ExtractProguardConfig",
+    srcs = [
+        "ExtractProguardConfig.java",
+    ],
+    main_class = "com.github.bazelbuild.rules_jvm_external.jar.ExtractProguardConfig",
+    visibility = [
+        "//visibility:public",
+    ],
+)

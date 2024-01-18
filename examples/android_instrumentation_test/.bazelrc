@@ -65,3 +65,5 @@ build:rbe_demo --experimental_remote_download_outputs=toplevel
 build:rbe_demo --experimental_inmemory_dotd_files
 build:rbe_demo --experimental_inmemory_jdeps_files
 build:rbe_demo --jobs=300
+
+build --experimental_google_legacy_api # Needed to use ProguardSpecProvider
