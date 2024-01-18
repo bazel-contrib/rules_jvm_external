@@ -1,4 +1,8 @@
 load("//private/rules:artifact.bzl", "artifact")
+load(
+    "//private:versions.bzl",
+    "COURSIER_CLI_HTTP_FILE_NAME",
+)
 
 genrule(
     name = "buildifier-bin",
@@ -17,6 +21,7 @@ sh_binary(
     srcs = [":mirror_coursier.sh"],
     data = ["@coursier_cli//file"],
     visibility = ["//:__pkg__"],
+    args = [COURSIER_CLI_HTTP_FILE_NAME],
 )
 
 genrule(
