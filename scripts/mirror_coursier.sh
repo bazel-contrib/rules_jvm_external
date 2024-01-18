@@ -18,13 +18,14 @@
 # on Google Cloud Storage for redundancy. The original artifacts are
 # hosted on https://github.com/coursier/coursier/releases.
 
-set -euo pipefail
+set -xeuo pipefail
 
-readonly repo_name=$(ls external/ | grep coursier_cli_v*)
-readonly coursier_cli_jar="external/$repo_name/file/downloaded"
+readonly dest_filename=$1; shift;
+readonly coursier_cli_jar="external/_main~_repo_rules~coursier_cli/file/downloaded"
 chmod u+x $coursier_cli_jar
 
-# Upload Coursier to GCS
-# -n for no-clobber, so we don't overwrite existing files
-gsutil cp -n $coursier_cli_jar \
-  gs://bazel-mirror/coursier_cli/$repo_name.jar
+# Upload Coursier to Bazel/Google-managed GCS
+# -n for no-clobber, so we don't overwrite existing files.
+# -v prints the URI after a successful upload.
+gsutil cp -v -n $coursier_cli_jar \
+  gs://bazel-mirror/coursier_cli/$dest_filename.jar
