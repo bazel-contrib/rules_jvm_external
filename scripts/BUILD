@@ -1,8 +1,5 @@
 load("//private/rules:artifact.bzl", "artifact")
-load(
-    "//private:versions.bzl",
-    "COURSIER_CLI_HTTP_FILE_NAME",
-)
+load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 
 genrule(
     name = "buildifier-bin",
