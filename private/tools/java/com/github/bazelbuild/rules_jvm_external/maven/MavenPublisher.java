@@ -93,13 +93,14 @@ public class MavenPublisher {
 
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
-      futures.add(upload(repo, credentials, coords, ".pom", pom, gpgSign));
 
       if (mainArtifact != null) {
         String ext =
             com.google.common.io.Files.getFileExtension(mainArtifact.getFileName().toString());
         futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, gpgSign));
       }
+
+      futures.add(upload(repo, credentials, coords, ".pom", pom, gpgSign));
 
       if (args.length > 3 && !args[3].isEmpty()) {
         List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[3]);
