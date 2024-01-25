@@ -102,7 +102,6 @@ public class MergeJars {
       }
     }
 
-    Objects.requireNonNull(out, "Output path must be set.");
     if (packaging == Packaging.AAR) {
       aarSource = sources.stream()
               .filter(source ->  aarMatcher.matches(source.getFileName()))
@@ -121,7 +120,10 @@ public class MergeJars {
         }
       }
       sources.add(aarClassesJar);
-    } else if (sources.isEmpty()) {
+    }
+
+    Objects.requireNonNull(out, "Output path must be set.");
+    if (sources.isEmpty()) {
       // Just write an empty jar and leave
       try (OutputStream fos = Files.newOutputStream(out);
           JarOutputStream jos = new JarOutputStream(fos)) {
