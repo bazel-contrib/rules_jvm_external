@@ -102,6 +102,7 @@ public class MergeJars {
       }
     }
 
+    Objects.requireNonNull(out, "Output path must be set.");
     if (packaging == Packaging.AAR) {
       aarSource = sources.stream()
               .filter(source ->  aarMatcher.matches(source.getFileName()))
@@ -109,10 +110,18 @@ public class MergeJars {
               .orElseThrow(() -> new IllegalArgumentException("For AAR packaging, we require a prebuilt AAR that already contains the Android resources that we'll add the transitive source closure to."));
 
       sources.remove(aarSource);
-    }
 
-    Objects.requireNonNull(out, "Output path must be set.");
-    if (sources.isEmpty()) {
+      // Pull out classes jar and add to source set
+      Path aarClassesJar = out.getParent().resolve("aar-classes.jar");
+      try (ZipFile aar = new ZipFile(aarSource.toFile())) {
+        ZipEntry classes = aar.getEntry("classes.jar");
+        try (InputStream is = aar.getInputStream(classes);
+             OutputStream fos = Files.newOutputStream(aarClassesJar)) {
+          ByteStreams.copy(is, fos);
+        }
+      }
+      sources.add(aarClassesJar);
+    } else if (sources.isEmpty()) {
       // Just write an empty jar and leave
       try (OutputStream fos = Files.newOutputStream(out);
           JarOutputStream jos = new JarOutputStream(fos)) {
