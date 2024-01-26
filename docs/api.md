@@ -40,8 +40,8 @@ Generate a javadoc from all the `deps`
 ## java_export
 
 <pre>
-java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>, <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>,
-            <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-classifier_artifacts">classifier_artifacts</a>, <a href="#java_export-kwargs">kwargs</a>)
+java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-manifest_entries">manifest_entries</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>,
+            <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-classifier_artifacts">classifier_artifacts</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
 
 Extends `java_library` to allow maven artifacts to be uploaded.
@@ -94,6 +94,7 @@ Generated rules:
 | :------------- | :------------- | :------------- |
 | <a id="java_export-name"></a>name |  A unique name for this target   |  none |
 | <a id="java_export-maven_coordinates"></a>maven_coordinates |  The maven coordinates for this target.   |  none |
+| <a id="java_export-manifest_entries"></a>manifest_entries |  A dict of <code>String: String</code> containing additional manifest entry attributes and values.   |  <code>{}</code> |
 | <a id="java_export-deploy_env"></a>deploy_env |  A list of labels of Java targets to exclude from the generated jar. [<code>java_binary</code>](https://bazel.build/reference/be/java#java_binary) targets are *not* supported.   |  <code>[]</code> |
 | <a id="java_export-excluded_workspaces"></a>excluded_workspaces |  A dict of strings representing the workspace names of artifacts that should not be included in the maven jar to a <code>Label</code> pointing to the dependency that workspace should be replaced by, or <code>None</code> if the exclusion shouldn't be replaced with an extra dependency.   |  <code>{"com_google_protobuf": None, "protobuf": None}</code> |
 | <a id="java_export-pom_template"></a>pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |

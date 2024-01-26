@@ -7,6 +7,7 @@ load(":pom_file.bzl", "pom_file")
 def java_export(
         name,
         maven_coordinates,
+        manifest_entries = {},
         deploy_env = [],
         excluded_workspaces = {name: None for name in DEFAULT_EXCLUDED_WORKSPACES},
         pom_template = None,
@@ -61,6 +62,7 @@ def java_export(
       name: A unique name for this target
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
+      manifest_entries: A dict of `String: String` containing additional manifest entry attributes and values.
       deploy_env: A list of labels of Java targets to exclude from the generated jar.
         [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
         supported.
@@ -96,16 +98,17 @@ def java_export(
     )
 
     maven_export(
-        name,
-        maven_coordinates,
-        lib_name,
-        deploy_env,
-        excluded_workspaces,
-        pom_template,
-        visibility,
-        tags,
-        testonly,
-        javadocopts,
+        name = name,
+        maven_coordinates = maven_coordinates,
+        lib_name = lib_name,
+        manifest_entries = manifest_entries,
+        deploy_env = deploy_env,
+        excluded_workspaces = excluded_workspaces,
+        pom_template = pom_template,
+        visibility = visibility,
+        tags = tags,
+        testonly = testonly,
+        javadocopts = javadocopts,
         classifier_artifacts = classifier_artifacts,
         doc_deps = doc_deps,
         doc_url = doc_url,
@@ -116,6 +119,7 @@ def maven_export(
         name,
         maven_coordinates,
         lib_name,
+        manifest_entries = {},
         deploy_env = [],
         excluded_workspaces = {},
         pom_template = None,
@@ -173,6 +177,7 @@ def maven_export(
       name: A unique name for this target
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
+      manifest_entries: A dict of `String: String` containing additional manifest entry attributes and values.
       deploy_env: A list of labels of Java targets to exclude from the generated jar.
         [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
         supported.
@@ -191,6 +196,7 @@ def maven_export(
     maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
 
     # Sometimes users pass `None` as the value for attributes. Guard against this
+    manifest_entries = manifest_entries if manifest_entries else {}
     deploy_env = deploy_env if deploy_env else []
     excluded_workspaces = excluded_workspaces if excluded_workspaces else {}
     javadocopts = javadocopts if javadocopts else []
@@ -207,6 +213,7 @@ def maven_export(
     maven_project_jar(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
+        manifest_entries = manifest_entries,
         deploy_env = deploy_env,
         excluded_workspaces = excluded_workspaces.keys(),
         additional_dependencies = additional_dependencies,
