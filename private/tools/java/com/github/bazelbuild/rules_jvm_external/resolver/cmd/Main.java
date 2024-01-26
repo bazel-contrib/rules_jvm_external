@@ -118,7 +118,7 @@ public class Main {
       return new PlainConsoleListener();
     } else if (termAvailable && consoleAvailable) {
       return new AnsiConsoleListener();
-    } 
+    }
     return new NullListener();
   }
 

@@ -144,7 +144,8 @@ public class Config {
           .getArtifacts()
           .forEach(
               art -> {
-                Coordinates coords = new Coordinates(
+                Coordinates coords =
+                    new Coordinates(
                         art.getGroupId(),
                         art.getArtifactId(),
                         art.getExtension(),

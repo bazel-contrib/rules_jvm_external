@@ -19,12 +19,9 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -39,8 +36,7 @@ import org.junit.rules.TemporaryFolder;
 
 public abstract class ResolverTestBase {
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
   protected Resolver resolver;
 
@@ -303,22 +299,23 @@ public abstract class ResolverTestBase {
 
   @Test
   public void shouldResolveAndDownloadItemIdentifiedByClassifierFromArgsFile() throws IOException {
-    Map<String, Object> args = Map.of(
-            "artifacts", List.of(
-                    Map.of(
-                            "artifact", "artifact",
-                            "group", "com.example",
-                            "version", "7.8.9",
-                            "classifier", "jdk15")));
+    Map<String, Object> args =
+        Map.of(
+            "artifacts",
+            List.of(
+                Map.of(
+                    "artifact", "artifact",
+                    "group", "com.example",
+                    "version", "7.8.9",
+                    "classifier", "jdk15")));
     Path argsFile = tempFolder.newFolder("argsdir").toPath().resolve("config.json");
     Files.write(argsFile, new Gson().toJson(args).getBytes(UTF_8));
 
     Coordinates coords = new Coordinates("com.example", "artifact", null, "jdk15", "7.8.9");
-    Path repo = MavenRepo.create()
-            .add(coords)
-            .getPath();
+    Path repo = MavenRepo.create().add(coords).getPath();
 
-    Config config = new Config(new NullListener(), "--argsfile", argsFile.toAbsolutePath().toString());
+    Config config =
+        new Config(new NullListener(), "--argsfile", argsFile.toAbsolutePath().toString());
     ResolutionRequest request = config.getResolutionRequest();
     request.addRepository(repo.toUri());
 
