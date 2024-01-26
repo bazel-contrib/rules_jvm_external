@@ -29,6 +29,7 @@ public class HttpDownloader {
 
   private static final int MAX_RETRY_COUNT = 3;
   private static final Set<Integer> RETRY_RESPONSE_CODES = Set.of(500, 502, 503, 504);
+  private static final Set<Integer> UNAUTHENTICATED_RESPONSE_CODES = Set.of(401, 403, 407);
   private static final Logger LOG = Logger.getLogger(HttpDownloader.class.getName());
   private final HttpClient client;
   private final EventListener listener;
@@ -48,6 +49,10 @@ public class HttpDownloader {
             String host = getRequestingHost();
             Netrc.Credential credential = netrc.getCredential(host);
             if (credential == null) {
+              // By returning `null` here, we will cause the `AuthenticationFilter` to throw
+              // an exception, which we can catch and deal with later. If we don't do this,
+              // then the JDK HttpClient will attempt to retry the authentication request up
+              // to (by default) 3 times, which is not the behaviour we want.
               return null;
             }
             return new PasswordAuthentication(
@@ -73,6 +78,7 @@ public class HttpDownloader {
       Path path = Files.createTempFile("resolver", "download");
 
       HttpResponse<Path> response = makeRequest(request, HttpResponse.BodyHandlers.ofFile(path));
+
       if (!isSuccessful(response)) {
         return null;
       }
@@ -126,10 +132,15 @@ public class HttpDownloader {
 
     try {
       HttpResponse<X> response = client.send(request, handler);
+      System.err.printf("%s -> Got response %d%n", request.uri(), response.statusCode());
 
       // Do we want to retry the request?
       if (RETRY_RESPONSE_CODES.contains(response.statusCode())) {
         return doRequest(++attemptCount, request, handler);
+      }
+
+      if (UNAUTHENTICATED_RESPONSE_CODES.contains(response.statusCode())) {
+        return new EmptyResponse<>(request, response.statusCode());
       }
 
       return response;
@@ -139,6 +150,15 @@ public class HttpDownloader {
       return new EmptyResponse<>(request, HTTP_NOT_FOUND);
     } catch (IOException e) {
       LOG.fine(String.format("Attempt %d failed for %s", attemptCount, request.uri()));
+
+      // We may have failed because of an authentication error. The `AuthenticationFilter`
+      // doesn't make it easy to detect this case (because it will only return a response
+      // with the unauthenticated error code if we'd not used _any_ authenticator in our
+      // HttpClient, so we have to examine the exception's error message and hope for the
+      // best. This is very, very nasty
+      if ("No credentials provided".equals(e.getMessage())) {
+        return new EmptyResponse<>(request, 401);
+      }
 
       // There are many reasons we may have seen an IOException. One is when an HTTP/2 server sends
       // a `GOAWAY` frame.
