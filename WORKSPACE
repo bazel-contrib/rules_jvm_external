@@ -538,9 +538,9 @@ maven_install(
     ],
 )
 
-load("@m2local_testing_repin//:defs.bzl", "pinned_maven_install")
+load("@m2local_testing_repin//:defs.bzl", m2local_testing_repin_maven_install = "pinned_maven_install")
 
-pinned_maven_install()
+m2local_testing_repin_maven_install()
 
 maven_install(
     name = "m2local_testing_without_checksum",
@@ -587,6 +587,35 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+load("@m2local_testing_ignore_empty_files_repin//:defs.bzl", m2local_testing_ignore_empty_files_repin_maven_install = "pinned_maven_install")
+
+m2local_testing_ignore_empty_files_repin_maven_install()
+
+maven_install(
+    name = "artifact_with_plus",
+    artifacts = [
+        "ch.epfl.scala:compiler-interface:1.3.0-M4+47-d881fa2f",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
+    name = "artifact_with_plus_repin",
+    artifacts = [
+        "ch.epfl.scala:compiler-interface:1.3.0-M4+47-d881fa2f",
+    ],
+    maven_install_json = "//tests/custom_maven_install:artifact_with_plus_repin_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@artifact_with_plus_repin//:defs.bzl", artifact_with_plus_maven_install = "pinned_maven_install")
+
+artifact_with_plus_maven_install()
 
 maven_install(
     name = "v1_lock_file_format",

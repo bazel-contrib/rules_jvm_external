@@ -21,11 +21,21 @@ function test_dependency_aggregation() {
 
 function test_duplicate_version_warning() {
   bazel run @duplicate_version_warning//:pin >> "$TEST_LOG" 2>&1
-  rm -f duplicate_version_warning_install.json
+  rm -f *duplicate_version_warning_install.json
 
   expect_log "Found duplicate artifact versions"
   expect_log "com.fasterxml.jackson.core:jackson-annotations has multiple versions"
   expect_log "com.github.jnr:jffi:native has multiple versions"
+  expect_log "Successfully pinned resolved artifacts"
+}
+
+function test_duplicate_version_warning_same_version() {
+  bazel run @duplicate_version_warning_same_version//:pin >> "$TEST_LOG" 2>&1
+  rm -f *duplicate_version_warning_same_version_install.json
+
+  expect_not_log "Found duplicate artifact versions"
+  expect_not_log "com.fasterxml.jackson.core:jackson-annotations has multiple versions"
+  expect_not_log "com.github.jnr:jffi:native has multiple versions"
   expect_log "Successfully pinned resolved artifacts"
 }
 
@@ -47,9 +57,9 @@ function test_m2local_testing_ignore_empty_files() {
   force_bzlmod_lock_file_to_be_regenerated
 
   bazel run @m2local_testing_ignore_empty_files//:pin >> "$TEST_LOG" 2>&1
-  expect_not_in_file '"sources": "' m2local_testing_ignore_empty_files_install.json
+  expect_not_in_file '"sources": "' *m2local_testing_ignore_empty_files_install.json
 
-  rm -f m2local_testing_ignore_empty_files_install.json
+  rm -f *m2local_testing_ignore_empty_files_install.json
   rm -rf ${jar_dir}
 
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
@@ -95,7 +105,7 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
   force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing//:com_example_kt >> "$TEST_LOG" 2>&1
-  rm -f m2local_testing_install.json
+  rm -f *m2local_testing_install.json
   rm -rf ${jar_dir}
 
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
@@ -118,7 +128,6 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing_repin//:com_example_kt >> "$TEST_LOG" 2>&1
-  rm -f m2local_testing_install.json
   rm -rf ${jar_dir}
 
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
@@ -174,13 +183,28 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
 }
 
-function test_duplicate_version_warning_same_version() {
-  bazel run @duplicate_version_warning_same_version//:pin >> "$TEST_LOG" 2>&1
-  rm -f duplicate_version_warning_same_version_install.json
+function test_found_artifact_with_plus_through_pin_and_build() {
+  bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
+  bazel run @artifact_with_plus//:pin >> "$TEST_LOG" 2>&1
 
-  expect_not_log "Found duplicate artifact versions"
-  expect_not_log "com.fasterxml.jackson.core:jackson-annotations has multiple versions"
-  expect_not_log "com.github.jnr:jffi:native has multiple versions"
+  force_bzlmod_lock_file_to_be_regenerated
+
+  bazel build @artifact_with_plus//:ch_epfl_scala_compiler_interface >> "$TEST_LOG" 2>&1
+  rm -f *artifact_with_plus_install.json
+
+  expect_log "Successfully pinned resolved artifacts"
+}
+
+function test_unpinned_found_artifact_with_plus_through_pin_and_build() {
+  # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
+  bazel clean --expunge >/dev/null 2>&1
+
+  bazel run @unpinned_artifact_with_plus_repin//:pin >> "$TEST_LOG" 2>&1
+
+  force_bzlmod_lock_file_to_be_regenerated
+
+  bazel build @artifact_with_plus_repin//:ch_epfl_scala_compiler_interface >> "$TEST_LOG" 2>&1
+
   expect_log "Successfully pinned resolved artifacts"
 }
 
@@ -223,6 +247,8 @@ TESTS=(
   "test_m2local_testing_found_local_artifact_after_build_copy"
   "test_m2local_testing_ignore_empty_files"
   "test_unpinned_m2local_testing_ignore_empty_files"
+  "test_found_artifact_with_plus_through_pin_and_build"
+  "test_unpinned_found_artifact_with_plus_through_pin_and_build"
   "test_v1_lock_file_format"
   "test_dependency_pom_exclusion"
 )
@@ -243,6 +269,11 @@ function run_tests() {
 function expect_not_in_file() {
   local pattern=$1
   local file=$2
+  if [ ! -f $file ]; then
+    printf "NOT FOUND: $file (most probably wrong test configuration)\n"
+    return 1
+  fi
+
   local message=${3:-Expected not to find regexp \""$pattern"\", but it was found}
   grep -sq -- "$pattern" $file || return 0
 
