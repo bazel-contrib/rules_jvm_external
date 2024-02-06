@@ -232,6 +232,32 @@ public class MergeJarsTest {
   }
 
   @Test
+  public void shouldNotExcludeLicenseFiles() throws IOException {
+    // Create jars with names such that the first is sorted after the second
+    Path includeFrom = temp.newFile("include.jar").toPath();
+    createJar(
+        includeFrom,
+        ImmutableMap.of("LICENSE", "Hello, World!"));
+
+    Path excludeFrom = temp.newFile("exclude.jar").toPath();
+    createJar(excludeFrom, ImmutableMap.of("LICENSE", "Something else!"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", includeFrom.toAbsolutePath().toString(),
+          "--exclude", excludeFrom.toAbsolutePath().toString()
+        });
+
+    Map<String, String> contents = readJar(outputJar);
+    // We expect the manifest and one file
+    assertEquals(2, contents.size());
+    assertEquals("Hello, World!", contents.get("LICENSE"));
+  }
+
+  @Test
   public void shouldNotIncludeManifestOrMetaInfEntriesFromExclusions() throws IOException {
     // Create jars with names such that the first is sorted after the second
     Path includeFrom = temp.newFile("include.jar").toPath();

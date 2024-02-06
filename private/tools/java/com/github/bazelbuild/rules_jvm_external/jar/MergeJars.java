@@ -131,6 +131,7 @@ public class MergeJars {
 
           if ("META-INF/".equals(entry.getName())
               || (!entry.getName().startsWith("META-INF/")
+                  && !entry.getName().equals("LICENSE")
                   && excludedPaths.contains(entry.getName()))) {
             continue;
           }
