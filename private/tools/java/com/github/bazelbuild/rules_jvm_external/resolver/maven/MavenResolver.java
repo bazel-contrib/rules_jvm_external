@@ -51,6 +51,8 @@ import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.graph.manager.DefaultDependencyManager;
+import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
+import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 import org.eclipse.aether.util.graph.traverser.StaticDependencyTraverser;
 import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
 
@@ -255,6 +257,15 @@ public class MavenResolver implements Resolver {
         new TreeDependencyVisitor(
             new DependencyNodeVisitor(
                 node -> {
+                  Map<?, ?> data = node.getData();
+                  if (data != null) {
+                    Object winner = data.get(ConflictResolver.NODE_DATA_WINNER);
+                    if (winner != null) {
+                      System.err.printf("%s -> winner was %s. Data was %s%n", node, winner, node.getData());
+                    }
+                  }
+
+
                   Artifact artifact = amendArtifact(node.getArtifact());
                   Coordinates from = MavenCoordinates.asCoordinates(artifact);
                   Coordinates remapped = remappings.getOrDefault(from, from);
@@ -325,6 +336,8 @@ public class MavenResolver implements Resolver {
     configProperties.put(
         "maven.artifact.threads", String.valueOf(Runtime.getRuntime().availableProcessors()));
     session.setConfigProperties(Map.copyOf(configProperties));
+    session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, true);
+    session.setConfigProperty(DependencyManagerUtils.CONFIG_PROP_VERBOSE, true);
 
     session.setSystemProperties(System.getProperties());
 
