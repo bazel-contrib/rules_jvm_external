@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.Config;
@@ -331,11 +330,8 @@ public abstract class ResolverTestBase {
     Coordinates first = new Coordinates("com.example:first:1.2.3");
     Coordinates second = new Coordinates("com.example:second:3.4.5");
 
-    Path repo = MavenRepo.create()
-            .add(sharedDep)
-            .add(first, sharedDep)
-            .add(second, sharedDep)
-            .getPath();
+    Path repo =
+        MavenRepo.create().add(sharedDep).add(first, sharedDep).add(second, sharedDep).getPath();
 
     Graph<Coordinates> resolved = resolver.resolve(prepareRequestFor(repo.toUri(), first, second));
     assertEquals(3, resolved.nodes().size());

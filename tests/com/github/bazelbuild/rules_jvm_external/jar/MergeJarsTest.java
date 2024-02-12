@@ -235,9 +235,7 @@ public class MergeJarsTest {
   public void shouldNotExcludeLicenseFiles() throws IOException {
     // Create jars with names such that the first is sorted after the second
     Path includeFrom = temp.newFile("include.jar").toPath();
-    createJar(
-        includeFrom,
-        ImmutableMap.of("LICENSE", "Hello, World!"));
+    createJar(includeFrom, ImmutableMap.of("LICENSE", "Hello, World!"));
 
     Path excludeFrom = temp.newFile("exclude.jar").toPath();
     createJar(excludeFrom, ImmutableMap.of("LICENSE", "Something else!"));
