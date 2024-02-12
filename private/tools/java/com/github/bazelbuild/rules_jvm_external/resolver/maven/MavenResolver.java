@@ -10,16 +10,6 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.ImmutableGraph;
 import com.google.common.graph.MutableGraph;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositoryListener;
@@ -55,6 +45,17 @@ import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 import org.eclipse.aether.util.graph.traverser.StaticDependencyTraverser;
 import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MavenResolver implements Resolver {
 
@@ -257,21 +258,14 @@ public class MavenResolver implements Resolver {
         new TreeDependencyVisitor(
             new DependencyNodeVisitor(
                 node -> {
-                  Map<?, ?> data = node.getData();
-                  if (data != null) {
-                    Object winner = data.get(ConflictResolver.NODE_DATA_WINNER);
-                    if (winner != null) {
-                      System.err.printf("%s -> winner was %s. Data was %s%n", node, winner, node.getData());
-                    }
-                  }
+                  final DependencyNode actualNode = getDependencyNode(node);
 
-
-                  Artifact artifact = amendArtifact(node.getArtifact());
+                  Artifact artifact = amendArtifact(actualNode.getArtifact());
                   Coordinates from = MavenCoordinates.asCoordinates(artifact);
                   Coordinates remapped = remappings.getOrDefault(from, from);
                   toReturn.addNode(remapped);
 
-                  node.getChildren().stream()
+                  actualNode.getChildren().stream()
                       .map(DependencyNode::getArtifact)
                       .map(this::amendArtifact)
                       .map(MavenCoordinates::asCoordinates)
@@ -285,6 +279,17 @@ public class MavenResolver implements Resolver {
     directDependencies.forEach(node -> node.accept(collector));
 
     return ImmutableGraph.copyOf(toReturn);
+  }
+
+  private static DependencyNode getDependencyNode(DependencyNode node) {
+    Map<?, ?> data = node.getData();
+    if (data != null) {
+      Object winner = data.get(ConflictResolver.NODE_DATA_WINNER);
+      if (winner instanceof DependencyNode) {
+        return (DependencyNode) winner;
+      }
+    }
+    return node;
   }
 
   private Artifact amendArtifact(Artifact artifact) {
