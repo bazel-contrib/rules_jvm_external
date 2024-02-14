@@ -422,7 +422,7 @@ dev_maven.install(
     name = "maven_resolved",
     artifacts = [
         #        "org.apache.parquet:parquet-common:1.11.1",
-        "org.drools:drools-mvel:7.53.0.Final",
+        #        "org.drools:drools-mvel:7.53.0.Final",
         #        "org.optaplanner:optaplanner-core:7.53.0.Final",
         "org.seleniumhq.selenium:selenium-java",
     ],
@@ -430,6 +430,10 @@ dev_maven.install(
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
     lock_file = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
+    repositories = [
+        "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
+        "https://repo1.maven.org/maven2",
+    ],
     resolver = "maven",
 )
 

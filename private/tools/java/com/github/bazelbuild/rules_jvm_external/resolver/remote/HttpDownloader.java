@@ -132,7 +132,7 @@ public class HttpDownloader {
 
     try {
       HttpResponse<X> response = client.send(request, handler);
-      System.err.printf("%s -> Got response %d%n", request.uri(), response.statusCode());
+      LOG.fine(String.format("%s -> Got response %d%n", request.uri(), response.statusCode()));
 
       // Do we want to retry the request?
       if (RETRY_RESPONSE_CODES.contains(response.statusCode())) {
