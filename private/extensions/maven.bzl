@@ -290,12 +290,7 @@ def _maven_impl(mctx):
 
             repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
 
-            _logical_or(repo, "fail_if_repin_required", False, install.fail_if_repin_required)
-            _logical_or(repo, "fail_on_missing_checksum", False, install.fail_on_missing_checksum)
-            _logical_or(repo, "fetch_sources", False, install.fetch_sources)
-            _logical_or(repo, "fetch_javadoc", False, install.fetch_javadoc)
             _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
-            _logical_or(repo, "strict_visibility", False, install.strict_visibility)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
             _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
 
@@ -351,12 +346,21 @@ def _maven_impl(mctx):
                     entries.append(install.lock_file)
                 repo_to_lock_file[install.name] = entries
 
-    # The root module always wins when it comes to lock files
+    # The root module always wins when it comes to these values
     for mod in mctx.modules:
         if mod.is_root:
             for install in mod.tags.install:
-                if install.lock_file:
-                    repo_to_lock_file[install.name] = [install.lock_file]
+                repo = repos[install.name]
+
+                # We will always have a lock file, so this is fine
+                repo_to_lock_file[install.name] = [install.lock_file]
+                repo["fail_if_repin_required"] = install.fail_if_repin_required
+                repo["fail_on_missing_checksum"] = install.fail_on_missing_checksum
+                repo["fetch_javadoc"] = install.fetch_javadoc
+                repo["fetch_sources"] = install.fetch_sources
+                repo["resolver"] = install.resolver
+                repo["strict_visibility"] = install.strict_visibility
+            repos[install.name] = repo
 
     # There should be at most one lock file per `name`
     for repo_name, lock_files in repo_to_lock_file.items():
