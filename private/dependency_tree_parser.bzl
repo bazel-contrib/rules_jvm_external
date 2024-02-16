@@ -96,8 +96,11 @@ def _generate_target(
     elif packaging == "aar":
         import_rule = "aar_import"
         jar_versionless_target_labels.append(target_label)
+    elif packaging in ["dylib", "so", "dll"]:
+        import_rule = "java_library"
     else:
         fail("Unsupported packaging type: " + packaging)
+
     target_import_string = [import_rule + "("]
 
     # 2. Generate the target label.
@@ -116,6 +119,7 @@ def _generate_target(
     # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
     # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
     #
+    is_dylib = False
     if packaging == "jar":
         target_import_string.append("\tjars = [\"%s\"]," % artifact_path)
         if srcjar_paths != None and target_label in srcjar_paths:
@@ -124,6 +128,23 @@ def _generate_target(
         target_import_string.append("\taar = \"%s\"," % artifact_path)
         if srcjar_paths != None and target_label in srcjar_paths:
             target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
+    elif packaging in ["so", "dylib", "dll"]:
+        is_dylib = True
+        jar_versionless_target_labels.append(target_label)
+        dylib = simple_coord.split(":")[-1] + "." + packaging
+        to_return.append(
+"""
+genrule(
+    name = "{dylib}_extension",
+    srcs = ["@{repository}//file"],
+    outs = ["{dylib}"],
+    cmd = "cp $< $@",
+    visibility = ["//visibility:public"],
+)""".format(
+    dylib = dylib,
+    repository = escape(artifact["coordinates"])))
+
+
 
     # 4. Generate the deps attribute with references to other target labels.
     #
@@ -135,7 +156,11 @@ def _generate_target(
     # 		":org_hamcrest_hamcrest_core",
     # 	],
     #
-    target_import_string.append("\tdeps = [")
+    if is_dylib:
+        target_import_string.append("\truntime_deps = [")
+    else:
+        target_import_string.append("\tdeps = [")
+
 
     # Dedupe dependencies here. Sometimes coursier will return "x.y:z:aar:version" and "x.y:z:version" in the
     # same list of dependencies.

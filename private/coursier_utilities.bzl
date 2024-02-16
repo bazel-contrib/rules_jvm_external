@@ -29,6 +29,9 @@ SUPPORTED_PACKAGING_TYPES = [
     "hk2-jar",
     "maven-plugin",
     "scala-jar",
+    "dylib",
+    "so",
+    "dll",
 ]
 
 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
