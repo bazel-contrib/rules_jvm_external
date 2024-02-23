@@ -23,7 +23,7 @@ def _jvm_import_impl(ctx):
         workspace_name = visible_name,
     )
 
-    java_runtime = ctx.toolchains["@bazel_tools//tools/jdk:toolchain_type"].java.java_runtime
+    java_runtime = ctx.toolchains["@bazel_tools//tools/jdk:runtime_toolchain_type"].java_runtime
     add_jar_manifest_entry_jar = ctx.file._add_jar_manifest_entry
 
     injar = ctx.files.jars[0]
@@ -118,5 +118,5 @@ jvm_import = rule(
     },
     implementation = _jvm_import_impl,
     provides = [JavaInfo],
-    toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
+    toolchains = ["@bazel_tools//tools/jdk:runtime_toolchain_type"],
 )
