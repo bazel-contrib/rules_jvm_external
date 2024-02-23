@@ -360,7 +360,8 @@ def _maven_impl(mctx):
                 repo["fetch_sources"] = install.fetch_sources
                 repo["resolver"] = install.resolver
                 repo["strict_visibility"] = install.strict_visibility
-            repos[install.name] = repo
+
+                repos[install.name] = repo
 
     # There should be at most one lock file per `name`
     for repo_name, lock_files in repo_to_lock_file.items():
