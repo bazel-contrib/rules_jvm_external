@@ -15,9 +15,12 @@
 package com.github.bazelbuild.rules_jvm_external.jar;
 
 import com.google.gson.Gson;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +28,8 @@ import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Enumeration;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -34,12 +39,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 
 public class IndexJar {
 
   private static final Predicate<String> IS_NUMERIC_VERSION =
       Pattern.compile("[1-9][0-9]*").asPredicate();
+
+  private static final String SERVICES_DIRECTORY_PREFIX = "META-INF/services/";
 
   public static void main(String[] args) throws IOException {
     if (args.length != 2 || !"--argsfile".equals(args[0])) {
@@ -79,11 +86,26 @@ public class IndexJar {
 
   public PerJarIndexResults index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
-    try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
-        ZipInputStream zis = new ZipInputStream(fis)) {
-      try {
-        ZipEntry entry;
-        while ((entry = zis.getNextEntry()) != null) {
+    SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
+    try {
+      try (ZipFile zipFile = new ZipFile(path.toFile())) {
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+          ZipEntry entry = entries.nextElement();
+          if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX) && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
+            String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
+            SortedSet<String> implementingClasses = new TreeSet<>();
+            try (InputStream inputStream = zipFile.getInputStream(entry) ; BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream) ; BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream))) {
+              String implementingClass = bufferedReader.readLine();
+              while (implementingClass != null) {
+                if (!implementingClass.isEmpty() && !implementingClass.startsWith("#")) {
+                  implementingClasses.add(implementingClass);
+                }
+                implementingClass = bufferedReader.readLine();
+              }
+            }
+            serviceImplementations.put(serviceInterface, implementingClasses);
+          }
           if (!entry.getName().endsWith(".class")) {
             continue;
           }
@@ -93,11 +115,11 @@ public class IndexJar {
           }
           packages.add(extractPackageName(entry.getName()));
         }
-      } catch (ZipException e) {
-        System.err.printf("Caught ZipException: %s%n", e);
       }
+    } catch (ZipException e) {
+      System.err.printf("Caught ZipException: %s%n", e);
     }
-    return new PerJarIndexResults(packages);
+    return new PerJarIndexResults(packages, serviceImplementations);
   }
 
   private String extractPackageName(String zipEntryName) {

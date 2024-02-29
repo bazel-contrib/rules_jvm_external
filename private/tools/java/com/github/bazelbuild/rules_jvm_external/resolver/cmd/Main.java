@@ -34,6 +34,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ui.AnsiConsoleListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.PlainConsoleListener;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.graph.Graph;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedOutputStream;
@@ -209,7 +210,7 @@ public class Main {
         throw new UncheckedIOException(e);
       }
     } else {
-      indexResults = new PerJarIndexResults(new TreeSet<>());
+      indexResults = new PerJarIndexResults(new TreeSet<>(), new TreeMap<>());
     }
 
     toReturn.add(
@@ -219,7 +220,8 @@ public class Main {
             result.getPath(),
             result.getSha256(),
             dependencies,
-            indexResults.getPackages()));
+            indexResults.getPackages(),
+            indexResults.getServiceImplementations()));
 
     if (fetchSources) {
       Coordinates sourceCoords = coords.setClassifier("sources").setExtension("jar");
@@ -232,7 +234,8 @@ public class Main {
                 source.getPath(),
                 source.getSha256(),
                 ImmutableSet.of(),
-                ImmutableSet.of()));
+                ImmutableSet.of(),
+                ImmutableSortedMap.of()));
       }
     }
 
@@ -247,7 +250,8 @@ public class Main {
                 javadoc.getPath(),
                 javadoc.getSha256(),
                 ImmutableSet.of(),
-                ImmutableSet.of()));
+                ImmutableSet.of(),
+                ImmutableSortedMap.of()));
       }
     }
 
