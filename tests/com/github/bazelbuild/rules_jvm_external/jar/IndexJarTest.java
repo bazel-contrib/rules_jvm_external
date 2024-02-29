@@ -24,7 +24,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.Test;
 
-public class ListPackagesTest {
+public class IndexJarTest {
   @Test
   public void simplePackages() throws Exception {
     doTest(
@@ -75,7 +75,7 @@ public class ListPackagesTest {
   private void doTest(String runfileJar, String... expectedPackages) throws IOException {
     SortedSet<String> expected = sortedSet(expectedPackages);
     Path jar = Paths.get(Runfiles.create().rlocation(runfileJar));
-    SortedSet<String> packages = new ListPackages().getPackages(jar);
+    SortedSet<String> packages = new IndexJar().index(jar);
     assertEquals(expected, packages);
   }
 

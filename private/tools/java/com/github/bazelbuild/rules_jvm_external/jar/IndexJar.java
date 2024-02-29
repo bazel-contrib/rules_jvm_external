@@ -36,7 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
-public class ListPackages {
+public class IndexJar {
 
   private static final Predicate<String> IS_NUMERIC_VERSION =
       Pattern.compile("[1-9][0-9]*").asPredicate();
@@ -48,18 +48,18 @@ public class ListPackages {
     }
 
     Path argsFile = Paths.get(args[1]);
-    Map<String, SortedSet<String>> index = new ListPackages().getPackages(Files.lines(argsFile));
+    Map<String, SortedSet<String>> index = new IndexJar().index(Files.lines(argsFile));
     System.out.println(new Gson().toJson(index));
   }
 
-  public Map<String, SortedSet<String>> getPackages(Stream<String> source) {
+  public Map<String, SortedSet<String>> index(Stream<String> source) {
     TreeMap<String, SortedSet<String>> index =
         source
             .parallel()
             .map(
                 path -> {
                   try {
-                    SortedSet<String> packages = getPackages(Paths.get(path));
+                    SortedSet<String> packages = index(Paths.get(path));
                     return new AbstractMap.SimpleEntry<>(path, packages);
                   } catch (IOException e) {
                     throw new UncheckedIOException(e);
@@ -77,7 +77,7 @@ public class ListPackages {
     return index;
   }
 
-  public SortedSet<String> getPackages(Path path) throws IOException {
+  public SortedSet<String> index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
     try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
         ZipInputStream zis = new ZipInputStream(fis)) {

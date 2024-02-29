@@ -18,7 +18,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.coursier.NebulaFormat;
-import com.github.bazelbuild.rules_jvm_external.jar.ListPackages;
+import com.github.bazelbuild.rules_jvm_external.jar.IndexJar;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
@@ -204,7 +204,7 @@ public class Main {
     SortedSet<String> packages;
     if (result.getPath().isPresent()) {
       try {
-        packages = new ListPackages().getPackages(result.getPath().get());
+        packages = new IndexJar().index(result.getPath().get());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
