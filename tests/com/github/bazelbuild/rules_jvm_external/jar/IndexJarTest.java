@@ -73,10 +73,10 @@ public class IndexJarTest {
   }
 
   private void doTest(String runfileJar, String... expectedPackages) throws IOException {
-    SortedSet<String> expected = sortedSet(expectedPackages);
+    SortedSet<String> expectedPackagesSet = sortedSet(expectedPackages);
     Path jar = Paths.get(Runfiles.create().rlocation(runfileJar));
-    SortedSet<String> packages = new IndexJar().index(jar);
-    assertEquals(expected, packages);
+    PerJarIndexResults perJarIndexResults = new IndexJar().index(jar);
+    assertEquals(expectedPackagesSet, perJarIndexResults.getPackages());
   }
 
   private SortedSet<String> sortedSet(String... contents) {

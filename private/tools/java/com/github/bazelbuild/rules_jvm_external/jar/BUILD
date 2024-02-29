@@ -18,7 +18,10 @@ java_binary(
 
 java_library(
     name = "IndexJar-lib",
-    srcs = ["IndexJar.java"],
+    srcs = [
+        "IndexJar.java",
+        "PerJarIndexResults.java",
+    ],
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd:__pkg__",
         "//tests/com/github/bazelbuild/rules_jvm_external/jar:__pkg__",

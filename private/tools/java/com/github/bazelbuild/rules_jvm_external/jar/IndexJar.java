@@ -48,19 +48,19 @@ public class IndexJar {
     }
 
     Path argsFile = Paths.get(args[1]);
-    Map<String, SortedSet<String>> index = new IndexJar().index(Files.lines(argsFile));
+    Map<String, PerJarIndexResults> index = new IndexJar().index(Files.lines(argsFile));
     System.out.println(new Gson().toJson(index));
   }
 
-  public Map<String, SortedSet<String>> index(Stream<String> source) {
-    TreeMap<String, SortedSet<String>> index =
+  public Map<String, PerJarIndexResults> index(Stream<String> source) {
+    TreeMap<String, PerJarIndexResults> index =
         source
             .parallel()
             .map(
                 path -> {
                   try {
-                    SortedSet<String> packages = index(Paths.get(path));
-                    return new AbstractMap.SimpleEntry<>(path, packages);
+                    PerJarIndexResults results = index(Paths.get(path));
+                    return new AbstractMap.SimpleEntry<>(path, results);
                   } catch (IOException e) {
                     throw new UncheckedIOException(e);
                   }
@@ -77,7 +77,7 @@ public class IndexJar {
     return index;
   }
 
-  public SortedSet<String> index(Path path) throws IOException {
+  public PerJarIndexResults index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
     try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
         ZipInputStream zis = new ZipInputStream(fis)) {
@@ -97,7 +97,7 @@ public class IndexJar {
         System.err.printf("Caught ZipException: %s%n", e);
       }
     }
-    return packages;
+    return new PerJarIndexResults(packages);
   }
 
   private String extractPackageName(String zipEntryName) {

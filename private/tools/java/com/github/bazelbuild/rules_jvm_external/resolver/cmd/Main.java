@@ -19,6 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.coursier.NebulaFormat;
 import com.github.bazelbuild.rules_jvm_external.jar.IndexJar;
+import com.github.bazelbuild.rules_jvm_external.jar.PerJarIndexResults;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
@@ -49,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
@@ -201,15 +201,15 @@ public class Main {
       return toReturn.build();
     }
 
-    SortedSet<String> packages;
+    PerJarIndexResults indexResults;
     if (result.getPath().isPresent()) {
       try {
-        packages = new IndexJar().index(result.getPath().get());
+        indexResults = new IndexJar().index(result.getPath().get());
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     } else {
-      packages = new TreeSet<>();
+      indexResults = new PerJarIndexResults(new TreeSet<>());
     }
 
     toReturn.add(
@@ -219,7 +219,7 @@ public class Main {
             result.getPath(),
             result.getSha256(),
             dependencies,
-            packages));
+            indexResults.getPackages()));
 
     if (fetchSources) {
       Coordinates sourceCoords = coords.setClassifier("sources").setExtension("jar");
