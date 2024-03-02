@@ -68,6 +68,7 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-model-builder:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-settings:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-settings-builder:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-resolver-provider:%s" % _MAVEN_VERSION,

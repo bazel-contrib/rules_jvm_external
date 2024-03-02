@@ -82,7 +82,8 @@ public class Downloader {
 
     DownloadResult pomResult = performDownload(coords, pom);
     if (pomResult == null) {
-      throw new RuntimeException("Unable to find pom result for " + coords + " -> " + pom);
+      System.out.println("\n[WARNING] The POM for " + coords + " is missing, no dependency information available");
+      return null;
     }
     if (pomResult.getPath().isPresent()) {
       // Quick hack to try and get the packaging from the pom file. We

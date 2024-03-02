@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositoryListener;
@@ -171,10 +172,13 @@ public class MavenResolver implements Resolver {
     List<Exception> exceptions = errors.getExceptions();
     if (!exceptions.isEmpty()) {
       Exception exception = exceptions.get(0);
-      if (exception instanceof RuntimeException) {
+      if (exception instanceof ModelBuildingException) {
+        System.out.println("\n[WARNING] " + exception);
+      } else if (exception instanceof RuntimeException) {
         throw (RuntimeException) exception;
+      } else {
+        throw new RuntimeException(exception);
       }
-      throw new RuntimeException(exception);
     }
 
     return buildGraph(coordsListener.getRemappings(), directDependencies);

@@ -802,6 +802,8 @@ maven_install(
 maven_install(
     name = "maven_resolved",
     artifacts = [
+        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
+        "org.apache.parquet:parquet-common:1.11.1",
         "org.seleniumhq.selenium:selenium-java",
         maven.artifact(
             testonly = True,

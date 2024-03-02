@@ -97,7 +97,7 @@ public class Main {
       }
 
       String converted =
-          new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(toReturn);
+          new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(toReturn) + "\n";
 
       try (OutputStream os = output == null ? System.out : Files.newOutputStream(output);
           BufferedOutputStream bos = new BufferedOutputStream(os)) {
@@ -221,6 +221,10 @@ public class Main {
     ImmutableSet.Builder<DependencyInfo> toReturn = ImmutableSet.builder();
 
     DownloadResult result = downloader.download(coords);
+
+    if (result == null) {
+      return toReturn.build();
+    }
 
     SortedSet<String> packages;
     if (result.getPath().isPresent()) {

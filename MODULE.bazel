@@ -37,6 +37,8 @@ _MAVEN_VERSION = "3.9.6"
 
 _MAVEN_RESOLVER_VERSION = "1.9.18"
 
+# NOTE: Please keep any changes to this maven.install in sync with the
+# definition in repositories.bzl
 maven.install(
     name = "rules_jvm_external_deps",
     artifacts = [
@@ -50,6 +52,7 @@ maven.install(
         "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
+        "org.apache.maven:maven-model-builder:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-settings:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-settings-builder:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-resolver-provider:%s" % _MAVEN_VERSION,
@@ -68,7 +71,6 @@ maven.install(
         "org.slf4j:slf4j-simple:2.0.9",
         "software.amazon.awssdk:s3:2.20.128",
     ],
-    fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
 )
 
@@ -421,7 +423,8 @@ dev_maven.install(
 dev_maven.install(
     name = "maven_resolved",
     artifacts = [
-        #        "org.apache.parquet:parquet-common:1.11.1",
+        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
+        "org.apache.parquet:parquet-common:1.11.1",
         #        "org.drools:drools-mvel:7.53.0.Final",
         #        "org.optaplanner:optaplanner-core:7.53.0.Final",
         "org.seleniumhq.selenium:selenium-java",

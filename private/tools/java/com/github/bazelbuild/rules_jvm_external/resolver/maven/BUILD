@@ -21,6 +21,10 @@ java_library(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
+            "org.apache.maven:maven-model-builder",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "org.apache.maven:maven-settings",
             repository_name = "rules_jvm_external_deps",
         ),
