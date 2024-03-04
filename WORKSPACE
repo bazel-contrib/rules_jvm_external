@@ -814,10 +814,17 @@ maven_install(
             group = "com.google.auto.value",
             version = "1.6.3",
         ),
+        maven.artifact(
+            artifact = "json-lib",
+            classifier = "jdk15",
+            group = "net.sf.json-lib",
+            version = "2.4",
+        ),
     ],
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
+    fail_if_repin_required = True,
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
     repositories = [
         "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it

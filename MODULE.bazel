@@ -407,6 +407,7 @@ dev_maven.install(
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
+    fail_if_repin_required = True,
     lock_file = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
     repositories = [
         "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
