@@ -800,7 +800,7 @@ maven_install(
 )
 
 maven_install(
-    name = "maven_resolved",
+    name = "maven_resolved_with_boms",
     artifacts = [
         # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
         "org.apache.parquet:parquet-common:1.11.1",
