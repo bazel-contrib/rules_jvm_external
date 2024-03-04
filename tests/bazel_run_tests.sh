@@ -248,7 +248,7 @@ function test_maven_resolution() {
     fi
 
     # should run successfully
-    bazel run @maven_resolved//:pin >> "$TEST_LOG" 2>&1
+    bazel run @maven_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
 }
 
 TESTS=(
