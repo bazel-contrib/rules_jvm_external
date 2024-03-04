@@ -98,17 +98,16 @@ public class MavenResolver implements Resolver {
                 coordinates.getVersion()),
             JavaScopes.RUNTIME);
 
-    Set<Exclusion> excluded =
+    Set<Exclusion> exclusions =
         artifact.getExclusions().stream().map(this::createExclusion).collect(Collectors.toSet());
 
-    return bom.setScope("import").setExclusions(excluded);
+    return bom.setScope("import").setExclusions(exclusions);
   }
 
   private Dependency createDependency(
       com.github.bazelbuild.rules_jvm_external.resolver.Artifact source) {
-    Artifact artifact;
     Coordinates coords = source.getCoordinates();
-    artifact =
+    Artifact artifact =
         new DefaultArtifact(
             coords.getGroupId(),
             coords.getArtifactId(),
@@ -167,6 +166,10 @@ public class MavenResolver implements Resolver {
 
     managedDependencies = overrideDependenciesWithUserChoices(managedDependencies, dependencies);
 
+    // In a regular maven project, the root `pom.xml` defines what has the
+    // dependencies --- they can't just "float in space". We simulate the
+    // same kind of structure by defining a `fakeRoot`. This is the thing
+    // to which we add dependencies. It won't appear in any of our outputs.
     Artifact fakeRoot = new DefaultArtifact("com.example:bazel-dep-resolver:1.0.0");
 
     Dependency dep = new Dependency(fakeRoot, JavaScopes.COMPILE);
@@ -315,6 +318,15 @@ public class MavenResolver implements Resolver {
   private static DependencyNode getDependencyNode(DependencyNode node) {
     Map<?, ?> data = node.getData();
     if (data != null) {
+      // By default, aether will trim duplicate dependencies from the graph
+      // of returned nodes. That's fine for Maven, as it means that each dep
+      // will appear on the classpath once, but not for us. To make sure we
+      // get the full dependency graph, we set
+      // `ConflictResolver.CONFIG_PROP_VERBOSE` to `true` earlier. When aether
+      // detects a duplicate node, it places a marker with no dependencies in
+      // the returned `DependencyNode`, and a link to the actual node in the
+      // `NODE_DATA_WINNER` data. We need to use _that_ node in order to
+      // properly construct the dependency graph.
       Object winner = data.get(ConflictResolver.NODE_DATA_WINNER);
       if (winner instanceof DependencyNode) {
         return (DependencyNode) winner;
@@ -362,11 +374,12 @@ public class MavenResolver implements Resolver {
     configProperties.putAll(System.getProperties());
 
     // Use the breadth-first dependency collector. This allows us to work out the dependency graph
-    // in parallel.
-    // This only applies to the step where we calculate the dependency graph, not the actual
-    // downloading of those
-    // dependencies (which is handled by the `Downloader`.
+    // in parallel. This only applies to the step where we calculate the dependency graph, not the
+    // actual downloading of those dependencies (which is handled by the `Downloader`).
+    // For reference, the set of config properties is drawn from:
+    // https://github.com/apache/maven-resolver/blob/master/src/site/markdown/configuration.md
     configProperties.put("aether.dependencyCollector.impl", "bf");
+    configProperties.put("aether.dependencyCollector.bf.threads", String.valueOf(maxThreads));
     // And set the number of threads to use when figuring out how many dependencies to download in
     // parallel.
     configProperties.put("maven.artifact.threads", String.valueOf(maxThreads));
