@@ -360,6 +360,13 @@ def _maven_impl(mctx):
                 repo["fetch_sources"] = install.fetch_sources
                 repo["resolver"] = install.resolver
                 repo["strict_visibility"] = install.strict_visibility
+                if len(install.repositories):
+                    mapped_repos = []
+                    for repository in parse.parse_repository_spec_list(install.repositories):
+                        repo_string = _json.write_repository_spec(repository)
+                        if repo_string not in mapped_repos:
+                            mapped_repos.append(repo_string)
+                    repo["repositories"] = mapped_repos
 
                 repos[install.name] = repo
 
