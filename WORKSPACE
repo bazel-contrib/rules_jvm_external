@@ -819,6 +819,10 @@ maven_install(
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
+    repositories = [
+        "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
+        "https://repo1.maven.org/maven2",
+    ],
     resolver = "maven",
 )
 
