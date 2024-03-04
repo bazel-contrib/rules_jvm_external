@@ -21,6 +21,7 @@ import static java.net.http.HttpClient.Redirect.ALWAYS;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -36,6 +37,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -47,6 +50,7 @@ public class HttpDownloader {
   private static final Logger LOG = Logger.getLogger(HttpDownloader.class.getName());
   private final HttpClient client;
   private final EventListener listener;
+  private final Set<String> authenticationFailed = Collections.synchronizedSet(new HashSet<>());
 
   public HttpDownloader(Netrc netrc, EventListener listener) {
     this.listener = listener;
@@ -154,6 +158,7 @@ public class HttpDownloader {
       }
 
       if (UNAUTHENTICATED_RESPONSE_CODES.contains(response.statusCode())) {
+        logFailedAuthenticationIfRequired(request);
         return new EmptyResponse<>(request, response.statusCode());
       }
 
@@ -171,6 +176,7 @@ public class HttpDownloader {
       // HttpClient, so we have to examine the exception's error message and hope for the
       // best. This is very, very nasty
       if ("No credentials provided".equals(e.getMessage())) {
+        logFailedAuthenticationIfRequired(request);
         return new EmptyResponse<>(request, 401);
       }
 
@@ -192,6 +198,19 @@ public class HttpDownloader {
     } finally {
       LOG.fine(String.format("Downloaded (attempt %d): %s", attemptCount, request.uri()));
       listener.onEvent(new DownloadEvent(COMPLETE, request.uri().toString()));
+    }
+  }
+
+  private void logFailedAuthenticationIfRequired(HttpRequest request) {
+    if (authenticationFailed.add(request.uri().getHost())) {
+      listener.onEvent(
+          new LogEvent(
+              "downloader",
+              String.format(
+                  "Authentication failed for %s. Results from this host will be missing from the"
+                      + " generated lock file.",
+                  request.uri().getHost()),
+              null));
     }
   }
 
