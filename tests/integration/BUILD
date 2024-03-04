@@ -117,11 +117,11 @@ java_library(
 genquery(
     name = "maven-resolved-is-ok",
     testonly = True,
-    expression = "deps(@maven_resolved//:org_seleniumhq_selenium_selenium_java)",
+    expression = "deps(@maven_resolved_with_boms//:org_seleniumhq_selenium_selenium_java)",
     opts = [
         "--nohost_deps",
         "--noimplicit_deps",
     ],
-    scope = ["@maven_resolved//:org_seleniumhq_selenium_selenium_java"],
+    scope = ["@maven_resolved_with_boms//:org_seleniumhq_selenium_selenium_java"],
     deps = [],
 )

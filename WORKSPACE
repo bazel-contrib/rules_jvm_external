@@ -822,6 +822,6 @@ maven_install(
     resolver = "maven",
 )
 
-load("@maven_resolved//:defs.bzl", _maven_resolved_maven_install = "pinned_maven_install")
+load("@maven_resolved_with_boms//:defs.bzl", _maven_resolved_maven_install = "pinned_maven_install")
 
 _maven_resolved_maven_install()
