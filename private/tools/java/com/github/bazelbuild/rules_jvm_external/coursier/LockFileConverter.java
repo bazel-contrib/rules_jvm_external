@@ -3,7 +3,6 @@ package com.github.bazelbuild.rules_jvm_external.coursier;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.MavenRepositoryPath;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,7 +10,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -79,7 +77,7 @@ public class LockFileConverter {
     Set<DependencyInfo> infos = converter.getDependencies();
     Map<String, Object> conflicts = converter.getConflicts();
 
-    Map<String, Object> rendered = new NebulaFormat(repositories).render(infos, conflicts);
+    Map<String, Object> rendered = new NebulaFormat().render(repositories, infos, conflicts);
 
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
@@ -207,7 +205,7 @@ public class LockFileConverter {
         (Collection<Map<String, Object>>) depTree.get("dependencies");
     for (Map<String, Object> coursierDep : coursierDeps) {
       Coordinates coord = new Coordinates((String) coursierDep.get("coord"));
-      String expectedPath = new MavenRepositoryPath(coord).getPath();
+      String expectedPath = coord.toRepoPath();
       String file = (String) coursierDep.get("file");
 
       if (file == null) {
@@ -216,11 +214,7 @@ public class LockFileConverter {
       }
 
       // Files may be URL encoded. Decode
-      try {
-        file = URLDecoder.decode(file, UTF_8.toString());
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      file = URLDecoder.decode(file, UTF_8);
 
       if (file.endsWith(expectedPath)) {
         toReturn.put(coord, coord);

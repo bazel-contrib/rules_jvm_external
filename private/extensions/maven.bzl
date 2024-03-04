@@ -384,8 +384,6 @@ def _maven_impl(mctx):
                     existing_repos.append(repo_string)
             repo["repositories"] = existing_repos
 
-        #        print(name, "artifacts ->", artifacts)
-
         coursier_fetch(
             # Name this repository "unpinned_{name}" if the user specified a
             # maven_install.json file. The actual @{name} repository will be

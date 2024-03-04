@@ -68,11 +68,13 @@ public class Main {
       listener.close();
 
       Map<String, Object> rendered =
-          new NebulaFormat(
+          new NebulaFormat()
+              .render(
                   request.getRepositories().stream()
                       .map(Object::toString)
-                      .collect(Collectors.toList()))
-              .render(infos, new HashMap<>());
+                      .collect(Collectors.toList()),
+                  infos,
+                  new HashMap<>());
 
       Map<Object, Object> toReturn = new TreeMap<>();
       for (String key : RENDERED_KEYS) {

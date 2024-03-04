@@ -3,7 +3,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.MavenRepositoryPath;
 import com.google.common.hash.Hashing;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -69,7 +68,7 @@ public class MavenRepo {
 
     Coordinates coords =
         new Coordinates(model.getGroupId(), model.getArtifactId(), null, null, model.getVersion());
-    Path dir = root.resolve(new MavenRepositoryPath(coords).getPath()).getParent();
+    Path dir = root.resolve(coords.toRepoPath()).getParent();
     Files.createDirectories(dir);
 
     Path pomFile = dir.resolve(model.getArtifactId() + "-" + model.getVersion() + ".pom");
@@ -99,7 +98,7 @@ public class MavenRepo {
   }
 
   private void writeFile(Coordinates coords) throws IOException {
-    Path output = root.resolve(new MavenRepositoryPath(coords).getPath());
+    Path output = root.resolve(coords.toRepoPath());
     // We don't read the contents, it just needs to exist
     Files.write(output, "Hello, World!".getBytes(UTF_8));
 

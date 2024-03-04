@@ -327,7 +327,13 @@ def _stable_artifact(artifact):
 # upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def compute_dependency_inputs_signature(boms, artifacts, repositories, excluded_artifacts):
+def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = []):
+    if len(repositories) == 0:
+        fail("Repositories must be set to calculate input signature")
+
+    if len(artifacts) == 0 and len(boms) == 0:
+        fail("Cannot calculate input hash without artifacts or boms")
+
     artifact_inputs = []
     excluded_artifact_inputs = []
 
@@ -415,18 +421,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     _windows_check(repository_ctx)
 
-    repositories = []
-    for repository in repository_ctx.attr.repositories:
-        repositories.append(json.decode(repository))
+    repositories = [json.decode(repository) for repository in repository_ctx.attr.repositories]
 
-    artifacts = []
-    for artifact in repository_ctx.attr.artifacts:
-        artifacts.append(json.decode(artifact))
+    artifacts = [json.decode(artifact) for artifact in repository_ctx.attr.artifacts]
     _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
-    boms = []
-    for bom in repository_ctx.attr.boms:
-        boms.append(json.decode(bom))
+    boms = [json.decode(bom) for bom in repository_ctx.attr.boms]
     _check_artifacts_are_unique(boms, repository_ctx.attr.duplicate_version_warning)
 
     # Read Coursier state from maven_install.json.
@@ -501,10 +501,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         )
     else:
         computed_artifacts_hash, old_hashes = compute_dependency_inputs_signature(
-            repository_ctx.attr.boms,
-            repository_ctx.attr.artifacts,
-            repository_ctx.attr.repositories,
-            repository_ctx.attr.excluded_artifacts,
+            boms = repository_ctx.attr.boms,
+            artifacts = repository_ctx.attr.artifacts,
+            repositories = repository_ctx.attr.repositories,
+            excluded_artifacts = repository_ctx.attr.excluded_artifacts,
         )
         if input_artifacts_hash in old_hashes:
             print_if_not_repinning(
@@ -645,25 +645,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         executable = False,
     )
 
-    if repository_ctx.attr.resolver == "coursier":
-        pin_target = _BUILD_PIN_ALIAS.format(unpinned_pin_target = unpinned_pin_target)
-    else:
-        package_path = repository_ctx.attr.maven_install_json.package
-        file_name = repository_ctx.attr.maven_install_json.name
-        if package_path == "":
-            lock_file_location = file_name  # e.g. some.json
-        else:
-            lock_file_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
-
-        pin_target = _IN_REPO_PIN.format(
-            boms = repr(repository_ctx.attr.boms),
-            artifacts = repr(repository_ctx.attr.artifacts),
-            excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
-            repos = repr(repository_ctx.attr.repositories),
-            fetch_sources = repr(repository_ctx.attr.fetch_sources),
-            fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
-            lock_file = repr(lock_file_location),
-        )
+    pin_target = generate_pin_target(repository_ctx, unpinned_pin_target)
 
     repository_ctx.file(
         "BUILD",
@@ -695,6 +677,27 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 "\n".join(compat_repositories_bzl) + "\n",
                 executable = False,
             )
+
+def generate_pin_target(repository_ctx, unpinned_pin_target):
+    if repository_ctx.attr.resolver == "coursier":
+        return _BUILD_PIN_ALIAS.format(unpinned_pin_target = unpinned_pin_target)
+    else:
+        package_path = repository_ctx.attr.maven_install_json.package
+        file_name = repository_ctx.attr.maven_install_json.name
+        if package_path == "":
+            lock_file_location = file_name  # e.g. some.json
+        else:
+            lock_file_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
+
+        return _IN_REPO_PIN.format(
+            boms = repr(repository_ctx.attr.boms),
+            artifacts = repr(repository_ctx.attr.artifacts),
+            excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
+            repos = repr(repository_ctx.attr.repositories),
+            fetch_sources = repr(repository_ctx.attr.fetch_sources),
+            fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
+            lock_file = repr(lock_file_location),
+        )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
     """Returns the artifact path inferred by comparing primary_url with urls in repository_urls.
@@ -1186,10 +1189,10 @@ def _coursier_fetch_impl(repository_ctx):
         # We are in `coursier_fetch`, and we've decided to require lock files when
         # using a resolver that can resolve using boms. As such, we lack the `boms`
         # attr, so pass in an empty array here, which is what we expect.
-        [],
-        repository_ctx.attr.artifacts,
-        repository_ctx.attr.repositories,
-        repository_ctx.attr.excluded_artifacts,
+        boms = [],
+        artifacts = repository_ctx.attr.artifacts,
+        repositories = repository_ctx.attr.repositories,
+        excluded_artifacts = repository_ctx.attr.excluded_artifacts,
     )
 
     repository_ctx.file(

@@ -1,3 +1,17 @@
+// Copyright 2024 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.github.bazelbuild.rules_jvm_external.coursier;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -14,15 +28,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/** Format resolution results into the v2 lock file format. */
 public class NebulaFormat {
-  private final Set<String> repositories;
 
-  public NebulaFormat(Collection<String> repositories) {
-    // Ordering matters for the repositories
-    this.repositories = new LinkedHashSet<>(repositories);
-  }
-
-  public Map<String, Object> render(Set<DependencyInfo> infos, Map<String, Object> conflicts) {
+  /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
+  public Map<String, Object> render(
+      Collection<String> repositories, Set<DependencyInfo> infos, Map<String, Object> conflicts) {
+    repositories = new LinkedHashSet<>(repositories);
     boolean isUsingM2Local =
         repositories.stream().map(String::toLowerCase).anyMatch(repo -> repo.equals("m2local/"));
 

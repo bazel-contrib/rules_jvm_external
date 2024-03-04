@@ -3,7 +3,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver.remote;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepositoryPath;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.hash.Hashing;
@@ -76,7 +75,7 @@ public class Downloader {
     }
 
     // Are we dealing with a packaging dep? Download the `pom.xml` and check
-    String originalTarget = new MavenRepositoryPath(coords).getPath();
+    String originalTarget = coords.toRepoPath();
     String pomName = String.format("%s-%s.pom", coords.getArtifactId(), coords.getVersion());
     String pom = Paths.get(originalTarget).getParent().resolve(pomName).toString();
 
@@ -191,8 +190,7 @@ public class Downloader {
   }
 
   private DownloadResult performDownload(Coordinates coords) {
-    MavenRepositoryPath repoPath = new MavenRepositoryPath(coords);
-    return performDownload(coords, repoPath.getPath());
+    return performDownload(coords, coords.toRepoPath());
   }
 
   private boolean isFallbackAvailable(Coordinates coords) {

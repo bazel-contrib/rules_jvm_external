@@ -28,8 +28,11 @@ public class NebulaFormatTest {
             Set.of());
 
     Map<String, Object> rendered =
-        new NebulaFormat(repos.stream().map(Object::toString).collect(Collectors.toSet()))
-            .render(Set.of(aggregator), Map.of());
+        new NebulaFormat()
+            .render(
+                repos.stream().map(Object::toString).collect(Collectors.toSet()),
+                Set.of(aggregator),
+                Map.of());
 
     Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
     Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");

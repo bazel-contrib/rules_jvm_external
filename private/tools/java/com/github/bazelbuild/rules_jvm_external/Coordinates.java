@@ -105,6 +105,32 @@ public class Coordinates implements Comparable<Coordinates> {
     return coords.toString();
   }
 
+  public String toRepoPath() {
+    StringBuilder path = new StringBuilder();
+    path.append(getGroupId().replace('.', '/'))
+        .append("/")
+        .append(getArtifactId())
+        .append("/")
+        .append(getVersion())
+        .append("/")
+        .append(getArtifactId())
+        .append("-")
+        .append(getVersion());
+
+    String classifier = getClassifier();
+
+    if (!isNullOrEmpty(classifier) && !"jar".equals(classifier)) {
+      path.append("-").append(classifier);
+    }
+    if (!isNullOrEmpty(getExtension())) {
+      path.append(".").append(getExtension());
+    } else {
+      path.append(".jar");
+    }
+
+    return path.toString();
+  }
+
   @Override
   public int compareTo(Coordinates o) {
     return this.toString().compareTo(o.toString());
@@ -142,5 +168,9 @@ public class Coordinates implements Comparable<Coordinates> {
   public int hashCode() {
     return Objects.hash(
         getGroupId(), getArtifactId(), getVersion(), getClassifier(), getExtension());
+  }
+
+  private boolean isNullOrEmpty(String value) {
+    return value == null || value.isEmpty();
   }
 }

@@ -441,7 +441,7 @@ dev_maven.install(
 )
 
 dev_maven.artifact(
-    name = "maven_resolved",
+    name = "maven_resolved_with_boms",
     testonly = True,
     artifact = "auto-value-annotations",
     exclusions = [
@@ -452,7 +452,7 @@ dev_maven.artifact(
 )
 
 dev_maven.artifact(
-    name = "maven_resolved",
+    name = "maven_resolved_with_boms",
     artifact = "json-lib",
     classifier = "jdk15",
     group = "net.sf.json-lib",
@@ -737,7 +737,7 @@ use_repo(
     "multiple_lock_files",
 
     # Pinned repo
-    "maven_resolved",
+    "maven_resolved_with_boms",
 
     # Pinned repo
     "override_target_in_deps",

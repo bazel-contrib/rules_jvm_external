@@ -1,3 +1,16 @@
+# Copyright 2024 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+
 load("//:coursier.bzl", "compute_dependency_inputs_signature")
 
 _TEMPLATE = """#!/usr/bin/env bash
@@ -38,7 +51,7 @@ def _pin_dependencies_impl(ctx):
     config = {
         "repositories": repos,
         "artifacts": artifacts,
-        "boms": [json.decode(b) for b in ctx.attr.boms],
+        "boms": boms,
         "globalExclusions": exclusions,
         "fetchSources": ctx.attr.fetch_sources,
         "fetchJavadoc": ctx.attr.fetch_javadocs,
@@ -51,10 +64,10 @@ def _pin_dependencies_impl(ctx):
     )
 
     input_hash = compute_dependency_inputs_signature(
-        ctx.attr.boms,
-        ctx.attr.artifacts,
-        ctx.attr.repositories,
-        ctx.attr.excluded_artifacts,
+        boms = ctx.attr.boms,
+        artifacts = ctx.attr.artifacts,
+        repositories = ctx.attr.repositories,
+        excluded_artifacts = ctx.attr.excluded_artifacts,
     )
 
     script = ctx.actions.declare_file(ctx.label.name)
@@ -82,6 +95,8 @@ pin_dependencies = rule(
     _pin_dependencies_impl,
     executable = True,
     attrs = {
+        # Note: We plan to support other resolvers (eg. `gradle`) in the future. Currently, there's just one
+        #       supported option.
         "resolver": attr.string(
             doc = "The resolver to use",
             values = ["maven"],

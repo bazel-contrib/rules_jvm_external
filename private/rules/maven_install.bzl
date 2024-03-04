@@ -77,7 +77,7 @@ def maven_install(
       repin_instructions: Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.
       ignore_empty_files: Treat jars that are empty as if they were not found.
     """
-    if len(boms) and resolver == "coursier":
+    if boms and resolver == "coursier":
         fail("The coursier resolver does not support resolving Maven BOMs. Please use another resolver.")
 
     if resolver != "coursier" and not maven_install_json:
@@ -112,12 +112,7 @@ def maven_install(
     # to update the maven_install() declaration in the WORKSPACE, run
     # @unpinned_maven//:pin / Coursier to update maven_install.json, and bazel build
     # //... immediately after with the updated artifacts.
-    if resolver != "coursier":
-        generate_pin_repository(
-            name = "unpinned_" + name,
-            unpinned_name = name,
-        )
-    else:
+    if resolver == "coursier":
         coursier_fetch(
             # Name this repository "unpinned_{name}" if the user specified a
             # maven_install.json file. The actual @{name} repository will be
@@ -142,6 +137,12 @@ def maven_install(
             aar_import_bzl_label = aar_import_bzl_label,
             duplicate_version_warning = duplicate_version_warning,
             ignore_empty_files = ignore_empty_files,
+        )
+
+    else:
+        generate_pin_repository(
+            name = "unpinned_" + name,
+            unpinned_name = name,
         )
 
     if maven_install_json != None:

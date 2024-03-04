@@ -302,7 +302,7 @@ load("@bar//:defs.bzl", bar_pinned_maven_install = "pinned_maven_install")
 bar_pinned_maven_install()
 ```
 
-### Support for Maven BOM files
+### (Experimental) Support for Maven BOM files
 
 Support for Maven BOMs can be enabled by switching the resolver used by `maven_install` to one that supports Maven BOMs.
 This can be done by setting the `resolver` attribute to `maven`. The new resolver will likely result in different
@@ -310,6 +310,24 @@ resolutions than the existing resolver, so it is advised to re-run your dependen
 
 The new resolver requires you to use a `maven_install_json` file, though if you have not yet pinned your dependencies,
 this can simply be an empty file.
+
+As an example:
+
+```starlark
+maven.install(
+    # Resolution using BOMs is supported by using the `maven` resolver
+    resolver = "maven",
+    boms = [
+        "org.seleniumhq.selenium:selenium-bom:4.18.1",
+    ],
+    artifacts = [
+        # This dependency is included in the `selenium-bom`, so we can omit the version number
+        "org.seleniumhq.selenium:selenium-java",
+    ],
+    # The `maven` resolver requires a lock file, though this can be an empty file before pinning
+    lock_file = "@//:manifest_install.json",
+)    
+```
 
 ## Generated targets
 
