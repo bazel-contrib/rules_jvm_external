@@ -24,8 +24,8 @@ class MavenCoordinates {
 
   public static Coordinates asCoordinates(Artifact artifact) {
     // Please excuse the sleight-of-hand here. Turns out that we need to do some finagaling of the
-    // `Artifact` to have a string
-    // we can convert to a `Coordinate`.
+    // `Artifact` to have a string we can convert to a `Coordinate` (notably mapping the packaging
+    // to the correct extension)
 
     String classifier = artifact.getClassifier();
 

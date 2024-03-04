@@ -75,10 +75,12 @@ import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
 public class MavenResolver implements Resolver {
 
   private final RemoteRepositoryFactory remoteRepositoryFactory;
+  private final int maxThreads;
   private final EventListener listener;
 
-  public MavenResolver(Netrc netrc, EventListener listener) {
+  public MavenResolver(Netrc netrc, int maxThreads, EventListener listener) {
     this.remoteRepositoryFactory = new RemoteRepositoryFactory(netrc);
+    this.maxThreads = maxThreads;
     this.listener = listener;
   }
 
@@ -367,8 +369,7 @@ public class MavenResolver implements Resolver {
     configProperties.put("aether.dependencyCollector.impl", "bf");
     // And set the number of threads to use when figuring out how many dependencies to download in
     // parallel.
-    configProperties.put(
-        "maven.artifact.threads", String.valueOf(Runtime.getRuntime().availableProcessors()));
+    configProperties.put("maven.artifact.threads", String.valueOf(maxThreads));
     session.setConfigProperties(Map.copyOf(configProperties));
     session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, true);
     session.setConfigProperty(DependencyManagerUtils.CONFIG_PROP_VERBOSE, true);

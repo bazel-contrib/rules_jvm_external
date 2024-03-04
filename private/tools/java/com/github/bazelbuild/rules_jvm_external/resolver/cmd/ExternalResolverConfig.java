@@ -18,8 +18,9 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 
-public class ExternalConfig {
+public class ExternalResolverConfig {
 
+  private String resolver;
   private Set<String> repositories;
   private Set<String> globalExclusions;
   private Set<ConfigArtifact> artifacts;
@@ -59,5 +60,9 @@ public class ExternalConfig {
 
   public boolean isUsingUnsafeSharedCache() {
     return useUnsafeSharedCache;
+  }
+
+  public String getResolver() {
+    return resolver;
   }
 }

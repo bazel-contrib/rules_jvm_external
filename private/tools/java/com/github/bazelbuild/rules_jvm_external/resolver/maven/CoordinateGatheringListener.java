@@ -95,7 +95,7 @@ public class CoordinateGatheringListener extends AbstractRepositoryListener {
         | ParserConfigurationException
         | SAXException
         | XPathExpressionException e) {
-      // Bail and hope for the best.
+      throw new RuntimeException("Unable to determine packaging", e);
     }
   }
 

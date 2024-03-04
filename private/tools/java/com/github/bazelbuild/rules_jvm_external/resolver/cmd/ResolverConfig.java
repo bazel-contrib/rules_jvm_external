@@ -28,8 +28,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Config {
+public class ResolverConfig {
 
+  // Limit the number of threads we use. The `5` is derived from the default number of threads Maven
+  // uses
+  // https://maven.apache.org/guides/mini/guide-configuring-maven.html#configuring-parallel-artifact-resolution
+  public static final int DEFAULT_MAX_THREADS =
+      Math.min(5, Runtime.getRuntime().availableProcessors());
   private final ResolutionRequest request;
   private final Resolver resolver;
   private final boolean fetchSources;
@@ -37,15 +42,17 @@ public class Config {
   private final Netrc netrc;
   private final Path output;
   private final String inputHash;
+  private final int maxThreads;
 
-  public Config(EventListener listener, String... args) throws IOException {
+  public ResolverConfig(EventListener listener, String... args) throws IOException {
     Path configPath = null;
     this.netrc = Netrc.fromUserHome();
 
     ResolutionRequest request = new ResolutionRequest();
-    Resolver resolver = new MavenResolver(netrc, listener);
+    String chosenResolver = "maven";
     boolean fetchSources = false;
     boolean fetchJavadoc = false;
+    int maxThreads = DEFAULT_MAX_THREADS;
     Path output = null;
     String inputHash = null;
 
@@ -91,7 +98,7 @@ public class Config {
           i++;
           switch (args[i]) {
             case "maven":
-              resolver = new MavenResolver(netrc, listener);
+              chosenResolver = "maven";
               break;
 
             default:
@@ -108,6 +115,11 @@ public class Config {
           request.addRepository(args[i]);
           break;
 
+        case "--max-threads":
+          i++;
+          maxThreads = Integer.parseInt(args[i]);
+          break;
+
         case "--use_unsafe_shared_cache":
           request.useUnsafeSharedCache(true);
           break;
@@ -121,8 +133,8 @@ public class Config {
     if (configPath != null) {
       listener.onEvent(new PhaseEvent("Reading parameter file"));
       String rawJson = Files.readString(configPath);
-      ExternalConfig config =
-          new Gson().fromJson(rawJson, new TypeToken<ExternalConfig>() {}.getType());
+      ExternalResolverConfig config =
+          new Gson().fromJson(rawJson, new TypeToken<ExternalResolverConfig>() {}.getType());
 
       fetchJavadoc |= config.isFetchJavadoc();
       fetchSources |= config.isFetchSources();
@@ -131,6 +143,10 @@ public class Config {
           request.isUseUnsafeSharedCache() || config.isUsingUnsafeSharedCache());
 
       config.getRepositories().forEach(request::addRepository);
+
+      if (config.getResolver() != null) {
+        chosenResolver = config.getResolver();
+      }
 
       config.getGlobalExclusions().forEach(request::exclude);
 
@@ -178,12 +194,17 @@ public class Config {
     }
 
     this.request = request;
-    this.resolver = resolver;
     this.fetchSources = fetchSources;
     this.fetchJavadoc = fetchJavadoc;
     this.inputHash = inputHash;
-
+    this.maxThreads = maxThreads;
     this.output = output;
+
+    if (chosenResolver.equals("maven")) {
+      this.resolver = new MavenResolver(netrc, maxThreads, listener);
+    } else {
+      throw new RuntimeException("Unknown resolver: " + chosenResolver);
+    }
   }
 
   public ResolutionRequest getResolutionRequest() {
@@ -204,6 +225,10 @@ public class Config {
 
   public Netrc getNetrc() {
     return netrc;
+  }
+
+  public int getMaxThreads() {
+    return maxThreads;
   }
 
   public String getInputHash() {
