@@ -17,6 +17,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -43,7 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -234,10 +237,7 @@ public abstract class ResolverTestBase {
   @Test
   public void shouldHandlePackagingPomsInDependencies() throws IOException {
     Coordinates parentCoords = new Coordinates("com.example:packaging:1.0.3");
-    Model parent = new Model();
-    parent.setGroupId(parentCoords.getGroupId());
-    parent.setArtifactId(parentCoords.getArtifactId());
-    parent.setVersion(parentCoords.getVersion());
+    Model parent = createModel(parentCoords);
     parent.setPackaging("pom");
 
     Coordinates first = new Coordinates("com.example:first:1.2.3");
@@ -265,10 +265,7 @@ public abstract class ResolverTestBase {
     Coordinates grandParent = new Coordinates("com.example:grandparent:3.14.1");
 
     Coordinates parentCoords = new Coordinates("com.example:packaging:1.0.3");
-    Model parent = new Model();
-    parent.setGroupId(parentCoords.getGroupId());
-    parent.setArtifactId(parentCoords.getArtifactId());
-    parent.setVersion(parentCoords.getVersion());
+    Model parent = createModel(parentCoords);
     parent.setPackaging("pom");
 
     Coordinates first = new Coordinates("com.example:first:1.2.3");
@@ -299,10 +296,7 @@ public abstract class ResolverTestBase {
   @Test
   public void packagingAttributeOfPomShouldBeRespected() throws IOException {
     Coordinates coords = new Coordinates("com.example:packaging:1.0.3");
-    Model model = new Model();
-    model.setGroupId(coords.getGroupId());
-    model.setArtifactId(coords.getArtifactId());
-    model.setVersion(coords.getVersion());
+    Model model = createModel(coords);
     model.setPackaging("aar");
 
     Path repo = MavenRepo.create().add(model).writePomFile(model).getPath();
@@ -345,10 +339,7 @@ public abstract class ResolverTestBase {
   public void shouldNotCrashWhenPomFileIsIncorrect() {
     // This example is derived from org.apache.yetus:audience-annotations:0.11.0
     Coordinates coords = new Coordinates("com.example:bad-dep:123.1");
-    Model model = new Model();
-    model.setGroupId(coords.getGroupId());
-    model.setArtifactId(coords.getArtifactId());
-    model.setVersion(coords.getVersion());
+    Model model = createModel(coords);
     Dependency jdkDep = new Dependency();
     jdkDep.setGroupId("jdk.tools");
     jdkDep.setArtifactId("jdk.tools");
@@ -379,6 +370,81 @@ public abstract class ResolverTestBase {
 
     Set<Coordinates> secondSuccessors = resolved.successors(second);
     assertEquals(Set.of(sharedDep), secondSuccessors);
+  }
+
+  @Test
+  public void managedDependenciesOfTransitiveDepsDoOverrideRegularDependencies() {
+    // Modelled after `org.drools:drools-mvel:7.53.0.Final`. Resolved using
+    // maven, the dependency graph looks like:
+    //
+    // [INFO] com.example:foo:jar:1.0.4
+    // [INFO] \- org.drools:drools-mvel:jar:7.53.0.Final:compile
+    // [INFO]    +- org.mvel:mvel2:jar:2.4.12.Final:compile
+    // [INFO]    +- org.kie:kie-api:jar:7.53.0.Final:compile
+    // [INFO]    |  \- org.kie.soup:kie-soup-maven-support:jar:7.53.0.Final:compile
+    // [INFO]    +- org.kie:kie-internal:jar:7.53.0.Final:compile
+    // [INFO]    +- org.kie.soup:kie-soup-project-datamodel-commons:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.kie.soup:kie-soup-commons:jar:7.53.0.Final:compile
+    // [INFO]    |  \- org.kie.soup:kie-soup-project-datamodel-api:jar:7.53.0.Final:compile
+    // [INFO]    +- org.drools:drools-core:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.kie.soup:kie-soup-xstream:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.drools:drools-core-reflective:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.drools:drools-core-dynamic:jar:7.53.0.Final:runtime
+    // [INFO]    |  \- commons-codec:commons-codec:jar:1.11:compile
+    // [INFO]    +- org.drools:drools-compiler:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.kie:kie-memory-compiler:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.drools:drools-ecj:jar:7.53.0.Final:compile
+    // [INFO]    |  +- org.antlr:antlr-runtime:jar:3.5.2:compile
+    // [INFO]    |  \- com.thoughtworks.xstream:xstream:jar:1.4.16:compile
+    // [INFO]    |     \- io.github.x-stream:mxparser:jar:1.2.1:compile
+    // [INFO]    |        \- xmlpull:xmlpull:jar:1.1.3.1:compile
+    // [INFO]    \- org.slf4j:slf4j-api:jar:1.7.30:compile
+    //
+    // `xmlpull:xmlpull` is defined as needing version `1.1.3.1` in the
+    // `xstream` deps, but the `org.kie` dependencies have a
+    // `managedDependencies` section which mandates version `1.2.0` which is
+    // not in Maven Central.
+
+    // Let's build the models from the bottom to the top
+    Coordinates leafCoords = new Coordinates("com.example:managed:1.2.0");
+
+    Coordinates parentCoords = new Coordinates("org.kie:parent:1.2.0");
+    Model parentModel = createModel(parentCoords);
+    parentModel.setPackaging("pom");
+    DependencyManagement managedDeps = new DependencyManagement();
+    Dependency overriddenVersionDep = new Dependency();
+    overriddenVersionDep.setGroupId(leafCoords.getGroupId());
+    overriddenVersionDep.setArtifactId(leafCoords.getArtifactId());
+    // The differing version will break things, so assert this
+    overriddenVersionDep.setVersion("3.14.1");
+    assertNotEquals(overriddenVersionDep.getVersion(), leafCoords.getVersion());
+    managedDeps.addDependency(overriddenVersionDep);
+    parentModel.setDependencyManagement(managedDeps);
+
+    Coordinates childCoords = new Coordinates("org.kie:child:1.2.0");
+    Model childModel = createModel(childCoords);
+    Parent childsParent = new Parent();
+    childsParent.setGroupId(parentCoords.getGroupId());
+    childsParent.setArtifactId(parentCoords.getArtifactId());
+    childsParent.setVersion(parentCoords.getVersion());
+    childModel.setParent(childsParent);
+
+    Path repo =
+        MavenRepo.create().add(leafCoords).add(parentModel).add(childModel, leafCoords).getPath();
+
+    Graph<Coordinates> resolved = resolver.resolve(prepareRequestFor(repo.toUri(), childCoords));
+    assertEquals(Set.of(childCoords, leafCoords), resolved.nodes());
+  }
+
+  private Model createModel(Coordinates coords) {
+    Model model = new Model();
+    model.setModelVersion("4.0.0");
+
+    model.setGroupId(coords.getGroupId());
+    model.setArtifactId(coords.getArtifactId());
+    model.setVersion(coords.getVersion());
+
+    return model;
   }
 
   private void assertAuthenticatedAccessWorks(Netrc netrc, String user, String password)
