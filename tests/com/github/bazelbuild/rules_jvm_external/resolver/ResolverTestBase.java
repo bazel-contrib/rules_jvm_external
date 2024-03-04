@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.junit.Before;
 import org.junit.Rule;
@@ -322,6 +323,27 @@ public abstract class ResolverTestBase {
     Graph<Coordinates> resolved = resolver.resolve(request);
 
     assertEquals(resolved.nodes(), Set.of(coords));
+  }
+
+  @Test
+  public void shouldNotCrashWhenPomFileIsIncorrect() {
+    // This example is derived from org.apache.yetus:audience-annotations:0.11.0
+    Coordinates coords = new Coordinates("com.example:bad-dep:123.1");
+    Model model = new Model();
+    model.setGroupId(coords.getGroupId());
+    model.setArtifactId(coords.getArtifactId());
+    model.setVersion(coords.getVersion());
+    Dependency jdkDep = new Dependency();
+    jdkDep.setGroupId("jdk.tools");
+    jdkDep.setArtifactId("jdk.tools");
+    jdkDep.setScope("system");
+    jdkDep.setOptional("true");
+    model.addDependency(jdkDep);
+
+    Path repo = MavenRepo.create().add(model).getPath();
+    Graph<Coordinates> resolved = resolver.resolve(prepareRequestFor(repo.toUri(), coords));
+
+    assertEquals(Set.of(coords), resolved.nodes());
   }
 
   @Test

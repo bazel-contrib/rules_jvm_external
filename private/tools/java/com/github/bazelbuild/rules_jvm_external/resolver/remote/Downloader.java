@@ -82,7 +82,8 @@ public class Downloader {
 
     DownloadResult pomResult = performDownload(coords, pom);
     if (pomResult == null) {
-      System.out.println("\n[WARNING] The POM for " + coords + " is missing, no dependency information available");
+      System.out.println(
+          "\n[WARNING] The POM for " + coords + " is missing, no dependency information available");
       return null;
     }
     if (pomResult.getPath().isPresent()) {

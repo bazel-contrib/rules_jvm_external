@@ -4,6 +4,7 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.collect.ImmutableList;
 import com.google.common.graph.Graph;
@@ -171,13 +172,24 @@ public class MavenResolver implements Resolver {
 
     List<Exception> exceptions = errors.getExceptions();
     if (!exceptions.isEmpty()) {
-      Exception exception = exceptions.get(0);
-      if (exception instanceof ModelBuildingException) {
-        System.out.println("\n[WARNING] " + exception);
-      } else if (exception instanceof RuntimeException) {
-        throw (RuntimeException) exception;
-      } else {
-        throw new RuntimeException(exception);
+      for (Exception e : exceptions) {
+        if (e instanceof ModelBuildingException) {
+          ModelBuildingException mbe = (ModelBuildingException) e;
+          String message =
+              "The POM for "
+                  + mbe.getModelId()
+                  + " is invalid. Transitive dependencies will not be available.";
+          String detail =
+              mbe.getProblems().stream()
+                  .map(p -> "[WARNING]:    " + p.getModelId() + " -> " + p.getMessage())
+                  .collect(Collectors.joining("\n"));
+
+          listener.onEvent(new LogEvent("maven", message, detail));
+        } else if (e instanceof RuntimeException) {
+          throw (RuntimeException) e;
+        } else {
+          throw new RuntimeException(e);
+        }
       }
     }
 
