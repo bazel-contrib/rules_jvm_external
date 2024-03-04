@@ -197,8 +197,8 @@ and fetch Maven artifacts transitively.
 | <a id="maven_install-name"></a>name |  A unique name for this Bazel external repository.   |  <code>"maven"</code> |
 | <a id="maven_install-repositories"></a>repositories |  A list of Maven repository URLs, specified in lookup order.<br><br>Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".   |  <code>[]</code> |
 | <a id="maven_install-artifacts"></a>artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact:version</code>.   |  <code>[]</code> |
-| <a id="maven_install-boms"></a>boms |  <p align="center"> - </p>   |  <code>[]</code> |
-| <a id="maven_install-resolver"></a>resolver |  <p align="center"> - </p>   |  <code>"coursier"</code> |
+| <a id="maven_install-boms"></a>boms |  A list of Maven artifact coordinates in the form of <code>group:artifact:version</code> which refer to Maven BOMs. The <code>coursier</code> <code>resolver</code> does not support using BOMs.   |  <code>[]</code> |
+| <a id="maven_install-resolver"></a>resolver |  Which resolver to use. One of <code>coursier</code>, or <code>maven</code>.   |  <code>"coursier"</code> |
 | <a id="maven_install-fail_on_missing_checksum"></a>fail_on_missing_checksum |  fail the fetch if checksum attributes are not present.   |  <code>True</code> |
 | <a id="maven_install-fetch_sources"></a>fetch_sources |  Additionally fetch source JARs.   |  <code>False</code> |
 | <a id="maven_install-fetch_javadoc"></a>fetch_javadoc |  Additionally fetch javadoc JARs.   |  <code>False</code> |

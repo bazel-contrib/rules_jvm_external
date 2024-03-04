@@ -38,7 +38,9 @@ def maven_install(
       repositories: A list of Maven repository URLs, specified in lookup order.
 
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
+      boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs. The `coursier` `resolver` does not support using BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
+      resolver: Which resolver to use. One of `coursier`, or `maven`.
       fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
       fetch_sources: Additionally fetch source JARs.
       fetch_javadoc: Additionally fetch javadoc JARs.
