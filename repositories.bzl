@@ -90,5 +90,6 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
         maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
         fail_if_repin_required = True,
         strict_visibility = True,
+        fetch_sources = True,
         repositories = repositories,
     )

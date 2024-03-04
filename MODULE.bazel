@@ -72,6 +72,7 @@ maven.install(
         "software.amazon.awssdk:s3:2.20.128",
     ],
     lock_file = "//:rules_jvm_external_deps_install.json",
+    fetch_sources = True,
 )
 
 maven.install(
