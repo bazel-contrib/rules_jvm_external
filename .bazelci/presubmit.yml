@@ -1,6 +1,6 @@
 ---
 tasks:
-  ubuntu1804:
+  ubuntu2204:
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
@@ -12,9 +12,9 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  android_ubuntu1804:
+  android_ubuntu2204:
     name: Android Tests
-    platform: ubuntu1804
+    platform: ubuntu2204
     test_flags:
       # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/978):
       #   These tests are not compatible with Android platforms, so use the legacy mode
@@ -23,8 +23,8 @@ tasks:
       - "--"
       - "//tests/integration/override_targets:override_targets"
 # TODO: restore once https://github.com/bazelbuild/continuous-integration/issues/1810 is fixed
-#  ubuntu1804_4_2_2:
-#    platform: ubuntu1804
+#  ubuntu2204_4_2_2:
+#    platform: ubuntu2204
 #    bazel: 4.2.2
 #    shell_commands:
 #      - bazel run @unpinned_regression_testing//:pin
@@ -33,8 +33,8 @@ tasks:
 #    test_targets:
 #      - "--"
 #      - "//..."
-  ubuntu1804_5_4_0:
-    platform: ubuntu1804
+  ubuntu2204_5_4_0:
+    platform: ubuntu2204
     bazel: 5.4.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -43,8 +43,8 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_6_4_0:
-    platform: ubuntu1804
+  ubuntu2204_6_4_0:
+    platform: ubuntu2204
     bazel: 6.4.0
     shell_commands:
       - bazel run @unpinned_regression_testing//:pin
@@ -53,8 +53,8 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  ubuntu1804_latest:
-    platform: ubuntu1804
+  ubuntu2204_latest:
+    platform: ubuntu2204
     bazel: latest
     environment:
       # This tests custom cache locations.
