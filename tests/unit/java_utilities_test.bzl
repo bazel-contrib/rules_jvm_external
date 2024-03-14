@@ -68,6 +68,16 @@ OpenJDK 64-Bit Server VM (build 15+36-1562, mixed mode, sharing)
 """),
     )
 
+    asserts.equals(
+        env,
+        22,
+        parse_java_version("""
+openjdk 22-ea 2024-03-19
+OpenJDK Runtime Environment (Red_Hat-22.0.0.0.36-1) (build 22-ea+36)
+OpenJDK 64-Bit Server VM (Red_Hat-22.0.0.0.36-1) (build 22-ea+36, mixed mode, sharing)
+"""),
+    )
+
     return unittest.end(env)
 
 parse_java_version_test = unittest.make(_parse_java_version_test_impl)
