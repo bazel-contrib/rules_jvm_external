@@ -548,6 +548,14 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     netrc_entries = importer.get_netrc_entries(maven_install_json_content)
 
     for artifact in importer.get_artifacts(maven_install_json_content):
+        if not artifact["sha256"]:
+            # some artifacts (most likely POMs) are defined like:
+            # {"coordinates": "org.apache.flink:flink-table:jar:sources:1.11.6", "sha256": None, "file": None, "deps": [], "urls": []}
+            # it makes no sense to generate an artifact for this at all, when this happens artifact will also be None
+            # which relates to https://github.com/bazelbuild/rules_jvm_external/issues/1028
+            continue
+        if not artifact["file"]:
+            fail("there's a sha256 for this artifact but no file defined: %s" % artifact)
         http_file_repository_name = escape(artifact["coordinates"])
         maven_artifacts.extend([artifact["coordinates"]])
         http_files.extend([
@@ -575,7 +583,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
         # https://github.com/bazelbuild/rules_jvm_external/issues/1028
         # http_rule does not like directories named "build" so prepend v1 to the path.
-        download_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"]
+        download_path = "v1/%s" % artifact["file"]
         http_files.append("        downloaded_file_path = \"%s\"," % download_path)
         http_files.append("    )")
 
