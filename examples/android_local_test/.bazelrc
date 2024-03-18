@@ -1,0 +1,2 @@
+# Bazel's Java test runner uses SecurityManager, which was deprecated in 17. Set this flag until latest stable contains https://github.com/bazelbuild/bazel/commit/6783339e3fd21655b7fa3be2daedde4491ae0348.
+test --test_arg=--jvm_flags=-Djava.security.manager=allow
