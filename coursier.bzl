@@ -18,6 +18,7 @@ load(
     "SUPPORTED_PACKAGING_TYPES",
     "contains_git_conflict_markers",
     "escape",
+    "get_packaging",
     "is_maven_local_path",
 )
 load("//private:dependency_tree_parser.bzl", "parser")
@@ -567,6 +568,8 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             # File-path is relative defined from http_file traveling to repository_ctx.
             "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
         ])
+        if get_packaging(artifact["coordinates"]) == "exe":
+            http_files.append("        executable = True,")
         if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
             if _is_windows(repository_ctx):
                 user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")

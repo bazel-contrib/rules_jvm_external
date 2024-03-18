@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load("//private:coursier_utilities.bzl", "get_packaging")
 load("//private/rules:urls.bzl", "get_m2local_url")
 
 def escape(string):
@@ -43,6 +44,9 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
         if artifact["file"] and artifact["file"] != "None":
             # https://github.com/bazelbuild/rules_jvm_external/issues/1028
             attrs["downloaded_file_path"] = "v1/%s" % artifact["file"]
+
+        if get_packaging(artifact["coordinates"]) == "exe":
+            attrs["executable"] = True
 
         http_file(**attrs)
 
