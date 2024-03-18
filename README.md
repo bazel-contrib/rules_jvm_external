@@ -2,8 +2,9 @@
 
 Transitive Maven artifact resolution and publishing rules for Bazel.
 
-[![Build
+* Main build: [![Build
 Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
+* Examples build: [![Build status](https://badge.buildkite.com/d1e93c6c5321c9f7d24c71d849f00542f4ac5c9eed763eca2d.svg)](https://buildkite.com/bazel/rules-jvm-external-examples)
 
 
 Table of Contents
