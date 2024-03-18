@@ -34,12 +34,16 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
         seen_repo_names.append(http_file_repository_name)
         http_files.append(http_file_repository_name)
 
-        http_file(
-            name = http_file_repository_name,
-            sha256 = artifact["sha256"],
-            urls = urls,
+        attrs = {
+            "name": http_file_repository_name,
+            "sha256": artifact["sha256"],
+            "urls": urls,
+        }
+
+        if artifact["file"] and artifact["file"] != "None":
             # https://github.com/bazelbuild/rules_jvm_external/issues/1028
-            downloaded_file_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"],
-        )
+            attrs["downloaded_file_path"] = "v1/%s" % artifact["file"]
+
+        http_file(**attrs)
 
     return seen_repo_names
