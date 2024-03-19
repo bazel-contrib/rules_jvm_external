@@ -15,6 +15,8 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
 import static com.google.common.base.StandardSystemProperty.USER_HOME;
+import static org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_WARN;
+import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import java.net.URI;
@@ -38,6 +40,7 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.eclipse.aether.repository.Authentication;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipher;
@@ -83,6 +86,8 @@ class RemoteRepositoryFactory {
 
     RemoteRepository.Builder repo =
         new RemoteRepository.Builder(uri.toString(), "default", uri.toString());
+    repo.setSnapshotPolicy(new RepositoryPolicy(false, UPDATE_POLICY_DAILY, CHECKSUM_POLICY_WARN));
+    repo.setReleasePolicy(new RepositoryPolicy(true, UPDATE_POLICY_DAILY, CHECKSUM_POLICY_WARN));
 
     amendWithNetrcCredentials(uri, repo);
 
