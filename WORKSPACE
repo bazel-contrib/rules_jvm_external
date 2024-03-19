@@ -804,6 +804,11 @@ maven_install(
     artifacts = [
         # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
         "org.apache.parquet:parquet-common:1.11.1",
+        # A transitive dependency pulls in a `managedDependencies` section which sets the
+        # `xmlpull` version to 1.2.0, which hasn't been publicly released. Maven and Gradle
+        # both handle this situation gracefully and correctly resolve to `xmlpull` 1.1.3.1
+        "org.drools:drools-mvel:7.53.0.Final",
+        "org.optaplanner:optaplanner-core:7.53.0.Final",
         "org.seleniumhq.selenium:selenium-java",
         maven.artifact(
             testonly = True,
