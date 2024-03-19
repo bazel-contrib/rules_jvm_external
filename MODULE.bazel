@@ -398,6 +398,9 @@ dev_maven.install(
 )
 dev_maven.install(
     name = "maven_resolved_with_boms",
+    # Before adding a dependency here, add a reduced test case to `ResolverTestBase`
+    # so that we have a clearer understanding of _why_ this dependency is here, and
+    # what we did to fix the problem.
     artifacts = [
         # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
         "org.apache.parquet:parquet-common:1.11.1",
