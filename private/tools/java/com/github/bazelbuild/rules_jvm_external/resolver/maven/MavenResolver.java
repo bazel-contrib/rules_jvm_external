@@ -66,6 +66,7 @@ import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
 import org.eclipse.aether.util.graph.manager.DefaultDependencyManager;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
@@ -148,7 +149,7 @@ public class MavenResolver implements Resolver {
     RepositorySystemSession session =
         prepareSession(
             system,
-            new DefaultDependencyManager(),
+            new ClassicDependencyManager(),
             new CompoundListener(consoleLog, errors, coordsListener),
             request.getLocalCache());
 
@@ -176,7 +177,7 @@ public class MavenResolver implements Resolver {
     DependencyCollectionContext depCollectionContext =
         new DefaultDependencyCollectionContext(session, null, dep, managedDependencies);
     DependencyManager derived =
-        new DefaultDependencyManager().deriveChildManager(depCollectionContext);
+        new ClassicDependencyManager().deriveChildManager(depCollectionContext);
     session =
         prepareSession(
             system,
