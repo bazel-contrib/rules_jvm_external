@@ -20,6 +20,7 @@ java_library(
     name = "ListPackages-lib",
     srcs = ["ListPackages.java"],
     visibility = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd:__pkg__",
         "//tests/com/github/bazelbuild/rules_jvm_external/jar:__pkg__",
     ],
     deps = [

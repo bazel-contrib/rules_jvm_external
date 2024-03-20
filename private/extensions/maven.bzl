@@ -17,6 +17,8 @@ DEFAULT_REPOSITORIES = [
 
 DEFAULT_NAME = "maven"
 
+_DEFAULT_RESOLVER = "coursier"
+
 _artifact = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
@@ -39,11 +41,15 @@ _install = tag_class(
 
         # Actual artifacts and overrides
         "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
+        "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
 
         # What do we fetch?
         "fetch_javadoc": attr.bool(default = False),
         "fetch_sources": attr.bool(default = False),
+
+        # How do we do artifact resolution?
+        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "maven"], default = _DEFAULT_RESOLVER),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
@@ -267,8 +273,13 @@ def _maven_impl(mctx):
 
             repo = repos.get(install.name, {})
 
+            repo["resolver"] = install.resolver
+
             artifacts = repo.get("artifacts", [])
             repo["artifacts"] = artifacts + install.artifacts
+
+            boms = repo.get("boms", [])
+            repo["boms"] = boms + install.boms
 
             existing_repos = repo.get("repositories", [])
             for repository in parse.parse_repository_spec_list(install.repositories):
@@ -279,12 +290,7 @@ def _maven_impl(mctx):
 
             repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
 
-            _logical_or(repo, "fail_if_repin_required", False, install.fail_if_repin_required)
-            _logical_or(repo, "fail_on_missing_checksum", False, install.fail_on_missing_checksum)
-            _logical_or(repo, "fetch_sources", False, install.fetch_sources)
-            _logical_or(repo, "fetch_javadoc", False, install.fetch_javadoc)
             _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
-            _logical_or(repo, "strict_visibility", False, install.strict_visibility)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
             _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
 
@@ -331,7 +337,6 @@ def _maven_impl(mctx):
             repos[install.name] = repo
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
-
     repo_to_lock_file = {}
     for mod in mctx.modules:
         for install in mod.tags.install:
@@ -341,12 +346,29 @@ def _maven_impl(mctx):
                     entries.append(install.lock_file)
                 repo_to_lock_file[install.name] = entries
 
-    # The root module always wins when it comes to lock files
+    # The root module always wins when it comes to these values
     for mod in mctx.modules:
         if mod.is_root:
             for install in mod.tags.install:
-                if install.lock_file:
-                    repo_to_lock_file[install.name] = [install.lock_file]
+                repo = repos[install.name]
+
+                # We will always have a lock file, so this is fine
+                repo_to_lock_file[install.name] = [install.lock_file]
+                repo["fail_if_repin_required"] = install.fail_if_repin_required
+                repo["fail_on_missing_checksum"] = install.fail_on_missing_checksum
+                repo["fetch_javadoc"] = install.fetch_javadoc
+                repo["fetch_sources"] = install.fetch_sources
+                repo["resolver"] = install.resolver
+                repo["strict_visibility"] = install.strict_visibility
+                if len(install.repositories):
+                    mapped_repos = []
+                    for repository in parse.parse_repository_spec_list(install.repositories):
+                        repo_string = _json.write_repository_spec(repository)
+                        if repo_string not in mapped_repos:
+                            mapped_repos.append(repo_string)
+                    repo["repositories"] = mapped_repos
+
+                repos[install.name] = repo
 
     # There should be at most one lock file per `name`
     for repo_name, lock_files in repo_to_lock_file.items():
@@ -359,6 +381,8 @@ def _maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
+        boms = parse.parse_artifact_spec_list(repo.get("boms", []))
+        boms_json = [_json.write_artifact_spec(a) for a in boms]
         artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
         artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
         excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
@@ -431,9 +455,11 @@ def _maven_impl(mctx):
                 name = name,
                 user_provided_name = name,
                 repositories = repo.get("repositories"),
+                boms = boms_json,
                 artifacts = artifacts_json,
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
+                resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
                 override_targets = overrides,

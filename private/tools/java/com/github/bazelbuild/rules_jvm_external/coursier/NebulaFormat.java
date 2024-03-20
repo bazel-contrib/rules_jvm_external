@@ -1,3 +1,17 @@
+// Copyright 2024 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.github.bazelbuild.rules_jvm_external.coursier;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -6,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -13,14 +28,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/** Format resolution results into the v2 lock file format. */
 public class NebulaFormat {
-  private final Set<String> repositories;
 
-  public NebulaFormat(Set<String> repositories) {
-    this.repositories = repositories;
-  }
-
-  public Map<String, Object> render(Set<DependencyInfo> infos, Map<String, Object> conflicts) {
+  /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
+  public Map<String, Object> render(
+      Collection<String> repositories, Set<DependencyInfo> infos, Map<String, Object> conflicts) {
+    repositories = new LinkedHashSet<>(repositories);
     boolean isUsingM2Local =
         repositories.stream().map(String::toLowerCase).anyMatch(repo -> repo.equals("m2local/"));
 
@@ -50,7 +64,7 @@ public class NebulaFormat {
             shortKey += ":" + coords.getExtension();
           }
 
-          if (info.getPath() == null || info.getSha256() == null) {
+          if (info.getPath().isEmpty() || info.getSha256().isEmpty()) {
             skipped.add(key);
           }
 
@@ -58,14 +72,16 @@ public class NebulaFormat {
               artifacts.computeIfAbsent(shortKey, k -> new TreeMap<>());
           artifactValue.put("version", coords.getVersion());
 
-          String classifier = coords.getClassifier();
-          if (classifier == null || classifier.isEmpty()) {
+          String classifier;
+          if (coords.getClassifier() == null || coords.getClassifier().isEmpty()) {
             classifier = "jar";
+          } else {
+            classifier = coords.getClassifier();
           }
           @SuppressWarnings("unchecked")
           Map<String, String> shasums =
               (Map<String, String>) artifactValue.computeIfAbsent("shasums", k -> new TreeMap<>());
-          shasums.put(classifier, info.getSha256());
+          info.getSha256().ifPresent(sha -> shasums.put(classifier, sha));
 
           info.getRepositories().stream()
               .map(Objects::toString)
@@ -84,14 +100,14 @@ public class NebulaFormat {
                   .collect(Collectors.toCollection(TreeSet::new)));
           packages.put(key, info.getPackages());
 
-          if (info.getPath() != null) {
+          if (info.getPath().isPresent()) {
             // Regularise paths to UNIX format
-            files.put(key, info.getPath().toString().replace('\\', '/'));
+            files.put(key, info.getPath().get().toString().replace('\\', '/'));
           }
         });
 
     Map<String, Object> lock = new LinkedHashMap<>();
-    lock.put("artifacts", artifacts);
+    lock.put("artifacts", ensureArtifactsAllHaveAtLeastOneShaSum(artifacts));
     lock.put("dependencies", removeEmptyItems(deps));
     lock.put("packages", removeEmptyItems(packages));
     if (isUsingM2Local) {
@@ -108,6 +124,19 @@ public class NebulaFormat {
     lock.put("version", "2");
 
     return lock;
+  }
+
+  private Map<String, Map<String, Object>> ensureArtifactsAllHaveAtLeastOneShaSum(
+      Map<String, Map<String, Object>> artifacts) {
+    for (Map<String, Object> item : artifacts.values()) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> shasums = (Map<String, Object>) item.get("shasums");
+      if (shasums == null || !shasums.isEmpty()) {
+        continue;
+      }
+      shasums.put("jar", null);
+    }
+    return artifacts;
   }
 
   private <K, V extends Collection> Map<K, V> removeEmptyItems(Map<K, V> input) {
@@ -136,7 +165,14 @@ public class NebulaFormat {
               uri.getPath(),
               uri.getQuery(),
               uri.getFragment());
-      return stripped.toString();
+
+      String toReturn = stripped.toString();
+
+      if (stripped.getQuery() == null && uri.getFragment() == null && !toReturn.endsWith("/")) {
+        toReturn += "/";
+      }
+
+      return toReturn;
     } catch (URISyntaxException e) {
       // Do nothing: we may not have been given a URI, but something like `m2local/`
     }

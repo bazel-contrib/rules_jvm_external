@@ -1,3 +1,17 @@
+// Copyright 2024 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.github.bazelbuild.rules_jvm_external.jar;
 
 import com.google.gson.Gson;
@@ -10,12 +24,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -31,13 +47,19 @@ public class ListPackages {
       System.exit(1);
     }
 
+    Path argsFile = Paths.get(args[1]);
+    Map<String, SortedSet<String>> index = new ListPackages().getPackages(Files.lines(argsFile));
+    System.out.println(new Gson().toJson(index));
+  }
+
+  public Map<String, SortedSet<String>> getPackages(Stream<String> source) {
     TreeMap<String, SortedSet<String>> index =
-        Files.lines(Paths.get(args[1]))
+        source
             .parallel()
             .map(
                 path -> {
                   try {
-                    SortedSet<String> packages = process(Paths.get(path));
+                    SortedSet<String> packages = getPackages(Paths.get(path));
                     return new AbstractMap.SimpleEntry<>(path, packages);
                   } catch (IOException e) {
                     throw new UncheckedIOException(e);
@@ -45,16 +67,17 @@ public class ListPackages {
                 })
             .collect(
                 Collectors.toMap(
-                    entry -> entry.getKey(),
-                    entry -> entry.getValue(),
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
                     (left, right) -> {
                       throw new RuntimeException("Duplicate keys detected but not expected");
                     },
                     TreeMap::new));
-    System.out.println(new Gson().toJson(index));
+
+    return index;
   }
 
-  public static SortedSet<String> process(Path path) throws IOException {
+  public SortedSet<String> getPackages(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
     try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
         ZipInputStream zis = new ZipInputStream(fis)) {
@@ -77,7 +100,7 @@ public class ListPackages {
     return packages;
   }
 
-  private static String extractPackageName(String zipEntryName) {
+  private String extractPackageName(String zipEntryName) {
     String[] parts = zipEntryName.split("/");
     if (parts.length == 1) {
       return "";
@@ -96,7 +119,7 @@ public class ListPackages {
     return Arrays.stream(parts).skip(skip).limit(limit).collect(Collectors.joining("."));
   }
 
-  private static boolean isNumericVersion(String part) {
+  private boolean isNumericVersion(String part) {
     return IS_NUMERIC_VERSION.test(part);
   }
 }

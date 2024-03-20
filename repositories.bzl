@@ -8,6 +8,9 @@ _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
 ]
 
+_MAVEN_VERSION = "3.9.6"
+_MAVEN_RESOLVER_VERSION = "1.9.18"
+
 def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
     maybe(
         http_archive,
@@ -62,11 +65,31 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             "com.google.code.gson:gson:2.10.1",
             "com.google.googlejavaformat:google-java-format:1.17.0",
             "com.google.guava:guava:32.1.2-jre",
-            "org.apache.maven:maven-artifact:3.9.4",
+            "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-model-builder:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-settings:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-settings-builder:%s" % _MAVEN_VERSION,
+            "org.apache.maven:maven-resolver-provider:%s" % _MAVEN_VERSION,
+            "org.apache.maven.resolver:maven-resolver-api:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.apache.maven.resolver:maven-resolver-impl:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.apache.maven.resolver:maven-resolver-connector-basic:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.apache.maven.resolver:maven-resolver-spi:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.apache.maven.resolver:maven-resolver-transport-file:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.apache.maven.resolver:maven-resolver-transport-http:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.apache.maven.resolver:maven-resolver-util:%s" % _MAVEN_RESOLVER_VERSION,
+            "org.codehaus.plexus:plexus-cipher:2.0",
+            "org.codehaus.plexus:plexus-sec-dispatcher:2.0",
+            "org.fusesource.jansi:jansi:2.4.0",
+            "org.slf4j:jul-to-slf4j:2.0.9",
+            "org.slf4j:log4j-over-slf4j:2.0.9",
+            "org.slf4j:slf4j-simple:2.0.9",
             "software.amazon.awssdk:s3:2.20.128",
         ],
         maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
         fail_if_repin_required = True,
         strict_visibility = True,
+        fetch_sources = True,
         repositories = repositories,
     )

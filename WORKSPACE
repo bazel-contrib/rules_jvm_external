@@ -96,6 +96,7 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    resolver = "coursier",
 )
 
 load("@maven//:defs.bzl", "pinned_maven_install")
@@ -170,6 +171,20 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+)
+
+load("@multiple_lock_files//:defs.bzl", _multiple_lock_files_pinned_maven_install = "pinned_maven_install")
+
+_multiple_lock_files_pinned_maven_install()
+
+maven_install(
+    name = "testing",
+    artifacts = [
+        "com.fasterxml.jackson:jackson-bom:2.9.10",
+        "com.github.fommil.netlib:all:1.1.2",
+    ],
+    maven_install_json = "@//:foo.json",
+    resolver = "maven",
 )
 
 # These artifacts helped discover limitations by the Maven resolver. Each
@@ -783,3 +798,46 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+maven_install(
+    name = "maven_resolved_with_boms",
+    artifacts = [
+        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
+        "org.apache.parquet:parquet-common:1.11.1",
+        # A transitive dependency pulls in a `managedDependencies` section which sets the
+        # `xmlpull` version to 1.2.0, which hasn't been publicly released. Maven and Gradle
+        # both handle this situation gracefully and correctly resolve to `xmlpull` 1.1.3.1
+        "org.drools:drools-mvel:7.53.0.Final",
+        "org.optaplanner:optaplanner-core:7.53.0.Final",
+        "org.seleniumhq.selenium:selenium-java",
+        maven.artifact(
+            testonly = True,
+            artifact = "auto-value-annotations",
+            exclusions = [
+                "org.slf4j:slf4j-api",
+            ],
+            group = "com.google.auto.value",
+            version = "1.6.3",
+        ),
+        maven.artifact(
+            artifact = "json-lib",
+            classifier = "jdk15",
+            group = "net.sf.json-lib",
+            version = "2.4",
+        ),
+    ],
+    boms = [
+        "org.seleniumhq.selenium:selenium-bom:4.14.1",
+    ],
+    fail_if_repin_required = True,
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
+    repositories = [
+        "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "maven",
+)
+
+load("@maven_resolved_with_boms//:defs.bzl", _maven_resolved_maven_install = "pinned_maven_install")
+
+_maven_resolved_maven_install()
