@@ -1,9 +1,22 @@
+// Copyright 2024 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.github.bazelbuild.rules_jvm_external.coursier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.MavenRepositoryPath;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,7 +24,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -24,6 +36,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -78,7 +91,7 @@ public class LockFileConverter {
     Set<DependencyInfo> infos = converter.getDependencies();
     Map<String, Object> conflicts = converter.getConflicts();
 
-    Map<String, Object> rendered = new NebulaFormat(repositories).render(infos, conflicts);
+    Map<String, Object> rendered = new NebulaFormat().render(repositories, infos, conflicts);
 
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
@@ -169,8 +182,8 @@ public class LockFileConverter {
           new DependencyInfo(
               coords,
               repos,
-              file == null ? null : Paths.get(file),
-              (String) coursierDep.get("sha256"),
+              Optional.ofNullable(file).map(Paths::get),
+              Optional.ofNullable((String) coursierDep.get("sha256")),
               directDeps,
               packages));
     }
@@ -206,7 +219,7 @@ public class LockFileConverter {
         (Collection<Map<String, Object>>) depTree.get("dependencies");
     for (Map<String, Object> coursierDep : coursierDeps) {
       Coordinates coord = new Coordinates((String) coursierDep.get("coord"));
-      String expectedPath = new MavenRepositoryPath(coord).getPath();
+      String expectedPath = coord.toRepoPath();
       String file = (String) coursierDep.get("file");
 
       if (file == null) {
@@ -215,11 +228,7 @@ public class LockFileConverter {
       }
 
       // Files may be URL encoded. Decode
-      try {
-        file = URLDecoder.decode(file, UTF_8.toString());
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      file = URLDecoder.decode(file, UTF_8);
 
       if (file.endsWith(expectedPath)) {
         toReturn.put(coord, coord);

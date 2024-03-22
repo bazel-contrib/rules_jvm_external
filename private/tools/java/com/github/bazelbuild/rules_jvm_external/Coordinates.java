@@ -1,3 +1,17 @@
+// Copyright 2024 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.github.bazelbuild.rules_jvm_external;
 
 import java.util.Objects;
@@ -41,8 +55,8 @@ public class Coordinates implements Comparable<Coordinates> {
       classifier = "";
       version = parts[3];
     } else {
-      extension = parts[2];
-      classifier = parts[3];
+      extension = "".equals(parts[2]) ? "jar" : parts[2];
+      classifier = "jar".equals(parts[3]) ? "" : parts[3];
       version = parts[4];
     }
   }
@@ -52,7 +66,8 @@ public class Coordinates implements Comparable<Coordinates> {
     this.groupId = Objects.requireNonNull(groupId, "Group ID");
     this.artifactId = Objects.requireNonNull(artifactId, "Artifact ID");
     this.extension = extension == null || extension.isEmpty() ? "jar" : extension;
-    this.classifier = classifier == null || classifier.isEmpty() ? "" : classifier;
+    this.classifier =
+        classifier == null || classifier.isEmpty() || "jar".equals(classifier) ? "" : classifier;
     this.version = version == null || version.isEmpty() ? "" : version;
   }
 
@@ -104,6 +119,32 @@ public class Coordinates implements Comparable<Coordinates> {
     return coords.toString();
   }
 
+  public String toRepoPath() {
+    StringBuilder path = new StringBuilder();
+    path.append(getGroupId().replace('.', '/'))
+        .append("/")
+        .append(getArtifactId())
+        .append("/")
+        .append(getVersion())
+        .append("/")
+        .append(getArtifactId())
+        .append("-")
+        .append(getVersion());
+
+    String classifier = getClassifier();
+
+    if (!isNullOrEmpty(classifier) && !"jar".equals(classifier)) {
+      path.append("-").append(classifier);
+    }
+    if (!isNullOrEmpty(getExtension())) {
+      path.append(".").append(getExtension());
+    } else {
+      path.append(".jar");
+    }
+
+    return path.toString();
+  }
+
   @Override
   public int compareTo(Coordinates o) {
     return this.toString().compareTo(o.toString());
@@ -141,5 +182,9 @@ public class Coordinates implements Comparable<Coordinates> {
   public int hashCode() {
     return Objects.hash(
         getGroupId(), getArtifactId(), getVersion(), getClassifier(), getExtension());
+  }
+
+  private boolean isNullOrEmpty(String value) {
+    return value == null || value.isEmpty();
   }
 }

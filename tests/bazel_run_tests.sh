@@ -235,7 +235,24 @@ function test_dependency_pom_exclusion() {
   expect_log "@regression_testing//:net_bytebuddy_byte_buddy"
 }
 
+function test_maven_resolution() {
+    # Only run for Bazel 7 or above
+    RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
+    # Bail if we can't figure out the release
+    if [[ -z "$RELEASE" ]]; then
+      echo "$RELEASE is a zero-length string"
+      return
+    fi
+    if ! [[ "$RELEASE" =~ ^[0-9]+$ ]]; then
+      return
+    fi
+
+    # should run successfully
+    bazel run @maven_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
+}
+
 TESTS=(
+  "test_maven_resolution"
   "test_dependency_aggregation"
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"

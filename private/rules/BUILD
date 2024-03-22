@@ -1,5 +1,6 @@
 exports_files([
     "artifact.bzl",
+    "generate_pin_repository.bzl",
     "has_maven_deps.bzl",
     "java_export.bzl",
     "javadoc.bzl",
@@ -13,6 +14,7 @@ exports_files([
     "maven_project_jar.bzl",
     "maven_publish.bzl",
     "maven_utils.bzl",
+    "pin_dependencies.bzl",
     "pom_file.bzl",
     "urls.bzl",
     "v1_lock_file.bzl",
