@@ -791,6 +791,16 @@ def make_coursier_dep_tree(
                                        "--" +
                                        ":".join([e["group"], e["artifact"]]))
 
+    # extract java_version
+    java_path = _java_path(repository_ctx)
+    java_version = 0
+    if java_path:
+        exec_result = _execute(repository_ctx, [java_path, "-version"])
+        if (exec_result.return_code != 0):
+            fail("Error while running java -version: " + exec_result.stderr)
+
+        java_version = parse_java_version(exec_result.stdout + exec_result.stderr)
+
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
     cmd.extend(["fetch"])
 
@@ -858,7 +868,13 @@ def make_coursier_dep_tree(
         exec_result = _execute(repository_ctx, [java_path, "-version"])
         if (exec_result.return_code != 0):
             fail("Error while running java -version: " + exec_result.stderr)
-        if parse_java_version(exec_result.stdout + exec_result.stderr) > 8:
+
+        java_version = parse_java_version(exec_result.stdout + exec_result.stderr)
+        if java_version > 13:
+            if "-noverify" in cmd:
+                cmd.remove("-noverify")
+
+        if java_version > 8:
             java_cmd = cmd[0]
             java_args = cmd[1:]
 
