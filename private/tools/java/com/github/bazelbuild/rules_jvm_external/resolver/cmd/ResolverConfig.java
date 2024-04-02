@@ -56,6 +56,10 @@ public class ResolverConfig {
     Path output = null;
     String inputHash = null;
 
+    if (System.getenv("RJE_MAX_THREADS") != null) {
+      maxThreads = Integer.parseInt(System.getenv("RJE_MAX_THREADS"));
+    }
+
     String envUseUnsafeCache = System.getenv("RJE_UNSAFE_CACHE");
     if (envUseUnsafeCache != null) {
       if ("1".equals(envUseUnsafeCache) || Boolean.parseBoolean(envUseUnsafeCache)) {
