@@ -39,6 +39,7 @@ Table of Contents
          * [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
       * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
       * [Publishing to external repositories](#publishing-to-external-repositories)
+      * [Configuring the dependency resolver](#configuring-the-dependency-resolver)
       * [Demo](#demo)
       * [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
       * [Generating documentation](#generating-documentation)
@@ -1145,6 +1146,46 @@ Or, to publish to a GCP Artifact Registry:
 
 When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
+
+## Configuring the dependency resolver
+
+`rules_jvm_external` supports different mechanisms for dependency resolution.
+These can be selected using the `resolver` attribute of `maven_install`. The
+default resolver is one backed by [coursier](https://get-coursier.io).
+
+### Configuring Coursier
+
+The default resolver is backed by [coursier](https://get-coursier.io), which
+is used in tools such as [sbt](https://www.scala-sbt.org). It supports being
+used without a lock file, but cannot handle resolutions which require Maven
+BOMs to be used. When using the coursier-backed resolver, the following
+environment variables are honoured:
+
+| Environment variable   | Meaning                                                                                                                                                                      |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `COURSIER_CREDENTIALS` | [Documented here](https://get-coursier.io/docs/other-credentials#inline) on the coursier site. If set to an absolute path, this will be used for configuring the credentials |
+| `RJE_VERBOSE`          | When set to `1` extra diagnostic logging will be sent to `stderr`                                                                                                            |
+
+### Configuring Maven
+
+A Maven-backed resolver can be used by using setting the `resolver`
+attribute to `maven`. This resolver requires the use of a lock file. For
+bootstrapping purposes, this file may simply be an empty file. When using
+the maven-backed resolver, the following environment variables are honoured:
+
+| Environment variable | Meaning                                                                                                      |
+|----------------------|--------------------------------------------------------------------------------------------------------------|
+| `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote caches to see if an dependency is present, and just assumes it is |
+| `RJE_MAX_THREADS`    | Integer giving the maximum number of threads to use for downloads                                            |
+| `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.m2/repository` directory to speed up dependency resolution             |
+| `RJE_VERBOSE`        | When set to `1` extra diagnostic logging will be sent to `stderr`                                            |
+
+Using the unsafe cache option will use your local `$HOME/.m2/repository` as
+a source for dependency resolutions, but will not include any local paths in
+the generated lock file unless the `repositories` attribute contains `m2local`.
+
+The Maven-backed resolver will use credentials stored in a `$HOME/.netrc`
+file when performing dependency resolution
 
 ## IPv6 support
 
