@@ -468,7 +468,7 @@ public abstract class ResolverTestBase {
     ResolutionResult result = resolver.resolve(prepareRequestFor(repo.toUri(), root));
     Set<Conflict> conflicts = result.getConflicts();
 
-    assertEquals(Set.of(new Conflict()), conflicts);
+    assertEquals(Set.of(new Conflict(newerVersion, olderVersion)), conflicts);
   }
 
   @Test
@@ -489,9 +489,11 @@ public abstract class ResolverTestBase {
             .getPath();
 
     ResolutionResult result = resolver.resolve(prepareRequestFor(repo.toUri(), root, newerVersion));
-    Set<Conflict> conflicts = result.getConflicts();
 
-    assertEquals(Set.of(Set.of(olderVersion, newerVersion)), conflicts);
+    Set<Conflict> conflicts = result.getConflicts();
+    assertEquals(Set.of(), conflicts);
+
+    assertTrue(result.getResolution().nodes().contains(newerVersion));
   }
 
   @Test
