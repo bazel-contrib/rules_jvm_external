@@ -68,6 +68,7 @@ _install = tag_class(
 
         # Configuration "stuff"
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
+        "use_credentials_from_home_netrc_file": attr.bool(doc = "Whether to pass machine login credentials from the ~/.netrc file to coursier.", default = False),
         "duplicate_version_warning": attr.string(
             doc = """What to do if there are duplicate artifacts
 
@@ -294,6 +295,7 @@ def _maven_impl(mctx):
             _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
             _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
+            _logical_or(repo, "use_credentials_from_home_netrc_file", False, install.use_credentials_from_home_netrc_file)
 
             repo["version_conflict_policy"] = _fail_if_different(
                 "version_conflict_policy",
@@ -415,6 +417,7 @@ def _maven_impl(mctx):
             override_targets = overrides,
             strict_visibility = repo.get("strict_visibility"),
             strict_visibility_value = repo.get("strict_visibility_value"),
+            use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
             maven_install_json = repo.get("lock_file"),
             resolve_timeout = repo.get("resolve_timeout"),
             use_starlark_android_rules = repo.get("use_starlark_android_rules"),
@@ -467,6 +470,7 @@ def _maven_impl(mctx):
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
+                use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
                 fail_if_repin_required = repo.get("fail_if_repin_required"),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
