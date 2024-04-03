@@ -2,9 +2,21 @@ load(":maven_bom_fragment.bzl", "MavenBomFragmentInfo")
 load(":maven_publish.bzl", "maven_publish")
 load(":maven_utils.bzl", "generate_pom", "unpack_coordinates")
 
+_NON_EXISTENT_LABEL = Label("//:thisdoesnotexistinrulesjvmexternal")
+
+def _is_using_bzlmod():
+    # There's no easy way in a macro to tell if you're using bzlmod. We can't
+    # depend on Bazel version number because `--noenable_bzlmod` may have been
+    # used. Instead, try and stringify a label we know doesn't exist. When
+    # bzlmod is in play, we'll get `[unknown repo` in the value. When it is not
+    # we get the label as we expect it to be.
+    return str(_NON_EXISTENT_LABEL).startswith("@@")
+
 def _label(label_or_string):
     if type(label_or_string) == "Label":
         return label_or_string
+
+    workspace_prefix = "@@" if _is_using_bzlmod() else "@"
 
     if type(label_or_string) == "string":
         # We may have a target of the form: `@bar//foo`, `//foo`, `//foo:foo`, `:foo`, `foo`
@@ -12,11 +24,11 @@ def _label(label_or_string):
             # We have an absolute target. Great!
             return Label(label_or_string)
         elif label_or_string.startswith("//"):
-            return Label("@%s" % label_or_string)
+            return Label("%s%s" % (workspace_prefix, label_or_string))
         else:
             if label_or_string.startswith(":"):
                 label_or_string = label_or_string[1:]
-            return Label("@//%s:%s" % (native.package_name(), label_or_string))
+            return Label("%s//%s:%s" % (workspace_prefix, native.package_name(), label_or_string))
 
     fail("Can only convert either labels or strings: %s" % label_or_string)
 
@@ -163,7 +175,20 @@ def maven_bom(
     """
     fragments = []
     labels = [_label(je) for je in java_exports]
-    fragments = ["%s.bom-fragment" % str(l) for l in labels]
+
+    # `same_package_label` doesn't exist in Bazel 5, but we still support it
+    # so we check the version here to call a non-deprecated API in recent
+    # Bazel versions, or the older (deprecated) API in Bazel 5. Now, normally
+    # we'd use Skylib's `version` but that needs `native.bazel_version` to be
+    # present, and that's not available to macros. Instead, see whether what
+    # we need is present. Pulling in `bazel_features` for this check seems like
+    # overkill, especially since we'd need to land a patch in it before we
+    # could check this feature. Doing this the Not Invented Here way for now.
+    if "same_package_label" in dir(_NON_EXISTENT_LABEL):
+        fragments = [l.same_package_label("%s.bom-fragment" % l.name) for l in labels]
+    else:
+        # TODO: Drop this branch once we drop Bazel 5 support
+        fragments = [l.relative(":%s.bom-fragment" % l.name) for l in labels]
 
     _maven_bom(
         name = name,
