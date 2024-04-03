@@ -74,17 +74,8 @@ maven.install(
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
 )
-maven.install(
-    name = "maven_jar_migrator",
-    artifacts = [
-        "com.google.guava:guava:28.0-jre",
-    ],
-    fail_if_repin_required = True,
-    lock_file = "//:rules_jvm_external_deps_install.json",
-)
 use_repo(
     maven,
-    "maven_jar_migrator",
     "rules_jvm_external_deps",
     "unpinned_rules_jvm_external_deps",
 )
