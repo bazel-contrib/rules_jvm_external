@@ -1176,9 +1176,10 @@ environment variables are honoured:
 ### Configuring Maven
 
 A Maven-backed resolver can be used by using setting the `resolver`
-attribute to `maven`. This resolver requires the use of a lock file. For
-bootstrapping purposes, this file may simply be an empty file. When using
-the maven-backed resolver, the following environment variables are honoured:
+attribute of `maven_install` to `maven`. This resolver requires the use of a
+lock file. For bootstrapping purposes, this file may simply be an empty
+file. When using the maven-backed resolver, the following environment
+variables are honoured:
 
 | Environment variable | Meaning                                                                                                                                                        |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
