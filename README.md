@@ -1153,6 +1153,14 @@ signing, and the `gpg` binary needs to be installed on the machine.
 These can be selected using the `resolver` attribute of `maven_install`. The
 default resolver is one backed by [coursier](https://get-coursier.io).
 
+### Common options
+
+All resolvers understand the following environment variables:
+
+| Environment variable | Meaning                                                           |
+|----------------------|-------------------------------------------------------------------|
+| `RJE_VERBOSE`        | When set to `1` extra diagnostic logging will be sent to `stderr` |
+
 ### Configuring Coursier
 
 The default resolver is backed by [coursier](https://get-coursier.io), which
@@ -1164,7 +1172,6 @@ environment variables are honoured:
 | Environment variable   | Meaning                                                                                                                                                                      |
 |------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `COURSIER_CREDENTIALS` | [Documented here](https://get-coursier.io/docs/other-credentials#inline) on the coursier site. If set to an absolute path, this will be used for configuring the credentials |
-| `RJE_VERBOSE`          | When set to `1` extra diagnostic logging will be sent to `stderr`                                                                                                            |
 
 ### Configuring Maven
 
@@ -1173,12 +1180,11 @@ attribute to `maven`. This resolver requires the use of a lock file. For
 bootstrapping purposes, this file may simply be an empty file. When using
 the maven-backed resolver, the following environment variables are honoured:
 
-| Environment variable | Meaning                                                                                                      |
-|----------------------|--------------------------------------------------------------------------------------------------------------|
-| `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote caches to see if a dependency is present, and just assumes it is |
-| `RJE_MAX_THREADS`    | Integer giving the maximum number of threads to use for downloads                                            |
-| `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.m2/repository` directory to speed up dependency resolution             |
-| `RJE_VERBOSE`        | When set to `1` extra diagnostic logging will be sent to `stderr`                                            |
+| Environment variable | Meaning                                                                                                                                                        |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote repositories to see if a dependency is present, and just assumes it is                                              |
+| `RJE_MAX_THREADS`    | Integer giving the maximum number of threads to use <br/>for downloads. The default value is whichever is lower: the number of processors on the machine, or 5 |
+| `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.m2/repository` directory to speed up dependency resolution                                                               |
 
 Using the unsafe cache option will use your local `$HOME/.m2/repository` as
 a source for dependency resolutions, but will not include any local paths in
