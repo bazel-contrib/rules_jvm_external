@@ -1175,7 +1175,7 @@ the maven-backed resolver, the following environment variables are honoured:
 
 | Environment variable | Meaning                                                                                                      |
 |----------------------|--------------------------------------------------------------------------------------------------------------|
-| `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote caches to see if an dependency is present, and just assumes it is |
+| `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote caches to see if a dependency is present, and just assumes it is |
 | `RJE_MAX_THREADS`    | Integer giving the maximum number of threads to use for downloads                                            |
 | `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.m2/repository` directory to speed up dependency resolution             |
 | `RJE_VERBOSE`        | When set to `1` extra diagnostic logging will be sent to `stderr`                                            |
