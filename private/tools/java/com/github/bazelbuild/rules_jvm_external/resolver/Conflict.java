@@ -18,9 +18,8 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import java.util.Objects;
 
 /**
- * Represents a conflict that has been detected (and resolved) in the
- * dependency resolution. The requested and resolved versions are both stored
- * to allow for display to the user.
+ * Represents a conflict that has been detected (and resolved) in the dependency resolution. The
+ * requested and resolved versions are both stored to allow for display to the user.
  */
 public class Conflict {
 
