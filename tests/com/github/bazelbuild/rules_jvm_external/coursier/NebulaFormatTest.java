@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -39,7 +40,8 @@ public class NebulaFormatTest {
             Optional.empty(),
             Optional.empty(),
             Set.of(),
-            Set.of());
+            Set.of(),
+            TreeMap.of());
 
     Map<String, Object> rendered =
         new NebulaFormat()
