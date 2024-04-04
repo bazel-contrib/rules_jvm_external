@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
@@ -533,20 +532,24 @@ public abstract class ResolverTestBase {
     Coordinates depOnBase = new Coordinates("com.example:base:4.0.0");
     Coordinates depOnClassified = new Coordinates("com.example:diff:2.0.0");
 
-    Path repo = MavenRepo.create()
+    Path repo =
+        MavenRepo.create()
             .add(base)
             .add(classified)
             .add(depOnBase, base)
             .add(depOnClassified, classified)
             .getPath();
 
-    Graph<Coordinates> resolution = resolver.resolve(prepareRequestFor(repo.toUri(), depOnBase, depOnClassified)).getResolution();
+    Graph<Coordinates> resolution =
+        resolver
+            .resolve(prepareRequestFor(repo.toUri(), depOnBase, depOnClassified))
+            .getResolution();
     Set<Coordinates> nodes = resolution.nodes();
 
     assertTrue("javadoc with higher version number not found", nodes.contains(classified));
     assertTrue(
-            "regular jar with higher version number not found",
-            nodes.contains(classified.setClassifier(null))); // Same version, no classifer
+        "regular jar with higher version number not found",
+        nodes.contains(classified.setClassifier(null))); // Same version, no classifer
   }
 
   private Model createModel(Coordinates coords) {

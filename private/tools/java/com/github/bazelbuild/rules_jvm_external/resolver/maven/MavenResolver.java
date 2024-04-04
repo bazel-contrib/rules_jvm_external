@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
@@ -218,14 +217,16 @@ public class MavenResolver implements Resolver {
       }
     }
 
-    Graph<Coordinates> initialResolution = buildGraph(coordsListener.getRemappings(), directDependencies);
+    Graph<Coordinates> initialResolution =
+        buildGraph(coordsListener.getRemappings(), directDependencies);
     GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(initialResolution);
 
     Set<Coordinates> simpleRequestedDeps =
         request.getDependencies().stream()
             .map(com.github.bazelbuild.rules_jvm_external.resolver.Artifact::getCoordinates)
             .collect(Collectors.toSet());
-    Set<Conflict> conflicts = Sets.union(
+    Set<Conflict> conflicts =
+        Sets.union(
             getConflicts(simpleRequestedDeps, directDependencies),
             graphNormalizationResult.getConflicts());
 
@@ -251,7 +252,8 @@ public class MavenResolver implements Resolver {
       }
     }
 
-    Set<Conflict> conflicts = mappedVersions.entrySet().stream()
+    Set<Conflict> conflicts =
+        mappedVersions.entrySet().stream()
             .filter(e -> !e.getKey().equals(e.getValue()))
             .map(e -> new Conflict(e.getValue(), e.getKey()))
             .collect(Collectors.toSet());
