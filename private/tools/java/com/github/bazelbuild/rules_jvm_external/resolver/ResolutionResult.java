@@ -18,6 +18,10 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.google.common.graph.Graph;
 import java.util.Set;
 
+/**
+ * The result of a dependency resolution, containing not only the dependency
+ * graph, but also metadata, such as conflicts that have been resolved.
+ */
 public class ResolutionResult {
 
   private final Graph<Coordinates> resolution;
