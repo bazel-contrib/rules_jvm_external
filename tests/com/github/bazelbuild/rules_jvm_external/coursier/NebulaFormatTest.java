@@ -41,7 +41,7 @@ public class NebulaFormatTest {
             Optional.empty(),
             Set.of(),
             Set.of(),
-            TreeMap.of());
+            new TreeMap<>());
 
     Map<String, Object> rendered =
         new NebulaFormat()
