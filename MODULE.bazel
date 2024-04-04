@@ -74,18 +74,12 @@ maven.install(
         "org.slf4j:slf4j-simple:2.0.9",
         "software.amazon.awssdk:s3:2.20.128",
     ],
+    fail_if_repin_required = True,
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
 )
-maven.install(
-    name = "maven_jar_migrator",
-    artifacts = [
-        "com.google.guava:guava:28.0-jre",
-    ],
-)
 use_repo(
     maven,
-    "maven_jar_migrator",
     "rules_jvm_external_deps",
     "unpinned_rules_jvm_external_deps",
 )
