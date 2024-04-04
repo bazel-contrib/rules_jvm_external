@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -214,7 +216,8 @@ public class MavenResolver implements Resolver {
       }
     }
 
-    Graph<Coordinates> resolution = buildGraph(coordsListener.getRemappings(), directDependencies);
+    Graph<Coordinates> initialResolution = buildGraph(coordsListener.getRemappings(), directDependencies);
+    Graph<Coordinates> resolution = makeVersionsConsistent(initialResolution);
 
     Set<Coordinates> simpleRequestedDeps =
         request.getDependencies().stream()
@@ -223,6 +226,58 @@ public class MavenResolver implements Resolver {
     Set<Conflict> conflicts = getConflicts(simpleRequestedDeps, directDependencies);
 
     return new ResolutionResult(resolution, conflicts);
+  }
+
+  private Graph<Coordinates> makeVersionsConsistent(Graph<Coordinates> initialResolution) {
+    Set<Coordinates> nodes = initialResolution.nodes();
+
+    Map<Coordinates, Coordinates> mappedVersions = gatherExpectedVersions(nodes);
+
+    // Reconstruct the dependency graph
+    MutableGraph<Coordinates> toReturn = GraphBuilder.directed().allowsSelfLoops(true).build();
+    for (Coordinates node : nodes) {
+      Coordinates replacement = mappedVersions.get(node);
+      toReturn.addNode(replacement);
+      Set<Coordinates> successors = initialResolution.successors(node);
+      for (Coordinates successor : successors) {
+        Coordinates successorReplacement = mappedVersions.get(successor);
+        toReturn.addNode(successorReplacement);
+        toReturn.putEdge(replacement, successorReplacement);
+      }
+    }
+    return ImmutableGraph.copyOf(toReturn);
+  }
+
+  private Map<Coordinates, Coordinates> gatherExpectedVersions(Set<Coordinates> allCoords) {
+    Function<Coordinates, String> keyify = c -> c.getGroupId() + ":" + c.getArtifactId();
+
+    // Populate our map of expected versions
+    Map<String, String> keyToVersion = new HashMap<>();
+    for (Coordinates coord : allCoords) {
+      String key = keyify.apply(coord);
+
+      String existing = keyToVersion.get(key);
+      if (existing == null) {
+        keyToVersion.put(key, coord.getVersion());
+        continue;
+      }
+
+      ComparableVersion coordVersion = new ComparableVersion(coord.getVersion());
+      ComparableVersion existingVersion = new ComparableVersion(existing);
+
+      if (coordVersion.compareTo(existingVersion) > 0) {
+        keyToVersion.put(key, coord.getVersion());
+      }
+    }
+
+    // Now prepare the map to return
+    Map<Coordinates, Coordinates> toReturn = new HashMap<>();
+    for (Coordinates coord : allCoords) {
+      String key = keyify.apply(coord);
+      toReturn.put(coord, coord.setVersion(keyToVersion.get(key)));
+    }
+
+    return Map.copyOf(toReturn);
   }
 
   private Set<Conflict> getConflicts(
