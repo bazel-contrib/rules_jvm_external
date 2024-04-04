@@ -17,6 +17,10 @@ java_library(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
+            "org.apache.maven:maven-artifact",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "org.apache.maven:maven-core",
             repository_name = "rules_jvm_external_deps",
         ),

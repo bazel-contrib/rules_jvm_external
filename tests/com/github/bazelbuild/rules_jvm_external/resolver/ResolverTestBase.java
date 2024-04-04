@@ -515,6 +515,44 @@ public abstract class ResolverTestBase {
     assertEquals(children.toString(), 1, children.size());
   }
 
+  @Test
+  public void
+      shouldNormalizeVerionsToHighestVersionIfPomsAskForDifferentClassifiersWithDifferentVersions() {
+    // This behaviour is exhibited by both `coursier` and `gradle`, so we're
+    // going to settle on this as what's expected. `maven` will quite happily
+    // (and correctly IMO) include the javadoc dep at its version and the jar
+    // dep at its version. The problem is that when we come to render the lock
+    // file we can't have two items with the same `groupId:artifactId` with
+    // different versions, so I guess that's another reason to normalise the
+    // weird thing that the other resolvers do.
+
+    // The default coordinate has a lower version number than the coordinate
+    // with the classifier.
+    Coordinates base = new Coordinates("com.example:odd-deps:1.0.0");
+    Coordinates classified = base.setClassifier("javadoc").setVersion("18.0");
+    Coordinates depOnBase = new Coordinates("com.example:base:4.0.0");
+    Coordinates depOnClassified = new Coordinates("com.example:diff:2.0.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(base)
+            .add(classified)
+            .add(depOnBase, base)
+            .add(depOnClassified, classified)
+            .getPath();
+
+    Graph<Coordinates> resolution =
+        resolver
+            .resolve(prepareRequestFor(repo.toUri(), depOnBase, depOnClassified))
+            .getResolution();
+    Set<Coordinates> nodes = resolution.nodes();
+
+    assertTrue("javadoc with higher version number not found", nodes.contains(classified));
+    assertTrue(
+        "regular jar with higher version number not found",
+        nodes.contains(classified.setClassifier(null))); // Same version, no classifer
+  }
+
   private Model createModel(Coordinates coords) {
     Model model = new Model();
     model.setModelVersion("4.0.0");

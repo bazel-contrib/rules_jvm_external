@@ -23,6 +23,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.ImmutableGraph;
@@ -36,7 +37,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -214,15 +217,80 @@ public class MavenResolver implements Resolver {
       }
     }
 
-    Graph<Coordinates> resolution = buildGraph(coordsListener.getRemappings(), directDependencies);
+    Graph<Coordinates> initialResolution =
+        buildGraph(coordsListener.getRemappings(), directDependencies);
+    GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(initialResolution);
 
     Set<Coordinates> simpleRequestedDeps =
         request.getDependencies().stream()
             .map(com.github.bazelbuild.rules_jvm_external.resolver.Artifact::getCoordinates)
             .collect(Collectors.toSet());
-    Set<Conflict> conflicts = getConflicts(simpleRequestedDeps, directDependencies);
+    Set<Conflict> conflicts =
+        Sets.union(
+            getConflicts(simpleRequestedDeps, directDependencies),
+            graphNormalizationResult.getConflicts());
 
-    return new ResolutionResult(resolution, conflicts);
+    return new ResolutionResult(graphNormalizationResult.getNormalizedGraph(), conflicts);
+  }
+
+  private GraphNormalizationResult makeVersionsConsistent(Graph<Coordinates> initialResolution) {
+    Set<Coordinates> nodes = initialResolution.nodes();
+
+    Map<Coordinates, Coordinates> mappedVersions = gatherExpectedVersions(nodes);
+
+    // Reconstruct the dependency graph
+    MutableGraph<Coordinates> toReturn = GraphBuilder.directed().allowsSelfLoops(true).build();
+
+    for (Coordinates node : nodes) {
+      Coordinates replacement = mappedVersions.get(node);
+      toReturn.addNode(replacement);
+      Set<Coordinates> successors = initialResolution.successors(node);
+      for (Coordinates successor : successors) {
+        Coordinates successorReplacement = mappedVersions.get(successor);
+        toReturn.addNode(successorReplacement);
+        toReturn.putEdge(replacement, successorReplacement);
+      }
+    }
+
+    Set<Conflict> conflicts =
+        mappedVersions.entrySet().stream()
+            .filter(e -> !e.getKey().equals(e.getValue()))
+            .map(e -> new Conflict(e.getValue(), e.getKey()))
+            .collect(Collectors.toSet());
+
+    return new GraphNormalizationResult(ImmutableGraph.copyOf(toReturn), conflicts);
+  }
+
+  private Map<Coordinates, Coordinates> gatherExpectedVersions(Set<Coordinates> allCoords) {
+    Function<Coordinates, String> keyify = c -> c.getGroupId() + ":" + c.getArtifactId();
+
+    // Populate our map of expected versions
+    Map<String, String> keyToVersion = new HashMap<>();
+    for (Coordinates coord : allCoords) {
+      String key = keyify.apply(coord);
+
+      String existing = keyToVersion.get(key);
+      if (existing == null) {
+        keyToVersion.put(key, coord.getVersion());
+        continue;
+      }
+
+      ComparableVersion coordVersion = new ComparableVersion(coord.getVersion());
+      ComparableVersion existingVersion = new ComparableVersion(existing);
+
+      if (coordVersion.compareTo(existingVersion) > 0) {
+        keyToVersion.put(key, coord.getVersion());
+      }
+    }
+
+    // Now prepare the map to return
+    Map<Coordinates, Coordinates> toReturn = new HashMap<>();
+    for (Coordinates coord : allCoords) {
+      String key = keyify.apply(coord);
+      toReturn.put(coord, coord.setVersion(keyToVersion.get(key)));
+    }
+
+    return Map.copyOf(toReturn);
   }
 
   private Set<Conflict> getConflicts(
@@ -502,5 +570,23 @@ public class MavenResolver implements Resolver {
 
   private RemoteRepository createRemoteRepoFromLocalM2Cache(Path localCache) {
     return remoteRepositoryFactory.createFor(localCache.toUri());
+  }
+
+  private static class GraphNormalizationResult {
+    private final Graph<Coordinates> normalizedGraph;
+    private final Set<Conflict> conflicts;
+
+    public GraphNormalizationResult(Graph<Coordinates> normalizedGraph, Set<Conflict> conflicts) {
+      this.normalizedGraph = normalizedGraph;
+      this.conflicts = conflicts;
+    }
+
+    public Graph<Coordinates> getNormalizedGraph() {
+      return normalizedGraph;
+    }
+
+    public Set<Conflict> getConflicts() {
+      return conflicts;
+    }
   }
 }

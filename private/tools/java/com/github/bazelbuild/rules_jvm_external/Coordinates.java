@@ -95,6 +95,10 @@ public class Coordinates implements Comparable<Coordinates> {
     return new Coordinates(getGroupId(), getArtifactId(), extension, getClassifier(), getVersion());
   }
 
+  public Coordinates setVersion(String version) {
+    return new Coordinates(getGroupId(), getArtifactId(), getExtension(), getClassifier(), version);
+  }
+
   public String getExtension() {
     return extension;
   }
