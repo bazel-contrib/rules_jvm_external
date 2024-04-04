@@ -3,3 +3,5 @@ bazel-*
 .ijwb
 .DS_Store
 .idea
+__pycache__
+resolved_deps.py

@@ -46,19 +46,16 @@ tasks:
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
-  # Re-enable when https://github.com/bazelbuild/rules_jvm_external/issues/1067 is fixed
-  # android-local-test-macos:
-    # name: "Android Robolectric test example"
-    # platform: macos
-    # working_directory: examples/android_local_test
-    # test_targets:
-    #   - "//..."
+  android-local-test-macos:
+    name: "Android Robolectric test example"
+    platform: macos
+    working_directory: examples/android_local_test
+    test_targets:
+      - "//..."
   android-local-test-windows:
     name: "Android Robolectric test example"
     platform: windows
     working_directory: examples/android_local_test
-    # Testing Robolectric targets don't work on Windows yet.
-    # See https://github.com/bazelbuild/bazel/issues/7809
     build_targets:
       - "//..."
   kotlin-android-local-test-linux:
@@ -67,19 +64,16 @@ tasks:
     working_directory: examples/kt_android_local_test
     test_targets:
       - "//..."
-  # Re-enable when https://github.com/bazelbuild/rules_jvm_external/issues/1067 is fixed
-  # kotlin-android-local-test-macos:
-    # name: "Kotlin Android Robolectric test example"
-    # platform: macos
-    # working_directory: examples/kt_android_local_test
-    # test_targets:
-    #   - "//..."
+  kotlin-android-local-test-macos:
+    name: "Kotlin Android Robolectric test example"
+    platform: macos
+    working_directory: examples/kt_android_local_test
+    test_targets:
+      - "//..."
   kotlin-android-local-test-windows:
     name: "Kotlin Android Robolectric test example"
     platform: windows
     working_directory: examples/kt_android_local_test
-    # Testing Robolectric targets don't work on Windows yet.
-    # See https://github.com/bazelbuild/bazel/issues/7809
     build_targets:
       - "//..."
   android-kotlin-linux:
