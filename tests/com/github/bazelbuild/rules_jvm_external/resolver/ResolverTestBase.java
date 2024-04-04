@@ -230,17 +230,6 @@ public abstract class ResolverTestBase {
   }
 
   @Test
-  @Ignore("Currently not collecting and handling conflict information")
-  public void shouldIncludeConflictInformationInOutputFromResolution() {
-    Coordinates older = new Coordinates("com.example:foo:1.0");
-    Coordinates newer = new Coordinates("com.example:foo:1.5");
-
-    Path repo = MavenRepo.create().add(older).add(newer).getPath();
-
-    // TODO: write me
-  }
-
-  @Test
   public void shouldHandlePackagingPomsInDependencies() throws IOException {
     Coordinates parentCoords = new Coordinates("com.example:packaging:1.0.3");
     Model parent = createModel(parentCoords);

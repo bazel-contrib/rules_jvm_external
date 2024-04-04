@@ -220,10 +220,6 @@ public class MavenResolver implements Resolver {
     Set<Coordinates> simpleRequestedDeps =
         request.getDependencies().stream()
             .map(com.github.bazelbuild.rules_jvm_external.resolver.Artifact::getCoordinates)
-            .map(
-                c ->
-                    new Coordinates(
-                        c.getGroupId() + ":" + c.getArtifactId() + ":" + c.getVersion()))
             .collect(Collectors.toSet());
     Set<Conflict> conflicts = getConflicts(simpleRequestedDeps, directDependencies);
 
@@ -233,9 +229,6 @@ public class MavenResolver implements Resolver {
   private Set<Conflict> getConflicts(
       Set<Coordinates> userRequestedDependencies, List<DependencyNode> directDependencies) {
     Set<Conflict> conflicts = new HashSet<>();
-
-    Function<Artifact, Coordinates> simpleForm =
-        a -> new Coordinates(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion());
 
     DependencyVisitor collector =
         new TreeDependencyVisitor(
@@ -247,9 +240,9 @@ public class MavenResolver implements Resolver {
                   }
 
                   Artifact winningArtifact = ((DependencyNode) winner).getArtifact();
-                  Coordinates winningCoords = simpleForm.apply(winningArtifact);
+                  Coordinates winningCoords = MavenCoordinates.asCoordinates(winningArtifact);
                   Artifact artifact = node.getArtifact();
-                  Coordinates nodeCoords = simpleForm.apply(artifact);
+                  Coordinates nodeCoords = MavenCoordinates.asCoordinates(artifact);
 
                   if (!winningCoords.equals(nodeCoords)) {
                     if (!userRequestedDependencies.contains(winningCoords)) {
