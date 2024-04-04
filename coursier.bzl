@@ -1160,7 +1160,7 @@ def _coursier_fetch_impl(repository_ctx):
             continue
         artifact.update({"sha256": shas[path]})
         artifact.update({"packages": jars_to_index_results[path]["packages"]})
-        service_implementations = jars_to_index_results[path]["serviceImplementations"]
+        service_implementations = jars_to_index_results[path].get("serviceImplementations", {})
         if service_implementations:
             artifact.update({"services": service_implementations})
 

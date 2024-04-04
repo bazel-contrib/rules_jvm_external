@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class IndexJar {
 
@@ -87,22 +88,21 @@ public class IndexJar {
   public PerJarIndexResults index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
     SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
-    try {
-      try (ZipFile zipFile = new ZipFile(path.toFile())) {
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-          ZipEntry entry = entries.nextElement();
+    try (InputStream fis = new BufferedInputStream(Files.newInputStream(path)); ZipInputStream zis = new ZipInputStream(fis)) {
+      try {
+        ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
           if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX) && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
             String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
             SortedSet<String> implementingClasses = new TreeSet<>();
-            try (InputStream inputStream = zipFile.getInputStream(entry) ; BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream) ; BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream))) {
-              String implementingClass = bufferedReader.readLine();
-              while (implementingClass != null) {
-                if (!implementingClass.isEmpty() && !implementingClass.startsWith("#")) {
-                  implementingClasses.add(implementingClass);
-                }
-                implementingClass = bufferedReader.readLine();
+            // We can't close zis here or it will also prevent us from reading subsequent entries.
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(zis));
+            String implementingClass = bufferedReader.readLine();
+            while (implementingClass != null) {
+              if (!implementingClass.isEmpty() && !implementingClass.startsWith("#")) {
+                implementingClasses.add(implementingClass);
               }
+              implementingClass = bufferedReader.readLine();
             }
             serviceImplementations.put(serviceInterface, implementingClasses);
           }
@@ -110,16 +110,16 @@ public class IndexJar {
             continue;
           }
           if ("module-info.class".equals(entry.getName())
-              || entry.getName().endsWith("/module-info.class")) {
+                  || entry.getName().endsWith("/module-info.class")) {
             continue;
           }
           packages.add(extractPackageName(entry.getName()));
         }
+      } catch (ZipException e) {
+        System.err.printf("Caught ZipException: %s%n", e);
       }
-    } catch (ZipException e) {
-      System.err.printf("Caught ZipException: %s%n", e);
+      return new PerJarIndexResults(packages, serviceImplementations);
     }
-    return new PerJarIndexResults(packages, serviceImplementations);
   }
 
   private String extractPackageName(String zipEntryName) {

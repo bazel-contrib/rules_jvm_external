@@ -80,7 +80,19 @@ public class IndexJarTest {
   @Test
   public void serviceImplementations() throws Exception {
     doTest("lombok_for_test/file/lombok-1.18.22.jar",
-        sortedSet("lombok", "lombok.delombok.ant", "lombok.experimental", "lombok.extern.apachecommons", "lombok.extern.flogger", "lombok.extern.jackson", "lombok.extern.java", "lombok.extern.jbosslog", "lombok.extern.log4j", "lombok.extern.slf4j", "lombok.javac.apt", "lombok.launch"),
+        sortedSet(
+                "lombok",
+                "lombok.delombok.ant",
+                "lombok.experimental",
+                "lombok.extern.apachecommons",
+                "lombok.extern.flogger",
+                "lombok.extern.jackson",
+                "lombok.extern.java",
+                "lombok.extern.jbosslog",
+                "lombok.extern.log4j",
+                "lombok.extern.slf4j",
+                "lombok.javac.apt",
+                "lombok.launch"),
         getLombokServiceImplementations());
   }
 
@@ -97,10 +109,11 @@ public class IndexJarTest {
   @Test
   public void testLockfile() throws Exception {
     Path lockfilePath = Paths.get(Runfiles.create().rlocation("rules_jvm_external/tests/custom_maven_install/service_indexing_testing.json"));
-    Reader reader = Files.newBufferedReader(lockfilePath);
-    Gson gson = new Gson();
-    Lockfile lockfile = gson.fromJson(reader, Lockfile.class);
-    assertEquals(getLombokServiceImplementations(), lockfile.services.get("org.projectlombok:lombok"));
+    try (Reader reader = Files.newBufferedReader(lockfilePath)) {
+      Gson gson = new Gson();
+      Lockfile lockfile = gson.fromJson(reader, Lockfile.class);
+      assertEquals(getLombokServiceImplementations(), lockfile.services.get("org.projectlombok:lombok"));
+    }
   }
 
   private void doTest(String runfileJar, SortedSet<String> expectedPackages, TreeMap<String, TreeSet<String>> expectedServiceImplementations) throws IOException {
