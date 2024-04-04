@@ -19,8 +19,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.coursier.NebulaFormat;
 import com.github.bazelbuild.rules_jvm_external.jar.ListPackages;
+import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
@@ -71,11 +73,11 @@ public class Main {
 
       Resolver resolver = config.getResolver();
 
-      Graph<Coordinates> resolved = resolver.resolve(request);
+      ResolutionResult resolutionResult = resolver.resolve(request);
 
-      infos = fulfillDependencyInfos(listener, config, resolved);
+      infos = fulfillDependencyInfos(listener, config, resolutionResult.getResolution());
 
-      writeLockFile(listener, config, request, infos);
+      writeLockFile(listener, config, request, infos, resolutionResult.getConflicts());
 
       System.exit(0);
     } catch (Exception e) {
@@ -256,12 +258,18 @@ public class Main {
       EventListener listener,
       ResolverConfig config,
       ResolutionRequest request,
-      Set<DependencyInfo> infos)
+      Set<DependencyInfo> infos,
+      Set<Conflict> conflicts)
       throws IOException {
     listener.onEvent(new PhaseEvent("Building lock file"));
     Path output = config.getOutput();
 
     listener.close();
+
+    Map<String, Object> renderedConflicts = new HashMap<>();
+    for (Conflict conflict : conflicts) {
+      renderedConflicts.put(conflict.getRequested().toString(), conflict.getResolved().toString());
+    }
 
     Map<String, Object> rendered =
         new NebulaFormat()
@@ -270,7 +278,7 @@ public class Main {
                     .map(Object::toString)
                     .collect(Collectors.toList()),
                 infos,
-                new HashMap<>());
+                Map.copyOf(renderedConflicts));
 
     Map<Object, Object> toReturn = new TreeMap<>();
     for (String key : RENDERED_KEYS) {
