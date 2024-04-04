@@ -516,7 +516,7 @@ public abstract class ResolverTestBase {
   }
 
   @Test
-  public void shouldNormalizeVerionsToHighestVersionIfPomsAskForDifferentClassifiers() {
+  public void shouldNormalizeVerionsToHighestVersionIfPomsAskForDifferentClassifiersWithDifferentVersions() {
     // This behaviour is exhibited by both `coursier` and `gradle`, so we're
     // going to settle on this as what's expected. `maven` will quite happily
     // (and correctly IMO) include the javadoc dep at its version and the jar
