@@ -267,13 +267,10 @@ public class Main {
 
     listener.close();
 
-    Function<Coordinates, String> simpleForm =
-        c -> c.getGroupId() + ":" + c.getArtifactId() + ":" + c.getVersion();
-
     Map<String, Object> renderedConflicts = new HashMap<>();
     for (Conflict conflict : conflicts) {
       renderedConflicts.put(
-          simpleForm.apply(conflict.getRequested()), simpleForm.apply(conflict.getResolved()));
+          conflict.getRequested().toString(), conflict.getResolved().toString());
     }
 
     Map<String, Object> rendered =
