@@ -12,6 +12,7 @@ java_library(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:IndexJar-lib",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",

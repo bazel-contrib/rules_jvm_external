@@ -1,0 +1,13 @@
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin.CustomModelInjectionPlugin
+
+initscript {
+    dependencies {
+        // If the plugin was published instead of copied we would just have to apply it
+        classpath files("%%PLUGIN_JAR%%", "%%MODEL_JAR%%")
+    }
+}
+
+allprojects {
+    apply plugin: CustomModelInjectionPlugin
+    apply plugin: 'java'
+}

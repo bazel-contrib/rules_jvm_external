@@ -91,6 +91,11 @@ public class MavenResolver implements Resolver {
     this.listener = listener;
   }
 
+  @Override
+  public String getName() {
+    return "maven";
+  }
+
   private Dependency createBom(
       com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact) {
     Coordinates coordinates = artifact.getCoordinates();

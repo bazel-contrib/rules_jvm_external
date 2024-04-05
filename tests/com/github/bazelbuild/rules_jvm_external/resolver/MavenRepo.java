@@ -142,6 +142,7 @@ public class MavenRepo {
   }
 
   public Path getPath() {
+    System.err.println("Path to repo: " + root);
     return root;
   }
 }
