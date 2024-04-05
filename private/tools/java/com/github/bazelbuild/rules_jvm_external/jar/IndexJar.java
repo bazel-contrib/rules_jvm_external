@@ -15,9 +15,12 @@
 package com.github.bazelbuild.rules_jvm_external.jar;
 
 import com.google.gson.Gson;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +28,8 @@ import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Enumeration;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -34,12 +39,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-public class ListPackages {
+public class IndexJar {
 
   private static final Predicate<String> IS_NUMERIC_VERSION =
       Pattern.compile("[1-9][0-9]*").asPredicate();
+
+  private static final String SERVICES_DIRECTORY_PREFIX = "META-INF/services/";
 
   public static void main(String[] args) throws IOException {
     if (args.length != 2 || !"--argsfile".equals(args[0])) {
@@ -48,19 +56,19 @@ public class ListPackages {
     }
 
     Path argsFile = Paths.get(args[1]);
-    Map<String, SortedSet<String>> index = new ListPackages().getPackages(Files.lines(argsFile));
+    Map<String, PerJarIndexResults> index = new IndexJar().index(Files.lines(argsFile));
     System.out.println(new Gson().toJson(index));
   }
 
-  public Map<String, SortedSet<String>> getPackages(Stream<String> source) {
-    TreeMap<String, SortedSet<String>> index =
+  public Map<String, PerJarIndexResults> index(Stream<String> source) {
+    TreeMap<String, PerJarIndexResults> index =
         source
             .parallel()
             .map(
                 path -> {
                   try {
-                    SortedSet<String> packages = getPackages(Paths.get(path));
-                    return new AbstractMap.SimpleEntry<>(path, packages);
+                    PerJarIndexResults results = index(Paths.get(path));
+                    return new AbstractMap.SimpleEntry<>(path, results);
                   } catch (IOException e) {
                     throw new UncheckedIOException(e);
                   }
@@ -77,18 +85,32 @@ public class ListPackages {
     return index;
   }
 
-  public SortedSet<String> getPackages(Path path) throws IOException {
+  public PerJarIndexResults index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
-    try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
-        ZipInputStream zis = new ZipInputStream(fis)) {
+    SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
+    try (InputStream fis = new BufferedInputStream(Files.newInputStream(path)); ZipInputStream zis = new ZipInputStream(fis)) {
       try {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
+          if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX) && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
+            String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
+            SortedSet<String> implementingClasses = new TreeSet<>();
+            // We can't close zis here or it will also prevent us from reading subsequent entries.
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(zis));
+            String implementingClass = bufferedReader.readLine();
+            while (implementingClass != null) {
+              if (!implementingClass.isEmpty() && !implementingClass.startsWith("#")) {
+                implementingClasses.add(implementingClass);
+              }
+              implementingClass = bufferedReader.readLine();
+            }
+            serviceImplementations.put(serviceInterface, implementingClasses);
+          }
           if (!entry.getName().endsWith(".class")) {
             continue;
           }
           if ("module-info.class".equals(entry.getName())
-              || entry.getName().endsWith("/module-info.class")) {
+                  || entry.getName().endsWith("/module-info.class")) {
             continue;
           }
           packages.add(extractPackageName(entry.getName()));
@@ -96,8 +118,8 @@ public class ListPackages {
       } catch (ZipException e) {
         System.err.printf("Caught ZipException: %s%n", e);
       }
+      return new PerJarIndexResults(packages, serviceImplementations);
     }
-    return packages;
   }
 
   private String extractPackageName(String zipEntryName) {
