@@ -46,12 +46,12 @@ tasks:
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
-  android-local-test-macos:
-    name: "Android Robolectric test example"
-    platform: macos
-    working_directory: examples/android_local_test
-    test_targets:
-      - "//..."
+#  android-local-test-macos:
+#    name: "Android Robolectric test example"
+#    platform: macos
+#    working_directory: examples/android_local_test
+#    test_targets:
+#      - "//..."
   android-local-test-windows:
     name: "Android Robolectric test example"
     platform: windows
@@ -64,12 +64,12 @@ tasks:
     working_directory: examples/kt_android_local_test
     test_targets:
       - "//..."
-  kotlin-android-local-test-macos:
-    name: "Kotlin Android Robolectric test example"
-    platform: macos
-    working_directory: examples/kt_android_local_test
-    test_targets:
-      - "//..."
+#  kotlin-android-local-test-macos:
+#    name: "Kotlin Android Robolectric test example"
+#    platform: macos
+#    working_directory: examples/kt_android_local_test
+#    test_targets:
+#      - "//..."
   kotlin-android-local-test-windows:
     name: "Kotlin Android Robolectric test example"
     platform: windows
