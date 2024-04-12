@@ -85,7 +85,8 @@ def generate_pom(
         parent = None,
         versioned_dep_coordinates = [],
         unversioned_dep_coordinates = [],
-        indent = 8):
+        indent = 8,
+        implementation_deps = []):
     unpacked_coordinates = unpack_coordinates(coordinates)
     substitutions = {
         "{groupId}": unpacked_coordinates.groupId,
@@ -111,12 +112,18 @@ def generate_pom(
         substitutions.update({"{parent}": "".join(parts)})
 
     deps = []
-    for dep in sorted(versioned_dep_coordinates):
+    for dep in sorted(versioned_dep_coordinates) + sorted(unversioned_dep_coordinates):
+        include_version = dep in versioned_dep_coordinates
         unpacked = unpack_coordinates(dep)
-        deps.append(format_dep(unpacked, indent = indent))
-    for dep in sorted(unversioned_dep_coordinates):
-        unpacked = unpack_coordinates(dep)
-        deps.append(format_dep(unpacked, indent = indent, include_version = False))
+        new_scope = "runtime" if dep in implementation_deps else unpacked.scope
+        unpacked = struct(
+            groupId = unpacked.groupId,
+            artifactId = unpacked.artifactId,
+            type = unpacked.type,
+            scope = new_scope,
+            version = unpacked.version,
+        )
+        deps.append(format_dep(unpacked, indent = indent, include_version = include_version))
 
     substitutions.update({"{dependencies}": "\n".join(deps)})
 
