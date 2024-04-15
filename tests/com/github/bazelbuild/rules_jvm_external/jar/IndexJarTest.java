@@ -18,8 +18,12 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import com.google.gson.Gson;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -94,6 +98,31 @@ public class IndexJarTest {
                 "lombok.javac.apt",
                 "lombok.launch"),
         getLombokServiceImplementations());
+  }
+
+  @Test
+  public void parseServiceImplementations_simple() throws Exception {
+    try (InputStream inputStream = streamOf("com.example.Impl1\ncom.example.Impl2")) {
+      SortedSet<String> impls = new IndexJar().parseServiceImplementations(inputStream);
+      assertEquals(sortedSet("com.example.Impl1", "com.example.Impl2"), impls);
+    }
+  }
+
+  @Test
+  public void parseServiceImplementations_ignoresCommentsAndEmpty() throws Exception {
+    String contents = "com.example.Impl1# end of line comment\n" +
+            "# whole line comment\n" +
+            " # whole line comment with leading space\n" +
+            "\n" +
+            "com.example .\tImpl2\n";
+    try (InputStream inputStream = streamOf(contents)) {
+      SortedSet<String> impls = new IndexJar().parseServiceImplementations(inputStream);
+      assertEquals(sortedSet("com.example.Impl1", "com.example.Impl2"), impls);
+    }
+  }
+
+  private InputStream streamOf(String string) {
+    return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
   }
 
   @Test

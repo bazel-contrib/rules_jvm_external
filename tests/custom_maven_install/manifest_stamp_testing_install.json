@@ -866,6 +866,51 @@
       "org.xerial.snappy.buffer"
     ]
   },
+  "services": {
+    "com.fasterxml.jackson.core:jackson-core": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "com.fasterxml.jackson.core:jackson-databind": {
+      "com.fasterxml.jackson.core.ObjectCodec": [
+        "com.fasterxml.jackson.databind.ObjectMapper"
+      ]
+    },
+    "org.apache.beam:beam-sdks-java-core": {
+      "org.apache.beam.sdk.expansion.ExternalTransformRegistrar": [
+        "org.apache.beam.sdk.io.GenerateSequence$External"
+      ],
+      "org.apache.beam.sdk.io.FileSystemRegistrar": [
+        "org.apache.beam.sdk.io.LocalFileSystemRegistrar"
+      ],
+      "org.apache.beam.sdk.options.PipelineOptionsRegistrar": [
+        "org.apache.beam.sdk.options.DefaultPipelineOptionsRegistrar",
+        "org.apache.beam.sdk.options.ManualDockerEnvironmentOptions$Options"
+      ]
+    },
+    "org.apache.beam:beam-vendor-grpc-1_21_0": {
+      "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.LoadBalancerProvider": [
+        "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.internal.PickFirstLoadBalancerProvider",
+        "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider"
+      ],
+      "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.ManagedChannelProvider": [
+        "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.netty.NettyChannelProvider"
+      ],
+      "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.NameResolverProvider": [
+        "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.internal.DnsNameResolverProvider"
+      ],
+      "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.ServerProvider": [
+        "org.apache.beam.vendor.grpc.v1p21p0.io.grpc.netty.NettyServerProvider"
+      ]
+    },
+    "org.bouncycastle:bcprov-jdk15on": {
+      "java.security.Provider": [
+        "org.bouncycastle.jce.provider.BouncyCastleProvider",
+        "org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider"
+      ]
+    }
+  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "com.fasterxml.jackson.core:jackson-annotations",
