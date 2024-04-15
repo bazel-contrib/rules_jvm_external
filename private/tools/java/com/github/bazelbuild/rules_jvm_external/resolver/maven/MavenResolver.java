@@ -75,6 +75,7 @@ import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 import org.eclipse.aether.util.graph.traverser.StaticDependencyTraverser;
+import org.eclipse.aether.util.graph.visitor.DependencyGraphDumper;
 import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
 
 public class MavenResolver implements Resolver {
@@ -161,15 +162,13 @@ public class MavenResolver implements Resolver {
     repositories.add(createRemoteRepoFromLocalM2Cache(request.getLocalCache()));
     repositories.addAll(repos);
 
-    List<Dependency> amendedDeps = addGlobalExclusions(globalExclusions, dependencies);
-    List<Dependency> amendedBoms = addGlobalExclusions(globalExclusions, boms);
-
-    consoleLog.setPhase("Resolving BOM artifacts");
+    List<Dependency> bomsWithGlobalExclusions = addGlobalExclusions(globalExclusions, boms);
+    consoleLog.setPhase("Resolving " + bomsWithGlobalExclusions.size() + " BOM artifacts");
+    List<Dependency> bomDependencies =
+        resolveArtifactsFromBoms(system, session, repositories, bomsWithGlobalExclusions);
 
     List<Dependency> managedDependencies =
-        resolveArtifactsFromBoms(system, session, repositories, amendedBoms);
-
-    managedDependencies = overrideDependenciesWithUserChoices(managedDependencies, dependencies);
+        overrideDependenciesWithUserChoices(bomDependencies, dependencies);
 
     // In a regular maven project, the root `pom.xml` defines what has the
     // dependencies --- they can't just "float in space". We simulate the
@@ -189,10 +188,30 @@ public class MavenResolver implements Resolver {
             new CompoundListener(consoleLog, errors, coordsListener),
             request.getLocalCache());
 
-    consoleLog.setPhase("Gathering direct dependency coordinates");
-    List<DependencyNode> directDependencies =
+    List<Dependency> depsWithGlobalExclusions = addGlobalExclusions(globalExclusions, dependencies);
+    consoleLog.setPhase(
+        "Resolving and fetching the transitive closure of "
+            + depsWithGlobalExclusions.size()
+            + " artifact(s)");
+    List<DependencyNode> resolvedDependencies =
         resolveBaseDependencies(
-            system, session, repositories, fakeRoot, managedDependencies, amendedDeps);
+            system, session, repositories, fakeRoot, managedDependencies, depsWithGlobalExclusions);
+
+    if (System.getenv("RJE_VERBOSE") != null) {
+      DependencyGraphDumper graphDumper = new DependencyGraphDumper(System.err::println);
+      System.err.println("\nDependency Graph:");
+      resolvedDependencies.forEach(node -> node.accept(graphDumper));
+
+      Map<Coordinates, Coordinates> remappings = coordsListener.getRemappings();
+      if (remappings.isEmpty()) {
+        System.err.println("\nNo dependency remappings");
+      } else {
+        System.err.println("\nDependency remappings:");
+        for (Map.Entry<Coordinates, Coordinates> entry : remappings.entrySet()) {
+          System.err.println(entry.getKey() + " -> " + entry.getValue());
+        }
+      }
+    }
 
     List<Exception> exceptions = errors.getExceptions();
     if (!exceptions.isEmpty()) {
@@ -218,7 +237,7 @@ public class MavenResolver implements Resolver {
     }
 
     Graph<Coordinates> initialResolution =
-        buildGraph(coordsListener.getRemappings(), directDependencies);
+        buildGraph(coordsListener.getRemappings(), resolvedDependencies);
     GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(initialResolution);
 
     Set<Coordinates> simpleRequestedDeps =
@@ -227,7 +246,7 @@ public class MavenResolver implements Resolver {
             .collect(Collectors.toSet());
     Set<Conflict> conflicts =
         Sets.union(
-            getConflicts(simpleRequestedDeps, directDependencies),
+            getConflicts(simpleRequestedDeps, resolvedDependencies),
             graphNormalizationResult.getConflicts());
 
     return new ResolutionResult(graphNormalizationResult.getNormalizedGraph(), conflicts);
@@ -360,14 +379,16 @@ public class MavenResolver implements Resolver {
       RepositorySystem system,
       RepositorySystemSession session,
       List<RemoteRepository> repositories,
-      List<Dependency> amendedBoms) {
+      List<Dependency> boms) {
     Set<Dependency> managedDependencies = new HashSet<>();
 
-    for (Dependency bom : amendedBoms) {
+    for (Dependency bom : boms) {
       ArtifactDescriptorRequest request =
           new ArtifactDescriptorRequest(bom.getArtifact(), repositories, JavaScopes.COMPILE);
       try {
         ArtifactDescriptorResult result = system.readArtifactDescriptor(session, request);
+        // NOTE: BOM dependencies are added in order so dependencies from eariler BOMs will
+        // take precedence over dependencies from later BOMs
         managedDependencies.addAll(result.getManagedDependencies());
       } catch (ArtifactDescriptorException e) {
         throw new RuntimeException(e);
@@ -487,11 +508,26 @@ public class MavenResolver implements Resolver {
     // https://github.com/apache/maven-resolver/blob/master/src/site/markdown/configuration.md
     configProperties.put("aether.dependencyCollector.impl", "bf");
     configProperties.put("aether.dependencyCollector.bf.threads", String.valueOf(maxThreads));
-    // And set the number of threads to use when figuring out how many dependencies to download in
+    // Set the number of threads to use when figuring out how many dependencies to download in
     // parallel.
     configProperties.put("maven.artifact.threads", String.valueOf(maxThreads));
+
+    // Add flags so we keep the version conflict information in the resolved graph
+    //
+    // By default, the graph transformer will turn the dependency graph into a tree without
+    // duplicate artifacts. Using the configuration property CONFIG_PROP_VERBOSE, a verbose
+    // mode can be enabled where the graph is still turned into a tree but all nodes participating
+    // in a conflict are retained. The nodes that were rejected during conflict resolution have no
+    // children and link back to the winner node via the NODE_DATA_WINNER key in their custom data.
+    // Additionally, the keys NODE_DATA_ORIGINAL_SCOPE and NODE_DATA_ORIGINAL_OPTIONALITY are used
+    // to store the original scope and optionality of each node. Obviously, the resulting dependency
+    // tree is not suitable for artifact resolution unless a filter is employed to exclude the
+    // duplicate dependencies.
     configProperties.put(ConflictResolver.CONFIG_PROP_VERBOSE, true);
+    // If enabled, the original attributes of a dependency before its update due to dependency
+    // managemnent will be recorded in the node's custom data when building a dependency graph.
     configProperties.put(DependencyManagerUtils.CONFIG_PROP_VERBOSE, true);
+
     session.setConfigProperties(Map.copyOf(configProperties));
 
     session.setSystemProperties(System.getProperties());
