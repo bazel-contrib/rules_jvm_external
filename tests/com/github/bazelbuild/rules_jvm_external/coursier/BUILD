@@ -14,7 +14,7 @@ java_test(
         ),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
         artifact("org.hamcrest:hamcrest_core"),

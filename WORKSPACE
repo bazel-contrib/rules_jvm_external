@@ -187,11 +187,11 @@ maven_install(
     resolver = "maven",
 )
 
-# These artifacts helped discover limitations by the Maven resolver. Each
+# These artifacts helped discover limitations in the Coursier resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.
 maven_install(
-    name = "regression_testing",
+    name = "regression_testing_coursier",
     artifacts = [
         # https://github.com/bazelbuild/rules_jvm_external/issues/74
         "org.pantsbuild:jarjar:1.6.6",
@@ -270,8 +270,9 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1028
         "build.buf:protovalidate:0.1.9",
     ],
+    fail_if_repin_required = True,
     generate_compat_repositories = True,
-    maven_install_json = "//tests/custom_maven_install:regression_testing_install.json",
+    maven_install_json = "//tests/custom_maven_install:regression_testing_coursier_install.json",
     override_targets = {
         "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
     },
@@ -281,6 +282,42 @@ maven_install(
         "https://packages.confluent.io/maven/",
     ],
 )
+
+load("@regression_testing_coursier//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+load("@regression_testing_coursier//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
+# These artifacts helped discover limitations in the Maven resolver. Each
+# artifact listed here *must have* an accompanying issue. We build_test these
+# targets to ensure that they remain supported by the rule.
+maven_install(
+    name = "regression_testing_maven",
+    artifacts = [
+        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
+        "org.apache.parquet:parquet-common:1.11.1",
+    ],
+    fail_if_repin_required = True,
+    generate_compat_repositories = True,
+    maven_install_json = "//tests/custom_maven_install:regression_testing_maven_install.json",
+    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_maven//:pin` to refresh the lock file.",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "maven",
+)
+
+load("@regression_testing_maven//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+load("@regression_testing_maven//:compat.bzl", "compat_repositories")
+
+compat_repositories()
 
 # Grab com.google.ar.sceneform:rendering because we overrode it above
 http_file(
@@ -311,14 +348,6 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
-
-load("@regression_testing//:defs.bzl", "pinned_maven_install")
-
-pinned_maven_install()
-
-load("@regression_testing//:compat.bzl", "compat_repositories")
-
-compat_repositories()
 
 maven_install(
     name = "policy_pinned_testing",
@@ -828,8 +857,6 @@ maven_install(
 maven_install(
     name = "maven_resolved_with_boms",
     artifacts = [
-        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
-        "org.apache.parquet:parquet-common:1.11.1",
         # A transitive dependency pulls in a `managedDependencies` section which sets the
         # `xmlpull` version to 1.2.0, which hasn't been publicly released. Maven and Gradle
         # both handle this situation gracefully and correctly resolve to `xmlpull` 1.1.3.1

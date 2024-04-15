@@ -13,7 +13,7 @@ android_binary(
     manifest = "AndroidManifest.xml",
     tags = ["manual"],  # https://github.com/bazelbuild/rules_jvm_external/issues/978
     deps = [
-        "@regression_testing//:com_google_ar_sceneform_ux_sceneform_ux",
+        "@regression_testing_coursier//:com_google_ar_sceneform_ux_sceneform_ux",
     ],
 )
 
@@ -28,12 +28,12 @@ aar_import(
         "manual",
         "maven_coordinates=com.google.ar.sceneform:rendering:aar:1.10.0",
     ],
-    visibility = ["@regression_testing//:__subpackages__"],
+    visibility = ["@regression_testing_coursier//:__subpackages__"],
     deps = [
         # Add the missing dependencies
-        "@regression_testing//:com_google_ar_core",
-        "@regression_testing//:com_google_ar_sceneform_sceneform_base",
-        "@regression_testing//:com_google_ar_sceneform_filament_android",
+        "@regression_testing_coursier//:com_google_ar_core",
+        "@regression_testing_coursier//:com_google_ar_sceneform_sceneform_base",
+        "@regression_testing_coursier//:com_google_ar_sceneform_filament_android",
     ],
 )
 

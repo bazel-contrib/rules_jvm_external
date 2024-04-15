@@ -17,7 +17,7 @@ java_test(
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
     ],
@@ -38,7 +38,7 @@ java_test(
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
     ],

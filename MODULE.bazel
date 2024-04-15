@@ -430,8 +430,6 @@ dev_maven.install(
     # so that we have a clearer understanding of _why_ this dependency is here, and
     # what we did to fix the problem.
     artifacts = [
-        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
-        "org.apache.parquet:parquet-common:1.11.1",
         # A transitive dependency pulls in a `managedDependencies` section which sets the
         # `xmlpull` version to 1.2.0, which hasn't been publicly released. Maven and Gradle
         # both handle this situation gracefully and correctly resolve to `xmlpull` 1.1.3.1
@@ -496,11 +494,11 @@ dev_maven.install(
     version_conflict_policy = "pinned",
 )
 
-# These artifacts helped discover limitations by the Maven resolver. Each
+# These artifacts helped discover limitations in the Coursier resolver. Each
 # artifact listed here *must have* an accompanying issue. We build_test these
 # targets to ensure that they remain supported by the rule.
 dev_maven.install(
-    name = "regression_testing",
+    name = "regression_testing_coursier",
     artifacts = [
         # https://github.com/bazelbuild/rules_jvm_external/issues/74
         "org.pantsbuild:jarjar:1.6.6",
@@ -557,8 +555,7 @@ dev_maven.install(
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
-    lock_file = "//tests/custom_maven_install:regression_testing_install.json",
-    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing//:pin` to refresh the lock file.",
+    lock_file = "//tests/custom_maven_install:regression_testing_coursier_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
@@ -567,14 +564,14 @@ dev_maven.install(
 )
 
 dev_maven.override(
-    name = "regression_testing",
+    name = "regression_testing_coursier",
     coordinates = "com.google.ar.sceneform:rendering",
     target = "@//tests/integration/override_targets:sceneform_rendering",
 )
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/92#issuecomment-478430167
 dev_maven.artifact(
-    name = "regression_testing",
+    name = "regression_testing_coursier",
     artifact = "javapoet",
     group = "com.squareup",
     neverlink = True,
@@ -583,7 +580,7 @@ dev_maven.artifact(
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/852
 dev_maven.artifact(
-    name = "regression_testing",
+    name = "regression_testing_coursier",
     artifact = "jaxb-ri",
     exclusions = [
         "com.sun.xml.bind:jaxb-samples",
@@ -595,11 +592,31 @@ dev_maven.artifact(
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/865
 dev_maven.artifact(
-    name = "regression_testing",
+    name = "regression_testing_coursier",
     artifact = "google-api-services-compute",
     classifier = "javadoc",
     group = "com.google.apis",
     version = "v1-rev235-1.25.0",
+)
+
+# These artifacts helped discover limitations in the Maven resolver. Each
+# artifact listed here *must have* an accompanying issue. We build_test these
+# targets to ensure that they remain supported by the rule.
+dev_maven.install(
+    name = "regression_testing_maven",
+    artifacts = [
+        # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
+        "org.apache.parquet:parquet-common:1.11.1",
+    ],
+    fail_if_repin_required = True,
+    generate_compat_repositories = True,
+    lock_file = "//tests/custom_maven_install:regression_testing_maven_install.json",
+    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_maven//:pin` to refresh the lock file.",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "maven",
 )
 
 dev_maven.install(
@@ -733,12 +750,12 @@ use_repo(
     "unpinned_manifest_stamp_testing",
 
     # Pinned repo
-    "m2local_testing_repin",
-    "m2local_testing_without_checksum",
-    "unpinned_m2local_testing_repin",
     "artifact_with_plus",
     "artifact_with_plus_repin",
+    "m2local_testing_repin",
+    "m2local_testing_without_checksum",
     "unpinned_artifact_with_plus_repin",
+    "unpinned_m2local_testing_repin",
 
     # Pinned repo
     "maven",
@@ -769,8 +786,10 @@ use_repo(
     "org_apache_flink_flink_test_utils_2_12",
     "org_eclipse_jetty_jetty_http_tests",
     "org_pantsbuild_jarjar",
-    "regression_testing",
-    "unpinned_regression_testing",
+    "regression_testing_coursier",
+    "regression_testing_maven",
+    "unpinned_regression_testing_coursier",
+    "unpinned_regression_testing_maven",
 
     # Back to the testing repos
     "starlark_aar_import_test",

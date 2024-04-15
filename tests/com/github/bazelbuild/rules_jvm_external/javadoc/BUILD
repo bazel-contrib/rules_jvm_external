@@ -8,7 +8,7 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc",
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
         artifact("org.hamcrest:hamcrest-core"),
