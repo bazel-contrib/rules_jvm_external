@@ -43,6 +43,7 @@
       "xsbti"
     ]
   },
+  "services": {},
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "ch.epfl.scala:compiler-interface",

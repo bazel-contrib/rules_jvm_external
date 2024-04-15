@@ -5816,6 +5816,196 @@
       "org.yaml.snakeyaml.util"
     ]
   },
+  "services": {
+    "com.fasterxml.jackson.core:jackson-core": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "com.fasterxml.jackson.core:jackson-databind": {
+      "com.fasterxml.jackson.core.ObjectCodec": [
+        "com.fasterxml.jackson.databind.ObjectMapper"
+      ]
+    },
+    "com.sun.xml.bind:jaxb-impl": {
+      "javax.xml.bind.JAXBContext": [
+        "com.sun.xml.bind.v2.ContextFactory"
+      ]
+    },
+    "com.sun.xml.bind:jaxb-xjc": {
+      "com.sun.tools.xjc.Plugin": [
+        "com.sun.tools.xjc.addon.accessors.PluginImpl",
+        "com.sun.tools.xjc.addon.at_generated.PluginImpl",
+        "com.sun.tools.xjc.addon.code_injector.PluginImpl",
+        "com.sun.tools.xjc.addon.episode.PluginImpl",
+        "com.sun.tools.xjc.addon.locator.SourceLocationAddOn",
+        "com.sun.tools.xjc.addon.sync.SynchronizedMethodAddOn"
+      ]
+    },
+    "io.confluent:kafka-schema-registry-client": {
+      "io.confluent.kafka.schemaregistry.client.security.basicauth.BasicAuthCredentialProvider": [
+        "io.confluent.kafka.schemaregistry.client.security.basicauth.SaslBasicAuthCredentialProvider",
+        "io.confluent.kafka.schemaregistry.client.security.basicauth.UrlBasicAuthCredentialProvider",
+        "io.confluent.kafka.schemaregistry.client.security.basicauth.UserInfoCredentialProvider"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-core": {
+      "io.undertow.attribute.ExchangeAttributeBuilder": [
+        "io.undertow.attribute.AuthenticationTypeExchangeAttribute$Builder",
+        "io.undertow.attribute.BytesSentAttribute$Builder",
+        "io.undertow.attribute.CookieAttribute$Builder",
+        "io.undertow.attribute.DateTimeAttribute$Builder",
+        "io.undertow.attribute.HostAndPortAttribute$Builder",
+        "io.undertow.attribute.IdentUsernameAttribute$Builder",
+        "io.undertow.attribute.LocalIPAttribute$Builder",
+        "io.undertow.attribute.LocalPortAttribute$Builder",
+        "io.undertow.attribute.LocalServerNameAttribute$Builder",
+        "io.undertow.attribute.NullAttribute$Builder",
+        "io.undertow.attribute.PathParameterAttribute$Builder",
+        "io.undertow.attribute.PredicateContextAttribute$Builder",
+        "io.undertow.attribute.QueryParameterAttribute$Builder",
+        "io.undertow.attribute.QueryStringAttribute$Builder",
+        "io.undertow.attribute.RelativePathAttribute$Builder",
+        "io.undertow.attribute.RemoteHostAttribute$Builder",
+        "io.undertow.attribute.RemoteIPAttribute$Builder",
+        "io.undertow.attribute.RemoteUserAttribute$Builder",
+        "io.undertow.attribute.RequestHeaderAttribute$Builder",
+        "io.undertow.attribute.RequestLineAttribute$Builder",
+        "io.undertow.attribute.RequestMethodAttribute$Builder",
+        "io.undertow.attribute.RequestPathAttribute$Builder",
+        "io.undertow.attribute.RequestProtocolAttribute$Builder",
+        "io.undertow.attribute.RequestSchemeAttribute$Builder",
+        "io.undertow.attribute.RequestURLAttribute$Builder",
+        "io.undertow.attribute.ResolvedPathAttribute$Builder",
+        "io.undertow.attribute.ResponseCodeAttribute$Builder",
+        "io.undertow.attribute.ResponseHeaderAttribute$Builder",
+        "io.undertow.attribute.ResponseTimeAttribute$Builder",
+        "io.undertow.attribute.SecureExchangeAttribute$Builder",
+        "io.undertow.attribute.SslCipherAttribute$Builder",
+        "io.undertow.attribute.SslClientCertAttribute$Builder",
+        "io.undertow.attribute.SslSessionIdAttribute$Builder",
+        "io.undertow.attribute.ThreadNameAttribute$Builder",
+        "io.undertow.attribute.TransportProtocolAttribute$Builder"
+      ],
+      "io.undertow.predicate.PredicateBuilder": [
+        "io.undertow.predicate.AuthenticationRequiredPredicate$Builder",
+        "io.undertow.predicate.ContainsPredicate$Builder",
+        "io.undertow.predicate.EqualsPredicate$Builder",
+        "io.undertow.predicate.ExistsPredicate$Builder",
+        "io.undertow.predicate.IdempotentPredicate$Builder",
+        "io.undertow.predicate.MaxContentSizePredicate$Builder",
+        "io.undertow.predicate.MethodPredicate$Builder",
+        "io.undertow.predicate.MinContentSizePredicate$Builder",
+        "io.undertow.predicate.PathMatchPredicate$Builder",
+        "io.undertow.predicate.PathPrefixPredicate$Builder",
+        "io.undertow.predicate.PathSuffixPredicate$Builder",
+        "io.undertow.predicate.PathTemplatePredicate$Builder",
+        "io.undertow.predicate.RegularExpressionPredicate$Builder",
+        "io.undertow.predicate.SecurePredicate$Builder"
+      ],
+      "io.undertow.server.handlers.builder.HandlerBuilder": [
+        "io.undertow.predicate.PredicatesHandler$DoneHandlerBuilder",
+        "io.undertow.predicate.PredicatesHandler$RestartHandlerBuilder",
+        "io.undertow.server.JvmRouteHandler$Builder",
+        "io.undertow.server.handlers.AccessControlListHandler$Builder",
+        "io.undertow.server.handlers.AllowedMethodsHandler$Builder",
+        "io.undertow.server.handlers.BlockingHandler$Builder",
+        "io.undertow.server.handlers.ByteRangeHandler$Builder",
+        "io.undertow.server.handlers.CanonicalPathHandler$Builder",
+        "io.undertow.server.handlers.DisableCacheHandler$Builder",
+        "io.undertow.server.handlers.DisallowedMethodsHandler$Builder",
+        "io.undertow.server.handlers.ForwardedHandler$Builder",
+        "io.undertow.server.handlers.HttpTraceHandler$Builder",
+        "io.undertow.server.handlers.IPAddressAccessControlHandler$Builder",
+        "io.undertow.server.handlers.JDBCLogHandler$Builder",
+        "io.undertow.server.handlers.LearningPushHandler$Builder",
+        "io.undertow.server.handlers.LocalNameResolvingHandler$Builder",
+        "io.undertow.server.handlers.PathSeparatorHandler$Builder",
+        "io.undertow.server.handlers.PeerNameResolvingHandler$Builder",
+        "io.undertow.server.handlers.ProxyPeerAddressHandler$Builder",
+        "io.undertow.server.handlers.RedirectHandler$Builder",
+        "io.undertow.server.handlers.RequestDumpingHandler$Builder",
+        "io.undertow.server.handlers.RequestLimitingHandler$Builder",
+        "io.undertow.server.handlers.ResponseRateLimitingHandler$Builder",
+        "io.undertow.server.handlers.SSLHeaderHandler$Builder",
+        "io.undertow.server.handlers.SecureCookieHandler$Builder",
+        "io.undertow.server.handlers.SetAttributeHandler$Builder",
+        "io.undertow.server.handlers.SetAttributeHandler$ClearBuilder",
+        "io.undertow.server.handlers.SetHeaderHandler$Builder",
+        "io.undertow.server.handlers.StoredResponseHandler$Builder",
+        "io.undertow.server.handlers.StuckThreadDetectionHandler$Builder",
+        "io.undertow.server.handlers.URLDecodingHandler$Builder",
+        "io.undertow.server.handlers.accesslog.AccessLogHandler$Builder",
+        "io.undertow.server.handlers.builder.ResponseCodeHandlerBuilder",
+        "io.undertow.server.handlers.builder.RewriteHandlerBuilder",
+        "io.undertow.server.handlers.resource.ResourceHandler$Builder"
+      ],
+      "io.undertow.xnio.client.ClientProvider": [
+        "io.undertow.xnio.client.ajp.AjpClientProvider",
+        "io.undertow.xnio.client.http.HttpClientProvider",
+        "io.undertow.xnio.client.http2.Http2ClearClientProvider",
+        "io.undertow.xnio.client.http2.Http2ClientProvider",
+        "io.undertow.xnio.client.http2.Http2PriorKnowledgeClientProvider"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-servlet": {
+      "io.undertow.attribute.ExchangeAttributeBuilder": [
+        "io.undertow.servlet.attribute.ServletContextAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletNameAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRelativePathAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestCharacterEncodingAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestLineAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestLocaleAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestParameterAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestURLAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdFromCookieAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdValidAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletSessionAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletSessionIdAttribute$Builder"
+      ],
+      "io.undertow.predicate.PredicateBuilder": [
+        "io.undertow.servlet.predicate.DirectoryPredicate$Builder",
+        "io.undertow.servlet.predicate.DispatcherTypePredicate$Builder",
+        "io.undertow.servlet.predicate.FilePredicate$Builder"
+      ],
+      "io.undertow.server.handlers.builder.HandlerBuilder": [
+        "io.undertow.servlet.handlers.MarkSecureHandler$Builder"
+      ]
+    },
+    "io.sundr:builder-annotations": {
+      "javax.annotation.processing.Processor": [
+        "io.sundr.builder.internal.processor.BuildableProcessor",
+        "io.sundr.builder.internal.processor.ExternalBuildableProcessor"
+      ]
+    },
+    "io.sundr:resourcecify-annotations": {
+      "javax.annotation.processing.Processor": [
+        "io.sundr.resourcecify.internal.processor.ResourcecifyProcessor"
+      ]
+    },
+    "org.apache.flink:flink-shaded-jackson": {
+      "org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonFactory": [
+        "org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonFactory",
+        "org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvFactory",
+        "org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.yaml.YAMLFactory"
+      ],
+      "org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.ObjectCodec": [
+        "org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper"
+      ]
+    },
+    "org.apache.kafka:kafka-clients": {
+      "org.apache.kafka.common.config.provider.ConfigProvider": [
+        "org.apache.kafka.common.config.provider.FileConfigProvider"
+      ]
+    },
+    "org.eclipse.sisu:org.eclipse.sisu.inject": {
+      "javax.annotation.processing.Processor": [
+        "org.eclipse.sisu.space.SisuIndexAPT6"
+      ]
+    }
+  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "android.arch.core:common",
