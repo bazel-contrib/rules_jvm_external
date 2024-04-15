@@ -2855,6 +2855,231 @@
       "software.amazon.eventstream"
     ]
   },
+  "services": {
+    "com.fasterxml.jackson.core:jackson-core": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "com.fasterxml.jackson.core:jackson-core:jar:sources": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "com.google.googlejavaformat:google-java-format": {
+      "java.util.spi.ToolProvider": [
+        "com.google.googlejavaformat.java.GoogleJavaFormatToolProvider"
+      ],
+      "javax.tools.Tool": [
+        "com.google.googlejavaformat.java.GoogleJavaFormatTool"
+      ]
+    },
+    "io.grpc:grpc-core": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.internal.PickFirstLoadBalancerProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.internal.DnsNameResolverProvider"
+      ]
+    },
+    "io.grpc:grpc-core:jar:sources": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.internal.PickFirstLoadBalancerProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.internal.DnsNameResolverProvider"
+      ]
+    },
+    "io.grpc:grpc-googleapis": {
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.googleapis.GoogleCloudToProdExperimentalNameResolverProvider",
+        "io.grpc.googleapis.GoogleCloudToProdNameResolverProvider"
+      ]
+    },
+    "io.grpc:grpc-googleapis:jar:sources": {
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.googleapis.GoogleCloudToProdExperimentalNameResolverProvider",
+        "io.grpc.googleapis.GoogleCloudToProdNameResolverProvider"
+      ]
+    },
+    "io.grpc:grpc-grpclb": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.grpclb.GrpclbLoadBalancerProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.grpclb.SecretGrpclbNameResolverProvider$Provider"
+      ]
+    },
+    "io.grpc:grpc-grpclb:jar:sources": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.grpclb.GrpclbLoadBalancerProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.grpclb.SecretGrpclbNameResolverProvider$Provider"
+      ]
+    },
+    "io.grpc:grpc-netty-shaded": {
+      "io.grpc.ManagedChannelProvider": [
+        "io.grpc.netty.shaded.io.grpc.netty.NettyChannelProvider",
+        "io.grpc.netty.shaded.io.grpc.netty.UdsNettyChannelProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.netty.shaded.io.grpc.netty.UdsNameResolverProvider"
+      ],
+      "io.grpc.ServerProvider": [
+        "io.grpc.netty.shaded.io.grpc.netty.NettyServerProvider"
+      ],
+      "reactor.blockhound.integration.BlockHoundIntegration": [
+        "io.grpc.netty.shaded.io.netty.util.internal.Hidden$NettyBlockHoundIntegration"
+      ]
+    },
+    "io.grpc:grpc-rls": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.rls.RlsLoadBalancerProvider"
+      ]
+    },
+    "io.grpc:grpc-rls:jar:sources": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.rls.RlsLoadBalancerProvider"
+      ]
+    },
+    "io.grpc:grpc-services": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.protobuf.services.internal.HealthCheckingRoundRobinLoadBalancerProvider"
+      ]
+    },
+    "io.grpc:grpc-services:jar:sources": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.protobuf.services.internal.HealthCheckingRoundRobinLoadBalancerProvider"
+      ]
+    },
+    "io.grpc:grpc-util": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.util.OutlierDetectionLoadBalancerProvider",
+        "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider"
+      ]
+    },
+    "io.grpc:grpc-util:jar:sources": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.util.OutlierDetectionLoadBalancerProvider",
+        "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider"
+      ]
+    },
+    "io.grpc:grpc-xds": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.xds.CdsLoadBalancerProvider",
+        "io.grpc.xds.ClusterImplLoadBalancerProvider",
+        "io.grpc.xds.ClusterManagerLoadBalancerProvider",
+        "io.grpc.xds.ClusterResolverLoadBalancerProvider",
+        "io.grpc.xds.LeastRequestLoadBalancerProvider",
+        "io.grpc.xds.PriorityLoadBalancerProvider",
+        "io.grpc.xds.RingHashLoadBalancerProvider",
+        "io.grpc.xds.WeightedRoundRobinLoadBalancerProvider",
+        "io.grpc.xds.WeightedTargetLoadBalancerProvider",
+        "io.grpc.xds.WrrLocalityLoadBalancerProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.xds.XdsNameResolverProvider"
+      ],
+      "io.grpc.xds.XdsCredentialsProvider": [
+        "io.grpc.xds.internal.GoogleDefaultXdsCredentialsProvider",
+        "io.grpc.xds.internal.InsecureXdsCredentialsProvider",
+        "io.grpc.xds.internal.TlsXdsCredentialsProvider"
+      ]
+    },
+    "io.grpc:grpc-xds:jar:sources": {
+      "io.grpc.LoadBalancerProvider": [
+        "io.grpc.xds.CdsLoadBalancerProvider",
+        "io.grpc.xds.ClusterImplLoadBalancerProvider",
+        "io.grpc.xds.ClusterManagerLoadBalancerProvider",
+        "io.grpc.xds.ClusterResolverLoadBalancerProvider",
+        "io.grpc.xds.LeastRequestLoadBalancerProvider",
+        "io.grpc.xds.PriorityLoadBalancerProvider",
+        "io.grpc.xds.RingHashLoadBalancerProvider",
+        "io.grpc.xds.WeightedRoundRobinLoadBalancerProvider",
+        "io.grpc.xds.WeightedTargetLoadBalancerProvider",
+        "io.grpc.xds.WrrLocalityLoadBalancerProvider"
+      ],
+      "io.grpc.NameResolverProvider": [
+        "io.grpc.xds.XdsNameResolverProvider"
+      ],
+      "io.grpc.xds.XdsCredentialsProvider": [
+        "io.grpc.xds.internal.GoogleDefaultXdsCredentialsProvider",
+        "io.grpc.xds.internal.InsecureXdsCredentialsProvider",
+        "io.grpc.xds.internal.TlsXdsCredentialsProvider"
+      ]
+    },
+    "io.netty:netty-common": {
+      "reactor.blockhound.integration.BlockHoundIntegration": [
+        "io.netty.util.internal.Hidden$NettyBlockHoundIntegration"
+      ]
+    },
+    "io.netty:netty-common:jar:sources": {
+      "reactor.blockhound.integration.BlockHoundIntegration": [
+        "io.netty.util.internal.Hidden$NettyBlockHoundIntegration"
+      ]
+    },
+    "org.eclipse.sisu:org.eclipse.sisu.inject": {
+      "javax.annotation.processing.Processor": [
+        "org.eclipse.sisu.space.SisuIndexAPT6"
+      ]
+    },
+    "org.eclipse.sisu:org.eclipse.sisu.inject:jar:sources": {
+      "javax.annotation.processing.Processor": [
+        "org.eclipse.sisu.space.SisuIndexAPT6"
+      ]
+    },
+    "org.slf4j:jcl-over-slf4j": {
+      "org.apache.commons.logging.LogFactory": [
+        "org.apache.commons.logging.impl.SLF4JLogFactory"
+      ]
+    },
+    "org.slf4j:jcl-over-slf4j:jar:sources": {
+      "org.apache.commons.logging.LogFactory": [
+        "org.apache.commons.logging.impl.SLF4JLogFactory"
+      ]
+    },
+    "org.slf4j:slf4j-simple": {
+      "org.slf4j.spi.SLF4JServiceProvider": [
+        "org.slf4j.simple.SimpleServiceProvider"
+      ]
+    },
+    "org.slf4j:slf4j-simple:jar:sources": {
+      "org.slf4j.spi.SLF4JServiceProvider": [
+        "org.slf4j.simple.SimpleServiceProvider"
+      ]
+    },
+    "org.threeten:threetenbp": {
+      "org.threeten.bp.zone.ZoneRulesProvider": [
+        "org.threeten.bp.zone.TzdbZoneRulesProvider"
+      ]
+    },
+    "software.amazon.awssdk:apache-client": {
+      "software.amazon.awssdk.http.SdkHttpService": [
+        "software.amazon.awssdk.http.apache.ApacheSdkHttpService"
+      ]
+    },
+    "software.amazon.awssdk:apache-client:jar:sources": {
+      "software.amazon.awssdk.http.SdkHttpService": [
+        "software.amazon.awssdk.http.apache.ApacheSdkHttpService"
+      ]
+    },
+    "software.amazon.awssdk:netty-nio-client": {
+      "software.amazon.awssdk.http.async.SdkAsyncHttpService": [
+        "software.amazon.awssdk.http.nio.netty.NettySdkAsyncHttpService"
+      ]
+    },
+    "software.amazon.awssdk:netty-nio-client:jar:sources": {
+      "software.amazon.awssdk.http.async.SdkAsyncHttpService": [
+        "software.amazon.awssdk.http.nio.netty.NettySdkAsyncHttpService"
+      ]
+    },
+    "software.amazon.awssdk:third-party-jackson-core": {
+      "software.amazon.awssdk.thirdparty.jackson.core.JsonFactory": [
+        "software.amazon.awssdk.thirdparty.jackson.core.JsonFactory"
+      ]
+    }
+  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "aopalliance:aopalliance",

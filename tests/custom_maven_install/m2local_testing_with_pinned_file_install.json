@@ -16,6 +16,7 @@
       "com.jvm.external.jvm_export"
     ]
   },
+  "services": {},
   "m2local": true,
   "repositories": {
     "m2Local/": [],
