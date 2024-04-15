@@ -445,7 +445,7 @@ maven_install(
     artifacts = [
         "org.projectlombok.lombok:1.18.22",
     ],
-    maven_install_json = "//tests/custom_maven_install:service_indexing_testing.json"
+    maven_install_json = "//tests/custom_maven_install:service_indexing_testing.json",
 )
 
 maven_install(

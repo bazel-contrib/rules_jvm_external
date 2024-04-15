@@ -169,7 +169,7 @@ public class NebulaFormat {
                   return l;
                 },
                 TreeMap::new));
-}
+  }
 
   private String stripAuthenticationInformation(String possibleUri) {
     try {

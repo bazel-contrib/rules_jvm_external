@@ -20,13 +20,13 @@ java_test(
     name = "IndexJarTest",
     srcs = ["IndexJarTest.java"],
     data = [
+        "//tests/custom_maven_install:service_indexing_testing.json",
         "@google_api_services_compute_javadoc_for_test//file",
         "@gson_for_test//file",
         "@hamcrest_core_for_test//file",
         "@hamcrest_core_srcs_for_test//file",
         "@junit_platform_commons_for_test//file",
         "@lombok_for_test//file",
-        "//tests/custom_maven_install:service_indexing_testing.json",
     ],
     test_class = "com.github.bazelbuild.rules_jvm_external.jar.IndexJarTest",
     deps = [

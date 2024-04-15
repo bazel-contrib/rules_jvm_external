@@ -15,7 +15,6 @@
 package com.github.bazelbuild.rules_jvm_external.jar;
 
 import com.google.gson.Gson;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Enumeration;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -39,7 +37,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class IndexJar {
@@ -88,11 +85,13 @@ public class IndexJar {
   public PerJarIndexResults index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
     SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
-    try (InputStream fis = new BufferedInputStream(Files.newInputStream(path)); ZipInputStream zis = new ZipInputStream(fis)) {
+    try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
+        ZipInputStream zis = new ZipInputStream(fis)) {
       try {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-          if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX) && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
+          if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX)
+              && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
             String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
             SortedSet<String> implementingClasses = parseServiceImplementations(zis);
             serviceImplementations.put(serviceInterface, implementingClasses);
@@ -101,7 +100,7 @@ public class IndexJar {
             continue;
           }
           if ("module-info.class".equals(entry.getName())
-                  || entry.getName().endsWith("/module-info.class")) {
+              || entry.getName().endsWith("/module-info.class")) {
             continue;
           }
           packages.add(extractPackageName(entry.getName()));
@@ -114,11 +113,13 @@ public class IndexJar {
   }
 
   // Visible for testing
-  // Note that parseServiceImplementation does not close the passed InputStream, the caller is responsible for doing this.
+  // Note that parseServiceImplementation does not close the passed InputStream, the caller is
+  // responsible for doing this.
   // Implements as per https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html
   SortedSet<String> parseServiceImplementations(InputStream inputStream) throws IOException {
     SortedSet<String> implementingClasses = new TreeSet<>();
-    // We can't close the inputStream here or if we're given a ZipInputStream it will also prevent the caller from reading subsequent entries.
+    // We can't close the inputStream here or if we're given a ZipInputStream it will also prevent
+    // the caller from reading subsequent entries.
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
     String implementingClass = bufferedReader.readLine();
     while (implementingClass != null) {
