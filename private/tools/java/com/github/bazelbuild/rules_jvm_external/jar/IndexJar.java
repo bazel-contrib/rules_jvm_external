@@ -94,16 +94,7 @@ public class IndexJar {
         while ((entry = zis.getNextEntry()) != null) {
           if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX) && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
             String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
-            SortedSet<String> implementingClasses = new TreeSet<>();
-            // We can't close zis here or it will also prevent us from reading subsequent entries.
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(zis));
-            String implementingClass = bufferedReader.readLine();
-            while (implementingClass != null) {
-              if (!implementingClass.isEmpty() && !implementingClass.startsWith("#")) {
-                implementingClasses.add(implementingClass);
-              }
-              implementingClass = bufferedReader.readLine();
-            }
+            SortedSet<String> implementingClasses = parseServiceImplementations(zis);
             serviceImplementations.put(serviceInterface, implementingClasses);
           }
           if (!entry.getName().endsWith(".class")) {
@@ -120,6 +111,24 @@ public class IndexJar {
       }
       return new PerJarIndexResults(packages, serviceImplementations);
     }
+  }
+
+  // Visible for testing
+  // Note that parseServiceImplementation does not close the passed InputStream, the caller is responsible for doing this.
+  // Implements as per https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html
+  SortedSet<String> parseServiceImplementations(InputStream inputStream) throws IOException {
+    SortedSet<String> implementingClasses = new TreeSet<>();
+    // We can't close the inputStream here or if we're given a ZipInputStream it will also prevent the caller from reading subsequent entries.
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+    String implementingClass = bufferedReader.readLine();
+    while (implementingClass != null) {
+      implementingClass = implementingClass.replaceAll("[ \\t]", "").replaceFirst("#.*", "");
+      if (!implementingClass.isEmpty()) {
+        implementingClasses.add(implementingClass);
+      }
+      implementingClass = bufferedReader.readLine();
+    }
+    return implementingClasses;
   }
 
   private String extractPackageName(String zipEntryName) {
