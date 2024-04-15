@@ -92,6 +92,7 @@ def _get_artifacts(lock_file_contents):
     repositories = lock_file_contents.get("repositories", {})
     files = lock_file_contents.get("files", {})
     skipped = lock_file_contents.get("skipped", [])
+    services = lock_file_contents.get("services", {})
 
     artifacts = []
 
@@ -140,6 +141,7 @@ def _get_artifacts(lock_file_contents):
                 "sha256": shasum,
                 "file": file,
                 "deps": deps,
+                "annotation_processors": services.get(root, {}).get("javax.annotation.processing.Processor", []),
                 "urls": urls,
             })
 

@@ -1,8 +1,8 @@
 module(
     name = "rules_jvm_external",
+    version = "6.1",
     bazel_compatibility = [">=7.0.0"],
     compatibility_level = 2,
-    version = "6.1",
 )
 
 bazel_dep(
@@ -291,11 +291,12 @@ dev_maven.install(
 dev_maven.install(
     name = "service_indexing_testing",
     artifacts = [
+        "com.google.auto.value:auto-value:1.10.4",
+        "com.google.auto.value:auto-value-annotations:1.10.4",
         "org.projectlombok:lombok:1.18.22",
     ],
     lock_file = "//tests/custom_maven_install:service_indexing_testing.json",
 )
-
 dev_maven.install(
     name = "jvm_import_test",
     artifacts = [
@@ -386,7 +387,6 @@ dev_maven.install(
         "https://repo1.maven.org/maven2",
     ],
 )
-
 dev_maven.install(
     name = "artifact_with_plus_repin",
     artifacts = [
@@ -397,7 +397,6 @@ dev_maven.install(
         "https://repo1.maven.org/maven2",
     ],
 )
-
 dev_maven.install(
     name = "manifest_stamp_testing",
     artifacts = [
@@ -731,12 +730,12 @@ use_repo(
     "unpinned_manifest_stamp_testing",
 
     # Pinned repo
-    "m2local_testing_repin",
-    "m2local_testing_without_checksum",
-    "unpinned_m2local_testing_repin",
     "artifact_with_plus",
     "artifact_with_plus_repin",
+    "m2local_testing_repin",
+    "m2local_testing_without_checksum",
     "unpinned_artifact_with_plus_repin",
+    "unpinned_m2local_testing_repin",
 
     # Pinned repo
     "maven",

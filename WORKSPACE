@@ -443,10 +443,19 @@ maven_install(
 maven_install(
     name = "service_indexing_testing",
     artifacts = [
-        "org.projectlombok.lombok:1.18.22",
+        "com.google.auto.value:auto-value:1.10.4",
+        "com.google.auto.value:auto-value-annotations:1.10.4",
+        "org.projectlombok:lombok:1.18.22",
     ],
     maven_install_json = "//tests/custom_maven_install:service_indexing_testing.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
 )
+
+load("@service_indexing_testing//:defs.bzl", pinned_service_indexing_testing = "pinned_maven_install")
+
+pinned_service_indexing_testing()
 
 maven_install(
     name = "jvm_import_test",

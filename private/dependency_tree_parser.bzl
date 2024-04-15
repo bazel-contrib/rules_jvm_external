@@ -319,6 +319,21 @@ genrule(
     to_return.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                      (versioned_target_alias_label, target_label, alias_visibility))
 
+    for annotation_processor in artifact.get("annotation_processors", []):
+        to_return.append(
+            """java_plugin(
+\tname = "{name}",
+\tdeps = [":{jar_target}"],
+\tgenerates_api = True,
+processor_class = "{processor_class}",
+{alias_visibility})""".format(
+                name = "{}__java_plugin__{}".format(target_label, escape(annotation_processor)),
+                jar_target = target_label,
+                processor_class = annotation_processor,
+                alias_visibility = alias_visibility,
+            ),
+        )
+
     # 11. If using maven_install.json, use a genrule to copy the file from the http_file
     # repository into this repository.
     #
