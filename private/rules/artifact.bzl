@@ -8,8 +8,11 @@ def artifact(a, repository_name = DEFAULT_REPOSITORY_NAME):
 def maven_artifact(a):
     return artifact(a, repository_name = DEFAULT_REPOSITORY_NAME)
 
+def java_plugin_artifact(maven_coords, plugin_class_name, repository_name = DEFAULT_REPOSITORY_NAME):
+    return "%s__java_plugin__%s" % (artifact(maven_coords, repository_name), _escape(plugin_class_name))
+
 def _escape(string):
-    return string.replace(".", "_").replace("-", "_").replace(":", "_")
+    return string.replace(".", "_").replace("-", "_").replace(":", "_").replace("$", "_")
 
 # inverse of parse_maven_coordinate
 def _make_artifact_str(artifact_obj):

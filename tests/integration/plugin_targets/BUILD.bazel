@@ -1,13 +1,14 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("//:defs.bzl", "artifact", "java_plugin_artifact")
 
 java_library(
     name = "ClassUsingAnnotationProcessor",
     srcs = ["ClassUsingAnnotationProcessor.java"],
     plugins = [
-        "@service_indexing_testing//:com_google_auto_value_auto_value__java_plugin__com_google_auto_value_processor_AutoValueProcessor",
+        java_plugin_artifact("com.google.auto.value:auto-value", "com.google.auto.value.processor.AutoValueProcessor", "service_indexing_testing"),
     ],
     deps = [
-        "@service_indexing_testing//:com_google_auto_value_auto_value_annotations",
+        artifact("com.google.auto.value:auto-value-annotations", "service_indexing_testing"),
     ],
 )
 
