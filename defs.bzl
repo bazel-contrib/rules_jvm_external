@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("//private:constants.bzl", _DEFAULT_REPOSITORY_NAME = "DEFAULT_REPOSITORY_NAME")
-load("//private/rules:artifact.bzl", _artifact = "artifact", _maven_artifact = "maven_artifact")
+load("//private/rules:artifact.bzl", _artifact = "artifact", _java_plugin_artifact = "java_plugin_artifact", _maven_artifact = "maven_artifact")
 load("//private/rules:has_maven_deps.bzl", _read_coordinates = "read_coordinates")
 load("//private/rules:java_export.bzl", _java_export = "java_export", _maven_export = "maven_export")
 load("//private/rules:javadoc.bzl", _javadoc = "javadoc")
@@ -28,6 +28,7 @@ artifact = _artifact
 java_export = _java_export
 maven_export = _maven_export
 javadoc = _javadoc
+java_plugin_artifact = _java_plugin_artifact
 maven_artifact = _maven_artifact
 maven_bom = _maven_bom
 maven_install = _maven_install

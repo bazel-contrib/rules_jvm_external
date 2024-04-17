@@ -291,6 +291,8 @@ dev_maven.install(
 dev_maven.install(
     name = "service_indexing_testing",
     artifacts = [
+        "com.google.auto.value:auto-value:1.10.4",
+        "com.google.auto.value:auto-value-annotations:1.10.4",
         "org.projectlombok:lombok:1.18.22",
     ],
     lock_file = "//tests/custom_maven_install:service_indexing_testing.json",

@@ -24,6 +24,7 @@ Table of Contents
          * [Fetch source JARs](#fetch-source-jars)
          * [Checksum verification](#checksum-verification)
          * [artifact helper macro](#artifact-helper-macro)
+         * [java_plugin_artifact helper macro](#java_plugin_artifact-helper-macro)
          * [Multiple maven_install declarations for isolated artifact version trees](#multiple-maven_install-declarations-for-isolated-artifact-version-trees)
          * [Detailed dependency information specifications](#detailed-dependency-information-specifications)
          * [Artifact exclusion](#artifact-exclusion)
@@ -452,6 +453,25 @@ supported and translate to corresponding versionless target.
 Note that usage of this macro makes BUILD file refactoring with tools like
 `buildozer` more difficult, because the macro hides the actual target label at
 the syntax level.
+
+### `java_plugin_artifact` helper macro
+
+The `java_plugin_artifact` macro finds a `java_plugin` target which can be used
+to run an annotation procesor from a particular artifact.
+
+For example, if you pull `com.google.auto.value:auto-value` into a
+`maven_install`, you can use the `java_plugin_artifact` macro in the `plugins`
+attribute of a target like `java_library`:
+
+```python
+java_library(
+    name = "some_lib",
+    srcs = ["SrcUsingAuto.java"],
+    plugins = [
+        java_plugin_artifact("com.google.auto.value:auto-value", "com.google.auto.value.processor.AutoValueProcessor"),
+    ],
+)
+```
 
 ### Multiple `maven_install` declarations for isolated artifact version trees
 
