@@ -111,6 +111,7 @@ public class MergeJars {
 
     Map<String, Set<String>> allServices = new TreeMap<>();
     Set<String> excludedPaths = readExcludedFileNames(excludes);
+    Set<String> duplicateExceptions = Set.of("COPYRIGHT", "LICENSE", "NOTICE");
 
     // Ultimately, we want the entries in the output zip to be sorted
     // so that we have a deterministic output.
@@ -131,7 +132,7 @@ public class MergeJars {
 
           if ("META-INF/".equals(entry.getName())
               || (!entry.getName().startsWith("META-INF/")
-                  && !entry.getName().equals("LICENSE")
+                  && !duplicateExceptions.contains(entry.getName())
                   && excludedPaths.contains(entry.getName()))) {
             continue;
           }
