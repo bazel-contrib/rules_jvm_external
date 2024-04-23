@@ -206,7 +206,7 @@ def _normalize_to_unix_path(path):
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
-def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path):
+def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path, coursier_cache_path):
     # The path manipulation from here on out assumes *nix paths, not Windows.
     # for artifact_absolute_path in artifact_absolute_paths:
     #
@@ -216,13 +216,6 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     # Also, replace '//' with '/', otherwise parsing of the file path for the
     # coursier cache will fail if variables like HOME or COURSIER_CACHE have a
     # trailing slash.
-    #
-    # We assume that coursier uses the default cache location
-    # TODO(jin): allow custom cache locations
-    coursier_cache_path = get_coursier_cache_or_default(
-        repository_ctx,
-        repository_ctx.attr.name.startswith("unpinned_"),
-    ).replace("//", "/")
     absolute_path_parts = absolute_path.split(coursier_cache_path)
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
@@ -1007,6 +1000,13 @@ def _coursier_fetch_impl(repository_ctx):
 
     files_to_inspect = []
 
+    # We assume that coursier uses the default cache location
+    # TODO(jin): allow custom cache locations
+    coursier_cache_path = get_coursier_cache_or_default(
+        repository_ctx,
+        repository_ctx.attr.name.startswith("unpinned_"),
+    ).replace("//", "/")
+
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
         # to other artifacts.
@@ -1034,7 +1034,7 @@ def _coursier_fetch_impl(repository_ctx):
             continue
 
         if repository_ctx.attr.name.startswith("unpinned_"):
-            artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"])})
+            artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"], coursier_cache_path)})
 
         # Coursier saves the artifacts into a subdirectory structure
         # that mirrors the URL where the artifact's fetched from. Using
