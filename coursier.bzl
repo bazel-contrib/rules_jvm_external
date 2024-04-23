@@ -212,10 +212,6 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     #
     # Also replace '\' with '/` to normalize windows paths to *nix style paths
     # BUILD files accept only *nix paths, so we normalize them here.
-    #
-    # Also, replace '//' with '/', otherwise parsing of the file path for the
-    # coursier cache will fail if variables like HOME or COURSIER_CACHE have a
-    # trailing slash.
     absolute_path_parts = absolute_path.split(coursier_cache_path)
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
@@ -1000,6 +996,10 @@ def _coursier_fetch_impl(repository_ctx):
 
     files_to_inspect = []
 
+    # Also, replace '//' with '/', otherwise parsing of the file path for the
+    # coursier cache will fail if variables like HOME or COURSIER_CACHE have a
+    # trailing slash.
+    #
     # We assume that coursier uses the default cache location
     # TODO(jin): allow custom cache locations
     coursier_cache_path = get_coursier_cache_or_default(
