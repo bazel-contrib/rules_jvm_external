@@ -5,3 +5,4 @@ bazel-*
 .idea
 __pycache__
 resolved_deps.py
+MODULE.bazel.lock
