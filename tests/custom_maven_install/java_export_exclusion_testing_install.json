@@ -17,11 +17,11 @@
       "com.google.protobuf.compiler"
     ]
   },
-  "services": {},
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "com.google.protobuf:protobuf-java"
     ]
   },
+  "services": {},
   "version": "2"
 }

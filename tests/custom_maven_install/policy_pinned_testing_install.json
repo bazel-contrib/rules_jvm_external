@@ -629,18 +629,6 @@
       "org.threeten.bp.zone"
     ]
   },
-  "services": {
-    "com.fasterxml.jackson.core:jackson-core": {
-      "com.fasterxml.jackson.core.JsonFactory": [
-        "com.fasterxml.jackson.core.JsonFactory"
-      ]
-    },
-    "org.threeten:threetenbp": {
-      "org.threeten.bp.zone.ZoneRulesProvider": [
-        "org.threeten.bp.zone.TzdbZoneRulesProvider"
-      ]
-    }
-  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "com.fasterxml.jackson.core:jackson-core",
@@ -680,6 +668,18 @@
       "org.codehaus.mojo:animal-sniffer-annotations",
       "org.threeten:threetenbp"
     ]
+  },
+  "services": {
+    "com.fasterxml.jackson.core:jackson-core": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "org.threeten:threetenbp": {
+      "org.threeten.bp.zone.ZoneRulesProvider": [
+        "org.threeten.bp.zone.TzdbZoneRulesProvider"
+      ]
+    }
   },
   "version": "2"
 }

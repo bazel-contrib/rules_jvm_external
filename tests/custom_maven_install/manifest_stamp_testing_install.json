@@ -866,6 +866,37 @@
       "org.xerial.snappy.buffer"
     ]
   },
+  "repositories": {
+    "https://repo1.maven.org/maven2/": [
+      "com.fasterxml.jackson.core:jackson-annotations",
+      "com.fasterxml.jackson.core:jackson-core",
+      "com.fasterxml.jackson.core:jackson-databind",
+      "com.google.code.findbugs:jsr305",
+      "com.google.errorprone:error_prone_annotations",
+      "com.google.guava:failureaccess",
+      "com.google.guava:guava",
+      "com.google.guava:listenablefuture",
+      "com.google.j2objc:j2objc-annotations",
+      "com.thoughtworks.paranamer:paranamer",
+      "javax.inject:javax.inject",
+      "joda-time:joda-time",
+      "org.apache.avro:avro",
+      "org.apache.beam:beam-model-job-management",
+      "org.apache.beam:beam-model-pipeline",
+      "org.apache.beam:beam-sdks-java-core",
+      "org.apache.beam:beam-vendor-grpc-1_21_0",
+      "org.apache.beam:beam-vendor-guava-26_0-jre",
+      "org.apache.commons:commons-compress",
+      "org.bouncycastle:bcprov-jdk15on",
+      "org.checkerframework:checker-qual",
+      "org.codehaus.jackson:jackson-core-asl",
+      "org.codehaus.jackson:jackson-mapper-asl",
+      "org.codehaus.mojo:animal-sniffer-annotations",
+      "org.slf4j:slf4j-api",
+      "org.tukaani:xz",
+      "org.xerial.snappy:snappy-java"
+    ]
+  },
   "services": {
     "com.fasterxml.jackson.core:jackson-core": {
       "com.fasterxml.jackson.core.JsonFactory": [
@@ -910,37 +941,6 @@
         "org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider"
       ]
     }
-  },
-  "repositories": {
-    "https://repo1.maven.org/maven2/": [
-      "com.fasterxml.jackson.core:jackson-annotations",
-      "com.fasterxml.jackson.core:jackson-core",
-      "com.fasterxml.jackson.core:jackson-databind",
-      "com.google.code.findbugs:jsr305",
-      "com.google.errorprone:error_prone_annotations",
-      "com.google.guava:failureaccess",
-      "com.google.guava:guava",
-      "com.google.guava:listenablefuture",
-      "com.google.j2objc:j2objc-annotations",
-      "com.thoughtworks.paranamer:paranamer",
-      "javax.inject:javax.inject",
-      "joda-time:joda-time",
-      "org.apache.avro:avro",
-      "org.apache.beam:beam-model-job-management",
-      "org.apache.beam:beam-model-pipeline",
-      "org.apache.beam:beam-sdks-java-core",
-      "org.apache.beam:beam-vendor-grpc-1_21_0",
-      "org.apache.beam:beam-vendor-guava-26_0-jre",
-      "org.apache.commons:commons-compress",
-      "org.bouncycastle:bcprov-jdk15on",
-      "org.checkerframework:checker-qual",
-      "org.codehaus.jackson:jackson-core-asl",
-      "org.codehaus.jackson:jackson-mapper-asl",
-      "org.codehaus.mojo:animal-sniffer-annotations",
-      "org.slf4j:slf4j-api",
-      "org.tukaani:xz",
-      "org.xerial.snappy:snappy-java"
-    ]
   },
   "version": "2"
 }
