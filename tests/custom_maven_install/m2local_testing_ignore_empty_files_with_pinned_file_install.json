@@ -12,19 +12,19 @@
     }
   },
   "dependencies": {},
-  "skipped": [
-    "com.example:kt:jar:sources"
-  ],
+  "m2local": true,
   "packages": {
     "com.example:kt": [
       "com.jvm.external.jvm_export"
     ]
   },
-  "services": {},
-  "m2local": true,
   "repositories": {
     "m2Local/": [],
     "https://repo1.maven.org/maven2/": []
   },
+  "services": {},
+  "skipped": [
+    "com.example:kt:jar:sources"
+  ],
   "version": "2"
 }

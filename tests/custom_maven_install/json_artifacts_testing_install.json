@@ -1284,12 +1284,6 @@
       "org.slf4j:slf4j-api"
     ]
   },
-  "skipped": [
-    "com.google.guava:listenablefuture:jar:sources",
-    "io.quarkus:quarkus-bom-descriptor-json",
-    "io.quarkus:quarkus-bom-descriptor-json:jar:sources",
-    "io.quarkus:quarkus-bom-descriptor-json:json:sources"
-  ],
   "packages": {
     "aopalliance:aopalliance": [
       "org.aopalliance.aop",
@@ -2366,450 +2360,6 @@
       "org.wildfly.common.string"
     ]
   },
-  "services": {
-    "com.fasterxml.jackson.core:jackson-core": {
-      "com.fasterxml.jackson.core.JsonFactory": [
-        "com.fasterxml.jackson.core.JsonFactory"
-      ]
-    },
-    "com.fasterxml.jackson.core:jackson-core:jar:sources": {
-      "com.fasterxml.jackson.core.JsonFactory": [
-        "com.fasterxml.jackson.core.JsonFactory"
-      ]
-    },
-    "com.fasterxml.jackson.core:jackson-databind": {
-      "com.fasterxml.jackson.core.ObjectCodec": [
-        "com.fasterxml.jackson.databind.ObjectMapper"
-      ]
-    },
-    "com.fasterxml.jackson.core:jackson-databind:jar:sources": {
-      "com.fasterxml.jackson.core.ObjectCodec": [
-        "com.fasterxml.jackson.databind.ObjectMapper"
-      ]
-    },
-    "io.quarkus.http:quarkus-http-core": {
-      "io.undertow.attribute.ExchangeAttributeBuilder": [
-        "io.undertow.attribute.AuthenticationTypeExchangeAttribute$Builder",
-        "io.undertow.attribute.BytesSentAttribute$Builder",
-        "io.undertow.attribute.CookieAttribute$Builder",
-        "io.undertow.attribute.DateTimeAttribute$Builder",
-        "io.undertow.attribute.HostAndPortAttribute$Builder",
-        "io.undertow.attribute.IdentUsernameAttribute$Builder",
-        "io.undertow.attribute.LocalIPAttribute$Builder",
-        "io.undertow.attribute.LocalPortAttribute$Builder",
-        "io.undertow.attribute.LocalServerNameAttribute$Builder",
-        "io.undertow.attribute.NullAttribute$Builder",
-        "io.undertow.attribute.PathParameterAttribute$Builder",
-        "io.undertow.attribute.PredicateContextAttribute$Builder",
-        "io.undertow.attribute.QueryParameterAttribute$Builder",
-        "io.undertow.attribute.QueryStringAttribute$Builder",
-        "io.undertow.attribute.RelativePathAttribute$Builder",
-        "io.undertow.attribute.RemoteHostAttribute$Builder",
-        "io.undertow.attribute.RemoteIPAttribute$Builder",
-        "io.undertow.attribute.RemoteUserAttribute$Builder",
-        "io.undertow.attribute.RequestHeaderAttribute$Builder",
-        "io.undertow.attribute.RequestLineAttribute$Builder",
-        "io.undertow.attribute.RequestMethodAttribute$Builder",
-        "io.undertow.attribute.RequestPathAttribute$Builder",
-        "io.undertow.attribute.RequestProtocolAttribute$Builder",
-        "io.undertow.attribute.RequestSchemeAttribute$Builder",
-        "io.undertow.attribute.RequestURLAttribute$Builder",
-        "io.undertow.attribute.ResolvedPathAttribute$Builder",
-        "io.undertow.attribute.ResponseCodeAttribute$Builder",
-        "io.undertow.attribute.ResponseHeaderAttribute$Builder",
-        "io.undertow.attribute.ResponseTimeAttribute$Builder",
-        "io.undertow.attribute.SecureExchangeAttribute$Builder",
-        "io.undertow.attribute.SslCipherAttribute$Builder",
-        "io.undertow.attribute.SslClientCertAttribute$Builder",
-        "io.undertow.attribute.SslSessionIdAttribute$Builder",
-        "io.undertow.attribute.ThreadNameAttribute$Builder",
-        "io.undertow.attribute.TransportProtocolAttribute$Builder"
-      ],
-      "io.undertow.predicate.PredicateBuilder": [
-        "io.undertow.predicate.AuthenticationRequiredPredicate$Builder",
-        "io.undertow.predicate.ContainsPredicate$Builder",
-        "io.undertow.predicate.EqualsPredicate$Builder",
-        "io.undertow.predicate.ExistsPredicate$Builder",
-        "io.undertow.predicate.IdempotentPredicate$Builder",
-        "io.undertow.predicate.MaxContentSizePredicate$Builder",
-        "io.undertow.predicate.MethodPredicate$Builder",
-        "io.undertow.predicate.MinContentSizePredicate$Builder",
-        "io.undertow.predicate.PathMatchPredicate$Builder",
-        "io.undertow.predicate.PathPrefixPredicate$Builder",
-        "io.undertow.predicate.PathSuffixPredicate$Builder",
-        "io.undertow.predicate.PathTemplatePredicate$Builder",
-        "io.undertow.predicate.RegularExpressionPredicate$Builder",
-        "io.undertow.predicate.SecurePredicate$Builder"
-      ],
-      "io.undertow.server.handlers.builder.HandlerBuilder": [
-        "io.undertow.predicate.PredicatesHandler$DoneHandlerBuilder",
-        "io.undertow.predicate.PredicatesHandler$RestartHandlerBuilder",
-        "io.undertow.server.JvmRouteHandler$Builder",
-        "io.undertow.server.handlers.AccessControlListHandler$Builder",
-        "io.undertow.server.handlers.AllowedMethodsHandler$Builder",
-        "io.undertow.server.handlers.BlockingHandler$Builder",
-        "io.undertow.server.handlers.ByteRangeHandler$Builder",
-        "io.undertow.server.handlers.CanonicalPathHandler$Builder",
-        "io.undertow.server.handlers.DisableCacheHandler$Builder",
-        "io.undertow.server.handlers.DisallowedMethodsHandler$Builder",
-        "io.undertow.server.handlers.ForwardedHandler$Builder",
-        "io.undertow.server.handlers.HttpTraceHandler$Builder",
-        "io.undertow.server.handlers.IPAddressAccessControlHandler$Builder",
-        "io.undertow.server.handlers.JDBCLogHandler$Builder",
-        "io.undertow.server.handlers.LearningPushHandler$Builder",
-        "io.undertow.server.handlers.LocalNameResolvingHandler$Builder",
-        "io.undertow.server.handlers.PathSeparatorHandler$Builder",
-        "io.undertow.server.handlers.PeerNameResolvingHandler$Builder",
-        "io.undertow.server.handlers.ProxyPeerAddressHandler$Builder",
-        "io.undertow.server.handlers.RedirectHandler$Builder",
-        "io.undertow.server.handlers.RequestDumpingHandler$Builder",
-        "io.undertow.server.handlers.RequestLimitingHandler$Builder",
-        "io.undertow.server.handlers.ResponseRateLimitingHandler$Builder",
-        "io.undertow.server.handlers.SSLHeaderHandler$Builder",
-        "io.undertow.server.handlers.SecureCookieHandler$Builder",
-        "io.undertow.server.handlers.SetAttributeHandler$Builder",
-        "io.undertow.server.handlers.SetAttributeHandler$ClearBuilder",
-        "io.undertow.server.handlers.SetHeaderHandler$Builder",
-        "io.undertow.server.handlers.StoredResponseHandler$Builder",
-        "io.undertow.server.handlers.StuckThreadDetectionHandler$Builder",
-        "io.undertow.server.handlers.URLDecodingHandler$Builder",
-        "io.undertow.server.handlers.accesslog.AccessLogHandler$Builder",
-        "io.undertow.server.handlers.builder.ResponseCodeHandlerBuilder",
-        "io.undertow.server.handlers.builder.RewriteHandlerBuilder",
-        "io.undertow.server.handlers.resource.ResourceHandler$Builder"
-      ],
-      "io.undertow.xnio.client.ClientProvider": [
-        "io.undertow.xnio.client.ajp.AjpClientProvider",
-        "io.undertow.xnio.client.http.HttpClientProvider",
-        "io.undertow.xnio.client.http2.Http2ClearClientProvider",
-        "io.undertow.xnio.client.http2.Http2ClientProvider",
-        "io.undertow.xnio.client.http2.Http2PriorKnowledgeClientProvider"
-      ]
-    },
-    "io.quarkus.http:quarkus-http-core:jar:sources": {
-      "io.undertow.attribute.ExchangeAttributeBuilder": [
-        "io.undertow.attribute.AuthenticationTypeExchangeAttribute$Builder",
-        "io.undertow.attribute.BytesSentAttribute$Builder",
-        "io.undertow.attribute.CookieAttribute$Builder",
-        "io.undertow.attribute.DateTimeAttribute$Builder",
-        "io.undertow.attribute.HostAndPortAttribute$Builder",
-        "io.undertow.attribute.IdentUsernameAttribute$Builder",
-        "io.undertow.attribute.LocalIPAttribute$Builder",
-        "io.undertow.attribute.LocalPortAttribute$Builder",
-        "io.undertow.attribute.LocalServerNameAttribute$Builder",
-        "io.undertow.attribute.NullAttribute$Builder",
-        "io.undertow.attribute.PathParameterAttribute$Builder",
-        "io.undertow.attribute.PredicateContextAttribute$Builder",
-        "io.undertow.attribute.QueryParameterAttribute$Builder",
-        "io.undertow.attribute.QueryStringAttribute$Builder",
-        "io.undertow.attribute.RelativePathAttribute$Builder",
-        "io.undertow.attribute.RemoteHostAttribute$Builder",
-        "io.undertow.attribute.RemoteIPAttribute$Builder",
-        "io.undertow.attribute.RemoteUserAttribute$Builder",
-        "io.undertow.attribute.RequestHeaderAttribute$Builder",
-        "io.undertow.attribute.RequestLineAttribute$Builder",
-        "io.undertow.attribute.RequestMethodAttribute$Builder",
-        "io.undertow.attribute.RequestPathAttribute$Builder",
-        "io.undertow.attribute.RequestProtocolAttribute$Builder",
-        "io.undertow.attribute.RequestSchemeAttribute$Builder",
-        "io.undertow.attribute.RequestURLAttribute$Builder",
-        "io.undertow.attribute.ResolvedPathAttribute$Builder",
-        "io.undertow.attribute.ResponseCodeAttribute$Builder",
-        "io.undertow.attribute.ResponseHeaderAttribute$Builder",
-        "io.undertow.attribute.ResponseTimeAttribute$Builder",
-        "io.undertow.attribute.SecureExchangeAttribute$Builder",
-        "io.undertow.attribute.SslCipherAttribute$Builder",
-        "io.undertow.attribute.SslClientCertAttribute$Builder",
-        "io.undertow.attribute.SslSessionIdAttribute$Builder",
-        "io.undertow.attribute.ThreadNameAttribute$Builder",
-        "io.undertow.attribute.TransportProtocolAttribute$Builder"
-      ],
-      "io.undertow.predicate.PredicateBuilder": [
-        "io.undertow.predicate.AuthenticationRequiredPredicate$Builder",
-        "io.undertow.predicate.ContainsPredicate$Builder",
-        "io.undertow.predicate.EqualsPredicate$Builder",
-        "io.undertow.predicate.ExistsPredicate$Builder",
-        "io.undertow.predicate.IdempotentPredicate$Builder",
-        "io.undertow.predicate.MaxContentSizePredicate$Builder",
-        "io.undertow.predicate.MethodPredicate$Builder",
-        "io.undertow.predicate.MinContentSizePredicate$Builder",
-        "io.undertow.predicate.PathMatchPredicate$Builder",
-        "io.undertow.predicate.PathPrefixPredicate$Builder",
-        "io.undertow.predicate.PathSuffixPredicate$Builder",
-        "io.undertow.predicate.PathTemplatePredicate$Builder",
-        "io.undertow.predicate.RegularExpressionPredicate$Builder",
-        "io.undertow.predicate.SecurePredicate$Builder"
-      ],
-      "io.undertow.server.handlers.builder.HandlerBuilder": [
-        "io.undertow.predicate.PredicatesHandler$DoneHandlerBuilder",
-        "io.undertow.predicate.PredicatesHandler$RestartHandlerBuilder",
-        "io.undertow.server.JvmRouteHandler$Builder",
-        "io.undertow.server.handlers.AccessControlListHandler$Builder",
-        "io.undertow.server.handlers.AllowedMethodsHandler$Builder",
-        "io.undertow.server.handlers.BlockingHandler$Builder",
-        "io.undertow.server.handlers.ByteRangeHandler$Builder",
-        "io.undertow.server.handlers.CanonicalPathHandler$Builder",
-        "io.undertow.server.handlers.DisableCacheHandler$Builder",
-        "io.undertow.server.handlers.DisallowedMethodsHandler$Builder",
-        "io.undertow.server.handlers.ForwardedHandler$Builder",
-        "io.undertow.server.handlers.HttpTraceHandler$Builder",
-        "io.undertow.server.handlers.IPAddressAccessControlHandler$Builder",
-        "io.undertow.server.handlers.JDBCLogHandler$Builder",
-        "io.undertow.server.handlers.LearningPushHandler$Builder",
-        "io.undertow.server.handlers.LocalNameResolvingHandler$Builder",
-        "io.undertow.server.handlers.PathSeparatorHandler$Builder",
-        "io.undertow.server.handlers.PeerNameResolvingHandler$Builder",
-        "io.undertow.server.handlers.ProxyPeerAddressHandler$Builder",
-        "io.undertow.server.handlers.RedirectHandler$Builder",
-        "io.undertow.server.handlers.RequestDumpingHandler$Builder",
-        "io.undertow.server.handlers.RequestLimitingHandler$Builder",
-        "io.undertow.server.handlers.ResponseRateLimitingHandler$Builder",
-        "io.undertow.server.handlers.SSLHeaderHandler$Builder",
-        "io.undertow.server.handlers.SecureCookieHandler$Builder",
-        "io.undertow.server.handlers.SetAttributeHandler$Builder",
-        "io.undertow.server.handlers.SetAttributeHandler$ClearBuilder",
-        "io.undertow.server.handlers.SetHeaderHandler$Builder",
-        "io.undertow.server.handlers.StoredResponseHandler$Builder",
-        "io.undertow.server.handlers.StuckThreadDetectionHandler$Builder",
-        "io.undertow.server.handlers.URLDecodingHandler$Builder",
-        "io.undertow.server.handlers.accesslog.AccessLogHandler$Builder",
-        "io.undertow.server.handlers.builder.ResponseCodeHandlerBuilder",
-        "io.undertow.server.handlers.builder.RewriteHandlerBuilder",
-        "io.undertow.server.handlers.resource.ResourceHandler$Builder"
-      ],
-      "io.undertow.xnio.client.ClientProvider": [
-        "io.undertow.xnio.client.ajp.AjpClientProvider",
-        "io.undertow.xnio.client.http.HttpClientProvider",
-        "io.undertow.xnio.client.http2.Http2ClearClientProvider",
-        "io.undertow.xnio.client.http2.Http2ClientProvider",
-        "io.undertow.xnio.client.http2.Http2PriorKnowledgeClientProvider"
-      ]
-    },
-    "io.quarkus.http:quarkus-http-servlet": {
-      "io.undertow.attribute.ExchangeAttributeBuilder": [
-        "io.undertow.servlet.attribute.ServletContextAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletNameAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRelativePathAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestCharacterEncodingAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestLineAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestLocaleAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestParameterAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestURLAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestedSessionIdAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestedSessionIdFromCookieAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestedSessionIdValidAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletSessionAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletSessionIdAttribute$Builder"
-      ],
-      "io.undertow.predicate.PredicateBuilder": [
-        "io.undertow.servlet.predicate.DirectoryPredicate$Builder",
-        "io.undertow.servlet.predicate.DispatcherTypePredicate$Builder",
-        "io.undertow.servlet.predicate.FilePredicate$Builder"
-      ],
-      "io.undertow.server.handlers.builder.HandlerBuilder": [
-        "io.undertow.servlet.handlers.MarkSecureHandler$Builder"
-      ]
-    },
-    "io.quarkus.http:quarkus-http-servlet:jar:sources": {
-      "io.undertow.attribute.ExchangeAttributeBuilder": [
-        "io.undertow.servlet.attribute.ServletContextAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletNameAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRelativePathAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestCharacterEncodingAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestLineAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestLocaleAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestParameterAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestURLAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestedSessionIdAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestedSessionIdFromCookieAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletRequestedSessionIdValidAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletSessionAttribute$Builder",
-        "io.undertow.servlet.attribute.ServletSessionIdAttribute$Builder"
-      ],
-      "io.undertow.predicate.PredicateBuilder": [
-        "io.undertow.servlet.predicate.DirectoryPredicate$Builder",
-        "io.undertow.servlet.predicate.DispatcherTypePredicate$Builder",
-        "io.undertow.servlet.predicate.FilePredicate$Builder"
-      ],
-      "io.undertow.server.handlers.builder.HandlerBuilder": [
-        "io.undertow.servlet.handlers.MarkSecureHandler$Builder"
-      ]
-    },
-    "io.quarkus.http:quarkus-http-websockets-jsr": {
-      "io.undertow.servlet.ServletExtension": [
-        "io.undertow.websockets.jsr.Bootstrap"
-      ],
-      "io.undertow.websockets.jsr.WebsocketClientSslProvider": [
-        "io.undertow.websockets.jsr.DefaultWebSocketClientSslProvider"
-      ],
-      "javax.websocket.ContainerProvider": [
-        "io.undertow.websockets.jsr.UndertowContainerProvider"
-      ],
-      "javax.websocket.server.ServerEndpointConfig$Configurator": [
-        "io.undertow.websockets.jsr.DefaultContainerConfigurator"
-      ]
-    },
-    "io.quarkus.http:quarkus-http-websockets-jsr:jar:sources": {
-      "io.undertow.servlet.ServletExtension": [
-        "io.undertow.websockets.jsr.Bootstrap"
-      ],
-      "io.undertow.websockets.jsr.WebsocketClientSslProvider": [
-        "io.undertow.websockets.jsr.DefaultWebSocketClientSslProvider"
-      ],
-      "javax.websocket.ContainerProvider": [
-        "io.undertow.websockets.jsr.UndertowContainerProvider"
-      ],
-      "javax.websocket.server.ServerEndpointConfig$Configurator": [
-        "io.undertow.websockets.jsr.DefaultContainerConfigurator"
-      ]
-    },
-    "io.quarkus:quarkus-core": {
-      "org.eclipse.microprofile.config.spi.ConfigSourceProvider": [
-        "io.quarkus.runtime.configuration.TemporaryConfigSourceProvider"
-      ],
-      "org.eclipse.microprofile.config.spi.Converter": [
-        "io.quarkus.runtime.configuration.CidrAddressConverter",
-        "io.quarkus.runtime.configuration.DurationConverter",
-        "io.quarkus.runtime.configuration.InetAddressConverter",
-        "io.quarkus.runtime.configuration.InetSocketAddressConverter",
-        "io.quarkus.runtime.configuration.MemorySizeConverter",
-        "io.quarkus.runtime.configuration.PathConverter",
-        "io.quarkus.runtime.configuration.RegexConverter",
-        "io.quarkus.runtime.logging.LevelConverter"
-      ],
-      "org.jboss.logmanager.EmbeddedConfigurator": [
-        "io.quarkus.runtime.logging.InitialConfigurator"
-      ]
-    },
-    "io.quarkus:quarkus-core:jar:sources": {
-      "org.eclipse.microprofile.config.spi.ConfigSourceProvider": [
-        "io.quarkus.runtime.configuration.TemporaryConfigSourceProvider"
-      ],
-      "org.eclipse.microprofile.config.spi.Converter": [
-        "io.quarkus.runtime.configuration.CidrAddressConverter",
-        "io.quarkus.runtime.configuration.DurationConverter",
-        "io.quarkus.runtime.configuration.InetAddressConverter",
-        "io.quarkus.runtime.configuration.InetSocketAddressConverter",
-        "io.quarkus.runtime.configuration.MemorySizeConverter",
-        "io.quarkus.runtime.configuration.PathConverter",
-        "io.quarkus.runtime.configuration.RegexConverter",
-        "io.quarkus.runtime.logging.LevelConverter"
-      ],
-      "org.jboss.logmanager.EmbeddedConfigurator": [
-        "io.quarkus.runtime.logging.InitialConfigurator"
-      ]
-    },
-    "io.quarkus:quarkus-creator": {
-      "io.quarkus.creator.AppCreationPhase": [
-        "io.quarkus.creator.curator.Curator",
-        "io.quarkus.creator.phase.augment.AugmentTask",
-        "io.quarkus.creator.phase.nativeimage.NativeImagePhase",
-        "io.quarkus.creator.phase.runnerjar.ExecutableOutputTask"
-      ]
-    },
-    "io.quarkus:quarkus-creator:jar:sources": {
-      "io.quarkus.creator.AppCreationPhase": [
-        "io.quarkus.creator.curator.Curator",
-        "io.quarkus.creator.phase.augment.AugmentTask",
-        "io.quarkus.creator.phase.nativeimage.NativeImagePhase",
-        "io.quarkus.creator.phase.runnerjar.ExecutableOutputTask"
-      ]
-    },
-    "io.quarkus:quarkus-development-mode": {
-      "io.quarkus.dev.CompilationProvider": [
-        "io.quarkus.dev.JavaCompilationProvider"
-      ]
-    },
-    "io.quarkus:quarkus-development-mode:jar:sources": {
-      "io.quarkus.dev.CompilationProvider": [
-        "io.quarkus.dev.JavaCompilationProvider"
-      ]
-    },
-    "io.quarkus:quarkus-devtools-common": {
-      "io.quarkus.generators.ProjectGenerator": [
-        "io.quarkus.generators.rest.BasicRestProjectGenerator"
-      ]
-    },
-    "io.quarkus:quarkus-devtools-common:jar:sources": {
-      "io.quarkus.generators.ProjectGenerator": [
-        "io.quarkus.generators.rest.BasicRestProjectGenerator"
-      ]
-    },
-    "io.quarkus:quarkus-maven-plugin": {
-      "org.jboss.logging.LoggerProvider": [
-        "io.quarkus.maven.MojoLogger"
-      ]
-    },
-    "io.quarkus:quarkus-maven-plugin:jar:sources": {
-      "org.jboss.logging.LoggerProvider": [
-        "io.quarkus.maven.MojoLogger"
-      ]
-    },
-    "io.quarkus:quarkus-platform-descriptor-json": {
-      "io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoader": [
-        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderBootstrap"
-      ],
-      "io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoader": [
-        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderImpl"
-      ]
-    },
-    "io.quarkus:quarkus-platform-descriptor-json:jar:sources": {
-      "io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoader": [
-        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderBootstrap"
-      ],
-      "io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoader": [
-        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderImpl"
-      ]
-    },
-    "io.smallrye:smallrye-config": {
-      "javax.enterprise.inject.spi.Extension": [
-        "io.smallrye.config.inject.ConfigExtension"
-      ],
-      "org.eclipse.microprofile.config.spi.ConfigProviderResolver": [
-        "io.smallrye.config.SmallRyeConfigProviderResolver"
-      ]
-    },
-    "io.smallrye:smallrye-config:jar:sources": {
-      "javax.enterprise.inject.spi.Extension": [
-        "io.smallrye.config.inject.ConfigExtension"
-      ],
-      "org.eclipse.microprofile.config.spi.ConfigProviderResolver": [
-        "io.smallrye.config.SmallRyeConfigProviderResolver"
-      ]
-    },
-    "org.eclipse.sisu:org.eclipse.sisu.inject": {
-      "javax.annotation.processing.Processor": [
-        "org.eclipse.sisu.space.SisuIndexAPT6"
-      ]
-    },
-    "org.glassfish:jakarta.json:jar:sources": {
-      "javax.json.spi.JsonProvider": [
-        "org.glassfish.json.JsonProviderImpl"
-      ]
-    },
-    "org.jboss.logging:commons-logging-jboss-logging": {
-      "org.apache.commons.logging.LogFactory": [
-        "org.apache.commons.logging.impl.JBossLogFactory"
-      ]
-    },
-    "org.jboss.logging:commons-logging-jboss-logging:jar:sources": {
-      "org.apache.commons.logging.LogFactory": [
-        "org.apache.commons.logging.impl.JBossLogFactory"
-      ]
-    },
-    "org.jboss.logmanager:jboss-logmanager-embedded": {
-      "java.util.logging.LogManager": [
-        "org.jboss.logmanager.LogManager"
-      ]
-    },
-    "org.jboss.logmanager:jboss-logmanager-embedded:jar:sources": {
-      "java.util.logging.LogManager": [
-        "org.jboss.logmanager.LogManager"
-      ]
-    }
-  },
   "repositories": {
     "https://repo.maven.apache.org/maven2/": [
       "aopalliance:aopalliance",
@@ -3300,5 +2850,455 @@
       "org.wildfly.common:wildfly-common:jar:sources"
     ]
   },
+  "services": {
+    "com.fasterxml.jackson.core:jackson-core": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "com.fasterxml.jackson.core:jackson-core:jar:sources": {
+      "com.fasterxml.jackson.core.JsonFactory": [
+        "com.fasterxml.jackson.core.JsonFactory"
+      ]
+    },
+    "com.fasterxml.jackson.core:jackson-databind": {
+      "com.fasterxml.jackson.core.ObjectCodec": [
+        "com.fasterxml.jackson.databind.ObjectMapper"
+      ]
+    },
+    "com.fasterxml.jackson.core:jackson-databind:jar:sources": {
+      "com.fasterxml.jackson.core.ObjectCodec": [
+        "com.fasterxml.jackson.databind.ObjectMapper"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-core": {
+      "io.undertow.attribute.ExchangeAttributeBuilder": [
+        "io.undertow.attribute.AuthenticationTypeExchangeAttribute$Builder",
+        "io.undertow.attribute.BytesSentAttribute$Builder",
+        "io.undertow.attribute.CookieAttribute$Builder",
+        "io.undertow.attribute.DateTimeAttribute$Builder",
+        "io.undertow.attribute.HostAndPortAttribute$Builder",
+        "io.undertow.attribute.IdentUsernameAttribute$Builder",
+        "io.undertow.attribute.LocalIPAttribute$Builder",
+        "io.undertow.attribute.LocalPortAttribute$Builder",
+        "io.undertow.attribute.LocalServerNameAttribute$Builder",
+        "io.undertow.attribute.NullAttribute$Builder",
+        "io.undertow.attribute.PathParameterAttribute$Builder",
+        "io.undertow.attribute.PredicateContextAttribute$Builder",
+        "io.undertow.attribute.QueryParameterAttribute$Builder",
+        "io.undertow.attribute.QueryStringAttribute$Builder",
+        "io.undertow.attribute.RelativePathAttribute$Builder",
+        "io.undertow.attribute.RemoteHostAttribute$Builder",
+        "io.undertow.attribute.RemoteIPAttribute$Builder",
+        "io.undertow.attribute.RemoteUserAttribute$Builder",
+        "io.undertow.attribute.RequestHeaderAttribute$Builder",
+        "io.undertow.attribute.RequestLineAttribute$Builder",
+        "io.undertow.attribute.RequestMethodAttribute$Builder",
+        "io.undertow.attribute.RequestPathAttribute$Builder",
+        "io.undertow.attribute.RequestProtocolAttribute$Builder",
+        "io.undertow.attribute.RequestSchemeAttribute$Builder",
+        "io.undertow.attribute.RequestURLAttribute$Builder",
+        "io.undertow.attribute.ResolvedPathAttribute$Builder",
+        "io.undertow.attribute.ResponseCodeAttribute$Builder",
+        "io.undertow.attribute.ResponseHeaderAttribute$Builder",
+        "io.undertow.attribute.ResponseTimeAttribute$Builder",
+        "io.undertow.attribute.SecureExchangeAttribute$Builder",
+        "io.undertow.attribute.SslCipherAttribute$Builder",
+        "io.undertow.attribute.SslClientCertAttribute$Builder",
+        "io.undertow.attribute.SslSessionIdAttribute$Builder",
+        "io.undertow.attribute.ThreadNameAttribute$Builder",
+        "io.undertow.attribute.TransportProtocolAttribute$Builder"
+      ],
+      "io.undertow.predicate.PredicateBuilder": [
+        "io.undertow.predicate.AuthenticationRequiredPredicate$Builder",
+        "io.undertow.predicate.ContainsPredicate$Builder",
+        "io.undertow.predicate.EqualsPredicate$Builder",
+        "io.undertow.predicate.ExistsPredicate$Builder",
+        "io.undertow.predicate.IdempotentPredicate$Builder",
+        "io.undertow.predicate.MaxContentSizePredicate$Builder",
+        "io.undertow.predicate.MethodPredicate$Builder",
+        "io.undertow.predicate.MinContentSizePredicate$Builder",
+        "io.undertow.predicate.PathMatchPredicate$Builder",
+        "io.undertow.predicate.PathPrefixPredicate$Builder",
+        "io.undertow.predicate.PathSuffixPredicate$Builder",
+        "io.undertow.predicate.PathTemplatePredicate$Builder",
+        "io.undertow.predicate.RegularExpressionPredicate$Builder",
+        "io.undertow.predicate.SecurePredicate$Builder"
+      ],
+      "io.undertow.server.handlers.builder.HandlerBuilder": [
+        "io.undertow.predicate.PredicatesHandler$DoneHandlerBuilder",
+        "io.undertow.predicate.PredicatesHandler$RestartHandlerBuilder",
+        "io.undertow.server.JvmRouteHandler$Builder",
+        "io.undertow.server.handlers.AccessControlListHandler$Builder",
+        "io.undertow.server.handlers.AllowedMethodsHandler$Builder",
+        "io.undertow.server.handlers.BlockingHandler$Builder",
+        "io.undertow.server.handlers.ByteRangeHandler$Builder",
+        "io.undertow.server.handlers.CanonicalPathHandler$Builder",
+        "io.undertow.server.handlers.DisableCacheHandler$Builder",
+        "io.undertow.server.handlers.DisallowedMethodsHandler$Builder",
+        "io.undertow.server.handlers.ForwardedHandler$Builder",
+        "io.undertow.server.handlers.HttpTraceHandler$Builder",
+        "io.undertow.server.handlers.IPAddressAccessControlHandler$Builder",
+        "io.undertow.server.handlers.JDBCLogHandler$Builder",
+        "io.undertow.server.handlers.LearningPushHandler$Builder",
+        "io.undertow.server.handlers.LocalNameResolvingHandler$Builder",
+        "io.undertow.server.handlers.PathSeparatorHandler$Builder",
+        "io.undertow.server.handlers.PeerNameResolvingHandler$Builder",
+        "io.undertow.server.handlers.ProxyPeerAddressHandler$Builder",
+        "io.undertow.server.handlers.RedirectHandler$Builder",
+        "io.undertow.server.handlers.RequestDumpingHandler$Builder",
+        "io.undertow.server.handlers.RequestLimitingHandler$Builder",
+        "io.undertow.server.handlers.ResponseRateLimitingHandler$Builder",
+        "io.undertow.server.handlers.SSLHeaderHandler$Builder",
+        "io.undertow.server.handlers.SecureCookieHandler$Builder",
+        "io.undertow.server.handlers.SetAttributeHandler$Builder",
+        "io.undertow.server.handlers.SetAttributeHandler$ClearBuilder",
+        "io.undertow.server.handlers.SetHeaderHandler$Builder",
+        "io.undertow.server.handlers.StoredResponseHandler$Builder",
+        "io.undertow.server.handlers.StuckThreadDetectionHandler$Builder",
+        "io.undertow.server.handlers.URLDecodingHandler$Builder",
+        "io.undertow.server.handlers.accesslog.AccessLogHandler$Builder",
+        "io.undertow.server.handlers.builder.ResponseCodeHandlerBuilder",
+        "io.undertow.server.handlers.builder.RewriteHandlerBuilder",
+        "io.undertow.server.handlers.resource.ResourceHandler$Builder"
+      ],
+      "io.undertow.xnio.client.ClientProvider": [
+        "io.undertow.xnio.client.ajp.AjpClientProvider",
+        "io.undertow.xnio.client.http.HttpClientProvider",
+        "io.undertow.xnio.client.http2.Http2ClearClientProvider",
+        "io.undertow.xnio.client.http2.Http2ClientProvider",
+        "io.undertow.xnio.client.http2.Http2PriorKnowledgeClientProvider"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-core:jar:sources": {
+      "io.undertow.attribute.ExchangeAttributeBuilder": [
+        "io.undertow.attribute.AuthenticationTypeExchangeAttribute$Builder",
+        "io.undertow.attribute.BytesSentAttribute$Builder",
+        "io.undertow.attribute.CookieAttribute$Builder",
+        "io.undertow.attribute.DateTimeAttribute$Builder",
+        "io.undertow.attribute.HostAndPortAttribute$Builder",
+        "io.undertow.attribute.IdentUsernameAttribute$Builder",
+        "io.undertow.attribute.LocalIPAttribute$Builder",
+        "io.undertow.attribute.LocalPortAttribute$Builder",
+        "io.undertow.attribute.LocalServerNameAttribute$Builder",
+        "io.undertow.attribute.NullAttribute$Builder",
+        "io.undertow.attribute.PathParameterAttribute$Builder",
+        "io.undertow.attribute.PredicateContextAttribute$Builder",
+        "io.undertow.attribute.QueryParameterAttribute$Builder",
+        "io.undertow.attribute.QueryStringAttribute$Builder",
+        "io.undertow.attribute.RelativePathAttribute$Builder",
+        "io.undertow.attribute.RemoteHostAttribute$Builder",
+        "io.undertow.attribute.RemoteIPAttribute$Builder",
+        "io.undertow.attribute.RemoteUserAttribute$Builder",
+        "io.undertow.attribute.RequestHeaderAttribute$Builder",
+        "io.undertow.attribute.RequestLineAttribute$Builder",
+        "io.undertow.attribute.RequestMethodAttribute$Builder",
+        "io.undertow.attribute.RequestPathAttribute$Builder",
+        "io.undertow.attribute.RequestProtocolAttribute$Builder",
+        "io.undertow.attribute.RequestSchemeAttribute$Builder",
+        "io.undertow.attribute.RequestURLAttribute$Builder",
+        "io.undertow.attribute.ResolvedPathAttribute$Builder",
+        "io.undertow.attribute.ResponseCodeAttribute$Builder",
+        "io.undertow.attribute.ResponseHeaderAttribute$Builder",
+        "io.undertow.attribute.ResponseTimeAttribute$Builder",
+        "io.undertow.attribute.SecureExchangeAttribute$Builder",
+        "io.undertow.attribute.SslCipherAttribute$Builder",
+        "io.undertow.attribute.SslClientCertAttribute$Builder",
+        "io.undertow.attribute.SslSessionIdAttribute$Builder",
+        "io.undertow.attribute.ThreadNameAttribute$Builder",
+        "io.undertow.attribute.TransportProtocolAttribute$Builder"
+      ],
+      "io.undertow.predicate.PredicateBuilder": [
+        "io.undertow.predicate.AuthenticationRequiredPredicate$Builder",
+        "io.undertow.predicate.ContainsPredicate$Builder",
+        "io.undertow.predicate.EqualsPredicate$Builder",
+        "io.undertow.predicate.ExistsPredicate$Builder",
+        "io.undertow.predicate.IdempotentPredicate$Builder",
+        "io.undertow.predicate.MaxContentSizePredicate$Builder",
+        "io.undertow.predicate.MethodPredicate$Builder",
+        "io.undertow.predicate.MinContentSizePredicate$Builder",
+        "io.undertow.predicate.PathMatchPredicate$Builder",
+        "io.undertow.predicate.PathPrefixPredicate$Builder",
+        "io.undertow.predicate.PathSuffixPredicate$Builder",
+        "io.undertow.predicate.PathTemplatePredicate$Builder",
+        "io.undertow.predicate.RegularExpressionPredicate$Builder",
+        "io.undertow.predicate.SecurePredicate$Builder"
+      ],
+      "io.undertow.server.handlers.builder.HandlerBuilder": [
+        "io.undertow.predicate.PredicatesHandler$DoneHandlerBuilder",
+        "io.undertow.predicate.PredicatesHandler$RestartHandlerBuilder",
+        "io.undertow.server.JvmRouteHandler$Builder",
+        "io.undertow.server.handlers.AccessControlListHandler$Builder",
+        "io.undertow.server.handlers.AllowedMethodsHandler$Builder",
+        "io.undertow.server.handlers.BlockingHandler$Builder",
+        "io.undertow.server.handlers.ByteRangeHandler$Builder",
+        "io.undertow.server.handlers.CanonicalPathHandler$Builder",
+        "io.undertow.server.handlers.DisableCacheHandler$Builder",
+        "io.undertow.server.handlers.DisallowedMethodsHandler$Builder",
+        "io.undertow.server.handlers.ForwardedHandler$Builder",
+        "io.undertow.server.handlers.HttpTraceHandler$Builder",
+        "io.undertow.server.handlers.IPAddressAccessControlHandler$Builder",
+        "io.undertow.server.handlers.JDBCLogHandler$Builder",
+        "io.undertow.server.handlers.LearningPushHandler$Builder",
+        "io.undertow.server.handlers.LocalNameResolvingHandler$Builder",
+        "io.undertow.server.handlers.PathSeparatorHandler$Builder",
+        "io.undertow.server.handlers.PeerNameResolvingHandler$Builder",
+        "io.undertow.server.handlers.ProxyPeerAddressHandler$Builder",
+        "io.undertow.server.handlers.RedirectHandler$Builder",
+        "io.undertow.server.handlers.RequestDumpingHandler$Builder",
+        "io.undertow.server.handlers.RequestLimitingHandler$Builder",
+        "io.undertow.server.handlers.ResponseRateLimitingHandler$Builder",
+        "io.undertow.server.handlers.SSLHeaderHandler$Builder",
+        "io.undertow.server.handlers.SecureCookieHandler$Builder",
+        "io.undertow.server.handlers.SetAttributeHandler$Builder",
+        "io.undertow.server.handlers.SetAttributeHandler$ClearBuilder",
+        "io.undertow.server.handlers.SetHeaderHandler$Builder",
+        "io.undertow.server.handlers.StoredResponseHandler$Builder",
+        "io.undertow.server.handlers.StuckThreadDetectionHandler$Builder",
+        "io.undertow.server.handlers.URLDecodingHandler$Builder",
+        "io.undertow.server.handlers.accesslog.AccessLogHandler$Builder",
+        "io.undertow.server.handlers.builder.ResponseCodeHandlerBuilder",
+        "io.undertow.server.handlers.builder.RewriteHandlerBuilder",
+        "io.undertow.server.handlers.resource.ResourceHandler$Builder"
+      ],
+      "io.undertow.xnio.client.ClientProvider": [
+        "io.undertow.xnio.client.ajp.AjpClientProvider",
+        "io.undertow.xnio.client.http.HttpClientProvider",
+        "io.undertow.xnio.client.http2.Http2ClearClientProvider",
+        "io.undertow.xnio.client.http2.Http2ClientProvider",
+        "io.undertow.xnio.client.http2.Http2PriorKnowledgeClientProvider"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-servlet": {
+      "io.undertow.attribute.ExchangeAttributeBuilder": [
+        "io.undertow.servlet.attribute.ServletContextAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletNameAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRelativePathAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestCharacterEncodingAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestLineAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestLocaleAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestParameterAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestURLAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdFromCookieAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdValidAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletSessionAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletSessionIdAttribute$Builder"
+      ],
+      "io.undertow.predicate.PredicateBuilder": [
+        "io.undertow.servlet.predicate.DirectoryPredicate$Builder",
+        "io.undertow.servlet.predicate.DispatcherTypePredicate$Builder",
+        "io.undertow.servlet.predicate.FilePredicate$Builder"
+      ],
+      "io.undertow.server.handlers.builder.HandlerBuilder": [
+        "io.undertow.servlet.handlers.MarkSecureHandler$Builder"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-servlet:jar:sources": {
+      "io.undertow.attribute.ExchangeAttributeBuilder": [
+        "io.undertow.servlet.attribute.ServletContextAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletNameAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRelativePathAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestCharacterEncodingAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestLineAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestLocaleAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestParameterAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestURLAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdFromCookieAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletRequestedSessionIdValidAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletSessionAttribute$Builder",
+        "io.undertow.servlet.attribute.ServletSessionIdAttribute$Builder"
+      ],
+      "io.undertow.predicate.PredicateBuilder": [
+        "io.undertow.servlet.predicate.DirectoryPredicate$Builder",
+        "io.undertow.servlet.predicate.DispatcherTypePredicate$Builder",
+        "io.undertow.servlet.predicate.FilePredicate$Builder"
+      ],
+      "io.undertow.server.handlers.builder.HandlerBuilder": [
+        "io.undertow.servlet.handlers.MarkSecureHandler$Builder"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-websockets-jsr": {
+      "io.undertow.servlet.ServletExtension": [
+        "io.undertow.websockets.jsr.Bootstrap"
+      ],
+      "io.undertow.websockets.jsr.WebsocketClientSslProvider": [
+        "io.undertow.websockets.jsr.DefaultWebSocketClientSslProvider"
+      ],
+      "javax.websocket.ContainerProvider": [
+        "io.undertow.websockets.jsr.UndertowContainerProvider"
+      ],
+      "javax.websocket.server.ServerEndpointConfig$Configurator": [
+        "io.undertow.websockets.jsr.DefaultContainerConfigurator"
+      ]
+    },
+    "io.quarkus.http:quarkus-http-websockets-jsr:jar:sources": {
+      "io.undertow.servlet.ServletExtension": [
+        "io.undertow.websockets.jsr.Bootstrap"
+      ],
+      "io.undertow.websockets.jsr.WebsocketClientSslProvider": [
+        "io.undertow.websockets.jsr.DefaultWebSocketClientSslProvider"
+      ],
+      "javax.websocket.ContainerProvider": [
+        "io.undertow.websockets.jsr.UndertowContainerProvider"
+      ],
+      "javax.websocket.server.ServerEndpointConfig$Configurator": [
+        "io.undertow.websockets.jsr.DefaultContainerConfigurator"
+      ]
+    },
+    "io.quarkus:quarkus-core": {
+      "org.eclipse.microprofile.config.spi.ConfigSourceProvider": [
+        "io.quarkus.runtime.configuration.TemporaryConfigSourceProvider"
+      ],
+      "org.eclipse.microprofile.config.spi.Converter": [
+        "io.quarkus.runtime.configuration.CidrAddressConverter",
+        "io.quarkus.runtime.configuration.DurationConverter",
+        "io.quarkus.runtime.configuration.InetAddressConverter",
+        "io.quarkus.runtime.configuration.InetSocketAddressConverter",
+        "io.quarkus.runtime.configuration.MemorySizeConverter",
+        "io.quarkus.runtime.configuration.PathConverter",
+        "io.quarkus.runtime.configuration.RegexConverter",
+        "io.quarkus.runtime.logging.LevelConverter"
+      ],
+      "org.jboss.logmanager.EmbeddedConfigurator": [
+        "io.quarkus.runtime.logging.InitialConfigurator"
+      ]
+    },
+    "io.quarkus:quarkus-core:jar:sources": {
+      "org.eclipse.microprofile.config.spi.ConfigSourceProvider": [
+        "io.quarkus.runtime.configuration.TemporaryConfigSourceProvider"
+      ],
+      "org.eclipse.microprofile.config.spi.Converter": [
+        "io.quarkus.runtime.configuration.CidrAddressConverter",
+        "io.quarkus.runtime.configuration.DurationConverter",
+        "io.quarkus.runtime.configuration.InetAddressConverter",
+        "io.quarkus.runtime.configuration.InetSocketAddressConverter",
+        "io.quarkus.runtime.configuration.MemorySizeConverter",
+        "io.quarkus.runtime.configuration.PathConverter",
+        "io.quarkus.runtime.configuration.RegexConverter",
+        "io.quarkus.runtime.logging.LevelConverter"
+      ],
+      "org.jboss.logmanager.EmbeddedConfigurator": [
+        "io.quarkus.runtime.logging.InitialConfigurator"
+      ]
+    },
+    "io.quarkus:quarkus-creator": {
+      "io.quarkus.creator.AppCreationPhase": [
+        "io.quarkus.creator.curator.Curator",
+        "io.quarkus.creator.phase.augment.AugmentTask",
+        "io.quarkus.creator.phase.nativeimage.NativeImagePhase",
+        "io.quarkus.creator.phase.runnerjar.ExecutableOutputTask"
+      ]
+    },
+    "io.quarkus:quarkus-creator:jar:sources": {
+      "io.quarkus.creator.AppCreationPhase": [
+        "io.quarkus.creator.curator.Curator",
+        "io.quarkus.creator.phase.augment.AugmentTask",
+        "io.quarkus.creator.phase.nativeimage.NativeImagePhase",
+        "io.quarkus.creator.phase.runnerjar.ExecutableOutputTask"
+      ]
+    },
+    "io.quarkus:quarkus-development-mode": {
+      "io.quarkus.dev.CompilationProvider": [
+        "io.quarkus.dev.JavaCompilationProvider"
+      ]
+    },
+    "io.quarkus:quarkus-development-mode:jar:sources": {
+      "io.quarkus.dev.CompilationProvider": [
+        "io.quarkus.dev.JavaCompilationProvider"
+      ]
+    },
+    "io.quarkus:quarkus-devtools-common": {
+      "io.quarkus.generators.ProjectGenerator": [
+        "io.quarkus.generators.rest.BasicRestProjectGenerator"
+      ]
+    },
+    "io.quarkus:quarkus-devtools-common:jar:sources": {
+      "io.quarkus.generators.ProjectGenerator": [
+        "io.quarkus.generators.rest.BasicRestProjectGenerator"
+      ]
+    },
+    "io.quarkus:quarkus-maven-plugin": {
+      "org.jboss.logging.LoggerProvider": [
+        "io.quarkus.maven.MojoLogger"
+      ]
+    },
+    "io.quarkus:quarkus-maven-plugin:jar:sources": {
+      "org.jboss.logging.LoggerProvider": [
+        "io.quarkus.maven.MojoLogger"
+      ]
+    },
+    "io.quarkus:quarkus-platform-descriptor-json": {
+      "io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoader": [
+        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderBootstrap"
+      ],
+      "io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoader": [
+        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderImpl"
+      ]
+    },
+    "io.quarkus:quarkus-platform-descriptor-json:jar:sources": {
+      "io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoader": [
+        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderBootstrap"
+      ],
+      "io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoader": [
+        "io.quarkus.platform.descriptor.loader.json.impl.QuarkusJsonPlatformDescriptorLoaderImpl"
+      ]
+    },
+    "io.smallrye:smallrye-config": {
+      "javax.enterprise.inject.spi.Extension": [
+        "io.smallrye.config.inject.ConfigExtension"
+      ],
+      "org.eclipse.microprofile.config.spi.ConfigProviderResolver": [
+        "io.smallrye.config.SmallRyeConfigProviderResolver"
+      ]
+    },
+    "io.smallrye:smallrye-config:jar:sources": {
+      "javax.enterprise.inject.spi.Extension": [
+        "io.smallrye.config.inject.ConfigExtension"
+      ],
+      "org.eclipse.microprofile.config.spi.ConfigProviderResolver": [
+        "io.smallrye.config.SmallRyeConfigProviderResolver"
+      ]
+    },
+    "org.eclipse.sisu:org.eclipse.sisu.inject": {
+      "javax.annotation.processing.Processor": [
+        "org.eclipse.sisu.space.SisuIndexAPT6"
+      ]
+    },
+    "org.glassfish:jakarta.json:jar:sources": {
+      "javax.json.spi.JsonProvider": [
+        "org.glassfish.json.JsonProviderImpl"
+      ]
+    },
+    "org.jboss.logging:commons-logging-jboss-logging": {
+      "org.apache.commons.logging.LogFactory": [
+        "org.apache.commons.logging.impl.JBossLogFactory"
+      ]
+    },
+    "org.jboss.logging:commons-logging-jboss-logging:jar:sources": {
+      "org.apache.commons.logging.LogFactory": [
+        "org.apache.commons.logging.impl.JBossLogFactory"
+      ]
+    },
+    "org.jboss.logmanager:jboss-logmanager-embedded": {
+      "java.util.logging.LogManager": [
+        "org.jboss.logmanager.LogManager"
+      ]
+    },
+    "org.jboss.logmanager:jboss-logmanager-embedded:jar:sources": {
+      "java.util.logging.LogManager": [
+        "org.jboss.logmanager.LogManager"
+      ]
+    }
+  },
+  "skipped": [
+    "com.google.guava:listenablefuture:jar:sources",
+    "io.quarkus:quarkus-bom-descriptor-json",
+    "io.quarkus:quarkus-bom-descriptor-json:jar:sources",
+    "io.quarkus:quarkus-bom-descriptor-json:json:sources"
+  ],
   "version": "2"
 }

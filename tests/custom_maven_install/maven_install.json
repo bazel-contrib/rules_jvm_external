@@ -137,7 +137,6 @@
       "org.codehaus.mojo.animal_sniffer"
     ]
   },
-  "services": {},
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "com.google.code.findbugs:jsr305",
@@ -150,5 +149,6 @@
       "org.codehaus.mojo:animal-sniffer-annotations"
     ]
   },
+  "services": {},
   "version": "2"
 }

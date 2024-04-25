@@ -430,7 +430,6 @@
       "org.objectweb.asm.signature"
     ]
   },
-  "services": {},
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "com.google.auto.value:auto-value-annotations",
@@ -454,5 +453,6 @@
       "org.ow2.asm:asm"
     ]
   },
+  "services": {},
   "version": "2"
 }
