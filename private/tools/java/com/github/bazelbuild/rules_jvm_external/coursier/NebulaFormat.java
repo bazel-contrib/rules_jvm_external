@@ -117,7 +117,8 @@ public class NebulaFormat {
     if (isUsingM2Local) {
       lock.put("m2local", true);
     }
-    lock.put("repositories", repos);
+    // Use a treemap to sort the repo map by keys in the lock file
+    lock.put("repositories", new TreeMap<>(repos));
 
     lock.put("skipped", skipped);
     if (conflicts != null && !conflicts.isEmpty()) {

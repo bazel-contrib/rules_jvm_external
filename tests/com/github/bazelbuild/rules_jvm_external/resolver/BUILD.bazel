@@ -24,7 +24,7 @@ java_library(
         ),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact(
             "org.apache.maven:maven-model",
@@ -52,7 +52,7 @@ java_test(
         ),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
     ],
 )

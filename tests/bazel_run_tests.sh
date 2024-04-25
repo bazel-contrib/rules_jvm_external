@@ -13,10 +13,10 @@ function force_bzlmod_lock_file_to_be_regenerated() {
 }
 
 function test_dependency_aggregation() {
-  bazel query --notool_deps 'deps(@regression_testing//:com_sun_xml_bind_jaxb_ri)' >> "$TEST_LOG" 2>&1
+  bazel query --notool_deps 'deps(@regression_testing_coursier//:com_sun_xml_bind_jaxb_ri)' >> "$TEST_LOG" 2>&1
 
-  # This is a transitive dep of @regression_testing//:com_sun_xml_bind_jaxb_ri
-  expect_log @regression_testing//:com_sun_xml_bind_jaxb_xjc
+  # This is a transitive dep of @regression_testing_coursier//:com_sun_xml_bind_jaxb_ri
+  expect_log @regression_testing_coursier//:com_sun_xml_bind_jaxb_xjc
 }
 
 function test_duplicate_version_warning() {
@@ -209,14 +209,14 @@ function test_unpinned_found_artifact_with_plus_through_pin_and_build() {
 }
 
 function test_outdated() {
-  bazel run @regression_testing//:outdated >> "$TEST_LOG" 2>&1
+  bazel run @regression_testing_coursier//:outdated >> "$TEST_LOG" 2>&1
 
   expect_log "Checking for updates of .* artifacts against the following repositories"
   expect_log "junit:junit \[4.12"
 }
 
 function test_outdated_no_external_runfiles() {
-  bazel run @regression_testing//:outdated --nolegacy_external_runfiles >> "$TEST_LOG" 2>&1
+  bazel run @regression_testing_coursier//:outdated --nolegacy_external_runfiles >> "$TEST_LOG" 2>&1
 
   expect_log "Checking for updates of .* artifacts against the following repositories"
   expect_log "junit:junit \[4.12"
@@ -229,10 +229,10 @@ function test_v1_lock_file_format() {
 }
 
 function test_dependency_pom_exclusion() {
-  bazel query --notool_deps 'deps(@regression_testing//:org_mockito_mockito_core)' >> "$TEST_LOG" 2>&1
+  bazel query --notool_deps 'deps(@regression_testing_coursier//:org_mockito_mockito_core)' >> "$TEST_LOG" 2>&1
 
   # byte-buddy should be a dependency of "mockito-core" even though "androidx.arch.core:core-testing" has exclusion rule for it in POM
-  expect_log "@regression_testing//:net_bytebuddy_byte_buddy"
+  expect_log "@regression_testing_coursier//:net_bytebuddy_byte_buddy"
 }
 
 function test_maven_resolution() {

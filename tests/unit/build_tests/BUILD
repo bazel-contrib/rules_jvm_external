@@ -7,29 +7,30 @@ load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 build_test(
     name = "all_artifacts",
     targets = [
-        "@regression_testing//:org_pantsbuild_jarjar",
-        "@regression_testing//:com_github_fommil_netlib_all",
-        "@regression_testing//:nz_ac_waikato_cms_weka_weka_stable",
-        "@regression_testing//:org_eclipse_jetty_jetty_http_tests",
-        "@regression_testing//:org_eclipse_jetty_orbit_javax_servlet",
-        "@regression_testing//:org_apache_flink_flink_test_utils_2_12",
-        "@regression_testing//:ch_epfl_scala_compiler_interface",
-        "@regression_testing//:org_openjfx_javafx_base",
-        "@regression_testing//:io_kubernetes_client_java",
-        "@regression_testing//:io_quarkus_http_quarkus_http_servlet",
-        "@regression_testing//:com_fasterxml_jackson_jackson_bom",
-        "@regression_testing//:org_junit_junit_bom",
-        "@regression_testing//:io_netty_netty_tcnative_boringssl_static",
-        "@regression_testing//:com_google_protobuf_protoc_linux_x86_64",
-        "@regression_testing//:com_google_protobuf_protoc_osx_aarch_64",
-        "@regression_testing//:build_buf_protovalidate",
+        "@regression_testing_coursier//:org_pantsbuild_jarjar",
+        "@regression_testing_coursier//:com_github_fommil_netlib_all",
+        "@regression_testing_coursier//:nz_ac_waikato_cms_weka_weka_stable",
+        "@regression_testing_coursier//:org_eclipse_jetty_jetty_http_tests",
+        "@regression_testing_coursier//:org_eclipse_jetty_orbit_javax_servlet",
+        "@regression_testing_coursier//:org_apache_flink_flink_test_utils_2_12",
+        "@regression_testing_coursier//:ch_epfl_scala_compiler_interface",
+        "@regression_testing_coursier//:org_openjfx_javafx_base",
+        "@regression_testing_coursier//:io_kubernetes_client_java",
+        "@regression_testing_coursier//:io_quarkus_http_quarkus_http_servlet",
+        "@regression_testing_coursier//:com_fasterxml_jackson_jackson_bom",
+        "@regression_testing_coursier//:org_junit_junit_bom",
+        "@regression_testing_coursier//:io_netty_netty_tcnative_boringssl_static",
+        "@regression_testing_coursier//:com_google_protobuf_protoc_linux_x86_64",
+        "@regression_testing_coursier//:com_google_protobuf_protoc_osx_aarch_64",
+        "@regression_testing_coursier//:build_buf_protovalidate",
+        "@regression_testing_maven//:org_apache_parquet_parquet_common",
     ],
 )
 
 # Note: skylib's `native_test` would fail on "Exec format error" under the other platform, hence the following 2 steps
 [native_binary(
     name = "src_that_refers_to_a_valid_executable_{}_target".format(platform),
-    src = "@regression_testing//:com_google_protobuf_protoc_{}".format(platform),
+    src = "@regression_testing_coursier//:com_google_protobuf_protoc_{}".format(platform),
     out = "protoc_{}.exe".format(platform),
 ) for platform in ("linux_x86_64", "osx_aarch_64")]
 

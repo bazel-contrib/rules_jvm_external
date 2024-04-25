@@ -11,7 +11,7 @@ java_test(
         ),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
         artifact("org.hamcrest:hamcrest_core"),
@@ -26,7 +26,7 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
     ],
 )
@@ -42,7 +42,7 @@ java_test(
         ),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact(
             "com.google.guava:guava",
@@ -66,7 +66,7 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external:hasher",
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
     ],
@@ -87,7 +87,7 @@ java_test(
         ),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
     ],
 )
@@ -100,7 +100,7 @@ java_test(
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",
-            repository_name = "regression_testing",
+            repository_name = "regression_testing_coursier",
         ),
         artifact("org.hamcrest:hamcrest"),
     ],
