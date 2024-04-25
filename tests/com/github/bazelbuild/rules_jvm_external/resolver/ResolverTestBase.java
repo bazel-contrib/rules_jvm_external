@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
@@ -39,6 +40,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,12 +60,13 @@ public abstract class ResolverTestBase {
   @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
   protected Resolver resolver;
+  protected DelegatingListener listener = new DelegatingListener();
 
   protected abstract Resolver getResolver(Netrc netrc, EventListener listener);
 
   @Before
   public void createResolver() {
-    resolver = getResolver(Netrc.create(null, new HashMap<>()), new NullListener());
+    resolver = getResolver(Netrc.create(null, new HashMap<>()), listener);
   }
 
   @Test
@@ -551,6 +554,30 @@ public abstract class ResolverTestBase {
     assertTrue(
         "regular jar with higher version number not found",
         nodes.contains(classified.setClassifier(null))); // Same version, no classifer
+  }
+
+  @Test
+  public void shouldWarnOnMissingTransitiveDependencies() {
+    List<LogEvent> logEvents = new ArrayList<>();
+    listener.addListener(
+        event -> {
+          if (event instanceof LogEvent) {
+            logEvents.add((LogEvent) event);
+          }
+        });
+
+    Coordinates present = new Coordinates("com.example:present:1.0.0");
+    Coordinates missing = new Coordinates("com.example:missing:1.0.0");
+    Path repo = MavenRepo.create().add(present, missing).getPath();
+
+    Graph<Coordinates> resolution =
+        resolver.resolve(prepareRequestFor(repo.toUri(), present)).getResolution();
+    assertEquals(Set.of(present, missing), resolution.nodes());
+
+    logEvents.stream()
+        .filter(e -> e.toString().contains("The POM for " + missing.setExtension("pom")))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("Cannot find expected log message"));
   }
 
   private Model createModel(Coordinates coords) {

@@ -21,5 +21,7 @@ public interface EventListener extends Closeable {
   void onEvent(Event event);
 
   @Override
-  void close();
+  default void close() {
+    // no-op
+  }
 }

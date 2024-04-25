@@ -54,5 +54,9 @@ java_test(
             "junit:junit",
             repository_name = "regression_testing_coursier",
         ),
+        artifact(
+            "org.apache.maven.resolver:maven-resolver-api",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )
