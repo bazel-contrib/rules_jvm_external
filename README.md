@@ -221,18 +221,11 @@ to update `maven_install.json`, run this command to re-pin the unpinned `@maven`
 repository:
 
 ```
-$ bazel run @unpinned_maven//:pin
+$ REPIN=1 bazel run @maven//:pin
 ```
 
 Without re-pinning, `maven_install` will not pick up the changes made to the
 WORKSPACE, as `maven_install.json` is now the source of truth.
-
-Note that the repository is `@unpinned_maven` instead of `@maven`. When using
-artifact pinning, each `maven_install` repository (e.g. `@maven`) will be
-accompanied by an unpinned repository. This repository name has the `@unpinned_`
-prefix (e.g.`@unpinned_maven` or `@unpinned_<your_maven_install_name>`). For
-example, if your `maven_install` is named `@foo`, `@unpinned_foo` will be
-created.
 
 ### Requiring lock file repinning when the list of artifacts changes
 
@@ -246,15 +239,15 @@ it is possible to update the `maven_install.json` file using:
 
 ```shell
 # To repin everything:
-REPIN=1 bazel run @unpinned_maven//:pin
+REPIN=1 bazel run @maven//:pin
 
 # To only repin rules_jvm_external:
-RULES_JVM_EXTERNAL_REPIN=1 bazel run @unpinned_maven//:pin
+RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin
 ```
 
 Alternatively, it is also possible to modify the
 `fail_if_repin_required` attribute in your `WORKSPACE` file, run
-`bazel run @unpinned_maven//:pin` and then reset the
+`bazel run @maven//:pin` and then reset the
 `fail_if_repin_required` attribute.
 
 ### Custom location for `maven_install.json`
@@ -1241,7 +1234,7 @@ Set the `RJE_VERBOSE` environment variable to `true` to print `coursier`'s verbo
 output. For example:
 
 ```
-$ RJE_VERBOSE=true bazel run @unpinned_maven//:pin
+$ RJE_VERBOSE=true bazel run @maven//:pin
 ```
 
 ### Tests
