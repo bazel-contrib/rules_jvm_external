@@ -1,4 +1,5 @@
 load("//:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
@@ -399,32 +400,39 @@ def _maven_impl(mctx):
                     existing_repos.append(repo_string)
             repo["repositories"] = existing_repos
 
-        coursier_fetch(
-            # Name this repository "unpinned_{name}" if the user specified a
-            # maven_install.json file. The actual @{name} repository will be
-            # created from the maven_install.json file in the coursier_fetch
-            # invocation after this.
-            name = "unpinned_" + name if repo.get("lock_file") else name,
-            user_provided_name = name,
-            repositories = repo.get("repositories"),
-            artifacts = artifacts_json,
-            fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
-            fetch_sources = repo.get("fetch_sources"),
-            fetch_javadoc = repo.get("fetch_javadoc"),
-            excluded_artifacts = excluded_artifacts_json,
-            generate_compat_repositories = False,
-            version_conflict_policy = repo.get("version_conflict_policy"),
-            override_targets = overrides,
-            strict_visibility = repo.get("strict_visibility"),
-            strict_visibility_value = repo.get("strict_visibility_value"),
-            use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
-            maven_install_json = repo.get("lock_file"),
-            resolve_timeout = repo.get("resolve_timeout"),
-            use_starlark_android_rules = repo.get("use_starlark_android_rules"),
-            aar_import_bzl_label = repo.get("aar_import_bzl_label"),
-            duplicate_version_warning = repo.get("duplicate_version_warning"),
-            ignore_empty_files = repo.get("ignore_empty_files"),
-        )
+        if repo.get("resolver", _DEFAULT_RESOLVER) == "coursier":
+            coursier_fetch(
+                # Name this repository "unpinned_{name}" if the user specified a
+                # maven_install.json file. The actual @{name} repository will be
+                # created from the maven_install.json file in the coursier_fetch
+                # invocation after this.
+                name = "unpinned_" + name if repo.get("lock_file") else name,
+                user_provided_name = name,
+                repositories = repo.get("repositories"),
+                artifacts = artifacts_json,
+                fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
+                fetch_sources = repo.get("fetch_sources"),
+                fetch_javadoc = repo.get("fetch_javadoc"),
+                excluded_artifacts = excluded_artifacts_json,
+                generate_compat_repositories = False,
+                version_conflict_policy = repo.get("version_conflict_policy"),
+                override_targets = overrides,
+                strict_visibility = repo.get("strict_visibility"),
+                strict_visibility_value = repo.get("strict_visibility_value"),
+                use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
+                maven_install_json = repo.get("lock_file"),
+                resolve_timeout = repo.get("resolve_timeout"),
+                use_starlark_android_rules = repo.get("use_starlark_android_rules"),
+                aar_import_bzl_label = repo.get("aar_import_bzl_label"),
+                duplicate_version_warning = repo.get("duplicate_version_warning"),
+                ignore_empty_files = repo.get("ignore_empty_files"),
+            )
+        else:
+            # Only the coursier resolver allows the lock file to be omitted.
+            unpinned_maven_pin_command_alias(
+                name = "unpinned_" + name,
+                alias = "@%s//:pin" % name,
+            )
 
         if repo.get("generate_compat_repositories") and not repo.get("lock_file"):
             seen = _generate_compat_repos(name, compat_repos, artifacts)
