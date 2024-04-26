@@ -14,12 +14,15 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver;
 
+import static org.junit.Assert.fail;
+
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenResolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import java.nio.file.Path;
+import org.eclipse.aether.transfer.ArtifactNotFoundException;
 import org.junit.Test;
 
 public class MavenResolverTest extends ResolverTestBase {
@@ -38,5 +41,20 @@ public class MavenResolverTest extends ResolverTestBase {
 
     // There should be no cycle detected by this dependency
     resolver.resolve(prepareRequestFor(repo.toUri(), main));
+  }
+
+  @Test
+  public void shouldErrorOnMissingTopLevelDependency() {
+    Coordinates missing = new Coordinates("com.example:missing:1.0.0");
+    Path repo = MavenRepo.create().getPath();
+
+    try {
+      resolver.resolve(prepareRequestFor(repo.toUri(), missing)).getResolution();
+      fail("Expected ArtifactNotFoundException");
+    } catch (Exception e) {
+      if (!(e.getCause() instanceof ArtifactNotFoundException)) {
+        fail("Expected ArtifactNotFoundException");
+      }
+    }
   }
 }

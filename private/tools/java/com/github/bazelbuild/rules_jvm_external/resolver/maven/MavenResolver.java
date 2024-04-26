@@ -68,6 +68,7 @@ import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
+import org.eclipse.aether.transfer.ArtifactNotFoundException;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
@@ -167,8 +168,7 @@ public class MavenResolver implements Resolver {
     List<Dependency> bomDependencies =
         resolveArtifactsFromBoms(system, session, repositories, bomsWithGlobalExclusions);
 
-    List<Dependency> managedDependencies =
-        overrideDependenciesWithUserChoices(bomDependencies, dependencies);
+    List<Dependency> managedDependencies = createManagedDependencies(bomDependencies, dependencies);
 
     // In a regular maven project, the root `pom.xml` defines what has the
     // dependencies --- they can't just "float in space". We simulate the
@@ -226,8 +226,26 @@ public class MavenResolver implements Resolver {
               mbe.getProblems().stream()
                   .map(p -> "[WARNING]:    " + p.getModelId() + " -> " + p.getMessage())
                   .collect(Collectors.joining("\n"));
-
           listener.onEvent(new LogEvent("maven", message, detail));
+        } else if (e instanceof ArtifactNotFoundException) {
+          ArtifactNotFoundException anfe = (ArtifactNotFoundException) e;
+          // Re-throw if we are missing a top-level dependency
+          if (dependencies.stream()
+              .map(Dependency::getArtifact)
+              .noneMatch(
+                  artifact ->
+                      artifact.getArtifactId().equals(anfe.getArtifact().getArtifactId())
+                          && artifact.getGroupId().equals(anfe.getArtifact().getGroupId())
+                          && artifact.getVersion().equals(anfe.getArtifact().getVersion()))) {
+            String message =
+                "The POM for "
+                    + anfe.getArtifact()
+                    + " is missing, no dependency information available.";
+            String detail = "[WARNING]:    " + anfe.getMessage();
+            listener.onEvent(new LogEvent("maven", message, detail));
+          } else {
+            throw new RuntimeException(e);
+          }
         } else if (e instanceof RuntimeException) {
           throw (RuntimeException) e;
         } else {
@@ -236,24 +254,20 @@ public class MavenResolver implements Resolver {
       }
     }
 
-    Graph<Coordinates> initialResolution =
-        buildGraph(coordsListener.getRemappings(), resolvedDependencies);
-    GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(initialResolution);
+    Graph<Coordinates> dependencyGraph =
+        buildDependencyGraph(coordsListener.getRemappings(), resolvedDependencies);
+    GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(dependencyGraph);
 
-    Set<Coordinates> simpleRequestedDeps =
-        request.getDependencies().stream()
-            .map(com.github.bazelbuild.rules_jvm_external.resolver.Artifact::getCoordinates)
-            .collect(Collectors.toSet());
     Set<Conflict> conflicts =
         Sets.union(
-            getConflicts(simpleRequestedDeps, resolvedDependencies),
+            getConflicts(request.getDependencies(), resolvedDependencies),
             graphNormalizationResult.getConflicts());
 
     return new ResolutionResult(graphNormalizationResult.getNormalizedGraph(), conflicts);
   }
 
-  private GraphNormalizationResult makeVersionsConsistent(Graph<Coordinates> initialResolution) {
-    Set<Coordinates> nodes = initialResolution.nodes();
+  private GraphNormalizationResult makeVersionsConsistent(Graph<Coordinates> dependencyGraph) {
+    Set<Coordinates> nodes = dependencyGraph.nodes();
 
     Map<Coordinates, Coordinates> mappedVersions = gatherExpectedVersions(nodes);
 
@@ -263,7 +277,7 @@ public class MavenResolver implements Resolver {
     for (Coordinates node : nodes) {
       Coordinates replacement = mappedVersions.get(node);
       toReturn.addNode(replacement);
-      Set<Coordinates> successors = initialResolution.successors(node);
+      Set<Coordinates> successors = dependencyGraph.successors(node);
       for (Coordinates successor : successors) {
         Coordinates successorReplacement = mappedVersions.get(successor);
         toReturn.addNode(successorReplacement);
@@ -313,8 +327,14 @@ public class MavenResolver implements Resolver {
   }
 
   private Set<Conflict> getConflicts(
-      Set<Coordinates> userRequestedDependencies, List<DependencyNode> directDependencies) {
+      List<com.github.bazelbuild.rules_jvm_external.resolver.Artifact> artifacts,
+      List<DependencyNode> resolvedDependencies) {
     Set<Conflict> conflicts = new HashSet<>();
+
+    Set<Coordinates> artifactsCoordinates =
+        artifacts.stream()
+            .map(com.github.bazelbuild.rules_jvm_external.resolver.Artifact::getCoordinates)
+            .collect(Collectors.toSet());
 
     DependencyVisitor collector =
         new TreeDependencyVisitor(
@@ -331,48 +351,52 @@ public class MavenResolver implements Resolver {
                   Coordinates nodeCoords = MavenCoordinates.asCoordinates(artifact);
 
                   if (!winningCoords.equals(nodeCoords)) {
-                    if (!userRequestedDependencies.contains(winningCoords)) {
+                    if (!artifactsCoordinates.contains(winningCoords)) {
                       conflicts.add(new Conflict(winningCoords, nodeCoords));
                     }
                   }
                 }));
-    directDependencies.forEach(node -> node.accept(collector));
+
+    resolvedDependencies.forEach(node -> node.accept(collector));
+
     return Set.copyOf(conflicts);
   }
 
-  private List<Dependency> overrideDependenciesWithUserChoices(
-      List<Dependency> managedDependencies, List<Dependency> dependencies) {
+  private List<Dependency> createManagedDependencies(
+      List<Dependency> bomDependencies, List<Dependency> dependencies) {
     // Add artifacts people have requested to the managed dependencies
     // Without this, the versions requested in BOMs will be preferred to the
     // one that the user requested
-    Map<String, Set<String>> groupIdsAndArtifactsIds = new HashMap<>();
+    // First add all the dependencies that have versions
+    Set<String> artifactKeys = new HashSet<>();
     dependencies.stream()
         .map(Dependency::getArtifact)
         .filter(artifact -> artifact.getVersion() != null)
         .filter(artifact -> !artifact.getVersion().isEmpty())
-        .forEach(
-            artifact -> {
-              Set<String> group =
-                  groupIdsAndArtifactsIds.computeIfAbsent(
-                      artifact.getGroupId(), str -> new HashSet<>());
-              group.add(artifact.getArtifactId());
-            });
+        .forEach(artifact -> artifactKeys.add(getArtifactKey(artifact)));
 
-    ImmutableList.Builder<Dependency> toReturn = ImmutableList.builder();
-    toReturn.addAll(dependencies);
+    ImmutableList.Builder<Dependency> managedDependencies = ImmutableList.builder();
+    managedDependencies.addAll(dependencies);
 
-    // Remove items from managedDependencies where the group and artifact ids match first order deps
-    managedDependencies.stream()
-        .filter(
-            dep -> {
-              Artifact artifact = dep.getArtifact();
-              Set<String> group =
-                  groupIdsAndArtifactsIds.getOrDefault(artifact.getGroupId(), Set.of());
-              return !group.contains(artifact.getArtifactId());
-            })
-        .forEach(toReturn::add);
+    // Then add all the BOM dependencies that are not in the declared dependency list
+    bomDependencies.stream()
+        .filter(dep -> !artifactKeys.contains(getArtifactKey(dep.getArtifact())))
+        .forEach(managedDependencies::add);
 
-    return toReturn.build();
+    return managedDependencies.build();
+  }
+
+  private static String getArtifactKey(Artifact artifact) {
+    // Note: We're not using MavenCoordinates.asCoordinates(artifact).asKey() because these
+    // dependencies are inputs to the maven resolver, so we don't want to change the classifer
+    // or extension before sending them to the resolver.
+    return new Coordinates(
+            artifact.getGroupId(),
+            artifact.getArtifactId(),
+            artifact.getExtension(),
+            artifact.getClassifier(),
+            artifact.getVersion())
+        .asKey();
   }
 
   private List<Dependency> resolveArtifactsFromBoms(
@@ -412,9 +436,10 @@ public class MavenResolver implements Resolver {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private Graph<Coordinates> buildGraph(
-      Map<Coordinates, Coordinates> remappings, Collection<DependencyNode> directDependencies) {
-    MutableGraph<Coordinates> toReturn = GraphBuilder.directed().allowsSelfLoops(true).build();
+  private Graph<Coordinates> buildDependencyGraph(
+      Map<Coordinates, Coordinates> remappings, Collection<DependencyNode> resolvedDependencies) {
+    MutableGraph<Coordinates> dependencyGraph =
+        GraphBuilder.directed().allowsSelfLoops(true).build();
     DependencyVisitor collector =
         new TreeDependencyVisitor(
             new DependencyNodeVisitor(
@@ -424,7 +449,7 @@ public class MavenResolver implements Resolver {
                   Artifact artifact = amendArtifact(actualNode.getArtifact());
                   Coordinates from = MavenCoordinates.asCoordinates(artifact);
                   Coordinates remapped = remappings.getOrDefault(from, from);
-                  toReturn.addNode(remapped);
+                  dependencyGraph.addNode(remapped);
 
                   actualNode.getChildren().stream()
                       .map(this::getDependencyNode)
@@ -434,13 +459,13 @@ public class MavenResolver implements Resolver {
                       .map(c -> remappings.getOrDefault(c, c))
                       .forEach(
                           to -> {
-                            toReturn.addNode(to);
-                            toReturn.putEdge(remapped, to);
+                            dependencyGraph.addNode(to);
+                            dependencyGraph.putEdge(remapped, to);
                           });
                 }));
-    directDependencies.forEach(node -> node.accept(collector));
+    resolvedDependencies.forEach(node -> node.accept(collector));
 
-    return ImmutableGraph.copyOf(toReturn);
+    return ImmutableGraph.copyOf(dependencyGraph);
   }
 
   private DependencyNode getDependencyNode(DependencyNode node) {
