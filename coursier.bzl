@@ -886,7 +886,14 @@ def make_coursier_dep_tree(
         exec_result = _execute(repository_ctx, [java_path, "-version"])
         if (exec_result.return_code != 0):
             fail("Error while running java -version: " + exec_result.stderr)
-        if parse_java_version(exec_result.stdout + exec_result.stderr) > 8:
+        java_version_output = exec_result.stdout + exec_result.stderr
+        java_version = parse_java_version(java_version_output)
+        if _is_verbose(repository_ctx):
+            print("Parsed java version [{}] from java version output [{}]".format(
+                java_version,
+                java_version_output,
+            ))
+        if java_version > 8:
             java_cmd = cmd[0]
             java_args = cmd[1:]
 
