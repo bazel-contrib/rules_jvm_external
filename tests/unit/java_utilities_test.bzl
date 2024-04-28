@@ -7,6 +7,7 @@ def _parse_java_version_test_impl(ctx):
     asserts.equals(env, None, parse_java_version(""))
     asserts.equals(env, None, parse_java_version("version "))
     asserts.equals(env, None, parse_java_version("java\nversion\n\"1.7.0_44\""))
+    asserts.equals(env, None, parse_java_version("Picked up _JAVA_OPTIONS:  -Djava.awt.headless=true"))
 
     asserts.equals(
         env,
@@ -65,6 +66,17 @@ OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.9+11, mixed mode)
 openjdk version "15" 2020-09-15
 OpenJDK Runtime Environment (build 15+36-1562)
 OpenJDK 64-Bit Server VM (build 15+36-1562, mixed mode, sharing)
+"""),
+    )
+
+    asserts.equals(
+        env,
+        21,
+        parse_java_version("""
+Picked up _JAVA_OPTIONS:  -Djava.awt.headless=true -Duser.timezone=UTC
+openjdk version "21.0.2" 2024-01-16 LTS
+OpenJDK Runtime Environment Temurin-21.0.2+13 (build 21.0.2+13-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.2+13 (build 21.0.2+13-LTS, mixed mode, sharing)
 """),
     )
 

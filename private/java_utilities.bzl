@@ -38,14 +38,21 @@ def get_major_version(java_version):
 #     OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.9+11, mixed mode)
 #
 def parse_java_version(java_version_output):
-    first_line = java_version_output.strip().split("\n")[0]
-    if not first_line:
+    version_lines = java_version_output.strip().split("\n")
+    if "_JAVA_OPTIONS" in version_lines[0]:
+        if len(version_lines) > 1:
+            first_version_line = version_lines[1]
+        else:
+            return None
+    else:
+        first_version_line = version_lines[0]
+    if not first_version_line:
         return None
-    i = index_of_version_character(first_line)
+    i = index_of_version_character(first_version_line)
     if i == None:
         return None
-    j = index_of_non_version_character_from(first_line, i + 1)
-    return get_major_version(first_line[i:j])
+    j = index_of_non_version_character_from(first_version_line, i + 1)
+    return get_major_version(first_version_line[i:j])
 
 # Build the contents of a java Command-Line Argument File from a list of
 # arguments.
