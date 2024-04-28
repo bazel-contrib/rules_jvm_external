@@ -1,6 +1,6 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load(
-    "//:coursier.bzl",
+    "//private/rules:coursier.bzl",
     "compute_dependency_inputs_signature",
     "get_coursier_cache_or_default",
     "get_netrc_lines_from_entries",

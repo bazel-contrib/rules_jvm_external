@@ -1,5 +1,6 @@
 exports_files([
     "artifact.bzl",
+    "coursier.bzl",
     "generate_pin_repository.bzl",
     "has_maven_deps.bzl",
     "java_export.bzl",
