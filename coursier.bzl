@@ -21,7 +21,7 @@ load(
     "is_maven_local_path",
 )
 load("//private:dependency_tree_parser.bzl", "parser")
-load("//private:java_utilities.bzl", "build_java_argsfile_content", "parse_java_version")
+load("//private:java_utilities.bzl", "build_java_argsfile_content")
 load("//private:proxy.bzl", "get_java_proxy_args")
 load(
     "//private:versions.bzl",
@@ -880,36 +880,23 @@ def make_coursier_dep_tree(
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
 
-    # If we are using Java 9 or higher we can use an argsfile to avoid command line length limits
-    java_path = _java_path(repository_ctx)
-    if java_path:
-        exec_result = _execute(repository_ctx, [java_path, "-version"])
-        if (exec_result.return_code != 0):
-            fail("Error while running java -version: " + exec_result.stderr)
-        java_version_output = exec_result.stdout + exec_result.stderr
-        java_version = parse_java_version(java_version_output)
-        if _is_verbose(repository_ctx):
-            print("Parsed java version [{}] from java version output [{}]".format(
-                java_version,
-                java_version_output,
-            ))
-        if java_version > 8:
-            java_cmd = cmd[0]
-            java_args = cmd[1:]
+    # Use an argsfile to avoid command line length limits, requires Java version > 8
+    java_cmd = cmd[0]
+    java_args = cmd[1:]
 
-            argsfile_content = build_java_argsfile_content(java_args)
-            if _is_verbose(repository_ctx):
-                repository_ctx.execute(
-                    ["echo", "\nargsfile_content:\n%s" % argsfile_content],
-                    quiet = False,
-                )
+    argsfile_content = build_java_argsfile_content(java_args)
+    if _is_verbose(repository_ctx):
+        repository_ctx.execute(
+            ["echo", "\nargsfile_content:\n%s" % argsfile_content],
+            quiet = False,
+        )
 
-            repository_ctx.file(
-                "java_argsfile",
-                argsfile_content,
-                executable = False,
-            )
-            cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
+    repository_ctx.file(
+        "java_argsfile",
+        argsfile_content,
+        executable = False,
+    )
+    cmd = [java_cmd, "@{}".format(repository_ctx.path("java_argsfile"))]
 
     exec_result = _execute(
         repository_ctx,
