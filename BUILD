@@ -43,7 +43,6 @@ stardoc(
 bzl_library(
     name = "implementation",
     srcs = [
-        ":coursier.bzl",
         ":defs.bzl",
         ":specs.bzl",
         "//private:artifact_utilities.bzl",
@@ -54,6 +53,7 @@ bzl_library(
         "//private:proxy.bzl",
         "//private:versions.bzl",
         "//private/rules:artifact.bzl",
+        "//private/rules:coursier.bzl",
         "//private/rules:generate_pin_repository.bzl",
         "//private/rules:has_maven_deps.bzl",
         "//private/rules:java_export.bzl",
