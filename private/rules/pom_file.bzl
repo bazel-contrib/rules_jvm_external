@@ -13,18 +13,12 @@ def _pom_file_impl(ctx):
     additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
 
     def get_implementation_coordinates(target):
-        if not info.label_to_javainfo.get(target.label):
+        if not hasattr(target, "coordinates"):
             return None
-        if not target[MavenInfo].coordinates:
+        if not target.coordinates:
             return None
 
-        return ctx.expand_make_variables("implementation_deps", target[MavenInfo].coordinates, ctx.var)
-
-    implementation_deps = [
-        get_implementation_coordinates(target)
-        for target in ctx.attr.implementation_deps
-    ]
-    implementation_deps = [dep for dep in implementation_deps if dep]
+        return ctx.expand_make_variables("maven_runtime_deps", target.coordinates, ctx.var)
 
     all_maven_deps = info.maven_deps.to_list()
     for dep in additional_deps:
@@ -33,6 +27,15 @@ def _pom_file_impl(ctx):
     expanded_maven_deps = [
         ctx.expand_make_variables("additional_deps", coords, ctx.var)
         for coords in all_maven_deps
+    ]
+
+    #    runtime_deps_converted = [
+    #        ctx.expand_make_variables("maven_runtime_deps", coords, ctx.var)
+    #        for coords in info.maven_runtime_deps.to_list()
+    #    ]
+    runtime_deps_converted = [
+        get_implementation_coordinates(target)
+        for target in info.maven_runtime_deps.to_list()
     ]
 
     # Expand maven coordinates for any variables to be replaced.
@@ -44,7 +47,7 @@ def _pom_file_impl(ctx):
         versioned_dep_coordinates = sorted(expanded_maven_deps),
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
-        implementation_deps = implementation_deps,
+        runtime_deps = runtime_deps_converted,
     )
 
     return [
@@ -93,13 +96,6 @@ The following substitutions are performed on the template file:
             providers = [
                 [JavaInfo],
             ],
-            aspects = [
-                has_maven_deps,
-            ],
-        ),
-        "implementation_deps": attr.label_list(
-            doc = "A list of labels of Java targets to include as 'implementation' dependencies. These are given runtime scope on the generated pom file.",
-            allow_empty = True,
             aspects = [
                 has_maven_deps,
             ],
