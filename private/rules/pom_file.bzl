@@ -12,30 +12,20 @@ def _pom_file_impl(ctx):
     artifact_jars = calculate_artifact_jars(info)
     additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
 
-    def get_implementation_coordinates(target):
-        if not hasattr(target, "coordinates"):
-            return None
-        if not target.coordinates:
-            return None
-
-        return ctx.expand_make_variables("maven_runtime_deps", target.coordinates, ctx.var)
-
     all_maven_deps = info.maven_deps.to_list()
+    runtime_maven_deps = info.maven_runtime_deps.to_list()
+
     for dep in additional_deps:
         for coords in dep[MavenInfo].as_maven_dep.to_list():
             all_maven_deps.append(coords)
+
     expanded_maven_deps = [
         ctx.expand_make_variables("additional_deps", coords, ctx.var)
         for coords in all_maven_deps
     ]
-
-    #    runtime_deps_converted = [
-    #        ctx.expand_make_variables("maven_runtime_deps", coords, ctx.var)
-    #        for coords in info.maven_runtime_deps.to_list()
-    #    ]
-    runtime_deps_converted = [
-        get_implementation_coordinates(target)
-        for target in info.maven_runtime_deps.to_list()
+    expanded_runtime_deps = [
+        ctx.expand_make_variables("maven_runtime_deps", coords, ctx.var)
+        for coords in runtime_maven_deps
     ]
 
     # Expand maven coordinates for any variables to be replaced.
@@ -45,9 +35,9 @@ def _pom_file_impl(ctx):
         ctx,
         coordinates = coordinates,
         versioned_dep_coordinates = sorted(expanded_maven_deps),
+        runtime_deps = expanded_runtime_deps,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
-        runtime_deps = runtime_deps_converted,
     )
 
     return [

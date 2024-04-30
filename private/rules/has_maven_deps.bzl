@@ -158,7 +158,7 @@ def _has_maven_deps_impl(target, ctx):
     dep_infos = gathered.dep_infos
     label_to_javainfo = gathered.label_to_javainfo
     maven_deps = depset(transitive = [i.as_maven_dep for i in all_infos])
-    maven_runtime_deps = depset(direct = gathered.runtime_infos)
+    maven_runtime_deps = depset(transitive = [i.as_maven_dep for i in gathered.runtime_infos])
 
     transitive_exports_from_exports = depset()
     if hasattr(ctx.rule.attr, "exports"):
