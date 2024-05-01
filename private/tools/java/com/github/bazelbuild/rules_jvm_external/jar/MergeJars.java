@@ -33,10 +33,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -45,6 +47,7 @@ import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -53,6 +56,7 @@ public class MergeJars {
 
   public static void main(String[] args) throws IOException {
     Path out = null;
+    Path prependServices = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
     Set<Path> excludes = new HashSet<>();
@@ -79,6 +83,12 @@ public class MergeJars {
 
         case "--sources":
           sources.add(isValid(Paths.get(args[++i])));
+          break;
+
+        case "--prepend_services":
+          isValid(Paths.get(args[++i]));
+          prependServices = Paths.get(args[i]);
+          System.out.println(prependServices);
           break;
 
         default:
@@ -142,7 +152,12 @@ public class MergeJars {
             Set<String> services =
                 allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
             String content = new String(ByteStreams.toByteArray(zis));
-            services.addAll(Arrays.asList(content.split("\n")));
+            List<String> commentsRemoved = Arrays
+                    .stream(content.split("\n"))
+                    .filter(l -> !l.trim().startsWith("#"))
+                    .filter(l -> !l.isEmpty())
+                    .collect(Collectors.toList());
+            services.addAll(commentsRemoved);
             continue;
           }
 
@@ -207,7 +222,17 @@ public class MergeJars {
         for (Map.Entry<String, Set<String>> kv : allServices.entrySet()) {
           entry = new StableZipEntry("META-INF/services/" + kv.getKey());
           bos = new ByteArrayOutputStream();
-          bos.write(String.join("\n", kv.getValue()).getBytes());
+          List<String> toWrite = new ArrayList<>();
+
+          if (prependServices != null) {
+            String prepend = Files.readString(prependServices);
+            toWrite.addAll(Arrays.asList(prepend.split("\n")));
+            toWrite.add("");
+          }
+
+          toWrite.addAll(kv.getValue());
+          bos.write(String.join("\n", toWrite).getBytes());
+          bos.write("\n".getBytes());
           entry.setSize(bos.size());
           jos.putNextEntry(entry);
           jos.write(bos.toByteArray());

@@ -31,15 +31,21 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
 
     return to_return
 
-def _combine_jars(ctx, merge_jars, inputs, excludes, output):
+def _combine_jars(ctx, merge_jars, inputs, excludes, output, prepend_services = None):
     args = ctx.actions.args()
     args.add("--output", output)
     args.add_all(inputs, before_each = "--sources")
     args.add_all(excludes, before_each = "--exclude")
+    deps = [inputs, excludes]
+
+    if prepend_services:
+        prepend_services = prepend_services.files.to_list()[0]
+        args.add("--prepend_services", prepend_services)
+        deps.append(depset([prepend_services]))
 
     ctx.actions.run(
         mnemonic = "MergeJars",
-        inputs = depset(transitive = [inputs, excludes]),
+        inputs = depset(transitive = deps),
         outputs = [output],
         executable = merge_jars,
         arguments = [args],
@@ -76,6 +82,7 @@ def _maven_project_jar_impl(ctx):
                    [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
                    [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]),
         intermediate_jar,
+        prepend_services = ctx.attr.prepend_services,
     )
 
     # Add manifest lines if necessary
@@ -123,6 +130,7 @@ def _maven_project_jar_impl(ctx):
                    [ji.transitive_source_jars for ji in info.dep_infos.to_list()] +
                    [jar[JavaInfo].transitive_source_jars for jar in ctx.attr.deploy_env]),
         src_jar,
+        prepend_services = ctx.attr.prepend_services,
     )
 
     java_toolchain = ctx.attr._java_toolchain[java_common.JavaToolchainInfo]
@@ -211,6 +219,11 @@ single artifact that other teams can download and use.
             providers = [
                 [JavaInfo],
             ],
+        ),
+        "prepend_services": attr.label(
+            doc = "A file whose contents will be prepended to the generated `META-INF/services` files in the -project jar.",
+            default = None,
+            allow_single_file = True,
         ),
         "_add_jar_manifest_entry": attr.label(
             executable = True,

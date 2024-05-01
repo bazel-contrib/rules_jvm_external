@@ -553,6 +553,67 @@ public class MergeJarsTest {
     }
   }
 
+  @Test
+  public void mergedJarServiceProviderFileRemovesCommentLines() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    createJar(
+        inputOne,
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "# This is a comment")
+    );
+
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    createJar(
+        inputTwo,
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "com.example.Foo")
+    );
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+            new String[] {
+                    "--output", outputJar.toAbsolutePath().toString(),
+                    "--sources", inputOne.toAbsolutePath().toString(),
+                    "--sources", inputTwo.toAbsolutePath().toString(),
+            });
+
+    Map<String, String> contents = readJar(outputJar);
+
+    assertEquals("com.example.Foo\n", contents.get("META-INF/services/com.example.ServiceProvider"));
+  }
+
+  @Test
+  public void mergedJarServiceProviderFilePrependsLines() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    createJar(
+            inputOne,
+            ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "# This is a comment")
+    );
+
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    createJar(
+            inputTwo,
+            ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "com.example.Foo")
+    );
+
+    String prepend = "# This is a LICENSE\n # It should be kept\n";
+    Path inputThree = temp.newFile("LICENSE").toPath();
+    Files.write(inputThree, prepend.getBytes(UTF_8));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+            new String[] {
+                    "--output", outputJar.toAbsolutePath().toString(),
+                    "--sources", inputOne.toAbsolutePath().toString(),
+                    "--sources", inputTwo.toAbsolutePath().toString(),
+                    "--prepend_services", inputThree.toAbsolutePath().toString(),
+            });
+
+    Map<String, String> contents = readJar(outputJar);
+
+    assertEquals(prepend + "\ncom.example.Foo\n", contents.get("META-INF/services/com.example.ServiceProvider"));
+  }
+
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
         ZipOutputStream zos = new ZipOutputStream(os)) {
