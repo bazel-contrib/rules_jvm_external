@@ -570,11 +570,11 @@ public class MergeJarsTest {
     Path outputJar = temp.newFile("out.jar").toPath();
 
     MergeJars.main(
-            new String[] {
-                    "--output", outputJar.toAbsolutePath().toString(),
-                    "--sources", inputOne.toAbsolutePath().toString(),
-                    "--sources", inputTwo.toAbsolutePath().toString(),
-            });
+        new String[] {
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString(),
+            "--sources", inputTwo.toAbsolutePath().toString(),
+        });
 
     Map<String, String> contents = readJar(outputJar);
 
@@ -585,14 +585,14 @@ public class MergeJarsTest {
   public void mergedJarServiceProviderFilePrependsLines() throws IOException {
     Path inputOne = temp.newFile("one.jar").toPath();
     createJar(
-            inputOne,
-            ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "# This is a comment")
+        inputOne,
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "# This is a comment")
     );
 
     Path inputTwo = temp.newFile("two.jar").toPath();
     createJar(
-            inputTwo,
-            ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "com.example.Foo")
+        inputTwo,
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "com.example.Foo")
     );
 
     String prepend = "# This is a LICENSE\n # It should be kept\n";
@@ -602,12 +602,13 @@ public class MergeJarsTest {
     Path outputJar = temp.newFile("out.jar").toPath();
 
     MergeJars.main(
-            new String[] {
-                    "--output", outputJar.toAbsolutePath().toString(),
-                    "--sources", inputOne.toAbsolutePath().toString(),
-                    "--sources", inputTwo.toAbsolutePath().toString(),
-                    "--prepend_services", inputThree.toAbsolutePath().toString(),
-            });
+        new String[] {
+            "--output", outputJar.toAbsolutePath().toString(),
+            "--sources", inputOne.toAbsolutePath().toString(),
+            "--sources", inputTwo.toAbsolutePath().toString(),
+            "--prepend_services", inputThree.toAbsolutePath().toString(),
+        }
+    );
 
     Map<String, String> contents = readJar(outputJar);
 
