@@ -454,6 +454,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             ))
 
         elif artifact_path != None:
+            seen_imports[target_label] = True
             all_imports.extend(_generate_target(
                 repository_ctx,
                 jar_versionless_target_labels,
