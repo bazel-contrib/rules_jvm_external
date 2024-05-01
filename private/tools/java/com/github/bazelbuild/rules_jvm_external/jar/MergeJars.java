@@ -88,7 +88,6 @@ public class MergeJars {
         case "--prepend_services":
           isValid(Paths.get(args[++i]));
           prependServices = Paths.get(args[i]);
-          System.out.println(prependServices);
           break;
 
         default:
