@@ -5,6 +5,7 @@ MavenInfo = provider(
         # Fields to do with maven coordinates
         "coordinates": "Maven coordinates for the project, which may be None",
         "maven_deps": "Depset of first-order maven dependencies",
+        "maven_runtime_deps": "Depset of first-order maven runtime dependencies",
         "as_maven_dep": "Depset of this project if used as a maven dependency",
 
         # Fields used for generating artifacts
@@ -93,6 +94,7 @@ def calculate_artifact_source_jars(maven_info):
 _gathered = provider(
     fields = [
         "all_infos",
+        "runtime_infos",
         "label_to_javainfo",
         "artifact_infos",
         "transitive_exports",
@@ -100,10 +102,14 @@ _gathered = provider(
     ],
 )
 
-def _extract_from(gathered, maven_info, dep, include_transitive_exports):
+def _extract_from(gathered, maven_info, dep, include_transitive_exports, is_runtime_dep):
     java_info = dep[JavaInfo] if dep and JavaInfo in dep else None
 
     gathered.all_infos.append(maven_info)
+
+    if is_runtime_dep:
+        gathered.runtime_infos.append(maven_info)
+
     gathered.label_to_javainfo.update(maven_info.label_to_javainfo)
     if java_info:
         if maven_info.coordinates:
@@ -127,6 +133,7 @@ def _has_maven_deps_impl(target, ctx):
 
     gathered = _gathered(
         all_infos = [],
+        runtime_infos = [],
         artifact_infos = [target[JavaInfo]],
         transitive_exports = [],
         dep_infos = [],
@@ -137,13 +144,13 @@ def _has_maven_deps_impl(target, ctx):
         for dep in getattr(ctx.rule.attr, attr, []):
             if MavenHintInfo in dep:
                 for info in dep[MavenHintInfo].maven_infos.to_list():
-                    _extract_from(gathered, info, None, attr == "exports")
+                    _extract_from(gathered, info, None, attr == "exports", attr == "runtime_deps")
 
             if not MavenInfo in dep:
                 continue
 
             info = dep[MavenInfo]
-            _extract_from(gathered, info, dep, attr == "exports")
+            _extract_from(gathered, info, dep, attr == "exports", attr == "runtime_deps")
 
     all_infos = gathered.all_infos
     artifact_infos = gathered.artifact_infos
@@ -151,6 +158,7 @@ def _has_maven_deps_impl(target, ctx):
     dep_infos = gathered.dep_infos
     label_to_javainfo = gathered.label_to_javainfo
     maven_deps = depset(transitive = [i.as_maven_dep for i in all_infos])
+    maven_runtime_deps = depset(transitive = [i.as_maven_dep for i in gathered.runtime_infos])
 
     transitive_exports_from_exports = depset()
     if hasattr(ctx.rule.attr, "exports"):
@@ -163,6 +171,7 @@ def _has_maven_deps_impl(target, ctx):
     info = MavenInfo(
         coordinates = coordinates,
         maven_deps = maven_deps,
+        maven_runtime_deps = maven_runtime_deps,
         as_maven_dep = depset([coordinates]) if coordinates else maven_deps,
         artifact_infos = depset(direct = artifact_infos),
         dep_infos = depset(direct = dep_infos, transitive = [i.dep_infos for i in all_infos]),
