@@ -152,10 +152,10 @@ public class MergeJars {
                 allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
             String content = new String(ByteStreams.toByteArray(zis));
             List<String> commentsRemoved = Arrays
-                    .stream(content.split("\n"))
-                    .filter(l -> !l.trim().startsWith("#"))
-                    .filter(l -> !l.isEmpty())
-                    .collect(Collectors.toList());
+                .stream(content.split("\n"))
+                .filter(l -> !l.trim().startsWith("#"))
+                .filter(l -> !l.isEmpty())
+                .collect(Collectors.toList());
             services.addAll(commentsRemoved);
             continue;
           }
