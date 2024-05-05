@@ -356,14 +356,19 @@ def get_netrc_lines_from_entries(netrc_entries):
     return netrc_lines
 
 def get_home_netrc_contents(repository_ctx):
-    # Copied with a ctx -> repository_ctx rename from tools/build_defs/repo/http.bzl's _get_auth.
-    # Need to keep updated with improvements in source since we cannot load private methods.
-    if "HOME" in repository_ctx.os.environ:
-        if not repository_ctx.os.name.startswith("windows"):
-            netrcfile = "%s/.netrc" % (repository_ctx.os.environ["HOME"],)
-            if _is_file(repository_ctx, netrcfile):
-                return repository_ctx.read(netrcfile)
-    return ""
+    if repository_ctx.os.name.startswith("windows"):
+        home_dir = repository_ctx.os.environ.get("USERPROFILE", "")
+    else:
+        home_dir = repository_ctx.os.environ.get("HOME", "")
+
+    if not home_dir:
+        return ""
+
+    netrcfile = "{}/.netrc".format(home_dir)
+    if not repository_ctx.path(netrcfile).exists:
+        return ""
+
+    return repository_ctx.read(netrcfile)
 
 def _add_outdated_files(repository_ctx, artifacts, repositories):
     repository_ctx.file(
