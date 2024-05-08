@@ -65,11 +65,7 @@ sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
     args = [
-        # TODO: change to rlocationpath once rules_jvm_external drops support for Bazel <5.4.0
-        # "$(rlocationpath :unsorted_deps.json)",
-        # We can use execpath in the meantime, because we know this file is always a source file
-        # in that external repo.
-        "$(execpath :unsorted_deps.json)",
+        "$(rlocationpath :unsorted_deps.json)",
     ],
     data = [
         ":unsorted_deps.json",
