@@ -63,7 +63,9 @@ here](https://github.com/bazelbuild/rules_jvm_external/releases/latest).
 
 ## Prerequisites
 
-* Bazel 4.0.0 and above
+* Bazel 5.4.1 and above.
+
+Support for Bazel versions between `4.x` and `5.4` is only available on rules_jvm_external releases `5.x`. 
 
 Support for Bazel versions before `4.0.0` is only available on rules_jvm_external releases `4.2` or earlier.
 
