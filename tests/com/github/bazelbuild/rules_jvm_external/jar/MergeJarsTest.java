@@ -584,20 +584,18 @@ public class MergeJarsTest {
   @Test
   public void mergedJarServiceProviderFilePrependsLines() throws IOException {
     Path inputOne = temp.newFile("one.jar").toPath();
+    String inputOneContents = "# This is a comment\n# This is another comment\ncom.example.Foo";
     createJar(
         inputOne,
-        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "# This is a comment")
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputOneContents)
     );
 
     Path inputTwo = temp.newFile("two.jar").toPath();
+    String inputTwoContents = "# My License\ncom.example.Bar";
     createJar(
         inputTwo,
-        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", "com.example.Foo")
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputTwoContents)
     );
-
-    String prepend = "# This is a LICENSE\n # It should be kept\n";
-    Path inputThree = temp.newFile("LICENSE").toPath();
-    Files.write(inputThree, prepend.getBytes(UTF_8));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
@@ -606,13 +604,14 @@ public class MergeJarsTest {
             "--output", outputJar.toAbsolutePath().toString(),
             "--sources", inputOne.toAbsolutePath().toString(),
             "--sources", inputTwo.toAbsolutePath().toString(),
-            "--prepend_services", inputThree.toAbsolutePath().toString(),
         }
     );
 
     Map<String, String> contents = readJar(outputJar);
 
-    assertEquals(prepend + "\ncom.example.Foo\n", contents.get("META-INF/services/com.example.ServiceProvider"));
+    String expected = String.join("\n\n", inputOneContents, inputTwoContents) + "\n";
+
+    assertEquals(expected, contents.get("META-INF/services/com.example.ServiceProvider"));
   }
 
   private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {

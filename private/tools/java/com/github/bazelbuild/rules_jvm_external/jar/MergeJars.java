@@ -43,11 +43,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -56,7 +54,6 @@ public class MergeJars {
 
   public static void main(String[] args) throws IOException {
     Path out = null;
-    Path prependServices = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
     Set<Path> excludes = new HashSet<>();
@@ -83,11 +80,6 @@ public class MergeJars {
 
         case "--sources":
           sources.add(isValid(Paths.get(args[++i])));
-          break;
-
-        case "--prepend_services":
-          isValid(Paths.get(args[++i]));
-          prependServices = Paths.get(args[i]);
           break;
 
         default:
@@ -118,7 +110,7 @@ public class MergeJars {
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
-    Map<String, Set<String>> allServices = new TreeMap<>();
+    Map<String, List<String>> allServices = new TreeMap<>();
     Set<String> excludedPaths = readExcludedFileNames(excludes);
     Set<String> duplicateExceptions = Set.of("COPYRIGHT", "LICENSE", "NOTICE");
 
@@ -148,15 +140,9 @@ public class MergeJars {
 
           if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) {
             String servicesName = entry.getName().substring("META-INF/services/".length());
-            Set<String> services =
-                allServices.computeIfAbsent(servicesName, key -> new TreeSet<>());
-            String content = new String(ByteStreams.toByteArray(zis));
-            List<String> commentsRemoved = Arrays
-                .stream(content.split("\n"))
-                .filter(l -> !l.trim().startsWith("#"))
-                .filter(l -> !l.isEmpty())
-                .collect(Collectors.toList());
-            services.addAll(commentsRemoved);
+            List<String> services =
+                allServices.computeIfAbsent(servicesName, key -> new ArrayList<>());
+            services.add(new String(ByteStreams.toByteArray(zis)));
             continue;
           }
 
@@ -218,19 +204,11 @@ public class MergeJars {
           jos.closeEntry();
           createdDirectories.add(entry.getName());
         }
-        for (Map.Entry<String, Set<String>> kv : allServices.entrySet()) {
+        for (Map.Entry<String, List<String>> kv : allServices.entrySet()) {
           entry = new StableZipEntry("META-INF/services/" + kv.getKey());
           bos = new ByteArrayOutputStream();
-          List<String> toWrite = new ArrayList<>();
 
-          if (prependServices != null) {
-            String prepend = Files.readString(prependServices);
-            toWrite.addAll(Arrays.asList(prepend.split("\n")));
-            toWrite.add("");
-          }
-
-          toWrite.addAll(kv.getValue());
-          bos.write(String.join("\n", toWrite).getBytes());
+          bos.write(String.join("\n\n", kv.getValue()).getBytes());
           bos.write("\n".getBytes());
           entry.setSize(bos.size());
           jos.putNextEntry(entry);
