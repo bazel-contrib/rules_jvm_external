@@ -87,7 +87,7 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             "org.slf4j:slf4j-simple:2.0.12",
             "software.amazon.awssdk:s3:2.25.23",
         ],
-        maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
+        maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json" if repositories == _DEFAULT_REPOSITORIES else "@//:rules_jvm_external_deps_install.json",
         fail_if_repin_required = True,
         strict_visibility = True,
         fetch_sources = True,
