@@ -10,56 +10,85 @@ Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bd
 Table of Contents
 =================
 
-   * [rules_jvm_external](#rules_jvm_external)
-      * [Features](#features)
-      * [Usage](#usage)
-      * [API Reference](#api-reference)
-      * [Pinning artifacts and integration with Bazel's downloader](#pinning-artifacts-and-integration-with-bazels-downloader)
-         * [Updating maven_install.json](#updating-maven_installjson)
-         * [Custom location for maven_install.json](#custom-location-for-maven_installjson)
-         * [Multiple maven_install.json files](#multiple-maven_installjson-files)
-      * [Generated targets](#generated-targets)
-      * [Outdated artifacts](#outdated-artifacts)
-      * [Advanced usage](#advanced-usage)
-         * [Fetch source JARs](#fetch-source-jars)
-         * [Checksum verification](#checksum-verification)
-         * [artifact helper macro](#artifact-helper-macro)
-         * [java_plugin_artifact helper macro](#java_plugin_artifact-helper-macro)
-         * [Multiple maven_install declarations for isolated artifact version trees](#multiple-maven_install-declarations-for-isolated-artifact-version-trees)
-         * [Detailed dependency information specifications](#detailed-dependency-information-specifications)
-         * [Artifact exclusion](#artifact-exclusion)
-         * [Compile-only dependencies](#compile-only-dependencies)
-         * [Resolving user-specified and transitive dependency version conflicts](#resolving-user-specified-and-transitive-dependency-version-conflicts)
-         * [Overriding generated targets](#overriding-generated-targets)
-         * [Proxies](#proxies)
-         * [Repository aliases](#repository-aliases)
-            * [Repository remapping](#repository-remapping)
-         * [Hiding transitive dependencies](#hiding-transitive-dependencies)
-         * [Fetch and resolve timeout](#fetch-and-resolve-timeout)
-         * [Duplicate artifact warning](#duplicate-artifact-warning)
-         * [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
-      * [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
-      * [Publishing to external repositories](#publishing-to-external-repositories)
-      * [Configuring the dependency resolver](#configuring-the-dependency-resolver)
-      * [Demo](#demo)
-      * [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
-      * [Generating documentation](#generating-documentation)
+- [Features](#features)
+- [Examples](#examples)
+    - [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
+- [Prerequisites](#prerequisites)
+- [Usage](#usage)
+    - [With bzlmod (Bazel 6 and above)](#with-bzlmod-bazel-6-and-above)
+    - [With WORKSPACE file (legacy)](#with-workspace-file-legacy)
+- [API Reference](#api-reference)
+- [Pinning artifacts and integration with Bazel's downloader](#pinning-artifacts-and-integration-with-bazels-downloader)
+    - [Updating `maven_install.json`](#updating-maven_installjson)
+    - [Requiring lock file repinning when the list of artifacts changes](#requiring-lock-file-repinning-when-the-list-of-artifacts-changes)
+    - [Custom location for `maven_install.json`](#custom-location-for-maven_installjson)
+    - [Multiple `maven_install.json` files](#multiple-maven_installjson-files)
+- [(Experimental) Support for Maven BOM files](#experimental-support-for-maven-bom-files)
+- [Generated targets](#generated-targets)
+- [Outdated artifacts](#outdated-artifacts)
+- [Advanced usage](#advanced-usage)
+    - [Fetch source JARs](#fetch-source-jars)
+    - [Checksum verification](#checksum-verification)
+    - [Using a custom Coursier download url](#using-a-custom-coursier-download-url)
+    - [`artifact` helper macro](#artifact-helper-macro)
+    - [`java_plugin_artifact` helper macro](#java_plugin_artifact-helper-macro)
+    - [Multiple `maven_install` declarations for isolated artifact version trees](#multiple-maven_install-declarations-for-isolated-artifact-version-trees)
+    - [Detailed dependency information specifications](#detailed-dependency-information-specifications)
+    - [Artifact exclusion](#artifact-exclusion)
+    - [Compile-only dependencies](#compile-only-dependencies)
+    - [Test-only dependencies](#test-only-dependencies)
+    - [Resolving user-specified and transitive dependency version conflicts](#resolving-user-specified-and-transitive-dependency-version-conflicts)
+    - [Overriding generated targets](#overriding-generated-targets)
+    - [Proxies](#proxies)
+    - [Repository aliases](#repository-aliases)
+    - [Repository remapping](#repository-remapping)
+    - [Hiding transitive dependencies](#hiding-transitive-dependencies)
+    - [Accessing transitive dependencies list](#accessing-transitive-dependencies-list)
+    - [Fetch and resolve timeout](#fetch-and-resolve-timeout)
+    - [Ignoring empty jars](#ignoring-empty-jars)
+    - [Duplicate artifact warning](#duplicate-artifact-warning)
+    - [Provide JVM options for Coursier with `COURSIER_OPTS`](#provide-jvm-options-for-coursier-with-coursier_opts)
+    - [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
+    - [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
+    - [Publishing to External Repositories](#publishing-to-external-repositories)
+- [Configuring the dependency resolver](#configuring-the-dependency-resolver)
+    - [Common options](#common-options)
+    - [Configuring Coursier](#configuring-coursier)
+    - [Configuring Maven](#configuring-maven)
+- [IPv6 support](#ipv6-support)
+- [Developing this project](#developing-this-project)
+    - [Verbose / debug mode](#verbose--debug-mode)
+    - [Tests](#tests)
+    - [Installing the Android SDK on macOS](#installing-the-android-sdk-on-macos)
+    - [Generating documentation](#generating-documentation)
 
 ## Features
 
+* MODULE.bazel bzlmod configuration (Bazel 6 and above only) 
 * WORKSPACE configuration
-* JAR, AAR, source JARs
-* Custom Maven repositories
-* Private Maven repositories with HTTP Basic Authentication
-* Artifact version resolution with Coursier
-* Integration with Bazel's downloader and caching mechanisms for sharing artifacts across Bazel workspaces
+* Artifact version resolution with Coursier or Maven
+* Import downloaded JAR, AAR, source JARs
+* Export built JARs to Maven repositories
 * Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file
+* Custom Maven repositories
+* Private Maven repositories using HTTP Basic Authentication or `netrc`
+* Integration with Bazel's downloader and caching mechanisms for sharing artifacts across Bazel workspaces
 * Versionless target labels for simpler dependency management
 * Ability to declare multiple sets of versioned artifacts
 * Supported on Windows, macOS, Linux
 
 Get the [latest release
 here](https://github.com/bazelbuild/rules_jvm_external/releases/latest).
+
+## Examples
+
+You can find examples in the [`examples/`](./examples/) directory.
+
+### Projects using rules_jvm_external
+
+Find other GitHub projects using `rules_jvm_external`
+[with this search query](https://github.com/search?p=1&q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&type=Code).
+
 
 ## Prerequisites
 
@@ -71,9 +100,19 @@ Support for Bazel versions before `4.0.0` is only available on rules_jvm_externa
 
 ## Usage
 
-> New: on Bazel 6, you can use bzlmod instead of following directions below.
-> See [bzlmod](./docs/bzlmod.md).
-> bzlmod is on-by-default in Bazel 7.0.
+### With bzlmod (Bazel 6 and above)
+
+If you are starting a new project, or your project is already using Bazel 6.0
+and above, we recommend using [`bzlmod`](https://bazel.build/external/overview)
+to manage your external dependencies, including Maven dependencies with
+`rules_jvm_external`. It address several shortcomings of the `WORKSPACE`
+mechanism. If you are unable to use `bzlmod`, `rules_jvm_external` also supports
+the `WORKSPACE` mechanism (see below).
+
+See [bzlmod.md](./docs/bzlmod.md) for the usage instructions. bzlmod is
+on-by-default in Bazel 7.0.
+
+### With WORKSPACE file (legacy)
 
 List the top-level Maven artifacts and servers in the WORKSPACE:
 
@@ -301,7 +340,7 @@ load("@bar//:defs.bzl", bar_pinned_maven_install = "pinned_maven_install")
 bar_pinned_maven_install()
 ```
 
-### (Experimental) Support for Maven BOM files
+## (Experimental) Support for Maven BOM files
 
 Support for Maven BOMs can be enabled by switching the resolver used by `maven_install` to one that supports Maven BOMs.
 This can be done by setting the `resolver` attribute to `maven`. The new resolver will likely result in different
@@ -1221,15 +1260,6 @@ Add:
 * `-Djava.net.preferIPv6Addresses=true to the `COURSIER_OPTS` environment variable to provide JVM options for Coursier.
 
 For more information, read the [official docs for IPv6 support in Bazel](https://bazel.build/docs/external#support-for-ipv6).
-
-## Demo
-
-You can find demos in the [`examples/`](./examples/) directory.
-
-## Projects using rules_jvm_external
-
-Find other GitHub projects using `rules_jvm_external`
-[with this search query](https://github.com/search?p=1&q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&type=Code).
 
 ## Developing this project
 
