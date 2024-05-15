@@ -122,11 +122,24 @@ for more information.
 
 `rules_jvm_external_deps` uses a default list of maven repositories to download
  `rules_jvm_external`'s own dependencies from. Should you wish to change this,
- use the `repositories` parameter:
+ use the `repositories` parameter, and also set the path to the lock file:
 
  ```python
-rules_jvm_external_deps(repositories = ["https://mycorp.com/artifacts"])
+rules_jvm_external_deps(
+    repositories = ["https://mycorp.com/artifacts"],
+    deps_lock_file = "@//:rules_jvm_external_deps_install.json")
 rules_jvm_external_setup()
+```
+
+If you are using `bzlmod`, define an `install` tag in your root 
+`MODULE.bazel` which overrides the values:
+
+```python
+maven.install(
+    name = "rules_jvm_external_deps",
+    repositories = ["https://mycorp.com/artifacts"],
+    lock_file = "@//:rules_jvm_external_deps_install.json",
+)
 ```
 
 Next, reference the artifacts in the BUILD file with their versionless label:
