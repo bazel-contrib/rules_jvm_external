@@ -122,10 +122,7 @@ for more information.
 
 `rules_jvm_external_deps` uses a default list of maven repositories to download
  `rules_jvm_external`'s own dependencies from. Should you wish to change this,
- use the `repositories` parameter, generate your own `rules_jvm_external_deps_install.json` by
- running `REPIN=1 bazel run @unpinned_rules_jvm_external_deps//:pin` and commit the file to your
- version control system (note that at this point you will need to maintain your customized
- `rules_jvm_external_deps_install.json`):
+ use the `repositories` parameter:
 
  ```python
 rules_jvm_external_deps(repositories = ["https://mycorp.com/artifacts"])
