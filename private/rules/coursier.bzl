@@ -795,6 +795,10 @@ def make_coursier_dep_tree(
         fetch_javadoc,
         timeout,
         report_progress_prefix = ""):
+
+    if not repositories:
+        fail("repositories cannot be empty")
+
     # Set up artifact exclusion, if any. From coursier fetch --help:
     #
     # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
