@@ -64,14 +64,14 @@ Table of Contents
 
 ## Features
 
-* MODULE.bazel bzlmod configuration (Bazel 6 and above only) 
+* MODULE.bazel bzlmod configuration (Bazel 7 and above) 
 * WORKSPACE configuration
 * Artifact version resolution with Coursier or Maven
 * Import downloaded JAR, AAR, source JARs
 * Export built JARs to Maven repositories
 * Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file
 * Custom Maven repositories
-* Private Maven repositories using HTTP Basic Authentication or `netrc`
+* Private Maven repositories using `netrc` files
 * Integration with Bazel's downloader and caching mechanisms for sharing artifacts across Bazel workspaces
 * Versionless target labels for simpler dependency management
 * Ability to declare multiple sets of versioned artifacts
@@ -100,11 +100,11 @@ Support for Bazel versions before `4.0.0` is only available on rules_jvm_externa
 
 ## Usage
 
-### With bzlmod (Bazel 6 and above)
+### With bzlmod (Bazel 7 and above)
 
-If you are starting a new project, or your project is already using Bazel 6.0
-and above, we recommend using [`bzlmod`](https://bazel.build/external/overview)
-to manage your external dependencies, including Maven dependencies with
+If you are starting a new project, or your project is already using Bazel 7 and
+above, we recommend using [`bzlmod`](https://bazel.build/external/overview) to
+manage your external dependencies, including Maven dependencies with
 `rules_jvm_external`. It address several shortcomings of the `WORKSPACE`
 mechanism. If you are unable to use `bzlmod`, `rules_jvm_external` also supports
 the `WORKSPACE` mechanism (see below).
