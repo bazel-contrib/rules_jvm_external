@@ -161,15 +161,30 @@ for more information.
 
 `rules_jvm_external_deps` uses a default list of maven repositories to download
  `rules_jvm_external`'s own dependencies from. Should you wish to change this,
- use the `repositories` parameter, generate your own `rules_jvm_external_deps_install.json` by
- running `REPIN=1 bazel run @unpinned_rules_jvm_external_deps//:pin` and commit the file to your
- version control system (note that at this point you will need to maintain your customized
- `rules_jvm_external_deps_install.json`):
+ use the `repositories` parameter, and also set the path to the lock file:
 
  ```python
-rules_jvm_external_deps(repositories = ["https://mycorp.com/artifacts"])
+rules_jvm_external_deps(
+    repositories = ["https://mycorp.com/artifacts"],
+    deps_lock_file = "@//:rules_jvm_external_deps_install.json")
 rules_jvm_external_setup()
 ```
+
+If you are using `bzlmod`, define an `install` tag in your root 
+`MODULE.bazel` which overrides the values:
+
+```python
+maven.install(
+    name = "rules_jvm_external_deps",
+    repositories = ["https://mycorp.com/artifacts"],
+    lock_file = "@//:rules_jvm_external_deps_install.json",
+)
+```
+
+Once these changes have been made, repin using `REPIN=1 bazel run
+@rules_jvm_external_deps//:pin` and commit the file to your version 
+control system (note that at this point you will need to maintain your
+customized `rules_jvm_external_deps_install.json`):
 
 Next, reference the artifacts in the BUILD file with their versionless label:
 
