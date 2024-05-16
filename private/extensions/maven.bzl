@@ -1,3 +1,4 @@
+load("@bazel_features//:features.bzl", "bazel_features")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//:specs.bzl", "parse", _json = "json")
@@ -491,6 +492,16 @@ def _maven_impl(mctx):
                 all_artifacts = parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts])
                 seen = _generate_compat_repos(name, compat_repos, parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts]))
                 compat_repos.extend(seen)
+
+    if bazel_features.external_deps.extension_metadata_has_reproducible:
+        # The type and attributes of repositories created by this extension are fully deterministic
+        # and thus don't need to be included in MODULE.bazel.lock.
+        # Note: This ignores get_m2local_url, but that depends on local information and environment
+        # variables only. In fact, since it depends on the host OS, *not* including the extension
+        # result in the lockfile makes it more portable across different machines.
+        return mctx.extension_metadata(reproducible = True)
+    else:
+        return None
 
 maven = module_extension(
     _maven_impl,

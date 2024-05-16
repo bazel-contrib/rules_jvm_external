@@ -6,6 +6,10 @@ module(
 )
 
 bazel_dep(
+    name = "bazel_features",
+    version = "1.11.0",
+)
+bazel_dep(
     name = "bazel_skylib",
     version = "1.4.2",
 )
