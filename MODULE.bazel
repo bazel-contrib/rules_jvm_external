@@ -292,6 +292,14 @@ dev_maven.install(
     ],
 )
 
+[dev_maven.artifact(
+    name = "service_indexing_testing",
+    testonly = True,  # must be propagated to the generated plugin
+    artifact = artifact,
+    group = "org.openjdk.jmh",
+    version = "1.37",
+) for artifact in ("jmh-core", "jmh-generator-annprocess")]
+
 dev_maven.install(
     name = "service_indexing_testing",
     artifacts = [

@@ -322,12 +322,13 @@ genrule(
     for annotation_processor in artifact.get("annotation_processors", []):
         to_return.append(
             """java_plugin(
-\tname = "{name}",
+\tname = "{name}",{testonly}
 \tdeps = [":{jar_target}"],
 \tgenerates_api = True,
 processor_class = "{processor_class}",
 {alias_visibility})""".format(
                 name = "{}__java_plugin__{}".format(target_label, escape(annotation_processor)),
+                testonly = "\n\ttestonly = True," if testonly_artifacts.get(simple_coord) else "",
                 jar_target = target_label,
                 processor_class = annotation_processor,
                 alias_visibility = alias_visibility,

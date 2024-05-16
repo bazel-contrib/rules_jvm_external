@@ -475,6 +475,14 @@ maven_install(
         "com.google.auto.value:auto-value:1.10.4",
         "com.google.auto.value:auto-value-annotations:1.10.4",
         "org.projectlombok:lombok:1.18.22",
+    ] + [
+        maven.artifact(
+            testonly = True,  # must be propagated to the generated plugin
+            artifact = artifact,
+            group = "org.openjdk.jmh",
+            version = "1.37",
+        )
+        for artifact in ("jmh-core", "jmh-generator-annprocess")
     ],
     maven_install_json = "//tests/custom_maven_install:service_indexing_testing.json",
     repositories = [
