@@ -794,6 +794,7 @@ def make_coursier_dep_tree(
         fetch_sources,
         fetch_javadoc,
         timeout,
+        additional_coursier_options,
         report_progress_prefix = ""):
 
     if not repositories:
@@ -884,6 +885,8 @@ def make_coursier_dep_tree(
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
+    cmd.extend(additional_coursier_options)
 
     # Use an argsfile to avoid command line length limits, requires Java version > 8
     java_cmd = cmd[0]
@@ -991,6 +994,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.attr.fetch_sources,
         repository_ctx.attr.fetch_javadoc,
         repository_ctx.attr.resolve_timeout,
+        repository_ctx.attr.additional_coursier_options,
     )
 
     files_to_inspect = []
@@ -1432,6 +1436,7 @@ coursier_fetch = repository_rule(
             ],
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
+        "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
     },
     environ = [
         "JAVA_HOME",

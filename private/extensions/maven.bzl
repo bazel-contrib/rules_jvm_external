@@ -110,6 +110,7 @@ _install = tag_class(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "repin_instructions": attr.string(doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module."),
+        "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
     },
 )
 
@@ -221,6 +222,7 @@ def _maven_impl(mctx):
     # - use_starlark_android_rules: bool. A logical OR over all `use_starlark_android_rules` for all `install` tags with the same name.
     # - version_conflict_policy: string. Fails build if different and not a default.
     # - ignore_empty_files: Treat jars that are empty as if they were not found.
+    # - additional_coursier_options: Additional options that will be passed to coursier.
 
     # Mapping of `name`s to `bazel_module.name` This will allow us to warn users when more than
     # module attempts to update a maven repo (which is normally undesired behaviour)
@@ -339,6 +341,8 @@ def _maven_impl(mctx):
             if mod.is_root:
                 repo["repin_instructions"] = install.repin_instructions
 
+            repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
+
             repos[install.name] = repo
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
@@ -427,6 +431,7 @@ def _maven_impl(mctx):
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 ignore_empty_files = repo.get("ignore_empty_files"),
+                additional_coursier_options = repo.get("additional_coursier_options"),
             )
         else:
             # Only the coursier resolver allows the lock file to be omitted.
