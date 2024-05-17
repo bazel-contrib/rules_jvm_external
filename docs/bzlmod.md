@@ -93,5 +93,4 @@ maven.install(
 ## Known issues
 
 - Some error messages print instructions that don't apply under bzlmod, e.g. https://github.com/bazelbuild/rules_jvm_external/issues/827
-- The `java_grpc_library` rule [isn't available](https://github.com/bazelbuild/bazel-central-registry/issues/353)
 - Java Gazelle extension [isn't available](https://github.com/bazel-contrib/rules_jvm/issues/123)
