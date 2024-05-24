@@ -563,35 +563,38 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     for artifact in importer.get_artifacts(maven_install_json_content):
         http_file_repository_name = escape(artifact["coordinates"])
-        maven_artifacts.extend([artifact["coordinates"]])
-        http_files.extend([
-            "    http_file(",
-            "        name = \"%s\"," % http_file_repository_name,
-            "        sha256 = \"%s\"," % artifact["sha256"],
-            # repository_ctx should point to external/$repository_ctx.name
-            # The http_file should point to external/$http_file_repository_name
-            # File-path is relative defined from http_file traveling to repository_ctx.
-            "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
-        ])
-        if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
-            if _is_windows(repository_ctx):
-                user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")
+        if artifact.get("file"):
+            maven_artifacts.extend([artifact["coordinates"]])
+            http_files.extend([
+                "    http_file(",
+                "        name = \"%s\"," % http_file_repository_name,
+                "        sha256 = \"%s\"," % artifact["sha256"],
+                # repository_ctx should point to external/$repository_ctx.name
+                # The http_file should point to external/$http_file_repository_name
+                # File-path is relative defined from http_file traveling to repository_ctx.
+                "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
+            ])
+            if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
+                if _is_windows(repository_ctx):
+                    user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")
+                else:
+                    user_home = repository_ctx.os.environ.get("HOME")
+                m2local_urls = [
+                    "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
+                ]
             else:
-                user_home = repository_ctx.os.environ.get("HOME")
-            m2local_urls = [
-                "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
-            ]
-        else:
-            m2local_urls = []
-        http_files.append("        urls = %s," % repr(
-            [remove_auth_from_url(url) for url in artifact["urls"] + m2local_urls],
-        ))
+                m2local_urls = []
+            http_files.append("        urls = %s," % repr(
+                [remove_auth_from_url(url) for url in artifact["urls"] + m2local_urls],
+            ))
 
-        # https://github.com/bazelbuild/rules_jvm_external/issues/1028
-        # http_rule does not like directories named "build" so prepend v1 to the path.
-        download_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"]
-        http_files.append("        downloaded_file_path = \"%s\"," % download_path)
-        http_files.append("    )")
+            # https://github.com/bazelbuild/rules_jvm_external/issues/1028
+            # http_rule does not like directories named "build" so prepend v1 to the path.
+            download_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"]
+            http_files.append("        downloaded_file_path = \"%s\"," % download_path)
+            http_files.append("    )")
+        elif _is_verbose(repository_ctx):
+            print("No file downloaded for %s, skipping http_file definition" % http_file_repository_name)
 
     http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
@@ -796,7 +799,6 @@ def make_coursier_dep_tree(
         timeout,
         additional_coursier_options,
         report_progress_prefix = ""):
-
     if not repositories:
         fail("repositories cannot be empty")
 
