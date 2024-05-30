@@ -404,7 +404,7 @@ public class MavenResolver implements Resolver {
       RepositorySystemSession session,
       List<RemoteRepository> repositories,
       List<Dependency> boms) {
-    Set<Dependency> managedDependencies = new HashSet<>();
+    Set<Dependency> managedDependencies = new LinkedHashSet<>();
 
     for (Dependency bom : boms) {
       ArtifactDescriptorRequest request =
