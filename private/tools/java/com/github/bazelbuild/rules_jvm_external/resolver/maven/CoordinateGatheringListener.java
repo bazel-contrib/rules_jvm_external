@@ -17,21 +17,21 @@ package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenPackagingMappings.mapPackagingToExtension;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.AbstractRepositoryListener;
 import org.eclipse.aether.RepositoryEvent;
 import org.eclipse.aether.artifact.Artifact;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 public class CoordinateGatheringListener extends AbstractRepositoryListener {
 
@@ -50,21 +50,12 @@ public class CoordinateGatheringListener extends AbstractRepositoryListener {
       return;
     }
 
-    // The correct thing to do here is to use a `ModelBuildingRequest` from Maven to build and
-    // construct a `Model`,
-    // which can then query the packaging of. However, since we just want one value from an XML
-    // document, we're
-    // going to do this the Old Skool way and just parse the document and run a little XPath over
-    // it.
-    try {
-      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-      Document doc = documentBuilder.parse(file);
-
-      doc.normalizeDocument();
-
-      XPath xPath = XPathFactory.newInstance().newXPath();
-      String packaging = xPath.compile("//project/packaging").evaluate(doc);
+    try (InputStream is = new FileInputStream(file);
+        BufferedInputStream bis = new BufferedInputStream(is);
+        Reader reader = new InputStreamReader(bis)) {
+      MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+      Model model = mavenXpp3Reader.read(reader);
+      String packaging = model.getPackaging();
 
       if (packaging == null) {
         return;
@@ -91,10 +82,7 @@ public class CoordinateGatheringListener extends AbstractRepositoryListener {
               artifact.getVersion());
 
       knownRewrittenCoordinates.put(coords, actualCoords);
-    } catch (IOException
-        | ParserConfigurationException
-        | SAXException
-        | XPathExpressionException e) {
+    } catch (IOException | XmlPullParserException e) {
       throw new RuntimeException("Unable to determine packaging", e);
     }
   }

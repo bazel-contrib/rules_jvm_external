@@ -83,6 +83,7 @@ def rules_jvm_external_deps(
             "org.apache.maven.resolver:maven-resolver-util:%s" % _MAVEN_RESOLVER_VERSION,
             "org.codehaus.plexus:plexus-cipher:2.1.0",
             "org.codehaus.plexus:plexus-sec-dispatcher:2.0",
+            "org.codehaus.plexus:plexus-utils:3.5.1",
             "org.fusesource.jansi:jansi:2.4.1",
             "org.slf4j:jul-to-slf4j:2.0.12",
             "org.slf4j:log4j-over-slf4j:2.0.12",
