@@ -5,10 +5,11 @@ tasks:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
+      REPIN: 1
     shell_commands:
-      - bazel run @unpinned_regression_testing_coursier//:pin
+      - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -27,10 +28,12 @@ tasks:
 #  ubuntu2204_4_2_2:
 #    platform: ubuntu2204
 #    bazel: 4.2.2
+#    environment:
+#      REPIN: 1
 #    shell_commands:
-#      - bazel run @unpinned_regression_testing_coursier//:pin
+#      - bazel run @regression_testing_coursier//:pin
 #      - bazel run @regression_testing_maven//:pin
-#      - bazel run @unpinned_maven_install_in_custom_location//:pin
+#      - bazel run @maven_install_in_custom_location//:pin
 #      - tests/bazel_run_tests.sh
 #    test_targets:
 #      - "--"
@@ -38,10 +41,12 @@ tasks:
   ubuntu2204_5_4_0:
     platform: ubuntu2204
     bazel: 5.4.0
+    environment:
+      REPIN: 1
     shell_commands:
-      - bazel run @unpinned_regression_testing_coursier//:pin
+      - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -49,10 +54,12 @@ tasks:
   ubuntu2204_6_4_0:
     platform: ubuntu2204
     bazel: 6.4.0
+    environment:
+      REPIN: 1
     shell_commands:
-      - bazel run @unpinned_regression_testing_coursier//:pin
+      - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -64,10 +71,11 @@ tasks:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
+      REPIN: 1
     shell_commands:
-      - bazel run @unpinned_regression_testing_coursier//:pin
+      - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -77,10 +85,11 @@ tasks:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
+      REPIN: 1
     shell_commands:
-      - bazel run @unpinned_regression_testing_coursier//:pin
+      - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "//..."
@@ -90,10 +99,11 @@ tasks:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
+      REPIN: 1
     shell_commands:
-      - bazel run @unpinned_regression_testing_coursier//:pin
+      - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
-      - bazel run @unpinned_maven_install_in_custom_location//:pin
+      - bazel run @maven_install_in_custom_location//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"

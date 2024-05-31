@@ -23,7 +23,6 @@ import com.google.common.hash.Hashing;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -37,6 +36,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class Downloader {
@@ -99,7 +99,7 @@ public class Downloader {
     if (pomResult.getPath().isPresent()) {
       try (InputStream is = Files.newInputStream(pomResult.getPath().get());
           BufferedInputStream bis = new BufferedInputStream(is);
-          Reader reader = new InputStreamReader(bis)) {
+          Reader reader = ReaderFactory.newXmlReader(bis)) {
         MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
         Model model = mavenXpp3Reader.read(reader);
         String packaging = model.getPackaging();
