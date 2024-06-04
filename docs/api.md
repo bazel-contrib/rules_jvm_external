@@ -180,7 +180,7 @@ maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-re
               <a href="#maven_install-strict_visibility_value">strict_visibility_value</a>, <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>,
               <a href="#maven_install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>, <a href="#maven_install-fail_if_repin_required">fail_if_repin_required</a>,
               <a href="#maven_install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven_install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven_install-duplicate_version_warning">duplicate_version_warning</a>,
-              <a href="#maven_install-repin_instructions">repin_instructions</a>, <a href="#maven_install-ignore_empty_files">ignore_empty_files</a>)
+              <a href="#maven_install-repin_instructions">repin_instructions</a>, <a href="#maven_install-ignore_empty_files">ignore_empty_files</a>, <a href="#maven_install-additional_coursier_options">additional_coursier_options</a>)
 </pre>
 
 Resolves and fetches artifacts transitively from Maven repositories.
@@ -218,6 +218,7 @@ and fetch Maven artifacts transitively.
 | <a id="maven_install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if an artifact is specified multiple times. If "error" then fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default is "warn".   |  <code>"warn"</code> |
 | <a id="maven_install-repin_instructions"></a>repin_instructions |  Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.   |  <code>None</code> |
 | <a id="maven_install-ignore_empty_files"></a>ignore_empty_files |  Treat jars that are empty as if they were not found.   |  <code>False</code> |
+| <a id="maven_install-additional_coursier_options"></a>additional_coursier_options |  Additional options that will be passed to coursier.   |  <code>[]</code> |
 
 
 # Maven specification functions
