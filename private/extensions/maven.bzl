@@ -1,6 +1,4 @@
 load("@bazel_features//:features.bzl", "bazel_features")
-load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
-load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
@@ -9,6 +7,8 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
