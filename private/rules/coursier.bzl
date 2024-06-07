@@ -265,10 +265,7 @@ def _generate_java_jar_command(repository_ctx, jar_path):
     java_path = _java_path(repository_ctx)
 
     if java_path != None:
-        # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
-        # The -noverify option seems to be required after the proguarding step
-        # of the main JAR of coursier.
-        cmd = [java_path, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
+        cmd = [java_path, "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
     else:
         # Try to execute coursier directly
         cmd = [jar_path] + coursier_opts + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
