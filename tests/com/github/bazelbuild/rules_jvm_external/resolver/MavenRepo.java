@@ -94,6 +94,19 @@ public class MavenRepo {
     return this;
   }
 
+  public MavenRepo writePomFile(Coordinates coords, String pomContents) throws IOException {
+    Path dir = root.resolve(coords.toRepoPath()).getParent();
+    Files.createDirectories(dir);
+
+    Path pomFile = dir.resolve(coords.getArtifactId() + "-" + coords.getVersion() + ".pom");
+    try (BufferedWriter writer = Files.newBufferedWriter(pomFile)) {
+      writer.write(pomContents);
+    }
+    writeSha1File(pomFile);
+
+    return this;
+  }
+
   private void writePomFile(Model model, Coordinates... deps) throws IOException {
     for (Coordinates dep : deps) {
       Dependency mavenDep = new Dependency();

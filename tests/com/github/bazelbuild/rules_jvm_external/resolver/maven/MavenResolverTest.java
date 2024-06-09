@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.bazelbuild.rules_jvm_external.resolver;
+package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
 import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
+import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
-import com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenResolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import java.nio.file.Path;
 import org.eclipse.aether.transfer.ArtifactNotFoundException;

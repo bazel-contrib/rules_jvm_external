@@ -2,10 +2,14 @@ load("//:defs.bzl", "artifact")
 
 java_library(
     name = "resolver",
+    testonly = True,
     srcs = glob(
         ["*.java"],
         exclude = glob(["*Test.java"]),
     ),
+    visibility = [
+        "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
+    ],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
@@ -28,34 +32,6 @@ java_library(
         ),
         artifact(
             "org.apache.maven:maven-model",
-            repository_name = "rules_jvm_external_deps",
-        ),
-    ],
-)
-
-java_test(
-    name = "MavenResolverTest",
-    size = "medium",
-    srcs = ["MavenResolverTest.java"],
-    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.MavenResolverTest",
-    deps = [
-        ":resolver",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
-        artifact(
-            "com.google.guava:guava",
-            repository_name = "rules_jvm_external_deps",
-        ),
-        artifact(
-            "junit:junit",
-            repository_name = "regression_testing_coursier",
-        ),
-        artifact(
-            "org.apache.maven.resolver:maven-resolver-api",
             repository_name = "rules_jvm_external_deps",
         ),
     ],
