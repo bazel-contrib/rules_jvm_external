@@ -25,6 +25,10 @@ java_library(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
+            "org.apache.maven:maven-model",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "org.apache.maven:maven-model-builder",
             repository_name = "rules_jvm_external_deps",
         ),
@@ -74,6 +78,10 @@ java_library(
         ),
         artifact(
             "org.codehaus.plexus:plexus-sec-dispatcher",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "org.codehaus.plexus:plexus-utils",
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(

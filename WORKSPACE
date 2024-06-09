@@ -299,6 +299,9 @@ maven_install(
     artifacts = [
         # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
         "org.apache.parquet:parquet-common:1.11.1",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1144
+        "org.codehaus.plexus:plexus:1.0.4",
+        "org.hamcrest:hamcrest-core:1.3",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,

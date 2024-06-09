@@ -73,6 +73,7 @@ maven.install(
         "org.apache.maven.resolver:maven-resolver-util:%s" % _MAVEN_RESOLVER_VERSION,
         "org.codehaus.plexus:plexus-cipher:2.1.0",
         "org.codehaus.plexus:plexus-sec-dispatcher:2.0",
+        "org.codehaus.plexus:plexus-utils:3.5.1",
         "org.fusesource.jansi:jansi:2.4.1",
         "org.slf4j:jul-to-slf4j:2.0.12",
         "org.slf4j:log4j-over-slf4j:2.0.12",
@@ -82,6 +83,7 @@ maven.install(
     fail_if_repin_required = True,
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
+    strict_visibility = True,
 )
 use_repo(
     maven,
@@ -587,6 +589,9 @@ dev_maven.install(
     artifacts = [
         # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
         "org.apache.parquet:parquet-common:1.11.1",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1144
+        "org.codehaus.plexus:plexus:1.0.4",
+        "org.hamcrest:hamcrest-core:1.3",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,

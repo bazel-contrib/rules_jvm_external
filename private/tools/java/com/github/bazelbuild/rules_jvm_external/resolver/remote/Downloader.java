@@ -23,6 +23,7 @@ import com.google.common.hash.Hashing;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,14 +34,10 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class Downloader {
 
@@ -100,27 +97,18 @@ public class Downloader {
       return null;
     }
     if (pomResult.getPath().isPresent()) {
-      // Quick hack to try and get the packaging from the pom file. We
-      // _could_ try and build the model properly, but this quick and dirty
-      // check should be sufficient
-
       try (InputStream is = Files.newInputStream(pomResult.getPath().get());
-          BufferedInputStream bis = new BufferedInputStream(is)) {
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document doc = builder.parse(bis);
-        doc.normalizeDocument();
+          BufferedInputStream bis = new BufferedInputStream(is);
+          Reader reader = ReaderFactory.newXmlReader(bis)) {
+        MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+        Model model = mavenXpp3Reader.read(reader);
+        String packaging = model.getPackaging();
 
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String value = xPath.compile("//project/packaging").evaluate(doc);
-
-        if ("pom".equals(value)) {
+        if ("pom".equals(packaging)) {
           // We have an aggregating result.
           return new DownloadResult(coords, pomResult.getRepositories(), null, null);
         }
-      } catch (IOException
-          | ParserConfigurationException
-          | SAXException
-          | XPathExpressionException e) {
+      } catch (IOException | XmlPullParserException e) {
         throw new RuntimeException(e);
       }
     }
