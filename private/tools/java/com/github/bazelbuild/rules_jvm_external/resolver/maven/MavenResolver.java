@@ -149,14 +149,14 @@ public class MavenResolver implements Resolver {
             .collect(Collectors.toSet());
 
     RepositorySystem system = createRepositorySystem();
-    ConsoleRepositoryListener consoleLog = new ConsoleRepositoryListener(listener);
-    ErrorReportingListener errors = new ErrorReportingListener();
-    CoordinateGatheringListener coordsListener = new CoordinateGatheringListener();
+    ConsoleRepositoryListener consoleLogListener = new ConsoleRepositoryListener(listener);
+    ErrorReportingListener errorListener = new ErrorReportingListener();
+    CoordinateGatheringListener coordinatesListener = new CoordinateGatheringListener();
     RepositorySystemSession session =
         prepareSession(
             system,
             new ClassicDependencyManager(),
-            new CompoundListener(consoleLog, errors, coordsListener),
+            new CompoundListener(consoleLogListener, errorListener, coordinatesListener),
             request.getLocalCache());
 
     List<RemoteRepository> repositories = new ArrayList<>(repos.size());
@@ -164,7 +164,7 @@ public class MavenResolver implements Resolver {
     repositories.addAll(repos);
 
     List<Dependency> bomsWithGlobalExclusions = addGlobalExclusions(globalExclusions, boms);
-    consoleLog.setPhase("Resolving " + bomsWithGlobalExclusions.size() + " BOM artifacts");
+    consoleLogListener.setPhase("Resolving " + bomsWithGlobalExclusions.size() + " BOM artifacts");
     List<Dependency> bomDependencies =
         resolveArtifactsFromBoms(system, session, repositories, bomsWithGlobalExclusions);
 
@@ -185,11 +185,11 @@ public class MavenResolver implements Resolver {
         prepareSession(
             system,
             derived,
-            new CompoundListener(consoleLog, errors, coordsListener),
+            new CompoundListener(consoleLogListener, errorListener, coordinatesListener),
             request.getLocalCache());
 
     List<Dependency> depsWithGlobalExclusions = addGlobalExclusions(globalExclusions, dependencies);
-    consoleLog.setPhase(
+    consoleLogListener.setPhase(
         "Resolving and fetching the transitive closure of "
             + depsWithGlobalExclusions.size()
             + " artifact(s)");
@@ -202,7 +202,7 @@ public class MavenResolver implements Resolver {
       System.err.println("\nDependency Graph:");
       resolvedDependencies.forEach(node -> node.accept(graphDumper));
 
-      Map<Coordinates, Coordinates> remappings = coordsListener.getRemappings();
+      Map<Coordinates, Coordinates> remappings = coordinatesListener.getRemappings();
       if (remappings.isEmpty()) {
         System.err.println("\nNo dependency remappings");
       } else {
@@ -213,7 +213,7 @@ public class MavenResolver implements Resolver {
       }
     }
 
-    List<Exception> exceptions = errors.getExceptions();
+    List<Exception> exceptions = errorListener.getExceptions();
     if (!exceptions.isEmpty()) {
       for (Exception e : exceptions) {
         if (e instanceof ModelBuildingException) {
@@ -255,7 +255,7 @@ public class MavenResolver implements Resolver {
     }
 
     Graph<Coordinates> dependencyGraph =
-        buildDependencyGraph(coordsListener.getRemappings(), resolvedDependencies);
+        buildDependencyGraph(coordinatesListener.getRemappings(), resolvedDependencies);
     GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(dependencyGraph);
 
     Set<Conflict> conflicts =
