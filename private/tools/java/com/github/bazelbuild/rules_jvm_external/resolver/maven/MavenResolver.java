@@ -368,19 +368,37 @@ public class MavenResolver implements Resolver {
     // Without this, the versions requested in BOMs will be preferred to the
     // one that the user requested
     // First add all the dependencies that have versions
+    Map<String, String> artifactVersions = new HashMap<>();
     Set<String> artifactKeys = new HashSet<>();
     dependencies.stream()
         .map(Dependency::getArtifact)
         .filter(artifact -> artifact.getVersion() != null)
         .filter(artifact -> !artifact.getVersion().isEmpty())
-        .forEach(artifact -> artifactKeys.add(getArtifactKey(artifact)));
+        .forEach(
+            artifact -> {
+              artifactVersions.put(getArtifactKey(artifact), artifact.getVersion());
+              artifactKeys.add(getArtifactKey(artifact));
+            });
 
     ImmutableList.Builder<Dependency> managedDependencies = ImmutableList.builder();
     managedDependencies.addAll(dependencies);
 
     // Then add all the BOM dependencies that are not in the declared dependency list
+    boolean rjeVerbose = System.getenv("RJE_VERBOSE") != null;
     bomDependencies.stream()
-        .filter(dep -> !artifactKeys.contains(getArtifactKey(dep.getArtifact())))
+        .filter(
+            dep -> {
+              String artifactKey = getArtifactKey(dep.getArtifact());
+              boolean artifactInBom = artifactKeys.contains(artifactKey);
+              if (rjeVerbose && artifactInBom) {
+                System.err.println(
+                    "BOM version for "
+                        + dep.getArtifact()
+                        + " has been overridden by an explicit dependency version: "
+                        + artifactVersions.get(artifactKey));
+              }
+              return !artifactInBom;
+            })
         .forEach(managedDependencies::add);
 
     return managedDependencies.build();
