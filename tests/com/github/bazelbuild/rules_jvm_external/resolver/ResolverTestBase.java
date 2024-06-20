@@ -580,7 +580,65 @@ public abstract class ResolverTestBase {
         .orElseThrow(() -> new AssertionError("Cannot find expected log message"));
   }
 
-  private Model createModel(Coordinates coords) {
+  @Test
+  public void shouldPriortizedVersionsfromBomFilesInOrder() {
+    Coordinates jacksonCoreCoords = new Coordinates("com.fasterxml.jackson.core:jackson-core");
+
+    Coordinates jacksonBom13 = new Coordinates("com.fasterxml.jackson:jackson-bom:2.13.5");
+    Dependency dependency13 = new Dependency();
+    dependency13.setGroupId(jacksonCoreCoords.getGroupId());
+    dependency13.setArtifactId(jacksonCoreCoords.getArtifactId());
+    dependency13.setVersion("2.13.5");
+    DependencyManagement managedDeps13 = new DependencyManagement();
+    managedDeps13.addDependency(dependency13);
+    Model model13 = createModel(jacksonBom13);
+    model13.setPackaging("pom");
+    model13.setDependencyManagement(managedDeps13);
+
+    Coordinates jacksonBom14 = new Coordinates("com.fasterxml.jackson:jackson-bom:2.14.3");
+    Dependency dependency14 = new Dependency();
+    dependency14.setGroupId(jacksonCoreCoords.getGroupId());
+    dependency14.setArtifactId(jacksonCoreCoords.getArtifactId());
+    dependency14.setVersion("2.14.3");
+    DependencyManagement managedDeps14 = new DependencyManagement();
+    managedDeps14.addDependency(dependency14);
+    Model model14 = createModel(jacksonBom14);
+    model14.setPackaging("pom");
+    model14.setDependencyManagement(managedDeps14);
+
+    Coordinates jacksonBom16 = new Coordinates("com.fasterxml.jackson:jackson-bom:2.16.2");
+    Dependency dependency16 = new Dependency();
+    dependency16.setGroupId(jacksonCoreCoords.getGroupId());
+    dependency16.setArtifactId(jacksonCoreCoords.getArtifactId());
+    dependency16.setVersion("2.16.2");
+    DependencyManagement managedDeps16 = new DependencyManagement();
+    managedDeps16.addDependency(dependency16);
+    Model model16 = createModel(jacksonBom16);
+    model16.setPackaging("pom");
+    model16.setDependencyManagement(managedDeps16);
+
+    Coordinates coordinates = new Coordinates("com.example:bomordertest:1.0.0");
+    Model model = createModel(coordinates);
+    Dependency dependency = new Dependency();
+    dependency.setGroupId(jacksonCoreCoords.getGroupId());
+    dependency.setArtifactId(jacksonCoreCoords.getArtifactId());
+    model.addDependency(dependency);
+
+    Path repo =
+        MavenRepo.create().add(model13).add(model14).add(model16).add(model, coordinates).getPath();
+
+    ResolutionRequest request = prepareRequestFor(repo.toUri(), jacksonCoreCoords);
+    request.addBom(jacksonBom14);
+    request.addBom(jacksonBom16);
+    request.addBom(jacksonBom13);
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+    assertEquals(
+        Set.of(new Coordinates("com.fasterxml.jackson.core:jackson-core:2.14.3")),
+        resolved.nodes());
+  }
+
+  protected Model createModel(Coordinates coords) {
     Model model = new Model();
     model.setModelVersion("4.0.0");
 
