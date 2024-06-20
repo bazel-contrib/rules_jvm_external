@@ -386,19 +386,20 @@ public class MavenResolver implements Resolver {
     // Then add all the BOM dependencies that are not in the declared dependency list
     boolean rjeVerbose = System.getenv("RJE_VERBOSE") != null;
     bomDependencies.stream()
-        .filter(
+        .peek(
             dep -> {
-              String artifactKey = getArtifactKey(dep.getArtifact());
-              boolean artifactInBom = artifactKeys.contains(artifactKey);
-              if (rjeVerbose && artifactInBom) {
-                System.err.println(
-                    "BOM version for "
-                        + dep.getArtifact()
-                        + " has been overridden by an explicit dependency version: "
-                        + artifactVersions.get(artifactKey));
+              if (rjeVerbose) {
+                String artifactKey = getArtifactKey(dep.getArtifact());
+                if (artifactKeys.contains(artifactKey)) {
+                  System.err.println(
+                      "BOM version for "
+                          + dep.getArtifact()
+                          + " has been overridden by an explicit dependency version: "
+                          + artifactVersions.get(artifactKey));
+                }
               }
-              return !artifactInBom;
             })
+        .filter(dep -> !artifactKeys.contains(getArtifactKey(dep.getArtifact())))
         .forEach(managedDependencies::add);
 
     return managedDependencies.build();
