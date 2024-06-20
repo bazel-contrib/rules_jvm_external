@@ -61,11 +61,19 @@ public class ResolutionRequest {
 
   public ResolutionRequest addBom(String coordinates, String... exclusions) {
     Objects.requireNonNull(coordinates, "BOM coordinates");
+    return addBom(new Coordinates(coordinates), exclusions);
+  }
 
-    Coordinates coords = new Coordinates(coordinates);
+  public ResolutionRequest addBom(Coordinates coordinates, String... exclusions) {
+    Objects.requireNonNull(coordinates, "BOM coordinates");
+
     Coordinates bom =
         new Coordinates(
-            coords.getGroupId(), coords.getArtifactId(), "pom", "", coords.getVersion());
+            coordinates.getGroupId(),
+            coordinates.getArtifactId(),
+            "pom",
+            "",
+            coordinates.getVersion());
     Artifact artifact =
         new Artifact(bom, Stream.of(exclusions).map(Coordinates::new).collect(Collectors.toSet()));
 
