@@ -302,6 +302,16 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1144
         "org.codehaus.plexus:plexus:1.0.4",
         "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1162
+        "io.opentelemetry:opentelemetry-sdk",
+        maven.artifact(
+            artifact = "opentelemetry-api",
+            group = "io.opentelemetry",
+            neverlink = True,
+        ),
+    ],
+    boms = [
+        "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
