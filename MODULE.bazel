@@ -592,6 +592,11 @@ dev_maven.install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1144
         "org.codehaus.plexus:plexus:1.0.4",
         "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1162
+        "io.opentelemetry:opentelemetry-sdk",
+    ],
+    boms = [
+        "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
@@ -602,6 +607,14 @@ dev_maven.install(
         "https://maven.google.com",
     ],
     resolver = "maven",
+)
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/1162
+dev_maven.artifact(
+    name = "regression_testing_maven",
+    artifact = "opentelemetry-api",
+    group = "io.opentelemetry",
+    neverlink = True,
 )
 dev_maven.install(
     name = "starlark_aar_import_test",

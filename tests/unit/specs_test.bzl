@@ -132,6 +132,17 @@ def _parse_artifact_spec_list_test_impl(ctx):
             maven.artifact("org.eclipse.aether", "aether-api", "1.1.0", packaging = "jar", classifier = "javadoc", neverlink = True),
         ]),
     )
+    asserts.equals(
+        env,
+        [
+            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": ""},
+            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "", "neverlink": True},
+        ],
+        parse.parse_artifact_spec_list([
+            "org.eclipse.aether:aether-api",
+            maven.artifact(group = "org.eclipse.aether", artifact = "aether-api", neverlink = True),
+        ]),
+    )
     return unittest.end(env)
 
 parse_artifact_spec_list_test = unittest.make(_parse_artifact_spec_list_test_impl)
