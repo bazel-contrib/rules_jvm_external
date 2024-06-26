@@ -27,8 +27,6 @@ java_test(
             "junit:junit",
             repository_name = "regression_testing_coursier",
         ),
-        artifact("org.hamcrest:hamcrest"),
-        artifact("org.hamcrest:hamcrest-core"),
         artifact("com.google.guava:guava"),
     ],
 )
