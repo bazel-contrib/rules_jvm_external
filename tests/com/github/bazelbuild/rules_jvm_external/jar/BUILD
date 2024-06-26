@@ -49,6 +49,7 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:MergeJars",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
+        "//tests/com/github/bazelbuild/rules_jvm_external:JarUtils",
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",
