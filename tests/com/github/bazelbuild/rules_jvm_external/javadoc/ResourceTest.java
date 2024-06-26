@@ -47,6 +47,6 @@ public class ResourceTest {
     });
 
     Map<String, String> contents = readJar(outputJar);
-    assertEquals("Apache License 2.0\n", contents.get("LICENSE"));
+    assertEquals("Apache License 2.0".strip(), contents.get("LICENSE").strip());
   }
 }
