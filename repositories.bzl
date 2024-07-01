@@ -8,8 +8,8 @@ _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
 ]
 
-_MAVEN_VERSION = "3.9.6"
-_MAVEN_RESOLVER_VERSION = "1.9.18"
+_MAVEN_VERSION = "3.9.8"
+_MAVEN_RESOLVER_VERSION = "1.9.20"
 
 def rules_jvm_external_deps(
         repositories = _DEFAULT_REPOSITORIES,
@@ -17,10 +17,10 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "bazel_skylib",
-        sha256 = "66ffd9315665bfaafc96b52278f57c7e2dd09f5ede279ea6d39b2be471e7e3aa",
+        sha256 = "9f38886a40548c6e96c106b752f242130ee11aaa068a56ba7e56f4511f33e4f2",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.2/bazel-skylib-1.4.2.tar.gz",
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.2/bazel-skylib-1.4.2.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.6.1/bazel-skylib-1.6.1.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.6.1/bazel-skylib-1.6.1.tar.gz",
         ],
     )
 
@@ -52,9 +52,9 @@ def rules_jvm_external_deps(
             http_archive,
             name = "rules_java",
             urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.3.2/rules_java-7.3.2.tar.gz",
+                "https://github.com/bazelbuild/rules_java/releases/download/7.4.0/rules_java-7.4.0.tar.gz",
             ],
-            sha256 = "3121a00588b1581bd7c1f9b550599629e5adcc11ba9c65f482bbd5cfe47fdf30",
+            sha256 = "976ef08b49c929741f201790e59e3807c72ad81f428c8bc953cdbeff5fed15eb",
         )
 
     maven_install(
@@ -62,11 +62,11 @@ def rules_jvm_external_deps(
         artifacts = [
             "com.google.auth:google-auth-library-credentials:1.23.0",
             "com.google.auth:google-auth-library-oauth2-http:1.23.0",
-            "com.google.cloud:google-cloud-core:2.36.1",
-            "com.google.cloud:google-cloud-storage:2.36.1",
-            "com.google.code.gson:gson:2.10.1",
+            "com.google.cloud:google-cloud-core:2.40.0",
+            "com.google.cloud:google-cloud-storage:2.40.1",
+            "com.google.code.gson:gson:2.11.0",
             "com.google.googlejavaformat:google-java-format:1.22.0",
-            "com.google.guava:guava:33.1.0-jre",
+            "com.google.guava:guava:33.2.1-jre",
             "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
@@ -88,7 +88,7 @@ def rules_jvm_external_deps(
             "org.slf4j:jul-to-slf4j:2.0.12",
             "org.slf4j:log4j-over-slf4j:2.0.12",
             "org.slf4j:slf4j-simple:2.0.12",
-            "software.amazon.awssdk:s3:2.25.23",
+            "software.amazon.awssdk:s3:2.26.12",
         ],
         maven_install_json = deps_lock_file,
         fail_if_repin_required = True,
