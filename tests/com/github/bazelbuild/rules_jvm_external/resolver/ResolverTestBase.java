@@ -638,6 +638,53 @@ public abstract class ResolverTestBase {
         resolved.nodes());
   }
 
+  @Test
+  public void shouldCosolidateDifferentClassifierVersionsForADependency() {
+    Coordinates nettyCoords = new Coordinates("io.netty:netty-tcnative-boringssl-static");
+
+    Coordinates nettyOsxBom =
+        new Coordinates("io.netty:netty-tcnative-boringssl-static:osx-aarch_64:2.0.47.Final");
+    Dependency dependencyOsx = new Dependency();
+    dependencyOsx.setGroupId(nettyCoords.getGroupId());
+    dependencyOsx.setArtifactId(nettyCoords.getArtifactId());
+    dependencyOsx.setClassifier("osx-aarch_64");
+    dependencyOsx.setVersion("2.0.47.Final");
+    DependencyManagement managedDepsOsx = new DependencyManagement();
+    managedDepsOsx.addDependency(dependencyOsx);
+    Model modelOsx = createModel(nettyOsxBom);
+    modelOsx.setPackaging("pom");
+    modelOsx.setDependencyManagement(managedDepsOsx);
+
+    Coordinates nettyBom = new Coordinates("io.netty:netty-tcnative-boringssl-static:2.0.60.Final");
+    Dependency dependencyNetty = new Dependency();
+    dependencyNetty.setGroupId(nettyCoords.getGroupId());
+    dependencyNetty.setArtifactId(nettyCoords.getArtifactId());
+    dependencyNetty.setVersion("2.0.60.Final");
+    DependencyManagement managedDepsNetty = new DependencyManagement();
+    managedDepsNetty.addDependency(dependencyNetty);
+    Model modelNetty = createModel(nettyBom);
+    modelNetty.setPackaging("pom");
+    modelNetty.setDependencyManagement(managedDepsNetty);
+
+    Coordinates coordinates = new Coordinates("com.example:bomclassifiertest:1.0.0");
+    Model model = createModel(coordinates);
+    Dependency dependency = new Dependency();
+    dependency.setGroupId(nettyCoords.getGroupId());
+    dependency.setArtifactId(nettyCoords.getArtifactId());
+    model.addDependency(dependency);
+
+    Path repo = MavenRepo.create().add(modelOsx).add(modelNetty).add(model, coordinates).getPath();
+
+    ResolutionRequest request = prepareRequestFor(repo.toUri(), nettyCoords);
+    request.addBom(nettyOsxBom);
+    request.addBom(nettyBom);
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+    assertEquals(
+        Set.of(new Coordinates("io.netty:netty-tcnative-boringssl-static:2.0.47.Final")),
+        resolved.nodes());
+  }
+
   protected Model createModel(Coordinates coords) {
     Model model = new Model();
     model.setModelVersion("4.0.0");
