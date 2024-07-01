@@ -420,8 +420,8 @@ public class MavenResolver implements Resolver {
     //    },
     //
     // In order to keep the version consistent across all classifiers we use the first version for
-    // the
-    // artifact in the dependency list as the version for all of the classifiers of the artifact.
+    // the artifact in the dependency list as the version for all of the classifiers of the
+    // artifact.
     //
     // Note: This is different from the coursier resolver which will use the last artifact in the
     // dependency list for the version of all of that dependency with classifiers.

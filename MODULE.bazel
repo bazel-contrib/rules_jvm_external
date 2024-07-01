@@ -138,7 +138,12 @@ http_file(
 
 bazel_dep(
     name = "protobuf",
-    version = "21.7",
+    # Note: we use 27.2 in MODULE.bazel to avoid the warning:
+    #   The maven repository 'maven' is used in two different bazel modules, originally in 'rules_jvm_external' and now in 'protobuf'
+    # But we use 21.7 in WORKSPACE because protobuf 27.2 doesn't work with Bazel 5.x
+    # https://github.com/protocolbuffers/protobuf/commit/a80daa2a2caaaac9ebe9ae6bb1b639c2771c5c55
+    # This should be ok because we only use the protobuf dep to pull in the google/protobuf/wrappers.proto for testing
+    version = "27.2",
     dev_dependency = True,
 )
 bazel_dep(
