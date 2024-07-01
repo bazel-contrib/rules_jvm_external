@@ -11,7 +11,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "bazel_skylib",
-    version = "1.4.2",
+    version = "1.6.1",
 )
 bazel_dep(
     name = "platforms",
@@ -19,7 +19,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_java",
-    version = "7.3.2",
+    version = "7.4.0",
 )
 bazel_dep(
     name = "rules_kotlin",
@@ -41,9 +41,9 @@ use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
 
 maven = use_extension(":extensions.bzl", "maven")
 
-_MAVEN_VERSION = "3.9.6"
+_MAVEN_VERSION = "3.9.8"
 
-_MAVEN_RESOLVER_VERSION = "1.9.18"
+_MAVEN_RESOLVER_VERSION = "1.9.20"
 
 # NOTE: Please keep any changes to this maven.install in sync with the
 # definition in repositories.bzl
@@ -52,11 +52,11 @@ maven.install(
     artifacts = [
         "com.google.auth:google-auth-library-credentials:1.23.0",
         "com.google.auth:google-auth-library-oauth2-http:1.23.0",
-        "com.google.cloud:google-cloud-core:2.36.1",
-        "com.google.cloud:google-cloud-storage:2.36.1",
-        "com.google.code.gson:gson:2.10.1",
+        "com.google.cloud:google-cloud-core:2.40.0",
+        "com.google.cloud:google-cloud-storage:2.40.1",
+        "com.google.code.gson:gson:2.11.0",
         "com.google.googlejavaformat:google-java-format:1.22.0",
-        "com.google.guava:guava:33.1.0-jre",
+        "com.google.guava:guava:33.2.1-jre",
         "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
@@ -78,7 +78,7 @@ maven.install(
         "org.slf4j:jul-to-slf4j:2.0.12",
         "org.slf4j:log4j-over-slf4j:2.0.12",
         "org.slf4j:slf4j-simple:2.0.12",
-        "software.amazon.awssdk:s3:2.25.23",
+        "software.amazon.awssdk:s3:2.26.12",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
