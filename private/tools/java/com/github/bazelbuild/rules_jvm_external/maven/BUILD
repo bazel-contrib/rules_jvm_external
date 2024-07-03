@@ -31,6 +31,14 @@ java_binary(
             "software.amazon.awssdk:s3",
             repository_name = "rules_jvm_external_deps",
         ),
+        artifact(
+            "org.bouncycastle:bcprov-jdk15on",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "org.bouncycastle:bcpg-jdk15on",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )
 
