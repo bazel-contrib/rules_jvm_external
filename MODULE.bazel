@@ -6,15 +6,15 @@ module(
 
 bazel_dep(
     name = "bazel_features",
-    version = "1.11.0",
+    version = "1.13.0",
 )
 bazel_dep(
     name = "bazel_skylib",
-    version = "1.6.1",
+    version = "1.7.1",
 )
 bazel_dep(
     name = "platforms",
-    version = "0.0.8",
+    version = "0.0.10",
 )
 bazel_dep(
     name = "rules_java",
@@ -22,7 +22,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_kotlin",
-    version = "1.9.0",
+    version = "1.9.5",
 )
 bazel_dep(
     name = "rules_android",
@@ -30,7 +30,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "stardoc",
-    version = "0.5.6",
+    version = "0.7.0",
     repo_name = "io_bazel_stardoc",
 )
 
@@ -354,7 +354,7 @@ dev_maven.install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0",
+        "com.example:no-docs:1.0.0",
     ],
     lock_file = "//tests/custom_maven_install:m2local_testing_with_pinned_file_install.json",
     repositories = [
