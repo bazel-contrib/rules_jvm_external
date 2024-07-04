@@ -118,7 +118,7 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/java_export:without-docs.publish >> "$TEST_LOG" 2>&1
 
   # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
   bazel clean --expunge >/dev/null 2>&1
@@ -127,10 +127,10 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
 
   force_bzlmod_lock_file_to_be_regenerated
 
-  bazel build @m2local_testing_repin//:com_example_kt >> "$TEST_LOG" 2>&1
+  bazel build @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
   rm -rf ${jar_dir}
 
-  expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
+  expect_log "Assuming maven local for artifact: com.example:no-docs:1.0.0"
   expect_log "Successfully pinned resolved artifacts"
 }
 

@@ -611,7 +611,7 @@ maven_install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0",
+        "com.example:no-docs:1.0.0",
     ],
     maven_install_json = "//tests/custom_maven_install:m2local_testing_with_pinned_file_install.json",
     repositories = [
