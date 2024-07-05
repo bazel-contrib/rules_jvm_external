@@ -244,7 +244,7 @@ public class MergeJars {
             continue;
           }
 
-          jos.putNextEntry(entry);
+          jos.putNextEntry(new ZipEntry(entry.getName()));
           try (InputStream is = aar.getInputStream(entry)) {
             ByteStreams.copy(is, jos);
           }
