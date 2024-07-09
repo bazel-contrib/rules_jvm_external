@@ -551,6 +551,8 @@ maven_install(
 
 # for the above "starlark_aar_import_test" maven_install with
 # use_starlark_android_rules = True
+# Update this to a rules_android release once an updated BCR entry
+# for rules_android is released.
 RULES_ANDROID_COMMIT = "4b4655851417c833cd12797927c36b383e175615"
 http_archive(
     name = "rules_android",
