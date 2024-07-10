@@ -30,6 +30,16 @@ maven.install(
         "org.seleniumhq.selenium:selenium-java:4.4.0",
     ],
 )
+
+# You can split off individual artifacts to define artifact-specific options (this example sets `neverlink`).
+# The `maven.install` and `maven.artifact` tags will be merged automatically.
+maven.artifact(
+    artifact = "javapoet",
+    group = "com.squareup",
+    neverlink = True,
+    version = "1.11.1",
+)
+
 use_repo(maven, "maven")
 ```
 
