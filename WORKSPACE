@@ -25,6 +25,31 @@ load("//:setup.bzl", "rules_jvm_external_setup")
 
 rules_jvm_external_setup()
 
+# for the below "starlark_aar_import_test" maven_install with
+# use_starlark_android_rules = True
+# Update this to a rules_android release once an updated BCR entry
+# for rules_android is released.
+RULES_ANDROID_COMMIT = "4962fa26092de4c743457d1b566885196dc7ce99"
+http_archive(
+    name = "rules_android",
+    sha256 = "53b220b28734e1bb7d25f02e66d8e72bc107e52c165a3468cb1f980ef4abf383",
+    strip_prefix = "rules_android-" + RULES_ANDROID_COMMIT,
+    urls = ["https://github.com/bazelbuild/rules_android/archive/%s.zip" % RULES_ANDROID_COMMIT],
+)
+
+load("@rules_android//:prereqs.bzl", "rules_android_prereqs")
+
+rules_android_prereqs()
+
+load("@rules_android//:defs.bzl", "rules_android_workspace")
+
+rules_android_workspace()
+
+register_toolchains(
+    "@rules_android//toolchains/android:android_default_toolchain",
+    "@rules_android//toolchains/android_sdk:android_sdk_tools",
+)
+
 http_archive(
     name = "rules_kotlin",
     sha256 = "5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6",
@@ -549,17 +574,7 @@ maven_install(
     use_starlark_android_rules = True,
 )
 
-# for the above "starlark_aar_import_test" maven_install with
-# use_starlark_android_rules = True
-# Update this to a rules_android release once an updated BCR entry
-# for rules_android is released.
-RULES_ANDROID_COMMIT = "4b4655851417c833cd12797927c36b383e175615"
-http_archive(
-    name = "rules_android",
-    sha256 = "e85023dad876a66d6a7db8b607eeb8fa0876c37fc7920b3e1694953cedd68590",
-    strip_prefix = "rules_android-" + RULES_ANDROID_COMMIT,
-    urls = ["https://github.com/bazelbuild/rules_android/archive/%s.zip" % RULES_ANDROID_COMMIT],
-)
+
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/351
 maven_install(
