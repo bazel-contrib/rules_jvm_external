@@ -1,0 +1,36 @@
+workspace(name = "example_frozen_deps")
+
+local_repository(
+    name = "rules_jvm_external",
+    path = "../..",
+)
+
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
+load("@rules_jvm_external//:defs.bzl", "maven_install", "zip_repository")
+
+maven_install(
+    name = "to_freeze",
+    artifacts = [
+        "org.seleniumhq.selenium:selenium-java:4.22.0",
+    ],
+    maven_install_json = "@//:to_freeze.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@to_freeze//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+zip_repository(
+    name = "maven",
+    path = "@//:to_freeze.zip",
+)

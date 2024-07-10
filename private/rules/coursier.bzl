@@ -39,6 +39,8 @@ _BUILD = """
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
+load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
+
 {aar_import_statement}
 
 {imports}
@@ -52,6 +54,22 @@ bzl_library(
    ],
    visibility = ["//visibility:public"],
 )
+
+pkg_zip(
+    name = "freeze",
+    srcs = [
+        "BUILD",
+        "WORKSPACE",
+        "defs.bzl",
+    ] + glob([
+        "compat_repository.bzl", # may not be present
+        "outdated*",
+        "*.json",
+    ]),
+    out = "deps.zip",
+    visibility = ["//visibility:public"],
+)
+
 """
 
 DEFAULT_AAR_IMPORT_LABEL = "@build_bazel_rules_android//android:rules.bzl"

@@ -51,6 +51,7 @@ Table of Contents
     - [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
     - [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
     - [Publishing to External Repositories](#publishing-to-external-repositories)
+    - [Freezing dependencies](#freezing-dependencies)
 - [Configuring the dependency resolver](#configuring-the-dependency-resolver)
     - [Common options](#common-options)
     - [Configuring Coursier](#configuring-coursier)
@@ -1217,6 +1218,39 @@ Or, to publish to a GCP Artifact Registry:
 
 When using the `gpg_sign` option, the current default key will be used for
 signing, and the `gpg` binary needs to be installed on the machine.
+
+## Freezing Dependencies
+
+It is sometimes useful for rulesets that depend on `rules_jvm_external` to 
+be able to use dependencies managed by this ruleset, but not require a user 
+to perform additional steps when importing the rules. While this is not a 
+problem in the `bzlmod` world, for `WORKSPACE`-based builds, the solution is 
+to use "frozen deps". These are constructed in the following way:
+
+```shell
+bazel build @your_deps//:freeze
+
+# Note the name of the output file, and copy this to your ruleset
+# For example:
+cp  cp bazel-bin/external/to_freeze/deps.zip frozen_deps.zip   
+```
+
+This zip file will need to be available in the version of the rules that 
+people download.
+
+Then in your `repositories.bzl` file:
+
+```shell
+load("@rules_jvm_external//:defs.bzl", "zip_repository")
+
+zip_repository(
+   name = "my_ruleset_deps",
+   path = "@my_ruleset//:frozen_deps.zip",
+)
+```
+
+You can now execute `bazel query @my_ruleset_deps//:all` and the frozen deps 
+should all be available.
 
 ## Configuring the dependency resolver
 

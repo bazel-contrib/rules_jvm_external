@@ -17,6 +17,10 @@ bazel_dep(
     version = "0.0.10",
 )
 bazel_dep(
+    name = "rules_android",
+    version = "0.1.1",
+)
+bazel_dep(
     name = "rules_java",
     version = "7.4.0",
 )
@@ -25,8 +29,8 @@ bazel_dep(
     version = "1.9.5",
 )
 bazel_dep(
-    name = "rules_android",
-    version = "0.1.1",
+    name = "rules_pkg",
+    version = "1.0.1",
 )
 bazel_dep(
     name = "stardoc",
