@@ -62,7 +62,7 @@ pkg_zip(
         "WORKSPACE",
         "defs.bzl",
     ] + glob([
-        "compat_repository.bzl", # may not be present
+        "compat*", # may not be present
         "outdated*",
         "*.json",
     ]),
