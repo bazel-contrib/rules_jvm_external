@@ -29,6 +29,9 @@ rules_jvm_external_setup()
 # use_starlark_android_rules = True
 # Update this to a rules_android release once an updated BCR entry
 # for rules_android is released.
+# This must come before rules_kotlin because rules_kotlin uses an
+# older 0.1.1 release of rules_android which is just a wrapper around
+# the native Android rules.
 RULES_ANDROID_COMMIT = "4962fa26092de4c743457d1b566885196dc7ce99"
 http_archive(
     name = "rules_android",
