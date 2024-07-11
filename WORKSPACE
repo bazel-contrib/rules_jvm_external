@@ -254,7 +254,6 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/178
         "io.kubernetes:client-java:4.0.0-beta1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/199
-        "com.google.ar.sceneform:assets:1.10.0",
         "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-504704752
         "com.github.oshi:oshi-parent:3.4.0",

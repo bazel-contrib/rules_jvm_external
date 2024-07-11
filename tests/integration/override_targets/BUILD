@@ -37,7 +37,6 @@ aar_import(
         # Add the missing dependencies
         "@regression_testing_coursier//:com_android_support_support_annotations",
         "@regression_testing_coursier//:com_google_ar_core",
-        "@regression_testing_coursier//:com_google_ar_sceneform_assets",
         "@regression_testing_coursier//:com_google_ar_sceneform_sceneform_base",
         "@regression_testing_coursier//:com_google_ar_sceneform_filament_android",
     ],
