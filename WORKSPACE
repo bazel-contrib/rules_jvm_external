@@ -25,34 +25,6 @@ load("//:setup.bzl", "rules_jvm_external_setup")
 
 rules_jvm_external_setup()
 
-# for the below "starlark_aar_import_test" maven_install with
-# use_starlark_android_rules = True
-# Update this to a rules_android release once an updated BCR entry
-# for rules_android is released.
-# This must come before rules_kotlin because rules_kotlin uses an
-# older 0.1.1 release of rules_android which is just a wrapper around
-# the native Android rules.
-RULES_ANDROID_COMMIT = "4962fa26092de4c743457d1b566885196dc7ce99"
-http_archive(
-    name = "rules_android",
-    sha256 = "53b220b28734e1bb7d25f02e66d8e72bc107e52c165a3468cb1f980ef4abf383",
-    strip_prefix = "rules_android-" + RULES_ANDROID_COMMIT,
-    urls = ["https://github.com/bazelbuild/rules_android/archive/%s.zip" % RULES_ANDROID_COMMIT],
-)
-
-load("@rules_android//:prereqs.bzl", "rules_android_prereqs")
-
-rules_android_prereqs()
-
-load("@rules_android//:defs.bzl", "rules_android_workspace")
-
-rules_android_workspace()
-
-register_toolchains(
-    "@rules_android//toolchains/android:android_default_toolchain",
-    "@rules_android//toolchains/android_sdk:android_sdk_tools",
-)
-
 http_archive(
     name = "rules_kotlin",
     sha256 = "5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6",
@@ -547,9 +519,10 @@ maven_install(
 
 maven_install(
     name = "starlark_aar_import_with_sources_test",
-    # Not actually necessary since this is the default value, but useful for
-    # testing.
-    aar_import_bzl_label = "@rules_android//rules:rules.bzl",
+    # The default is "@rules_android//rules:rules.bzl" but use
+    # "@rules_android//android:rules.bzl" with the older 0.1.1 release
+    # to use the native rules.
+    aar_import_bzl_label = "@rules_android//android:rules.bzl",
     artifacts = [
         "androidx.work:work-runtime:2.6.0",
     ],
@@ -563,9 +536,10 @@ maven_install(
 
 maven_install(
     name = "starlark_aar_import_test",
-    # Not actually necessary since this is the default value, but useful for
-    # testing.
-    aar_import_bzl_label = "@rules_android//rules:rules.bzl",
+    # The default is "@rules_android//rules:rules.bzl" but use
+    # "@rules_android//android:rules.bzl" with the older 0.1.1 release
+    # to use the native rules.
+    aar_import_bzl_label = "@rules_android//android:rules.bzl",
     artifacts = [
         "com.android.support:appcompat-v7:28.0.0",
     ],
@@ -577,7 +551,14 @@ maven_install(
     use_starlark_android_rules = True,
 )
 
-
+# for the above "starlark_aar_import_test" maven_install with
+# use_starlark_android_rules = True
+http_archive(
+    name = "rules_android",
+    sha256 = "cd06d15dd8bb59926e4d65f9003bfc20f9da4b2519985c27e190cddc8b7a7806",
+    strip_prefix = "rules_android-0.1.1",
+    urls = ["https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip"],
+)
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/351
 maven_install(
