@@ -32,7 +32,7 @@ bazel_dep(
 git_override(
   module_name = "rules_android",
   remote = "https://github.com/bazelbuild/rules_android",
-  commit = "4962fa26092de4c743457d1b566885196dc7ce99",
+  commit = "9356a1dd5cbe84ca9247d24bcdb39ae0c4a7b4ab",
 )
 bazel_dep(
     name = "stardoc",
