@@ -70,14 +70,8 @@ maven.install(
 )
 ```
 
-Finally, update the `use_repo` call to also expose the `unpinned_maven` repository used to update the dependencies:
-
-```starlark
-use_repo(maven, "maven", "unpinned_maven")
-```
-
-Now you'll be able to use the same `@unpinned_maven//:pin` operation described in the
-[workspace instructions](/README.md#updating-maven_installjson).
+Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation described in the
+[workspace instructions](/README.md#updating-maven_installjson) to update the dependencies.
 
 ## Artifact exclusion
 
