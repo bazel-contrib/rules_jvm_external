@@ -171,6 +171,51 @@ public class MavenSigning {
         }
     }
 
+    protected static Path gpg_sign(Path toSign) throws IOException, InterruptedException {
+        LOG.info("Signing " + toSign + " with GPG");
+
+        // Ideally, we'd use BouncyCastle for this, but for now brute force by assuming
+        // the gpg binary is on the path
+
+        Path dir = Files.createTempDirectory("maven-sign");
+        Path file = dir.resolve(toSign.getFileName() + ".asc");
+
+        Process gpg =
+                new ProcessBuilder(
+                        "gpg",
+                        "--use-agent",
+                        "--armor",
+                        "--detach-sign",
+                        "--no-tty",
+                        "-o",
+                        file.toAbsolutePath().toString(),
+                        toSign.toAbsolutePath().toString())
+                        .inheritIO()
+                        .start();
+        gpg.waitFor();
+        if (gpg.exitValue() != 0) {
+            throw new IllegalStateException("Unable to sign: " + toSign);
+        }
+
+        // Verify the signature
+        Process verify =
+                new ProcessBuilder(
+                        "gpg",
+                        "--verify",
+                        "--verbose",
+                        "--verbose",
+                        file.toAbsolutePath().toString(),
+                        toSign.toAbsolutePath().toString())
+                        .inheritIO()
+                        .start();
+        verify.waitFor();
+        if (verify.exitValue() != 0) {
+            throw new IllegalStateException("Unable to verify signature of " + toSign);
+        }
+
+        return file;
+    }
+
     protected enum SigningMethod {
         GPG,
         PGP,

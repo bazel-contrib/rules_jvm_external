@@ -18,6 +18,7 @@
 package com.github.bazelbuild.rules_jvm_external.maven;
 
 import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.in_memory_pgp_sign;
+import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.gpg_sign;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -356,51 +357,6 @@ public class MavenPublisher {
       String url = "https://" + targetUrl.substring(19);
       return httpUpload(url, cred, toUpload).call();
     };
-  }
-
-  private static Path gpg_sign(Path toSign) throws IOException, InterruptedException {
-    LOG.info("Signing " + toSign + " with GPG");
-
-    // Ideally, we'd use BouncyCastle for this, but for now brute force by assuming
-    // the gpg binary is on the path
-
-    Path dir = Files.createTempDirectory("maven-sign");
-    Path file = dir.resolve(toSign.getFileName() + ".asc");
-
-    Process gpg =
-        new ProcessBuilder(
-                "gpg",
-                "--use-agent",
-                "--armor",
-                "--detach-sign",
-                "--no-tty",
-                "-o",
-                file.toAbsolutePath().toString(),
-                toSign.toAbsolutePath().toString())
-            .inheritIO()
-            .start();
-    gpg.waitFor();
-    if (gpg.exitValue() != 0) {
-      throw new IllegalStateException("Unable to sign: " + toSign);
-    }
-
-    // Verify the signature
-    Process verify =
-        new ProcessBuilder(
-                "gpg",
-                "--verify",
-                "--verbose",
-                "--verbose",
-                file.toAbsolutePath().toString(),
-                toSign.toAbsolutePath().toString())
-            .inheritIO()
-            .start();
-    verify.waitFor();
-    if (verify.exitValue() != 0) {
-      throw new IllegalStateException("Unable to verify signature of " + toSign);
-    }
-
-    return file;
   }
 
   private static class Coordinates {
