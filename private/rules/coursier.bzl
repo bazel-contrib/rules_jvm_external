@@ -138,7 +138,8 @@ def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
 def _is_unpinned(repository_ctx):
-    return repository_ctx.attr.name.startswith("unpinned_")
+    _, _, repo_short_name = repository_ctx.attr.name.rpartition("~")
+    return repo_short_name.startswith("unpinned_")
 
 def _shell_quote(s):
     # Lifted from
