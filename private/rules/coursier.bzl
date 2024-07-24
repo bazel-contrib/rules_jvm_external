@@ -1241,7 +1241,8 @@ def _coursier_fetch_impl(repository_ctx):
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
     if _is_unpinned(repository_ctx):
-        repository_name = repository_ctx.name[len("unpinned_"):]
+        _, _, repo_short_name = repository_ctx.name.rpartition("~")
+        repository_name = repo_short_name[len("unpinned_"):]
         outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
