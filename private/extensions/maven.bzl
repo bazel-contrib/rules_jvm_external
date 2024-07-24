@@ -412,6 +412,7 @@ def _maven_impl(mctx):
                 # created from the maven_install.json file in the coursier_fetch
                 # invocation after this.
                 name = "unpinned_" + name if repo.get("lock_file") else name,
+		pinned_repo_name = name if repo.get("lock_file") else None,
                 user_provided_name = name,
                 repositories = repo.get("repositories"),
                 artifacts = artifacts_json,

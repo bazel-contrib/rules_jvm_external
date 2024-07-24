@@ -138,7 +138,7 @@ def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
 def _is_unpinned(repository_ctx):
-    return repository_ctx.attr.name.startswith("unpinned_")
+    return repository_ctx.attr.pinned_repo_name != ""
 
 def _shell_quote(s):
     # Lifted from
@@ -1240,7 +1240,7 @@ def _coursier_fetch_impl(repository_ctx):
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
     if _is_unpinned(repository_ctx):
-        repository_name = repository_ctx.name[len("unpinned_"):]
+        repository_name = repository_ctx.attr.pinned_repo_name
         outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
@@ -1442,6 +1442,10 @@ coursier_fetch = repository_rule(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "pinned_repo_name": attr.string(
+            doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
+            mandatory = False,
+        ),
     },
     environ = [
         "JAVA_HOME",
