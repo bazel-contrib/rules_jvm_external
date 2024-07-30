@@ -78,27 +78,6 @@ def format_dep(unpacked, indent = 8, include_version = True):
             "    <classifier>%s</classifier>\n" % unpacked.classifier,
         ])
 
-    if exclusions:
-        dependency.extend([
-            whitespace,
-            "    <exclusions>\n",
-        ])
-        for exclusion in exclusions:
-            dependency.extend([
-                whitespace,
-                "        <exclusion>\n",
-                whitespace,
-                "            <groupId>%s</groupId>\n" % exclusion["group"],
-                whitespace,
-                "            <artifactId>%s</artifactId>\n" % exclusion["artifact"],
-                whitespace,
-                "        </exclusion>\n",
-            ])
-        dependency.extend([
-            whitespace,
-            "    </exclusions>\n",
-        ])
-
     dependency.extend([
         whitespace,
         "</dependency>",
