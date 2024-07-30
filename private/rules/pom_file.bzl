@@ -1,6 +1,6 @@
 load("@rules_java//java:defs.bzl", "JavaInfo")
 load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "has_maven_deps")
-load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom")
+load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom", "unpack_coordinates")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
@@ -34,7 +34,7 @@ def _pom_file_impl(ctx):
     out = generate_pom(
         ctx,
         coordinates = coordinates,
-        versioned_dep_coordinates = sorted(expanded_maven_deps),
+        versioned_dep_coordinates = [unpack_coordinates(a) for a in sorted(expanded_maven_deps)],
         runtime_deps = expanded_runtime_deps,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
