@@ -34,7 +34,7 @@ def _pom_file_impl(ctx):
     out = generate_pom(
         ctx,
         coordinates = coordinates,
-        versioned_dep_coordinates = [unpack_coordinates(a) for a in sorted(expanded_maven_deps)],
+        versioned_dep_coordinates = expanded_maven_deps,
         runtime_deps = expanded_runtime_deps,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
