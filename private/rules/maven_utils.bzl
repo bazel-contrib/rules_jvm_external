@@ -1,10 +1,10 @@
 def unpack_coordinates(coords):
     """Takes a maven coordinate and unpacks it into a struct with fields
-    `groupId`, `artifactId`, `version`, `type`, `scope`
+    `groupId`, `artifactId`, `version`, `type`, `classifier`
     where type and scope are optional.
 
     Assumes following maven coordinate syntax:
-    groupId:artifactId[:type[:scope]]:version
+    groupId:artifactId[:type[:classifer]]:version
     """
     if not coords:
         return None
@@ -18,6 +18,7 @@ def unpack_coordinates(coords):
             artifactId = parts[1],
             type = None,
             scope = None,
+            classifier = None,
             version = None,
         )
 
@@ -30,7 +31,8 @@ def unpack_coordinates(coords):
         groupId = parts.get(0),
         artifactId = parts.get(1),
         type = parts.get(2),
-        scope = parts.get(3),
+        scope = None,
+        classifier = parts.get(3),
         version = version,
     )
 
@@ -70,6 +72,33 @@ def format_dep(unpacked, indent = 8, include_version = True):
             "    <scope>%s</scope>\n" % unpacked.scope,
         ])
 
+    if unpacked.classifier:
+        dependency.extend([
+            whitespace,
+            "    <classifier>%s</classifier>\n" % unpacked.classifier,
+        ])
+
+    if exclusions:
+        dependency.extend([
+            whitespace,
+            "    <exclusions>\n",
+        ])
+        for exclusion in exclusions:
+            dependency.extend([
+                whitespace,
+                "        <exclusion>\n",
+                whitespace,
+                "            <groupId>%s</groupId>\n" % exclusion["group"],
+                whitespace,
+                "            <artifactId>%s</artifactId>\n" % exclusion["artifact"],
+                whitespace,
+                "        </exclusion>\n",
+            ])
+        dependency.extend([
+            whitespace,
+            "    </exclusions>\n",
+        ])
+
     dependency.extend([
         whitespace,
         "</dependency>",
@@ -93,6 +122,7 @@ def generate_pom(
         "{artifactId}": unpacked_coordinates.artifactId,
         "{version}": unpacked_coordinates.version,
         "{type}": unpacked_coordinates.type or "jar",
+        "{classifier}": unpacked_coordinates.classifier or "",
         "{scope}": unpacked_coordinates.scope or "compile",
     }
 
@@ -121,6 +151,7 @@ def generate_pom(
             artifactId = unpacked.artifactId,
             type = unpacked.type,
             scope = new_scope,
+            classifier = unpacked.classifier,
             version = unpacked.version,
         )
         deps.append(format_dep(unpacked, indent = indent, include_version = include_version))
