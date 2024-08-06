@@ -14,10 +14,10 @@ def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:
         fail("Please only specify one jar to import in the jars attribute.")
 
-    label = "@{workspace_name}//{package}:{name}".format(
+    label = "@{repo}//{package}:{name}".format(
         name = ctx.label.name,
         package = ctx.label.package,
-        workspace_name = ctx.attr.user_provided_repo_name,
+        repo = ctx.attr.user_provided_repo_name,
     )
 
     injar = ctx.files.jars[0]
