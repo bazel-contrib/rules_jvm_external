@@ -107,10 +107,10 @@ def maven_install(
     if additional_netrc_lines and maven_install_json == None:
         fail("`additional_netrc_lines` is only supported with `maven_install_json` specified", "additional_netrc_lines")
 
-    if getattr(native, "aar_import", None) == None:
-      # If this version of bazel does not have the native version of
-      # aar_import, then the Starlark version of aar_import must be used.
-      use_starlark_android_rules = True
+    if not hasattr(native, "aar_import"):
+        # If this version of bazel does not have the native version of
+        # aar_import, then the Starlark version of aar_import must be used.
+        use_starlark_android_rules = True
 
     # The first coursier_fetch generates the @unpinned_maven
     # repository, which executes Coursier.

@@ -26,13 +26,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_android",
-    version = "0.1.1",
-)
-# Remove this once rules_android has an updated BCR release.
-git_override(
-  module_name = "rules_android",
-  remote = "https://github.com/bazelbuild/rules_android",
-  commit = "f4b6edb93e13ba0bd17ecf7f99c80f4d3d6ca767",
+    version = "0.5.1",
 )
 bazel_dep(
     name = "stardoc",
