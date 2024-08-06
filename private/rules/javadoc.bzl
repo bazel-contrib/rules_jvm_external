@@ -118,8 +118,9 @@ javadoc = rule(
         "javadocopts": attr.string_list(
             doc = """javadoc options.
             Note sources and classpath are derived from the deps. Any additional
-            options can be passed here. If nothing is passed, a default list of options is used.
-            """,
+            options can be passed here. If nothing is passed, a default list of options is used:
+            %s
+            """ % _default_javadocopts,
         ),
         "doc_deps": attr.label_list(
             doc = """`javadoc` targets referenced by the current target.
