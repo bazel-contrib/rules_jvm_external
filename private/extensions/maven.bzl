@@ -33,7 +33,6 @@ _artifact = tag_class(
         "neverlink": attr.bool(),
         "testonly": attr.bool(),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
-        "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
     },
 )
 
