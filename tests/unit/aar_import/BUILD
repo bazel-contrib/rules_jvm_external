@@ -13,12 +13,23 @@
 # limitations under the License.
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_android//android:rules.bzl", "aar_import")
 load(":aar_import_test.bzl", "aar_import_test_suite")
 
 aar_import(
     name = "aar_import_that_consumes_the_downloaded_file_directly",
     # Will produce an error if the downloaded file does not have the `.aar` file extension
     aar = "@com_android_support_appcompat_v7_aar_28_0_0//file:file",
+    deps = [
+        "@starlark_aar_import_test//:com_android_support_animated_vector_drawable",
+        "@starlark_aar_import_test//:com_android_support_collections",
+        "@starlark_aar_import_test//:com_android_support_cursoradapter",
+        "@starlark_aar_import_test//:com_android_support_support_annotations",
+        "@starlark_aar_import_test//:com_android_support_support_compat",
+        "@starlark_aar_import_test//:com_android_support_support_core_utils",
+        "@starlark_aar_import_test//:com_android_support_support_fragment",
+        "@starlark_aar_import_test//:com_android_support_support_vector_drawable",
+    ],
 )
 
 build_test(
