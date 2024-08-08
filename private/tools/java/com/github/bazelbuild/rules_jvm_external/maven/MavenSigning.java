@@ -227,7 +227,7 @@ public class MavenSigning {
         protected final String signingPassword;
         protected final SigningMethod signingMethod;
 
-        protected SigningMetadata(Boolean gpgSign, Boolean useInMemoryPgpKeys, String signingKey, String signingPassword) {
+        protected SigningMetadata(boolean gpgSign, boolean useInMemoryPgpKeys, String signingKey, String signingPassword) {
             this.signingKey = signingKey;
             this.signingPassword = signingPassword;
             if (gpgSign && useInMemoryPgpKeys) {
