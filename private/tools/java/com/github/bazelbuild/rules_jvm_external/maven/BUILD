@@ -2,7 +2,7 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_binary(
     name = "MavenPublisher",
-    srcs = ["MavenPublisher.java"],
+    srcs = ["MavenPublisher.java", "MavenSigning.java"],
     main_class = "com.github.bazelbuild.rules_jvm_external.maven.MavenPublisher",
     visibility = ["//visibility:public"],
     deps = [
@@ -29,6 +29,14 @@ java_binary(
         ),
         artifact(
             "software.amazon.awssdk:s3",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "org.bouncycastle:bcprov-jdk15on",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "org.bouncycastle:bcpg-jdk15on",
             repository_name = "rules_jvm_external_deps",
         ),
     ],

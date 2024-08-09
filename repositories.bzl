@@ -89,6 +89,8 @@ def rules_jvm_external_deps(
             "org.slf4j:log4j-over-slf4j:2.0.12",
             "org.slf4j:slf4j-simple:2.0.12",
             "software.amazon.awssdk:s3:2.26.12",
+            "org.bouncycastle:bcprov-jdk15on:1.68",
+            "org.bouncycastle:bcpg-jdk15on:1.68",
         ],
         maven_install_json = deps_lock_file,
         fail_if_repin_required = True,
