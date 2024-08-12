@@ -30,12 +30,7 @@ aar_import(
     ],
     visibility = ["@regression_testing_coursier//:__subpackages__"],
     deps = [
-        # This is a hack to get past ImportDepsChecker because
-        # apparently the Load class is nowhere to be found in any
-        # sceneform AARs or deps.
-        ":fake_loader",
         # Add the missing dependencies
-        "@regression_testing_coursier//:com_android_support_support_annotations",
         "@regression_testing_coursier//:com_google_ar_core",
         "@regression_testing_coursier//:com_google_ar_sceneform_sceneform_base",
         "@regression_testing_coursier//:com_google_ar_sceneform_filament_android",
@@ -72,9 +67,4 @@ sh_test(
     deps = [
         "@bazel_tools//tools/bash/runfiles",
     ],
-)
-
-java_library(
-    name = "fake_loader",
-    srcs = ["Loader.java"],
 )
