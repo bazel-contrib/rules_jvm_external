@@ -17,8 +17,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.maven;
 
-import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.in_memory_pgp_sign;
 import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.gpg_sign;
+import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.in_memory_pgp_sign;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -84,7 +84,7 @@ public class MavenPublisher {
     String signingKey = System.getenv("PGP_SIGNING_KEY");
     String signingPassword = System.getenv("PGP_SIGNING_PWD");
     MavenSigning.SigningMetadata signingMetadata =
-            new MavenSigning.SigningMetadata(gpgSign, useInMemoryPgpKeys, signingKey, signingPassword);
+        new MavenSigning.SigningMetadata(gpgSign, useInMemoryPgpKeys, signingKey, signingPassword);
 
     List<String> parts = Arrays.asList(args[0].split(":"));
     if (parts.size() != 3) {
@@ -185,23 +185,27 @@ public class MavenPublisher {
     if (signingMethod.equals(MavenSigning.SigningMethod.GPG)) {
       uploads.add(upload(String.format("%s%s.asc", base, append), credentials, gpg_sign(item)));
       uploads.add(upload(String.format("%s%s.md5.asc", base, append), credentials, gpg_sign(md5)));
-      uploads.add(upload(String.format("%s%s.sha1.asc", base, append), credentials, gpg_sign(sha1)));
+      uploads.add(
+          upload(String.format("%s%s.sha1.asc", base, append), credentials, gpg_sign(sha1)));
     } else if (signingMethod.equals(MavenSigning.SigningMethod.PGP)) {
-      uploads.add(upload(
+      uploads.add(
+          upload(
               String.format("%s%s.asc", base, append),
               credentials,
-              in_memory_pgp_sign(item, signingMetadata.signingKey, signingMetadata.signingPassword)
-      ));
-      uploads.add(upload(
+              in_memory_pgp_sign(
+                  item, signingMetadata.signingKey, signingMetadata.signingPassword)));
+      uploads.add(
+          upload(
               String.format("%s%s.md5.asc", base, append),
               credentials,
-              in_memory_pgp_sign(md5, signingMetadata.signingKey, signingMetadata.signingPassword)
-      ));
-      uploads.add(upload(
+              in_memory_pgp_sign(
+                  md5, signingMetadata.signingKey, signingMetadata.signingPassword)));
+      uploads.add(
+          upload(
               String.format("%s%s.sha1.asc", base, append),
               credentials,
-              in_memory_pgp_sign(sha1, signingMetadata.signingKey, signingMetadata.signingPassword)
-      ));
+              in_memory_pgp_sign(
+                  sha1, signingMetadata.signingKey, signingMetadata.signingPassword)));
     }
 
     return CompletableFuture.allOf(uploads.toArray(new CompletableFuture<?>[0]));

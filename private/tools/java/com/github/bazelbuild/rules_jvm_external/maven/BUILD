@@ -2,7 +2,10 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_binary(
     name = "MavenPublisher",
-    srcs = ["MavenPublisher.java", "MavenSigning.java"],
+    srcs = [
+        "MavenPublisher.java",
+        "MavenSigning.java",
+    ],
     main_class = "com.github.bazelbuild.rules_jvm_external.maven.MavenPublisher",
     visibility = ["//visibility:public"],
     deps = [
