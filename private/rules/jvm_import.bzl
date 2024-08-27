@@ -8,15 +8,14 @@
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
 load("@rules_java//java:defs.bzl", "JavaInfo")
+load("//private/lib:bzlmod.bzl", "to_visible_name")
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
 
 def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:
         fail("Please only specify one jar to import in the jars attribute.")
 
-    # With `bzlmod` enabled, workspace names end up being `~` separated. For the
-    # user-visible workspace name, we need the final part of the name
-    visible_name = ctx.label.workspace_name.rpartition("~")[2]
+    visible_name = to_visible_name(ctx.label.workspace_name)
     label = "@{workspace_name}//{package}:{name}".format(
         name = ctx.label.name,
         package = ctx.label.package,

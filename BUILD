@@ -52,6 +52,7 @@ bzl_library(
         "//private:java_utilities.bzl",
         "//private:proxy.bzl",
         "//private:versions.bzl",
+        "//private/lib:bzlmod.bzl",
         "//private/rules:artifact.bzl",
         "//private/rules:coursier.bzl",
         "//private/rules:generate_pin_repository.bzl",
