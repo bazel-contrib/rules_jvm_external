@@ -30,6 +30,16 @@ maven.install(
         "org.seleniumhq.selenium:selenium-java:4.4.0",
     ],
 )
+
+# You can split off individual artifacts to define artifact-specific options (this example sets `neverlink`).
+# The `maven.install` and `maven.artifact` tags will be merged automatically.
+maven.artifact(
+    artifact = "javapoet",
+    group = "com.squareup",
+    neverlink = True,
+    version = "1.11.1",
+)
+
 use_repo(maven, "maven")
 ```
 
@@ -60,14 +70,8 @@ maven.install(
 )
 ```
 
-Finally, update the `use_repo` call to also expose the `unpinned_maven` repository used to update the dependencies:
-
-```starlark
-use_repo(maven, "maven", "unpinned_maven")
-```
-
-Now you'll be able to use the same `@unpinned_maven//:pin` operation described in the
-[workspace instructions](/README.md#updating-maven_installjson).
+Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation described in the
+[workspace instructions](/README.md#updating-maven_installjson) to update the dependencies.
 
 ## Artifact exclusion
 
@@ -93,4 +97,3 @@ maven.install(
 ## Known issues
 
 - Some error messages print instructions that don't apply under bzlmod, e.g. https://github.com/bazelbuild/rules_jvm_external/issues/827
-- Java Gazelle extension [isn't available](https://github.com/bazel-contrib/rules_jvm/issues/123)

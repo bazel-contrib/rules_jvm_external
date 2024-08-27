@@ -14,6 +14,9 @@ export MAVEN_REPO="${{MAVEN_REPO:-{maven_repo}}}"
 export GPG_SIGN="${{GPG_SIGN:-{gpg_sign}}}"
 export MAVEN_USER="${{MAVEN_USER:-{user}}}"
 export MAVEN_PASSWORD="${{MAVEN_PASSWORD:-{password}}}"
+export USE_IN_MEMORY_PGP_KEYS="${{USE_IN_MEMORY_PGP_KEYS:-{use_in_memory_pgp_keys}}}"
+export PGP_SIGNING_KEY="${{PGP_SIGNING_KEY:-{pgp_signing_key}}}"
+export PGP_SIGNING_PWD="${{PGP_SIGNING_PWD:-{pgp_signing_pwd}}}"
 echo Uploading "{coordinates}" to "${{MAVEN_REPO}}"
 {uploader} "{coordinates}" '{pom}' '{artifact}' '{classifier_artifacts}' $@
 """
@@ -29,6 +32,9 @@ def _maven_publish_impl(ctx):
     gpg_sign = ctx.var.get("gpg_sign", "false")
     user = ctx.var.get("maven_user", "")
     password = ctx.var.get("maven_password", "")
+    use_in_memory_pgp_keys = ctx.var.get("use_in_memory_pgp_keys", "'false'")
+    pgp_signing_key = ctx.var.get("pgp_signing_key", "''")
+    pgp_signing_pwd = ctx.var.get("pgp_signing_pwd", "''")
     if password:
         print("WARNING: using --define to set maven_password is insecure. Set env var MAVEN_PASSWORD=xxx instead.")
 
@@ -55,6 +61,9 @@ def _maven_publish_impl(ctx):
             gpg_sign = _escape_arg(gpg_sign),
             maven_repo = _escape_arg(maven_repo),
             password = _escape_arg(password),
+            use_in_memory_pgp_keys = _escape_arg(use_in_memory_pgp_keys),
+            pgp_signing_key = _escape_arg(pgp_signing_key),
+            pgp_signing_pwd = _escape_arg(pgp_signing_pwd),
             user = _escape_arg(user),
             pom = ctx.file.pom.short_path,
             artifact = artifacts_short_path,
@@ -97,6 +106,9 @@ using `--define` or via environment variables (in all caps, e.g. `MAVEN_REPO`):
   maven_repo: A URL for the repo to use. May be "https" or "file".
   maven_user: The user name to use when uploading to the maven repository.
   maven_password: The password to use when uploading to the maven repository.
+  use_in_memory_pgp_keys: Whether to sign artifacts using in memory PGP secrets
+  pgp_signing_key = The secret key to sign the artifact with
+  pgp_signing_pwd = Password for the secret key
 
 When signing with GPG, the current default key is used.
 """,

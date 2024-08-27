@@ -78,6 +78,8 @@ maven.install(
         "org.slf4j:log4j-over-slf4j:2.0.12",
         "org.slf4j:slf4j-simple:2.0.12",
         "software.amazon.awssdk:s3:2.26.12",
+        "org.bouncycastle:bcprov-jdk15on:1.68",
+        "org.bouncycastle:bcpg-jdk15on:1.68",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
@@ -707,6 +709,16 @@ dev_maven.install(
     lock_file = "//tests/custom_maven_install:v1_lock_file_format_install.json",
 )
 
+# https://github.com/bazelbuild/rules_jvm_external/issues/1206
+dev_maven.install(
+    name = "transitive_dependency_with_type_of_pom",
+    # an arbitrary artifact which depends on org.javamoney:moneta:pom
+    artifacts = [
+        # https://github.com/quarkiverse/quarkus-moneta/blob/2.0.0/runtime/pom.xml#L16-L21
+        "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
+    ],
+)
+
 # Where there are file locks, the pinned and unpinned repos are listed
 # next to each other. Where compat repositories are created, they are
 # listed next to the repo that created them. The list is otherwise kept
@@ -798,6 +810,7 @@ use_repo(
     # Final entries
     "com_google_http_client_google_http_client",
     "testonly_testing",
+    "transitive_dependency_with_type_of_pom",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",

@@ -123,6 +123,7 @@ def maven_install(
             # created from the maven_install.json file in the coursier_fetch
             # invocation after this.
             name = name if maven_install_json == None else "unpinned_" + name,
+            pinned_repo_name = None if maven_install_json == None else name,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
             fail_on_missing_checksum = fail_on_missing_checksum,

@@ -15,7 +15,7 @@ Table of Contents
     - [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
 - [Prerequisites](#prerequisites)
 - [Usage](#usage)
-    - [With bzlmod (Bazel 6 and above)](#with-bzlmod-bazel-6-and-above)
+    - [With bzlmod (Bazel 7 and above)](#with-bzlmod-bazel-7-and-above)
     - [With WORKSPACE file (legacy)](#with-workspace-file-legacy)
 - [API Reference](#api-reference)
 - [Pinning artifacts and integration with Bazel's downloader](#pinning-artifacts-and-integration-with-bazels-downloader)
