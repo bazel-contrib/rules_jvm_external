@@ -8,7 +8,7 @@ _JavadocInfo = provider(
     },
 )
 
-_default_javadocopts = [
+_DEFAULT_JAVADOCOPTS = [
     "-notimestamp",
     "-use",
     "-quiet",
@@ -73,15 +73,12 @@ def _javadoc_impl(ctx):
     # from dep[JavaInfo].compilation_info (which, FWIW, always returns
     # `None` https://github.com/bazelbuild/bazel/issues/10170). For this
     # reason we allow people to set javadocopts via the rule attrs.
-
-    javadocopts = ctx.attr.javadocopts if ctx.attr.javadocopts else _default_javadocopts
-
     generate_javadoc(
         ctx,
         ctx.executable._javadoc,
         sources,
         classpath,
-        javadocopts,
+        ctx.attr.javadocopts,
         ctx.attr.doc_deps,
         jar_file,
         element_list,
@@ -120,7 +117,8 @@ javadoc = rule(
             Note sources and classpath are derived from the deps. Any additional
             options can be passed here. If nothing is passed, a default list of options is used:
             %s
-            """ % _default_javadocopts,
+            """ % _DEFAULT_JAVADOCOPTS,
+            default = _DEFAULT_JAVADOCOPTS,
         ),
         "doc_deps": attr.label_list(
             doc = """`javadoc` targets referenced by the current target.
