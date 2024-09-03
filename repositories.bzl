@@ -37,24 +37,13 @@ def rules_jvm_external_deps(
             sha256 = "73b88f34dc251bce7bc6c472eb386a6c2b312ed5b473c81fe46855c248f792e0",
         )
 
-    elif major_version == "6":
-        maybe(
-            http_archive,
-            name = "rules_java",
-            urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/6.5.2/rules_java-6.5.2.tar.gz",
-            ],
-            sha256 = "16bc94b1a3c64f2c36ceecddc9e09a643e80937076b97e934b96a8f715ed1eaa",
-        )
-
     else:
         maybe(
             http_archive,
             name = "rules_java",
-            urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.4.0/rules_java-7.4.0.tar.gz",
-            ],
-            sha256 = "976ef08b49c929741f201790e59e3807c72ad81f428c8bc953cdbeff5fed15eb",
+            url = "https://github.com/bazelbuild/rules_java/archive/30ecf3ff6ee8f30b4df505d9d3bde5bb1c25690b.tar.gz",
+            sha256 = "68844c3efdbfbec17404fc8cbcf786e2c9b9d66ad5f7cc2b1bc83816fc4e754d",
+            strip_prefix = "rules_java-30ecf3ff6ee8f30b4df505d9d3bde5bb1c25690b",
         )
 
     maven_install(
