@@ -16,7 +16,9 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 ## javadoc
 
 <pre>
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
+load("@rules_jvm_external//:defs.bzl", "javadoc")
+
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -27,12 +29,12 @@ Generate a javadoc from all the `deps`
 | Name  | Description | Type | Mandatory | Default |
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="javadoc-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
-| <a id="javadoc-additional_dependencies"></a>additional_dependencies |  Mapping of <code>Label</code>s to the excluded workspace names. Note that this must match the values passed to the <code>pom_file</code> rule so the <code>pom.xml</code> correctly lists these dependencies.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: Label -> String</a> | optional | <code>{}</code> |
-| <a id="javadoc-deps"></a>deps |  The java libraries to generate javadocs for.<br><br>          The source jars of each dep will be used to generate the javadocs.           Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | required |  |
-| <a id="javadoc-doc_deps"></a>doc_deps |  <code>javadoc</code> targets referenced by the current target.<br><br>            Use this to automatically add appropriate <code>-linkoffline</code> javadoc options to resolve             references to packages documented by the given javadoc targets that have <code>url</code>             specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional | <code>[]</code> |
-| <a id="javadoc-doc_url"></a>doc_url |  The URL at which this documentation will be hosted.<br><br>            This information is only used by javadoc targets depending on this target.   | String | optional | <code>""</code> |
-| <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional | <code>["com_google_protobuf", "protobuf"]</code> |
-| <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options.             Note sources and classpath are derived from the deps. Any additional             options can be passed here.   | List of strings | optional | <code>[]</code> |
+| <a id="javadoc-deps"></a>deps |  The java libraries to generate javadocs for.<br><br>The source jars of each dep will be used to generate the javadocs. Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | required |  |
+| <a id="javadoc-additional_dependencies"></a>additional_dependencies |  Mapping of `Label`s to the excluded workspace names. Note that this must match the values passed to the `pom_file` rule so the `pom.xml` correctly lists these dependencies.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: Label -> String</a> | optional |  `{}`  |
+| <a id="javadoc-doc_deps"></a>doc_deps |  `javadoc` targets referenced by the current target.<br><br>Use this to automatically add appropriate `-linkoffline` javadoc options to resolve references to packages documented by the given javadoc targets that have `url` specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
+| <a id="javadoc-doc_url"></a>doc_url |  The URL at which this documentation will be hosted.<br><br>This information is only used by javadoc targets depending on this target.   | String | optional |  `""`  |
+| <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional |  `["com_google_protobuf", "protobuf"]`  |
+| <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options. Note sources and classpath are derived from the deps. Any additional options can be passed here.   | List of strings | optional |  `[]`  |
 
 
 <a id="java_export"></a>
@@ -40,6 +42,8 @@ Generate a javadoc from all the `deps`
 ## java_export
 
 <pre>
+load("@rules_jvm_external//:defs.bzl", "java_export")
+
 java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-manifest_entries">manifest_entries</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>,
             <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-classifier_artifacts">classifier_artifacts</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
@@ -94,14 +98,14 @@ Generated rules:
 | :------------- | :------------- | :------------- |
 | <a id="java_export-name"></a>name |  A unique name for this target   |  none |
 | <a id="java_export-maven_coordinates"></a>maven_coordinates |  The maven coordinates for this target.   |  none |
-| <a id="java_export-manifest_entries"></a>manifest_entries |  A dict of <code>String: String</code> containing additional manifest entry attributes and values.   |  <code>{}</code> |
-| <a id="java_export-deploy_env"></a>deploy_env |  A list of labels of Java targets to exclude from the generated jar. [<code>java_binary</code>](https://bazel.build/reference/be/java#java_binary) targets are *not* supported.   |  <code>[]</code> |
-| <a id="java_export-excluded_workspaces"></a>excluded_workspaces |  A dict of strings representing the workspace names of artifacts that should not be included in the maven jar to a <code>Label</code> pointing to the dependency that workspace should be replaced by, or <code>None</code> if the exclusion shouldn't be replaced with an extra dependency.   |  <code>{"com_google_protobuf": None, "protobuf": None}</code> |
-| <a id="java_export-pom_template"></a>pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
-| <a id="java_export-visibility"></a>visibility |  The visibility of the target   |  <code>None</code> |
-| <a id="java_export-tags"></a>tags |  <p align="center"> - </p>   |  <code>[]</code> |
-| <a id="java_export-testonly"></a>testonly |  <p align="center"> - </p>   |  <code>None</code> |
-| <a id="java_export-classifier_artifacts"></a>classifier_artifacts |  A dict of classifier -&gt; artifact of additional artifacts to publish to Maven.   |  <code>{}</code> |
+| <a id="java_export-manifest_entries"></a>manifest_entries |  A dict of `String: String` containing additional manifest entry attributes and values.   |  `{}` |
+| <a id="java_export-deploy_env"></a>deploy_env |  A list of labels of Java targets to exclude from the generated jar. [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not* supported.   |  `[]` |
+| <a id="java_export-excluded_workspaces"></a>excluded_workspaces |  A dict of strings representing the workspace names of artifacts that should not be included in the maven jar to a `Label` pointing to the dependency that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced with an extra dependency.   |  `{"com_google_protobuf": None, "protobuf": None}` |
+| <a id="java_export-pom_template"></a>pom_template |  The template to be used for the pom.xml file.   |  `None` |
+| <a id="java_export-visibility"></a>visibility |  The visibility of the target   |  `None` |
+| <a id="java_export-tags"></a>tags |  <p align="center"> - </p>   |  `[]` |
+| <a id="java_export-testonly"></a>testonly |  <p align="center"> - </p>   |  `None` |
+| <a id="java_export-classifier_artifacts"></a>classifier_artifacts |  A dict of classifier -> artifact of additional artifacts to publish to Maven.   |  `{}` |
 | <a id="java_export-kwargs"></a>kwargs |  <p align="center"> - </p>   |  none |
 
 
@@ -110,6 +114,8 @@ Generated rules:
 ## maven_bom
 
 <pre>
+load("@rules_jvm_external//:defs.bzl", "maven_bom")
+
 maven_bom(<a href="#maven_bom-name">name</a>, <a href="#maven_bom-maven_coordinates">maven_coordinates</a>, <a href="#maven_bom-java_exports">java_exports</a>, <a href="#maven_bom-bom_pom_template">bom_pom_template</a>, <a href="#maven_bom-dependencies_maven_coordinates">dependencies_maven_coordinates</a>,
           <a href="#maven_bom-dependencies_pom_template">dependencies_pom_template</a>, <a href="#maven_bom-tags">tags</a>, <a href="#maven_bom-testonly">testonly</a>, <a href="#maven_bom-visibility">visibility</a>)
 </pre>
@@ -159,14 +165,14 @@ Generated rules:
 | Name  | Description | Default Value |
 | :------------- | :------------- | :------------- |
 | <a id="maven_bom-name"></a>name |  A unique name for this rule.   |  none |
-| <a id="maven_bom-maven_coordinates"></a>maven_coordinates |  The maven coordinates of this BOM in <code>groupId:artifactId:version</code> form.   |  none |
-| <a id="maven_bom-java_exports"></a>java_exports |  A list of <code>java_export</code> targets that are used to generate the BOM.   |  none |
-| <a id="maven_bom-bom_pom_template"></a>bom_pom_template |  A template used for generating the <code>pom.xml</code> of the BOM at <code>maven_coordinates</code> (optional)   |  <code>None</code> |
-| <a id="maven_bom-dependencies_maven_coordinates"></a>dependencies_maven_coordinates |  The maven coordinates of a dependencies artifact to generate in GAV format. If empty, none will be generated. (optional)   |  <code>None</code> |
-| <a id="maven_bom-dependencies_pom_template"></a>dependencies_pom_template |  A template used for generating the <code>pom.xml</code> of the dependencies artifact at <code>dependencies_maven_coordinates</code> (optional)   |  <code>None</code> |
-| <a id="maven_bom-tags"></a>tags |  <p align="center"> - </p>   |  <code>None</code> |
-| <a id="maven_bom-testonly"></a>testonly |  <p align="center"> - </p>   |  <code>None</code> |
-| <a id="maven_bom-visibility"></a>visibility |  <p align="center"> - </p>   |  <code>None</code> |
+| <a id="maven_bom-maven_coordinates"></a>maven_coordinates |  The maven coordinates of this BOM in `groupId:artifactId:version` form.   |  none |
+| <a id="maven_bom-java_exports"></a>java_exports |  A list of `java_export` targets that are used to generate the BOM.   |  none |
+| <a id="maven_bom-bom_pom_template"></a>bom_pom_template |  A template used for generating the `pom.xml` of the BOM at `maven_coordinates` (optional)   |  `None` |
+| <a id="maven_bom-dependencies_maven_coordinates"></a>dependencies_maven_coordinates |  The maven coordinates of a dependencies artifact to generate in GAV format. If empty, none will be generated. (optional)   |  `None` |
+| <a id="maven_bom-dependencies_pom_template"></a>dependencies_pom_template |  A template used for generating the `pom.xml` of the dependencies artifact at `dependencies_maven_coordinates` (optional)   |  `None` |
+| <a id="maven_bom-tags"></a>tags |  <p align="center"> - </p>   |  `None` |
+| <a id="maven_bom-testonly"></a>testonly |  <p align="center"> - </p>   |  `None` |
+| <a id="maven_bom-visibility"></a>visibility |  <p align="center"> - </p>   |  `None` |
 
 
 <a id="maven_install"></a>
@@ -174,6 +180,8 @@ Generated rules:
 ## maven_install
 
 <pre>
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
 maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-boms">boms</a>, <a href="#maven_install-resolver">resolver</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>,
               <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
               <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
@@ -194,31 +202,31 @@ and fetch Maven artifacts transitively.
 
 | Name  | Description | Default Value |
 | :------------- | :------------- | :------------- |
-| <a id="maven_install-name"></a>name |  A unique name for this Bazel external repository.   |  <code>"maven"</code> |
-| <a id="maven_install-repositories"></a>repositories |  A list of Maven repository URLs, specified in lookup order.<br><br>Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".   |  <code>[]</code> |
-| <a id="maven_install-artifacts"></a>artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact:version</code>.   |  <code>[]</code> |
-| <a id="maven_install-boms"></a>boms |  A list of Maven artifact coordinates in the form of <code>group:artifact:version</code> which refer to Maven BOMs. The <code>coursier</code> <code>resolver</code> does not support using BOMs.   |  <code>[]</code> |
-| <a id="maven_install-resolver"></a>resolver |  Which resolver to use. One of <code>coursier</code>, or <code>maven</code>.   |  <code>"coursier"</code> |
-| <a id="maven_install-fail_on_missing_checksum"></a>fail_on_missing_checksum |  fail the fetch if checksum attributes are not present.   |  <code>True</code> |
-| <a id="maven_install-fetch_sources"></a>fetch_sources |  Additionally fetch source JARs.   |  <code>False</code> |
-| <a id="maven_install-fetch_javadoc"></a>fetch_javadoc |  Additionally fetch javadoc JARs.   |  <code>False</code> |
-| <a id="maven_install-excluded_artifacts"></a>excluded_artifacts |  A list of Maven artifact coordinates in the form of <code>group:artifact</code> to be excluded from the transitive dependencies.   |  <code>[]</code> |
-| <a id="maven_install-generate_compat_repositories"></a>generate_compat_repositories |  Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, <code>@maven//:com_google_guava_guava</code> can also be referenced as <code>@com_google_guava_guava//jar</code>.   |  <code>False</code> |
-| <a id="maven_install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts.  If "pinned", choose the user's version unconditionally.  If "default", follow Coursier's default policy.   |  <code>"default"</code> |
-| <a id="maven_install-maven_install_json"></a>maven_install_json |  A label to a <code>maven_install.json</code> file to use pinned artifacts for generating build targets. e.g <code>//:maven_install.json</code>.   |  <code>None</code> |
-| <a id="maven_install-override_targets"></a>override_targets |  A mapping of <code>group:artifact</code> to Bazel target labels. All occurrences of the target label for <code>group:artifact</code> will be an alias to the specified label, therefore overriding the original generated <code>jvm_import</code> or <code>aar_import</code> target.   |  <code>{}</code> |
-| <a id="maven_install-strict_visibility"></a>strict_visibility |  Controls visibility of transitive dependencies. If <code>True</code>, transitive dependencies are private and invisible to user's rules. If <code>False</code>, transitive dependencies are public and visible to user's rules.   |  <code>False</code> |
-| <a id="maven_install-strict_visibility_value"></a>strict_visibility_value |  Allows changing transitive dependencies strict visibility scope from private to specified scopes list.   |  <code>["//visibility:private"]</code> |
-| <a id="maven_install-resolve_timeout"></a>resolve_timeout |  The execution timeout of resolving and fetching artifacts.   |  <code>600</code> |
-| <a id="maven_install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by <code>http_file</code> (with <code>maven_install_json</code> only).   |  <code>[]</code> |
-| <a id="maven_install-use_credentials_from_home_netrc_file"></a>use_credentials_from_home_netrc_file |  Whether to pass machine login credentials from the ~/.netrc file to coursier.   |  <code>False</code> |
-| <a id="maven_install-fail_if_repin_required"></a>fail_if_repin_required |  Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the <code>maven_install_json</code> to have been set.   |  <code>False</code> |
-| <a id="maven_install-use_starlark_android_rules"></a>use_starlark_android_rules |  Whether to use the native or Starlark version of the Android rules. Default is False.   |  <code>False</code> |
-| <a id="maven_install-aar_import_bzl_label"></a>aar_import_bzl_label |  The label (as a string) to use to import aar_import from. This is usually needed only if the top-level workspace file does not use the typical default repository name to import the Android Starlark rules. Default is "@build_bazel_rules_android//rules:rules.bzl".   |  <code>"@build_bazel_rules_android//android:rules.bzl"</code> |
-| <a id="maven_install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if an artifact is specified multiple times. If "error" then fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default is "warn".   |  <code>"warn"</code> |
-| <a id="maven_install-repin_instructions"></a>repin_instructions |  Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.   |  <code>None</code> |
-| <a id="maven_install-ignore_empty_files"></a>ignore_empty_files |  Treat jars that are empty as if they were not found.   |  <code>False</code> |
-| <a id="maven_install-additional_coursier_options"></a>additional_coursier_options |  Additional options that will be passed to coursier.   |  <code>[]</code> |
+| <a id="maven_install-name"></a>name |  A unique name for this Bazel external repository.   |  `"maven"` |
+| <a id="maven_install-repositories"></a>repositories |  A list of Maven repository URLs, specified in lookup order.<br><br>Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".   |  `[]` |
+| <a id="maven_install-artifacts"></a>artifacts |  A list of Maven artifact coordinates in the form of `group:artifact:version`.   |  `[]` |
+| <a id="maven_install-boms"></a>boms |  A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs. The `coursier` `resolver` does not support using BOMs.   |  `[]` |
+| <a id="maven_install-resolver"></a>resolver |  Which resolver to use. One of `coursier`, or `maven`.   |  `"coursier"` |
+| <a id="maven_install-fail_on_missing_checksum"></a>fail_on_missing_checksum |  fail the fetch if checksum attributes are not present.   |  `True` |
+| <a id="maven_install-fetch_sources"></a>fetch_sources |  Additionally fetch source JARs.   |  `False` |
+| <a id="maven_install-fetch_javadoc"></a>fetch_javadoc |  Additionally fetch javadoc JARs.   |  `False` |
+| <a id="maven_install-excluded_artifacts"></a>excluded_artifacts |  A list of Maven artifact coordinates in the form of `group:artifact` to be excluded from the transitive dependencies.   |  `[]` |
+| <a id="maven_install-generate_compat_repositories"></a>generate_compat_repositories |  Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.   |  `False` |
+| <a id="maven_install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts.  If "pinned", choose the user's version unconditionally.  If "default", follow Coursier's default policy.   |  `"default"` |
+| <a id="maven_install-maven_install_json"></a>maven_install_json |  A label to a `maven_install.json` file to use pinned artifacts for generating build targets. e.g `//:maven_install.json`.   |  `None` |
+| <a id="maven_install-override_targets"></a>override_targets |  A mapping of `group:artifact` to Bazel target labels. All occurrences of the target label for `group:artifact` will be an alias to the specified label, therefore overriding the original generated `jvm_import` or `aar_import` target.   |  `{}` |
+| <a id="maven_install-strict_visibility"></a>strict_visibility |  Controls visibility of transitive dependencies. If `True`, transitive dependencies are private and invisible to user's rules. If `False`, transitive dependencies are public and visible to user's rules.   |  `False` |
+| <a id="maven_install-strict_visibility_value"></a>strict_visibility_value |  Allows changing transitive dependencies strict visibility scope from private to specified scopes list.   |  `["//visibility:private"]` |
+| <a id="maven_install-resolve_timeout"></a>resolve_timeout |  The execution timeout of resolving and fetching artifacts.   |  `600` |
+| <a id="maven_install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).   |  `[]` |
+| <a id="maven_install-use_credentials_from_home_netrc_file"></a>use_credentials_from_home_netrc_file |  Whether to pass machine login credentials from the ~/.netrc file to coursier.   |  `False` |
+| <a id="maven_install-fail_if_repin_required"></a>fail_if_repin_required |  Whether to fail the build if the required maven artifacts have been changed but not repinned. Requires the `maven_install_json` to have been set.   |  `False` |
+| <a id="maven_install-use_starlark_android_rules"></a>use_starlark_android_rules |  Whether to use the native or Starlark version of the Android rules. Default is False.   |  `False` |
+| <a id="maven_install-aar_import_bzl_label"></a>aar_import_bzl_label |  The label (as a string) to use to import aar_import from. This is usually needed only if the top-level workspace file does not use the typical default repository name to import the Android Starlark rules. Default is "@build_bazel_rules_android//rules:rules.bzl".   |  `"@build_bazel_rules_android//android:rules.bzl"` |
+| <a id="maven_install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if an artifact is specified multiple times. If "error" then fail the build, if "warn" then print a message and continue, if "none" then do nothing. The default is "warn".   |  `"warn"` |
+| <a id="maven_install-repin_instructions"></a>repin_instructions |  Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.   |  `None` |
+| <a id="maven_install-ignore_empty_files"></a>ignore_empty_files |  Treat jars that are empty as if they were not found.   |  `False` |
+| <a id="maven_install-additional_coursier_options"></a>additional_coursier_options |  Additional options that will be passed to coursier.   |  `[]` |
 
 
 # Maven specification functions
@@ -235,11 +243,64 @@ load("@rules_jvm_external//:specs.bzl", "maven")
 
 
 
+<a id="maven.artifact"></a>
+
+## maven.artifact
+
+<pre>
+load("@rules_jvm_external//:specs.bzl", "maven")
+
+maven.artifact(<a href="#maven.artifact-group">group</a>, <a href="#maven.artifact-artifact">artifact</a>, <a href="#maven.artifact-version">version</a>, <a href="#maven.artifact-packaging">packaging</a>, <a href="#maven.artifact-classifier">classifier</a>, <a href="#maven.artifact-override_license_types">override_license_types</a>, <a href="#maven.artifact-exclusions">exclusions</a>,
+               <a href="#maven.artifact-neverlink">neverlink</a>, <a href="#maven.artifact-testonly">testonly</a>, <a href="#maven.artifact-force_version">force_version</a>)
+</pre>
+
+Generates the data map for a Maven artifact given the available information about its coordinates.
+
+**PARAMETERS**
+
+
+| Name  | Description | Default Value |
+| :------------- | :------------- | :------------- |
+| <a id="maven.artifact-group"></a>group |  The Maven artifact coordinate group name (ex: "com.google.guava").   |  none |
+| <a id="maven.artifact-artifact"></a>artifact |  The Maven artifact coordinate artifact name (ex: "guava").   |  none |
+| <a id="maven.artifact-version"></a>version |  The Maven artifact coordinate version name (ex: "27.0-jre").   |  `""` |
+| <a id="maven.artifact-packaging"></a>packaging |  The Maven packaging specifier (ex: "jar").   |  `None` |
+| <a id="maven.artifact-classifier"></a>classifier |  The Maven artifact classifier (ex: "javadoc").   |  `None` |
+| <a id="maven.artifact-override_license_types"></a>override_license_types |  An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: ["notify"]).   |  `None` |
+| <a id="maven.artifact-exclusions"></a>exclusions |  An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).   |  `None` |
+| <a id="maven.artifact-neverlink"></a>neverlink |  Determines if this artifact should be part of the runtime classpath.   |  `None` |
+| <a id="maven.artifact-testonly"></a>testonly |  Determines whether this artifact is available for targets not marked as `testonly = True`.   |  `None` |
+| <a id="maven.artifact-force_version"></a>force_version |  Whether the `version` is non-negotiable.   |  `False` |
+
+
+<a id="maven.exclusion"></a>
+
+## maven.exclusion
+
+<pre>
+load("@rules_jvm_external//:specs.bzl", "maven")
+
+maven.exclusion(<a href="#maven.exclusion-group">group</a>, <a href="#maven.exclusion-artifact">artifact</a>)
+</pre>
+
+Generates the data map for a Maven artifact exclusion.
+
+**PARAMETERS**
+
+
+| Name  | Description | Default Value |
+| :------------- | :------------- | :------------- |
+| <a id="maven.exclusion-group"></a>group |  The Maven group name of the dependency to exclude, e.g. "com.google.guava".   |  none |
+| <a id="maven.exclusion-artifact"></a>artifact |  The Maven artifact name of the dependency to exclude, e.g. "guava".   |  none |
+
+
 <a id="maven.repository"></a>
 
 ## maven.repository
 
 <pre>
+load("@rules_jvm_external//:specs.bzl", "maven")
+
 maven.repository(<a href="#maven.repository-url">url</a>, <a href="#maven.repository-user">user</a>, <a href="#maven.repository-password">password</a>)
 </pre>
 
@@ -256,54 +317,7 @@ will just generate the repository url.
 | Name  | Description | Default Value |
 | :------------- | :------------- | :------------- |
 | <a id="maven.repository-url"></a>url |  A string containing the repository url (ex: "https://maven.google.com/").   |  none |
-| <a id="maven.repository-user"></a>user |  A username for this Maven repository, if it requires authentication (ex: "johndoe").   |  <code>None</code> |
-| <a id="maven.repository-password"></a>password |  A password for this Maven repository, if it requires authentication (ex: "example-password").   |  <code>None</code> |
-
-
-<a id="maven.artifact"></a>
-
-## maven.artifact
-
-<pre>
-maven.artifact(<a href="#maven.artifact-group">group</a>, <a href="#maven.artifact-artifact">artifact</a>, <a href="#maven.artifact-version">version</a>, <a href="#maven.artifact-packaging">packaging</a>, <a href="#maven.artifact-classifier">classifier</a>, <a href="#maven.artifact-override_license_types">override_license_types</a>, <a href="#maven.artifact-exclusions">exclusions</a>,
-               <a href="#maven.artifact-neverlink">neverlink</a>, <a href="#maven.artifact-testonly">testonly</a>, <a href="#maven.artifact-force_version">force_version</a>)
-</pre>
-
-Generates the data map for a Maven artifact given the available information about its coordinates.
-
-**PARAMETERS**
-
-
-| Name  | Description | Default Value |
-| :------------- | :------------- | :------------- |
-| <a id="maven.artifact-group"></a>group |  The Maven artifact coordinate group name (ex: "com.google.guava").   |  none |
-| <a id="maven.artifact-artifact"></a>artifact |  The Maven artifact coordinate artifact name (ex: "guava").   |  none |
-| <a id="maven.artifact-version"></a>version |  The Maven artifact coordinate version name (ex: "27.0-jre").   |  none |
-| <a id="maven.artifact-packaging"></a>packaging |  The Maven packaging specifier (ex: "jar").   |  <code>None</code> |
-| <a id="maven.artifact-classifier"></a>classifier |  The Maven artifact classifier (ex: "javadoc").   |  <code>None</code> |
-| <a id="maven.artifact-override_license_types"></a>override_license_types |  An array of Bazel license type strings to use for this artifact's rules (overrides autodetection) (ex: ["notify"]).   |  <code>None</code> |
-| <a id="maven.artifact-exclusions"></a>exclusions |  An array of exclusion objects to create exclusion specifiers for this artifact (ex: maven.exclusion("junit", "junit")).   |  <code>None</code> |
-| <a id="maven.artifact-neverlink"></a>neverlink |  Determines if this artifact should be part of the runtime classpath.   |  <code>None</code> |
-| <a id="maven.artifact-testonly"></a>testonly |  Determines whether this artifact is available for targets not marked as <code>testonly = True</code>.   |  <code>None</code> |
-| <a id="maven.artifact-force_version"></a>force_version |  Whether the <code>version</code> is non-negotiable.   |  <code>False</code> |
-
-
-<a id="maven.exclusion"></a>
-
-## maven.exclusion
-
-<pre>
-maven.exclusion(<a href="#maven.exclusion-group">group</a>, <a href="#maven.exclusion-artifact">artifact</a>)
-</pre>
-
-Generates the data map for a Maven artifact exclusion.
-
-**PARAMETERS**
-
-
-| Name  | Description | Default Value |
-| :------------- | :------------- | :------------- |
-| <a id="maven.exclusion-group"></a>group |  The Maven group name of the dependency to exclude, e.g. "com.google.guava".   |  none |
-| <a id="maven.exclusion-artifact"></a>artifact |  The Maven artifact name of the dependency to exclude, e.g. "guava".   |  none |
+| <a id="maven.repository-user"></a>user |  A username for this Maven repository, if it requires authentication (ex: "johndoe").   |  `None` |
+| <a id="maven.repository-password"></a>password |  A password for this Maven repository, if it requires authentication (ex: "example-password").   |  `None` |
 
 
