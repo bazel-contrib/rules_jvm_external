@@ -1,5 +1,5 @@
 load("@rules_java//java:defs.bzl", "JavaInfo", "java_common")
-load("//private/lib:bzlmod.bzl", "get_file_owner_repo_name")
+load("//private/lib:bzlmod.bzl", "get_module_name_of_owner_of_repo")
 load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "calculate_artifact_source_jars", "has_maven_deps")
 load(":maven_utils.bzl", "determine_additional_dependencies")
 
@@ -21,7 +21,7 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
             workspace_name = owner.workspace_name
 
             # bzlmod module names use ~ as a separator
-            workspace_name = get_file_owner_repo_name(workspace_name)
+            workspace_name = get_module_name_of_owner_of_repo(workspace_name)
 
             if workspace_name in excluded_workspaces:
                 continue

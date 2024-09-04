@@ -1,4 +1,4 @@
-load("//private/lib:bzlmod.bzl", "get_file_owner_repo_name")
+load("//private/lib:bzlmod.bzl", "get_module_name_of_owner_of_repo")
 
 def unpack_coordinates(coords):
     """Takes a maven coordinate and unpacks it into a struct with fields
@@ -150,7 +150,7 @@ def determine_additional_dependencies(jar_files, additional_dependencies):
             continue
 
         # Users don't know how `bzlmod` mangles workspace names, but we do
-        workspace_name = get_file_owner_repo_name(owner.workspace_name)
+        workspace_name = get_module_name_of_owner_of_repo(owner.workspace_name)
 
         for (dep, name) in additional_dependencies.items():
             if (name == workspace_name) and dep:

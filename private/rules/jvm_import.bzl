@@ -8,33 +8,25 @@
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
 load("@rules_java//java:defs.bzl", "JavaInfo")
-load("//private/lib:bzlmod.bzl", "to_visible_name")
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
 
 def _jvm_import_impl(ctx):
     if len(ctx.files.jars) != 1:
         fail("Please only specify one jar to import in the jars attribute.")
 
-    visible_name = to_visible_name(ctx.label.workspace_name)
-    label = "@{workspace_name}//{package}:{name}".format(
-        name = ctx.label.name,
-        package = ctx.label.package,
-        workspace_name = visible_name,
-    )
-
     injar = ctx.files.jars[0]
     if ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
         outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
         args = ctx.actions.args()
         args.add_all(["--source", injar, "--output", outjar])
-        args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = label)])
+        args.add("--manifest-entry", ctx.label, format = "Target-Label:%s")
         ctx.actions.run(
             executable = ctx.executable._add_jar_manifest_entry,
             arguments = [args],
             inputs = [injar],
             outputs = [outjar],
             mnemonic = "StampJarManifest",
-            progress_message = "Stamping the manifest of %s" % ctx.label,
+            progress_message = "Stamping the manifest of %{label}",
         )
     else:
         outjar = injar
