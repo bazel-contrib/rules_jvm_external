@@ -41,7 +41,9 @@ def rules_jvm_external_deps(
         maybe(
             http_archive,
             name = "rules_java",
-            url = ["https://github.com/bazelbuild/rules_java/releases/download/7.10.0/rules_java-7.10.0.tar.gz"],
+            urls = [
+                "https://github.com/bazelbuild/rules_java/releases/download/7.10.0/rules_java-7.10.0.tar.gz",
+            ],
             sha256 = "eb5447f019734b0c4284eaa5f8248415084da5445ba8201c935a211ab8af43a0",
         )
 
