@@ -1,4 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
+load("//private/lib:urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url", "split_url")
 load(
     "//private/rules:coursier.bzl",
     "compute_dependency_inputs_signature",
@@ -6,7 +7,6 @@ load(
     "get_netrc_lines_from_entries",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
-load("//private/rules:urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url", "split_url")
 load("//private/rules:v1_lock_file.bzl", "add_netrc_entries_from_mirror_urls")
 
 ALL_TESTS = []
