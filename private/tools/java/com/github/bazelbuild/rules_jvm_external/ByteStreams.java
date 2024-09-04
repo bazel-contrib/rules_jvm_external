@@ -23,7 +23,7 @@ public class ByteStreams {
   public static void copy(InputStream source, OutputStream sink) throws IOException {
     byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
-    for (int read = source.read(buffer); read != -1; read = source.read(buffer)) {
+    for (var read = source.read(buffer); read != -1; read = source.read(buffer)) {
       sink.write(buffer, 0, read);
     }
   }
