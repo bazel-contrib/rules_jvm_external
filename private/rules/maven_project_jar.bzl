@@ -18,10 +18,7 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
         owner = jar.owner
 
         if owner:
-            workspace_name = owner.workspace_name
-
-            # bzlmod module names use ~ as a separator
-            workspace_name = get_module_name_of_owner_of_repo(workspace_name)
+            workspace_name = get_module_name_of_owner_of_repo(owner.workspace_name)
 
             if workspace_name in excluded_workspaces:
                 continue
