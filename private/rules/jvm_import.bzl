@@ -8,8 +8,10 @@
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
 load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_license//rules:providers.bzl", "PackageInfo")
+load("//private/lib:coordinates.bzl", "to_external_form", "to_purl", "unpack_coordinates")
+load("//private/lib:urls.bzl", "scheme_and_host")
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
-load(":maven_utils.bzl", "unpack_coordinates")
 
 def _jvm_import_impl(ctx):
     if not ctx.attr.jar and not ctx.attr.jars:
@@ -66,6 +68,21 @@ def _jvm_import_impl(ctx):
         progress_message = "Creating compile jar for %s" % ctx.label,
     )
 
+    additional_providers = []
+    if ctx.attr.maven_coordinates:
+        unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
+
+        additional_providers.append(
+            PackageInfo(
+                type = "jvm_import",
+                label = ctx.label,
+                package_url = ctx.attr.maven_url,
+                package_version = unpacked.version,
+                package_name = to_external_form(ctx.attr.maven_coordinates),
+                purl = to_purl(ctx.attr.maven_coordinates, scheme_and_host(ctx.attr.maven_url)),
+            ),
+        )
+
     return [
         DefaultInfo(
             files = depset([outjar]),
@@ -81,7 +98,7 @@ def _jvm_import_impl(ctx):
             ],
             neverlink = ctx.attr.neverlink,
         ),
-    ]
+    ] + additional_providers
 
 jvm_import = rule(
     attrs = {
@@ -104,6 +121,12 @@ jvm_import = rule(
         ),
         "neverlink": attr.bool(
             default = False,
+        ),
+        "maven_coordinates": attr.string(
+            doc = "The maven coordinates that the `jar` can be downloaded from.",
+        ),
+        "maven_url": attr.string(
+            doc = "URL from where `jar` will be downloaded from.",
         ),
         "_add_jar_manifest_entry": attr.label(
             executable = True,

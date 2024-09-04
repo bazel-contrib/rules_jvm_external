@@ -17,6 +17,20 @@ def split_url(url):
     url_parts = url_without_protocol.split("/")
     return protocol, url_parts
 
+_REMOTE_SCHEMES = [
+    "ftp",
+    "http",
+    "https",
+]
+
+def scheme_and_host(url):
+    if not url:
+        return None
+
+    new_url = remove_auth_from_url(url)
+    (protocol, url_parts) = split_url(new_url)
+    return protocol + "://" + url_parts[0]
+
 def remove_auth_from_url(url):
     """Returns url without `user:pass@` or `user@`."""
     if "@" not in url:

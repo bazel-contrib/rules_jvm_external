@@ -12,6 +12,7 @@ bzl_library(
     srcs = [
         ":defs.bzl",
         ":specs.bzl",
+        "@rules_license//:docs_deps",
     ],
     visibility = [
         # This library is only visible to allow others who depend on
