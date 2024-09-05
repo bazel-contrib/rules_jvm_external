@@ -18,7 +18,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_java",
-    version = "7.4.0",
+    version = "7.10.0",
 )
 bazel_dep(
     name = "rules_kotlin",
@@ -28,9 +28,11 @@ bazel_dep(
     name = "rules_android",
     version = "0.1.1",
 )
+
 bazel_dep(
     name = "stardoc",
     version = "0.7.0",
+    dev_dependency = True,
     repo_name = "io_bazel_stardoc",
 )
 
