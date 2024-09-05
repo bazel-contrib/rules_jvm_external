@@ -1,9 +1,7 @@
-exports_files([
-    "artifact_utilities.bzl",
-    "constants.bzl",
-    "coursier_utilities.bzl",
-    "dependency_tree_parser.bzl",
-    "java_utilities.bzl",
-    "proxy.bzl",
-    "versions.bzl",
-])
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+bzl_library(
+    name = "implementation",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//:__subpackages__"],
+)
