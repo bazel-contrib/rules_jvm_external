@@ -1,12 +1,12 @@
 module(
     name = "rules_jvm_external",
-    version = "6.2",
+    version = "6.3",
     bazel_compatibility = [">=7.0.0"],
 )
 
 bazel_dep(
     name = "bazel_features",
-    version = "1.13.0",
+    version = "1.15.0",
 )
 bazel_dep(
     name = "bazel_skylib",
@@ -22,7 +22,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_kotlin",
-    version = "1.9.5",
+    version = "1.9.6",
 )
 bazel_dep(
     name = "rules_android",
