@@ -3,8 +3,9 @@ def unpack_coordinates(coords):
     `groupId`, `artifactId`, `version`, `type`, `scope`
     where type and scope are optional.
 
-    Assumes following maven coordinate syntax:
-    groupId:artifactId[:type[:scope]]:version
+    Assumes `coords` is in one of the following syntaxes:
+     * groupId:artifactId[:type[:scope]]:version
+     * groupId:artifactId[:version][@classifier][:type]
     """
     if not coords:
         return None
