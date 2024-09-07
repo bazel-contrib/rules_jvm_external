@@ -8,6 +8,15 @@ _JavadocInfo = provider(
     },
 )
 
+_DEFAULT_JAVADOCOPTS = [
+    "-notimestamp",
+    "-use",
+    "-quiet",
+    "-Xdoclint:-missing",
+    "-encoding",
+    "UTF8",
+]
+
 def generate_javadoc(
         ctx,
         javadoc,
@@ -77,7 +86,6 @@ def _javadoc_impl(ctx):
     # from dep[JavaInfo].compilation_info (which, FWIW, always returns
     # `None` https://github.com/bazelbuild/bazel/issues/10170). For this
     # reason we allow people to set javadocopts via the rule attrs.
-
     generate_javadoc(
         ctx,
         ctx.executable._javadoc,
@@ -121,8 +129,10 @@ javadoc = rule(
         "javadocopts": attr.string_list(
             doc = """javadoc options.
             Note sources and classpath are derived from the deps. Any additional
-            options can be passed here.
-            """,
+            options can be passed here. If nothing is passed, a default list of options is used:
+            %s
+            """ % _DEFAULT_JAVADOCOPTS,
+            default = _DEFAULT_JAVADOCOPTS,
         ),
         "doc_deps": attr.label_list(
             doc = """`javadoc` targets referenced by the current target.

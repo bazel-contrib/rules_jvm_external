@@ -203,7 +203,6 @@ def maven_export(
     manifest_entries = manifest_entries if manifest_entries else {}
     deploy_env = deploy_env if deploy_env else []
     excluded_workspaces = excluded_workspaces if excluded_workspaces else {}
-    javadocopts = javadocopts if javadocopts else []
     doc_url = doc_url if doc_url else ""
     doc_deps = doc_deps if doc_deps else []
     tags = tags if tags else []
