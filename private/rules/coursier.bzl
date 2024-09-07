@@ -29,7 +29,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
-load("//private/rules:urls.bzl", "remove_auth_from_url")
+load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 
@@ -136,6 +136,9 @@ def _is_file(repository_ctx, path):
 
 def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
+
+def _is_unpinned(repository_ctx):
+    return repository_ctx.attr.pinned_repo_name != ""
 
 def _shell_quote(s):
     # Lifted from
@@ -875,7 +878,7 @@ def make_coursier_dep_tree(
         cmd.append("--default=true")
 
     environment = {}
-    if not repository_ctx.attr.name.startswith("unpinned_"):
+    if not _is_unpinned(repository_ctx):
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
             False,
@@ -1009,7 +1012,7 @@ def _coursier_fetch_impl(repository_ctx):
     # TODO(jin): allow custom cache locations
     coursier_cache_path = get_coursier_cache_or_default(
         repository_ctx,
-        repository_ctx.attr.name.startswith("unpinned_"),
+        _is_unpinned(repository_ctx),
     ).replace("//", "/")
 
     for artifact in dep_tree["dependencies"]:
@@ -1032,13 +1035,13 @@ def _coursier_fetch_impl(repository_ctx):
             #    to file within the repository rule workspace
             print("Assuming maven local for artifact: %s" % artifact["coord"])
             artifact.update({"url": None})
-            if not repository_ctx.attr.name.startswith("unpinned_"):
+            if not _is_unpinned(repository_ctx):
                 artifact.update({"file": _relativize_and_symlink_file_in_maven_local(repository_ctx, artifact["file"])})
 
             files_to_inspect.append(repository_ctx.path(artifact["file"]))
             continue
 
-        if repository_ctx.attr.name.startswith("unpinned_"):
+        if _is_unpinned(repository_ctx):
             artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"], coursier_cache_path)})
 
         # Coursier saves the artifacts into a subdirectory structure
@@ -1231,13 +1234,13 @@ def _coursier_fetch_impl(repository_ctx):
         },
         override_targets = repository_ctx.attr.override_targets,
         # Skip maven local dependencies if generating the unpinned repository
-        skip_maven_local_dependencies = repository_ctx.attr.name.startswith("unpinned_"),
+        skip_maven_local_dependencies = _is_unpinned(repository_ctx),
     )
 
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
-    if repository_ctx.name.startswith("unpinned_"):
-        repository_name = repository_ctx.name[len("unpinned_"):]
+    if _is_unpinned(repository_ctx):
+        repository_name = repository_ctx.attr.pinned_repo_name
         outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
@@ -1439,6 +1442,10 @@ coursier_fetch = repository_rule(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "pinned_repo_name": attr.string(
+            doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
+            mandatory = False,
+        ),
     },
     environ = [
         "JAVA_HOME",

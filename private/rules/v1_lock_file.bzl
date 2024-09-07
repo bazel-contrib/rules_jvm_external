@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load(":urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url")
+load("//private/lib:urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url")
 
 def _is_valid_lock_file(lock_file_contents):
     dep_tree = lock_file_contents.get("dependency_tree")

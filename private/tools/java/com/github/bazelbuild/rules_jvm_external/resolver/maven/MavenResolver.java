@@ -402,12 +402,61 @@ public class MavenResolver implements Resolver {
         .filter(dep -> !artifactKeys.contains(getArtifactKey(dep.getArtifact())))
         .forEach(managedDependencies::add);
 
-    return managedDependencies.build();
+    // Last, normalize versions across different classifiers of an artifact
+    // The rules_jvm_external json version file only supports one version for an artifact even when
+    // the artifact has multiple classifiers e.g.
+    //
+    //  "artifacts": {
+    //    "io.netty:netty-tcnative-boringssl-static": {
+    //      "shasums": {
+    //        "jar": "b6f974972c44cd6f9cecabc255290286faac40b6393c66c3c3c0db7f421cc28e",
+    //        "linux-aarch_64": "3614395218ae379cec22ccaa089c4f27b9329a660e0d53c93e7cb12b7a2cee46",
+    //        "linux-x86_64": "4ff9d14f1ec6ccee35b78f53a6f3d9c7c54535aa2a76138311c2f619c5e150e1",
+    //        "osx-aarch_64": "58e0302c9fde3db984c3ff7ee7ec7159dc0320bdb91533cc290e12e40911cd1a",
+    //        "osx-x86_64": "fcfea887f4f0802d363c699b444d504b7109a7cb198ae6845eeff63745e5b0ba",
+    //        "windows-x86_64": "17cd2fa3c63b7ed23edea01c945e55cb7baed1faa0f553732c3f5f56da90b3e0"
+    //      },
+    //      "version": "2.0.61.Final"
+    //    },
+    //
+    // In order to keep the version consistent across all classifiers we use the first version for
+    // the artifact in the dependency list as the version for all of the classifiers of the
+    // artifact.
+    //
+    // Note: This is different from the coursier resolver which will use the last artifact in the
+    // dependency list for the version of all of that dependency with classifiers.
+    Map<String, String> dependencyVersions = new HashMap<>();
+    return managedDependencies.build().stream()
+        .map(
+            dependency -> {
+              Artifact artifact = dependency.getArtifact();
+              String groupIdArtifactId = artifact.getGroupId() + ":" + artifact.getArtifactId();
+              if (dependencyVersions.containsKey(groupIdArtifactId)) {
+                Artifact artifactWithNewVersion =
+                    new DefaultArtifact(
+                        artifact.getGroupId(),
+                        artifact.getArtifactId(),
+                        artifact.getClassifier(),
+                        artifact.getExtension(),
+                        dependencyVersions.get(groupIdArtifactId));
+                return new Dependency(
+                    artifactWithNewVersion,
+                    dependency.getScope(),
+                    dependency.getOptional(),
+                    dependency.getExclusions());
+              } else {
+                if (artifact.getVersion() != null && !artifact.getVersion().isEmpty()) {
+                  dependencyVersions.put(groupIdArtifactId, artifact.getVersion());
+                }
+                return dependency;
+              }
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static String getArtifactKey(Artifact artifact) {
     // Note: We're not using MavenCoordinates.asCoordinates(artifact).asKey() because these
-    // dependencies are inputs to the maven resolver, so we don't want to change the classifer
+    // dependencies are inputs to the maven resolver, so we don't want to change the classifier
     // or extension before sending them to the resolver.
     return new Coordinates(
             artifact.getGroupId(),

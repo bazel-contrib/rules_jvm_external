@@ -1,37 +1,38 @@
 module(
     name = "rules_jvm_external",
-    version = "6.1",
+    version = "6.3",
     bazel_compatibility = [">=7.0.0"],
-    compatibility_level = 2,
 )
 
 bazel_dep(
     name = "bazel_features",
-    version = "1.11.0",
+    version = "1.15.0",
 )
 bazel_dep(
     name = "bazel_skylib",
-    version = "1.4.2",
+    version = "1.7.1",
 )
 bazel_dep(
     name = "platforms",
-    version = "0.0.8",
+    version = "0.0.10",
 )
 bazel_dep(
     name = "rules_java",
-    version = "7.3.2",
+    version = "7.10.0",
 )
 bazel_dep(
     name = "rules_kotlin",
-    version = "1.9.0",
+    version = "1.9.6",
 )
 bazel_dep(
     name = "rules_android",
     version = "0.1.1",
 )
+
 bazel_dep(
     name = "stardoc",
-    version = "0.5.6",
+    version = "0.7.0",
+    dev_dependency = True,
     repo_name = "io_bazel_stardoc",
 )
 
@@ -41,9 +42,9 @@ use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
 
 maven = use_extension(":extensions.bzl", "maven")
 
-_MAVEN_VERSION = "3.9.6"
+_MAVEN_VERSION = "3.9.8"
 
-_MAVEN_RESOLVER_VERSION = "1.9.18"
+_MAVEN_RESOLVER_VERSION = "1.9.20"
 
 # NOTE: Please keep any changes to this maven.install in sync with the
 # definition in repositories.bzl
@@ -52,11 +53,11 @@ maven.install(
     artifacts = [
         "com.google.auth:google-auth-library-credentials:1.23.0",
         "com.google.auth:google-auth-library-oauth2-http:1.23.0",
-        "com.google.cloud:google-cloud-core:2.36.1",
-        "com.google.cloud:google-cloud-storage:2.36.1",
-        "com.google.code.gson:gson:2.10.1",
+        "com.google.cloud:google-cloud-core:2.40.0",
+        "com.google.cloud:google-cloud-storage:2.40.1",
+        "com.google.code.gson:gson:2.11.0",
         "com.google.googlejavaformat:google-java-format:1.22.0",
-        "com.google.guava:guava:33.1.0-jre",
+        "com.google.guava:guava:33.2.1-jre",
         "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
@@ -78,7 +79,9 @@ maven.install(
         "org.slf4j:jul-to-slf4j:2.0.12",
         "org.slf4j:log4j-over-slf4j:2.0.12",
         "org.slf4j:slf4j-simple:2.0.12",
-        "software.amazon.awssdk:s3:2.25.23",
+        "software.amazon.awssdk:s3:2.26.12",
+        "org.bouncycastle:bcprov-jdk15on:1.68",
+        "org.bouncycastle:bcpg-jdk15on:1.68",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
@@ -138,7 +141,12 @@ http_file(
 
 bazel_dep(
     name = "protobuf",
-    version = "21.7",
+    # Note: we use 27.2 in MODULE.bazel to avoid the warning:
+    #   The maven repository 'maven' is used in two different bazel modules, originally in 'rules_jvm_external' and now in 'protobuf'
+    # But we use 21.7 in WORKSPACE because protobuf 27.2 doesn't work with Bazel 5.x
+    # https://github.com/protocolbuffers/protobuf/commit/a80daa2a2caaaac9ebe9ae6bb1b639c2771c5c55
+    # This should be ok because we only use the protobuf dep to pull in the google/protobuf/wrappers.proto for testing
+    version = "27.2",
     dev_dependency = True,
 )
 bazel_dep(
@@ -350,7 +358,7 @@ dev_maven.install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0",
+        "com.example:no-docs:1.0.0",
     ],
     lock_file = "//tests/custom_maven_install:m2local_testing_with_pinned_file_install.json",
     repositories = [
@@ -592,6 +600,11 @@ dev_maven.install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1144
         "org.codehaus.plexus:plexus:1.0.4",
         "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1162
+        "io.opentelemetry:opentelemetry-sdk",
+    ],
+    boms = [
+        "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
@@ -602,6 +615,14 @@ dev_maven.install(
         "https://maven.google.com",
     ],
     resolver = "maven",
+)
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/1162
+dev_maven.artifact(
+    name = "regression_testing_maven",
+    artifact = "opentelemetry-api",
+    group = "io.opentelemetry",
+    neverlink = True,
 )
 dev_maven.install(
     name = "starlark_aar_import_test",
@@ -688,6 +709,16 @@ dev_maven.install(
     ],
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:v1_lock_file_format_install.json",
+)
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/1206
+dev_maven.install(
+    name = "transitive_dependency_with_type_of_pom",
+    # an arbitrary artifact which depends on org.javamoney:moneta:pom
+    artifacts = [
+        # https://github.com/quarkiverse/quarkus-moneta/blob/2.0.0/runtime/pom.xml#L16-L21
+        "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
+    ],
 )
 
 # Where there are file locks, the pinned and unpinned repos are listed
@@ -781,6 +812,7 @@ use_repo(
     # Final entries
     "com_google_http_client_google_http_client",
     "testonly_testing",
+    "transitive_dependency_with_type_of_pom",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",

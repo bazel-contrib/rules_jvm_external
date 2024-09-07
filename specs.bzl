@@ -32,7 +32,7 @@ def _maven_repository(url, user = None, password = None):
         credentials = {"user": user, "password": password}
         return {"repo_url": url, "credentials": credentials}
 
-def _maven_artifact(group, artifact, version, packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None, force_version = False):
+def _maven_artifact(group, artifact, version = "", packaging = None, classifier = None, override_license_types = None, exclusions = None, neverlink = None, testonly = None, force_version = False):
     """Generates the data map for a Maven artifact given the available information about its coordinates.
 
     Args:
@@ -170,6 +170,8 @@ def _parse_artifact_spec_list(artifact_specs):
         if type(artifact) == "string":
             artifacts.append(_parse_maven_coordinate_string(artifact))
         else:
+            if "version" not in artifact:
+                artifact["version"] = ""
             artifacts.append(artifact)
     return artifacts
 

@@ -302,6 +302,16 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1144
         "org.codehaus.plexus:plexus:1.0.4",
         "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1162
+        "io.opentelemetry:opentelemetry-sdk",
+        maven.artifact(
+            artifact = "opentelemetry-api",
+            group = "io.opentelemetry",
+            neverlink = True,
+        ),
+    ],
+    boms = [
+        "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
@@ -601,7 +611,7 @@ maven_install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0",
+        "com.example:no-docs:1.0.0",
     ],
     maven_install_json = "//tests/custom_maven_install:m2local_testing_with_pinned_file_install.json",
     repositories = [
@@ -905,3 +915,16 @@ maven_install(
 load("@maven_resolved_with_boms//:defs.bzl", _maven_resolved_maven_install = "pinned_maven_install")
 
 _maven_resolved_maven_install()
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/1206
+maven_install(
+    name = "transitive_dependency_with_type_of_pom",
+    # an arbitrary artifact which depends on org.javamoney:moneta:pom
+    artifacts = [
+        # https://github.com/quarkiverse/quarkus-moneta/blob/2.0.0/runtime/pom.xml#L16-L21
+        "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
