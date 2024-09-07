@@ -107,9 +107,9 @@ java_test(
 )
 
 java_library(
-    name = "JarUtils",
+    name = "ZipUtils",
     testonly = 1,
-    srcs = ["JarUtils.java"],
+    srcs = ["ZipUtils.java"],
     visibility = ["//:__subpackages__"],
     deps = [
         artifact("com.google.guava:guava"),

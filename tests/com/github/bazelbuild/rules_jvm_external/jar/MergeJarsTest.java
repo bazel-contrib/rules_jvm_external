@@ -37,8 +37,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static com.github.bazelbuild.rules_jvm_external.JarUtils.createJar;
-import static com.github.bazelbuild.rules_jvm_external.JarUtils.readJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

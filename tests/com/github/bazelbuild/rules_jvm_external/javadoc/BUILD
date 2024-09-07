@@ -7,7 +7,7 @@ java_test(
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc",
-        "//tests/com/github/bazelbuild/rules_jvm_external:JarUtils",
+        "//tests/com/github/bazelbuild/rules_jvm_external:ZipUtils",
         artifact(
             "junit:junit",
             repository_name = "regression_testing_coursier",

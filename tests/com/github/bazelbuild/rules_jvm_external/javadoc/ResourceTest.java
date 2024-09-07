@@ -10,8 +10,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.bazelbuild.rules_jvm_external.JarUtils.createJar;
-import static com.github.bazelbuild.rules_jvm_external.JarUtils.readJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 
