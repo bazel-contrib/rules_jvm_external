@@ -34,7 +34,7 @@ Generate a javadoc from all the `deps`
 | <a id="javadoc-doc_deps"></a>doc_deps |  `javadoc` targets referenced by the current target.<br><br>Use this to automatically add appropriate `-linkoffline` javadoc options to resolve references to packages documented by the given javadoc targets that have `url` specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="javadoc-doc_url"></a>doc_url |  The URL at which this documentation will be hosted.<br><br>This information is only used by javadoc targets depending on this target.   | String | optional |  `""`  |
 | <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional |  `["com_google_protobuf", "protobuf"]`  |
-| <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options. Note sources and classpath are derived from the deps. Any additional options can be passed here.   | List of strings | optional |  `[]`  |
+| <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options. Note sources and classpath are derived from the deps. Any additional options can be passed here. If nothing is passed, a default list of options is used: ["-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"]   | List of strings | optional |  `["-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"]`  |
 
 
 <a id="java_export"></a>

@@ -68,7 +68,7 @@ def kt_jvm_export(
     maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
-    javadocopts = kwargs.pop("javadocopts", [])
+    javadocopts = kwargs.pop("javadocopts", None)
 
     # ensure that the kotlin-stdlib is included in deploy_env
     if KOTLIN_STDLIB not in deploy_env:
