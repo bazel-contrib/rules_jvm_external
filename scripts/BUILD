@@ -1,5 +1,5 @@
-load("//private/rules:artifact.bzl", "artifact")
 load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
+load("//private/rules:artifact.bzl", "artifact")
 
 genrule(
     name = "buildifier-bin",
@@ -24,17 +24,17 @@ sh_binary(
 genrule(
     name = "generate_api_reference",
     srcs = [
-        "//:docs/includes/main_functions_header.md",
-        "//:defs.md",
-        "//:docs/includes/spec_functions_header.md",
-        "//:specs.md",
+        "//docs:includes/main_functions_header.md",
+        "//docs:defs.md",
+        "//docs:includes/spec_functions_header.md",
+        "//docs:specs.md",
     ],
     outs = ["api.md"],
     cmd = """cat \
-    $(location //:docs/includes/main_functions_header.md) \
-    $(location //:defs.md) \
-    $(location //:docs/includes/spec_functions_header.md) \
-    $(location //:specs.md) > $@""",
+    $(location //docs:includes/main_functions_header.md) \
+    $(location //docs:defs.md) \
+    $(location //docs:includes/spec_functions_header.md) \
+    $(location //docs:specs.md) > $@""",
     visibility = ["//:__pkg__"],
 )
 

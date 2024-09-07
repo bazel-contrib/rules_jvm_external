@@ -60,26 +60,26 @@ stardoc_repositories()
 # Required for buildifier (`//scripts:buildifier`)
 http_file(
     name = "buildifier-linux-arm64",
-    sha256 = "917d599dbb040e63ae7a7e1adb710d2057811902fdc9e35cce925ebfd966eeb8",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/5.1.0/buildifier-linux-arm64"],
+    sha256 = "c22a44eee37b8927167ee6ee67573303f4e31171e7ec3a8ea021a6a660040437",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-linux-arm64"],
 )
 
 http_file(
     name = "buildifier-linux-x86_64",
-    sha256 = "52bf6b102cb4f88464e197caac06d69793fa2b05f5ad50a7e7bf6fbd656648a3",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/5.1.0/buildifier-linux-amd64"],
+    sha256 = "28285fe7e39ed23dc1a3a525dfcdccbc96c0034ff1d4277905d2672a71b38f13",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-linux-amd64"],
 )
 
 http_file(
     name = "buildifier-macos-arm64",
-    sha256 = "745feb5ea96cb6ff39a76b2821c57591fd70b528325562486d47b5d08900e2e4",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/5.1.0/buildifier-darwin-arm64"],
+    sha256 = "d0909b645496608fd6dfc67f95d9d3b01d90736d7b8c8ec41e802cb0b7ceae7c",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-darwin-arm64"],
 )
 
 http_file(
     name = "buildifier-macos-x86_64",
-    sha256 = "c9378d9f4293fc38ec54a08fbc74e7a9d28914dae6891334401e59f38f6e65dc",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/5.1.0/buildifier-darwin-amd64"],
+    sha256 = "687c49c318fb655970cf716eed3c7bfc9caeea4f2931a2fd36593c458de0c537",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-darwin-amd64"],
 )
 
 # Begin test dependencies
@@ -299,6 +299,19 @@ maven_install(
     artifacts = [
         # Depends on org.apache.yetus:audience-annotations:0.11.0 which has an invalid pom
         "org.apache.parquet:parquet-common:1.11.1",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1144
+        "org.codehaus.plexus:plexus:1.0.4",
+        "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1162
+        "io.opentelemetry:opentelemetry-sdk",
+        maven.artifact(
+            artifact = "opentelemetry-api",
+            group = "io.opentelemetry",
+            neverlink = True,
+        ),
+    ],
+    boms = [
+        "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
@@ -475,6 +488,14 @@ maven_install(
         "com.google.auto.value:auto-value:1.10.4",
         "com.google.auto.value:auto-value-annotations:1.10.4",
         "org.projectlombok:lombok:1.18.22",
+    ] + [
+        maven.artifact(
+            testonly = True,  # must be propagated to the generated plugin
+            artifact = artifact,
+            group = "org.openjdk.jmh",
+            version = "1.37",
+        )
+        for artifact in ("jmh-core", "jmh-generator-annprocess")
     ],
     maven_install_json = "//tests/custom_maven_install:service_indexing_testing.json",
     repositories = [
@@ -590,7 +611,7 @@ maven_install(
     artifacts = [
         # this is a test jar built for integration
         # tests in this repo
-        "com.example:kt:1.0.0",
+        "com.example:no-docs:1.0.0",
     ],
     maven_install_json = "//tests/custom_maven_install:m2local_testing_with_pinned_file_install.json",
     repositories = [
@@ -894,3 +915,16 @@ maven_install(
 load("@maven_resolved_with_boms//:defs.bzl", _maven_resolved_maven_install = "pinned_maven_install")
 
 _maven_resolved_maven_install()
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/1206
+maven_install(
+    name = "transitive_dependency_with_type_of_pom",
+    # an arbitrary artifact which depends on org.javamoney:moneta:pom
+    artifacts = [
+        # https://github.com/quarkiverse/quarkus-moneta/blob/2.0.0/runtime/pom.xml#L16-L21
+        "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)

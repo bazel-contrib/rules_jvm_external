@@ -17,6 +17,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.javadoc;
 
+import static java.lang.Runtime.Version;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
@@ -53,8 +54,8 @@ import javax.tools.ToolProvider;
 
 public class JavadocJarMaker {
 
-  private static Version JAVA_9 = Version.parse("9.0.0");
-  private static Version JAVA_13 = Version.parse("13.0.0");
+  private static final Version JAVA_9 = Version.parse("9");
+  private static final Version JAVA_13 = Version.parse("13");
 
   public static void main(String[] args) throws IOException {
     Set<Path> sourceJars = new HashSet<>();
@@ -152,11 +153,7 @@ public class JavadocJarMaker {
                 .map(String::valueOf)
                 .collect(Collectors.joining(File.pathSeparator)));
       }
-      Version version = Version.parse(System.getProperty("java.version"));
-
-      options.addAll(
-          Arrays.asList(
-              "-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"));
+      Version version = Runtime.version();
 
       // Generate frames if we can. Java prior to v9 generates frames automatically.
       // In Java 13, the flag was removed.

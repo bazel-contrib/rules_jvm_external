@@ -29,7 +29,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
-load("//private/rules:urls.bzl", "remove_auth_from_url")
+load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 
@@ -65,11 +65,7 @@ sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
     args = [
-        # TODO: change to rlocationpath once rules_jvm_external drops support for Bazel <5.4.0
-        # "$(rlocationpath :unsorted_deps.json)",
-        # We can use execpath in the meantime, because we know this file is always a source file
-        # in that external repo.
-        "$(execpath :unsorted_deps.json)",
+        "$(rlocationpath :unsorted_deps.json)",
     ],
     data = [
         ":unsorted_deps.json",
@@ -140,6 +136,9 @@ def _is_file(repository_ctx, path):
 
 def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
+
+def _is_unpinned(repository_ctx):
+    return repository_ctx.attr.pinned_repo_name != ""
 
 def _shell_quote(s):
     # Lifted from
@@ -356,14 +355,19 @@ def get_netrc_lines_from_entries(netrc_entries):
     return netrc_lines
 
 def get_home_netrc_contents(repository_ctx):
-    # Copied with a ctx -> repository_ctx rename from tools/build_defs/repo/http.bzl's _get_auth.
-    # Need to keep updated with improvements in source since we cannot load private methods.
-    if "HOME" in repository_ctx.os.environ:
-        if not repository_ctx.os.name.startswith("windows"):
-            netrcfile = "%s/.netrc" % (repository_ctx.os.environ["HOME"],)
-            if _is_file(repository_ctx, netrcfile):
-                return repository_ctx.read(netrcfile)
-    return ""
+    if repository_ctx.os.name.startswith("windows"):
+        home_dir = repository_ctx.os.environ.get("USERPROFILE", "")
+    else:
+        home_dir = repository_ctx.os.environ.get("HOME", "")
+
+    if not home_dir:
+        return ""
+
+    netrcfile = "{}/.netrc".format(home_dir)
+    if not repository_ctx.path(netrcfile).exists:
+        return ""
+
+    return repository_ctx.read(netrcfile)
 
 def _add_outdated_files(repository_ctx, artifacts, repositories):
     repository_ctx.file(
@@ -562,35 +566,38 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     for artifact in importer.get_artifacts(maven_install_json_content):
         http_file_repository_name = escape(artifact["coordinates"])
-        maven_artifacts.extend([artifact["coordinates"]])
-        http_files.extend([
-            "    http_file(",
-            "        name = \"%s\"," % http_file_repository_name,
-            "        sha256 = \"%s\"," % artifact["sha256"],
-            # repository_ctx should point to external/$repository_ctx.name
-            # The http_file should point to external/$http_file_repository_name
-            # File-path is relative defined from http_file traveling to repository_ctx.
-            "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
-        ])
-        if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
-            if _is_windows(repository_ctx):
-                user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")
+        if artifact.get("file"):
+            maven_artifacts.extend([artifact["coordinates"]])
+            http_files.extend([
+                "    http_file(",
+                "        name = \"%s\"," % http_file_repository_name,
+                "        sha256 = \"%s\"," % artifact["sha256"],
+                # repository_ctx should point to external/$repository_ctx.name
+                # The http_file should point to external/$http_file_repository_name
+                # File-path is relative defined from http_file traveling to repository_ctx.
+                "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
+            ])
+            if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
+                if _is_windows(repository_ctx):
+                    user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")
+                else:
+                    user_home = repository_ctx.os.environ.get("HOME")
+                m2local_urls = [
+                    "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
+                ]
             else:
-                user_home = repository_ctx.os.environ.get("HOME")
-            m2local_urls = [
-                "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
-            ]
-        else:
-            m2local_urls = []
-        http_files.append("        urls = %s," % repr(
-            [remove_auth_from_url(url) for url in artifact["urls"] + m2local_urls],
-        ))
+                m2local_urls = []
+            http_files.append("        urls = %s," % repr(
+                [remove_auth_from_url(url) for url in artifact["urls"] + m2local_urls],
+            ))
 
-        # https://github.com/bazelbuild/rules_jvm_external/issues/1028
-        # http_rule does not like directories named "build" so prepend v1 to the path.
-        download_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"]
-        http_files.append("        downloaded_file_path = \"%s\"," % download_path)
-        http_files.append("    )")
+            # https://github.com/bazelbuild/rules_jvm_external/issues/1028
+            # http_rule does not like directories named "build" so prepend v1 to the path.
+            download_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"]
+            http_files.append("        downloaded_file_path = \"%s\"," % download_path)
+            http_files.append("    )")
+        elif _is_verbose(repository_ctx):
+            print("No file downloaded for %s, skipping http_file definition" % http_file_repository_name)
 
     http_files.extend(["maven_artifacts = [\n%s\n]" % (",\n".join(["    \"%s\"" % artifact for artifact in maven_artifacts]))])
 
@@ -793,7 +800,11 @@ def make_coursier_dep_tree(
         fetch_sources,
         fetch_javadoc,
         timeout,
+        additional_coursier_options,
         report_progress_prefix = ""):
+    if not repositories:
+        fail("repositories cannot be empty")
+
     # Set up artifact exclusion, if any. From coursier fetch --help:
     #
     # Path to the local exclusion file. Syntax: <org:name>--<org:name>. `--` means minus. Example file content:
@@ -867,7 +878,7 @@ def make_coursier_dep_tree(
         cmd.append("--default=true")
 
     environment = {}
-    if not repository_ctx.attr.name.startswith("unpinned_"):
+    if not _is_unpinned(repository_ctx):
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
             False,
@@ -879,6 +890,8 @@ def make_coursier_dep_tree(
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
+    cmd.extend(additional_coursier_options)
 
     # Use an argsfile to avoid command line length limits, requires Java version > 8
     java_cmd = cmd[0]
@@ -986,6 +999,7 @@ def _coursier_fetch_impl(repository_ctx):
         repository_ctx.attr.fetch_sources,
         repository_ctx.attr.fetch_javadoc,
         repository_ctx.attr.resolve_timeout,
+        repository_ctx.attr.additional_coursier_options,
     )
 
     files_to_inspect = []
@@ -998,7 +1012,7 @@ def _coursier_fetch_impl(repository_ctx):
     # TODO(jin): allow custom cache locations
     coursier_cache_path = get_coursier_cache_or_default(
         repository_ctx,
-        repository_ctx.attr.name.startswith("unpinned_"),
+        _is_unpinned(repository_ctx),
     ).replace("//", "/")
 
     for artifact in dep_tree["dependencies"]:
@@ -1021,13 +1035,13 @@ def _coursier_fetch_impl(repository_ctx):
             #    to file within the repository rule workspace
             print("Assuming maven local for artifact: %s" % artifact["coord"])
             artifact.update({"url": None})
-            if not repository_ctx.attr.name.startswith("unpinned_"):
+            if not _is_unpinned(repository_ctx):
                 artifact.update({"file": _relativize_and_symlink_file_in_maven_local(repository_ctx, artifact["file"])})
 
             files_to_inspect.append(repository_ctx.path(artifact["file"]))
             continue
 
-        if repository_ctx.attr.name.startswith("unpinned_"):
+        if _is_unpinned(repository_ctx):
             artifact.update({"file": _relativize_and_symlink_file_in_coursier_cache(repository_ctx, artifact["file"], coursier_cache_path)})
 
         # Coursier saves the artifacts into a subdirectory structure
@@ -1220,13 +1234,13 @@ def _coursier_fetch_impl(repository_ctx):
         },
         override_targets = repository_ctx.attr.override_targets,
         # Skip maven local dependencies if generating the unpinned repository
-        skip_maven_local_dependencies = repository_ctx.attr.name.startswith("unpinned_"),
+        skip_maven_local_dependencies = _is_unpinned(repository_ctx),
     )
 
     # This repository rule can be either in the pinned or unpinned state, depending on when
     # the user invokes artifact pinning. Normalize the repository name here.
-    if repository_ctx.name.startswith("unpinned_"):
-        repository_name = repository_ctx.name[len("unpinned_"):]
+    if _is_unpinned(repository_ctx):
+        repository_name = repository_ctx.attr.pinned_repo_name
         outdated_build_file_content = ""
     else:
         repository_name = repository_ctx.name
@@ -1364,7 +1378,7 @@ pinned_coursier_fetch = repository_rule(
             doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default.",
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
-        "_workspace_label": attr.label(default = Label("@//does/not:exist")),
+        "_workspace_label": attr.label(default = "@//does/not:exist"),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -1427,6 +1441,11 @@ coursier_fetch = repository_rule(
             ],
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
+        "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "pinned_repo_name": attr.string(
+            doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
+            mandatory = False,
+        ),
     },
     environ = [
         "JAVA_HOME",

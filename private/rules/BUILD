@@ -1,23 +1,7 @@
-exports_files([
-    "artifact.bzl",
-    "coursier.bzl",
-    "generate_pin_repository.bzl",
-    "has_maven_deps.bzl",
-    "java_export.bzl",
-    "javadoc.bzl",
-    "jetifier.bzl",
-    "jetifier_maven_map.bzl",
-    "jvm_import.bzl",
-    "kt_jvm_export.bzl",
-    "maven_bom.bzl",
-    "maven_bom_fragment.bzl",
-    "maven_install.bzl",
-    "maven_project_jar.bzl",
-    "maven_publish.bzl",
-    "maven_utils.bzl",
-    "pin_dependencies.bzl",
-    "pom_file.bzl",
-    "urls.bzl",
-    "v1_lock_file.bzl",
-    "v2_lock_file.bzl",
-])
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+bzl_library(
+    name = "implementation",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//:__subpackages__"],
+)

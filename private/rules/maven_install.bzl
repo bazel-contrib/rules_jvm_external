@@ -27,7 +27,8 @@ def maven_install(
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
         duplicate_version_warning = "warn",
         repin_instructions = None,
-        ignore_empty_files = False):
+        ignore_empty_files = False,
+        additional_coursier_options = []):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -78,6 +79,7 @@ def maven_install(
         is "warn".
       repin_instructions: Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.
       ignore_empty_files: Treat jars that are empty as if they were not found.
+      additional_coursier_options: Additional options that will be passed to coursier.
     """
     if boms and resolver == "coursier":
         fail("The coursier resolver does not support resolving Maven BOMs. Please use another resolver.")
@@ -121,6 +123,7 @@ def maven_install(
             # created from the maven_install.json file in the coursier_fetch
             # invocation after this.
             name = name if maven_install_json == None else "unpinned_" + name,
+            pinned_repo_name = None if maven_install_json == None else name,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
             fail_on_missing_checksum = fail_on_missing_checksum,
@@ -139,6 +142,7 @@ def maven_install(
             aar_import_bzl_label = aar_import_bzl_label,
             duplicate_version_warning = duplicate_version_warning,
             ignore_empty_files = ignore_empty_files,
+            additional_coursier_options = additional_coursier_options,
         )
 
     else:

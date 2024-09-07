@@ -8,17 +8,19 @@ _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
 ]
 
-_MAVEN_VERSION = "3.9.6"
-_MAVEN_RESOLVER_VERSION = "1.9.18"
+_MAVEN_VERSION = "3.9.8"
+_MAVEN_RESOLVER_VERSION = "1.9.20"
 
-def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
+def rules_jvm_external_deps(
+        repositories = _DEFAULT_REPOSITORIES,
+        deps_lock_file = "@rules_jvm_external//:rules_jvm_external_deps_install.json"):
     maybe(
         http_archive,
         name = "bazel_skylib",
-        sha256 = "66ffd9315665bfaafc96b52278f57c7e2dd09f5ede279ea6d39b2be471e7e3aa",
+        sha256 = "bc283cdfcd526a52c3201279cda4bc298652efa898b10b4db0837dc51652756f",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.4.2/bazel-skylib-1.4.2.tar.gz",
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.4.2/bazel-skylib-1.4.2.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.7.1/bazel-skylib-1.7.1.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.7.1/bazel-skylib-1.7.1.tar.gz",
         ],
     )
 
@@ -35,24 +37,14 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             sha256 = "73b88f34dc251bce7bc6c472eb386a6c2b312ed5b473c81fe46855c248f792e0",
         )
 
-    elif major_version == "6":
-        maybe(
-            http_archive,
-            name = "rules_java",
-            urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/6.5.2/rules_java-6.5.2.tar.gz",
-            ],
-            sha256 = "16bc94b1a3c64f2c36ceecddc9e09a643e80937076b97e934b96a8f715ed1eaa",
-        )
-
     else:
         maybe(
             http_archive,
             name = "rules_java",
             urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.3.2/rules_java-7.3.2.tar.gz",
+                "https://github.com/bazelbuild/rules_java/releases/download/7.10.0/rules_java-7.10.0.tar.gz",
             ],
-            sha256 = "3121a00588b1581bd7c1f9b550599629e5adcc11ba9c65f482bbd5cfe47fdf30",
+            sha256 = "eb5447f019734b0c4284eaa5f8248415084da5445ba8201c935a211ab8af43a0",
         )
 
     maven_install(
@@ -60,11 +52,11 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
         artifacts = [
             "com.google.auth:google-auth-library-credentials:1.23.0",
             "com.google.auth:google-auth-library-oauth2-http:1.23.0",
-            "com.google.cloud:google-cloud-core:2.36.1",
-            "com.google.cloud:google-cloud-storage:2.36.1",
-            "com.google.code.gson:gson:2.10.1",
+            "com.google.cloud:google-cloud-core:2.40.0",
+            "com.google.cloud:google-cloud-storage:2.40.1",
+            "com.google.code.gson:gson:2.11.0",
             "com.google.googlejavaformat:google-java-format:1.22.0",
-            "com.google.guava:guava:33.1.0-jre",
+            "com.google.guava:guava:33.2.1-jre",
             "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
             "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
@@ -81,13 +73,16 @@ def rules_jvm_external_deps(repositories = _DEFAULT_REPOSITORIES):
             "org.apache.maven.resolver:maven-resolver-util:%s" % _MAVEN_RESOLVER_VERSION,
             "org.codehaus.plexus:plexus-cipher:2.1.0",
             "org.codehaus.plexus:plexus-sec-dispatcher:2.0",
+            "org.codehaus.plexus:plexus-utils:3.5.1",
             "org.fusesource.jansi:jansi:2.4.1",
             "org.slf4j:jul-to-slf4j:2.0.12",
             "org.slf4j:log4j-over-slf4j:2.0.12",
             "org.slf4j:slf4j-simple:2.0.12",
-            "software.amazon.awssdk:s3:2.25.23",
+            "software.amazon.awssdk:s3:2.26.12",
+            "org.bouncycastle:bcprov-jdk15on:1.68",
+            "org.bouncycastle:bcpg-jdk15on:1.68",
         ],
-        maven_install_json = "@rules_jvm_external//:rules_jvm_external_deps_install.json",
+        maven_install_json = deps_lock_file,
         fail_if_repin_required = True,
         strict_visibility = True,
         fetch_sources = True,

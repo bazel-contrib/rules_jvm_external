@@ -17,6 +17,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.maven;
 
+import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.gpg_sign;
+import static com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.in_memory_pgp_sign;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -78,6 +80,11 @@ public class MavenPublisher {
     boolean gpgSign = Boolean.parseBoolean(System.getenv("GPG_SIGN"));
     Credentials credentials =
         new BasicAuthCredentials(System.getenv("MAVEN_USER"), System.getenv("MAVEN_PASSWORD"));
+    boolean useInMemoryPgpKeys = Boolean.parseBoolean(System.getenv("USE_IN_MEMORY_PGP_KEYS"));
+    String signingKey = System.getenv("PGP_SIGNING_KEY");
+    String signingPassword = System.getenv("PGP_SIGNING_PWD");
+    MavenSigning.SigningMetadata signingMetadata =
+        new MavenSigning.SigningMetadata(gpgSign, useInMemoryPgpKeys, signingKey, signingPassword);
 
     List<String> parts = Arrays.asList(args[0].split(":"));
     if (parts.size() != 3) {
@@ -93,12 +100,12 @@ public class MavenPublisher {
 
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
-      futures.add(upload(repo, credentials, coords, ".pom", pom, gpgSign));
+      futures.add(upload(repo, credentials, coords, ".pom", pom, signingMetadata));
 
       if (mainArtifact != null) {
         String ext =
             com.google.common.io.Files.getFileExtension(mainArtifact.getFileName().toString());
-        futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, gpgSign));
+        futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, signingMetadata));
       }
 
       if (args.length > 3 && !args[3].isEmpty()) {
@@ -115,7 +122,7 @@ public class MavenPublisher {
                   coords,
                   String.format("-%s.%s", classifier, ext),
                   artifact,
-                  gpgSign));
+                  signingMetadata));
         }
       }
 
@@ -149,7 +156,7 @@ public class MavenPublisher {
       Coordinates coords,
       String append,
       Path item,
-      boolean gpgSign)
+      MavenSigning.SigningMetadata signingMetadata)
       throws IOException, InterruptedException {
 
     String base =
@@ -174,10 +181,31 @@ public class MavenPublisher {
     uploads.add(upload(String.format("%s%s.md5", base, append), credentials, md5));
     uploads.add(upload(String.format("%s%s.sha1", base, append), credentials, sha1));
 
-    if (gpgSign) {
-      uploads.add(upload(String.format("%s%s.asc", base, append), credentials, sign(item)));
-      uploads.add(upload(String.format("%s%s.md5.asc", base, append), credentials, sign(md5)));
-      uploads.add(upload(String.format("%s%s.sha1.asc", base, append), credentials, sign(sha1)));
+    MavenSigning.SigningMethod signingMethod = signingMetadata.signingMethod;
+    if (signingMethod.equals(MavenSigning.SigningMethod.GPG)) {
+      uploads.add(upload(String.format("%s%s.asc", base, append), credentials, gpg_sign(item)));
+      uploads.add(upload(String.format("%s%s.md5.asc", base, append), credentials, gpg_sign(md5)));
+      uploads.add(
+          upload(String.format("%s%s.sha1.asc", base, append), credentials, gpg_sign(sha1)));
+    } else if (signingMethod.equals(MavenSigning.SigningMethod.PGP)) {
+      uploads.add(
+          upload(
+              String.format("%s%s.asc", base, append),
+              credentials,
+              in_memory_pgp_sign(
+                  item, signingMetadata.signingKey, signingMetadata.signingPassword)));
+      uploads.add(
+          upload(
+              String.format("%s%s.md5.asc", base, append),
+              credentials,
+              in_memory_pgp_sign(
+                  md5, signingMetadata.signingKey, signingMetadata.signingPassword)));
+      uploads.add(
+          upload(
+              String.format("%s%s.sha1.asc", base, append),
+              credentials,
+              in_memory_pgp_sign(
+                  sha1, signingMetadata.signingKey, signingMetadata.signingPassword)));
     }
 
     return CompletableFuture.allOf(uploads.toArray(new CompletableFuture<?>[0]));
@@ -333,51 +361,6 @@ public class MavenPublisher {
       String url = "https://" + targetUrl.substring(19);
       return httpUpload(url, cred, toUpload).call();
     };
-  }
-
-  private static Path sign(Path toSign) throws IOException, InterruptedException {
-    LOG.info("Signing " + toSign);
-
-    // Ideally, we'd use BouncyCastle for this, but for now brute force by assuming
-    // the gpg binary is on the path
-
-    Path dir = Files.createTempDirectory("maven-sign");
-    Path file = dir.resolve(toSign.getFileName() + ".asc");
-
-    Process gpg =
-        new ProcessBuilder(
-                "gpg",
-                "--use-agent",
-                "--armor",
-                "--detach-sign",
-                "--no-tty",
-                "-o",
-                file.toAbsolutePath().toString(),
-                toSign.toAbsolutePath().toString())
-            .inheritIO()
-            .start();
-    gpg.waitFor();
-    if (gpg.exitValue() != 0) {
-      throw new IllegalStateException("Unable to sign: " + toSign);
-    }
-
-    // Verify the signature
-    Process verify =
-        new ProcessBuilder(
-                "gpg",
-                "--verify",
-                "--verbose",
-                "--verbose",
-                file.toAbsolutePath().toString(),
-                toSign.toAbsolutePath().toString())
-            .inheritIO()
-            .start();
-    verify.waitFor();
-    if (verify.exitValue() != 0) {
-      throw new IllegalStateException("Unable to verify signature of " + toSign);
-    }
-
-    return file;
   }
 
   private static class Coordinates {

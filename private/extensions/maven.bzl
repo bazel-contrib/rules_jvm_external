@@ -1,5 +1,4 @@
-load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
-load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
+load("@bazel_features//:features.bzl", "bazel_features")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
@@ -8,6 +7,8 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
@@ -32,7 +33,6 @@ _artifact = tag_class(
         "neverlink": attr.bool(),
         "testonly": attr.bool(),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
-        "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
     },
 )
 
@@ -109,6 +109,7 @@ _install = tag_class(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "repin_instructions": attr.string(doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module."),
+        "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
     },
 )
 
@@ -220,6 +221,7 @@ def _maven_impl(mctx):
     # - use_starlark_android_rules: bool. A logical OR over all `use_starlark_android_rules` for all `install` tags with the same name.
     # - version_conflict_policy: string. Fails build if different and not a default.
     # - ignore_empty_files: Treat jars that are empty as if they were not found.
+    # - additional_coursier_options: Additional options that will be passed to coursier.
 
     # Mapping of `name`s to `bazel_module.name` This will allow us to warn users when more than
     # module attempts to update a maven repo (which is normally undesired behaviour)
@@ -338,6 +340,8 @@ def _maven_impl(mctx):
             if mod.is_root:
                 repo["repin_instructions"] = install.repin_instructions
 
+            repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
+
             repos[install.name] = repo
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
@@ -407,6 +411,7 @@ def _maven_impl(mctx):
                 # created from the maven_install.json file in the coursier_fetch
                 # invocation after this.
                 name = "unpinned_" + name if repo.get("lock_file") else name,
+                pinned_repo_name = name if repo.get("lock_file") else None,
                 user_provided_name = name,
                 repositories = repo.get("repositories"),
                 artifacts = artifacts_json,
@@ -426,6 +431,7 @@ def _maven_impl(mctx):
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 ignore_empty_files = repo.get("ignore_empty_files"),
+                additional_coursier_options = repo.get("additional_coursier_options"),
             )
         else:
             # Only the coursier resolver allows the lock file to be omitted.
@@ -491,6 +497,16 @@ def _maven_impl(mctx):
                 all_artifacts = parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts])
                 seen = _generate_compat_repos(name, compat_repos, parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts]))
                 compat_repos.extend(seen)
+
+    if bazel_features.external_deps.extension_metadata_has_reproducible:
+        # The type and attributes of repositories created by this extension are fully deterministic
+        # and thus don't need to be included in MODULE.bazel.lock.
+        # Note: This ignores get_m2local_url, but that depends on local information and environment
+        # variables only. In fact, since it depends on the host OS, *not* including the extension
+        # result in the lockfile makes it more portable across different machines.
+        return mctx.extension_metadata(reproducible = True)
+    else:
+        return None
 
 maven = module_extension(
     _maven_impl,

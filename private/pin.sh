@@ -13,8 +13,12 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 
 set -euo pipefail
 # Workaround lack of rlocationpath, see comment on _BUILD_PIN in coursier.bzl
-readonly maven_unsorted_file=$(rlocation "${1#external\/}")
-if [[ ! -e $maven_unsorted_file ]]; then (echo >&2 "Failed to locate $1 in runfiles" && exit 1) fi
+maven_unsorted_file=$(rlocation "${1#external\/}")
+if [[ ! -e $maven_unsorted_file ]]; then
+  # for --experimental_sibling_repository_layout
+  maven_unsorted_file="${1#..\/}"
+fi
+if [[ ! -e $maven_unsorted_file ]]; then (echo >&2 "Failed to locate the unsorted_deps.json file: $1" && exit 1) fi
 readonly maven_install_json_loc={maven_install_location}
 
 cp "$maven_unsorted_file" "$maven_install_json_loc"
