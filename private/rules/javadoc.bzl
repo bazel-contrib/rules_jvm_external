@@ -46,15 +46,11 @@ def generate_javadoc(
         args.add(dep_info.element_list.dirname)
         inputs.append(dep_info.element_list)
 
-    processed_opts = []
-    for opt in javadocopts:
-        if "$(" in opt:
-            processed_opt = ctx.expand_make_variables("javadocopts", opt, ctx.var)
-            processed_opts.append(processed_opt)
-        else:
-            processed_opts.append(opt)
-
-    args.add_all(processed_opts)
+    javadocopts = [
+        ctx.expand_make_variables("javadocopts", opt, ctx.var)
+        for opt in javadocopts
+    ]
+    args.add_all(javadocopts)
 
     ctx.actions.run(
         executable = javadoc,
