@@ -107,7 +107,7 @@ java_test(
 )
 
 java_library(
-    name = "ZipUtils",
+    name = "zip_utils",
     testonly = 1,
     srcs = ["ZipUtils.java"],
     visibility = ["//:__subpackages__"],
