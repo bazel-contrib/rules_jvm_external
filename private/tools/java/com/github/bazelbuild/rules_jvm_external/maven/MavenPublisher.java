@@ -176,10 +176,18 @@ public class MavenPublisher {
     Path sha1 = Files.createTempFile(item.getFileName().toString(), ".sha1");
     Files.write(sha1, toSha1(toHash).getBytes(UTF_8));
 
+    Path sha256 = Files.createTempFile(item.getFileName().toString(), ".sha256");
+    Files.write(sha256, toSha256(toHash).getBytes(UTF_8));
+
+    Path sha512 = Files.createTempFile(item.getFileName().toString(), ".sha512");
+    Files.write(sha512, toSha512(toHash).getBytes(UTF_8));
+
     List<CompletableFuture<?>> uploads = new ArrayList<>();
     uploads.add(upload(String.format("%s%s", base, append), credentials, item));
     uploads.add(upload(String.format("%s%s.md5", base, append), credentials, md5));
     uploads.add(upload(String.format("%s%s.sha1", base, append), credentials, sha1));
+    uploads.add(upload(String.format("%s%s.sha256", base, append), credentials, sha256));
+    uploads.add(upload(String.format("%s%s.sha512", base, append), credentials, sha512));
 
     MavenSigning.SigningMethod signingMethod = signingMetadata.signingMethod;
     if (signingMethod.equals(MavenSigning.SigningMethod.GPG)) {
@@ -187,6 +195,10 @@ public class MavenPublisher {
       uploads.add(upload(String.format("%s%s.md5.asc", base, append), credentials, gpg_sign(md5)));
       uploads.add(
           upload(String.format("%s%s.sha1.asc", base, append), credentials, gpg_sign(sha1)));
+      uploads.add(
+          upload(String.format("%s%s.sha256.asc", base, append), credentials, gpg_sign(sha256)));
+      uploads.add(
+          upload(String.format("%s%s.sha512.asc", base, append), credentials, gpg_sign(sha512)));
     } else if (signingMethod.equals(MavenSigning.SigningMethod.PGP)) {
       uploads.add(
           upload(
@@ -206,6 +218,20 @@ public class MavenPublisher {
               credentials,
               in_memory_pgp_sign(
                   sha1, signingMetadata.signingKey, signingMetadata.signingPassword)));
+      uploads.add(
+          upload(
+              String.format("%s%s.sha256.asc", base, append),
+              credentials,
+              in_memory_pgp_sign(
+                  sha256, signingMetadata.signingKey, signingMetadata.signingPassword)));
+      uploads.add(
+          upload(
+              String.format("%s%s.sha512.asc", base, append),
+              credentials,
+              in_memory_pgp_sign(
+                  sha512, signingMetadata.signingKey, signingMetadata.signingPassword)));
+
+
     }
 
     return CompletableFuture.allOf(uploads.toArray(new CompletableFuture<?>[0]));
@@ -213,6 +239,14 @@ public class MavenPublisher {
 
   private static String toSha1(byte[] toHash) {
     return toHexS("%040x", "SHA-1", toHash);
+  }
+
+  private static String toSha256(byte[] toHash) {
+    return toHexS("%064x", "SHA-256", toHash);
+  }
+
+  private static String toSha512(byte[] toHash) {
+      return toHexS("%0128x", "SHA-512", toHash);
   }
 
   private static String toMd5(byte[] toHash) {
