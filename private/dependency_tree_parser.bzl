@@ -28,6 +28,7 @@ load(
     "strip_packaging_and_classifier",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/lib:coordinates.bzl", "unpack_coordinates")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     http_file_repository = escape(artifact["coordinates"])
@@ -121,7 +122,7 @@ def _generate_target(
     #
     is_dylib = False
     if packaging == "jar":
-        target_import_string.append("\tjars = [\"%s\"]," % artifact_path)
+        target_import_string.append("\tjar = \"%s\"," % artifact_path)
         if srcjar_paths != None and target_label in srcjar_paths:
             target_import_string.append("\tsrcjar = \"%s\"," % srcjar_paths[target_label])
     elif packaging == "aar":
@@ -219,6 +220,30 @@ genrule(
     if artifact.get("sha256"):
         target_import_string.append("\t\t\"maven_sha256=%s\"," % artifact["sha256"])
     target_import_string.append("\t],")
+
+    if packaging == "jar":
+        target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
+        if len(artifact["urls"]):
+            target_import_string.append("\tmaven_url = \"%s\"," % artifact["urls"][0])
+    else:
+        unpacked = unpack_coordinates(coordinates)
+        url = artifact["urls"][0] if len(artifact["urls"]) else None
+
+        package_info_name = "%s_package_info" % target_label
+        target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
+        to_return.append("""
+package_info(
+    name = {name},
+    package_name = {coordinates},
+    package_url = {url},
+    package_version = {version},
+)
+""".format(
+            coordinates = repr(coordinates),
+            name = repr(package_info_name),
+            url = repr(url),
+            version = repr(unpacked.version),
+        ))
 
     # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
     #    available only as a compile time dependency.

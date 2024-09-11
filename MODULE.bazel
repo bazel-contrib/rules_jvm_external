@@ -5,6 +5,10 @@ module(
 )
 
 bazel_dep(
+    name = "rules_android",
+    version = "0.1.1",
+)
+bazel_dep(
     name = "bazel_features",
     version = "1.15.0",
 )
@@ -17,6 +21,10 @@ bazel_dep(
     version = "0.0.10",
 )
 bazel_dep(
+    name = "rules_license",
+    version = "1.0.0",
+)
+bazel_dep(
     name = "rules_java",
     version = "7.10.0",
 )
@@ -24,11 +32,6 @@ bazel_dep(
     name = "rules_kotlin",
     version = "1.9.6",
 )
-bazel_dep(
-    name = "rules_android",
-    version = "0.1.1",
-)
-
 bazel_dep(
     name = "stardoc",
     version = "0.7.0",
@@ -309,7 +312,12 @@ dev_maven.install(
     name = "jvm_import_test",
     artifacts = [
         "com.google.code.findbugs:jsr305:3.0.2",
+        "com.android.support:appcompat-v7:aar:28.0.0",
     ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ]
 )
 dev_maven.install(
     name = "m2local_testing",

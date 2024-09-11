@@ -1,6 +1,7 @@
+load("//private/lib:coordinates.bzl", "unpack_coordinates")
 load(":maven_bom_fragment.bzl", "MavenBomFragmentInfo")
 load(":maven_publish.bzl", "maven_publish")
-load(":maven_utils.bzl", "generate_pom", "unpack_coordinates")
+load(":maven_utils.bzl", "generate_pom")
 
 _NON_EXISTENT_LABEL = Label("//:thisdoesnotexistinrulesjvmexternal")
 

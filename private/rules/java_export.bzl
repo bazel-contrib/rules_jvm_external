@@ -216,6 +216,7 @@ def maven_export(
     maven_project_jar(
         name = "%s-project" % name,
         target = ":%s" % lib_name,
+        maven_coordinates = maven_coordinates,
         manifest_entries = manifest_entries,
         deploy_env = deploy_env,
         excluded_workspaces = excluded_workspaces.keys(),
