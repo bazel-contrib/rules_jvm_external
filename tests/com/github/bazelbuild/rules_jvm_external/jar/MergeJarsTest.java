@@ -14,13 +14,15 @@
 
 package com.github.bazelbuild.rules_jvm_external.jar;
 
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -553,37 +555,109 @@ public class MergeJarsTest {
     }
   }
 
-  private void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
-    try (OutputStream os = Files.newOutputStream(outputTo);
-        ZipOutputStream zos = new ZipOutputStream(os)) {
+  @Test
+  public void mergedJarServiceProviderFilePreservesComments() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    String inputOneContents = "# This is a comment\n# This is another comment\ncom.example.Foo";
+    createJar(
+        inputOne,
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputOneContents));
 
-      for (Map.Entry<String, String> entry : pathToContents.entrySet()) {
-        ZipEntry ze = new StableZipEntry(entry.getKey());
-        zos.putNextEntry(ze);
-        if (!ze.isDirectory()) {
-          zos.write(entry.getValue().getBytes(UTF_8));
-        }
-        zos.closeEntry();
-      }
-    }
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    String inputTwoContents = "# My License\ncom.example.Bar";
+    createJar(
+        inputTwo,
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputTwoContents));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+        });
+
+    Map<String, String> contents = readJar(outputJar);
+
+    String expected = String.join("\n\n", inputOneContents, inputTwoContents) + "\n";
+
+    assertEquals(expected, contents.get("META-INF/services/com.example.ServiceProvider"));
   }
 
-  private Map<String, String> readJar(Path jar) throws IOException {
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+  @Test
+  public void mergedJarKeepsNonClassFiles() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    createJar(inputOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout"));
 
-    try (InputStream is = Files.newInputStream(jar);
-        ZipInputStream zis = new ZipInputStream(is)) {
+    Path excludeOne = temp.newFile("two.jar").toPath();
+    createJar(excludeOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR"));
 
-      for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
-        if (entry.isDirectory()) {
-          continue;
-        }
+    Path outputJar = temp.newFile("out.jar").toPath();
 
-        builder.put(entry.getName(), new String(ByteStreams.toByteArray(zis), UTF_8));
-      }
-    }
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--exclude", excludeOne.toAbsolutePath().toString(),
+        });
 
-    return builder.build();
+    Map<String, String> contents = readJar(outputJar);
+
+    assertEquals("log4j.rootLogger=ERROR,stdout", contents.get("log4j.properties"));
+  }
+
+  @Test
+  public void mergedJarKeepsNonClassFilesDefaultDuplicateStrategy() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    createJar(inputOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout"));
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    createJar(
+        inputTwo, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout,stderr"));
+
+    Path excludeOne = temp.newFile("three.jar").toPath();
+    createJar(excludeOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--exclude", excludeOne.toAbsolutePath().toString(),
+        });
+
+    Map<String, String> contents = readJar(outputJar);
+
+    assertEquals("log4j.rootLogger=ERROR,stdout,stderr", contents.get("log4j.properties"));
+  }
+
+  @Test
+  public void mergedJarKeepsNonClassFilesFirstWinsStrategy() throws IOException {
+    Path inputOne = temp.newFile("one.jar").toPath();
+    createJar(inputOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout"));
+    Path inputTwo = temp.newFile("two.jar").toPath();
+    createJar(
+        inputTwo, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout,stderr"));
+
+    Path excludeOne = temp.newFile("three.jar").toPath();
+    createJar(excludeOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR"));
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--duplicates", "first-wins",
+          "--exclude", excludeOne.toAbsolutePath().toString(),
+        });
+
+    Map<String, String> contents = readJar(outputJar);
+
+    assertEquals("log4j.rootLogger=ERROR,stdout", contents.get("log4j.properties"));
   }
 
   private Map<String, Long> readJarTimeStamps(Path jar) throws IOException {

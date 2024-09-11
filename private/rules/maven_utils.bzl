@@ -1,40 +1,9 @@
+load("//private/lib:bzlmod.bzl", "get_module_name_of_owner_of_repo")
+load("//private/lib:coordinates.bzl", _unpack_coordinates = "unpack_coordinates")
+
 def unpack_coordinates(coords):
-    """Takes a maven coordinate and unpacks it into a struct with fields
-    `groupId`, `artifactId`, `version`, `type`, `classifier`
-    where type and scope are optional.
-
-    Assumes following maven coordinate syntax:
-    groupId:artifactId[:type[:classifier]]:version
-    """
-    if not coords:
-        return None
-
-    parts = coords.split(":")
-    nparts = len(parts)
-
-    if nparts == 2:
-        return struct(
-            groupId = parts[0],
-            artifactId = parts[1],
-            type = None,
-            scope = None,
-            classifier = None,
-            version = None,
-        )
-
-    if nparts < 3 or nparts > 5:
-        fail("Unparsed: %s" % coords)
-
-    version = parts[-1]
-    parts = dict(enumerate(parts[:-1]))
-    return struct(
-        groupId = parts.get(0),
-        artifactId = parts.get(1),
-        type = parts.get(2),
-        scope = None,
-        classifier = parts.get(3),
-        version = version,
-    )
+    print("Please load `unpack_coordinates` from `@rules_jvm_external//private/lib:coordinates.bzl`.")
+    return _unpack_coordinates(coords)
 
 def _whitespace(indent):
     whitespace = ""
@@ -95,7 +64,7 @@ def generate_pom(
         unversioned_dep_coordinates = [],
         runtime_deps = [],
         indent = 8):
-    unpacked_coordinates = unpack_coordinates(coordinates)
+    unpacked_coordinates = _unpack_coordinates(coordinates)
     substitutions = {
         "{groupId}": unpacked_coordinates.groupId,
         "{artifactId}": unpacked_coordinates.artifactId,
@@ -107,7 +76,7 @@ def generate_pom(
 
     if parent:
         # We only want the groupId, artifactID, and version
-        unpacked_parent = unpack_coordinates(parent)
+        unpacked_parent = _unpack_coordinates(parent)
 
         whitespace = _whitespace(indent - 4)
         parts = [
@@ -123,7 +92,8 @@ def generate_pom(
     deps = []
     for dep in _sort_unpacked(versioned_dep_coordinates) + _sort_unpacked(unversioned_dep_coordinates):
         include_version = dep in versioned_dep_coordinates
-        new_scope = "runtime" if dep in runtime_deps else dep.scope
+        unpacked = _unpack_coordinates(dep)
+        new_scope = "runtime" if dep in runtime_deps else unpacked.scope
         unpacked = struct(
             groupId = dep.groupId,
             artifactId = dep.artifactId,
@@ -157,7 +127,7 @@ def determine_additional_dependencies(jar_files, additional_dependencies):
             continue
 
         # Users don't know how `bzlmod` mangles workspace names, but we do
-        workspace_name = owner.workspace_name.partition("~")[0]
+        workspace_name = get_module_name_of_owner_of_repo(owner.workspace_name)
 
         for (dep, name) in additional_dependencies.items():
             if (name == workspace_name) and dep:

@@ -1,4 +1,7 @@
 load("@rules_java//java:defs.bzl", "JavaInfo", "java_common")
+load("@rules_license//rules:providers.bzl", "PackageInfo")
+load("//private/lib:bzlmod.bzl", "get_module_name_of_owner_of_repo")
+load("//private/lib:coordinates.bzl", "to_external_form", "to_purl", "unpack_coordinates")
 load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "calculate_artifact_source_jars", "has_maven_deps")
 load(":maven_utils.bzl", "determine_additional_dependencies")
 
@@ -17,12 +20,7 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
         owner = jar.owner
 
         if owner:
-            workspace_name = owner.workspace_name
-
-            # bzlmod module names use ~ as a separator
-            if "~" in workspace_name:
-                idx = workspace_name.index("~")
-                workspace_name = workspace_name[0:idx]  # ~ exclusive
+            workspace_name = get_module_name_of_owner_of_repo(owner.workspace_name)
 
             if workspace_name in excluded_workspaces:
                 continue
@@ -152,6 +150,21 @@ def _maven_project_jar_impl(ctx):
         exports = exported_infos,
     )
 
+    package_info = []
+    if ctx.attr.maven_coordinates:
+        unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
+
+        package_info.append(
+            PackageInfo(
+                type = "java_export",
+                label = ctx.label,
+                package_url = None,
+                package_name = to_external_form(ctx.attr.maven_coordinates),
+                package_version = unpacked.version,
+                purl = to_purl(ctx.attr.maven_coordinates, None),
+            ),
+        )
+
     return [
         DefaultInfo(
             files = depset([bin_jar]),
@@ -167,7 +180,7 @@ def _maven_project_jar_impl(ctx):
             _source_jars = [src_jar],
         ),
         java_info,
-    ]
+    ] + package_info
 
 maven_project_jar = rule(
     _maven_project_jar_impl,
@@ -189,6 +202,9 @@ single artifact that other teams can download and use.
             aspects = [
                 has_maven_deps,
             ],
+        ),
+        "maven_coordinates": attr.string(
+            doc = "Coordinates that this artifact will be published from",
         ),
         "manifest_entries": attr.string_dict(
             doc = "A dict of `String: String` containing additional manifest entry attributes and values.",

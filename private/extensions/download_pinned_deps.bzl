@@ -1,5 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
-load("//private/rules:urls.bzl", "get_m2local_url")
+load("//private/lib:urls.bzl", "get_m2local_url")
 
 def escape(string):
     for char in [".", "-", ":", "/", "+"]:

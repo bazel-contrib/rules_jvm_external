@@ -37,25 +37,25 @@ def rules_jvm_external_deps(
             sha256 = "73b88f34dc251bce7bc6c472eb386a6c2b312ed5b473c81fe46855c248f792e0",
         )
 
-    elif major_version == "6":
-        maybe(
-            http_archive,
-            name = "rules_java",
-            urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/6.5.2/rules_java-6.5.2.tar.gz",
-            ],
-            sha256 = "16bc94b1a3c64f2c36ceecddc9e09a643e80937076b97e934b96a8f715ed1eaa",
-        )
-
     else:
         maybe(
             http_archive,
             name = "rules_java",
             urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.4.0/rules_java-7.4.0.tar.gz",
+                "https://github.com/bazelbuild/rules_java/releases/download/7.10.0/rules_java-7.10.0.tar.gz",
             ],
-            sha256 = "976ef08b49c929741f201790e59e3807c72ad81f428c8bc953cdbeff5fed15eb",
+            sha256 = "eb5447f019734b0c4284eaa5f8248415084da5445ba8201c935a211ab8af43a0",
         )
+
+    maybe(
+        http_archive,
+        name = "rules_license",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
+            "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
+        ],
+        sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
+    )
 
     maven_install(
         name = "rules_jvm_external_deps",
@@ -89,6 +89,8 @@ def rules_jvm_external_deps(
             "org.slf4j:log4j-over-slf4j:2.0.12",
             "org.slf4j:slf4j-simple:2.0.12",
             "software.amazon.awssdk:s3:2.26.12",
+            "org.bouncycastle:bcprov-jdk15on:1.68",
+            "org.bouncycastle:bcpg-jdk15on:1.68",
         ],
         maven_install_json = deps_lock_file,
         fail_if_repin_required = True,

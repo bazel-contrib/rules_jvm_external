@@ -18,8 +18,8 @@ function clean_up_workspace_names() {
   local target="$2"
   # The first `sed` command replaces `@@` with `@`. The second extracts the visible name
   # from the bzlmod mangled workspace name
-  cat "$file_name" | sed -e 's|@@|@|g; s|\r||g' | sed -e 's|@.*~|@|g; s|\r||g' | grep "$target"
-  cat "$file_name" | sed -e 's|@@|@|g; s|\r||g' | sed -e 's|@.*~|@|g; s|\r||g' | grep -q "$target"
+  cat "$file_name" | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | grep "$target"
+  cat "$file_name" | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | grep -q "$target"
 }
 
 # we should contain the original target

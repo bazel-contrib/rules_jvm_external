@@ -8,34 +8,38 @@
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
 load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_license//rules:providers.bzl", "PackageInfo")
+load("//private/lib:coordinates.bzl", "to_external_form", "to_purl", "unpack_coordinates")
+load("//private/lib:urls.bzl", "scheme_and_host")
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
 
 def _jvm_import_impl(ctx):
-    if len(ctx.files.jars) != 1:
+    if not ctx.attr.jar and not ctx.attr.jars:
+        fail("The `jar` attribute is mandatory.")
+
+    if ctx.attr.jar and ctx.attr.jars:
+        fail("Only specify the `jar` attribute.")
+
+    if len(ctx.files.jars) > 1:
         fail("Please only specify one jar to import in the jars attribute.")
 
-    # With `bzlmod` enabled, workspace names end up being `~` separated. For the
-    # user-visible workspace name, we need the final part of the name
-    visible_name = ctx.label.workspace_name.rpartition("~")[2]
-    label = "@{workspace_name}//{package}:{name}".format(
-        name = ctx.label.name,
-        package = ctx.label.package,
-        workspace_name = visible_name,
-    )
+    if not ctx.attr.jar:
+        print(ctx.attr.name, "The `jars` attribute is deprecated and will be removed in `rules_jvm_external` 7.0. Please use the `jar` attribute instead.")
 
-    injar = ctx.files.jars[0]
+    injar = ctx.file.jar if ctx.attr.jar else ctx.files.jars[0]
+
     if ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
         outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
         args = ctx.actions.args()
         args.add_all(["--source", injar, "--output", outjar])
-        args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = label)])
+        args.add("--manifest-entry", ctx.label, format = "Target-Label:%s")
         ctx.actions.run(
             executable = ctx.executable._add_jar_manifest_entry,
             arguments = [args],
             inputs = [injar],
             outputs = [outjar],
             mnemonic = "StampJarManifest",
-            progress_message = "Stamping the manifest of %s" % ctx.label,
+            progress_message = "Stamping the manifest of %{label}",
         )
     else:
         outjar = injar
@@ -64,6 +68,21 @@ def _jvm_import_impl(ctx):
         progress_message = "Creating compile jar for %s" % ctx.label,
     )
 
+    additional_providers = []
+    if ctx.attr.maven_coordinates:
+        unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
+
+        additional_providers.append(
+            PackageInfo(
+                type = "jvm_import",
+                label = ctx.label,
+                package_url = ctx.attr.maven_url,
+                package_version = unpacked.version,
+                package_name = to_external_form(ctx.attr.maven_coordinates),
+                purl = to_purl(ctx.attr.maven_coordinates, scheme_and_host(ctx.attr.maven_url)),
+            ),
+        )
+
     return [
         DefaultInfo(
             files = depset([outjar]),
@@ -79,18 +98,21 @@ def _jvm_import_impl(ctx):
             ],
             neverlink = ctx.attr.neverlink,
         ),
-    ]
+    ] + additional_providers
 
 jvm_import = rule(
     attrs = {
         "jars": attr.label_list(
+            doc = "Deprecated. Scheduled for removal in `@rules_jvm_external` 7.0.",
             allow_files = True,
-            mandatory = True,
+            cfg = "target",
+        ),
+        "jar": attr.label(
+            allow_single_file = True,
             cfg = "target",
         ),
         "srcjar": attr.label(
             allow_single_file = True,
-            mandatory = False,
             cfg = "target",
         ),
         "deps": attr.label_list(
@@ -99,6 +121,12 @@ jvm_import = rule(
         ),
         "neverlink": attr.bool(
             default = False,
+        ),
+        "maven_coordinates": attr.string(
+            doc = "The maven coordinates that the `jar` can be downloaded from.",
+        ),
+        "maven_url": attr.string(
+            doc = "URL from where `jar` will be downloaded from.",
         ),
         "_add_jar_manifest_entry": attr.label(
             executable = True,

@@ -8,6 +8,15 @@ _JavadocInfo = provider(
     },
 )
 
+_DEFAULT_JAVADOCOPTS = [
+    "-notimestamp",
+    "-use",
+    "-quiet",
+    "-Xdoclint:-missing",
+    "-encoding",
+    "UTF8",
+]
+
 def generate_javadoc(
         ctx,
         javadoc,
@@ -15,6 +24,7 @@ def generate_javadoc(
         classpath,
         javadocopts,
         doc_deps,
+        doc_resources,
         output,
         element_list):
     inputs = []
@@ -24,14 +34,22 @@ def generate_javadoc(
     args.add("--element-list", element_list)
     args.add_all(source_jars, before_each = "--in")
     inputs.extend(source_jars)
+    args.add_all(ctx.files.doc_resources, before_each = "--resources")
+    inputs.extend(ctx.files.doc_resources)
     args.add_all(classpath, before_each = "--cp")
     transitive_inputs.append(classpath)
+
     for dep in doc_deps:
         dep_info = dep[_JavadocInfo]
         args.add("-linkoffline")
         args.add(dep_info.url)
         args.add(dep_info.element_list.dirname)
         inputs.append(dep_info.element_list)
+
+    javadocopts = [
+        ctx.expand_make_variables("javadocopts", opt, ctx.var)
+        for opt in javadocopts
+    ]
     args.add_all(javadocopts)
 
     ctx.actions.run(
@@ -64,7 +82,6 @@ def _javadoc_impl(ctx):
     # from dep[JavaInfo].compilation_info (which, FWIW, always returns
     # `None` https://github.com/bazelbuild/bazel/issues/10170). For this
     # reason we allow people to set javadocopts via the rule attrs.
-
     generate_javadoc(
         ctx,
         ctx.executable._javadoc,
@@ -72,6 +89,7 @@ def _javadoc_impl(ctx):
         classpath,
         ctx.attr.javadocopts,
         ctx.attr.doc_deps,
+        ctx.attr.doc_resources,
         jar_file,
         element_list,
     )
@@ -107,8 +125,10 @@ javadoc = rule(
         "javadocopts": attr.string_list(
             doc = """javadoc options.
             Note sources and classpath are derived from the deps. Any additional
-            options can be passed here.
-            """,
+            options can be passed here. If nothing is passed, a default list of options is used:
+            %s
+            """ % _DEFAULT_JAVADOCOPTS,
+            default = _DEFAULT_JAVADOCOPTS,
         ),
         "doc_deps": attr.label_list(
             doc = """`javadoc` targets referenced by the current target.
@@ -126,6 +146,12 @@ javadoc = rule(
 
             This information is only used by javadoc targets depending on this target.
             """,
+        ),
+        "doc_resources": attr.label_list(
+            doc = "Resources to include in the javadoc jar.",
+            allow_empty = True,
+            allow_files = True,
+            default = [],
         ),
         "excluded_workspaces": attr.string_list(
             doc = "A list of bazel workspace names to exclude from the generated jar",

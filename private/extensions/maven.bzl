@@ -21,7 +21,7 @@ DEFAULT_NAME = "maven"
 
 _DEFAULT_RESOLVER = "coursier"
 
-_artifact = tag_class(
+artifact = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "group": attr.string(mandatory = True),
@@ -33,11 +33,10 @@ _artifact = tag_class(
         "neverlink": attr.bool(),
         "testonly": attr.bool(),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
-        "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
     },
 )
 
-_install = tag_class(
+install = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
 
@@ -114,7 +113,7 @@ _install = tag_class(
     },
 )
 
-_override = tag_class(
+override = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Maven artifact tuple in `artifactId:groupId` format", mandatory = True),
@@ -195,7 +194,7 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 
     return seen
 
-def _maven_impl(mctx):
+def maven_impl(mctx):
     repos = {}
     overrides = {}
     exclusions = {}
@@ -510,10 +509,10 @@ def _maven_impl(mctx):
         return None
 
 maven = module_extension(
-    _maven_impl,
+    maven_impl,
     tag_classes = {
-        "artifact": _artifact,
-        "install": _install,
-        "override": _override,
+        "artifact": artifact,
+        "install": install,
+        "override": override,
     },
 )

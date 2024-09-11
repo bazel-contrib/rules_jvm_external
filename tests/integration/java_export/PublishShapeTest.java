@@ -24,6 +24,10 @@ public class PublishShapeTest {
   private static final String JAR_CONTENTS = "magic!";
   private static final String JAR_MD5 = "05427eba78c92912c86d004b9857d6a0";
   private static final String JAR_SHA1 = "cbb0126a346a4dd6694fc48e3a94174fd1c7fa93";
+  private static final String JAR_SHA256 =
+      "de3a84a06968190ff02aa763f0ca6691ad0d5d880ae849fa1a44ed119f3d3df1";
+  private static final String JAR_SHA512 =
+      "8b05cd8c20c7e0be5743387dadebab4cfa0ced66f905cc16213062a68d3a2387a4ccba46fc3ac1dfe3074d44e7b281881fa9bd7ad55f8c24a1aea1ddea9ec39e";
 
   @Rule public TemporaryFolder temp = new TemporaryFolder();
 
@@ -49,16 +53,24 @@ public class PublishShapeTest {
     assertTrue(Files.exists(repoRoot.resolve(path)));
     assertTrue(Files.exists(repoRoot.resolve(path + ".md5")));
     assertTrue(Files.exists(repoRoot.resolve(path + ".sha1")));
+    assertTrue(Files.exists(repoRoot.resolve(path + ".sha256")));
+    assertTrue(Files.exists(repoRoot.resolve(path + ".sha512")));
 
     // Basic checksum format check
     String md5 = new String(Files.readAllBytes(repoRoot.resolve(path + ".md5")));
     assertEquals(32, md5.length());
     String sha1 = new String(Files.readAllBytes(repoRoot.resolve(path + ".sha1")));
     assertEquals(40, sha1.length());
+    String sha256 = new String(Files.readAllBytes(repoRoot.resolve(path + ".sha256")));
+    assertEquals(64, sha256.length());
+    String sha512 = new String(Files.readAllBytes(repoRoot.resolve(path + ".sha512")));
+    assertEquals(128, sha512.length());
 
     // Check checksum values
     assertEquals(JAR_MD5, md5);
     assertEquals(JAR_SHA1, sha1);
+    assertEquals(JAR_SHA256, sha256);
+    assertEquals(JAR_SHA512, sha512);
   }
 
   private Path publish(String coordinates) throws IOException, InterruptedException {

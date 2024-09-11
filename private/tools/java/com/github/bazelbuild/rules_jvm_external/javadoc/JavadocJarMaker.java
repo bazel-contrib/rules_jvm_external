@@ -17,6 +17,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.javadoc;
 
+import static java.lang.Runtime.Version;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
@@ -53,11 +54,12 @@ import javax.tools.ToolProvider;
 
 public class JavadocJarMaker {
 
-  private static Version JAVA_9 = Version.parse("9.0.0");
-  private static Version JAVA_13 = Version.parse("13.0.0");
+  private static final Version JAVA_9 = Version.parse("9");
+  private static final Version JAVA_13 = Version.parse("13");
 
   public static void main(String[] args) throws IOException {
     Set<Path> sourceJars = new HashSet<>();
+    Set<Path> resources = new HashSet<>();
     Path out = null;
     Path elementList = null;
     Set<Path> classpath = new HashSet<>();
@@ -86,6 +88,11 @@ public class JavadocJarMaker {
         case "--element-list":
           next = args[++i];
           elementList = Paths.get(next);
+          break;
+
+        case "--resources":
+          next = args[++i];
+          resources.add(Paths.get(next));
           break;
 
         default:
@@ -152,11 +159,7 @@ public class JavadocJarMaker {
                 .map(String::valueOf)
                 .collect(Collectors.joining(File.pathSeparator)));
       }
-      Version version = Version.parse(System.getProperty("java.version"));
-
-      options.addAll(
-          Arrays.asList(
-              "-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"));
+      Version version = Runtime.version();
 
       // Generate frames if we can. Java prior to v9 generates frames automatically.
       // In Java 13, the flag was removed.
@@ -175,6 +178,12 @@ public class JavadocJarMaker {
       options.addAll(Arrays.asList("-d", outputTo.toAbsolutePath().toString()));
 
       sources.forEach(obj -> options.add(obj.getName()));
+
+      for (Path resource : resources) {
+        Path target = outputTo.resolve(resource.getFileName());
+        Files.createDirectories(target.getParent());
+        Files.copy(resource, target);
+      }
 
       Writer writer = new StringWriter();
       DocumentationTool.DocumentationTask task =
