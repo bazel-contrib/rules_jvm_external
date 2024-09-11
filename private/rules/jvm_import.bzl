@@ -9,12 +9,23 @@
 
 load("@rules_java//java:defs.bzl", "JavaInfo")
 load("//settings:stamp_manifest.bzl", "StampManifestProvider")
+load(":maven_utils.bzl", "unpack_coordinates")
 
 def _jvm_import_impl(ctx):
-    if len(ctx.files.jars) != 1:
+    if not ctx.attr.jar and not ctx.attr.jars:
+        fail("The `jar` attribute is mandatory.")
+
+    if ctx.attr.jar and ctx.attr.jars:
+        fail("Only specify the `jar` attribute.")
+
+    if len(ctx.files.jars) > 1:
         fail("Please only specify one jar to import in the jars attribute.")
 
-    injar = ctx.files.jars[0]
+    if not ctx.attr.jar:
+        print(ctx.attr.name, "The `jars` attribute is deprecated and will be removed in `rules_jvm_external` 7.0. Please use the `jar` attribute instead.")
+
+    injar = ctx.file.jar if ctx.attr.jar else ctx.files.jars[0]
+
     if ctx.attr._stamp_manifest[StampManifestProvider].stamp_enabled:
         outjar = ctx.actions.declare_file("processed_" + injar.basename, sibling = injar)
         args = ctx.actions.args()
@@ -75,13 +86,16 @@ def _jvm_import_impl(ctx):
 jvm_import = rule(
     attrs = {
         "jars": attr.label_list(
+            doc = "Deprecated. Scheduled for removal in `@rules_jvm_external` 7.0.",
             allow_files = True,
-            mandatory = True,
+            cfg = "target",
+        ),
+        "jar": attr.label(
+            allow_single_file = True,
             cfg = "target",
         ),
         "srcjar": attr.label(
             allow_single_file = True,
-            mandatory = False,
             cfg = "target",
         ),
         "deps": attr.label_list(
