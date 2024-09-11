@@ -32,6 +32,7 @@ bazel_dep(
     name = "rules_kotlin",
     version = "1.9.6",
 )
+
 bazel_dep(
     name = "stardoc",
     version = "0.7.0",
@@ -317,7 +318,7 @@ dev_maven.install(
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
-    ]
+    ],
 )
 dev_maven.install(
     name = "m2local_testing",

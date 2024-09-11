@@ -1,9 +1,10 @@
 package com.github.bazelbuild.rules_jvm_external;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,12 +15,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 public class ZipUtils {
-  public static void createJar(Path outputTo, Map<String, String> pathToContents) throws IOException {
+  public static void createJar(Path outputTo, Map<String, String> pathToContents)
+      throws IOException {
     try (OutputStream os = Files.newOutputStream(outputTo);
-         ZipOutputStream zos = new ZipOutputStream(os)) {
+        ZipOutputStream zos = new ZipOutputStream(os)) {
 
       for (Map.Entry<String, String> entry : pathToContents.entrySet()) {
         ZipEntry ze = new StableZipEntry(entry.getKey());
@@ -36,7 +36,7 @@ public class ZipUtils {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
     try (InputStream is = Files.newInputStream(jar);
-         ZipInputStream zis = new ZipInputStream(is)) {
+        ZipInputStream zis = new ZipInputStream(is)) {
 
       for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
         if (entry.isDirectory()) {
