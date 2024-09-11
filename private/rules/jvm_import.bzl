@@ -66,10 +66,6 @@ def _jvm_import_impl(ctx):
         progress_message = "Creating compile jar for %s" % ctx.label,
     )
 
-    additional_providers = []
-    if ctx.attr.maven_coordinates:
-        unpacked = unpack_coordinates(ctx.attr.maven_coordinates)
-
     return [
         DefaultInfo(
             files = depset([outjar]),
@@ -108,12 +104,6 @@ jvm_import = rule(
         ),
         "neverlink": attr.bool(
             default = False,
-        ),
-        "maven_coordinates": attr.string(
-            doc = "The maven coordinates that the `jar` can be downloaded from.",
-        ),
-        "maven_url": attr.string(
-            doc = "URL from where `jar` will be downloaded from.",
         ),
         "_add_jar_manifest_entry": attr.label(
             executable = True,
