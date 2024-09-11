@@ -14,12 +14,15 @@
 
 package com.github.bazelbuild.rules_jvm_external.jar;
 
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,13 +39,9 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
-import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class MergeJarsTest {
 
@@ -562,25 +561,22 @@ public class MergeJarsTest {
     String inputOneContents = "# This is a comment\n# This is another comment\ncom.example.Foo";
     createJar(
         inputOne,
-        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputOneContents)
-    );
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputOneContents));
 
     Path inputTwo = temp.newFile("two.jar").toPath();
     String inputTwoContents = "# My License\ncom.example.Bar";
     createJar(
         inputTwo,
-        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputTwoContents)
-    );
+        ImmutableMap.of("META-INF/services/com.example.ServiceProvider", inputTwoContents));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
     MergeJars.main(
         new String[] {
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--sources", inputTwo.toAbsolutePath().toString(),
-        }
-    );
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+        });
 
     Map<String, String> contents = readJar(outputJar);
 
@@ -592,24 +588,18 @@ public class MergeJarsTest {
   @Test
   public void mergedJarKeepsNonClassFiles() throws IOException {
     Path inputOne = temp.newFile("one.jar").toPath();
-    createJar(
-        inputOne,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout")
-    );
+    createJar(inputOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout"));
 
     Path excludeOne = temp.newFile("two.jar").toPath();
-    createJar(
-        excludeOne,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR")
-    );
+    createJar(excludeOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR"));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
     MergeJars.main(
         new String[] {
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--exclude", excludeOne.toAbsolutePath().toString(),
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--exclude", excludeOne.toAbsolutePath().toString(),
         });
 
     Map<String, String> contents = readJar(outputJar);
@@ -620,30 +610,22 @@ public class MergeJarsTest {
   @Test
   public void mergedJarKeepsNonClassFilesDefaultDuplicateStrategy() throws IOException {
     Path inputOne = temp.newFile("one.jar").toPath();
-    createJar(
-        inputOne,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout")
-    );
+    createJar(inputOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout"));
     Path inputTwo = temp.newFile("two.jar").toPath();
     createJar(
-        inputTwo,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout,stderr")
-    );
+        inputTwo, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout,stderr"));
 
     Path excludeOne = temp.newFile("three.jar").toPath();
-    createJar(
-        excludeOne,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR")
-    );
+    createJar(excludeOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR"));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
     MergeJars.main(
         new String[] {
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--sources", inputTwo.toAbsolutePath().toString(),
-            "--exclude", excludeOne.toAbsolutePath().toString(),
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--exclude", excludeOne.toAbsolutePath().toString(),
         });
 
     Map<String, String> contents = readJar(outputJar);
@@ -654,31 +636,23 @@ public class MergeJarsTest {
   @Test
   public void mergedJarKeepsNonClassFilesFirstWinsStrategy() throws IOException {
     Path inputOne = temp.newFile("one.jar").toPath();
-    createJar(
-        inputOne,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout")
-    );
+    createJar(inputOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout"));
     Path inputTwo = temp.newFile("two.jar").toPath();
     createJar(
-        inputTwo,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout,stderr")
-    );
+        inputTwo, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR,stdout,stderr"));
 
     Path excludeOne = temp.newFile("three.jar").toPath();
-    createJar(
-        excludeOne,
-        ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR")
-    );
+    createJar(excludeOne, ImmutableMap.of("log4j.properties", "log4j.rootLogger=ERROR"));
 
     Path outputJar = temp.newFile("out.jar").toPath();
 
     MergeJars.main(
         new String[] {
-            "--output", outputJar.toAbsolutePath().toString(),
-            "--sources", inputOne.toAbsolutePath().toString(),
-            "--sources", inputTwo.toAbsolutePath().toString(),
-            "--duplicates", "first-wins",
-            "--exclude", excludeOne.toAbsolutePath().toString(),
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", inputOne.toAbsolutePath().toString(),
+          "--sources", inputTwo.toAbsolutePath().toString(),
+          "--duplicates", "first-wins",
+          "--exclude", excludeOne.toAbsolutePath().toString(),
         });
 
     Map<String, String> contents = readJar(outputJar);

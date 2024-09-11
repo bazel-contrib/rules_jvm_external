@@ -230,8 +230,6 @@ public class MavenPublisher {
               credentials,
               in_memory_pgp_sign(
                   sha512, signingMetadata.signingKey, signingMetadata.signingPassword)));
-
-
     }
 
     return CompletableFuture.allOf(uploads.toArray(new CompletableFuture<?>[0]));
@@ -246,7 +244,7 @@ public class MavenPublisher {
   }
 
   private static String toSha512(byte[] toHash) {
-      return toHexS("%0128x", "SHA-512", toHash);
+    return toHexS("%0128x", "SHA-512", toHash);
   }
 
   private static String toMd5(byte[] toHash) {
