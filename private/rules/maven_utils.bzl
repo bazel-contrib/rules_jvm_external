@@ -95,8 +95,7 @@ def generate_pom(
         split = dep.split(":")
         if len(split) == 5:
             gradle_format = split[0] + ":" + split[1] + ":" + split[4] + ":" + split[3] + "@" + split[2]
-            print(st)
-            unpacked = _unpack_coordinates(st)
+            unpacked = _unpack_coordinates(gradle_format)
         else:
             unpacked = _unpack_coordinates(dep)
         new_scope = "runtime" if dep in runtime_deps else unpacked.scope
