@@ -170,9 +170,9 @@ def maven_bom(
 
     # `same_package_label` doesn't exist in Bazel 5, but we still support it
     # so we check the version here to call a non-deprecated API in recent
-    # Bazel versions, or the older (deprecated) API in Bazel 5. We use a check
-    # that is a proxy for "is bazel 7 or later"
-    if bazel_features.proto.starlark_proto_info:
+    # Bazel versions, or the older (deprecated) API in Bazel 5.
+    feature_check_label = Label("//:doesnotexistinrulesjvmexternal")
+    if hasattr(feature_check_label, "same_package_label"):
         fragments = [l.same_package_label("%s.bom-fragment" % l.name) for l in labels]
     else:
         # TODO: Drop this branch once we drop Bazel 5 support
