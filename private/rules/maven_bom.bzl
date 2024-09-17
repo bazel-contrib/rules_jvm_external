@@ -172,7 +172,7 @@ def maven_bom(
     # so we check the version here to call a non-deprecated API in recent
     # Bazel versions, or the older (deprecated) API in Bazel 5. We use a check
     # that is a proxy for "is bazel 6 or later"
-    if bazel_features.features.toolchains.has_optional_toolchains:
+    if bazel_features.toolchains.has_optional_toolchains:
         fragments = [l.same_package_label("%s.bom-fragment" % l.name) for l in labels]
     else:
         # TODO: Drop this branch once we drop Bazel 5 support
