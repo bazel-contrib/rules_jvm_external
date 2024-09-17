@@ -51,13 +51,13 @@ java_export(
 java_export(
     name = "classifier-artifact-one",
     srcs = ["ClassifierArtifactOne.java"],
-    maven_coordinates = "com.example:lib:jar:linux-x86:1.0.0",
+    maven_coordinates = "com.example:lib:1.0.0:linux-x86@jar",
 )
 
 java_export(
     name = "classifier-artifact-two",
     srcs = ["ClassifierArtifactTwo.java"],
-    maven_coordinates = "com.example:lib:jar:linux-arm64:1.0.0",
+    maven_coordinates = "com.example:lib:1.0.0:linux-arm64@jar",
 )
 
 diff_test(

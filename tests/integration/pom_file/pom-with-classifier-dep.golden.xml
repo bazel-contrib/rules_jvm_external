@@ -12,14 +12,14 @@
             <groupId>com.example</groupId>
             <artifactId>lib</artifactId>
             <version>1.0.0</version>
-            <scope>runtime</scope>
-            <classifier>linux-x86</classifier>
+            <classifier>linux-arm64</classifier>
         </dependency>
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>lib</artifactId>
             <version>1.0.0</version>
-            <classifier>linux-arm64</classifier>
+            <scope>runtime</scope>
+            <classifier>linux-x86</classifier>
         </dependency>
     </dependencies>
 </project>
