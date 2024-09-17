@@ -93,7 +93,8 @@ def generate_pom(
     for dep in sorted(versioned_dep_coordinates) + sorted(unversioned_dep_coordinates):
         include_version = dep in versioned_dep_coordinates
         split = dep.split(":")
-        if len(split) == 5:
+        if len(split) == 5 and split[3] not in ["import", "compile", "runtime", "test", "provided", "system"]:
+            print(split)
             gradle_format = split[0] + ":" + split[1] + ":" + split[4] + ":" + split[3] + "@" + split[2]
             unpacked = _unpack_coordinates(gradle_format)
         else:
