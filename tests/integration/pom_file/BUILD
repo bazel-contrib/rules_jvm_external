@@ -40,24 +40,12 @@ java_export(
     srcs = ["PomExample.java"],
     maven_coordinates = "com.example:app:1.0.0",
     runtime_deps = [
-        ":classifier-artifact-one",
+        "@maven//:io_netty_netty_tcnative_boringssl_static_linux_aarch_64",
     ],
     deps = [
-        ":classifier-artifact-one",
-        ":classifier-artifact-two",
+        "@maven//:io_netty_netty_tcnative_boringssl_static_linux_aarch_64",
+        "@maven//:io_netty_netty_tcnative_boringssl_static_linux_x86_64",
     ],
-)
-
-java_export(
-    name = "classifier-artifact-one",
-    srcs = ["ClassifierArtifactOne.java"],
-    maven_coordinates = "com.example:lib:1.0.0:linux-x86@jar",
-)
-
-java_export(
-    name = "classifier-artifact-two",
-    srcs = ["ClassifierArtifactTwo.java"],
-    maven_coordinates = "com.example:lib:1.0.0:linux-arm64@jar",
 )
 
 diff_test(
