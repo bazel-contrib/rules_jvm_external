@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//:specs.bzl", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load(
@@ -945,9 +946,10 @@ def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
             amended_deps.append(dep)
             continue
 
-        jar_path = dep["file"].removesuffix(".pom") + ".jar"
-        if repository_ctx.path(jar_path).exists:
-            dep["file"] = jar_path
+        if dep["file"].endswith(".pom"):
+            jar_path = paths.replace_extension(dep["file"], "jar")
+            if repository_ctx.path(jar_path).exists:
+                dep["file"] = jar_path
 
         amended_deps.append(dep)
 
