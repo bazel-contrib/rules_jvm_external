@@ -26,7 +26,6 @@ bzl_library(
         "//private/lib:implementation",
         "//private/rules:implementation",
         "//settings:implementation",
-        "@bazel_skylib//lib:paths",
         "@rules_java//java:rules",
     ],
 )

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//:specs.bzl", "utils")
 load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 load(
@@ -946,8 +945,15 @@ def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
             amended_deps.append(dep)
             continue
 
+        # You'd think we could use skylib here to do the heavy lifting, but
+        # this is a dependency of `maven_install`, which is loaded in the
+        # `repositories.bzl` file. That means we can't rely on anything that
+        # comes from skylib yet, since the repo isn't loaded. If we could
+        # call `maven_install` from `setup.bzl`, we'd be fine, but we can't
+        # do that because then there'd be nowhere to call the
+        # `pinned_maven_install`. Oh well, let's just do this the manual way.
         if dep["file"].endswith(".pom"):
-            jar_path = paths.replace_extension(dep["file"], ".jar")
+            jar_path = dep["file"].removesuffix(".pom") + ".jar"
             if repository_ctx.path(jar_path).exists:
                 dep["file"] = jar_path
 
