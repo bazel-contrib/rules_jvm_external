@@ -947,7 +947,7 @@ def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
             continue
 
         if dep["file"].endswith(".pom"):
-            jar_path = paths.replace_extension(dep["file"], "jar")
+            jar_path = paths.replace_extension(dep["file"], ".jar")
             if repository_ctx.path(jar_path).exists:
                 dep["file"] = jar_path
 
