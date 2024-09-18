@@ -925,12 +925,43 @@ def make_coursier_dep_tree(
     if (exec_result.return_code != 0):
         fail("Error while fetching artifact with coursier: " + exec_result.stderr)
 
-    return deduplicate_and_sort_artifacts(
+    dep_tree = deduplicate_and_sort_artifacts(
         json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
         artifacts,
         excluded_artifacts,
         _is_verbose(repository_ctx),
     )
+    return rewrite_files_attribute_if_necessary(repository_ctx, dep_tree)
+
+def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
+    # There are cases where `coursier` will download both the pom and the
+    # jar but will include the path to the pom instead of the jar in the
+    # `file` attribute. This differs from both gradle and maven. Massage the
+    # `file` attributes if necessary.
+    # https://github.com/bazelbuild/rules_jvm_external/issues/1250
+    amended_deps = []
+    for dep in dep_tree["dependencies"]:
+        if not dep.get("file", None):
+            amended_deps.append(dep)
+            continue
+
+        # You'd think we could use skylib here to do the heavy lifting, but
+        # this is a dependency of `maven_install`, which is loaded in the
+        # `repositories.bzl` file. That means we can't rely on anything that
+        # comes from skylib yet, since the repo isn't loaded. If we could
+        # call `maven_install` from `setup.bzl`, we'd be fine, but we can't
+        # do that because then there'd be nowhere to call the
+        # `pinned_maven_install`. Oh well, let's just do this the manual way.
+        if dep["file"].endswith(".pom"):
+            jar_path = dep["file"].removesuffix(".pom") + ".jar"
+            if repository_ctx.path(jar_path).exists:
+                dep["file"] = jar_path
+
+        amended_deps.append(dep)
+
+    dep_tree["dependencies"] = amended_deps
+
+    return dep_tree
 
 def remove_prefix(s, prefix):
     if s.startswith(prefix):
@@ -1032,7 +1063,7 @@ def _coursier_fetch_impl(repository_ctx):
             # This file comes from maven local, so handle it in two different ways depending if
             # dependency pinning is used:
             # a) If the repository is unpinned, we keep the file as is, but clear the url to skip it
-            # b) Otherwise, we clear the url and also simlink the file from the maven local directory
+            # b) Otherwise, we clear the url and also symlink the file from the maven local directory
             #    to file within the repository rule workspace
             print("Assuming maven local for artifact: %s" % artifact["coord"])
             artifact.update({"url": None})
