@@ -39,3 +39,4 @@ alias(
     name = "generate_api_reference",
     actual = "//scripts:generate_api_reference",
 )
+
