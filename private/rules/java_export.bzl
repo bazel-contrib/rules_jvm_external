@@ -83,7 +83,7 @@ def java_export(
     maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
-    javadocopts = kwargs.pop("javadocopts", [])
+    javadocopts = kwargs.pop("javadocopts", None)
     doc_deps = kwargs.pop("doc_deps", [])
     doc_url = kwargs.pop("doc_url", "")
     doc_resources = kwargs.pop("doc_resources", [])
@@ -128,7 +128,7 @@ def maven_export(
         visibility = None,
         tags = [],
         testonly = False,
-        javadocopts = [],
+        javadocopts = None,
         classifier_artifacts = {},
         *,
         doc_deps = [],
