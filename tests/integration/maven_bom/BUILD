@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//:defs.bzl", "artifact", "java_export", "maven_bom")
 
 maven_bom(
@@ -76,4 +77,23 @@ diff_test(
     name = "validate-transitive-dependencies-bom",
     file1 = ":transitive-bom-dependencies",
     file2 = "transitive-bom-dependencies.golden.xml",
+)
+
+string_flag(
+    name = "version",
+    build_setting_default = "0.0.0-dev",
+    make_variable = "VERSION",
+)
+
+maven_bom(
+    name = "substitution-bom",
+    java_exports = [],
+    maven_coordinates = "com.example:bom-substitution:$(VERSION)",
+    toolchains = [":version"],
+)
+
+diff_test(
+    name = "validate-substitution-bom",
+    file1 = ":substitution-bom",
+    file2 = "substitution-bom.golden.xml",
 )
