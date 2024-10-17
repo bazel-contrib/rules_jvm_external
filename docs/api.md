@@ -18,7 +18,8 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 <pre>
 load("@rules_jvm_external//:defs.bzl", "javadoc")
 
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_resources">doc_resources</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>,
+        <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -32,6 +33,7 @@ Generate a javadoc from all the `deps`
 | <a id="javadoc-deps"></a>deps |  The java libraries to generate javadocs for.<br><br>The source jars of each dep will be used to generate the javadocs. Currently docs for transitive dependencies are not generated.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | required |  |
 | <a id="javadoc-additional_dependencies"></a>additional_dependencies |  Mapping of `Label`s to the excluded workspace names. Note that this must match the values passed to the `pom_file` rule so the `pom.xml` correctly lists these dependencies.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: Label -> String</a> | optional |  `{}`  |
 | <a id="javadoc-doc_deps"></a>doc_deps |  `javadoc` targets referenced by the current target.<br><br>Use this to automatically add appropriate `-linkoffline` javadoc options to resolve references to packages documented by the given javadoc targets that have `url` specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
+| <a id="javadoc-doc_resources"></a>doc_resources |  Resources to include in the javadoc jar.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="javadoc-doc_url"></a>doc_url |  The URL at which this documentation will be hosted.<br><br>This information is only used by javadoc targets depending on this target.   | String | optional |  `""`  |
 | <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional |  `["com_google_protobuf", "protobuf"]`  |
 | <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options. Note sources and classpath are derived from the deps. Any additional options can be passed here. If nothing is passed, a default list of options is used: ["-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"]   | List of strings | optional |  `["-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"]`  |
@@ -117,7 +119,7 @@ Generated rules:
 load("@rules_jvm_external//:defs.bzl", "maven_bom")
 
 maven_bom(<a href="#maven_bom-name">name</a>, <a href="#maven_bom-maven_coordinates">maven_coordinates</a>, <a href="#maven_bom-java_exports">java_exports</a>, <a href="#maven_bom-bom_pom_template">bom_pom_template</a>, <a href="#maven_bom-dependencies_maven_coordinates">dependencies_maven_coordinates</a>,
-          <a href="#maven_bom-dependencies_pom_template">dependencies_pom_template</a>, <a href="#maven_bom-tags">tags</a>, <a href="#maven_bom-testonly">testonly</a>, <a href="#maven_bom-visibility">visibility</a>)
+          <a href="#maven_bom-dependencies_pom_template">dependencies_pom_template</a>, <a href="#maven_bom-tags">tags</a>, <a href="#maven_bom-testonly">testonly</a>, <a href="#maven_bom-visibility">visibility</a>, <a href="#maven_bom-toolchains">toolchains</a>)
 </pre>
 
 Generates a Maven BOM `pom.xml` file and an optional "dependencies" `pom.xml`.
@@ -173,6 +175,7 @@ Generated rules:
 | <a id="maven_bom-tags"></a>tags |  <p align="center"> - </p>   |  `None` |
 | <a id="maven_bom-testonly"></a>testonly |  <p align="center"> - </p>   |  `None` |
 | <a id="maven_bom-visibility"></a>visibility |  <p align="center"> - </p>   |  `None` |
+| <a id="maven_bom-toolchains"></a>toolchains |  <p align="center"> - </p>   |  `[]` |
 
 
 <a id="maven_install"></a>
