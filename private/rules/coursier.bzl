@@ -940,6 +940,7 @@ def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
     # `file` attributes if necessary.
     # https://github.com/bazelbuild/rules_jvm_external/issues/1250
     amended_deps = []
+    deps_files = []
     for dep in dep_tree["dependencies"]:
         if not dep.get("file", None):
             amended_deps.append(dep)
@@ -954,10 +955,17 @@ def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
         # `pinned_maven_install`. Oh well, let's just do this the manual way.
         if dep["file"].endswith(".pom"):
             jar_path = dep["file"].removesuffix(".pom") + ".jar"
+            # The same artifact can being depended on via pom and jar at different
+            # places in the tree. In such case, we deduplicate it so that 2
+            # entries do not reference the same file, which will otherwise lead
+            # in symlink error because of existing file down the road.
+            if jar_path in deps_files:
+                continue
             if repository_ctx.path(jar_path).exists:
                 dep["file"] = jar_path
 
         amended_deps.append(dep)
+        deps_files.append(dep["file"])
 
     dep_tree["dependencies"] = amended_deps
 
