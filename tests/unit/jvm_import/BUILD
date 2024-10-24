@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_java//java:defs.bzl", "java_import")
 load(":jvm_import_test.bzl", "jvm_import_test_suite")
 
 java_import(

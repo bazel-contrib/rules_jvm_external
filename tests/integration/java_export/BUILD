@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@rules_java//java:defs.bzl", "java_library")
 load("//:defs.bzl", "artifact", "java_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 

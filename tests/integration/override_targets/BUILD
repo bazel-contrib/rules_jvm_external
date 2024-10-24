@@ -1,5 +1,6 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_android//android:rules.bzl", "aar_import")
+load("@rules_java//java:defs.bzl", "java_library")
 
 build_test(
     name = "override_targets",

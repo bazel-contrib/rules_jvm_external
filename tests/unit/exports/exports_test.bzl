@@ -1,7 +1,7 @@
 """Unit tests for exports."""
 
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
-load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_java//java:defs.bzl", "JavaInfo", "java_library")
 load("//private/rules:has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
@@ -34,33 +34,33 @@ def exports_tests(name):
         target = ":library_to_test",
     )
 
-    native.java_library(
+    java_library(
         name = "library_to_test",
         deps = [":is_dep_has_exports", ":is_export_has_exports"],
         exports = [":is_export_has_exports"],
         srcs = ["Foo.java"],
     )
 
-    native.java_library(
+    java_library(
         name = "is_dep_has_exports",
         deps = [":leaf"],
         exports = [":leaf"],
         srcs = ["Foo.java"],
     )
 
-    native.java_library(
+    java_library(
         name = "is_export_has_exports",
         deps = [":exported_leaf"],
         exports = [":exported_leaf"],
         srcs = ["Foo.java"],
     )
 
-    native.java_library(
+    java_library(
         name = "leaf",
         srcs = ["Foo.java"],
     )
 
-    native.java_library(
+    java_library(
         name = "exported_leaf",
         srcs = ["Foo.java"],
     )
