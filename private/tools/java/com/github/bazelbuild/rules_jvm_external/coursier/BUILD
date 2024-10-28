@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("//private/rules:artifact.bzl", "artifact")
 
 java_library(
