@@ -42,9 +42,41 @@ def rules_jvm_external_deps(
             http_archive,
             name = "rules_java",
             urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.11.1/rules_java-7.11.1.tar.gz",
+                "https://github.com/bazelbuild/rules_java/releases/download/7.12.2/rules_java-7.12.2.tar.gz",
             ],
-            integrity = "sha256-bzzg6fupeahE+rotYEZ4Q/v1GR2Mph+j0uoXZVtWu4w=",
+            sha256 = "a9690bc00c538246880d5c83c233e4deb83fe885f54c21bb445eb8116a180b83",
+        )
+
+    if major_version == "6":
+        # Here goes the chain of rules compatibility resolution between RJE, java, android, cc and protobuf:
+        #
+        # rules_jvm_external wants to support LTS-2. For Bazel 8, this means supporting Bazel 6.
+        #
+        # rules_android is decoupled from Bazel 8, including its providers. ProguardSpecInfo is also decoupled, but to rules_java 7.12.2.
+        #
+        # So rules_java 7.12.2 is necessary for a decoupled rules_android to work with Bazel 6.
+        #
+        # But with workspace + rules_java 7.12.2, rules_java brings in a dep on
+        # rules_cc's //cc package via //java/bazel/rules:rules (for CcInfo).
+        # https://github.com/bazelbuild/rules_java/blob/2a9bd746974f6c94b159821d75130ad43e6b2970/java/bazel/rules/BUILD.bazel#L34-L35
+        #
+        # and rules_cc, in turn, brings in a dep on protobuf.
+        #
+        # And that's why we need the following deps:
+        maybe(
+            http_archive,
+            name = "rules_cc",
+            urls = ["https://github.com/bazelbuild/rules_cc/archive/faeafdb82814b4f7295c555781e800f080607bdd.tar.gz"],
+            sha256 = "ca772d4fa149180dd1d81fe19a61c911dcebf9768d56209fc5bf382125ade0b6",
+            strip_prefix = "rules_cc-faeafdb82814b4f7295c555781e800f080607bdd",
+        )
+
+        maybe(
+            http_archive,
+            name = "protobuf",
+            sha256 = "da288bf1daa6c04d03a9051781caa52aceb9163586bff9aa6cfb12f69b9395aa",
+            strip_prefix = "protobuf-27.0",
+            url = "https://github.com/protocolbuffers/protobuf/releases/download/v27.0/protobuf-27.0.tar.gz",
         )
 
     maybe(
