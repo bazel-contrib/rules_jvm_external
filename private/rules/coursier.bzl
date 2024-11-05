@@ -971,7 +971,7 @@ def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
     return dep_tree
 
 def is_dep(jar_path, deps):
-    for dep in reversed(deps):
+    for dep in deps:
         if jar_path == dep.get("file", None):
             return True
     return False
