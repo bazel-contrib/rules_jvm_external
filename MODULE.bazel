@@ -732,6 +732,25 @@ dev_maven.install(
     ],
 )
 
+
+dev_maven.install(
+    name = "root_module_can_override",
+    artifacts = ["com.squareup:javapoet:1.11.1"],
+)
+
+bazel_dep(name = "transitive_module_can_override", version = "0.0.0")
+local_path_override(
+    module_name = "transitive_module_can_override",
+    path = "tests/integration/override_targets/module",
+)
+
+dev_maven.override(
+    # This override demonstrates that this root module's override takes precedence over that transitive override definition.
+    # Use something absurd for testing, like overriding okhttp3 to javapoet.
+    coordinates = "com.squareup.okhttp3:okhttp",
+    target = "@root_module_can_override//:com_squareup_javapoet",
+)
+
 # Where there are file locks, the pinned and unpinned repos are listed
 # next to each other. Where compat repositories are created, they are
 # listed next to the repo that created them. The list is otherwise kept
@@ -815,6 +834,7 @@ use_repo(
     "starlark_aar_import_test",
     "starlark_aar_import_with_sources_test",
     "strict_visibility_testing",
+    "root_module_can_override",
 
     # Repo with compat repos
     "com_google_http_client_google_http_client_gson",
