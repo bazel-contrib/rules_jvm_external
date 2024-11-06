@@ -126,7 +126,7 @@ def _parse_exclusion_spec_list(exclusion_specs):
 
 def _parse_maven_coordinate_string(mvn_coord):
     """
-    Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v), returns a maven artifact map (see above).
+    Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v) or gradle external dependency (g:a:v:c@p), returns a maven artifact map (see above).
     """
     pieces = mvn_coord.split(":")
     group = pieces[0]
@@ -134,20 +134,43 @@ def _parse_maven_coordinate_string(mvn_coord):
 
     if len(pieces) == 2:
         return {"group": group, "artifact": artifact, "version": ""}
-    elif len(pieces) == 3:
-        version = pieces[2]
-        return {"group": group, "artifact": artifact, "version": version}
-    elif len(pieces) == 4:
-        packaging = pieces[2]
-        version = pieces[3]
-        return {"group": group, "artifact": artifact, "packaging": packaging, "version": version}
-    elif len(pieces) == 5:
+
+    # Unambiguously the original format
+    if len(pieces) == 5:
         packaging = pieces[2]
         classifier = pieces[3]
         version = pieces[4]
         return {"group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier, "version": version}
-    else:
-        fail("Could not parse maven coordinate: %s" % mvn_coord)
+
+    # If we're using BOMs, the version is optional. That means at this point
+    # we could be dealing with g:a:p or g:a:v
+    is_gradle = pieces[2][0].isdigit()
+
+    if len(pieces) == 3:
+        if is_gradle:
+            if "@" in pieces[2]:
+                (version, packaging) = pieces[2].split("@", 2)
+                return {"group": group, "artifact": artifact, "packaging": packaging, "version": version}
+            version = pieces[2]
+            return {"group": group, "artifact": artifact, "version": version}
+        else:
+            packaging = pieces[2]
+            return {"group": group, "artifact": artifact, "packaging": packaging}
+
+    if len(pieces) == 4:
+        if is_gradle:
+            version = pieces[2]
+            if "@" in pieces[3]:
+                (classifier, packaging) = pieces[3].split("@", 2)
+                return {"group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier, "version": version}
+            classifier = pieces[3]
+            return {"group": group, "artifact": artifact, "classifier": classifier, "version": version}
+        else:
+            packaging = pieces[2]
+            version = pieces[3]
+            return {"group": group, "artifact": artifact, "packaging": packaging, "version": version}
+
+    fail("Could not parse maven coordinate: %s" % mvn_coord)
 
 def _parse_repository_spec_list(repository_specs):
     """
