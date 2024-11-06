@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
+load("//private/lib:coordinates.bzl", "to_external_form", "to_key")
+
 _REQUIRED_KEYS = ["artifacts", "dependencies", "repositories"]
 
 def _is_valid_lock_file(lock_file_contents):
@@ -35,7 +37,7 @@ def _get_input_artifacts_hash(lock_file_contents):
 def _get_lock_file_hash(lock_file_contents):
     return lock_file_contents.get("__RESOLVED_ARTIFACTS_HASH")
 
-def _compute_lock_file_hash(lock_file_contents):
+def _original_compute_lock_file_hash(lock_file_contents):
     to_hash = {}
     for key in sorted(_REQUIRED_KEYS):
         value = lock_file_contents.get(key)
@@ -44,6 +46,27 @@ def _compute_lock_file_hash(lock_file_contents):
         # but the json encoding is done natively and is pretty rapid
         to_hash.update({key: json.decode(json.encode(value))})
     return hash(repr(to_hash))
+
+def _compute_lock_file_hash(lock_file_contents):
+    lines = []
+    artifacts = _get_artifacts(lock_file_contents)
+
+    for artifact in artifacts:
+        line = "%s | %s | " % (to_external_form(artifact["coordinates"]), artifact["sha256"] if artifact["sha256"] else "")
+        deps = []
+        for dep in artifact["deps"]:
+            deps.append(to_key(dep))
+        line += ",".join(sorted(deps))
+
+        lines.append(line)
+
+    lines = sorted(lines)
+    to_hash = "\n".join(lines)
+
+    return hash(to_hash)
+
+def _validate_lock_file_hash(lock_file_contents, expected_hash):
+    return _compute_lock_file_hash(lock_file_contents) == expected_hash or _original_compute_lock_file_hash(lock_file_contents) == expected_hash
 
 def _to_m2_path(unpacked):
     path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
@@ -192,6 +215,7 @@ v2_lock_file = struct(
     get_input_artifacts_hash = _get_input_artifacts_hash,
     get_lock_file_hash = _get_lock_file_hash,
     compute_lock_file_hash = _compute_lock_file_hash,
+    validate_lock_file_hash = _validate_lock_file_hash,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
     render_lock_file = _render_lock_file,
