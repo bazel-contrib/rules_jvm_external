@@ -75,7 +75,7 @@ def _maven_dependencies_bom_impl(ctx):
     dependencies_bom = generate_pom(
         ctx,
         coordinates = ctx.attr.maven_coordinates,
-        versioned_dep_coordinates = combined_deps + ["%s:%s:pom:import:%s" % (unpacked.groupId, unpacked.artifactId, unpacked.version)],
+        versioned_dep_coordinates = combined_deps + ["%s:%s:pom:%s" % (unpacked.group, unpacked.artifact, unpacked.version)],
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
         indent = 12,

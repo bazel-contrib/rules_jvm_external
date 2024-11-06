@@ -5,9 +5,9 @@ def _group_and_artifact_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
-    asserts.equals(env, None, unpacked.version)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
+    asserts.equals(env, "", unpacked.version)
 
     return unittest.end(env)
 
@@ -17,8 +17,8 @@ def _group_artifact_and_version_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact:1.2.3")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
 
     return unittest.end(env)
@@ -29,11 +29,11 @@ def _complete_original_format_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact:type:scope:1.2.3")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
-    asserts.equals(env, "type", unpacked.type)
-    asserts.equals(env, "scope", unpacked.scope)
+    asserts.equals(env, "type", unpacked.packaging)
+    asserts.equals(env, "scope", unpacked.classifier)
 
     return unittest.end(env)
 
@@ -43,10 +43,10 @@ def _original_format_omitting_scope_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact:type:1.2.3")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
-    asserts.equals(env, "type", unpacked.type)
+    asserts.equals(env, "type", unpacked.packaging)
     asserts.equals(env, None, unpacked.classifier)
 
     return unittest.end(env)
@@ -57,10 +57,10 @@ def _gradle_format_without_type_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact:1.2.3:classifier")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
-    asserts.equals(env, None, unpacked.type)
+    asserts.equals(env, None, unpacked.packaging)
     asserts.equals(env, "classifier", unpacked.classifier)
 
     return unittest.end(env)
@@ -71,10 +71,10 @@ def _gradle_format_with_type_and_classifier_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact:1.2.3:classifier@type")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
-    asserts.equals(env, "type", unpacked.type)
+    asserts.equals(env, "type", unpacked.packaging)
     asserts.equals(env, "classifier", unpacked.classifier)
 
     return unittest.end(env)
@@ -85,11 +85,11 @@ def _gradle_format_with_type_but_no_classifier_impl(ctx):
     env = unittest.begin(ctx)
 
     unpacked = unpack_coordinates("group:artifact:1.2.3@type")
-    asserts.equals(env, "group", unpacked.groupId)
-    asserts.equals(env, "artifact", unpacked.artifactId)
+    asserts.equals(env, "group", unpacked.group)
+    asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
-    asserts.equals(env, "type", unpacked.type)
-    asserts.equals(env, None, unpacked.scope)
+    asserts.equals(env, "type", unpacked.packaging)
+    asserts.equals(env, None, unpacked.classifier)
 
     return unittest.end(env)
 
@@ -99,11 +99,11 @@ def _multiple_formats_impl(ctx):
     env = unittest.begin(ctx)
 
     coords_to_structs = {
-        "groupId:artifactId:1.2.3": struct(groupId = "groupId", artifactId = "artifactId", version = "1.2.3", classifier = None, scope = None, type = None),
-#        "groupId:artifactId:type:1.2.3": struct(groupId = "groupId", artifactId = "artifactId", version = "1.2.3", scope = None, type = "type"),
-#        "groupId:artifactId:type:classifier:1.2.3": struct(groupId = "groupId", artifactId = "artifactId", version = "1.2.3", scope = "classifier", type = "type"),
-#        "groupId:artifactId:1.2.3@type": struct(groupId = "groupId", artifactId = "artifactId", version = "1.2.3", scope = None, type = "type"),
-#        "groupId:artifactId:1.2.3:classifier@type": struct(groupId = "groupId", artifactId = "artifactId", version = "1.2.3", scope = "classifier", type = "type"),
+        "groupId:artifactId:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = None),
+        "groupId:artifactId:type:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = "type"),
+        "groupId:artifactId:type:classifier:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = "classifier", packaging = "type"),
+        "groupId:artifactId:1.2.3@type": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = "type"),
+        "groupId:artifactId:1.2.3:classifier@type": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = "classifier", packaging = "type"),
     }
 
     for (coords, expected) in coords_to_structs.items():

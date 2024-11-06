@@ -11,16 +11,16 @@ def _whitespace(indent):
         whitespace = whitespace + " "
     return whitespace
 
-def format_dep(unpacked, indent = 8, include_version = True):
+def format_dep(unpacked, scope = None, indent = 8, include_version = True):
     whitespace = _whitespace(indent)
 
     dependency = [
         whitespace,
         "<dependency>\n",
         whitespace,
-        "    <groupId>%s</groupId>\n" % unpacked.groupId,
+        "    <groupId>%s</groupId>\n" % unpacked.group,
         whitespace,
-        "    <artifactId>%s</artifactId>\n" % unpacked.artifactId,
+        "    <artifactId>%s</artifactId>\n" % unpacked.artifact,
     ]
 
     if include_version:
@@ -29,16 +29,22 @@ def format_dep(unpacked, indent = 8, include_version = True):
             "    <version>%s</version>\n" % unpacked.version,
         ])
 
-    if unpacked.type and unpacked.type != "jar":
+    if unpacked.classifier and unpacked.classifier != "jar":
         dependency.extend([
             whitespace,
-            "    <type>%s</type>\n" % unpacked.type,
+            "    <classifier>%s</classifier>\n" % unpacked.classifier,
         ])
 
-    if unpacked.scope and unpacked.scope != "compile":
+    if unpacked.packaging and unpacked.packaging != "jar":
         dependency.extend([
             whitespace,
-            "    <scope>%s</scope>\n" % unpacked.scope,
+            "    <type>%s</type>\n" % unpacked.packaging,
+        ])
+
+    if scope and scope != "compile":
+        dependency.extend([
+            whitespace,
+            "    <scope>%s</scope>\n" % scope,
         ])
 
     dependency.extend([
@@ -60,11 +66,11 @@ def generate_pom(
         indent = 8):
     unpacked_coordinates = _unpack_coordinates(coordinates)
     substitutions = {
-        "{groupId}": unpacked_coordinates.groupId,
-        "{artifactId}": unpacked_coordinates.artifactId,
+        "{groupId}": unpacked_coordinates.group,
+        "{artifactId}": unpacked_coordinates.artifact,
         "{version}": unpacked_coordinates.version,
-        "{type}": unpacked_coordinates.type or "jar",
-        "{scope}": unpacked_coordinates.scope or "compile",
+        "{type}": unpacked_coordinates.packaging or "jar",
+        "{classifier}": unpacked_coordinates.classifier or "jar",
     }
 
     if parent:
@@ -74,9 +80,9 @@ def generate_pom(
         whitespace = _whitespace(indent - 4)
         parts = [
             whitespace,
-            "    <groupId>%s</groupId>\n" % unpacked_parent.groupId,
+            "    <groupId>%s</groupId>\n" % unpacked_parent.group,
             whitespace,
-            "    <artifactId>%s</artifactId>\n" % unpacked_parent.artifactId,
+            "    <artifactId>%s</artifactId>\n" % unpacked_parent.artifact,
             whitespace,
             "    <version>%s</version>" % unpacked_parent.version,
         ]
@@ -86,15 +92,12 @@ def generate_pom(
     for dep in sorted(versioned_dep_coordinates) + sorted(unversioned_dep_coordinates):
         include_version = dep in versioned_dep_coordinates
         unpacked = _unpack_coordinates(dep)
-        new_scope = "runtime" if dep in runtime_deps else unpacked.scope
-        unpacked = struct(
-            groupId = unpacked.groupId,
-            artifactId = unpacked.artifactId,
-            type = unpacked.type,
-            scope = new_scope,
-            version = unpacked.version,
-        )
-        deps.append(format_dep(unpacked, indent = indent, include_version = include_version))
+
+        new_scope = "runtime" if dep in runtime_deps else "compile"
+        if unpacked.packaging == "pom":
+            new_scope = "import"
+
+        deps.append(format_dep(unpacked, scope = new_scope, indent = indent, include_version = include_version))
 
     substitutions.update({"{dependencies}": "\n".join(deps)})
 
