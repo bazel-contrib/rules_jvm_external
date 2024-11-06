@@ -14,6 +14,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
+import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenCoordinates.asCoordinates;
+
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
@@ -239,7 +241,7 @@ public class MavenResolver implements Resolver {
                           && artifact.getVersion().equals(anfe.getArtifact().getVersion()))) {
             String message =
                 "The POM for "
-                    + anfe.getArtifact()
+                    + asCoordinates(anfe.getArtifact()).setClassifier("pom")
                     + " is missing, no dependency information available.";
             String detail = "[WARNING]:    " + anfe.getMessage();
             listener.onEvent(new LogEvent("maven", message, detail));
@@ -346,9 +348,9 @@ public class MavenResolver implements Resolver {
                   }
 
                   Artifact winningArtifact = ((DependencyNode) winner).getArtifact();
-                  Coordinates winningCoords = MavenCoordinates.asCoordinates(winningArtifact);
+                  Coordinates winningCoords = asCoordinates(winningArtifact);
                   Artifact artifact = node.getArtifact();
-                  Coordinates nodeCoords = MavenCoordinates.asCoordinates(artifact);
+                  Coordinates nodeCoords = asCoordinates(artifact);
 
                   if (!winningCoords.equals(nodeCoords)) {
                     if (!artifactsCoordinates.contains(winningCoords)) {
@@ -516,7 +518,7 @@ public class MavenResolver implements Resolver {
                   final DependencyNode actualNode = getDependencyNode(node);
 
                   Artifact artifact = amendArtifact(actualNode.getArtifact());
-                  Coordinates from = MavenCoordinates.asCoordinates(artifact);
+                  Coordinates from = asCoordinates(artifact);
                   Coordinates remapped = remappings.getOrDefault(from, from);
                   dependencyGraph.addNode(remapped);
 

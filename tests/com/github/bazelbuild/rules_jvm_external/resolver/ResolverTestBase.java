@@ -575,7 +575,7 @@ public abstract class ResolverTestBase {
     assertEquals(Set.of(present, missing), resolution.nodes());
 
     logEvents.stream()
-        .filter(e -> e.toString().contains("The POM for " + missing.setExtension("pom")))
+        .filter(e -> e.toString().contains("The POM for " + missing.setClassifier("pom")))
         .findFirst()
         .orElseThrow(() -> new AssertionError("Cannot find expected log message"));
   }

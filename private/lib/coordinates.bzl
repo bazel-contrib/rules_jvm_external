@@ -57,6 +57,22 @@ def unpack_coordinates(coords):
 def _is_version_number(part):
     return part[0].isdigit()
 
+def _unpack_if_necssary(coords):
+    if type(coords) == "string":
+        unpacked = unpack_coordinates(coords)
+    elif type(coords) == "dict":
+        unpacked = struct(
+            group = coords.get("group"),
+            artifact = coords.get("artifact"),
+            version = coords.get("version", None),
+            classifier = coords.get("classifier", None),
+            extension = coords.get("extension", None),
+        )
+    else:
+        unpacked = coords
+
+    return unpacked
+
 def to_external_form(coords):
     """Formats `coords` as a string suitable for use by tools such as Gradle.
 
@@ -64,10 +80,7 @@ def to_external_form(coords):
     syntax: `group:name:version:classifier@packaging`
     """
 
-    if type(coords) == "string":
-        unpacked = unpack_coordinates(coords)
-    else:
-        unpacked = coords
+    unpacked = _unpack_if_necssary(coords)
 
     to_return = "%s:%s:%s" % (unpacked.group, unpacked.artifact, unpacked.version)
 
@@ -80,6 +93,21 @@ def to_external_form(coords):
             to_return += "@" + unpacked.packaging
 
     return to_return
+
+# This matches the `Coordinates#asKey` method in the Java tree, and the
+# implementations must be kept in sync.
+def to_key(coords):
+    unpacked = _unpack_if_necssary(coords)
+
+    key = unpacked.group + ":" + unpacked.artifact
+
+    if unpacked.classifier and "jar" != unpacked.classifier:
+        extension = unpacked.packaging if unpacked.packaging else "jar"
+        key += ":" + unpacked.packaging + ":" + unpacked.classifier
+    elif unpacked.packaging and "jar" != unpacked.packaging:
+        key += ":" + unpacked.packaging
+
+    return key
 
 _DEFAULT_PURL_REPOS = [
     "https://repo.maven.apache.org/maven2",

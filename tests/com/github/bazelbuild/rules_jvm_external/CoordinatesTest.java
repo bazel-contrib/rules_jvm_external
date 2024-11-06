@@ -30,11 +30,24 @@ public class CoordinatesTest {
   }
 
   @Test
-  public void coordinatesAreConsistentWhenEllidedValuesAreUsed() {
+  public void coordinatesAreConsistentWhenElidedValuesAreUsed() {
     Coordinates plain = new Coordinates("com.example:foo:1.2.3");
     Coordinates fancy = new Coordinates("com.example:foo:::1.2.3");
 
     assertEquals(plain, fancy);
     assertEquals(plain.hashCode(), fancy.hashCode());
+  }
+
+  @Test
+  public void canConvertBetweenFormatsSeamlessly() {
+    Coordinates gradle = new Coordinates("com.example:foo:1.2.3:classifier@extension");
+    Coordinates original = new Coordinates("com.example:foo:extension:classifier:1.2.3");
+    assertEquals(gradle, original);
+
+    Coordinates refreshedGradle = new Coordinates(gradle.toString());
+    assertEquals(gradle, refreshedGradle);
+
+    Coordinates refreshedOriginal = new Coordinates(original.toString());
+    assertEquals(gradle, refreshedGradle);
   }
 }

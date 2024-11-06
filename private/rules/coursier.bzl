@@ -531,7 +531,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             "This feature ensures that the file is not modified manually. To generate this " +
             "signature, run 'bazel run %s'." % pin_target,
         )
-    elif importer.compute_lock_file_hash(maven_install_json_content) != dep_tree_signature:
+    elif not importer.validate_lock_file_hash(maven_install_json_content, dep_tree_signature):
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         if _get_fail_if_repin_required(repository_ctx):

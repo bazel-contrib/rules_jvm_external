@@ -126,3 +126,38 @@ genquery(
     scope = ["@maven_resolved_with_boms//:org_seleniumhq_selenium_selenium_java"],
     deps = [],
 )
+
+# This target will fail to build if the artifacts hashes are not valid, which
+# acts as a check that `ArtifactsHash.java` is working as expected.
+genrule(
+    name = "assert-artifact-hashes",
+    srcs = [
+        artifact(
+            "org.hamcrest:hamcrest-core",
+            repository_name = "artifacts_hash_no_deps",
+        ),
+        artifact(
+            "com.google.guava:guava",
+            repository_name = "artifacts_hash_with_deps_from_maven",
+        ),
+        artifact(
+            "com.google.code.gson:gson",
+            repository_name = "artifacts_hash_with_deps",
+        ),
+    ],
+    outs = ["ignored-output.txt"],
+    cmd = "echo $(location %s) $(location %s) $(location %s) >$@" % (
+        artifact(
+            "org.hamcrest:hamcrest-core",
+            repository_name = "artifacts_hash_no_deps",
+        ),
+        artifact(
+            "com.google.guava:guava",
+            repository_name = "artifacts_hash_with_deps_from_maven",
+        ),
+        artifact(
+            "com.google.code.gson:gson",
+            repository_name = "artifacts_hash_with_deps",
+        ),
+    ),
+)

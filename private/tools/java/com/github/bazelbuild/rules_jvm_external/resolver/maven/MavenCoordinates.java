@@ -40,24 +40,4 @@ class MavenCoordinates {
         classifier,
         artifact.getVersion());
   }
-
-  private static String construct(
-      String groupId, String artifactId, String extension, String classifier, String version) {
-    StringBuilder coords = new StringBuilder();
-    coords.append(groupId).append(":").append(artifactId);
-
-    if (extension != null && !extension.isEmpty()) {
-      coords.append(":").append(extension);
-    }
-
-    if (classifier != null && !classifier.isEmpty() && !"jar".equals(classifier)) {
-      coords.append(":").append(classifier);
-    }
-
-    if (version != null && !version.isEmpty()) {
-      coords.append(":").append(version);
-    }
-
-    return coords.toString();
-  }
 }
