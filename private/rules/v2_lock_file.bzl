@@ -47,18 +47,18 @@ def _compute_lock_file_hash(lock_file_contents):
 
 def _to_m2_path(unpacked):
     path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
-        artifact = unpacked["artifactId"],
-        group = unpacked["groupId"].replace(".", "/"),
+        artifact = unpacked["artifact"],
+        group = unpacked["group"].replace(".", "/"),
         version = unpacked["version"],
     )
 
-    classifier = unpacked.get("scope", "jar")
+    classifier = unpacked.get("classifier", "jar")
     if not classifier:
         classifier = "jar"
     if "jar" != classifier:
         path += "-%s" % classifier
 
-    extension = unpacked.get("type", "jar")
+    extension = unpacked.get("packaging", "jar")
     if not extension:
         extension = "jar"
     path += ".%s" % extension
@@ -66,12 +66,12 @@ def _to_m2_path(unpacked):
     return path
 
 def _to_maven_coordinates(unpacked):
-    coords = "%s:%s" % (unpacked.get("groupId"), unpacked.get("artifactId"))
+    coords = "%s:%s" % (unpacked.get("group"), unpacked.get("artifact"))
 
-    extension = unpacked.get("type", "jar")
+    extension = unpacked.get("packaging", "jar")
     if not extension:
         extension = "jar"
-    classifier = unpacked.get("scope", "jar")
+    classifier = unpacked.get("classifier", "jar")
     if not classifier:
         classifier = "jar"
 
@@ -104,17 +104,17 @@ def _get_artifacts(lock_file_contents):
         parts = root.split(":")
 
         root_unpacked = {
-            "groupId": parts[0],
-            "artifactId": parts[1],
+            "group": parts[0],
+            "artifact": parts[1],
             "version": data["version"],
         }
         if len(parts) > 2:
-            root_unpacked["type"] = parts[2]
+            root_unpacked["packaging"] = parts[2]
         else:
-            root_unpacked["type"] = "jar"
+            root_unpacked["packaging"] = "jar"
 
-        for (scope, shasum) in data.get("shasums", {}).items():
-            root_unpacked["scope"] = scope
+        for (classifier, shasum) in data.get("shasums", {}).items():
+            root_unpacked["classifier"] = classifier
             coordinates = _to_maven_coordinates(root_unpacked)
             key = _to_key(coordinates)
 

@@ -19,7 +19,10 @@ stardoc(
         "maven_install",
     ],
     visibility = ["//scripts:__pkg__"],
-    deps = ["//:implementation"],
+    deps = [
+        "//:implementation",
+        "@bazel_skylib//lib:structs",
+    ],
 )
 
 stardoc(
@@ -32,5 +35,8 @@ stardoc(
         "maven.exclusion",
     ],
     visibility = ["//scripts:__pkg__"],
-    deps = ["//:implementation"],
+    deps = [
+        "//:implementation",
+        "@bazel_skylib//lib:structs",
+    ],
 )

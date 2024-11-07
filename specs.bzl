@@ -2,6 +2,8 @@
 # Maven specification
 #
 
+load("//private/lib:coordinates.bzl", "unpack_coordinates")
+
 def _maven_repository(url, user = None, password = None):
     """Generates the data map for a Maven repository specifier given the available information.
 
@@ -126,28 +128,17 @@ def _parse_exclusion_spec_list(exclusion_specs):
 
 def _parse_maven_coordinate_string(mvn_coord):
     """
-    Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v), returns a maven artifact map (see above).
+    Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v) or gradle external dependency (g:a:v:c@p), returns a maven artifact map (see above).
     """
-    pieces = mvn_coord.split(":")
-    group = pieces[0]
-    artifact = pieces[1]
+    unpacked = unpack_coordinates(mvn_coord)
 
-    if len(pieces) == 2:
-        return {"group": group, "artifact": artifact, "version": ""}
-    elif len(pieces) == 3:
-        version = pieces[2]
-        return {"group": group, "artifact": artifact, "version": version}
-    elif len(pieces) == 4:
-        packaging = pieces[2]
-        version = pieces[3]
-        return {"group": group, "artifact": artifact, "packaging": packaging, "version": version}
-    elif len(pieces) == 5:
-        packaging = pieces[2]
-        classifier = pieces[3]
-        version = pieces[4]
-        return {"group": group, "artifact": artifact, "packaging": packaging, "classifier": classifier, "version": version}
-    else:
-        fail("Could not parse maven coordinate: %s" % mvn_coord)
+    # It would be nice to use `bazel_skylib//lib:structs.bzl` for this, but this file is
+    # included from the `repositories.bzl` file, so skylib has not been loaded yet.
+    return {
+        key: getattr(unpacked, key)
+        for key in dir(unpacked)
+        if key != "to_json" and key != "to_proto"
+    }
 
 def _parse_repository_spec_list(repository_specs):
     """
