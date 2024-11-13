@@ -32,6 +32,10 @@ bazel_dep(
     name = "rules_kotlin",
     version = "1.9.6",
 )
+bazel_dep(
+    name = "rules_shell",
+    version = "0.3.0",
+)
 
 bazel_dep(
     name = "stardoc",
