@@ -79,22 +79,19 @@ def rules_jvm_external_deps(
             url = "https://github.com/protocolbuffers/protobuf/releases/download/v27.0/protobuf-27.0.tar.gz",
         )
 
-    # 0.3.0 uses load visibility, which only Bazel 7 has.
-    rules_shell_version = "0.3.0"
-    rules_shell_sha = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53"
-    if major_version == "5" or major_version == "6":
-        rules_shell_version = "0.2.0"
-        rules_shell_sha = "410e8ff32e018b9efd2743507e7595c26e2628567c42224411ff533b57d27c28"
-
     maybe(
         http_archive,
         name = "rules_shell",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_shell/releases/download/v%s/rules_shell-v%s.tar.gz" % (rules_shell_version, rules_shell_version),
-            "https://github.com/bazelbuild/rules_shell/releases/download/v%s/rules_shell-v%s.tar.gz" % (rules_shell_version, rules_shell_version),
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
+            "https://github.com/bazelbuild/rules_shell/releases/download/v%s/rules_shell-v0.3.0.tar.gz",
         ],
-        sha256 = rules_shell_sha,
-        strip_prefix = "rules_shell-" + rules_shell_version,
+        sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
+        strip_prefix = "rules_shell-0.3.0",
+        # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this
+        # patch when we stop supporting Bazel 6.
+        patches = ["@//:rules_shell_patch.diff"],
+        patch_args = ["-p1"],
     )
 
     maybe(
