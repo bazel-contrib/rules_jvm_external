@@ -41,6 +41,7 @@ load("@rules_license//rules:package_info.bzl", "package_info")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 {aar_import_statement}
 
 {imports}
