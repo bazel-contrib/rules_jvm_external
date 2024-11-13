@@ -90,7 +90,7 @@ def rules_jvm_external_deps(
         strip_prefix = "rules_shell-0.3.0",
         # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this
         # patch when we stop supporting Bazel 6.
-        patches = ["@//:rules_shell_patch.diff"],
+        patches = ["@rules_jvm_external//:rules_shell_patch.diff"],
         patch_args = ["-p1"],
     )
 
