@@ -1,12 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load("//:defs.bzl", "artifact")
 
 java_library(
     name = "resolver",
     testonly = True,
-    srcs = glob(
-        ["*.java"],
-        exclude = glob(["*Test.java"]),
-    ),
+    srcs = glob(["*.java"]),
     visibility = [
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
     ],

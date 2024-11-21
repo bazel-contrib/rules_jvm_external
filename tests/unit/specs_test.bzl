@@ -63,12 +63,12 @@ def _parse_coordinate_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
         env,
-        {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0"},
+        {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": None, "classifier": None},
         parse.parse_maven_coordinate("org.eclipse.aether:aether-api:1.1.0"),
     )
     asserts.equals(
         env,
-        {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar"},
+        {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar", "classifier": None},
         parse.parse_maven_coordinate("org.eclipse.aether:aether-api:jar:1.1.0"),
     )
     asserts.equals(
@@ -113,7 +113,7 @@ def _parse_artifact_spec_list_test_impl(ctx):
     asserts.equals(
         env,
         [
-            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0"},
+            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": None, "classifier": None},
             {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar", "classifier": "javadoc"},
         ],
         parse.parse_artifact_spec_list([
@@ -124,7 +124,7 @@ def _parse_artifact_spec_list_test_impl(ctx):
     asserts.equals(
         env,
         [
-            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0"},
+            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": None, "classifier": None},
             {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar", "classifier": "javadoc", "neverlink": True},
         ],
         parse.parse_artifact_spec_list([
@@ -135,7 +135,7 @@ def _parse_artifact_spec_list_test_impl(ctx):
     asserts.equals(
         env,
         [
-            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": ""},
+            {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "", "packaging": None, "classifier": None},
             {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "", "neverlink": True},
         ],
         parse.parse_artifact_spec_list([

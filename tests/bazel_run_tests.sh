@@ -259,6 +259,25 @@ function test_transitive_dependency_with_type_of_pom {
   bazel query @transitive_dependency_with_type_of_pom//:org_javamoney_moneta_moneta_core >> "$TEST_LOG" 2>&1
 }
 
+function test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present {
+  # The `maven_coordinates` of the target should be set to the coordinates of the jar
+  # If the `pom` classifier is asked for, something has gone wrong and no results will
+  # match
+  bazel query 'attr(tags, "com.github.spotbugs:spotbugs:4.7.0", @regression_testing_coursier//:com_github_spotbugs_spotbugs)' >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_coursier//:com_github_spotbugs_spotbugs"
+}
+
+function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present {
+  # The `maven_coordinates` of the target should be set to the coordinates of the jar
+  # If both the `jar` and `pom` classifiers are asked for, something has gone wrong and no results
+  # will match
+  bazel query 'attr(tags, "org.mockito:mockito-core:3.3.3", @regression_testing_coursier//:org_mockito_mockito_core)' >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_coursier//:org_mockito_mockito_core"
+}
+
+
 TESTS=(
   "test_maven_resolution"
   "test_dependency_aggregation"
@@ -277,6 +296,8 @@ TESTS=(
   "test_v1_lock_file_format"
   "test_dependency_pom_exclusion"
   "test_transitive_dependency_with_type_of_pom"
+  "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
+  "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
 )
 
 function run_tests() {

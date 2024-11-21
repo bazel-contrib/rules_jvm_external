@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load(":javadoc.bzl", "javadoc")
 load(":maven_bom_fragment.bzl", "maven_bom_fragment")
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES", "maven_project_jar")
@@ -83,14 +84,14 @@ def java_export(
     maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
     lib_name = "%s-lib" % name
 
-    javadocopts = kwargs.pop("javadocopts", [])
+    javadocopts = kwargs.pop("javadocopts", None)
     doc_deps = kwargs.pop("doc_deps", [])
     doc_url = kwargs.pop("doc_url", "")
     doc_resources = kwargs.pop("doc_resources", [])
     toolchains = kwargs.pop("toolchains", [])
 
     # Construct the java_library we'll export from here.
-    native.java_library(
+    java_library(
         name = lib_name,
         visibility = visibility,
         tags = tags + maven_coordinates_tags,
@@ -128,7 +129,7 @@ def maven_export(
         visibility = None,
         tags = [],
         testonly = False,
-        javadocopts = [],
+        javadocopts = None,
         classifier_artifacts = {},
         *,
         doc_deps = [],

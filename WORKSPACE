@@ -277,6 +277,10 @@ maven_install(
         "androidx.arch.core:core-testing:aar:2.1.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1028
         "build.buf:protovalidate:0.1.9",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1250
+        "com.github.spotbugs:spotbugs:4.7.0",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1267
+        "org.mockito:mockito-core:pom:3.3.3",
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,

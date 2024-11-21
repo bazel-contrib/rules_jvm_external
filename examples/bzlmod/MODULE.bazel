@@ -3,7 +3,7 @@ module(
     version = "6.0",
 )
 
-bazel_dep(name = "rules_jvm_external", version = "6.0")
+bazel_dep(name = "rules_jvm_external", version = "0.0")
 local_path_override(
     module_name = "rules_jvm_external",  # matches the name of the `bazel_dep`
     path = "../..",
@@ -23,8 +23,20 @@ maven.install(
     fetch_sources = True,
     lock_file = "//:maven_install.json",
 )
-use_repo(
-    maven,
-    "maven",
-    "unpinned_maven",
+
+# The default resolver cannot handle Maven BOMs, but the `maven`
+# resolver can. Demonstrate how to use it.
+maven.install(
+    name = "alternative_resolver",
+    artifacts = [
+        "org.junit.jupiter:junit-jupiter-api",
+    ],
+    boms = [
+        "org.junit:junit-bom:5.11.0",
+    ],
+    # Before the first pin, this file was completely empty. Running:
+    # `REPIN=1 bazel run @alternative_resolver//:pin` generated it.
+    lock_file = "//:alternative_maven_install.json",
+    resolver = "maven",
 )
+use_repo(maven, "alternative_resolver", "maven")

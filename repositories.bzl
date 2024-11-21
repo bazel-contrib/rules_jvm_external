@@ -42,10 +42,57 @@ def rules_jvm_external_deps(
             http_archive,
             name = "rules_java",
             urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.10.0/rules_java-7.10.0.tar.gz",
+                "https://github.com/bazelbuild/rules_java/releases/download/7.12.2/rules_java-7.12.2.tar.gz",
             ],
-            sha256 = "eb5447f019734b0c4284eaa5f8248415084da5445ba8201c935a211ab8af43a0",
+            sha256 = "a9690bc00c538246880d5c83c233e4deb83fe885f54c21bb445eb8116a180b83",
         )
+
+    if major_version == "6":
+        # Here goes the chain of rules compatibility resolution between RJE, java, android, cc and protobuf:
+        #
+        # rules_jvm_external wants to support LTS-2. For Bazel 8, this means supporting Bazel 6.
+        #
+        # rules_android is decoupled from Bazel 8, including its providers. ProguardSpecInfo is also decoupled, but to rules_java 7.12.2.
+        #
+        # So rules_java 7.12.2 is necessary for a decoupled rules_android to work with Bazel 6.
+        #
+        # But with workspace + rules_java 7.12.2, rules_java brings in a dep on
+        # rules_cc's //cc package via //java/bazel/rules:rules (for CcInfo).
+        # https://github.com/bazelbuild/rules_java/blob/2a9bd746974f6c94b159821d75130ad43e6b2970/java/bazel/rules/BUILD.bazel#L34-L35
+        #
+        # and rules_cc, in turn, brings in a dep on protobuf.
+        #
+        # And that's why we need the following deps:
+        maybe(
+            http_archive,
+            name = "rules_cc",
+            urls = ["https://github.com/bazelbuild/rules_cc/archive/faeafdb82814b4f7295c555781e800f080607bdd.tar.gz"],
+            sha256 = "ca772d4fa149180dd1d81fe19a61c911dcebf9768d56209fc5bf382125ade0b6",
+            strip_prefix = "rules_cc-faeafdb82814b4f7295c555781e800f080607bdd",
+        )
+
+        maybe(
+            http_archive,
+            name = "protobuf",
+            sha256 = "da288bf1daa6c04d03a9051781caa52aceb9163586bff9aa6cfb12f69b9395aa",
+            strip_prefix = "protobuf-27.0",
+            url = "https://github.com/protocolbuffers/protobuf/releases/download/v27.0/protobuf-27.0.tar.gz",
+        )
+
+    maybe(
+        http_archive,
+        name = "rules_shell",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
+            "https://github.com/bazelbuild/rules_shell/releases/download/v%s/rules_shell-v0.3.0.tar.gz",
+        ],
+        sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
+        strip_prefix = "rules_shell-0.3.0",
+        # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this
+        # patch when we stop supporting Bazel 6.
+        patches = ["@rules_jvm_external//:rules_shell_patch.diff"],
+        patch_args = ["-p1"],
+    )
 
     maybe(
         http_archive,
@@ -55,6 +102,14 @@ def rules_jvm_external_deps(
             "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
         ],
         sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
+    )
+
+    maybe(
+        http_archive,
+        name = "bazel_features",
+        sha256 = "bdc12fcbe6076180d835c9dd5b3685d509966191760a0eb10b276025fcb76158",
+        strip_prefix = "bazel_features-1.17.0",
+        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.17.0/bazel_features-v1.17.0.tar.gz",
     )
 
     maven_install(
