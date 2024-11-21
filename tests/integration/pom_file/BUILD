@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
-load("//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//:defs.bzl", "artifact", "java_export")
 
 java_export(
     name = "pom-example",
