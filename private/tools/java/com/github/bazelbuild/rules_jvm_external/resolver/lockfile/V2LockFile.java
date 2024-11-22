@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.bazelbuild.rules_jvm_external.coursier;
+package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
+
+import static com.google.common.base.StandardSystemProperty.USER_HOME;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
+import com.google.gson.Gson;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -30,14 +36,151 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /** Format resolution results into the v2 lock file format. */
-public class NebulaFormat {
+public class V2LockFile {
+
+  private final Collection<URI> allRepos;
+  private final Set<DependencyInfo> infos;
+  private final Set<Conflict> conflicts;
+
+  public V2LockFile(
+      Collection<URI> repositories, Set<DependencyInfo> infos, Set<Conflict> conflicts) {
+    this.allRepos = repositories;
+    this.infos = infos;
+    this.conflicts = conflicts;
+  }
+
+  public Collection<URI> getRepositories() {
+    return allRepos;
+  }
+
+  public Set<DependencyInfo> getDependencyInfos() {
+    return infos;
+  }
+
+  public Set<Conflict> getConflicts() {
+    return conflicts;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static V2LockFile create(String from) {
+    URI m2LocalUri = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
+
+    Map<?, ?> raw = new Gson().fromJson(from, Map.class);
+
+    Set<URI> repos = new LinkedHashSet<>();
+    Map<String, Collection<String>> allRepos =
+        (Map<String, Collection<String>>) raw.get("repositories");
+    if (allRepos == null) {
+      allRepos = Map.of();
+    }
+    allRepos.keySet().stream().map(URI::create).forEach(repos::add);
+    if (raw.get("m2local") != null) {
+      repos.add(m2LocalUri);
+    }
+
+    // Get all the coordinates out of the lock file
+    Map<Coordinates, String> coords2Shasum = new LinkedHashMap<>();
+    Map<String, Coordinates> key2Coords = new LinkedHashMap<>();
+    Map<?, ?> artifactsMap = (Map<?, ?>) raw.get("artifacts");
+    if (artifactsMap == null) {
+      artifactsMap = Map.of();
+    }
+    for (Map.Entry<?, ?> entry : artifactsMap.entrySet()) {
+      String key = entry.getKey().toString();
+
+      Map<?, ?> entryData = (Map<?, ?>) entry.getValue();
+      String version = (String) entryData.get("version");
+
+      String[] parts = key.split(":", 3);
+      Coordinates baseCoords =
+          parts.length == 2
+              ? new Coordinates(parts[0], parts[1], null, null, version)
+              : new Coordinates(parts[0], parts[1], parts[3], null, version);
+
+      Map<?, ?> shasums = (Map<?, ?>) entryData.get("shasums");
+      if (shasums == null) {
+        shasums = Map.of();
+      }
+      for (Map.Entry<?, ?> shasum : shasums.entrySet()) {
+        if (shasum.getValue() != null) {
+          Coordinates newCoords = baseCoords.setClassifier((String) shasum.getKey());
+          coords2Shasum.put(newCoords, (String) shasum.getValue());
+          key2Coords.put(newCoords.asKey(), newCoords);
+        }
+      }
+    }
+
+    // Map dependencies back
+    Map<String, Collection<String>> rawDependencies =
+        (Map<String, Collection<String>>) raw.get("dependencies");
+    if (rawDependencies == null) {
+      rawDependencies = Map.of();
+    }
+    Map<Coordinates, Set<Coordinates>> dependencies = new LinkedHashMap<>();
+    for (Map.Entry<String, Collection<String>> entry : rawDependencies.entrySet()) {
+      Coordinates coords = key2Coords.get(entry.getKey());
+      if (coords == null) {
+        System.err.println("Unable to find mapping for " + entry.getKey());
+        continue;
+      }
+      for (String depKey : entry.getValue()) {
+        Coordinates depCoords = key2Coords.get(depKey);
+        if (depCoords == null) {
+          System.err.println("Unable to find mapping for " + depKey);
+          continue;
+        }
+        dependencies.computeIfAbsent(coords, k -> new HashSet<>()).add(depCoords);
+      }
+    }
+
+    // Now find out which repositories contain which artifacts
+    Map<Coordinates, Set<URI>> coords2Repos = new LinkedHashMap<>();
+    for (Map.Entry<String, Collection<String>> entry : allRepos.entrySet()) {
+      URI repo = URI.create(entry.getKey());
+      for (Coordinates coords : coords2Shasum.keySet()) {
+        if (entry.getValue().contains(coords.asKey())) {
+          coords2Repos.computeIfAbsent(coords, k -> new HashSet<>()).add(repo);
+        }
+      }
+    }
+
+    // And now we can recreate the `DependencyInfo`s
+    Set<DependencyInfo> infos = new HashSet<>();
+    for (Map.Entry<Coordinates, String> entry : coords2Shasum.entrySet()) {
+      Coordinates coords = entry.getKey();
+      infos.add(
+          new DependencyInfo(
+              coords,
+              coords2Repos.get(coords),
+              Optional.empty(),
+              Optional.of(entry.getValue()),
+              dependencies.getOrDefault(coords, Set.of()),
+              Set.of(),
+              new TreeMap<>()));
+    }
+
+    // Finally, gather the conflicts
+    Set<Conflict> conflicts = new HashSet<>();
+    Map<String, String> rawConflicts = (Map<String, String>) raw.get("conflict_resolution");
+    if (rawConflicts == null) {
+      rawConflicts = Map.of();
+    }
+    for (Map.Entry<String, String> entry : rawConflicts.entrySet()) {
+      Coordinates requested = new Coordinates(entry.getKey());
+      Coordinates resolved = new Coordinates(entry.getValue());
+      conflicts.add(new Conflict(resolved, requested));
+    }
+
+    return new V2LockFile(repos, infos, conflicts);
+  }
 
   /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
-  public Map<String, Object> render(
-      Collection<String> repositories, Set<DependencyInfo> infos, Map<String, Object> conflicts) {
-    repositories = new LinkedHashSet<>(repositories);
-    boolean isUsingM2Local =
-        repositories.stream().map(String::toLowerCase).anyMatch(repo -> repo.equals("m2local/"));
+  public Map<String, Object> render() {
+    Set<URI> repositories = new LinkedHashSet<>(allRepos);
+
+    URI m2local = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
+
+    boolean isUsingM2Local = repositories.stream().anyMatch(m2local::equals);
 
     Map<String, Map<String, Object>> artifacts = new TreeMap<>();
     Map<String, Set<String>> deps = new TreeMap<>();
@@ -85,8 +228,7 @@ public class NebulaFormat {
               (Map<String, String>) artifactValue.computeIfAbsent("shasums", k -> new TreeMap<>());
           info.getSha256().ifPresent(sha -> shasums.put(classifier, sha));
 
-          info.getRepositories().stream()
-              .map(Objects::toString)
+          info.getRepositories()
               .forEach(
                   repo -> {
                     repos
@@ -122,7 +264,13 @@ public class NebulaFormat {
 
     lock.put("skipped", skipped);
     if (conflicts != null && !conflicts.isEmpty()) {
-      lock.put("conflict_resolution", new TreeMap<>(conflicts));
+      Map<String, String> renderedConflicts = new TreeMap<String, String>();
+      for (Conflict conflict : conflicts) {
+        renderedConflicts.put(
+            conflict.getRequested().toString(), conflict.getResolved().toString());
+      }
+
+      lock.put("conflict_resolution", renderedConflicts);
     }
     lock.put("files", files);
 
@@ -172,9 +320,8 @@ public class NebulaFormat {
                 TreeMap::new));
   }
 
-  private String stripAuthenticationInformation(String possibleUri) {
+  private String stripAuthenticationInformation(URI uri) {
     try {
-      URI uri = new URI(possibleUri);
       URI stripped =
           new URI(
               uri.getScheme(),
@@ -195,6 +342,6 @@ public class NebulaFormat {
     } catch (URISyntaxException e) {
       // Do nothing: we may not have been given a URI, but something like `m2local/`
     }
-    return possibleUri;
+    return uri.toString();
   }
 }

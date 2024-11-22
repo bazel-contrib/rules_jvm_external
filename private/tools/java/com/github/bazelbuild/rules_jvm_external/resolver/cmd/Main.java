@@ -17,7 +17,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver.cmd;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.coursier.NebulaFormat;
 import com.github.bazelbuild.rules_jvm_external.jar.IndexJar;
 import com.github.bazelbuild.rules_jvm_external.jar.PerJarIndexResults;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
@@ -27,6 +26,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
+import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.UriNotFoundException;
@@ -44,7 +44,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -267,19 +266,8 @@ public class Main {
 
     listener.close();
 
-    Map<String, Object> renderedConflicts = new HashMap<>();
-    for (Conflict conflict : conflicts) {
-      renderedConflicts.put(conflict.getRequested().toString(), conflict.getResolved().toString());
-    }
-
     Map<String, Object> rendered =
-        new NebulaFormat()
-            .render(
-                request.getRepositories().stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toList()),
-                infos,
-                Map.copyOf(renderedConflicts));
+        new V2LockFile(request.getRepositories(), infos, conflicts).render();
 
     Map<Object, Object> toReturn = new TreeMap<>(rendered);
     // We don't need this, and having it will cause problems
