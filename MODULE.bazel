@@ -121,32 +121,13 @@ http_file(
     urls = [COURSIER_CLI_GITHUB_ASSET_URL],
 )
 
-http_file(
-    name = "buildifier-linux-arm64",
-    sha256 = "c22a44eee37b8927167ee6ee67573303f4e31171e7ec3a8ea021a6a660040437",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-linux-arm64"],
-)
-
-http_file(
-    name = "buildifier-linux-x86_64",
-    sha256 = "28285fe7e39ed23dc1a3a525dfcdccbc96c0034ff1d4277905d2672a71b38f13",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-linux-amd64"],
-)
-
-http_file(
-    name = "buildifier-macos-arm64",
-    sha256 = "d0909b645496608fd6dfc67f95d9d3b01d90736d7b8c8ec41e802cb0b7ceae7c",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-darwin-arm64"],
-)
-
-http_file(
-    name = "buildifier-macos-x86_64",
-    sha256 = "687c49c318fb655970cf716eed3c7bfc9caeea4f2931a2fd36593c458de0c537",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.1.2/buildifier-darwin-amd64"],
-)
-
 ############# Dev dependencies below here
 
+bazel_dep(
+    name = "buildifier_prebuilt",
+    version = "7.3.1",
+    dev_dependency = True,
+)
 bazel_dep(
     name = "protobuf",
     # Note: we use 27.2 in MODULE.bazel to avoid the warning:
