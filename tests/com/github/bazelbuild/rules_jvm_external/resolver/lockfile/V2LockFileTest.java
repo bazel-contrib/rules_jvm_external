@@ -14,7 +14,6 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
 
-import static com.google.common.base.StandardSystemProperty.USER_HOME;
 import static org.junit.Assert.assertEquals;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -22,7 +21,6 @@ import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.google.gson.GsonBuilder;
 import java.net.URI;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -77,9 +75,7 @@ public class V2LockFileTest {
         V2LockFile.create(
             new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered));
 
-    assertEquals(
-        Set.of(defaultRepo, Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri()),
-        roundTripped.getRepositories());
+    assertEquals(Set.of(defaultRepo, V2LockFile.M2_LOCAL_URI), roundTripped.getRepositories());
   }
 
   @Test

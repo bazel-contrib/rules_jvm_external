@@ -15,7 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import java.net.URI;
 import java.nio.file.Path;
@@ -84,14 +84,11 @@ public class DependencyInfo {
 
   @Override
   public String toString() {
-    StringBuilder builder =
-        new StringBuilder(coordinates.toString())
-            .append(" (")
-            .append(sha256.orElseGet(() -> ""))
-            .append(") -> [");
-    Joiner.on(", ").appendTo(builder, dependencies);
-    builder.append("]");
-    return builder.toString();
+    return MoreObjects.toStringHelper(this)
+        .add("coordinates", coordinates)
+        .add("sha256", sha256.orElseGet(() -> ""))
+        .add("dependencies", dependencies)
+        .toString();
   }
 
   @Override

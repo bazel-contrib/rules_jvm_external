@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 /** Format resolution results into the v2 lock file format. */
 public class V2LockFile {
 
+  public static final URI M2_LOCAL_URI =
+      Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
   private final Collection<URI> allRepos;
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
@@ -63,8 +65,6 @@ public class V2LockFile {
 
   @SuppressWarnings("unchecked")
   public static V2LockFile create(String from) {
-    URI m2LocalUri = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
-
     Map<?, ?> raw = new Gson().fromJson(from, Map.class);
 
     Set<URI> repos = new LinkedHashSet<>();
@@ -74,8 +74,8 @@ public class V2LockFile {
       allRepos = Map.of();
     }
     allRepos.keySet().stream().map(URI::create).forEach(repos::add);
-    if (raw.get("m2local") != null) {
-      repos.add(m2LocalUri);
+    if (Boolean.TRUE.equals(raw.get("m2local"))) {
+      repos.add(M2_LOCAL_URI);
     }
 
     // Get all the coordinates out of the lock file
@@ -178,16 +178,16 @@ public class V2LockFile {
   public Map<String, Object> render() {
     Set<URI> repositories = new LinkedHashSet<>(allRepos);
 
-    URI m2local = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
-
-    boolean isUsingM2Local = repositories.stream().anyMatch(m2local::equals);
+    boolean isUsingM2Local = repositories.stream().anyMatch(M2_LOCAL_URI::equals);
 
     Map<String, Map<String, Object>> artifacts = new TreeMap<>();
     Map<String, Set<String>> deps = new TreeMap<>();
     Map<String, Set<String>> packages = new TreeMap<>();
     Map<String, Map<String, SortedSet<String>>> services = new TreeMap<>();
     Map<String, Set<String>> repos = new LinkedHashMap<>();
-    repositories.forEach(r -> repos.put(stripAuthenticationInformation(r), new TreeSet<>()));
+    repositories.stream()
+        .filter(r -> !M2_LOCAL_URI.equals(r))
+        .forEach(r -> repos.put(stripAuthenticationInformation(r), new TreeSet<>()));
 
     Set<String> skipped = new TreeSet<>();
     Map<String, String> files = new TreeMap<>();
