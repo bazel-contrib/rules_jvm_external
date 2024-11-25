@@ -36,8 +36,23 @@ _EMPTY_INFO = MavenInfo(
     transitive_exports = depset(),
 )
 
+_STOPPED_INFO = MavenInfo(
+    coordinates = "STOPPED",
+    maven_deps = depset(),
+    as_maven_dep = depset(),
+    artifact_infos = depset(),
+    dep_infos = depset(),
+    label_to_javainfo = {},
+    transitive_exports = depset(),
+)
+
 _MAVEN_PREFIX = "maven_coordinates="
-_STOP_TAGS = ["maven:compile-only", "maven:compile_only", "no-maven"]
+
+_STOP_TAGS = [
+    "maven:compile-only",
+    "maven:compile_only",
+    "no-maven",
+]
 
 def read_coordinates(tags):
     coordinates = []
@@ -112,6 +127,8 @@ def _extract_from(gathered, maven_info, dep, include_transitive_exports, is_runt
 
     gathered.label_to_javainfo.update(maven_info.label_to_javainfo)
     if java_info:
+        if maven_info.coordinates == "STOPPED":
+            pass
         if maven_info.coordinates:
             gathered.dep_infos.append(dep[JavaInfo])
         else:
@@ -124,9 +141,16 @@ def _has_maven_deps_impl(target, ctx):
         return [_EMPTY_INFO]
 
     # Check the stop tags first to let us exit quickly.
+    # When MavenInfo is set, _extract_from will add the dep to the dep_infos list, propagating
+    # the dependency info to the pom.xml and excluding its jar from the artifact.
+    # If _EMPTY_INFO is used, _extract_from will add the dep to the artifact_infos list, which
+    # will include the jar in the artifact itself.
+    # If _STOPPED_INFO is used, _extract_from will not add the dep to either list. This is useful
+    # when we want to stop the propagation of the dependency info to the pom.xml while also excluding
+    # the jar from the artifact.
     for tag in ctx.rule.attr.tags:
         if tag in _STOP_TAGS:
-            return _EMPTY_INFO
+            return [_STOPPED_INFO]
 
     coordinates = read_coordinates(ctx.rule.attr.tags)
     label_to_javainfo = {target.label: target[JavaInfo]}

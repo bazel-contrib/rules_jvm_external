@@ -59,8 +59,9 @@ def _maven_project_jar_impl(ctx):
         ctx.attr.excluded_workspaces,
     )
 
+    artifact_srcs = calculate_artifact_source_jars(info)
     artifact_srcs = _strip_excluded_workspace_jars(
-        calculate_artifact_source_jars(info),
+        artifact_srcs,
         ctx.attr.excluded_workspaces,
     )
 
