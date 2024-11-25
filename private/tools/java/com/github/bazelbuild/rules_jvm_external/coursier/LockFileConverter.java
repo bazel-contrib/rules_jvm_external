@@ -14,10 +14,13 @@
 
 package com.github.bazelbuild.rules_jvm_external.coursier;
 
+import static com.google.common.base.StandardSystemProperty.USER_HOME;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
+import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -33,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +51,7 @@ import java.util.stream.Collectors;
 /** Reads the output of the coursier resolve and generate a v2 lock file */
 public class LockFileConverter {
 
-  private final Set<String> repositories;
+  private final Set<URI> repositories;
   private final Path unsortedJson;
 
   public static void main(String[] args) {
@@ -55,7 +59,7 @@ public class LockFileConverter {
     Path output = null;
 
     // Insertion order matters
-    Set<String> repositories = new LinkedHashSet<>();
+    Set<URI> repositories = new LinkedHashSet<>();
 
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
@@ -71,11 +75,13 @@ public class LockFileConverter {
 
         case "--repo":
           i++;
-          // Make sure the repos end with a slash
-          if (args[i].endsWith("/")) {
-            repositories.add(args[i]);
+
+          String uri = args[i];
+          if ("m2local".equals(uri) || "m2Local".equals(uri)) {
+            Path m2local = Paths.get(USER_HOME.value()).resolve(".m2/repository");
+            repositories.add(m2local.toUri());
           } else {
-            repositories.add(args[i] + "/");
+            repositories.add(URI.create(uri));
           }
           break;
 
@@ -92,9 +98,9 @@ public class LockFileConverter {
 
     LockFileConverter converter = new LockFileConverter(repositories, unsortedJson);
     Set<DependencyInfo> infos = converter.getDependencies();
-    Map<String, Object> conflicts = converter.getConflicts();
+    Set<Conflict> conflicts = converter.getConflicts();
 
-    Map<String, Object> rendered = new NebulaFormat().render(repositories, infos, conflicts);
+    Map<String, Object> rendered = new V2LockFile(repositories, infos, conflicts).render();
 
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
@@ -110,18 +116,27 @@ public class LockFileConverter {
     }
   }
 
-  public LockFileConverter(Set<String> repositories, Path unsortedJson) {
+  public LockFileConverter(Set<URI> repositories, Path unsortedJson) {
     this.repositories = Objects.requireNonNull(repositories);
     this.unsortedJson = Objects.requireNonNull(unsortedJson);
   }
 
-  private Map<String, Object> getConflicts() {
+  private Set<Conflict> getConflicts() {
     Map<String, Object> depTree = readDepTree();
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> conflicts =
+    Map<String, Object> rawConflicts =
         (Map<String, Object>) depTree.getOrDefault("conflict_resolution", Collections.EMPTY_MAP);
-    return conflicts;
+
+    HashSet<Conflict> conflicts = new HashSet<>();
+    for (Map.Entry<String, Object> entry : rawConflicts.entrySet()) {
+      Coordinates resolved = new Coordinates((String) entry.getValue());
+      Coordinates requested = new Coordinates(entry.getKey());
+
+      conflicts.add(new Conflict(resolved, requested));
+    }
+
+    return Set.copyOf(conflicts);
   }
 
   public Set<DependencyInfo> getDependencies() {
@@ -142,13 +157,16 @@ public class LockFileConverter {
       @SuppressWarnings("unchecked")
       Collection<String> mirrorUrls =
           (Collection<String>) coursierDep.getOrDefault("mirror_urls", new TreeSet<>());
+
+      URI m2local = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
+
       for (String mirrorUrl : mirrorUrls) {
-        for (String repo : repositories) {
-          if ("m2local".equalsIgnoreCase(repo) || "m2local/".equalsIgnoreCase(repo)) {
+        for (URI repo : repositories) {
+          if (m2local.equals(repo)) {
             continue;
           }
-          if (mirrorUrl.startsWith(repo)) {
-            repos.add(URI.create(repo));
+          if (mirrorUrl.startsWith(repo.toString())) {
+            repos.add(repo);
           }
         }
       }

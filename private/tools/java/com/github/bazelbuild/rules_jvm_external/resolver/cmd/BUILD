@@ -9,10 +9,10 @@ java_library(
     ],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:IndexJar-lib",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
