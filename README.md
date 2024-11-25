@@ -100,7 +100,7 @@ Support for Bazel versions before `4.0.0` is only available on rules_jvm_externa
 
 ## Usage
 
-### With bzlmod (Bazel 7 and above)
+### Recommended: bzlmod (Bazel 7 and above)
 
 If you are starting a new project, or your project is already using Bazel 7 and
 above, we recommend using [`bzlmod`](https://bazel.build/external/overview) to
@@ -113,6 +113,8 @@ See [bzlmod.md](./docs/bzlmod.md) for the usage instructions. bzlmod is
 on-by-default in Bazel 7.0.
 
 ### With WORKSPACE file (legacy)
+
+NOTE: WORKSPACE support is disabled by default in Bazel 8.0, and will be removed in Bazel 9.0.
 
 List the top-level Maven artifacts and servers in the WORKSPACE:
 
