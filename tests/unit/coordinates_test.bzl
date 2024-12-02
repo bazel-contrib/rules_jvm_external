@@ -114,6 +114,18 @@ def _multiple_formats_impl(ctx):
 
 multiple_formats_test = unittest.make(_multiple_formats_impl)
 
+def _old_format_omitting_version_impl(ctx):
+    env = unittest.begin(ctx)
+
+    unpacked = unpack_coordinates("group:artifact:packaging:")
+
+    asserts.equals(env, "", unpacked.version)
+    asserts.equals(env, "packaging", unpacked.packaging)
+
+    return unittest.end(env)
+
+old_format_omitting_version_test = unittest.make(_old_format_omitting_version_impl)
+
 def coordinates_test_suite():
     unittest.suite(
         "coordinates_tests",
@@ -125,4 +137,5 @@ def coordinates_test_suite():
         gradle_format_with_type_and_classifier_test,
         gradle_format_with_type_but_no_classifier_test,
         multiple_formats_test,
+        old_format_omitting_version_test,
     )

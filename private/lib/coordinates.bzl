@@ -26,7 +26,7 @@ def unpack_coordinates(coords):
 
     # If we're using BOMs, the version is optional. That means at this point
     # we could be dealing with g:a:p or g:a:v
-    is_gradle = pieces[2][0].isdigit()
+    is_gradle = len(pieces[2]) and pieces[2][0].isdigit()
 
     if len(pieces) == 3:
         if is_gradle:
