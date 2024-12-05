@@ -76,6 +76,13 @@ def java_export(
         (if not using `tags = ["no-javadoc"]`)
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
         `tags = ["no-javadoc"]`).
+      doc_resources: Resources to be included in the javadoc jar.
+      doc_excluded_packages: A list of packages to exclude from the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while
+        `com.example` will exclude only the files directly in `com.example`
+      doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
+        `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
