@@ -348,9 +348,9 @@ def maven_impl(mctx):
 
     for (repo_name, known_names) in repo_name_2_module_name.items():
         if len(known_names) > 1:
-            print("The maven repository '%s' is used in multiple bzlmod modules: %s" % (
+            print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s" % (
                 repo_name, # e.g. "maven"
-                str(known_names), # e.g. bzl_module_foo, bzl_module_bar
+                sorted(known_names), # e.g. bzl_module_bar, bzl_module_bar
             ))
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
