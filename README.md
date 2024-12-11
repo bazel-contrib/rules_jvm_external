@@ -92,11 +92,14 @@ Find other GitHub projects using `rules_jvm_external`
 
 ## Prerequisites
 
-* Bazel 5.4.1 and above.
+* Bazel 6.4.0, up to the current LTS version.
+* Support for Bazel versions between `5.4` and `7.x` is only available on releases `6.x`.
+* Support for Bazel versions between `4.x` and `5.4` is only available on releases `5.x`.
+* Support for Bazel versions before `4.0.0` is only available on releases `4.2` or earlier.
 
-Support for Bazel versions between `4.x` and `5.4` is only available on rules_jvm_external releases `5.x`. 
-
-Support for Bazel versions before `4.0.0` is only available on rules_jvm_external releases `4.2` or earlier.
+**Compatibility guideline:** This project aims to be backwards compatible with
+the (current LTS - 2) version. If the current LTS version is 8, then we aim to
+support versions 6, 7 and 8.
 
 ## Usage
 
@@ -172,7 +175,7 @@ rules_jvm_external_deps(
 rules_jvm_external_setup()
 ```
 
-If you are using `bzlmod`, define an `install` tag in your root 
+If you are using `bzlmod`, define an `install` tag in your root
 `MODULE.bazel` which overrides the values:
 
 ```python
@@ -184,7 +187,7 @@ maven.install(
 ```
 
 Once these changes have been made, repin using `REPIN=1 bazel run
-@rules_jvm_external_deps//:pin` and commit the file to your version 
+@rules_jvm_external_deps//:pin` and commit the file to your version
 control system (note that at this point you will need to maintain your
 customized `rules_jvm_external_deps_install.json`):
 
