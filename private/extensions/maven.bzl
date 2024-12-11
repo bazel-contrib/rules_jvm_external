@@ -145,18 +145,18 @@ def _add_exclusions(exclusions):
             to_return.append(exclusion)
     return to_return
 
+# Each bzlmod module may contribute jars to different rules_jvm_external maven repo namespaces.
+# We record this mapping of repo_name to the list of modules that contributed to it, and emit a warning
+# to the user if there are more than one module that contributed to the same repo name.
+#
+# This can be typical for the default @maven namespace, if a bzlmod dependency
+# wishes to contribute to the users' jars.
 def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
-    known_name = repo_name_2_module_name.get(repo_name)
-    if known_name == None:
-        repo_name_2_module_name[repo_name] = module_name
+    known_names = repo_name_2_module_name.get(repo_name, [])
+    if module_name in known_names:
         return
-
-    if module_name != known_name:
-        print("The maven repository '%s' is used in two different bazel modules, originally in '%s' and now in '%s'" % (
-            repo_name,
-            known_name,
-            module_name,
-        ))
+    known_names.append(module_name)
+    repo_name_2_module_name[repo_name] = known_names
 
 def _to_maven_coords(artifact):
     coords = "%s:%s" % (artifact.get("group"), artifact.get("artifact"))
@@ -223,8 +223,10 @@ def maven_impl(mctx):
     # - ignore_empty_files: Treat jars that are empty as if they were not found.
     # - additional_coursier_options: Additional options that will be passed to coursier.
 
-    # Mapping of `name`s to `bazel_module.name` This will allow us to warn users when more than
-    # module attempts to update a maven repo (which is normally undesired behaviour)
+    # Mapping of `name`s to a list of `bazel_module.name`. This will allow us to
+    # warn users when more than one module attempts to update a maven repo
+    # (which is normally undesired behaviour, but supported as multiple modules
+    # can intentionally contribute to the default `maven` repo namespace.)
     repo_name_2_module_name = {}
 
     for mod in mctx.modules:
@@ -343,6 +345,13 @@ def maven_impl(mctx):
             repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
 
             repos[install.name] = repo
+
+    for (repo_name, known_names) in repo_name_2_module_name.items():
+        if len(known_names) > 1:
+            print("The maven repository '%s' is used in multiple bzlmod modules: %s" % (
+                repo_name, # e.g. "maven"
+                str(known_names), # e.g. bzl_module_foo, bzl_module_bar
+            ))
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
     repo_to_lock_file = {}
