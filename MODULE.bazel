@@ -6,7 +6,7 @@ module(
 
 bazel_dep(
     name = "rules_android",
-    version = "0.1.1",
+    version = "0.5.1",
 )
 bazel_dep(
     name = "bazel_features",
@@ -42,6 +42,12 @@ bazel_dep(
     version = "0.7.0",
     dev_dependency = True,
     repo_name = "io_bazel_stardoc",
+)
+
+git_override(
+  module_name = "rules_android",
+  remote = "https://github.com/bazelbuild/rules_android.git",
+  commit = "bd6d0e3644cb6d7183280a2e01a644677f64430d",
 )
 
 # Remove this once rules_android has rolled out official Bzlmod support
