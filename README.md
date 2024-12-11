@@ -98,8 +98,8 @@ Find other GitHub projects using `rules_jvm_external`
 * Support for Bazel versions before `4.0.0` is only available on releases `4.2` or earlier.
 
 **Compatibility guideline:** This project aims to be backwards compatible with
-the (current LTS - 2) version. If the current LTS version is 5, then we aim to
-support 3.x, 4.x and 5.x.
+the (current LTS - 2) version. If the current LTS version is 8, then we aim to
+support versions 6, 7 and 8.
 
 ## Usage
 
