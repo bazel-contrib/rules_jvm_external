@@ -1475,6 +1475,10 @@ pinned_coursier_fetch = repository_rule(
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
+        "targets_compatible_with": attr.label_list(
+            doc = "Platform constraints to add to the repository's targets.",
+            default = [],
+        ),
     },
     implementation = _pinned_coursier_fetch_impl,
 )
@@ -1542,6 +1546,10 @@ coursier_fetch = repository_rule(
         "pinned_repo_name": attr.string(
             doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
             mandatory = False,
+        ),
+        "targets_compatible_with": attr.label_list(
+            doc = "Platform constraints to add to the repository's targets.",
+            default = [],
         ),
     },
     environ = [
