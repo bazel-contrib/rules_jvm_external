@@ -602,6 +602,9 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    targets_compatible_with = [
+        "@platforms//os:android",
+    ],
 )
 
 maven_install(
