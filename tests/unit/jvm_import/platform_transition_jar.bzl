@@ -19,6 +19,9 @@ platform_transition_jar = rule(
             cfg = _transition,
         ),
         "platform": attr.label(),
+        "_allowlist_function_transition": attr.label(
+            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
+        ),
     },
     doc = """
         Depend on a JAR for a specified platform.
