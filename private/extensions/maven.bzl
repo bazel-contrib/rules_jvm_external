@@ -63,6 +63,11 @@ install = tag_class(
         ),
         "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
 
+        "targets_compatible_with": attr.label_list(
+            doc = "Platform constraints to add to the repository's targets.",
+            default = [],
+        ),
+
         # Android support
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
@@ -222,6 +227,7 @@ def maven_impl(mctx):
     # - version_conflict_policy: string. Fails build if different and not a default.
     # - ignore_empty_files: Treat jars that are empty as if they were not found.
     # - additional_coursier_options: Additional options that will be passed to coursier.
+    # - targets_compatible_with: a string list. Build will fail is duplicated and different.
 
     # Mapping of `name`s to a list of `bazel_module.name`. This will allow us to
     # warn users when more than one module attempts to update a maven repo
@@ -344,6 +350,13 @@ def maven_impl(mctx):
 
             repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
 
+            repo["targets_compatible_with"] = _fail_if_different(
+                "targets_compatible_with",
+                repo.get("targets_compatible_with"),
+                install.targets_compatible_with,
+                [None, []],
+            )
+
             repos[install.name] = repo
 
     for (repo_name, known_names) in repo_name_2_module_name.items():
@@ -441,6 +454,7 @@ def maven_impl(mctx):
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 ignore_empty_files = repo.get("ignore_empty_files"),
                 additional_coursier_options = repo.get("additional_coursier_options"),
+                targets_compatible_with = repo.get("targets_compatible_with"),
             )
         else:
             workspace_prefix = "@@" if bazel_features.external_deps.is_bzlmod_enabled else "@"
@@ -502,6 +516,7 @@ def maven_impl(mctx):
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 excluded_artifacts = excluded_artifacts_json,
                 repin_instructions = repo.get("repin_instructions"),
+                targets_compatible_with = repo.get("targets_compatible_with"),
             )
 
             if repo.get("generate_compat_repositories"):
