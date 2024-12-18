@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
 
+import static com.github.bazelbuild.rules_jvm_external.resolver.ArtifactsHash.NO_HASH;
 import static org.junit.Assert.assertEquals;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -45,7 +46,8 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    Map<String, Object> rendered = new V2LockFile(-1, repos, Set.of(aggregator), Set.of()).render();
+    Map<String, Object> rendered =
+        new V2LockFile(NO_HASH, repos, Set.of(aggregator), Set.of()).render();
 
     Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
     Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");
@@ -58,7 +60,7 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripASimpleSetOfDependencies() {
-    V2LockFile roundTripped = roundTrip(new V2LockFile(-1, repos, Set.of(), Set.of()));
+    V2LockFile roundTripped = roundTrip(new V2LockFile(NO_HASH, repos, Set.of(), Set.of()));
 
     assertEquals(repos, roundTripped.getRepositories());
     assertEquals(Set.of(), roundTripped.getDependencyInfos());
@@ -67,7 +69,7 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripM2Local() {
-    V2LockFile lockFile = new V2LockFile(-1, repos, Set.of(), Set.of());
+    V2LockFile lockFile = new V2LockFile(NO_HASH, repos, Set.of(), Set.of());
     Map<String, Object> rendered = lockFile.render();
     rendered.put("m2local", true);
 
@@ -90,7 +92,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(-1, repos, Set.of(info), Set.of()));
+    V2LockFile lockFile = roundTrip(new V2LockFile(NO_HASH, repos, Set.of(info), Set.of()));
 
     assertEquals(Set.of(info), lockFile.getDependencyInfos());
   }
@@ -119,7 +121,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(-1, repos, Set.of(info, dep), Set.of()));
+    V2LockFile lockFile = roundTrip(new V2LockFile(NO_HASH, repos, Set.of(info, dep), Set.of()));
 
     assertEquals(Set.of(info, dep), lockFile.getDependencyInfos());
   }
@@ -133,7 +135,7 @@ public class V2LockFileTest {
             new Conflict(
                 new Coordinates("com.foo:bar:1.2.3"), new Coordinates("com.foo:bar:1.2.1")));
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(-1, repos, Set.of(), conflicts));
+    V2LockFile lockFile = roundTrip(new V2LockFile(NO_HASH, repos, Set.of(), conflicts));
 
     assertEquals(conflicts, lockFile.getConflicts());
   }

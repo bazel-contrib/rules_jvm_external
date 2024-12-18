@@ -57,7 +57,7 @@ def unpack_coordinates(coords):
 def _is_version_number(part):
     return part[0].isdigit()
 
-def _unpack_if_necssary(coords):
+def _unpack_if_necessary(coords):
     if type(coords) == "string":
         unpacked = unpack_coordinates(coords)
     elif type(coords) == "dict":
@@ -80,7 +80,7 @@ def to_external_form(coords):
     syntax: `group:name:version:classifier@packaging`
     """
 
-    unpacked = _unpack_if_necssary(coords)
+    unpacked = _unpack_if_necessary(coords)
 
     to_return = "%s:%s:%s" % (unpacked.group, unpacked.artifact, unpacked.version)
 
@@ -97,7 +97,7 @@ def to_external_form(coords):
 # This matches the `Coordinates#asKey` method in the Java tree, and the
 # implementations must be kept in sync.
 def to_key(coords):
-    unpacked = _unpack_if_necssary(coords)
+    unpacked = _unpack_if_necessary(coords)
 
     key = unpacked.group + ":" + unpacked.artifact
 

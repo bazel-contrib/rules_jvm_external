@@ -27,6 +27,26 @@ public class Coordinates implements Comparable<Coordinates> {
   private final String classifier;
   private final String extension;
 
+  /**
+   * Converts a `String` in one of two formats and extracts the information from it.
+   *
+   * <p>The two supported formats are:
+   *
+   * <ol>
+   *   <li>group:artifact:version:classifier@extension
+   *   <li>group:artifact:extension:classifier:version.
+   * </ol>
+   *
+   * The first of these matches Gradle's <a
+   * href="https://docs.gradle.org/8.11.1/dsl/org.gradle.api.artifacts.dsl.DependencyHandler.html#N1739F">
+   * external dependencies</a> form, and is the preferred format to use since it matches
+   * expectations of users of other tools. The second format is the one used within
+   * `rules_jvm_external` since its inception.
+   *
+   * <p>Note that there is potential confusion when only three segments are given (that is, the
+   * value could be one of `group:artifact:version` or `group:artifact:extension`) In this case, we
+   * assume the value is `group:artifact:version` as this is far more widely used.
+   */
   public Coordinates(String coordinates) {
     Objects.requireNonNull(coordinates, "Coordinates");
 

@@ -48,6 +48,8 @@ def _original_compute_lock_file_hash(lock_file_contents):
     return hash(repr(to_hash))
 
 def _compute_lock_file_hash(lock_file_contents):
+    # Note: this function is exactly equivalent to the one in `ArtifactsHash.java` if you
+    #       make a change there please make it here, and vice versa.
     lines = []
     artifacts = _get_artifacts(lock_file_contents)
 

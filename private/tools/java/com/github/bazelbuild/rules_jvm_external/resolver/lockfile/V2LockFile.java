@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
 
+import static com.github.bazelbuild.rules_jvm_external.resolver.ArtifactsHash.NO_HASH;
 import static com.github.bazelbuild.rules_jvm_external.resolver.ArtifactsHash.calculateArtifactsHash;
 import static com.google.common.base.StandardSystemProperty.USER_HOME;
 
@@ -179,7 +180,7 @@ public class V2LockFile {
     }
 
     Number rawInputHash = (Number) raw.get("__INPUT_ARTIFACTS_HASH");
-    int inputHash = rawInputHash == null ? -1 : rawInputHash.intValue();
+    int inputHash = rawInputHash == null ? NO_HASH : rawInputHash.intValue();
 
     return new V2LockFile(inputHash, repos, infos, conflicts);
   }
