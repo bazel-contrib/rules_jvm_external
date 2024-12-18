@@ -27,6 +27,26 @@ public class Coordinates implements Comparable<Coordinates> {
   private final String classifier;
   private final String extension;
 
+  /**
+   * Converts a `String` in one of two formats and extracts the information from it.
+   *
+   * <p>The two supported formats are:
+   *
+   * <ol>
+   *   <li>group:artifact:version:classifier@extension
+   *   <li>group:artifact:extension:classifier:version.
+   * </ol>
+   *
+   * The first of these matches Gradle's <a
+   * href="https://docs.gradle.org/8.11.1/dsl/org.gradle.api.artifacts.dsl.DependencyHandler.html#N1739F">
+   * external dependencies</a> form, and is the preferred format to use since it matches
+   * expectations of users of other tools. The second format is the one used within
+   * `rules_jvm_external` since its inception.
+   *
+   * <p>Note that there is potential confusion when only three segments are given (that is, the
+   * value could be one of `group:artifact:version` or `group:artifact:extension`) In this case, we
+   * assume the value is `group:artifact:version` as this is far more widely used.
+   */
   public Coordinates(String coordinates) {
     Objects.requireNonNull(coordinates, "Coordinates");
 
@@ -36,29 +56,64 @@ public class Coordinates implements Comparable<Coordinates> {
           "Bad artifact coordinates "
               + coordinates
               + ", expected format is"
-              + " <groupId>:<artifactId>[:<extension>[:<classifier>][:<version>]");
+              + " <groupId>:<artifactId>[:<version>][:<classifier>][@<extension>");
     }
 
     groupId = Objects.requireNonNull(parts[0]);
     artifactId = Objects.requireNonNull(parts[1]);
 
+    boolean isGradle =
+        coordinates.contains("@")
+            || (parts.length > 2 && !parts[2].isEmpty() && Character.isDigit(parts[2].charAt(0)));
+
+    String version = null;
+    String extension = "jar";
+    String classifier = "jar";
+
     if (parts.length == 2) {
       extension = "jar";
       classifier = "";
       version = "";
-    } else if (parts.length == 3) {
-      extension = "jar";
-      classifier = "";
-      version = parts[2];
-    } else if (parts.length == 4) {
-      extension = parts[2];
-      classifier = "";
-      version = parts[3];
-    } else {
+    } else if (parts.length == 5) { // Unambiguously the original format
       extension = "".equals(parts[2]) ? "jar" : parts[2];
       classifier = "jar".equals(parts[3]) ? "" : parts[3];
       version = parts[4];
+    } else if (parts.length == 3) {
+      // Could either be g:a:e or g:a:v or g:a:v@e
+      if (isGradle) {
+        classifier = "";
+
+        if (parts[2].contains("@")) {
+          String[] subparts = parts[2].split("@", 2);
+          version = subparts[0];
+          extension = subparts[1];
+        } else {
+          extension = "jar";
+          version = parts[2];
+        }
+      }
+    } else {
+      // Could be either g:a:e:c or g:a:v:c or g:a:v:c@e
+      if (isGradle) {
+        version = parts[2];
+        if (parts[3].contains("@")) {
+          String[] subparts = parts[3].split("@", 2);
+          classifier = subparts[0];
+          extension = subparts[1];
+        } else {
+          classifier = parts[3];
+          extension = "jar";
+        }
+      } else {
+        extension = parts[2];
+        classifier = "";
+        version = parts[3];
+      }
     }
+
+    this.version = version;
+    this.classifier = classifier;
+    this.extension = extension;
   }
 
   public Coordinates(
@@ -103,6 +158,7 @@ public class Coordinates implements Comparable<Coordinates> {
     return extension;
   }
 
+  // This method matches `coordinates.bzl#to_key`. Any changes here must be matched there.
   public String asKey() {
     StringBuilder coords = new StringBuilder();
     coords.append(groupId).append(":").append(artifactId);
@@ -155,13 +211,23 @@ public class Coordinates implements Comparable<Coordinates> {
   }
 
   public String toString() {
-    String versionless = asKey();
+    StringBuilder builder = new StringBuilder();
 
-    if (version != null && !version.isEmpty()) {
-      return versionless + ":" + version;
+    builder.append(getGroupId()).append(":").append(getArtifactId());
+
+    if (getVersion() != null && !getVersion().isEmpty()) {
+      builder.append(":").append(getVersion());
     }
 
-    return versionless;
+    if (getClassifier() != null && !getClassifier().isEmpty() && !"jar".equals(getClassifier())) {
+      builder.append(":").append(getClassifier());
+    }
+
+    if (getExtension() != null && !getExtension().isEmpty() && !"jar".equals(getExtension())) {
+      builder.append("@").append(getExtension());
+    }
+
+    return builder.toString();
   }
 
   @Override

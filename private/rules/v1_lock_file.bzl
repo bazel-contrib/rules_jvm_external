@@ -69,6 +69,9 @@ def _compute_lock_file_hash(lock_file_contents):
         signature_inputs.append(":".join(artifact_group))
     return hash(repr(sorted(signature_inputs)))
 
+def _validate_lock_file_hash(lock_file_contents, expected_hash):
+    return _compute_lock_file_hash(lock_file_contents) == expected_hash
+
 def create_dependency(dep):
     url = dep.get("url")
     if url:
@@ -139,6 +142,7 @@ v1_lock_file = struct(
     get_input_artifacts_hash = _get_input_artifacts_hash,
     get_lock_file_hash = _get_lock_file_hash,
     compute_lock_file_hash = _compute_lock_file_hash,
+    validate_lock_file_hash = _validate_lock_file_hash,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
     has_m2local = _has_m2local,
