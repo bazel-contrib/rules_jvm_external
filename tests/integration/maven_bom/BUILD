@@ -1,6 +1,5 @@
-load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("@rules_java//java:defs.bzl", "java_library")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("//:defs.bzl", "artifact", "java_export", "maven_bom")
 
 maven_bom(
@@ -39,6 +38,10 @@ java_export(
     name = "one-dep",
     srcs = ["OneDep.java"],
     maven_coordinates = "com.example:one-dep:1.0.0",
+    visibility = [
+        ":__pkg__",
+        "//tests/integration/pom_file:__pkg__",
+    ],
     deps = [
         artifact("com.google.guava:guava"),
     ],
