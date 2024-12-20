@@ -73,8 +73,13 @@ public class HttpDownloader {
               // to (by default) 3 times, which is not the behaviour we want.
               return null;
             }
-            return new PasswordAuthentication(
-                credential.account(), credential.password().toCharArray());
+
+            String userName = credential.account();
+            if (userName == null || userName.isEmpty()) {
+              userName = credential.login();
+            }
+
+            return new PasswordAuthentication(userName, credential.password().toCharArray());
           }
         };
     builder = builder.authenticator(authenticator);
