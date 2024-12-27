@@ -6,6 +6,7 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+      ANDROID_NDK_HOME: /opt/android-ndk-r25b
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
@@ -17,6 +18,8 @@ tasks:
   android_ubuntu2204:
     name: Android Tests
     platform: ubuntu2204
+    environment:
+      ANDROID_NDK_HOME: /opt/android-ndk-r25b
     test_flags:
       # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/978):
       #   These tests are not compatible with Android platforms, so use the legacy mode
@@ -29,6 +32,7 @@ tasks:
     bazel: 6.4.0
     environment:
       REPIN: 1
+      ANDROID_NDK_HOME: /opt/android-ndk-r25b
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
@@ -42,6 +46,7 @@ tasks:
     bazel: 7.4.1
     environment:
       REPIN: 1
+      ANDROID_NDK_HOME: /opt/android-ndk-r25b
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
@@ -58,6 +63,7 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+      ANDROID_NDK_HOME: /opt/android-ndk-r25b
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
@@ -72,6 +78,7 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+      ANDROID_NDK_HOME: /Users/buildkite/android-ndk-r25b
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
@@ -86,6 +93,7 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+      ANDROID_NDK_HOME: c:/android_ndk/r25b
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
