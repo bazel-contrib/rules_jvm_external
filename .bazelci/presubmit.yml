@@ -14,16 +14,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  android_ubuntu2204:
-    name: Android Tests
-    platform: ubuntu2204
-    test_flags:
-      # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/978):
-      #   These tests are not compatible with Android platforms, so use the legacy mode
-      - "--noincompatible_enable_android_toolchain_resolution"
-    test_targets:
-      - "--"
-      - "//tests/integration/override_targets:override_targets"
   ubuntu2204_6_4_0:
     platform: ubuntu2204
     bazel: 6.4.0
