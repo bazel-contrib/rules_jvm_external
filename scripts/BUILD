@@ -2,18 +2,6 @@ load("@rules_java//java:defs.bzl", "java_binary")
 load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 load("//private/rules:artifact.bzl", "artifact")
 
-genrule(
-    name = "buildifier-bin",
-    srcs = select({
-        "@bazel_tools//src/conditions:darwin_arm64": ["@buildifier-macos-arm64//file"],
-        "@bazel_tools//src/conditions:darwin_x86_64": ["@buildifier-macos-x86_64//file"],
-        "@bazel_tools//src/conditions:linux_aarch64": ["@buildifier-linux-arm64//file"],
-        "@bazel_tools//src/conditions:linux_x86_64": ["@buildifier-linux-x86_64//file"],
-    }),
-    outs = ["buildifier"],
-    cmd = "cp $< $@",
-)
-
 sh_binary(
     name = "mirror_coursier",
     srcs = [":mirror_coursier.sh"],
@@ -66,13 +54,13 @@ set -eufo pipefail
 
 cwd="\\$${BUILD_WORKSPACE_DIRECTORY:=\\$$(pwd)}"
 javaformat="\\$$1"
-buildifier="\\$$2"
 
 # Format java code
 find "\\$$cwd" -type f -name "*.java" |  xargs "\\$${javaformat}" --replace
 
 # Run buildifier
-\\$${buildifier} --lint fix --mode fix -r "\\$$cwd"
+cd \\$$cwd
+bazel run @buildifier_prebuilt//buildifier -- --lint fix --mode fix -r "\\$$cwd"
 
 EOL
 """,
@@ -84,10 +72,8 @@ sh_binary(
     srcs = [":format-script"],
     args = [
         "$(location :google-java-format)",
-        "$(location :buildifier)",
     ],
     data = [
-        ":buildifier",
         ":google-java-format",
     ],
 )
