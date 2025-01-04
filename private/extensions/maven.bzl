@@ -424,6 +424,7 @@ def maven_impl(mctx):
                 user_provided_name = name,
                 repositories = repo.get("repositories"),
                 artifacts = artifacts_json,
+                boms = boms_json,
                 fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
