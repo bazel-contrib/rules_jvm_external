@@ -7,9 +7,9 @@ android_sdk_repository(
 
 http_archive(
     name = "robolectric",
-    sha256 = "bea2aaad74171fa011e39937c2e8ba2f3885614b1364bccba9ecbb51c5acbde0",
-    strip_prefix = "robolectric-bazel-4.14.1",
-    urls = ["https://github.com/robolectric/robolectric-bazel/releases/download/4.14.1/robolectric-bazel-4.14.1.tar.gz"],
+    sha256 = "b2d2164bae80fcfbdd078eb2f0935ba06557402b8c814928d9e3bec7358e2b7b",
+    strip_prefix = "robolectric-bazel-4.14.1.2",
+    urls = ["https://github.com/robolectric/robolectric-bazel/releases/download/4.14.1.2/robolectric-bazel-4.14.1.2.tar.gz"],
 )
 
 load("@robolectric//bazel:robolectric.bzl", "robolectric_repositories")

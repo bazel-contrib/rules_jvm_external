@@ -1,6 +1,6 @@
 module(
     name = "rules_jvm_external",
-    version = "6.6",
+    version = "6.7",
     bazel_compatibility = [">=7.0.0"],
 )
 
