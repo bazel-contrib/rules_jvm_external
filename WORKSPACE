@@ -564,7 +564,7 @@ maven_install(
 # because the latest versions of rules_android do not support Bazel 5 or 6,
 # which rules_jvm_external supports and uses in CI tests. So use
 # rules_android 0.1.1, which are wrappers around the native Android rules,
-# since the tests with Bazel 5 and 6 do no use bzlmod.
+# since the tests with Bazel 6 do no use bzlmod.
 http_archive(
     name = "rules_android",
     sha256 = "af84b69ab3d16dd1a41056286e6511f147a94ccea995603e13e934c915c1631c",

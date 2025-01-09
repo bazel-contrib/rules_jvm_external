@@ -8,7 +8,7 @@ build --experimental_strict_java_deps=strict
 build --explicit_java_test_deps
 
 # Re-enable once https://github.com/bazelbuild/rules_go/issues/3947 is addressed.
-#build --experimental_sibling_repository_layout
+build --experimental_sibling_repository_layout
 
 # Make sure we get something helpful when tests fail
 test --verbose_failures
