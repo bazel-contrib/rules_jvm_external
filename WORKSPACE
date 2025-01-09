@@ -567,9 +567,9 @@ maven_install(
 # since the tests with Bazel 5 and 6 do no use bzlmod.
 http_archive(
     name = "rules_android",
-    sha256 = "fe3d8c4955857b44019d83d05a0b15c2a0330a6a0aab990575bb397e9570ff1b",
-    strip_prefix = "rules_android-0.6.0-alpha1",
-    url = "https://github.com/bazelbuild/rules_android/releases/download/v0.6.0-alpha1/rules_android-v0.6.0-alpha1.tar.gz",
+    sha256 = "af84b69ab3d16dd1a41056286e6511f147a94ccea995603e13e934c915c1631c",
+    strip_prefix = "rules_android-0.6.0",
+    url = "https://github.com/bazelbuild/rules_android/releases/download/v0.6.0/rules_android-v0.6.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/351
