@@ -1,5 +1,8 @@
 exports_files([
     "artifact_with_plus_repin_install.json",
+    "artifacts_hash_no_deps_install.json",
+    "artifacts_hash_with_deps_from_maven_install.json",
+    "artifacts_hash_with_deps_install.json",
     "m2local_testing_with_pinned_file_install.json",
     "manifest_stamp_testing_install.json",
     "maven_install.json",
