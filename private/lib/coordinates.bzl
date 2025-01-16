@@ -1,3 +1,21 @@
+SUPPORTED_PACKAGING_TYPES = [
+    "aar",
+    "bundle",
+    "dll",
+    "eclipse-plugin",
+    "exe",
+    "dylib",
+    "hk2-jar",
+    "jar",
+    "json",
+    "maven-plugin",
+    "orbit",
+    "pom",
+    "scala-jar",
+    "so",
+    "test-jar",
+]
+
 def unpack_coordinates(coords):
     """Takes a maven coordinate and unpacks it into a struct with fields
     `group`, `artifact`, `version`, `packaging`, `classifier`
@@ -19,6 +37,17 @@ def unpack_coordinates(coords):
     if len(pieces) == 2:
         return struct(group = group, artifact = artifact, version = "", packaging = None, classifier = None)
 
+    # Strictly speaking this could be one of `g:a:p` or `g:a:v` but realistically, it's going to be
+    # a regular `g:a:v` triplet. If that's not what someone wants, they'll need to qualify the
+    # type in some other way
+    if len(pieces) == 3:
+        version = pieces[2]
+        packaging = None
+        if "@" in pieces[2]:
+            (version, packaging) = pieces[2].split("@", 2)
+
+        return struct(group = group, artifact = artifact, version = version, packaging = packaging, classifier = None)
+
     # Unambiguously the original format
     if len(pieces) == 5:
         packaging = pieces[2]
@@ -26,38 +55,32 @@ def unpack_coordinates(coords):
         version = pieces[4]
         return struct(group = group, artifact = artifact, packaging = packaging, classifier = classifier, version = version)
 
-    # If we're using BOMs, the version is optional. That means at this point
-    # we could be dealing with g:a:p or g:a:v
-    is_gradle = pieces[2][0].isdigit()
-
-    if len(pieces) == 3:
-        if is_gradle:
-            if "@" in pieces[2]:
-                (version, packaging) = pieces[2].split("@", 2)
-                return struct(group = group, artifact = artifact, packaging = packaging, version = version, classifier = None)
-            version = pieces[2]
-            return struct(group = group, artifact = artifact, version = version, packaging = None, classifier = None)
-        else:
-            packaging = pieces[2]
-            return struct(group = group, artifact = artifact, packaging = packaging, version = "", classifier = None)
-
     if len(pieces) == 4:
-        if is_gradle:
+        # Either g:a:p:v or g:a:v:c or g:a:v:c@p.
+
+        # Handle the easy case first
+        if "@" in pieces[3]:
+            (classifier, packaging) = pieces[3].split("@", 2)
             version = pieces[2]
-            if "@" in pieces[3]:
-                (classifier, packaging) = pieces[3].split("@", 2)
-                return struct(group = group, artifact = artifact, packaging = packaging, classifier = classifier, version = version)
-            classifier = pieces[3]
-            return struct(group = group, artifact = artifact, classifier = classifier, version = version, packaging = None)
-        else:
+            return struct(group = group, artifact = artifact, packaging = packaging, classifier = classifier, version = version)
+
+        # Experience has show us that versions can be almost anything, but there's a relatively small
+        # pool of packaging types that people use. This isn't a perfect heuristic, but it's Good
+        # Enough for us right now. Previously, we attempted to figure out if the `piece[2]` was a
+        # version by checking to see whether it's a number. Foolish us.
+
+        if pieces[2] in SUPPORTED_PACKAGING_TYPES:
             packaging = pieces[2]
             version = pieces[3]
+            rewritten = "%s:%s:%s@%s" % (group, artifact, version, packaging)
+            print("Assuming %s should be interpreted as %s" % (coords, rewritten))
             return struct(group = group, artifact = artifact, packaging = packaging, version = version, classifier = None)
+        else:
+            version = pieces[2]
+            classifier = pieces[3]
+            return struct(group = group, artifact = artifact, classifier = classifier, version = version, packaging = None)
 
     fail("Could not parse maven coordinate: %s" % coords)
-
-def _is_version_number(part):
-    return part[0].isdigit()
 
 def to_external_form(coords):
     """Formats `coords` as a string suitable for use by tools such as Gradle.
