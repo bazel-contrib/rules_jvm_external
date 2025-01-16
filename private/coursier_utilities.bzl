@@ -16,24 +16,9 @@
 # download them if it's not asked to to resolve "eclipse-plugin".
 
 load("//:specs.bzl", "parse")
+load("//private/lib:coordinates.bzl", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES")
 
-SUPPORTED_PACKAGING_TYPES = [
-    "jar",
-    "json",
-    "aar",
-    "bundle",
-    "eclipse-plugin",
-    "exe",
-    "orbit",
-    "test-jar",
-    "hk2-jar",
-    "maven-plugin",
-    "scala-jar",
-    "dylib",
-    "so",
-    "dll",
-    "pom",
-]
+SUPPORTED_PACKAGING_TYPES = _SUPPORTED_PACKAGING_TYPES
 
 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
 # A single package uses classifier to distinguish the jar files (one per platform),

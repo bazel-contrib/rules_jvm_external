@@ -42,11 +42,11 @@ complete_original_format_test = unittest.make(_complete_original_format_impl)
 def _original_format_omitting_scope_impl(ctx):
     env = unittest.begin(ctx)
 
-    unpacked = unpack_coordinates("group:artifact:type:1.2.3")
+    unpacked = unpack_coordinates("group:artifact:test-jar:1.2.3")
     asserts.equals(env, "group", unpacked.group)
     asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
-    asserts.equals(env, "type", unpacked.packaging)
+    asserts.equals(env, "test-jar", unpacked.packaging)
     asserts.equals(env, None, unpacked.classifier)
 
     return unittest.end(env)
@@ -100,10 +100,11 @@ def _multiple_formats_impl(ctx):
 
     coords_to_structs = {
         "groupId:artifactId:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = None),
-        "groupId:artifactId:type:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = "type"),
+        "groupId:artifactId:test-jar:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = "test-jar"),
         "groupId:artifactId:type:classifier:1.2.3": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = "classifier", packaging = "type"),
         "groupId:artifactId:1.2.3@type": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = None, packaging = "type"),
         "groupId:artifactId:1.2.3:classifier@type": struct(group = "groupId", artifact = "artifactId", version = "1.2.3", classifier = "classifier", packaging = "type"),
+        "io.netty:netty-transport-native-unix-common:jar:linux-aarch_64:4.1.100.Final": struct(group = "io.netty", artifact = "netty-transport-native-unix-common", version = "4.1.100.Final", classifier = "linux-aarch_64", packaging = "jar"),
     }
 
     for (coords, expected) in coords_to_structs.items():
@@ -113,6 +114,17 @@ def _multiple_formats_impl(ctx):
     return unittest.end(env)
 
 multiple_formats_test = unittest.make(_multiple_formats_impl)
+
+def _unusual_version_format_impl(ctx):
+    env = unittest.begin(ctx)
+
+    unpacked = unpack_coordinates("group:artifact:FY21R16")
+
+    asserts.equals(env, "FY21R16", unpacked.version)
+
+    return unittest.end(env)
+
+unusual_version_format_test = unittest.make(_unusual_version_format_impl)
 
 def coordinates_test_suite():
     unittest.suite(
@@ -125,4 +137,5 @@ def coordinates_test_suite():
         gradle_format_with_type_and_classifier_test,
         gradle_format_with_type_but_no_classifier_test,
         multiple_formats_test,
+        unusual_version_format_test,
     )
