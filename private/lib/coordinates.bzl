@@ -75,10 +75,20 @@ def unpack_coordinates(coords):
             rewritten = "%s:%s:%s@%s" % (group, artifact, version, packaging)
             print("Assuming %s should be interpreted as %s" % (coords, rewritten))
             return struct(group = group, artifact = artifact, packaging = packaging, version = version, classifier = None)
-        else:
+
+        # We could still be in one of `g:a:p:v` or `g:a:v:c`, but it's likely the latter. I do not
+        # think there are any packaging formats commonly in use in the maven ecosystem that contain
+        # numbers, so we'll check to see if `pieces[2]` contains one or more numbers and use that to
+        # decide. This allows us to cope with packaging formats we've not seen before, such as the
+        # `packaging` we use in our own tests.
+        digit_count = len([c for c in pieces[2].elems() if c.isdigit()])
+
+        if digit_count:
             version = pieces[2]
             classifier = pieces[3]
             return struct(group = group, artifact = artifact, classifier = classifier, version = version, packaging = None)
+        else:
+            return struct(group = group, artifact = artifact, classifier = None, version = pieces[3], packaging = pieces[2])
 
     fail("Could not parse maven coordinate: %s" % coords)
 
