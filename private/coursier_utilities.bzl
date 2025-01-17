@@ -15,8 +15,9 @@
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
 
+load("@bazel_skylib//lib:structs.bzl", "structs")
 load("//:specs.bzl", "parse")
-load("//private/lib:coordinates.bzl", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES")
+load("//private/lib:coordinates.bzl", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES", "unpack_coordinates")
 
 SUPPORTED_PACKAGING_TYPES = _SUPPORTED_PACKAGING_TYPES
 
@@ -32,22 +33,33 @@ PLATFORM_CLASSIFIER = [
 ]
 
 def strip_packaging_and_classifier(coord):
-    # Strip some packaging and classifier values based on the following maven coordinate formats
+    # Strip some packaging and classifier values.
+
+    # We want to modify some of the values
+    unpacked_struct = unpack_coordinates(coord)
+    unpacked = {} | structs.to_dict(unpacked_struct)
+
+    if unpacked.get("classifier", None) in ["sources", "native"]:
+        unpacked["classifier"] = None
+
+    # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
+    # packaging type that Coursier CLI accepts.
+    if unpacked.get("packaging", None)  in SUPPORTED_PACKAGING_TYPES + ["pom"]:
+        unpacked["packaging"] = None
+
+    # We are expected to return one of:
+    #
     # groupId:artifactId:version
     # groupId:artifactId:packaging:version
     # groupId:artifactId:packaging:classifier:version
-    coordinates = coord.split(":")
-    if len(coordinates) > 4:
-        if coordinates[3] in ["sources", "natives"]:
-            coordinates.pop(3)
-
-    if len(coordinates) > 3:
-        # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
-        # packaging type that Coursier CLI accepts.
-        if coordinates[2] in SUPPORTED_PACKAGING_TYPES + ["pom"]:
-            coordinates.pop(2)
-
-    return ":".join(coordinates)
+    #
+    # TODO: check call sites and see what people do with the returned string
+    # Can we use use coordinates.bzl%to_external_form?
+    to_return = unpacked["group"]
+    for item in ["artifact", "packaging", "classifier", "version"]:
+        if unpacked.get(item, None):
+            to_return += ":" + unpacked[item]
+    return to_return
 
 def strip_packaging_and_classifier_and_version(coord):
     coordinates = coord.split(":")
