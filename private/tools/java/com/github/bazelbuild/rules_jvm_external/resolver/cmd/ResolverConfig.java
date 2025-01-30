@@ -21,6 +21,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenResolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
@@ -235,8 +236,11 @@ public class ResolverConfig {
     return maxThreads;
   }
 
-  public String getInputHash() {
-    return inputHash;
+  public int getInputHash() {
+    if (Strings.isNullOrEmpty(inputHash)) {
+      return -1;
+    }
+    return Integer.parseInt(inputHash);
   }
 
   public Path getOutput() {
