@@ -18,7 +18,7 @@
 # Do not load from external dependencies since this is called from the `repositories.bzl` file
 # TODO: lift this restriction once we drop workspace-based build support
 load("//:specs.bzl", "parse")
-load("//private/lib:coordinates.bzl", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES", "unpack_coordinates")
+load("//private/lib:coordinates.bzl", "unpack_coordinates", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES")
 
 SUPPORTED_PACKAGING_TYPES = _SUPPORTED_PACKAGING_TYPES
 
@@ -53,7 +53,7 @@ def strip_packaging_and_classifier(coord):
 
     # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
     # packaging type that Coursier CLI accepts.
-    if unpacked.get("packaging", None)  in SUPPORTED_PACKAGING_TYPES + ["pom"]:
+    if unpacked.get("packaging", None) in SUPPORTED_PACKAGING_TYPES + ["pom"]:
         unpacked["packaging"] = None
 
     # We are expected to return one of:
