@@ -119,6 +119,7 @@ _BUILD_PIN_ALIAS = """
 alias(
   name = "pin",
   actual = "{unpinned_pin_target}",
+  visibility = ["//visibility:public"],
 )
 """
 
