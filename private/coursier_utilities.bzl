@@ -15,7 +15,8 @@
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
 
-load("@bazel_skylib//lib:structs.bzl", "structs")
+# Do not load from external dependencies since this is called from the `repositories.bzl` file
+# TODO: lift this restriction once we drop workspace-based build support
 load("//:specs.bzl", "parse")
 load("//private/lib:coordinates.bzl", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES", "unpack_coordinates")
 
@@ -32,12 +33,20 @@ PLATFORM_CLASSIFIER = [
     "windows-x86_64",
 ]
 
+# Lifted from bazel-skylib
+def struct_to_dict(s):
+    return {
+        key: getattr(s, key)
+        for key in dir(s)
+        if key != "to_json" and key != "to_proto"
+    }
+
 def strip_packaging_and_classifier(coord):
     # Strip some packaging and classifier values.
 
     # We want to modify some of the values
     unpacked_struct = unpack_coordinates(coord)
-    unpacked = {} | structs.to_dict(unpacked_struct)
+    unpacked = {} | struct_to_dict(unpacked_struct)
 
     if unpacked.get("classifier", None) in ["sources", "native"]:
         unpacked["classifier"] = None
