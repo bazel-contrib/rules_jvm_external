@@ -28,7 +28,7 @@ def unpack_coordinates(coords):
 
     # If we're using BOMs, the version is optional. That means at this point
     # we could be dealing with g:a:p or g:a:v
-    is_gradle = pieces[2][0].isdigit()
+    is_gradle = _is_version(pieces[2])
 
     if len(pieces) == 3:
         if is_gradle:
@@ -56,8 +56,16 @@ def unpack_coordinates(coords):
 
     fail("Could not parse maven coordinate: %s" % coords)
 
-def _is_version_number(part):
-    return part[0].isdigit()
+def _is_version(part):
+    # The maven spec allows a version to be alpha-numeric characters plus "." and "-"
+    # We are going to take a slight shortcut and assume that a version will have at
+    # least one digit, if this breaks and an artifact has only non-numeric characters
+    # in its version then that artifact will need to be a fully specified as an
+    # artifact instead of in short-form
+    for char in part.elems():
+        if char.isdigit():
+            return True
+    return False
 
 def to_external_form(coords):
     """Formats `coords` as a string suitable for use by tools such as Gradle.

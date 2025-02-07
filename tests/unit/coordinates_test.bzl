@@ -21,6 +21,11 @@ def _group_artifact_and_version_impl(ctx):
     asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
 
+    unpacked = unpack_coordinates("com.google.apis:google-api-services-iam:v1-rev20240725-2.0.0")
+    asserts.equals(env, "com.google.apis", unpacked.group)
+    asserts.equals(env, "google-api-services-iam", unpacked.artifact)
+    asserts.equals(env, "v1-rev20240725-2.0.0", unpacked.version)
+
     return unittest.end(env)
 
 group_artifact_and_version_test = unittest.make(_group_artifact_and_version_impl)
