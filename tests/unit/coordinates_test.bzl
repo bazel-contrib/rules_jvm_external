@@ -118,9 +118,19 @@ multiple_formats_test = unittest.make(_multiple_formats_impl)
 def _unusual_version_format_impl(ctx):
     env = unittest.begin(ctx)
 
-    unpacked = unpack_coordinates("group:artifact:FY21R16")
+    # Unusual version formats
+    versions = [
+        "809c471bf94f09bf4699ba53eb337768d5d9882f",  # A git sha
+        "FY21R16",    # Based on year and release number
+        "PRERELEASE", # Just a nice name
+        "VX.2.5.0.0",  # Also seen in the wild
+        "jcef-7f53d6d+cef-100.0.14+g4e5ba66+chromium-100.0.4896.75", # Seen in the wild
+    ]
 
-    asserts.equals(env, "FY21R16", unpacked.version)
+    for version in versions:
+        unpacked = unpack_coordinates("group:artifact:%s" % version)
+
+        asserts.equals(env, version, unpacked.version)
 
     return unittest.end(env)
 

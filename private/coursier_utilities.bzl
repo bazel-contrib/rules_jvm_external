@@ -51,9 +51,10 @@ def strip_packaging_and_classifier(coord):
     if unpacked.get("classifier", None) in ["sources", "native"]:
         unpacked["classifier"] = None
 
-    # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
-    # packaging type that Coursier CLI accepts.
-    if unpacked.get("packaging", None) in SUPPORTED_PACKAGING_TYPES + ["pom"]:
+    # Note that although "pom" is not a packaging type that Coursier CLI accepts,
+    # it's included in the `SUPPORTED_PACKAGING_TYPES` array so we don't need to
+    # check it here as well.
+    if unpacked.get("packaging", None) in SUPPORTED_PACKAGING_TYPES:
         unpacked["packaging"] = None
 
     # We are expected to return one of:
