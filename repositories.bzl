@@ -42,9 +42,9 @@ def rules_jvm_external_deps(
             http_archive,
             name = "rules_java",
             urls = [
-                "https://github.com/bazelbuild/rules_java/releases/download/7.12.2/rules_java-7.12.2.tar.gz",
+                "https://github.com/bazelbuild/rules_java/releases/download/7.12.4/rules_java-7.12.4.tar.gz",
             ],
-            sha256 = "a9690bc00c538246880d5c83c233e4deb83fe885f54c21bb445eb8116a180b83",
+            sha256 = "302bcd9592377bf9befc8e41aa97ec02df12813d47af9979e4764f3ffdcc5da8",
         )
 
     if major_version == "6":
@@ -54,9 +54,9 @@ def rules_jvm_external_deps(
         #
         # rules_android is decoupled from Bazel 8, including its providers. ProguardSpecInfo is also decoupled, but to rules_java 7.12.2.
         #
-        # So rules_java 7.12.2 is necessary for a decoupled rules_android to work with Bazel 6.
+        # So rules_java 7.12.4 is necessary for a decoupled rules_android to work with Bazel 6.
         #
-        # But with workspace + rules_java 7.12.2, rules_java brings in a dep on
+        # But with workspace + rules_java 7.12.4, rules_java brings in a dep on
         # rules_cc's //cc package via //java/bazel/rules:rules (for CcInfo).
         # https://github.com/bazelbuild/rules_java/blob/2a9bd746974f6c94b159821d75130ad43e6b2970/java/bazel/rules/BUILD.bazel#L34-L35
         #
