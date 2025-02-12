@@ -2,8 +2,6 @@ workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = "androidsdk")
 
-android_ndk_repository(name = "androidndk")
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "//private:versions.bzl",
@@ -232,8 +230,6 @@ maven_install(
         "org.openjfx:javafx-base:11.0.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/178
         "io.kubernetes:client-java:4.0.0-beta1",
-        # https://github.com/bazelbuild/rules_jvm_external/issues/199
-        "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-504704752
         "com.github.oshi:oshi-parent:3.4.0",
         "com.github.spinalhdl:spinalhdl-core_2.11:1.3.6",
@@ -284,9 +280,6 @@ maven_install(
     fail_if_repin_required = True,
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_coursier_install.json",
-    override_targets = {
-        "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
-    },
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
@@ -313,6 +306,7 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1144
         "org.codehaus.plexus:plexus:1.0.4",
         "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/199
         # https://github.com/bazelbuild/rules_jvm_external/issues/1162
         "io.opentelemetry:opentelemetry-sdk",
         maven.artifact(
@@ -855,6 +849,7 @@ maven_install(
     ],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
     override_targets = {
+        # https://github.com/bazelbuild/rules_jvm_external/issues/199
         # This is a transitive dep of `opentelemetry-sdk`
         "io.opentelemetry:opentelemetry-api": "@//tests/integration/override_targets:additional_deps",
     },
