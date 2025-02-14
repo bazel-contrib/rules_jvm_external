@@ -30,7 +30,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_kotlin",
-    version = "2.0.0",
+    version = "2.1.0",
 )
 bazel_dep(
     name = "rules_shell",
@@ -42,6 +42,12 @@ bazel_dep(
     version = "0.7.0",
     dev_dependency = True,
     repo_name = "io_bazel_stardoc",
+)
+
+git_override(
+  module_name = "rules_kotlin",
+  remote = "https://github.com/ahumesky/rules_kotlin.git",
+  commit = "d9461b24ca278a44bd65df98cd53f78cd132c22b",
 )
 
 # Remove this once rules_android has rolled out official Bzlmod support
