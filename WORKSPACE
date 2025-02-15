@@ -561,15 +561,15 @@ maven_install(
 # for the above "starlark_aar_import_test" maven_install with
 # use_starlark_android_rules = True.
 # Note that this version is different from the version in MODULE.bazel
-# because the latest versions of rules_android do not support Bazel 5 or 6,
+# because the latest versions of rules_android do not support Bazel 6,
 # which rules_jvm_external supports and uses in CI tests. So use
 # rules_android 0.1.1, which are wrappers around the native Android rules,
 # since the tests with Bazel 6 do no use bzlmod.
 http_archive(
     name = "rules_android",
-    sha256 = "af84b69ab3d16dd1a41056286e6511f147a94ccea995603e13e934c915c1631c",
-    strip_prefix = "rules_android-0.6.0",
-    url = "https://github.com/bazelbuild/rules_android/releases/download/v0.6.0/rules_android-v0.6.0.tar.gz",
+    sha256 = "cd06d15dd8bb59926e4d65f9003bfc20f9da4b2519985c27e190cddc8b7a7806",
+    strip_prefix = "rules_android-0.1.1",
+    url = "https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip",
 )
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/351
