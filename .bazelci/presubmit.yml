@@ -52,7 +52,8 @@ tasks:
       - "//..."
   ubuntu2204_latest:
     platform: ubuntu2204
-    bazel: latest
+    # TODO: Revert to latest after fixing incompatibilities with Bazel 8.0.0
+    bazel: 7.x
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316

@@ -39,7 +39,7 @@ class StarlarkRepr {
       if (o == null) {
         // Java null is not a valid Starlark value, but sometimes printers are used on non-Starlark
         // values such as Locations or Nodes.
-        return this.append("null");
+        return this.append("None");
       } else if (o instanceof String) {
         appendQuoted((String) o);
         return this;
