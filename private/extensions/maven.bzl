@@ -12,6 +12,7 @@ load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
+load("//private/rules:read_artifacts_from_file.bzl", "read_artifacts_from_file")
 
 DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
@@ -196,32 +197,6 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
     return seen
 
 
-def _artifacts_from_file(mctx, artifacts_file_label):
-    if not artifacts_file_label:
-        return []
-
-    artifacts_file_path = mctx.path(artifacts_file_label)
-    artifacts_file_content = mctx.read(artifacts_file_path)
-
-    artifacts = []
-    variables = {}
-
-    for line in artifacts_file_content.splitlines():
-        line = line.split("#", 1)[0].strip()
-        if not line:
-            continue
-
-        # variable assignment and substitution
-        if "=" in line:
-            key, value = line.split("=", 1)
-            variables[key.strip()] = value.strip()
-        else:
-            for var, val in variables.items():
-                line = line.replace("${" + var + "}", val)  # Perform substitution
-            artifacts.append(line)
-
-    return artifacts
-
 def maven_impl(mctx):
     repos = {}
     overrides = {}
@@ -310,7 +285,7 @@ def maven_impl(mctx):
             repo["resolver"] = install.resolver
 
             artifacts = repo.get("artifacts", [])
-            repo["artifacts"] = artifacts + install.artifacts + _artifacts_from_file(mctx, install.artifacts_file)
+            repo["artifacts"] = artifacts + install.artifacts + read_artifacts_from_file(mctx, install.artifacts_file)
 
             boms = repo.get("boms", [])
             repo["boms"] = boms + install.boms
