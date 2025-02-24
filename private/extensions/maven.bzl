@@ -42,6 +42,7 @@ install = tag_class(
 
         # Actual artifacts and overrides
         "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
+        "artifacts_file": attr.label(doc = "A file containing a list of artifacts to install, one per line in `artifactId:groupId:version` format", allow_single_file = True),
         "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
 
@@ -194,6 +195,17 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 
     return seen
 
+
+def _artifacts_from_file(mctx, artifacts_file_label):
+    if not artifacts_file_label:
+        return []
+
+    artifacts_file_path = mctx.path(artifacts_file_label)
+    artifacts_file_content = mctx.read(artifacts_file_path)
+    artifacts = artifacts_file_content.splitlines()
+    return artifacts
+
+
 def maven_impl(mctx):
     repos = {}
     overrides = {}
@@ -282,7 +294,7 @@ def maven_impl(mctx):
             repo["resolver"] = install.resolver
 
             artifacts = repo.get("artifacts", [])
-            repo["artifacts"] = artifacts + install.artifacts
+            repo["artifacts"] = artifacts + install.artifacts + _artifacts_from_file(mctx, install.artifacts_file)
 
             boms = repo.get("boms", [])
             repo["boms"] = boms + install.boms
