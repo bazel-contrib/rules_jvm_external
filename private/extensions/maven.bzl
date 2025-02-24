@@ -202,9 +202,25 @@ def _artifacts_from_file(mctx, artifacts_file_label):
 
     artifacts_file_path = mctx.path(artifacts_file_label)
     artifacts_file_content = mctx.read(artifacts_file_path)
-    artifacts = artifacts_file_content.splitlines()
-    return artifacts
 
+    artifacts = []
+    variables = {}
+
+    for line in artifacts_file_content.splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+
+        # variable assignment and substitution
+        if "=" in line:
+            key, value = line.split("=", 1)
+            variables[key.strip()] = value.strip()
+        else:
+            for var, val in variables.items():
+                line = line.replace("${" + var + "}", val)  # Perform substitution
+            artifacts.append(line)
+
+    return artifacts
 
 def maven_impl(mctx):
     repos = {}
