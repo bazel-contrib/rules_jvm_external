@@ -245,6 +245,12 @@ public class Outdated {
         continue;
       }
       String[] artifactParts = artifact.split(":");
+
+      // If there is no version, then skip this particular coordinate
+      if (artifactParts.length < 3) {
+        continue;
+      }
+
       String groupId = artifactParts[0];
       String artifactId = artifactParts[1];
       String version = artifactParts[2];
