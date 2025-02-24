@@ -45,6 +45,7 @@ install = tag_class(
         "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
         "artifacts_file": attr.label(doc = "A file containing a list of artifacts to install, one per line in `artifactId:groupId:version` format", allow_single_file = True),
         "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
+        "boms_file": attr.label(doc = "A file containing a list of BOMs to install, one per line in `artifactId:groupId:version` format", allow_single_file = True),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
 
         # What do we fetch?
@@ -288,7 +289,7 @@ def maven_impl(mctx):
             repo["artifacts"] = artifacts + install.artifacts + read_artifacts_from_file(mctx, install.artifacts_file)
 
             boms = repo.get("boms", [])
-            repo["boms"] = boms + install.boms
+            repo["boms"] = boms + install.boms + read_artifacts_from_file(mctx, install.boms_file)
 
             existing_repos = repo.get("repositories", [])
             for repository in parse.parse_repository_spec_list(install.repositories):

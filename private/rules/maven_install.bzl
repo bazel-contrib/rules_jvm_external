@@ -10,6 +10,7 @@ def maven_install(
         artifacts = [],
         artifacts_from_file = None,
         boms = [],
+        boms_from_file = None,
         resolver = "coursier",
         fail_on_missing_checksum = True,
         fetch_sources = False,
@@ -42,6 +43,7 @@ def maven_install(
 
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
       boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
+      boms_from_file: A file containing a list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
       artifacts_from_file: A file containing a list of Maven artifact coordinates in the form of `group:artifact:version`.
       resolver: Which resolver to use. One of `coursier`, or `maven`.
@@ -97,6 +99,9 @@ def maven_install(
     artifacts_json_strings = []
     for artifact in parse.parse_artifact_spec_list(artifacts):
         artifacts_json_strings.append(_json.write_artifact_spec(artifact))
+
+    if boms_from_file:
+        boms.extend(read_artifacts_from_file(boms_from_file))
 
     boms_json_strings = []
     for bom in parse.parse_artifact_spec_list(boms):
