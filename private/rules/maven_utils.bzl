@@ -60,6 +60,7 @@ def generate_pom(
         pom_template,
         out_name,
         parent = None,
+        is_bom = False,
         versioned_dep_coordinates = [],
         unversioned_dep_coordinates = [],
         versioned_compile_dep_coordinates = [],
@@ -112,7 +113,8 @@ def generate_pom(
         # Bazel `deps` -> Maven `runtime`
         # Bazel `runtime_deps` -> Maven `runtime`
         # Bazel `exports` -> Maven `compile`
-        new_scope = "compile" if dep in versioned_export_dep_coordinates else "runtime"
+        # For boms, it seems the best practice to use the default `compile` scope, unless the dependency is a BOM itself.
+        new_scope = "compile" if dep in versioned_export_dep_coordinates or is_bom else "runtime"
         if unpacked.packaging == "pom":
             new_scope = "import"
 
