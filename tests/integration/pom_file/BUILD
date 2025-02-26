@@ -54,12 +54,19 @@ diff_test(
     file2 = "pom-with-classifier-dep.golden.xml",
 )
 
-# TODO: Test neverlink dep behavior.
-#java_export(
-#    name = "pom-example-with-compile-only-dep",
-#    srcs = ["PomExample.java"],
-#    maven_coordinates = "com.example:app:1.0.0",
-#)
+java_export(
+    name = "pom-example-with-compile-only-dep",
+    srcs = ["PomExample.java"],
+    maven_coordinates = "com.example:app:1.0.0",
+    # This dep can be any neverlink dep.
+    deps = ["@regression_testing_coursier//:com_squareup_javapoet"],
+)
+
+diff_test(
+    name = "validate-pom-example-with-compile-only-dep",
+    file1 = ":pom-example-with-compile-only-dep-pom",
+    file2 = "pom-with-compile-only-dep.golden.xml",
+)
 
 java_export(
     name = "pom-example-with-exported-dep",
