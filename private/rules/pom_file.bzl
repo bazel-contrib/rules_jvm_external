@@ -14,11 +14,13 @@ def _pom_file_impl(ctx):
 
     all_maven_deps = info.maven_deps.to_list()
     compile_maven_deps = info.maven_compile_deps.to_list()
+    export_maven_deps = info.maven_export_deps.to_list()
 
     for dep in additional_deps:
         dep_info = dep[MavenInfo]
         dep_coordinates = [dep_info.coordinates] if dep_info.coordinates else dep_info.as_maven_dep.to_list()
         all_maven_deps.extend(dep_coordinates)
+        all_maven_deps.extend(export_maven_deps)
         compile_maven_deps.extend(dep_coordinates)
 
     expanded_maven_deps = [
@@ -38,6 +40,7 @@ def _pom_file_impl(ctx):
         coordinates = coordinates,
         versioned_dep_coordinates = sorted(expanded_maven_deps),
         versioned_compile_dep_coordinates = expanded_compile_deps,
+        versioned_export_dep_coordinates = export_maven_deps,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
     )
