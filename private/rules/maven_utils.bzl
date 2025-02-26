@@ -63,6 +63,7 @@ def generate_pom(
         versioned_dep_coordinates = [],
         unversioned_dep_coordinates = [],
         versioned_compile_dep_coordinates = [],
+        versioned_export_dep_coordinates = [],
         indent = 8):
     versioned_compile_dep_coordinates_set = {
         k: None
@@ -97,7 +98,21 @@ def generate_pom(
         include_version = dep in versioned_dep_coordinates
         unpacked = _unpack_coordinates(dep)
 
-        new_scope = "compile" if dep in versioned_compile_dep_coordinates_set else "runtime"
+        # This seems counter-intuitive, but "scope" in Maven and Bazel are different.
+        # Bazel -
+        #   `deps` are available at compile time and runtime, and are not leaked to dependents
+        #   `runtime_deps` are available at runtime, but not compile time, and are not leaked to dependents
+        #   `exports` leaked to dependents as compile and runtime dependencies
+        # Maven -
+        #   `compile` means the dependency is available at compile time and runtime, and is leaked to dependents
+        #   `runtime` means the dependency is available at runtime, but not compile time. To promote good build hygiene,
+        #             this should be the default scope for the generated pom.xml because it means that we don't
+        #             leak our dependencies to dependents.
+        # So putting all this together, this should is the mapping:
+        # Bazel `deps` -> Maven `runtime`
+        # Bazel `runtime_deps` -> Maven `runtime`
+        # Bazel `exports` -> Maven `compile`
+        new_scope = "compile" if dep in versioned_export_dep_coordinates else "runtime"
         if unpacked.packaging == "pom":
             new_scope = "import"
 
