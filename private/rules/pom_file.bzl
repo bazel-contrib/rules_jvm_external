@@ -62,8 +62,7 @@ The following substitutions are performed on the template file:
   {type}: Replaced by the maven coordinates type, if present (defaults to "jar")
   {scope}: Replaced by the maven coordinates type, if present (defaults to "compile")
   {dependencies}: Replaced by a list of maven dependencies directly relied upon
-    by java_library targets within the artifact. Dependencies have exclusions
-    for any transitive dependencies that are occur in deploy_env.
+    by java_library targets within the artifact.
 """,
     attrs = {
         "pom_template": attr.label(
