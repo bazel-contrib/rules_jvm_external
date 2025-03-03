@@ -63,12 +63,11 @@ def generate_pom(
         is_bom = False,
         versioned_dep_coordinates = [],
         unversioned_dep_coordinates = [],
-        versioned_compile_dep_coordinates = [],
         versioned_export_dep_coordinates = [],
         indent = 8):
-    versioned_compile_dep_coordinates_set = {
+    versioned_export_dep_coordinates_set = {
         k: None
-        for k in versioned_compile_dep_coordinates
+        for k in versioned_export_dep_coordinates
     }
     unpacked_coordinates = _unpack_coordinates(coordinates)
     substitutions = {
@@ -113,8 +112,8 @@ def generate_pom(
         # Bazel `deps` -> Maven `runtime`
         # Bazel `runtime_deps` -> Maven `runtime`
         # Bazel `exports` -> Maven `compile`
-        # For boms, it seems the best practice to use the default `compile` scope, unless the dependency is a BOM itself.
-        new_scope = "compile" if dep in versioned_export_dep_coordinates or is_bom else "runtime"
+        # For boms, it seems the best practice is to use the default `compile` scope, unless the dependency is a BOM itself.
+        new_scope = "compile" if dep in versioned_export_dep_coordinates_set or is_bom else "runtime"
         if unpacked.packaging == "pom":
             new_scope = "import"
 

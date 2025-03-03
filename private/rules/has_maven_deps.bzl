@@ -4,9 +4,9 @@ MavenInfo = provider(
     fields = {
         # Fields to do with maven coordinates
         "coordinates": "Maven coordinates for the project, which may be None",
-        "maven_deps": "Depset of coordinates of all transitive maven dependencies",
-        "maven_compile_deps": "Depset of coordinates of all transitive maven dependencies with compile scope",
-        "maven_export_deps": "Depset of coordinates of all transitive maven dependencies with export scope",
+        "maven_deps": "Depset of first-order maven dependencies",
+        "maven_export_deps": "Depset of first-order maven dependency exports",
+        "as_maven_dep": "Depset of this project if used as a maven dependency",
 
         # Fields used for generating artifacts
         "artifact_infos": "Depset of JavaInfo instances of targets to include in the maven artifact",
@@ -29,7 +29,7 @@ to offer `tags` to be used to infer maven information.
 _EMPTY_INFO = MavenInfo(
     coordinates = None,
     maven_deps = depset(),
-    maven_compile_deps = depset(),
+    as_maven_dep = depset(),
     maven_export_deps = depset(),
     artifact_infos = depset(),
     dep_infos = depset(),
@@ -40,7 +40,7 @@ _EMPTY_INFO = MavenInfo(
 _STOPPED_INFO = MavenInfo(
     coordinates = "STOPPED",
     maven_deps = depset(),
-    maven_compile_deps = depset(),
+    as_maven_dep = depset(),
     maven_export_deps = depset(),
     artifact_infos = depset(),
     dep_infos = depset(),
@@ -111,8 +111,6 @@ def calculate_artifact_source_jars(maven_info):
 _gathered = provider(
     fields = [
         "all_infos",
-        "all_deps",
-        "compile_deps",
         "export_deps",
         "label_to_javainfo",
         "artifact_infos",
@@ -121,32 +119,24 @@ _gathered = provider(
     ],
 )
 
-def _extract_from(gathered, maven_info, dep, is_export_dep, is_runtime_dep):
+def _extract_from(gathered, maven_info, dep, is_export_dep):
     java_info = dep[JavaInfo] if dep and JavaInfo in dep else None
 
     gathered.all_infos.append(maven_info)
-
     gathered.label_to_javainfo.update(maven_info.label_to_javainfo)
-    if java_info:
-        if maven_info.coordinates == _STOPPED_INFO.coordinates:
-            pass
-        elif maven_info.coordinates:
-            gathered.dep_infos.append(dep[JavaInfo])
 
-            own_coordinates = depset([maven_info.coordinates])
-            gathered.all_deps.append(own_coordinates)
-            if not is_runtime_dep:
-                gathered.compile_deps.append(own_coordinates)
-            if is_export_dep:
-                gathered.export_deps.append(own_coordinates)
-        else:
-            gathered.artifact_infos.append(dep[JavaInfo])
-            if is_export_dep:
-                gathered.transitive_exports.append(maven_info.transitive_exports)
+    if is_export_dep:
+        gathered.export_deps.append(maven_info)
 
-            gathered.all_deps.append(maven_info.maven_deps)
-            if not is_runtime_dep:
-                gathered.compile_deps.append(maven_info.maven_compile_deps)
+    if not java_info:
+        return
+
+    if maven_info.coordinates:
+        gathered.dep_infos.append(dep[JavaInfo])
+    else:
+        gathered.artifact_infos.append(dep[JavaInfo])
+        if is_export_dep:
+            gathered.transitive_exports.append(maven_info.transitive_exports)
 
 def _has_maven_deps_impl(target, ctx):
     if not JavaInfo in target:
@@ -154,10 +144,10 @@ def _has_maven_deps_impl(target, ctx):
 
     # Check the stop tags first to let us exit quickly.
     # When MavenInfo is set, _extract_from will add the dep to the dep_infos list, propagating
-    # the dependency info to the pom.xml and excluding its jar from the artifact.
+    # the dependency info to the pom.xml and excluding its contents from the project-jar.
     # If _EMPTY_INFO is used, _extract_from will add the dep to the artifact_infos list, which
-    # will include the jar in the artifact itself.
-    # If _STOPPED_INFO is used, _extract_from will not add the dep to either list. This is useful
+    # will include the contents in the project-jar.
+    # If _STOPPED_INFO is used, _extract_from will add the dep to the dep_infos list. This is useful
     # when we want to stop the propagation of the dependency info to the pom.xml while also excluding
     # the jar from the artifact.
     for tag in ctx.rule.attr.tags:
@@ -165,12 +155,9 @@ def _has_maven_deps_impl(target, ctx):
             return [_STOPPED_INFO]
 
     coordinates = read_coordinates(ctx.rule.attr.tags)
-    label_to_javainfo = {target.label: target[JavaInfo]}
 
     gathered = _gathered(
         all_infos = [],
-        all_deps = [],
-        compile_deps = [],
         export_deps = [],
         artifact_infos = [target[JavaInfo]],
         transitive_exports = [],
@@ -182,22 +169,21 @@ def _has_maven_deps_impl(target, ctx):
         for dep in getattr(ctx.rule.attr, attr, []):
             if MavenHintInfo in dep:
                 for info in dep[MavenHintInfo].maven_infos.to_list():
-                    _extract_from(gathered, info, None, attr == "exports", attr == "runtime_deps")
+                    _extract_from(gathered, info, None, attr == "exports")
 
             if not MavenInfo in dep:
                 continue
 
             info = dep[MavenInfo]
-            _extract_from(gathered, info, dep, attr == "exports", attr == "runtime_deps")
+            _extract_from(gathered, info, dep, attr == "exports")
 
     all_infos = gathered.all_infos
     artifact_infos = gathered.artifact_infos
     transitive_exports_from_deps = gathered.transitive_exports
     dep_infos = gathered.dep_infos
     label_to_javainfo = gathered.label_to_javainfo
-    maven_deps = depset(transitive = gathered.all_deps)
-    maven_compile_deps = depset(transitive = gathered.compile_deps)
-    maven_export_deps = depset(transitive = gathered.export_deps)
+    maven_deps = depset(transitive = [i.as_maven_dep for i in all_infos])
+    maven_export_deps = depset(transitive = [i.as_maven_dep for i in gathered.export_deps])
 
     transitive_exports_from_exports = depset()
     if hasattr(ctx.rule.attr, "exports"):
@@ -210,8 +196,8 @@ def _has_maven_deps_impl(target, ctx):
     info = MavenInfo(
         coordinates = coordinates,
         maven_deps = maven_deps,
-        maven_compile_deps = maven_compile_deps,
         maven_export_deps = maven_export_deps,
+        as_maven_dep = depset([coordinates]) if coordinates else maven_deps,
         artifact_infos = depset(direct = artifact_infos),
         dep_infos = depset(direct = dep_infos, transitive = [i.dep_infos for i in all_infos]),
         label_to_javainfo = label_to_javainfo,

@@ -16,12 +16,11 @@ def _runtime_scope_test_impl(ctx):
         "example:runtime_dep_and_dep_leaf:1.0.0",
         "example:runtime_dep_leaf:1.0.0",
     ], sorted(tut[MavenInfo].maven_deps.to_list()))
+
     asserts.equals(env, [
         # keep sorted
         "example:exported_leaf:1.0.0",
-        "example:leaf:1.0.0",
-        "example:runtime_dep_and_dep_leaf:1.0.0",
-    ], sorted(tut[MavenInfo].maven_compile_deps.to_list()))
+    ], sorted(tut[MavenInfo].maven_export_deps.to_list()))
 
     return analysistest.end(env)
 

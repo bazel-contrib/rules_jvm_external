@@ -85,3 +85,19 @@ diff_test(
     file1 = ":pom-example-with-exported-dep-pom",
     file2 = "pom-with-exported-dep.golden.xml",
 )
+
+java_export(
+    name = "pom-example-with-exported-compile-only-dep",
+    srcs = ["PomExample.java"],
+    maven_coordinates = "com.example:app:1.0.0",
+    exports = [
+        "@regression_testing_coursier//:com_squareup_javapoet",
+    ],
+    deps = ["@regression_testing_coursier//:com_squareup_javapoet"],
+)
+
+diff_test(
+    name = "validate-pom-example-exported-compile-only-dep",
+    file1 = ":pom-example-with-exported-compile-only-dep-pom",
+    file2 = "pom-example-with-exported-compile-only-dep.golden.xml",
+)
