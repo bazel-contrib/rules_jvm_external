@@ -1,9 +1,11 @@
 load("@rules_java//java:defs.bzl", "java_library")
 load("//:defs.bzl", "java_export")
 
-# the apps-docs target previously failed with this setup.
-# now it succeeds.
-# todo: how to wrap this in a test target?
+alias(
+    name = "test_building_javadocs_with_compile_only_dep",
+    actual = "app-docs",
+)
+
 java_export(
     name = "app",
     srcs = ["EntryPoint.java"],
