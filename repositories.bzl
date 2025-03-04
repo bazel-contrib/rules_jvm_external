@@ -82,10 +82,7 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "rules_shell",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
-            "https://github.com/bazelbuild/rules_shell/releases/download/v%s/rules_shell-v0.3.0.tar.gz",
-        ],
+        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
         sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
         strip_prefix = "rules_shell-0.3.0",
         # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this

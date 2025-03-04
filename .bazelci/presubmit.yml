@@ -24,33 +24,6 @@ tasks:
     test_targets:
       - "--"
       - "//tests/integration/override_targets:override_targets"
-# TODO: restore once https://github.com/bazelbuild/continuous-integration/issues/1810 is fixed
-#  ubuntu2204_4_2_2:
-#    platform: ubuntu2204
-#    bazel: 4.2.2
-#    environment:
-#      REPIN: 1
-#    shell_commands:
-#      - bazel run @regression_testing_coursier//:pin
-#      - bazel run @regression_testing_maven//:pin
-#      - bazel run @maven_install_in_custom_location//:pin
-#      - tests/bazel_run_tests.sh
-#    test_targets:
-#      - "--"
-#      - "//..."
-  ubuntu2204_5_4_0:
-    platform: ubuntu2204
-    bazel: 5.4.0
-    environment:
-      REPIN: 1
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "--"
-      - "//..."
   ubuntu2204_6_4_0:
     platform: ubuntu2204
     bazel: 6.4.0
@@ -64,9 +37,23 @@ tasks:
     test_targets:
       - "--"
       - "//..."
+  ubuntu2204_7_4_1:
+    platform: ubuntu2204
+    bazel: 7.4.1
+    environment:
+      REPIN: 1
+    shell_commands:
+      - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_maven//:pin
+      - bazel run @maven_install_in_custom_location//:pin
+      - tests/bazel_run_tests.sh
+    test_targets:
+      - "--"
+      - "//..."
   ubuntu2204_latest:
     platform: ubuntu2204
-    bazel: latest
+    # TODO: Revert to latest after fixing incompatibilities with Bazel 8.0.0
+    bazel: 7.x
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316

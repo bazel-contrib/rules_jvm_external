@@ -1,6 +1,6 @@
 module(
     name = "rules_jvm_external",
-    version = "6.6",
+    version = "6.7",
     bazel_compatibility = [">=7.0.0"],
 )
 
@@ -104,7 +104,7 @@ use_repo(
 
 http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
-_COURSIER_CLI_VERSION = "v2.1.8"
+_COURSIER_CLI_VERSION = "v2.1.24"
 
 COURSIER_CLI_HTTP_FILE_NAME = ("coursier_cli_" + _COURSIER_CLI_VERSION).replace(".", "_").replace("-", "_")
 
@@ -113,7 +113,7 @@ COURSIER_CLI_GITHUB_ASSET_URL = "https://github.com/coursier/coursier/releases/d
 # Run 'bazel run //:mirror_coursier' to upload a copy of the jar to the Bazel mirror.
 COURSIER_CLI_BAZEL_MIRROR_URL = "https://mirror.bazel.build/coursier_cli/" + COURSIER_CLI_HTTP_FILE_NAME + ".jar"
 
-COURSIER_CLI_SHA256 = "2b78bfdd3ef13fd1f42f158de0f029d7cbb1f4f652d51773445cf2b6f7918a87"
+COURSIER_CLI_SHA256 = "8c724dc204534353ea8263ba0af624979658f7ab62395f35b04f03ce5714f330"
 
 http_file(
     name = "coursier_cli",
@@ -149,12 +149,15 @@ http_file(
 
 bazel_dep(
     name = "protobuf",
-    # Note: we use 27.2 in MODULE.bazel to avoid the warning:
-    #   The maven repository 'maven' is used in two different bazel modules, originally in 'rules_jvm_external' and now in 'protobuf'
-    # But we use 21.7 in WORKSPACE because protobuf 27.2 doesn't work with Bazel 5.x
+    # Note: In MODULE.bazel, we use a version >= 29.1 to avoid polluting the
+    # default maven repo name with protobuf's dependencies.
+    # https://github.com/protocolbuffers/protobuf/pull/19477
+    # However, in WORKSPACE, we use version 21.7 since version 27.2 doesn't work
+    # with Bazel 5.x.
     # https://github.com/protocolbuffers/protobuf/commit/a80daa2a2caaaac9ebe9ae6bb1b639c2771c5c55
-    # This should be ok because we only use the protobuf dep to pull in the google/protobuf/wrappers.proto for testing
-    version = "27.2",
+    # This should be ok because we only use protobuf to pull in the google/protobuf/wrappers.proto
+    # for testing.
+    version = "29.3",
     dev_dependency = True,
 )
 bazel_dep(

@@ -119,6 +119,7 @@ _BUILD_PIN_ALIAS = """
 alias(
   name = "pin",
   actual = "{unpinned_pin_target}",
+  visibility = ["//visibility:public"],
 )
 """
 
@@ -796,6 +797,7 @@ def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
 def make_coursier_dep_tree(
         repository_ctx,
         artifacts,
+        boms,
         excluded_artifacts,
         repositories,
         version_conflict_policy,
@@ -839,11 +841,15 @@ def make_coursier_dep_tree(
     cmd.extend(artifact_coordinates)
     if version_conflict_policy == "pinned":
         for coord in artifact_coordinates:
-            # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
-            cmd.extend([
-                "--force-version",
-                ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
-            ])
+            # check if the artifact has version set
+            version = coord.split(",")[0].split(":")[2]
+
+            if version:
+                # Undo any `,classifier=` and/or `,type=` suffix from `utils.artifact_coordinate`.
+                cmd.extend([
+                    "--force-version",
+                    ",".join([c for c in coord.split(",") if not c.startswith("classifier=") and not c.startswith("type=")]),
+                ])
     else:
         for coord in forced_versions:
             cmd.extend([
@@ -854,6 +860,9 @@ def make_coursier_dep_tree(
     cmd.append("--verbose" if _is_verbose(repository_ctx) else "--quiet")
     cmd.append("--no-default")
     cmd.extend(["--json-output-file", "dep-tree.json"])
+
+    for bom in boms:
+        cmd.extend(["--bom", utils.artifact_coordinate(bom)])
 
     if fail_on_missing_checksum:
         cmd.extend(["--checksum", "SHA-1,MD5"])
@@ -1026,6 +1035,9 @@ def _coursier_fetch_impl(repository_ctx):
 
     _check_artifacts_are_unique(artifacts, repository_ctx.attr.duplicate_version_warning)
 
+    boms = [json.decode(bom) for bom in repository_ctx.attr.boms]
+    _check_artifacts_are_unique(boms, repository_ctx.attr.duplicate_version_warning)
+
     excluded_artifacts = []
     for artifact in repository_ctx.attr.excluded_artifacts:
         excluded_artifacts.append(json.decode(artifact))
@@ -1039,6 +1051,7 @@ def _coursier_fetch_impl(repository_ctx):
     dep_tree = make_coursier_dep_tree(
         repository_ctx,
         artifacts,
+        boms,
         excluded_artifacts,
         repositories,
         repository_ctx.attr.version_conflict_policy,
@@ -1442,6 +1455,7 @@ coursier_fetch = repository_rule(
         "user_provided_name": attr.string(),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
+        "boms": attr.string_list(),  # list of bom objects, each as json
         "fail_on_missing_checksum": attr.bool(default = True),
         "fetch_sources": attr.bool(default = False),
         "fetch_javadoc": attr.bool(default = False),

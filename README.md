@@ -92,11 +92,14 @@ Find other GitHub projects using `rules_jvm_external`
 
 ## Prerequisites
 
-* Bazel 5.4.1 and above.
+* Bazel 6.4.0, up to the current LTS version.
+* Support for Bazel versions between `5.4` and `7.x` is only available on releases `6.x`.
+* Support for Bazel versions between `4.x` and `5.4` is only available on releases `5.x`.
+* Support for Bazel versions before `4.0.0` is only available on releases `4.2` or earlier.
 
-Support for Bazel versions between `4.x` and `5.4` is only available on rules_jvm_external releases `5.x`. 
-
-Support for Bazel versions before `4.0.0` is only available on rules_jvm_external releases `4.2` or earlier.
+**Compatibility guideline:** This project aims to be backwards compatible with
+the (current LTS - 2) version. If the current LTS version is 8, then we aim to
+support versions 6, 7 and 8.
 
 ## Usage
 
@@ -172,7 +175,7 @@ rules_jvm_external_deps(
 rules_jvm_external_setup()
 ```
 
-If you are using `bzlmod`, define an `install` tag in your root 
+If you are using `bzlmod`, define an `install` tag in your root
 `MODULE.bazel` which overrides the values:
 
 ```python
@@ -184,7 +187,7 @@ maven.install(
 ```
 
 Once these changes have been made, repin using `REPIN=1 bazel run
-@rules_jvm_external_deps//:pin` and commit the file to your version 
+@rules_jvm_external_deps//:pin` and commit the file to your version
 control system (note that at this point you will need to maintain your
 customized `rules_jvm_external_deps_install.json`):
 
@@ -359,19 +362,10 @@ bar_pinned_maven_install()
 
 ## (Experimental) Support for Maven BOM files
 
-Support for Maven BOMs can be enabled by switching the resolver used by `maven_install` to one that supports Maven BOMs.
-This can be done by setting the `resolver` attribute to `maven`. The new resolver will likely result in different
-resolutions than the existing resolver, so it is advised to re-run your dependencies pin.
-
-The new resolver requires you to use a `maven_install_json` file, though if you have not yet pinned your dependencies,
-this can simply be an empty file.
-
-As an example:
+Maven BOMs can be used by using the `boms` attribute, for example:
 
 ```starlark
 maven.install(
-    # Resolution using BOMs is supported by using the `maven` resolver
-    resolver = "maven",
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.18.1",
     ],
@@ -379,8 +373,6 @@ maven.install(
         # This dependency is included in the `selenium-bom`, so we can omit the version number
         "org.seleniumhq.selenium:selenium-java",
     ],
-    # The `maven` resolver requires a lock file, though this can be an empty file before pinning
-    lock_file = "//:manifest_install.json",
 )
 ```
 
