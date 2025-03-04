@@ -247,6 +247,12 @@ public class Outdated {
       String[] artifactParts = artifact.split(":");
       String groupId = artifactParts[0];
       String artifactId = artifactParts[1];
+
+      // If a dependency is one where the version is selected by a BOM, there
+      // may not be a version number. In this case, skip the artifact.
+      if (artifactParts.length < 3) {
+        continue;
+      }
       String version = artifactParts[2];
 
       ArtifactReleaseInfo artifactReleaseInfo = null;

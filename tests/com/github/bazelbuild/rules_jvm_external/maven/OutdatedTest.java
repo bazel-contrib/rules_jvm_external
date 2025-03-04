@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.Rule;
@@ -437,5 +438,33 @@ public class OutdatedTest {
     assertThat(releaseInfo, is(notNullValue()));
     assertThat(releaseInfo.releaseVersion, equalTo("20040616"));
     assertThat(releaseInfo.preReleaseVersion, is(nullValue()));
+  }
+
+  @Test
+  public void shouldSkipArtifactWhenAnArtifactLacksAVersionNumber() throws IOException {
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(artifactsFile, List.of("com.google.guava:guava"), StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile, List.of("https://repo1.maven.org/maven2"), StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(outdatedOutput.toString(), containsString("https://repo1.maven.org/maven2"));
+    assertThat(outdatedOutput.toString(), containsString("No updates found"));
   }
 }

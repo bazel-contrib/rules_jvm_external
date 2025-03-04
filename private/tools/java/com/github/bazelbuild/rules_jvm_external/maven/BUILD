@@ -46,11 +46,26 @@ java_binary(
     ],
 )
 
+java_library(
+    name = "outdated-lib",
+    srcs = ["Outdated.java"],
+    visibility = ["//visibility:public"],
+    deps = [
+        artifact(
+            "org.apache.maven:maven-artifact",
+            repository_name = "rules_jvm_external_deps",
+        ),
+    ],
+)
+
+# Just used for testing the binary
 java_binary(
     name = "outdated",
     srcs = ["Outdated.java"],
     main_class = "com.github.bazelbuild.rules_jvm_external.maven.Outdated",
-    visibility = ["//visibility:public"],
+    visibility = [
+        "//tests/com/github/bazelbuild/rules_jvm_external/maven:__pkg__",
+    ],
     deps = [
         artifact(
             "org.apache.maven:maven-artifact",

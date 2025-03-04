@@ -105,13 +105,10 @@ sh_binary(
         "lock_file_converter_deploy.jar",
         "$(location //private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:IndexJar_deploy.jar)",
         "index_jar_deploy.jar",
-        "$(location //private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated_deploy.jar)",
-        "outdated_deploy.jar",
     ],
     data = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external:hasher-tool_deploy.jar",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:LockFileConverter_deploy.jar",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:IndexJar_deploy.jar",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated_deploy.jar",
     ],
 )
