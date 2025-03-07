@@ -78,8 +78,8 @@ def java_export(
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
         `tags = ["no-javadoc"]`).
       visibility: The visibility of the target
-      kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
       publish_maven_metadata: Whether to publish a maven-metadata.xml
+      kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
     """
 
