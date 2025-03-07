@@ -80,23 +80,28 @@ sh_binary(
 )
 """
 
+outdated_library = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated-lib")
+
 _BUILD_OUTDATED = """
-sh_binary(
+java_binary(
     name = "outdated",
-    srcs = ["outdated.sh"],
+    main_class = "com.github.bazelbuild.rules_jvm_external.maven.Outdated",
+    runtime_deps = [
+        "%s",
+    ],
     data = [
-        "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
         "outdated.artifacts",
         "outdated.repositories",
     ],
     args = [
-        "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
+        "--artifacts-file",
         "$(location outdated.artifacts)",
+        "--repositories-file",
         "$(location outdated.repositories)",
     ],
     visibility = ["//visibility:public"],
 )
-"""
+""" % Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated-lib")
 
 EMPTY_FILE_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 

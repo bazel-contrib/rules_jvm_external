@@ -27,6 +27,8 @@ genquery(
         "@testonly_testing//:com_google_auto_value_auto_value_annotations",
         "@testonly_testing//:defs",
         "@testonly_testing//:outdated",
+        # This seems fragile
+        "@testonly_testing//:outdated_deployjars_internal_rule",
         "@testonly_testing//:pin",
     ],
 )
