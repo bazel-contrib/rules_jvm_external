@@ -726,27 +726,45 @@ def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
             break
     return primary_artifact_path
 
+def _artifact_to_coordinate(artifact):
+    """
+    Convert an artifact to a maven coordinate string.
+    """ 
+
+    return artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
+
 def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
     if duplicate_version_warning == "none":
         return
     seen_artifacts = {}
     duplicate_artifacts = {}
     for artifact in artifacts:
-        artifact_coordinate = artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
+        artifact_coordinate = _artifact_to_coordinate(artifact)
         if artifact_coordinate in seen_artifacts:
             # Don't warn if the same version is in the list multiple times
-            if seen_artifacts[artifact_coordinate] != artifact["version"]:
+            if seen_artifacts[artifact_coordinate]["version"] != artifact["version"]:
                 if artifact_coordinate in duplicate_artifacts:
-                    duplicate_artifacts[artifact_coordinate].append(artifact["version"])
+                    duplicate_artifacts[artifact_coordinate].append(artifact)
                 else:
-                    duplicate_artifacts[artifact_coordinate] = [artifact["version"]]
+                    duplicate_artifacts[artifact_coordinate] = [seen_artifacts[artifact_coordinate], artifact]
         else:
-            seen_artifacts[artifact_coordinate] = artifact["version"]
+            seen_artifacts[artifact_coordinate] = artifact
+
+    # go through the duplicate_artifacts and if the list of artifacts contains exactly one with force_version set to True
+    # remove it from teh duplicate_artifacts entry
+    duplicate_artifacts_to_remove = []
+    for duplicate in duplicate_artifacts:
+        forced_versions = [artifact for artifact in duplicate_artifacts[duplicate] if artifact.get("force_version", False)]
+        if len(forced_versions) == 1:
+            duplicate_artifacts_to_remove.append(duplicate)
+    for duplicate in duplicate_artifacts_to_remove:
+        duplicate_artifacts.pop(duplicate)
 
     if duplicate_artifacts:
         msg_parts = ["Found duplicate artifact versions"]
         for duplicate in duplicate_artifacts:
-            msg_parts.append("    {} has multiple versions {}".format(duplicate, ", ".join([seen_artifacts[duplicate]] + duplicate_artifacts[duplicate])))
+            versions = [artifact["version"] for artifact in duplicate_artifacts[duplicate]]
+            msg_parts.append("    {} has multiple versions {}".format(duplicate, ", ".join(versions)))
         msg_parts.append("Please remove duplicate artifacts from the artifact list so you do not get unexpected artifact versions")
         if duplicate_version_warning == "error":
             fail("\n".join(msg_parts))
