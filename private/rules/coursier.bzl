@@ -81,18 +81,21 @@ sh_binary(
 """
 
 _BUILD_OUTDATED = """
-sh_binary(
+java_binary(
     name = "outdated",
-    srcs = ["outdated.sh"],
+    runtime_deps = [
+        "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated_deploy.jar",
+    ],
+    main_class = "com.github.bazelbuild.rules_jvm_external.maven.Outdated",
     data = [
-        "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
         "outdated.artifacts",
         "outdated.repositories",
     ],
     args = [
-        "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
-        "$(location outdated.artifacts)",
-        "$(location outdated.repositories)",
+        "--artifacts-file",
+        "$(execpath outdated.artifacts)",
+        "--repositories-file",
+        "$(execpath outdated.repositories)",
     ],
     visibility = ["//visibility:public"],
 )
@@ -384,16 +387,6 @@ def _add_outdated_files(repository_ctx, artifacts, repositories):
         "outdated.repositories",
         "\n".join([repo["repo_url"] for repo in repositories]) + "\n",
         executable = False,
-    )
-
-    repository_ctx.template(
-        "outdated.sh",
-        repository_ctx.attr._outdated,
-        {
-            "{repository_name}": repository_ctx.name,
-            "{proxy_opts}": " ".join([_shell_quote(arg) for arg in _get_java_proxy_args(repository_ctx)]),
-        },
-        executable = True,
     )
 
 def is_repin_required(repository_ctx):
