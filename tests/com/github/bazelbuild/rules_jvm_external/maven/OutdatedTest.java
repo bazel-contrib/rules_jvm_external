@@ -59,6 +59,7 @@ public class OutdatedTest {
     assertThat(outdatedOutput.toString(), containsString("https://repo1.maven.org/maven2"));
     assertThat(outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> "));
     assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+    assertThat(outdatedOutput.toString(), not(containsString("BOMs")));
   }
 
   @Test
@@ -437,5 +438,79 @@ public class OutdatedTest {
     assertThat(releaseInfo, is(notNullValue()));
     assertThat(releaseInfo.releaseVersion, equalTo("20040616"));
     assertThat(releaseInfo.preReleaseVersion, is(nullValue()));
+  }
+
+  @Test
+  public void shouldFindUpdatedVersionForBOMs() throws IOException {
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(
+        artifactsFile, Arrays.asList("com.google.guava:guava:27.0-jre"), StandardCharsets.UTF_8);
+
+    Path bomsFile = temp.newFile("outdated.boms").toPath();
+    Files.write(
+        bomsFile, Arrays.asList("com.google.cloud:libraries-bom:26.0.0"), StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile, Arrays.asList("https://repo1.maven.org/maven2"), StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--boms-file", bomsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString(
+            "Checking for updates of 1 boms and 1 artifacts against the following repositories"));
+    assertThat(outdatedOutput.toString(), containsString("https://repo1.maven.org/maven2"));
+    assertThat(outdatedOutput.toString(), containsString("BOMs"));
+    assertThat(
+        outdatedOutput.toString(), containsString("com.google.cloud:libraries-bom [26.0.0 -> "));
+    assertThat(outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> "));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
+  }
+
+  @Test
+  public void shouldPrintNoUpdatesIfBOMInputFileIsEmpty() throws IOException {
+    Path artifactsFile = temp.newFile("outdated.artifacts").toPath();
+    Files.write(
+        artifactsFile, Arrays.asList("com.google.guava:guava:27.0-jre"), StandardCharsets.UTF_8);
+
+    Path bomsFile = temp.newFile("outdated.boms").toPath();
+    Files.write(bomsFile, Arrays.asList(""), StandardCharsets.UTF_8);
+
+    Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
+    Files.write(
+        repositoriesFile, Arrays.asList("https://repo1.maven.org/maven2"), StandardCharsets.UTF_8);
+
+    ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
+    try {
+      System.setOut(new PrintStream(outdatedOutput));
+      Outdated.main(
+          new String[] {
+            "--artifacts-file", artifactsFile.toAbsolutePath().toString(),
+            "--boms-file", bomsFile.toAbsolutePath().toString(),
+            "--repositories-file", repositoriesFile.toAbsolutePath().toString()
+          });
+    } finally {
+      System.setOut(originalOut);
+    }
+
+    assertThat(
+        outdatedOutput.toString(),
+        containsString("Checking for updates of 1 artifacts against the following repositories"));
+    assertThat(outdatedOutput.toString(), containsString("https://repo1.maven.org/maven2"));
+    assertThat(outdatedOutput.toString(), not(containsString("BOMs")));
+    assertThat(outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> "));
+    assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
   }
 }
