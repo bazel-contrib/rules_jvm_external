@@ -87,11 +87,13 @@ sh_binary(
     data = [
         "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
         "outdated.artifacts",
+        "outdated.boms",
         "outdated.repositories",
     ],
     args = [
         "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
         "$(location outdated.artifacts)",
+        "$(location outdated.boms)",
         "$(location outdated.repositories)",
     ],
     visibility = ["//visibility:public"],
@@ -373,10 +375,16 @@ def get_home_netrc_contents(repository_ctx):
 
     return repository_ctx.read(netrcfile)
 
-def _add_outdated_files(repository_ctx, artifacts, repositories):
+def _add_outdated_files(repository_ctx, artifacts, boms, repositories):
     repository_ctx.file(
         "outdated.artifacts",
         "\n".join(["{}:{}:{}".format(artifact["group"], artifact["artifact"], artifact["version"]) for artifact in artifacts]) + "\n",
+        executable = False,
+    )
+
+    repository_ctx.file(
+        "outdated.boms",
+        "\n".join(["{}:{}:{}".format(bom["group"], bom["artifact"], bom["version"]) for bom in boms]) + "\n",
         executable = False,
     )
 
@@ -659,7 +667,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         executable = False,
     )
 
-    _add_outdated_files(repository_ctx, artifacts, repositories)
+    _add_outdated_files(repository_ctx, artifacts, boms, repositories)
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
@@ -1307,7 +1315,7 @@ def _coursier_fetch_impl(repository_ctx):
 
         # Add outdated artifact files if this is a pinned repo
         outdated_build_file_content = _BUILD_OUTDATED
-        _add_outdated_files(repository_ctx, artifacts, repositories)
+        _add_outdated_files(repository_ctx, artifacts, boms, repositories)
 
     repository_ctx.file(
         "BUILD",
