@@ -17,8 +17,8 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 maven_install(
     artifacts = [
-        "com.google.protobuf:protobuf-java:3.23.2",
-        "com.google.protobuf:protobuf-java-util:3.23.2",
+        "com.google.protobuf:protobuf-java:3.25.5",
+        "com.google.protobuf:protobuf-java-util:3.25.5",
     ],
     override_targets = {
         "com.google.protobuf:protobuf-java": "@protobuf//:protobuf_java",
