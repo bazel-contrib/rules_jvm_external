@@ -29,6 +29,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
+load("//private/lib:coordinates.bzl", "to_external_form")
 load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
@@ -726,20 +727,13 @@ def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
             break
     return primary_artifact_path
 
-def _artifact_to_coordinate(artifact):
-    """
-    Convert an artifact to a maven coordinate string.
-    """ 
-
-    return artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
-
 def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
     if duplicate_version_warning == "none":
         return
     seen_artifacts = {}
     duplicate_artifacts = {}
     for artifact in artifacts:
-        artifact_coordinate = _artifact_to_coordinate(artifact)
+        artifact_coordinate = to_external_form(artifact)
         if artifact_coordinate in seen_artifacts:
             # Don't warn if the same version is in the list multiple times
             if seen_artifacts[artifact_coordinate]["version"] != artifact["version"]:
@@ -751,7 +745,7 @@ def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
             seen_artifacts[artifact_coordinate] = artifact
 
     # go through the duplicate_artifacts and if the list of artifacts contains exactly one with force_version set to True
-    # remove it from teh duplicate_artifacts entry
+    # remove it from the duplicate_artifacts entry
     duplicate_artifacts_to_remove = []
     for duplicate in duplicate_artifacts:
         forced_versions = [artifact for artifact in duplicate_artifacts[duplicate] if artifact.get("force_version", False)]
