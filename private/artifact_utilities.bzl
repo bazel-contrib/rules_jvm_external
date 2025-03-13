@@ -61,7 +61,10 @@ def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verb
                 elif len(duplicate_artifact["dependencies"]) > 0 and len(deduped_artifact_with_exclusion["dependencies"]) == 0:
                     deduped_artifact_with_exclusion = duplicate_artifact
         if verbose and not found_artifact_with_exclusion:
-            print("Could not find duplicate artifact with matching exclusions for {} when de-duplicating the dependency tree. Using exclusions {}".format(deduped_artifact_with_exclusion))
+            print(
+                "Could not find duplicate artifact with matching exclusions for {} when de-duplicating the dependency tree. Using exclusions {}"
+                    .format(duplicate_coord, artifacts_with_exclusions[duplicate_coord]),
+            )
         deduped_artifacts[deduped_artifact_with_exclusion["file"]] = deduped_artifact_with_exclusion
 
     # After we have added the de-duped artifacts with exclusions we need to re-sort the list
