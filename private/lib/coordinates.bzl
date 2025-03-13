@@ -101,6 +101,16 @@ def to_external_form(coords):
 
     if type(coords) == "string":
         unpacked = unpack_coordinates(coords)
+    elif type(coords) == "struct":
+        unpacked = coords
+    elif type(coords) == "dict":
+        unpacked = struct(
+            group = coords["group"],
+            artifact = coords["artifact"],
+            version = coords["version"],
+            packaging = coords.get("packaging"),
+            classifier = coords.get("classifier"),
+        )
     else:
         unpacked = coords
 
