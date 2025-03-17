@@ -112,6 +112,7 @@ pin_dependencies(
     fetch_sources = {fetch_sources},
     fetch_javadocs = {fetch_javadocs},
     lock_file = {lock_file},
+    jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
 )
 """
@@ -259,6 +260,14 @@ def _get_aar_import_statement_or_empty_str(repository_ctx):
         return ""
 
 def _java_path(repository_ctx):
+    # Allow setting an env var to keep legacy JAVA_HOME behavior
+    use_java_home = repository_ctx.os.environ.get("RJE_COURSIER_USE_JAVA_HOME")
+
+    if use_java_home == None:
+        embedded_java = "../bazel_tools/jdk/bin/java"
+        if _is_file(repository_ctx, embedded_java):
+            return repository_ctx.path(embedded_java)
+
     java_home = repository_ctx.os.environ.get("JAVA_HOME")
     if java_home != None:
         return repository_ctx.path(java_home + "/bin/java")
@@ -701,6 +710,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
+            jvm_flags = repr(repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")),
             repos = repr(repository_ctx.attr.repositories),
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
@@ -1519,6 +1529,7 @@ coursier_fetch = repository_rule(
     },
     environ = [
         "JAVA_HOME",
+        "JDK_JAVA_OPTIONS",
         "http_proxy",
         "HTTP_PROXY",
         "https_proxy",
