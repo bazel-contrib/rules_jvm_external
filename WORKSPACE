@@ -281,6 +281,13 @@ maven_install(
         "com.github.spotbugs:spotbugs:4.7.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1267
         "org.mockito:mockito-core:pom:3.3.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1345
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.13",
+        ),
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
