@@ -16,6 +16,7 @@ def java_export(
         tags = [],
         testonly = None,
         classifier_artifacts = {},
+        publish_maven_metadata = False,
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
@@ -77,6 +78,7 @@ def java_export(
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
         `tags = ["no-javadocs"]`).
       visibility: The visibility of the target
+      publish_maven_metadata: Whether to publish a maven-metadata.xml
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
     """
@@ -118,6 +120,7 @@ def java_export(
         testonly = testonly,
         javadocopts = javadocopts,
         classifier_artifacts = classifier_artifacts,
+        publish_maven_metadata = publish_maven_metadata,
         doc_deps = doc_deps,
         doc_url = doc_url,
         doc_resources = doc_resources,
@@ -141,6 +144,7 @@ def maven_export(
         doc_deps = [],
         doc_url = "",
         doc_resources = [],
+        publish_maven_metadata = False,
         toolchains = None):
     """
     All arguments are the same as java_export with the addition of:
@@ -201,6 +205,7 @@ def maven_export(
         `tags = ["no-javadoc"]`).
       doc_resources: Resources to be included in the javadoc jar.
       visibility: The visibility of the target
+      publish_maven_metadata: Whether to publish a maven-metadata.xml
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
     """
@@ -300,6 +305,7 @@ def maven_export(
         tags = tags,
         testonly = testonly,
         toolchains = toolchains,
+        publish_maven_metadata = publish_maven_metadata,
     )
 
     # We may want to aggregate several `java_export` targets into a single Maven BOM POM
