@@ -222,6 +222,13 @@ function test_outdated_no_external_runfiles() {
   expect_log "junit:junit \[4.12"
 }
 
+function test_outdated_with_boms() {
+  bazel run @regression_testing_maven//:outdated >> "$TEST_LOG" 2>&1
+
+  expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
+  expect_log "org.seleniumhq.selenium:selenium-bom \[4.14.1"
+}
+
 function test_v1_lock_file_format() {
   # Because we run with `-e` this command succeeding is enough to
   # know that the v1 lock file format was parsed successfully

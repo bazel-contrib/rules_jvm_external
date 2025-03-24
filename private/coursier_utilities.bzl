@@ -48,7 +48,7 @@ def strip_packaging_and_classifier(coord):
     unpacked_struct = unpack_coordinates(coord)
     unpacked = {} | struct_to_dict(unpacked_struct)
 
-    if unpacked.get("classifier", None) in ["sources", "native"]:
+    if unpacked.get("classifier", None) in ["sources", "natives"]:
         unpacked["classifier"] = None
 
     # Note that although "pom" is not a packaging type that Coursier CLI accepts,

@@ -73,9 +73,9 @@ def java_export(
         with an extra dependency.
       classifier_artifacts: A dict of classifier -> artifact of additional artifacts to publish to Maven.
       doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
-        (if not using `tags = ["no-javadoc"]`)
+        (if not using `tags = ["no-javadocs"]`)
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
-        `tags = ["no-javadoc"]`).
+        `tags = ["no-javadocs"]`).
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.

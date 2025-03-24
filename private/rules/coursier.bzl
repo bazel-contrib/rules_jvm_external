@@ -87,11 +87,13 @@ sh_binary(
     data = [
         "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
         "outdated.artifacts",
+        "outdated.boms",
         "outdated.repositories",
     ],
     args = [
         "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
         "$(location outdated.artifacts)",
+        "$(location outdated.boms)",
         "$(location outdated.repositories)",
     ],
     visibility = ["//visibility:public"],
@@ -110,6 +112,7 @@ pin_dependencies(
     fetch_sources = {fetch_sources},
     fetch_javadocs = {fetch_javadocs},
     lock_file = {lock_file},
+    jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
 )
 """
@@ -259,6 +262,14 @@ def _get_aar_import_statement_or_empty_str(repository_ctx):
         return ""
 
 def _java_path(repository_ctx):
+    # Allow setting an env var to keep legacy JAVA_HOME behavior
+    use_java_home = repository_ctx.os.environ.get("RJE_COURSIER_USE_JAVA_HOME")
+
+    if use_java_home == None:
+        embedded_java = "../bazel_tools/jdk/bin/java"
+        if _is_file(repository_ctx, embedded_java):
+            return repository_ctx.path(embedded_java)
+
     java_home = repository_ctx.os.environ.get("JAVA_HOME")
     if java_home != None:
         return repository_ctx.path(java_home + "/bin/java")
@@ -375,10 +386,16 @@ def get_home_netrc_contents(repository_ctx):
 
     return repository_ctx.read(netrcfile)
 
-def _add_outdated_files(repository_ctx, artifacts, repositories):
+def _add_outdated_files(repository_ctx, artifacts, boms, repositories):
     repository_ctx.file(
         "outdated.artifacts",
         "\n".join(["{}:{}:{}".format(artifact["group"], artifact["artifact"], artifact["version"]) for artifact in artifacts]) + "\n",
+        executable = False,
+    )
+
+    repository_ctx.file(
+        "outdated.boms",
+        "\n".join(["{}:{}:{}".format(bom["group"], bom["artifact"], bom["version"]) for bom in boms]) + "\n",
         executable = False,
     )
 
@@ -661,7 +678,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         executable = False,
     )
 
-    _add_outdated_files(repository_ctx, artifacts, repositories)
+    _add_outdated_files(repository_ctx, artifacts, boms, repositories)
 
     # Generate a compatibility layer of external repositories for all jar artifacts.
     if repository_ctx.attr.generate_compat_repositories:
@@ -695,6 +712,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
+            jvm_flags = repr(repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")),
             repos = repr(repository_ctx.attr.repositories),
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
@@ -1309,7 +1327,7 @@ def _coursier_fetch_impl(repository_ctx):
 
         # Add outdated artifact files if this is a pinned repo
         outdated_build_file_content = _BUILD_OUTDATED
-        _add_outdated_files(repository_ctx, artifacts, repositories)
+        _add_outdated_files(repository_ctx, artifacts, boms, repositories)
 
     repository_ctx.file(
         "BUILD",
@@ -1513,6 +1531,7 @@ coursier_fetch = repository_rule(
     },
     environ = [
         "JAVA_HOME",
+        "JDK_JAVA_OPTIONS",
         "http_proxy",
         "HTTP_PROXY",
         "https_proxy",
