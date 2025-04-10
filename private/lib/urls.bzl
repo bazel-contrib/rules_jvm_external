@@ -89,7 +89,7 @@ def get_m2local_url(repo_os, path_func, artifact):
     if _is_windows(repo_os):
         user_home = repo_os.environ.get("USERPROFILE").replace("\\", "/")    
     else:
-        user_home = repo_os.environ.get("HOME").remove_prefix("/") #url path doesn't have leading /
+        user_home = repo_os.environ.get("HOME")
 
     local_path = artifact["file"]
 
@@ -104,5 +104,6 @@ def get_m2local_url(repo_os, path_func, artifact):
 
     path = path_func(local_path)
     if path.exists:
+        local_path = local_path.removeprefix("/") #leading / in path is not part of url.
         return "file:///%s" % local_path
     return None
