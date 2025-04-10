@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
+
 def split_url(url):
     protocol = url[:url.find("://")]
     url_without_protocol = url[url.find("://") + 3:]
@@ -85,9 +87,9 @@ def _is_windows(repository_os):
 
 def get_m2local_url(repo_os, path_func, artifact):
     if _is_windows(repo_os):
-        user_home = repo_os.environ.get("USERPROFILE").replace("\\", "/")
+        user_home = repo_os.environ.get("USERPROFILE").replace("\\", "/")    
     else:
-        user_home = repo_os.environ.get("HOME")
+        user_home = repo_os.environ.get("HOME").remove_prefix("/") #url path doesn't have leading /
 
     local_path = artifact["file"]
 
@@ -96,10 +98,11 @@ def get_m2local_url(repo_os, path_func, artifact):
         # version of the lock file
         return None
 
-    if not local_path.startswith("/"):
+    
+    if not paths.is_absolute(local_path):
         local_path = "%s/.m2/repository/%s" % (user_home, local_path)
 
     path = path_func(local_path)
     if path.exists:
-        return "file://%s" % local_path
+        return "file:///%s" % local_path
     return None

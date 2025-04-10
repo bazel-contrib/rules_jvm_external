@@ -1,4 +1,17 @@
 #!/bin/bash -e
+set -e
+
+function _is_windows() {
+  [[ "${OSTYPE}" =~ msys* ]] || [[ "${OSTYPE}" =~ cygwin* ]]
+}
+
+if _is_windows; then
+  m2local_dir="${USERPROFILE//\\//}/.m2/repository"
+  m2local_url="file:///${m2local_dir}"
+else
+  m2local_dir="${HOME}/.m2/repository"  
+  m2local_url="file://${m2local_dir}"
+fi
 
 # A simple test framework to verify bazel output without setting up an entire WORKSPACE
 # in the bazel sandbox as is done in https://github.com/bazelbuild/bazel/blob/master/src/test/shell/unittest.bash
@@ -41,13 +54,12 @@ function test_duplicate_version_warning_same_version() {
 
 function test_m2local_testing_ignore_empty_files() {
   # Testing ignore_empty_files with m2local, as it's the easiest way to imitate an empty jar file.
-  m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+  bazel run --define maven_repo="${m2local_url}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
 
   # Imitate an empty sources jar.
   rm -rf ${jar_dir}/kt-1.0.0-sources.jar*
@@ -68,13 +80,12 @@ function test_m2local_testing_ignore_empty_files() {
 
 function test_unpinned_m2local_testing_ignore_empty_files() {
   # Testing ignore_empty_files with m2local, as it's the easiest way to imitate an empty jar file.
-  m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+  bazel run --define maven_repo="${m2local_url}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
 
   # Imitate an empty sources jar.
   rm -rf ${jar_dir}/kt-1.0.0-sources.jar*
@@ -93,13 +104,12 @@ function test_unpinned_m2local_testing_ignore_empty_files() {
 }
 
 function test_m2local_testing_found_local_artifact_through_pin_and_build() {
-  m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+  bazel run --define maven_repo="${m2local_url}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
   bazel run @m2local_testing//:pin >> "$TEST_LOG" 2>&1
 
   force_bzlmod_lock_file_to_be_regenerated
@@ -113,12 +123,12 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
 }
 
 function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build() {
-  m2local_dir="${HOME}/.m2/repository"
-  jar_dir="${m2local_dir}/com/example/kt/1.0.0"
-  rm -rf ${jar_dir}
+  jar_dir="${m2local_dir}/com/example/no-docs/1.0.0"
+  rm -rf ${jar_dir}  
   mkdir -p ${m2local_dir}
+  
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/java_export:without-docs.publish >> "$TEST_LOG" 2>&1
+  bazel run --define maven_repo="${m2local_url}" //tests/integration/java_export:without-docs.publish >> "$TEST_LOG" 2>&1
 
   # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
   bazel clean --expunge >/dev/null 2>&1
@@ -135,13 +145,12 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
 }
 
 function test_m2local_testing_found_local_artifact_through_build() {
-  m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
   bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
   # Publish a maven artifact locally - com.example.kt:1.0.0
-  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
+  bazel run --define maven_repo="${m2local_url}" //tests/integration/kt_jvm_export:test.publish >> "$TEST_LOG" 2>&1
 
   force_bzlmod_lock_file_to_be_regenerated
 
@@ -152,7 +161,7 @@ function test_m2local_testing_found_local_artifact_through_build() {
 }
 
 function test_m2local_testing_found_local_artifact_after_build_copy() {
-  jar_dir="${HOME}/.m2/repository/com/example/kt/1.0.0"
+  jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   mkdir -p "${jar_dir}"
 
   # We need to copy from binaries to local maven repo to appropriate paths
@@ -304,7 +313,7 @@ TESTS=(
   "test_dependency_pom_exclusion"
   "test_transitive_dependency_with_type_of_pom"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
-  "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
+ "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
 )
 
 function run_tests() {

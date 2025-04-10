@@ -42,6 +42,9 @@ load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("@rules_jvm_external//private/windows:bat_binary.bzl", "bat_binary")
+
 {aar_import_statement}
 
 {imports}
@@ -63,7 +66,7 @@ _AAR_IMPORT_STATEMENT = """\
 load("%s", "aar_import")
 """
 
-_BUILD_PIN = """
+_BUILD_PIN_SH = """
 sh_binary(
     name = "pin",
     srcs = ["pin.sh"],
@@ -80,7 +83,21 @@ sh_binary(
 )
 """
 
-_BUILD_OUTDATED = """
+_BUILD_PIN_WIN = """
+bat_binary(
+    name = "pin",
+    src = "pin.bat",
+    args = [
+        "$(rlocationpath :unsorted_deps.json)",
+    ],
+    data = [
+        ":unsorted_deps.json",
+    ],
+    visibility = ["//visibility:public"],
+)
+"""
+
+_BUILD_OUTDATED_SH = """
 sh_binary(
     name = "outdated",
     srcs = ["outdated.sh"],
@@ -95,6 +112,26 @@ sh_binary(
         "$(location outdated.artifacts)",
         "$(location outdated.boms)",
         "$(location outdated.repositories)",
+    ],
+    visibility = ["//visibility:public"],
+)
+"""
+
+_BUILD_OUTDATED_WIN = """
+bat_binary(
+    name = "outdated",
+    src = "outdated.bat",
+    data = [
+        "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
+        "outdated.artifacts",
+        "outdated.boms",
+        "outdated.repositories",
+    ],
+    args = [
+        "$(rlocationpath @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
+        "$(rlocationpath outdated.artifacts)",
+        "$(rlocationpath outdated.boms)",
+        "$(rlocationpath outdated.repositories)",
     ],
     visibility = ["//visibility:public"],
 )
@@ -126,6 +163,34 @@ alias(
 )
 """
 
+_PIN_SUCCESS_MSG_PINNED = """Successfully pinned resolved artifacts for @{repository_name}, {maven_install_json_loc} is now up-to-date."""
+
+_PIN_SUCCESS_MSG_UNPINNED = """Successfully pinned resolved artifacts for @{repository_name} in {maven_install_json_loc}.
+This file should be checked into your version control system.
+
+Next, please update your WORKSPACE file by adding the maven_install_json attribute
+and loading pinned_maven_install from @{repository_name}//:defs.bzl.
+
+For example:
+=============================================================
+    
+maven_install(
+     artifacts = # ...,
+     repositories = # ...,
+     maven_install_json = \"@//:{repository_name}_install.json\",
+ )
+
+load("@{repository_name}//:defs.bzl", "pinned_maven_install")
+pinned_maven_install()
+
+=============================================================
+
+To update {repository_name}_install.json, run this command to re-pin the unpinned repository:
+
+     bazel run @unpinned_{repository_name}//:pin
+
+"""
+
 def _is_verbose(repository_ctx):
     return bool(repository_ctx.os.environ.get("RJE_VERBOSE"))
 
@@ -153,6 +218,9 @@ def _shell_quote(s):
     # because this file cannot load symbols from bazel_skylib since commit
     # 47505f644299aa2483d0df06c2bb2c7aa10d26d4.
     return "'" + s.replace("'", "'\\''") + "'"
+
+def _bat_quote(s): #for quoting win args in bat file. escape " with double "".
+    return "\"" + s.replace("\"", "\"\"") + "\""
 
 def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_message = None):
     if progress_message:
@@ -302,19 +370,6 @@ def _get_java_proxy_args(repository_ctx):
     no_proxy = repository_ctx.os.environ.get("no_proxy", repository_ctx.os.environ.get("NO_PROXY"))
     return get_java_proxy_args(http_proxy, https_proxy, no_proxy)
 
-def _windows_check(repository_ctx):
-    # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
-    # will not be around for long.
-    #
-    # On Windows, run msys once to bootstrap it
-    # https://github.com/bazelbuild/rules_jvm_external/issues/53
-    if (_is_windows(repository_ctx)):
-        bash = repository_ctx.os.environ.get("BAZEL_SH")
-        if (bash == None):
-            fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
-
 def _stable_artifact(artifact):
     parsed = json.decode(artifact)
 
@@ -403,15 +458,27 @@ def _add_outdated_files(repository_ctx, artifacts, boms, repositories):
         executable = False,
     )
 
-    repository_ctx.template(
-        "outdated.sh",
-        repository_ctx.attr._outdated,
-        {
-            "{repository_name}": repository_ctx.name,
-            "{proxy_opts}": " ".join([_shell_quote(arg) for arg in _get_java_proxy_args(repository_ctx)]),
-        },
-        executable = True,
-    )
+    quote_func = _bat_quote if _is_windows(repository_ctx) else _shell_quote
+    outdatedscript_substitutions =  {
+        "{repository_name}": repository_ctx.name,
+        "{proxy_opts}": " ".join([quote_func(arg) for arg in _get_java_proxy_args(repository_ctx)]),
+    }
+
+    if _is_windows(repository_ctx):
+        repository_ctx.template(
+            "outdated.bat",
+            repository_ctx.attr._outdated_bat,
+            outdatedscript_substitutions,
+            executable = True,
+        )
+    else:
+        repository_ctx.template(
+            "outdated.sh",
+            repository_ctx.attr._outdated_sh,
+            outdatedscript_substitutions,
+            executable = True,
+        )
+    
 
 def is_repin_required(repository_ctx):
     env_var_names = repository_ctx.os.environ.keys()
@@ -432,8 +499,6 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
              "//:maven_install.json).")
-
-    _windows_check(repository_ctx)
 
     repositories = [json.decode(repository) for repository in repository_ctx.attr.repositories]
 
@@ -579,6 +644,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     http_files = [
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
+        "load(\"@bazel_skylib//rules:copy_file.bzl\", \"copy_file\")",
         "def pinned_maven_install():",
         "    pass",  # Keep it syntactically correct in case of empty dependencies.
     ]
@@ -664,9 +730,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     pin_target = generate_pin_target(repository_ctx, unpinned_pin_target)
 
+    outdated_build_file_content = _BUILD_OUTDATED_WIN if _is_windows(repository_ctx) else _BUILD_OUTDATED_SH
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_OUTDATED).format(
+        (_BUILD + outdated_build_file_content).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
@@ -1010,6 +1078,24 @@ def remove_prefix(s, prefix):
         return s[len(prefix):]
     return s
 
+
+###Builds shell commands for either a bat or sh that outputs the specified msg. (mainly echos)
+# BAT: non-quoted strings. escape is ^. Blank lines are echo:
+# SH: quoted strings. Blank lines are just echo ""
+def multiline_msg_to_shell(msg, is_windows):
+    
+    def prepare_line(lineIn) :
+        line = lineIn.strip()
+        if(is_windows):
+            line = line.replace(")", "^)") #add more escapes as needed
+            line = "echo:" if line == "" else "echo %s"%line
+        else:                    
+            line = "echo \"%s\""%line
+        return line
+        
+    return "".join(["    %s\n"% prepare_line(s) for s in msg.splitlines()])
+
+
 def _coursier_fetch_impl(repository_ctx):
     # Not using maven_install.json, so we resolve and fetch from scratch.
     # This takes significantly longer as it doesn't rely on any local
@@ -1039,8 +1125,6 @@ def _coursier_fetch_impl(repository_ctx):
     )
     if hasher_exec_result.return_code != 0:
         fail("Unable to run coursier: " + hasher_exec_result.stderr)
-
-    _windows_check(repository_ctx)
 
     # Deserialize the spec blobs
     repositories = []
@@ -1324,8 +1408,10 @@ def _coursier_fetch_impl(repository_ctx):
         repository_name = repository_ctx.name
 
         # Add outdated artifact files if this is a pinned repo
-        outdated_build_file_content = _BUILD_OUTDATED
+        outdated_build_file_content = _BUILD_OUTDATED_WIN if _is_windows(repository_ctx) else _BUILD_OUTDATED_SH
         _add_outdated_files(repository_ctx, artifacts, boms, repositories)
+
+    _BUILD_PIN = _BUILD_PIN_WIN if _is_windows(repository_ctx) else _BUILD_PIN_SH
 
     repository_ctx.file(
         "BUILD",
@@ -1354,7 +1440,7 @@ def _coursier_fetch_impl(repository_ctx):
             maven_install_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
     else:
         # Default maven_install.json file name.
-        maven_install_location = "{repository_name}_install.json"
+        maven_install_location = "%s_install.json"%repository_name
 
     # Expose the script to let users pin the state of the fetch in
     # `<workspace_root>/maven_install.json`.
@@ -1362,17 +1448,42 @@ def _coursier_fetch_impl(repository_ctx):
     # $ bazel run @unpinned_maven//:pin
     #
     # Create the maven_install.json export script for unpinned repositories.
-    repository_ctx.template(
-        "pin.sh",
-        repository_ctx.attr._pin,
-        {
-            "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
-            "{predefined_maven_install}": str(predefined_maven_install),
-            "{repository_name}": repository_name,
-        },
-        executable = True,
+
+    if(_is_windows(repository_ctx)):
+        maven_install_location = maven_install_location.replace("/", "\\")
+
+    make_success_msg_cmds = lambda msg_template:  multiline_msg_to_shell(
+        msg_template.format(
+            repository_name = repository_name,
+            maven_install_json_loc =  maven_install_location,
+        ), 
+        _is_windows(repository_ctx)
     )
 
+    
+    pinscript_substitutions = {
+        "{maven_install_location}": maven_install_location,
+        "{predefined_maven_install}": str(predefined_maven_install),
+        "{repository_name}": repository_name,
+        "{success_msg_pinned}": make_success_msg_cmds(_PIN_SUCCESS_MSG_PINNED),
+        "{success_msg_unpinned}": make_success_msg_cmds(_PIN_SUCCESS_MSG_UNPINNED),
+    }
+    
+
+    if(_is_windows(repository_ctx)):
+        repository_ctx.template(
+            "pin.bat",
+            repository_ctx.attr._pin_bat,
+            pinscript_substitutions,        
+        )
+    else:
+        repository_ctx.template(
+            "pin.sh",
+            repository_ctx.attr._pin_sh,
+            pinscript_substitutions,
+            executable = True,
+        )
+        
     # Generate 'defs.bzl' with just the dependencies for ':pin'.
     http_files = [
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
@@ -1413,7 +1524,8 @@ def _coursier_fetch_impl(repository_ctx):
 pinned_coursier_fetch = repository_rule(
     attrs = {
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
-        "_outdated": attr.label(default = "//private:outdated.sh"),
+        "_outdated_sh": attr.label(default = "//private:outdated.sh"),
+        "_outdated_bat": attr.label(default = "//private:outdated.bat"),
         "user_provided_name": attr.string(),
         "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "maven"], default = "coursier"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
@@ -1467,9 +1579,11 @@ coursier_fetch = repository_rule(
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
         "_index_jar": attr.label(default = "//private/tools/prebuilt:index_jar_deploy.jar"),
         "_lock_file_converter": attr.label(default = "//private/tools/prebuilt:lock_file_converter_deploy.jar"),
-        "_pin": attr.label(default = "//private:pin.sh"),
+        "_pin_sh": attr.label(default = "//private:pin.sh"),
+        "_pin_bat": attr.label(default = "//private:pin.bat"),
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
-        "_outdated": attr.label(default = "//private:outdated.sh"),
+        "_outdated_sh": attr.label(default = "//private:outdated.sh"),
+        "_outdated_bat": attr.label(default = "//private:outdated.bat"),
         "user_provided_name": attr.string(),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json

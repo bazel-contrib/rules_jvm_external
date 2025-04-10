@@ -36,14 +36,15 @@ def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     file = artifact.get("out", artifact["file"])
 
     genrule = [
-        "genrule(",
+        "copy_file(",
         "     name = \"%s_extension\"," % http_file_repository,
-        "     srcs = [\"@%s//file\"]," % http_file_repository,
-        "     outs = [\"%s\"]," % file,
-        "     cmd = \"cp $< $@\",",
+        "     src = \"@%s//file\"," % http_file_repository,
+        "     out = \"%s\"," % file,
     ]
     if get_packaging(artifact["coordinates"]) == "exe":
-        genrule.append("     executable = True,")
+        #genrule.append("     executable = True,")
+        genrule.append("     is_executable = True,")
+    
     genrule.extend([
         "     visibility = [%s]" % (",".join(["\"%s\"" % v for v in visibilities])),
         ")",
@@ -135,11 +136,11 @@ def _generate_target(
         dylib = simple_coord.split(":")[-1] + "." + packaging
         to_return.append(
             """
-genrule(
+copy_file(
     name = "{dylib}_extension",
-    srcs = ["@{repository}//file"],
-    outs = ["{dylib}"],
-    cmd = "cp $< $@",
+    src ="@{repository}//file",
+    out = "{dylib}",
+    #cmd = "cp $< $@",
     visibility = ["//visibility:public"],
 )""".format(
                 dylib = dylib,
