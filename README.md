@@ -523,7 +523,9 @@ java_library(
 
 If your WORKSPACE contains several projects that use different versions of the
 same artifact, you can specify multiple `maven_install` declarations in the
-WORKSPACE, with a unique repository name for each of them.
+WORKSPACE, with a unique repository name for each of them. You can ensure that
+builds do not cross this division using [platform
+constraints](https://bazel.build/extending/platforms).
 
 For example, if you want to use the JRE version of Guava for a server app, and
 the Android version for an Android app, you can specify two `maven_install`
@@ -538,6 +540,7 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    targets_compatible_with = ["@platforms//os:linux"],
 )
 
 maven_install(
@@ -548,6 +551,7 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    targets_compatible_with = ["@platforms//os:android"],
 )
 ```
 
