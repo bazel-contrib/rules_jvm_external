@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def split_url(url):
     protocol = url[:url.find("://")]
@@ -85,11 +84,10 @@ def extract_netrc_from_auth_url(url):
 def _is_windows(repository_os):
     return repository_os.name.find("windows") != -1
 
+def is_path_absolute(is_windows, path):    
+    return path.startswith("/") if not is_windows else (len(path) > 2 and path[1] == ":")
+
 def get_m2local_url(repo_os, path_func, artifact):
-    if _is_windows(repo_os):
-        user_home = repo_os.environ.get("USERPROFILE").replace("\\", "/")    
-    else:
-        user_home = repo_os.environ.get("HOME")
 
     local_path = artifact["file"]
 
@@ -97,10 +95,13 @@ def get_m2local_url(repo_os, path_func, artifact):
         # In theory, we could calculate a path, but I'm not entirely sure how we would even get here with a recent
         # version of the lock file
         return None
-
     
-    if not paths.is_absolute(local_path):
+    is_windows = _is_windows(repo_os)
+
+    if not is_path_absolute(is_windows, local_path):            
+        user_home = repo_os.environ.get("HOME") if not is_windows else repo_os.environ.get("USERPROFILE").replace("\\", "/")        
         local_path = "%s/.m2/repository/%s" % (user_home, local_path)
+        
 
     path = path_func(local_path)
     if path.exists:
