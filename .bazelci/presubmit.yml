@@ -99,12 +99,8 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
-      - bash tests/bazel_run_tests.sh #This be successful without bash.
-    test_targets:
-      - "--"
-      - "//..."
-      - "-//tests/..." #//tests/... have bash. So test them in the other windows task.
-
+      - bash tests/bazel_run_tests.sh #This should run successfully without bash.
+    
   windows_tests_withbash:
     #This setup has bash, so we can test the bashful tests in //tests/...
     platform: windows
