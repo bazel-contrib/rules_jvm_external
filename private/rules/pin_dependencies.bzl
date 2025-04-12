@@ -12,10 +12,23 @@
 # See the License for the specific language governing permissions and
 
 load("//private/rules:coursier.bzl", "compute_dependency_inputs_signature")
+load("//private/lib:utils.bzl", "is_windows", "file_to_rlocationpath")
+load("//private/windows:bat_binary.bzl", "bat_binary_action", "BAT_BINARY_IMPLICIT_ATTRS")
 
-_TEMPLATE = """#!/usr/bin/env bash
+_TEMPLATE_SH = """#!/usr/bin/env bash
 
-{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --resolver {resolver} --input_hash '{input_hash}' --output {output}
+{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --resolver {resolver} --input_hash '{input_hash}' --output $BUILD_WORKSPACE_DIRECTORY/{output}
+"""
+
+#Note: Win needs to use rlocation for all workspace paths.
+_TEMPLATE_WIN = """
+@echo off
+call %BAT_RUNFILES_LIB% rlocation resolver_cmd_path {resolver_cmd_rpath} || goto eof
+call %BAT_RUNFILES_LIB% rlocation config_path {config_rpath} || goto eof
+
+"%resolver_cmd_path%" --jvm_flags={jvm_flags} --argsfile "%config_path%" --resolver {resolver} --input_hash {input_hash} --output "%BUILD_WORKSPACE_DIRECTORY%\\{output}"
+
+:eof
 """
 
 def _stringify_exclusions(exclusions):
@@ -70,26 +83,49 @@ def _pin_dependencies_impl(ctx):
         excluded_artifacts = ctx.attr.excluded_artifacts,
     )
 
-    script = ctx.actions.declare_file(ctx.label.name)
-    ctx.actions.write(
-        script,
-        _TEMPLATE.format(
-            config = config_file.short_path,
-            input_hash = input_hash[0],
-            resolver_cmd = ctx.executable._resolver.short_path,
-            resolver = ctx.attr.resolver,
-            output = "$BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.lock_file,
-            jvm_flags = ctx.attr.jvm_flags,
-        ),
-        is_executable = True,
-    )
-
-    return [
-        DefaultInfo(
+    if is_windows(ctx):
+        script = ctx.actions.declare_file(ctx.label.name + ".bat")
+        ctx.actions.write(
+            script,
+            _TEMPLATE_WIN.format(
+                config_rpath = file_to_rlocationpath(ctx, config_file),
+                input_hash = input_hash[0],
+                resolver_cmd_rpath = file_to_rlocationpath(ctx, ctx.executable._resolver),
+                resolver = ctx.attr.resolver,
+                output = ctx.attr.lock_file,
+                jvm_flags = ctx.attr.jvm_flags,
+            ),
+            is_executable = True,
+        )
+        default_info = bat_binary_action(
+            ctx = ctx,
+            src = script, 
+            data_files = [config_file],
+            data_defaultinfos = [ctx.attr._resolver[DefaultInfo]]
+        )
+    else:
+        script = ctx.actions.declare_file(ctx.label.name)
+        ctx.actions.write(
+            script,
+            _TEMPLATE_SH.format(
+                config = config_file.short_path,
+                input_hash = input_hash[0],
+                resolver_cmd = ctx.executable._resolver.short_path,
+                resolver = ctx.attr.resolver,
+                output =  ctx.attr.lock_file,
+                jvm_flags = ctx.attr.jvm_flags,
+            ),
+            is_executable = True,
+        )
+        default_info = DefaultInfo(
             executable = script,
             files = depset([script, config_file]),
             runfiles = ctx.runfiles(files = [script, config_file]).merge(ctx.attr._resolver[DefaultInfo].default_runfiles),
-        ),
+        )
+
+
+    return [
+        default_info
     ]
 
 pin_dependencies = rule(
@@ -126,8 +162,8 @@ pin_dependencies = rule(
         ),
         "_resolver": attr.label(
             executable = True,
-            cfg = "exec",
+            cfg = "target",
             default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd:Resolver",
         ),
-    },
+    } | BAT_BINARY_IMPLICIT_ATTRS,
 )

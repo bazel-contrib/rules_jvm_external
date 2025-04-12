@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#IMPORTANT: Keep functionality in this Bat in sync with the win bat version (pin.bat)
+
 set -e -o pipefail
 
 outdated_jar_path=$1
