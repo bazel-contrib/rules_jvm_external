@@ -81,17 +81,38 @@ tasks:
     test_targets:
       - "//..."
       # manual tests
-  windows:
-    environment:
+
+  windows_bashless:
+    #This setup ensures that rules_jvm_external works without bash on Windows. 
+    # note: this doesn't build targets under //tests/..., so its ok to use bash in the //tests area. Just don't use bash in the other areas.
+
+    platform: windows
+    environment:      
+      BAZEL_SH: dummy #set BAZEL_SH to dummy so it won't get Bash. (Bazel will fallback to bash if BAZEL_SH is not set)
+      MSYS2_ARG_CONV_EXCL: "*"
+
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
-    shell_commands:
+    batch_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
-      - tests/bazel_run_tests.sh
+      - bash tests/bazel_run_tests.sh #This be successful without bash.
+    test_targets:
+      - "--"
+      - "//..."
+      - "-//tests/..." #//tests/... have bash. So test them in the other windows task.
+
+  windows_tests_withbash:
+    #This setup has bash, so we can test the bashful tests in //tests/...
+    platform: windows
+    environment:
+      # This tests custom cache locations.
+      # https://github.com/bazelbuild/rules_jvm_external/pull/316
+      COURSIER_CACHE: /tmp/custom_coursier_cache
+      REPIN: 1    
     test_targets:
       - "--"
       - "//..."
