@@ -1,0 +1,7 @@
+filegroup(
+    name = "testdata",
+    srcs = [
+        "simple_expected_build.gradle.kts",
+    ],
+    visibility = ["//tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__subpackages__"],
+)

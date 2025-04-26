@@ -1,0 +1,74 @@
+import groovy.json.JsonBuilder
+import java.io.File
+
+repositories {
+{{~#each repositories}}
+    maven {
+    url = uri("{{url}}")
+    {{~#if requiresAuth}}
+        credentials {
+        username = project.findProperty("{{usernameProperty}}") as String?
+        ?: throw GradleException("Missing {{usernameProperty}}")
+        password = project.findProperty("{{passwordProperty}}") as String?
+        ?: throw GradleException("Missing {{passwordProperty}}")
+        }
+    {{/if~}}
+
+    }
+{{/each~}}
+}
+
+dependencies {
+{{~#each dependencies}}
+    {{lowerCase scope}}("{{group}}:{{artifact}}:{{version}}"){{#if exclusions}} { {{~#each exclusions}} exclude(group = "{{group}}", module = "{{module}}") {{/each~}} }{{/if}}
+{{/each~}}
+}
+
+tasks.register("dumpResolvedDependencies") {
+    doLast {
+        val output = mutableListOf<Map<String, Any?>>()
+
+        configurations.filter { it.isCanBeResolved }.forEach { config ->
+            val configEntry = mutableMapOf<String, Any?>(
+                "configuration" to config.name,
+                "artifacts" to mutableListOf<Map<String, String>>(),
+                "unresolved" to mutableListOf<Map<String, String>>()
+            )
+
+            config.resolvedConfiguration.lenientConfiguration.artifacts.forEach { artifact ->
+                (configEntry["artifacts"] as MutableList<Map<String, String>>).add(
+                    mapOf(
+                        "group" to artifact.moduleVersion.id.group,
+                        "name" to artifact.name,
+                        "version" to artifact.moduleVersion.id.version,
+                        "filePath" to artifact.file.absolutePath
+                    )
+                )
+            }
+
+            config.resolvedConfiguration.lenientConfiguration.unresolvedModuleDependencies.forEach { unresolved ->
+                (configEntry["unresolved"] as MutableList<Map<String, String>>).add(
+                    mapOf(
+                        "group" to unresolved.selector.group,
+                        "name" to unresolved.selector.module,
+                        "reason" to unresolved.problem.message
+                    )
+                )
+            }
+
+            output.add(configEntry)
+        }
+
+        val json = JsonBuilder(output).toPrettyString()
+        val outputFilePath = project.findProperty("outputJsonFile") as String?
+        val outputFile = if (outputFilePath != null) {
+            File(outputFilePath)
+        } else {
+            File(buildDir, "dependency-resolution/resolved-dependencies.json")
+        }
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(json)
+
+        println("Resolved dependencies dumped to ${outputFile.absolutePath}")
+    }
+}
