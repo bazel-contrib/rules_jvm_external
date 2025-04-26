@@ -2,28 +2,24 @@ import groovy.json.JsonBuilder
 import java.io.File
 
 repositories {
-{{~#each repositories}}
     maven {
-        url = uri("{{url}}")
-        {{~#if requiresAuth}}
+        url = uri("https://repo1.maven.org/maven2")}
+
+    maven {
+        url = uri("https://com.foo.org/maven2")
         credentials {
-            username = project.findProperty("{{usernameProperty}}") as String?
-                ?: throw GradleException("Missing {{usernameProperty}}")
-            password = project.findProperty("{{passwordProperty}}") as String?
-                ?: throw GradleException("Missing {{passwordProperty}}")
+            username = project.findProperty("fooUsername") as String?
+                ?: throw GradleException("Missing fooUsername")
+            password = project.findProperty("fooPassword") as String?
+                ?: throw GradleException("Missing fooPassword")
         }
-        {{/if~}}
-    }
-{{/each~}}
+        }
 }
 
 dependencies {
-{{~#each boms}}
-    implementation(platform("{{group}}:{{artifact}}:{{version}}"))
-{{/each~}}
-{{~#each dependencies}}
-    {{lowerCase scope}}("{{group}}:{{artifact}}:{{version}}"){{#if exclusions}} { {{~#each exclusions}} exclude(group = "{{group}}", module = "{{module}}") {{/each~}} }{{/if}}
-{{/each~}}
+    implementation("com.example:foo:0.0.1")
+
+    implementation("com.example:bar:0.1.0")
 }
 
 tasks.register("dumpResolvedDependencies") {

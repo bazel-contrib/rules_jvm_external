@@ -3,10 +3,12 @@ import java.io.File
 
 repositories {
     maven {
-    url = uri("https://repo1.maven.org/maven2")}
+        url = uri("https://repo1.maven.org/maven2")}
 }
 
 dependencies {
+    implementation(platform("com.example:bom:0.1.0"))
+
     implementation("com.example:foo:0.0.1")
 
     implementation("com.example:bar:0.1.0")
