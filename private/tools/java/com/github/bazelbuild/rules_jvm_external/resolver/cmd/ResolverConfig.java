@@ -102,6 +102,10 @@ public class ResolverConfig {
         case "--resolver":
           i++;
           switch (args[i]) {
+            case "gradle":
+              chosenResolver = "gradle";
+              break;
+
             case "maven":
               chosenResolver = "maven";
               break;

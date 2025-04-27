@@ -72,7 +72,7 @@ public class GradleProject implements AutoCloseable  {
                 .collect(Collectors.toList());
 
         connection.newBuild()
-                .forTasks("dumpResolvedDependencies")
+                .forTasks("resolveDependencies")
                 .setStandardOutput(System.out)
                 .setStandardError(System.err)
                 .withArguments(arguments)
