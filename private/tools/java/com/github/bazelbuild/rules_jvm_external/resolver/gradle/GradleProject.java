@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Used for building a fake gradle project with dependencies we have
+ * to run a custom gradle task to resolve the dependencies
+ */
 public class GradleProject implements AutoCloseable  {
 
     private final Path projectDir;
@@ -51,7 +55,7 @@ public class GradleProject implements AutoCloseable  {
 
     public void connect() throws IOException {
         System.setProperty("gradle.user.home", gradleCacheDir.toAbsolutePath().toString());
-        System.setProperty("org.gradle.java.home", gradleJavaHome.toAbsolutePath().toString());
+        //System.setProperty("org.gradle.java.home", gradleJavaHome.toAbsolutePath().toString());
         connection = GradleConnector.newConnector()
                 .forProjectDirectory(projectDir.toFile())
                 .connect();

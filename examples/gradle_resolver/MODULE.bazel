@@ -28,11 +28,17 @@ maven.install(
 maven.install(
     name = "alternative_resolver",
     artifacts = [
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0",
     ],
     # Before the first pin, this file was completely empty. Running:
     # `REPIN=1 bazel run @alternative_resolver//:pin` generated it.
     lock_file = "//:alternative_maven_install.json",
+    repositories = [
+        "https://mvnrepository.com/artifact/",
+        "https://repo1.maven.org/maven2",
+        "https://repo.kotlin.link",
+        "https://maven.pkg.jetbrains.space/mipt-npm/p/sci/maven",
+    ],
     resolver = "gradle",
 )
 use_repo(maven, "alternative_resolver", "maven")

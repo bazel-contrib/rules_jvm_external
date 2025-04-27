@@ -3,5 +3,5 @@ filegroup(
     srcs = [
         "build.gradle.kts.hbs",
     ],
-    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__subpackages__"],
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__"],
 )

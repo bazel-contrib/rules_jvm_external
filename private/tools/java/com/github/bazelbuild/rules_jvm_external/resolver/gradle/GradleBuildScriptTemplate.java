@@ -99,12 +99,11 @@ public class GradleBuildScriptTemplate {
             map.put("group", dep.group);
             map.put("artifact", dep.artifact);
             map.put("version", dep.version);
-            // You can add "exclusions" if you model it later
             return map;
         }).collect(Collectors.toList()));
 
         // Render the output
-        String output = template.apply(Context.newContext(contextMap)).trim(); // Trim trailing newlines
+        String output = template.apply(Context.newContext(contextMap)).trim();
 
         // Write to output file
         Files.writeString(outputPath, output);

@@ -1,11 +1,18 @@
-import groovy.json.JsonBuilder
-import java.io.File
+import groovy.json.JsonOutput
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
+
+// We need this plugin to be able to use "implementation"
+plugins {
+    java
+}
 
 repositories {
     maven {
         url = uri("https://repo1.maven.org/maven2")}
 }
 
+// Support dependencies, BOMs and otherwise
 dependencies {
     implementation(platform("com.example:bom:0.1.0"))
 

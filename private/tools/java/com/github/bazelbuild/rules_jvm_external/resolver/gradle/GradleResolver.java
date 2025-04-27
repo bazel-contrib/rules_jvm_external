@@ -22,6 +22,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleRes
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import com.google.gson.Gson;
 
@@ -34,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AutoBazelRepository
 public class GradleResolver implements Resolver {
 
     private final EventListener eventListener;
@@ -46,6 +48,10 @@ public class GradleResolver implements Resolver {
         this.maxThreads = maxThreads;
     }
 
+    private boolean isVerbose() {
+        return System.getenv("RJE_VERBOSE").equals("true");
+    }
+
     @Override
     public ResolutionResult resolve(ResolutionRequest request) {
         List<Repository> repositories = request.getRepositories().stream().map(this::createRepository).collect(Collectors.toList());
@@ -54,11 +60,15 @@ public class GradleResolver implements Resolver {
 
         try (GradleProject project = setupFakeGradleProject(
                 repositories,
-                boms,
                 dependencies,
+                boms,
                 request.isUseUnsafeSharedCache()
         )) {
             project.setupProject();
+            project.connect();
+            if(isVerbose()) {
+                System.err.println("Resolving dependencies with gradle project: " + URI.create(project.getProjectDir().toString()).toString());
+            }
             project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
             Path dependenciesJsonFile = getDependenciesJsonFile(project.getProjectDir());
             if(!Files.exists(dependenciesJsonFile)) {
@@ -141,8 +151,10 @@ public class GradleResolver implements Resolver {
 
     private Path getGradleBuildScriptTemplate() {
         try {
-            String gradleBuildPath = Runfiles.preload().withSourceRepository("rules_jvm_external")
-                    .rlocation("_main/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
+            Runfiles.Preloaded runfiles = Runfiles.preload();
+            // TODO: This path only supports Bazel 8 due to +, make it support Bazel 7 as well.
+            String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
             return Paths.get(gradleBuildPath);
         } catch (IOException e) {
             throw new RuntimeException(e);

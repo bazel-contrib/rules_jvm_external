@@ -18,6 +18,9 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 import java.net.MalformedURLException;
 import java.net.URI;
 
+/**
+ * Models a maven repository that is added to a gradle build script
+ */
 public class Repository {
     public final URI uri;
     public final boolean requiresAuth;

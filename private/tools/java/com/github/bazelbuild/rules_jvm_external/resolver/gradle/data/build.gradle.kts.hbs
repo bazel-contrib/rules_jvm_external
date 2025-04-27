@@ -1,5 +1,13 @@
 import groovy.json.JsonBuilder
 import java.io.File
+import groovy.json.JsonOutput
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
+
+// We need this plugin to be able to use "implementation"
+plugins {
+   java
+}
 
 repositories {
 {{~#each repositories}}
@@ -17,6 +25,7 @@ repositories {
 {{/each~}}
 }
 
+// Support dependencies, BOMs and otherwise
 dependencies {
 {{~#each boms}}
     implementation(platform("{{group}}:{{artifact}}:{{version}}"))
@@ -26,6 +35,7 @@ dependencies {
 {{/each~}}
 }
 
+// Our custom task to dump dependencies
 abstract class ResolveDependenciesTask : DefaultTask() {
 
     data class DependencyInfo(
@@ -39,6 +49,7 @@ abstract class ResolveDependenciesTask : DefaultTask() {
 
     @TaskAction
     fun resolveAndDump() {
+        // We collect dependencies across all these configurations
         val configurationsToCheck = listOf(
             "compileClasspath",
             "runtimeClasspath",
