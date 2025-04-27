@@ -64,10 +64,10 @@ public class GradleResolver implements Resolver {
             if(!Files.exists(dependenciesJsonFile)) {
                 throw new IllegalStateException("Failed resolving dependencies with gradle");
             }
+            return parseDependencies(dependenciesJsonFile);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     private Map<String, String> getGradleTaskProperties(List<Repository> repositories, Path projectDir) {
@@ -98,8 +98,12 @@ public class GradleResolver implements Resolver {
 
         Set<Conflict> conflicts = null;
         try (FileReader reader = new FileReader(dependenciesJsonFile.toString())) {
+            // Read the resolve dependencies from the gradle task
             List<GradleResolvedDependencyInfo> dependencies = Arrays.asList(gson.fromJson(reader, GradleResolvedDependencyInfo[].class));
+            // Find any conflicts
             conflicts = findConflicts(dependencies);
+
+            // And build the dependency graph
             for(GradleResolvedDependencyInfo dependency : dependencies) {
                 addDependency(graph, dependency.toCoordinates(), dependency);
             }
