@@ -54,6 +54,8 @@ _MAVEN_VERSION = "3.9.8"
 
 _MAVEN_RESOLVER_VERSION = "1.9.20"
 
+_GRADLE_VERSION = "8.13"
+
 # NOTE: Please keep any changes to this maven.install in sync with the
 # definition in repositories.bzl
 maven.install(
@@ -90,10 +92,17 @@ maven.install(
         "software.amazon.awssdk:s3:2.26.12",
         "org.bouncycastle:bcprov-jdk15on:1.68",
         "org.bouncycastle:bcpg-jdk15on:1.68",
+        "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
+        "com.github.jknack:handlebars:4.3.1",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+        "https://repo.gradle.org/gradle/libs-releases/",
+    ],
     strict_visibility = True,
 )
 use_repo(

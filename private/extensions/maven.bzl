@@ -50,7 +50,7 @@ install = tag_class(
         "fetch_sources": attr.bool(default = False),
 
         # How do we do artifact resolution?
-        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "maven"], default = _DEFAULT_RESOLVER),
+        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "maven", "gradle"], default = _DEFAULT_RESOLVER),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
