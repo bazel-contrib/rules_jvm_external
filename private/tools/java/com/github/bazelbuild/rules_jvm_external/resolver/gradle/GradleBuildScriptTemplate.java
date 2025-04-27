@@ -1,5 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
@@ -47,8 +48,8 @@ public class GradleBuildScriptTemplate {
             Path templatePath,
             Path outputPath,
             List<Repository> repositories,
-            List<Dependency> boms,
-            List<Dependency> dependencies
+            List<GradleDependency> boms,
+            List<GradleDependency> dependencies
     ) throws IOException {
         String templateContent = Files.readString(templatePath);
 
@@ -60,7 +61,7 @@ public class GradleBuildScriptTemplate {
 
         contextMap.put("repositories", repositories.stream().map(repo -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("url", repo.url);
+            map.put("url", repo.getUrl());
             map.put("requiresAuth", repo.requiresAuth);
             if (repo.requiresAuth) {
                 map.put("usernameProperty", repo.usernameProperty);

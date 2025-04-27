@@ -1,10 +1,11 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.google.devtools.build.runfiles.Runfiles;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,39 +15,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class GradleBuildScriptTemplateTest {
-    private Path templatePath;
-
-    @Before
-    public void setup() throws IOException {
-        templatePath = Paths.get(Runfiles.preload()
-                .withSourceRepository("rules_jvm_external")
-                .rlocation("_main/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs")
-        );
-    }
 
     @Test
     public void simple() throws IOException {
         List<Repository> repositories = List.of(
                 new Repository(
-                        "https://repo1.maven.org/maven2"
+                        URI.create("https://repo1.maven.org/maven2")
                 )
         );
-        List<Dependency> dependencies = List.of(
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+        List<GradleDependency> dependencies = List.of(
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "foo",
                         "0.0.1"
                 ),
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "bar",
                         "0.1.0"
                 )
         );
 
-        List<Dependency> boms  = List.of();
+        List<GradleDependency> boms  = List.of();
         runGoldenTemplateTest("simple", repositories, dependencies, boms);
     }
 
@@ -54,31 +46,31 @@ public class GradleBuildScriptTemplateTest {
     public void multipleRepositoresWithCredentials() throws IOException {
         List<Repository> repositories = List.of(
                 new Repository(
-                        "https://repo1.maven.org/maven2"
+                        URI.create("https://repo1.maven.org/maven2")
                 ),
                 new Repository(
-                        "https://com.foo.org/maven2",
+                        URI.create("https://com.foo.org/maven2"),
                         true,
                         "fooUsername",
                         "fooPassword"
                 )
         );
-        List<Dependency> dependencies = List.of(
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+        List<GradleDependency> dependencies = List.of(
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "foo",
                         "0.0.1"
                 ),
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "bar",
                         "0.1.0"
                 )
         );
 
-        List<Dependency> boms  = List.of();
+        List<GradleDependency> boms  = List.of();
         runGoldenTemplateTest("multipleRepositories", repositories, dependencies, boms);
     }
 
@@ -86,27 +78,27 @@ public class GradleBuildScriptTemplateTest {
     public void boms() throws IOException {
         List<Repository> repositories = List.of(
                 new Repository(
-                        "https://repo1.maven.org/maven2"
+                        URI.create("https://repo1.maven.org/maven2")
                 )
         );
-        List<Dependency> dependencies = List.of(
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+        List<GradleDependency> dependencies = List.of(
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "foo",
                         "0.0.1"
                 ),
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "bar",
                         "0.1.0"
                 )
         );
 
-        List<Dependency> boms  = List.of(
-                new Dependency(
-                        Dependency.Scope.IMPLEMENTATION,
+        List<GradleDependency> boms  = List.of(
+                new GradleDependency(
+                        GradleDependency.Scope.IMPLEMENTATION,
                         "com.example",
                         "bom",
                         "0.1.0"
@@ -116,7 +108,7 @@ public class GradleBuildScriptTemplateTest {
         runGoldenTemplateTest("boms", repositories, dependencies, boms);
     }
 
-    private void runGoldenTemplateTest(String testName, List<Repository> repositories, List<Dependency> dependencies, List<Dependency> boms) throws IOException {
+    private void runGoldenTemplateTest(String testName, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms) throws IOException {
         // Locate template path from runfiles
         Path templatePath = Paths.get(Runfiles.preload()
                 .withSourceRepository("rules_jvm_external")

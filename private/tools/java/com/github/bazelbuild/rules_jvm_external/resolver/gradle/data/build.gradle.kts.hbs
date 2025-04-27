@@ -26,51 +26,100 @@ dependencies {
 {{/each~}}
 }
 
-tasks.register("dumpResolvedDependencies") {
-    doLast {
-        val output = mutableListOf<Map<String, Any?>>()
+abstract class ResolveDependenciesTask : DefaultTask() {
 
-        configurations.filter { it.isCanBeResolved }.forEach { config ->
-            val configEntry = mutableMapOf<String, Any?>(
-                "configuration" to config.name,
-                "artifacts" to mutableListOf<Map<String, String>>(),
-                "unresolved" to mutableListOf<Map<String, String>>()
-            )
+    data class DependencyInfo(
+        val group: String,
+        val name: String,
+        val version: String,
+        val requestedVersion: String?,
+        val conflict: Boolean,
+        val children: List<DependencyInfo> = emptyList()
+    )
 
-            config.resolvedConfiguration.lenientConfiguration.artifacts.forEach { artifact ->
-                (configEntry["artifacts"] as MutableList<Map<String, String>>).add(
-                    mapOf(
-                        "group" to artifact.moduleVersion.id.group,
-                        "name" to artifact.name,
-                        "version" to artifact.moduleVersion.id.version,
-                        "filePath" to artifact.file.absolutePath
-                    )
-                )
+    @TaskAction
+    fun resolveAndDump() {
+        val configurationsToCheck = listOf(
+            "compileClasspath",
+            "runtimeClasspath",
+            "testCompileClasspath",
+            "testRuntimeClasspath"
+        )
+
+        val visited = mutableSetOf<ComponentIdentifier>()  // <<<<<<<< move here
+
+        val allDependencies = mutableListOf<Map<String, Any?>>()
+
+        configurationsToCheck.forEach { configName ->
+            val configuration = project.configurations.findByName(configName) ?: return@forEach
+            if (!configuration.isCanBeResolved) return@forEach
+
+            val root = configuration.incoming.resolutionResult.root
+            root.dependencies.forEach { dep ->
+                visit(dep, visited)?.let { allDependencies.add(it.toMap()) }
             }
-
-            config.resolvedConfiguration.lenientConfiguration.unresolvedModuleDependencies.forEach { unresolved ->
-                (configEntry["unresolved"] as MutableList<Map<String, String>>).add(
-                    mapOf(
-                        "group" to unresolved.selector.group,
-                        "name" to unresolved.selector.module,
-                        "reason" to unresolved.problem.message
-                    )
-                )
-            }
-
-            output.add(configEntry)
         }
 
-        val json = JsonBuilder(output).toPrettyString()
-        val outputFilePath = project.findProperty("outputJsonFile") as String?
-        val outputFile = if (outputFilePath != null) {
-            File(outputFilePath)
+        val outputPath = project.findProperty("outputJsonFile") as? String
+        val outputFile = if (outputPath != null) {
+            project.file(outputPath)
         } else {
-            File(buildDir, "dependency-resolution/resolved-dependencies.json")
+            project.layout.buildDirectory.file("dependency-dump.json").get().asFile
         }
-        outputFile.parentFile.mkdirs()
-        outputFile.writeText(json)
 
-        println("Resolved dependencies dumped to ${outputFile.absolutePath}")
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(allDependencies)))
+
+        println("Dependency graph dumped to: ${outputFile.absolutePath}")
+    }
+
+    private fun visit(dep: DependencyResult, visited: MutableSet<ComponentIdentifier>): DependencyInfo? {
+        if (dep is ResolvedDependencyResult) {
+            val selectedId = dep.selected.id
+            val requested = (dep.requested as? ModuleComponentSelector)
+            val selected = (selectedId as? ModuleComponentIdentifier)
+
+            if (requested == null || selected == null) {
+                return null
+            }
+
+            if (!visited.add(selectedId)) {
+                // Already visited, skip to prevent infinite recursion
+                return null
+            }
+
+            val requestedVersion = requested.version
+            val selectedVersion = selected.version
+
+            val children = dep.selected.dependencies.mapNotNull { child ->
+                visit(child, visited)
+            }
+
+            return DependencyInfo(
+                group = selected.group,
+                name = selected.module,
+                version = selectedVersion,
+                requestedVersion = requestedVersion,
+                conflict = (requestedVersion != selectedVersion),
+                children = children
+            )
+        }
+        if (dep is UnresolvedDependencyResult) {
+            println("Unresolved dependency: ${dep.attempted}")
+        }
+        return null
+    }
+
+    private fun DependencyInfo.toMap(): Map<String, Any?> {
+        return mapOf(
+            "group" to group,
+            "name" to name,
+            "version" to version,
+            "requestedVersion" to requestedVersion,
+            "conflict" to conflict,
+            "children" to children.map { it.toMap() }
+        )
     }
 }
+
+tasks.register<ResolveDependenciesTask>("resolveDependencies")

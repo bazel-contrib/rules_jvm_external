@@ -1,8 +1,11 @@
-package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
+package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.util.List;
 
-public class Dependency {
+/**
+ * Represents a Gradle dependency in build.gradle.kts
+ */
+public class GradleDependency {
     public enum Scope {
         IMPLEMENTATION,
         COMPILE_ONLY,
@@ -16,7 +19,7 @@ public class Dependency {
     public final String version;
     public final List<Exclusion> exclusions;
 
-    public Dependency(Scope scope, String group, String artifact, String version, List<Exclusion> exclusions) {
+    public GradleDependency(Scope scope, String group, String artifact, String version, List<Exclusion> exclusions) {
         this.scope = scope;
         this.group = group;
         this.artifact = artifact;
@@ -24,7 +27,7 @@ public class Dependency {
         this.exclusions = exclusions != null ? exclusions : List.of();
     }
 
-    public Dependency(Scope scope, String group, String artifact, String version) {
+    public GradleDependency(Scope scope, String group, String artifact, String version) {
         this(scope, group, artifact, version, List.of());
     }
 }

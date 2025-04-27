@@ -1,4 +1,4 @@
-package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
+package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 public class Exclusion {
     public final String group;

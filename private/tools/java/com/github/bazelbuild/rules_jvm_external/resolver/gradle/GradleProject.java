@@ -16,48 +16,20 @@ public class GradleProject implements AutoCloseable  {
     private final Path projectDir;
     private final Path gradleCacheDir;
     private ProjectConnection connection;
-    private final boolean kmpEnabled;
     private final Path gradleJavaHome;
 
-    public GradleProject(Path projectDir, Path gradleCacheDir, boolean kmpEnabled, Path gradleJavaHome) {
+    public GradleProject(Path projectDir, Path gradleCacheDir, Path gradleJavaHome) {
         this.projectDir = projectDir;
         this.gradleCacheDir = gradleCacheDir;
-        this.kmpEnabled = kmpEnabled;
         this.gradleJavaHome = gradleJavaHome;
     }
 
-    public void setupProject(List<String> dependencies) throws IOException {
+    public void setupProject() throws IOException {
         Files.createDirectories(projectDir);
 
         Files.writeString(
                 projectDir.resolve("settings.gradle"),
                 "rootProject.name = 'rules_jvm_external'\n",
-                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
-        );
-
-        StringBuilder buildScript = new StringBuilder();
-        buildScript.append("plugins {\n")
-                .append("    id 'java'\n")
-                .append("}\n\n")
-                .append("repositories {\n")
-                .append("    mavenCentral()\n")
-                .append("}\n\n")
-                .append("dependencies {\n");
-
-        for (String dep : dependencies) {
-            buildScript.append("    implementation '").append(dep).append("'\n");
-        }
-
-        buildScript.append("}\n\n")
-                .append("tasks.register(\"resolveOnly\") {\n")
-                .append("    doLast {\n")
-                .append("        configurations.compileClasspath.resolve()\n")
-                .append("    }\n")
-                .append("}\n");
-
-        Files.writeString(
-                projectDir.resolve("build.gradle"),
-                buildScript.toString(),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
         );
     }
@@ -98,5 +70,9 @@ public class GradleProject implements AutoCloseable  {
         if(connection != null) {
             connection.close();
         }
+    }
+
+    public Path getProjectDir() {
+        return projectDir;
     }
 }
