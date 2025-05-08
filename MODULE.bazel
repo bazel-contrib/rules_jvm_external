@@ -36,7 +36,10 @@ bazel_dep(
     name = "rules_shell",
     version = "0.3.0",
 )
-
+bazel_dep(
+    name = "rules_pkg",
+    version = "0.10.1",
+)
 bazel_dep(
     name = "stardoc",
     version = "0.7.0",
@@ -54,11 +57,14 @@ _MAVEN_VERSION = "3.9.8"
 
 _MAVEN_RESOLVER_VERSION = "1.9.20"
 
+_SLF4J_VERSION = "2.0.12"
+
 # NOTE: Please keep any changes to this maven.install in sync with the
 # definition in repositories.bzl
 maven.install(
     name = "rules_jvm_external_deps",
     artifacts = [
+        "com.esotericsoftware.kryo:kryo:2.24.0",
         "com.google.auth:google-auth-library-credentials:1.23.0",
         "com.google.auth:google-auth-library-oauth2-http:1.23.0",
         "com.google.cloud:google-cloud-core:2.40.0",
@@ -66,6 +72,12 @@ maven.install(
         "com.google.code.gson:gson:2.11.0",
         "com.google.googlejavaformat:google-java-format:1.22.0",
         "com.google.guava:guava:33.2.1-jre",
+        "commons-io:commons-io:2.11.0",
+        "commons-lang:commons-lang:2.6",
+        "javax.inject:javax.inject:1",
+        "org.apache.ant:ant:1.10.12",
+        "org.apache.commons:commons-compress:1.22",
+        "org.apache.ivy:ivy:2.5.1",
         "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
@@ -80,16 +92,23 @@ maven.install(
         "org.apache.maven.resolver:maven-resolver-transport-file:%s" % _MAVEN_RESOLVER_VERSION,
         "org.apache.maven.resolver:maven-resolver-transport-http:%s" % _MAVEN_RESOLVER_VERSION,
         "org.apache.maven.resolver:maven-resolver-util:%s" % _MAVEN_RESOLVER_VERSION,
+        "org.codehaus.groovy:groovy-ant:3.0.13",
+        "org.codehaus.groovy:groovy-json:3.0.13",
         "org.codehaus.plexus:plexus-cipher:2.1.0",
         "org.codehaus.plexus:plexus-sec-dispatcher:2.0",
         "org.codehaus.plexus:plexus-utils:3.5.1",
         "org.fusesource.jansi:jansi:2.4.1",
-        "org.slf4j:jul-to-slf4j:2.0.12",
-        "org.slf4j:log4j-over-slf4j:2.0.12",
-        "org.slf4j:slf4j-simple:2.0.12",
-        "software.amazon.awssdk:s3:2.26.12",
+        "org.jetbrains.kotlin:kotlin-stdlib:1.7.10",
+        "org.jetbrains.kotlin:kotlin-daemon-embeddable:1.7.22",
+        "org.jetbrains.kotlin:kotlin-stdlib-common:1.7.22",
+        "org.ow2.asm:asm:9.4",
         "org.bouncycastle:bcprov-jdk15on:1.68",
         "org.bouncycastle:bcpg-jdk15on:1.68",
+        "org.slf4j:jul-to-slf4j:%s" % _SLF4J_VERSION,
+        "org.slf4j:log4j-over-slf4j:%s" % _SLF4J_VERSION,
+        "org.slf4j:slf4j-api:%s" % _SLF4J_VERSION,
+        "org.slf4j:slf4j-jdk14:%s" % _SLF4J_VERSION,
+        "software.amazon.awssdk:s3:2.26.12",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
@@ -100,6 +119,17 @@ use_repo(
     maven,
     "rules_jvm_external_deps",
     "unpinned_rules_jvm_external_deps",
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "gradle",
+    add_prefix = "gradle-bin",
+    build_file = "//:gradle.BUILD.bazel",
+    integrity = "sha256-dAwuRy7kMmwzv3WlyfXNHmns8/m1gPbiNshtHz2Yz6w=",
+    strip_prefix = "gradle-7.6.3",
+    url = "https://services.gradle.org/distributions/gradle-7.6.3-bin.zip",
 )
 
 http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")

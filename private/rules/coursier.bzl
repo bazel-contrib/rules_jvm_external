@@ -105,6 +105,7 @@ EMPTY_FILE_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b785
 _IN_REPO_PIN = """
 pin_dependencies(
     name = "pin",
+    resolver = {resolver},
     boms = {boms},
     artifacts = {artifacts},
     excluded_artifacts = {excluded_artifacts},
@@ -715,6 +716,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
+            resolver = repr(repository_ctx.attr.resolver),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
@@ -1415,7 +1417,7 @@ pinned_coursier_fetch = repository_rule(
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),
-        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "maven"], default = "coursier"),
+        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "gradle", "maven"], default = "coursier"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "boms": attr.string_list(),  # list of bom objects, each as json

@@ -1,0 +1,8 @@
+java_library(
+    name = "model",
+    srcs = glob(["*.java"]),
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__subpackages__"],
+    deps = [
+        "@gradle",
+    ],
+)

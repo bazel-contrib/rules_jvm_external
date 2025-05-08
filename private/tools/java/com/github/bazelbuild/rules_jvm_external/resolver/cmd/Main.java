@@ -26,13 +26,13 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.UriNotFoundException;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.AnsiConsoleListener;
-import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.PlainConsoleListener;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
@@ -69,6 +69,7 @@ public class Main {
       ResolutionRequest request = config.getResolutionRequest();
 
       Resolver resolver = config.getResolver();
+      listener.onEvent(new LogEvent("main", "Using resolver: " + resolver.getName(), null));
 
       ResolutionResult resolutionResult = resolver.resolve(request);
 
@@ -88,10 +89,13 @@ public class Main {
     boolean consoleAvailable = System.console() != null;
     if (System.getenv("RJE_VERBOSE") != null) {
       return new PlainConsoleListener();
-    } else if (termAvailable && consoleAvailable) {
-      return new AnsiConsoleListener();
+    } else if (consoleAvailable) {
+      if (termAvailable) {
+        return new AnsiConsoleListener();
+      }
+      return new PlainConsoleListener();
     }
-    return new NullListener();
+    return new PlainConsoleListener();
   }
 
   private static Set<DependencyInfo> fulfillDependencyInfos(

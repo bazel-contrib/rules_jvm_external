@@ -86,7 +86,7 @@ java_library(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
-            "org.slf4j:slf4j-simple",
+            "org.slf4j:slf4j-jdk14",
             repository_name = "rules_jvm_external_deps",
         ),
     ],

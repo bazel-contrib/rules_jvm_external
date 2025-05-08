@@ -1,0 +1,28 @@
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
+
+java_library(
+    name = "gradle",
+    exports = [
+        ":gradle-runtime-jars",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
+java_import(
+    name = "gradle-runtime-jars",
+    jars = glob(["gradle-bin/lib/*.jar"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "distribution",
+    srcs = glob(["**/*"]),
+    visibility = ["//visibility:public"],
+)
+
+exports_files(
+    ["gradle-bin/README"],
+)
