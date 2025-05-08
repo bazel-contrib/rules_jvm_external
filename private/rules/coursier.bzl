@@ -37,6 +37,7 @@ _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_license//rules:package_info.bzl", "package_info")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
