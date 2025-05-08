@@ -29,11 +29,12 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
 
     return to_return
 
-def _combine_jars(ctx, merge_jars, inputs, excludes, output):
+def _combine_jars(ctx, merge_jars, inputs, excludes, allowed_duplicates, output):
     args = ctx.actions.args()
     args.add("--output", output)
     args.add_all(inputs, before_each = "--sources")
     args.add_all(excludes, before_each = "--exclude")
+    args.add_all(allowed_duplicates, before_each = "--allow-duplicate")
 
     ctx.actions.run(
         mnemonic = "MergeJars",
@@ -74,6 +75,7 @@ def _maven_project_jar_impl(ctx):
         depset(transitive =
                    [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
                    [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]),
+        ctx.attr.allowed_duplicate_names,
         intermediate_jar,
     )
 
@@ -121,6 +123,7 @@ def _maven_project_jar_impl(ctx):
         depset(transitive =
                    [ji.transitive_source_jars for ji in info.dep_infos.to_list()] +
                    [jar[JavaInfo].transitive_source_jars for jar in ctx.attr.deploy_env]),
+        [],
         src_jar,
     )
 
@@ -228,6 +231,10 @@ single artifact that other teams can download and use.
             providers = [
                 [JavaInfo],
             ],
+        ),
+        "allowed_duplicate_names": attr.string_list(
+            doc = "A list of patterns (compiled as a java regex) that may be duplicated within the generated jar",
+            allow_empty = True,
         ),
         "_add_jar_manifest_entry": attr.label(
             executable = True,
