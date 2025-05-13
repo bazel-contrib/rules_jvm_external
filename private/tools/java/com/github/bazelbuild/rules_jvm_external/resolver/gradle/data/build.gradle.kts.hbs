@@ -1,5 +1,3 @@
-import groovy.json.JsonBuilder
-import java.io.File
 import groovy.json.JsonOutput
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -35,6 +33,14 @@ dependencies {
 {{/each~}}
 }
 
+{{#if globalExclusions}}
+configurations.all {
+{{~#each globalExclusions}}
+    exclude(group = "{{group}}", module="{{module}}")
+{{/each~}}
+}
+{{/if}}
+
 // Our custom task to dump dependencies
 abstract class ResolveDependenciesTask : DefaultTask() {
 
@@ -57,7 +63,7 @@ abstract class ResolveDependenciesTask : DefaultTask() {
             "testRuntimeClasspath"
         )
 
-        val visited = mutableSetOf<ComponentIdentifier>()  // <<<<<<<< move here
+        val visited = mutableSetOf<ComponentIdentifier>()
 
         val allDependencies = mutableListOf<Map<String, Any?>>()
 

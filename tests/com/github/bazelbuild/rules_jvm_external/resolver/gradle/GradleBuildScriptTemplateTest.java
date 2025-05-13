@@ -15,6 +15,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.google.devtools.build.runfiles.Runfiles;
 import org.junit.Test;
@@ -24,7 +26,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -54,7 +59,7 @@ public class GradleBuildScriptTemplateTest {
         );
 
         List<GradleDependency> boms  = List.of();
-        runGoldenTemplateTest("simple", repositories, dependencies, boms);
+        runGoldenTemplateTest("simple", repositories, dependencies, boms, new HashSet<>());
     }
 
     @Test
@@ -86,7 +91,7 @@ public class GradleBuildScriptTemplateTest {
         );
 
         List<GradleDependency> boms  = List.of();
-        runGoldenTemplateTest("multipleRepositories", repositories, dependencies, boms);
+        runGoldenTemplateTest("multipleRepositories", repositories, dependencies, boms, new HashSet<>());
     }
 
     @Test
@@ -120,15 +125,23 @@ public class GradleBuildScriptTemplateTest {
                 )
         );
 
-        runGoldenTemplateTest("boms", repositories, dependencies, boms);
+        Set<Coordinates> exclusions  = new HashSet<>();
+        exclusions.add(new Coordinates("com.example:bar"));
+
+
+        runGoldenTemplateTest("boms", repositories, dependencies, boms, exclusions);
     }
 
-    private void runGoldenTemplateTest(String testName, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms) throws IOException {
+    private void runGoldenTemplateTest(String testName, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, Set<Coordinates> globalExclusions) throws IOException {
         // Locate template path from runfiles
         Path templatePath = Paths.get(Runfiles.preload()
                 .withSourceRepository("rules_jvm_external")
                 .rlocation("_main/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs")
         );
+
+        List<Exclusion> exclusions = globalExclusions.stream().map(exclusion -> {
+            return new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId());
+        }).collect(Collectors.toList());
 
         // Output path
         Path outputPath = Files.createTempFile("rules_jvm_external", "gradle");
@@ -138,7 +151,8 @@ public class GradleBuildScriptTemplateTest {
                 outputPath,
                 repositories,
                 boms,
-                dependencies
+                dependencies,
+                exclusions
         );
 
         assertTrue(Files.exists(outputPath));

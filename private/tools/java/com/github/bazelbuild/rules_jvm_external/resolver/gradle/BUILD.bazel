@@ -33,6 +33,15 @@ java_library(
             "com.google.guava:guava",
             repository_name = "rules_jvm_external_deps",
         ),
+        artifact(
+            "com.facebook:ktfmt",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "com.google.googlejavaformat:google-java-format",
+            repository_name = "rules_jvm_external_deps",
+        ),
         "@bazel_tools//tools/java/runfiles",
+        "@gradle",
     ],
 )

@@ -94,6 +94,7 @@ maven.install(
         "org.bouncycastle:bcpg-jdk15on:1.68",
         "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
         "com.github.jknack:handlebars:4.3.1",
+        "com.facebook:ktfmt:0.52",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
@@ -102,6 +103,7 @@ maven.install(
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
         "https://repo.gradle.org/gradle/libs-releases/",
+        "https://repo.maven.apache.org/maven2/",
     ],
     strict_visibility = True,
 )
@@ -109,6 +111,17 @@ use_repo(
     maven,
     "rules_jvm_external_deps",
     "unpinned_rules_jvm_external_deps",
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "gradle",
+    add_prefix = "gradle-bin",
+    build_file = "//:gradle.BUILD.bazel",
+    integrity = "sha256-IPGxF2I3JUpvwgTYQ0GW+hGkz7OHVnUZxhVW6HEK7Xg=",
+    strip_prefix = "gradle-{}".format(_GRADLE_VERSION),
+    url = "https://services.gradle.org/distributions/gradle-{}-bin.zip".format(_GRADLE_VERSION),
 )
 
 http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")

@@ -4,7 +4,7 @@ import org.gradle.api.tasks.TaskAction
 
 // We need this plugin to be able to use "implementation"
 plugins {
-    java
+   java
 }
 
 repositories {
@@ -19,6 +19,9 @@ dependencies {
     implementation("com.example:bar:0.1.0")
 }
 
+
+
+// Our custom task to dump dependencies
 abstract class ResolveDependenciesTask : DefaultTask() {
 
     data class DependencyInfo(
@@ -32,6 +35,7 @@ abstract class ResolveDependenciesTask : DefaultTask() {
 
     @TaskAction
     fun resolveAndDump() {
+        // We collect dependencies across all these configurations
         val configurationsToCheck = listOf(
             "compileClasspath",
             "runtimeClasspath",
@@ -39,7 +43,7 @@ abstract class ResolveDependenciesTask : DefaultTask() {
             "testRuntimeClasspath"
         )
 
-        val visited = mutableSetOf<ComponentIdentifier>()  // <<<<<<<< move here
+        val visited = mutableSetOf<ComponentIdentifier>()
 
         val allDependencies = mutableListOf<Map<String, Any?>>()
 

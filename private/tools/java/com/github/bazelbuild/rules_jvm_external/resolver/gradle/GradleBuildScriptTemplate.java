@@ -15,6 +15,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -64,7 +65,8 @@ public class GradleBuildScriptTemplate {
             Path outputPath,
             List<Repository> repositories,
             List<GradleDependency> boms,
-            List<GradleDependency> dependencies
+            List<GradleDependency> dependencies,
+            List<Exclusion> globalExclusions
     ) throws IOException {
         String templateContent = Files.readString(templatePath);
 
@@ -99,6 +101,13 @@ public class GradleBuildScriptTemplate {
             map.put("group", dep.group);
             map.put("artifact", dep.artifact);
             map.put("version", dep.version);
+            return map;
+        }).collect(Collectors.toList()));
+
+        contextMap.put("globalExclusions", globalExclusions.stream().map(exclusion -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("group", exclusion.group);
+            map.put("module", exclusion.module);
             return map;
         }).collect(Collectors.toList()));
 

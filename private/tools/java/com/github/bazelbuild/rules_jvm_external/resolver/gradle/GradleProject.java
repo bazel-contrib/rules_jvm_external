@@ -15,6 +15,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
@@ -36,11 +37,13 @@ public class GradleProject implements AutoCloseable  {
     private final Path gradleCacheDir;
     private ProjectConnection connection;
     private final Path gradleJavaHome;
+    private final EventListener eventListener;
 
-    public GradleProject(Path projectDir, Path gradleCacheDir, Path gradleJavaHome) {
+    public GradleProject(Path projectDir, Path gradleCacheDir, Path gradleJavaHome, EventListener eventListener) {
         this.projectDir = projectDir;
         this.gradleCacheDir = gradleCacheDir;
         this.gradleJavaHome = gradleJavaHome;
+        this.eventListener = eventListener;
     }
 
     public void setupProject() throws IOException {
@@ -53,11 +56,12 @@ public class GradleProject implements AutoCloseable  {
         );
     }
 
-    public void connect() throws IOException {
+    public void connect(Path gradlePath) throws IOException {
         System.setProperty("gradle.user.home", gradleCacheDir.toAbsolutePath().toString());
         //System.setProperty("org.gradle.java.home", gradleJavaHome.toAbsolutePath().toString());
         connection = GradleConnector.newConnector()
                 .forProjectDirectory(projectDir.toFile())
+                .useInstallation(gradlePath.toFile())
                 .connect();
     }
 
@@ -77,6 +81,7 @@ public class GradleProject implements AutoCloseable  {
 
         connection.newBuild()
                 .forTasks("resolveDependencies")
+                .addProgressListener(new GradleProgressListener(this.eventListener))
                 .setStandardOutput(System.out)
                 .setStandardError(System.err)
                 .withArguments(arguments)

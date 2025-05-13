@@ -14,9 +14,14 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.facebook.ktfmt.format.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.*;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
@@ -29,6 +34,7 @@ import com.google.gson.Gson;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,14 +64,17 @@ public class GradleResolver implements Resolver {
         List<GradleDependency> dependencies = request.getDependencies().stream().map(this::createDependency).collect(Collectors.toList());
         List<GradleDependency> boms = request.getBoms().stream().map(this::createDependency).collect(Collectors.toList());
 
+        Path gradlePath = getGradleInstallationPath();
         try (GradleProject project = setupFakeGradleProject(
                 repositories,
                 dependencies,
                 boms,
+                request.getGlobalExclusions(),
                 request.isUseUnsafeSharedCache()
         )) {
             project.setupProject();
-            project.connect();
+            eventListener.onEvent(new PhaseEvent("Gathering dependencies"));
+            project.connect(gradlePath);
             if(isVerbose()) {
                 System.err.println("Resolving dependencies with gradle project: " + URI.create(project.getProjectDir().toString()).toString());
             }
@@ -92,6 +101,9 @@ public class GradleResolver implements Resolver {
         properties.put("outputJsonFile", getDependenciesJsonFile(projectDir).toString());
         properties.put("org.gradle.workers.max", String.valueOf(maxThreads));
         properties.put("org.gradle.parallel", "true");
+        if(isVerbose()) {
+            properties.put("org.gradle.debug", "true");
+        }
         return properties;
     }
 
@@ -152,11 +164,31 @@ public class GradleResolver implements Resolver {
     private Path getGradleBuildScriptTemplate() {
         try {
             Runfiles.Preloaded runfiles = Runfiles.preload();
-            // TODO: This path only supports Bazel 8 due to +, make it support Bazel 7 as well.
+            // Check for Bazel 8 path
             String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
                     .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
+            if(gradleBuildPath == null) {
+                // Check for Bazel 7 path
+                gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
+            }
             return Paths.get(gradleBuildPath);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Path getGradleInstallationPath() {
+        try {
+            Runfiles.Preloaded runfiles = Runfiles.preload();
+            String gradleReadmePath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                    .rlocation("gradle/gradle-bin/README");
+            Path gradlePath = Paths.get(gradleReadmePath).getParent();
+            if (!gradlePath.toFile().exists()) {
+                throw new IllegalStateException("Gradle installation path does not exist: " + gradleReadmePath);
+            }
+            return gradlePath;
+        } catch(IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -192,19 +224,26 @@ public class GradleResolver implements Resolver {
         }
     }
 
-    private GradleProject setupFakeGradleProject(List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, boolean useUnsafeCache) {
+    private GradleProject setupFakeGradleProject(List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, Set<Coordinates> globalExclusions, boolean useUnsafeCache) {
         try {
             Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
             Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
-
+            List<Exclusion> exclusions = globalExclusions.stream().map(exclusion -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId())).collect(Collectors.toList());
             Path outputBuildScript = fakeProjectDirectory.resolve("build.gradle.kts");
             GradleBuildScriptTemplate.generateBuildGradleKts(
                     gradleBuildScriptTemplate,
                     outputBuildScript,
                     repositories,
                     boms,
-                    dependencies
+                    dependencies,
+                    exclusions
             );
+
+            formatgradleBuildFile(outputBuildScript);
+
+            if(isVerbose()) {
+                eventListener.onEvent(new LogEvent("gradle", Files.readString(outputBuildScript), null));
+            }
 
             Path gradleCacheDir = fakeProjectDirectory.resolve(".gradle");
             Files.createDirectories(gradleCacheDir);
@@ -212,8 +251,19 @@ public class GradleResolver implements Resolver {
                 gradleCacheDir = Paths.get(System.getProperty("user.home"), ".gradle");
             }
 
-            return new GradleProject(fakeProjectDirectory, gradleCacheDir, null);
+            return new GradleProject(fakeProjectDirectory, gradleCacheDir, null, eventListener);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void formatgradleBuildFile(Path filePath) {
+        try {
+            String content = Files.readString(filePath);
+
+            String formattedContent = Formatter.format(content);
+            Files.writeString(filePath, formattedContent);
+        } catch (IOException | FormatterException e ) {
             throw new RuntimeException(e);
         }
     }
