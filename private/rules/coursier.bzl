@@ -1275,10 +1275,7 @@ def _coursier_fetch_impl(repository_ctx):
     lock_file_contents = json.decode(result.stdout)
 
     inputs_hash, _ = compute_dependency_inputs_signature(
-        # We are in `coursier_fetch`, and we've decided to require lock files when
-        # using a resolver that can resolve using boms. As such, we lack the `boms`
-        # attr, so pass in an empty array here, which is what we expect.
-        boms = [],
+        boms = repository_ctx.attr.boms,
         artifacts = repository_ctx.attr.artifacts,
         repositories = repository_ctx.attr.repositories,
         excluded_artifacts = repository_ctx.attr.excluded_artifacts,
