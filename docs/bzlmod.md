@@ -13,6 +13,7 @@ See the `/examples/bzlmod` folder in this repository for a complete, tested exam
 First, you must enable bzlmod.
 Note, the Bazel team plans to enable it by default starting in version 7.0.
 The simplest way is by adding this line to your `.bazelrc`:
+
 ```
 common --enable_bzlmod
 ```
@@ -22,8 +23,14 @@ setting the `version` to the latest one available on https://registry.bazel.buil
 
 ```starlark
 bazel_dep(name = "rules_jvm_external", version = "...")
-maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
-maven.install(
+your_maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+your_maven.install(
+    # NB: Do *ALWAYS* specify a name, and NEVER use the (default) name = "maven";
+    # this is because it's not "namespaced" (or "scoped") like you might think it
+    # really should be... use the default name *WILL* cause conflicts with other modules;
+    # notably grpc-java! See e.g. https://github.com/bazel-contrib/rules_jvm_external/issues/916
+    # and https://github.com/bazel-contrib/rules_jvm_external/issues/708 for more background.
+    name = "YOUR_maven",
     artifacts = [
         # This line is an example coordinate, you'd copy-paste your actual dependencies here
         # from your build.gradle or pom.xml file.
@@ -32,22 +39,23 @@ maven.install(
 )
 
 # You can split off individual artifacts to define artifact-specific options (this example sets `neverlink`).
-# The `maven.install` and `maven.artifact` tags will be merged automatically.
-maven.artifact(
+# The `your_maven.install` and `your_maven.artifact` tags will be merged automatically.
+your_maven.artifact(
+    # TODO? name = "YOUR_maven",
     artifact = "javapoet",
     group = "com.squareup",
     neverlink = True,
     version = "1.11.1",
 )
 
-use_repo(maven, "maven")
+use_repo(your_maven, "YOUR_maven")
 ```
 
 Now you can run the `@maven//:pin` program to create a JSON lockfile of the transitive dependencies,
 in a format that rules_jvm_external can use later. You'll check this file into the repository.
 
 ```sh
-$ bazel run @maven//:pin
+$ bazel run @your_maven//:pin
 ```
 
 Ignore the instructions printed at the end of the output from this command, as they aren't updated
@@ -62,9 +70,10 @@ $ mv rules_jvm_external~4.5~maven~maven_install.json maven_install.json
 
 Now that this file exists, we can update the `MODULE.bazel` to reflect that we pinned the dependencies.
 
-Add a `lock_file` attribute to the `maven.install()` call like so:
+Add a `lock_file` attribute to the `your_maven.install()` call like so:
+
 ```starlark
-maven.install(
+your_maven.install(
     ...
     lock_file = "//:maven_install.json",
 )
@@ -72,6 +81,20 @@ maven.install(
 
 Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation described in the
 [workspace instructions](/README.md#updating-maven_installjson) to update the dependencies.
+
+## Dependencing on Artifacts
+
+Now in `BUILD` files you can:
+
+```starlark
+
+java_library(
+    (...)
+    deps = [
+        "@YOUR_maven//:com_squareup_javapoet",
+```
+
+Note how you need to use `@YOUR_maven` instead of just `@maven`, and replace `:` with `_`, and omit the version.
 
 ## Artifact exclusion
 
@@ -82,13 +105,13 @@ element 9 of artifacts, but got None (NoneType)`). Split it like this instead:
 
 ```starlark
 # https://github.com/grpc/grpc-java/issues/10576
-maven.artifact(
+your_maven.artifact(
     artifact = "grpc-core",
     exclusions = ["io.grpc:grpc-util"],
     group = "io.grpc",
     version = "1.58.0",  # Keep version in sync with below!
 )
-maven.install(
+your_maven.install(
     artifacts = [
         "junit:junit:4.13.2",
         ...
