@@ -6,9 +6,7 @@ load("//private/rules:maven_install.bzl", "maven_install")
 
 _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
-    "https://maven.google.com",
     "https://repo.gradle.org/gradle/libs-releases/",
-    "https://repo.maven.apache.org/maven2/",
 ]
 
 _MAVEN_VERSION = "3.9.8"

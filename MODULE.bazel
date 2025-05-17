@@ -101,9 +101,7 @@ maven.install(
     lock_file = "//:rules_jvm_external_deps_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
-        "https://maven.google.com",
         "https://repo.gradle.org/gradle/libs-releases/",
-        "https://repo.maven.apache.org/maven2/",
     ],
     strict_visibility = True,
 )
