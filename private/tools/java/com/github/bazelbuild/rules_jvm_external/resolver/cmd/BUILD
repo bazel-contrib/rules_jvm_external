@@ -26,14 +26,15 @@ java_library(
             "com.google.guava:guava",
             repository_name = "rules_jvm_external_deps",
         ),
+        artifact(
+            "org.fusesource.jansi:jansi",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )
 
 java_binary(
     name = "Resolver",
-    data = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:build_gradle_template",
-    ],
     main_class = "com.github.bazelbuild.rules_jvm_external.resolver.cmd.Main",
     visibility = [
         "//visibility:public",

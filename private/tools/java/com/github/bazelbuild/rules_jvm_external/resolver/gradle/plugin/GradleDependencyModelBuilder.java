@@ -1,9 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
@@ -26,12 +23,12 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     @Override
     public boolean canBuild(String modelName) {
-        return modelName.equals(GradleDependencyModelBuilder.class.getName());
+        return modelName.equals(GradleDependencyModel.class.getName());
     }
 
     @Override
     public Object buildAll(String modelName, Project project) {
-        GradleDependencyModel gradleDependencyModel = new GradleDependencyModel();
+        GradleDependencyModel gradleDependencyModel = new GradleDependencyModelImpl();
         // Loop through all possible configurations
         // and collect all dependency information on resolution.
         for(Configuration cfg: project.getConfigurations()) {
@@ -55,7 +52,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                         exclusions
                 ));
             }
-            gradleDependencyModel.declaredDependencies.put(cfg.getName(), declaredDeps);
+            gradleDependencyModel.getDeclaredDependencies().put(cfg.getName(), declaredDeps);
 
             List<GradleResolvedDependency> resolvedRoots = new ArrayList<>();
             ResolutionResult result = cfg.getIncoming().getResolutionResult();
@@ -76,7 +73,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
                 resolvedRoots.add(info);
             }
-            gradleDependencyModel.resolvedDependencies.put(cfg.getName(), resolvedRoots);
+            gradleDependencyModel.getResolvedDependencies().put(cfg.getName(), resolvedRoots);
 
             List<GradleDependency> boms = new ArrayList<>();
 
@@ -92,7 +89,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                         List.of()
                 ));
             }
-            gradleDependencyModel.boms.put(cfg.getName(), boms);
+            gradleDependencyModel.getBoms().put(cfg.getName(), boms);
         }
 
         return gradleDependencyModel;

@@ -65,7 +65,7 @@ public class GradleBuildScriptGenerator {
      * @param globalExclusions - a list of dependencies to be excluded in resolution
      * @throws IOException
      */
-    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<Exclusion> globalExclusions) throws IOException {
+    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, Path pluginJarPath, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<Exclusion> globalExclusions) throws IOException {
         String templateContent = Files.readString(gradleBuildScriptTemplate);
 
         // Compile the template
@@ -108,6 +108,8 @@ public class GradleBuildScriptGenerator {
             map.put("module", exclusion.module);
             return map;
         }).collect(Collectors.toList()));
+
+        contextMap.put("pluginJarPath", pluginJarPath);
 
         // Render the template and write the actual build file
         String output = template.apply(Context.newContext(contextMap)).trim();

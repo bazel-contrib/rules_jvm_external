@@ -14,15 +14,12 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.*;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
@@ -51,7 +48,7 @@ public class GradleResolver implements Resolver {
     }
 
     private boolean isVerbose() {
-        return System.getenv("RJE_VERBOSE").equals("true");
+        return System.getenv("RJE_VERBOSE") != null && System.getenv("RJE_VERBOSE").equals("true");
     }
 
     @Override
@@ -90,8 +87,6 @@ public class GradleResolver implements Resolver {
             }
         }
 
-        properties.put("org.gradle.workers.max", String.valueOf(maxThreads));
-        properties.put("org.gradle.parallel", "true");
         if(isVerbose()) {
             properties.put("org.gradle.debug", "true");
         }
@@ -104,8 +99,7 @@ public class GradleResolver implements Resolver {
                 .build();
 
         Set<Conflict> conflicts = new HashSet<>();
-        List<GradleResolvedDependency> implementationDependencies = resolved.resolvedDependencies.get(GradleDependency.Scope.IMPLEMENTATION.toString());
-        List<GradleDependency> declaredDependencies = resolved.declaredDependencies.get(GradleDependency.Scope.IMPLEMENTATION.toString());
+        List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies().get(GradleDependency.Scope.IMPLEMENTATION.toString());
         for(GradleResolvedDependency dependency : implementationDependencies) {
             addDependency(graph, dependency.toCoordinates(), dependency);
             if(dependency.isConflict()) {
@@ -244,18 +238,12 @@ public class GradleResolver implements Resolver {
         try {
             Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
             Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
-            Path initScriptTemplate = getGradleInitScriptTemplate();
-            Path initScriptOutput = fakeProjectDirectory.resolve("init.gradle.kts");
-            GradleBuildScriptGenerator.generateInitScript(
-                    initScriptTemplate,
-                    initScriptOutput,
-                    getPluginJarPath()
-            );
             List<Exclusion> exclusions = globalExclusions.stream().map(exclusion -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId())).collect(Collectors.toList());
             Path outputBuildScript = fakeProjectDirectory.resolve("build.gradle.kts");
             GradleBuildScriptGenerator.generateBuildScript(
                     gradleBuildScriptTemplate,
                     outputBuildScript,
+                    getPluginJarPath(),
                     repositories,
                     dependencies,
                     boms,

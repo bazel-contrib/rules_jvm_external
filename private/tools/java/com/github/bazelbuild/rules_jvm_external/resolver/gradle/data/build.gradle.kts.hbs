@@ -1,6 +1,13 @@
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin.GradleDependencyModelPlugin
+buildscript {
+    dependencies {
+        classpath(files("{{pluginJarPath}}"))
+    }
+}
 
-plugins.apply(GradleDependencyModelPlugin::class.java)
+val pluginClass = Class
+    .forName("com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin.GradleDependencyModelPlugin")
+val plugin = pluginClass.getDeclaredConstructor().newInstance() as Plugin<Project>
+plugins.apply(plugin)
 
 plugins {
    java

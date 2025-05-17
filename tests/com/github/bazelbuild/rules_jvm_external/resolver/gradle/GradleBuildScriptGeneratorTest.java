@@ -132,6 +132,23 @@ public class GradleBuildScriptGeneratorTest {
         runGoldenTemplateTest("boms", repositories, dependencies, boms, exclusions);
     }
 
+    private Path getPluginJarPath() {
+        try {
+            Runfiles.Preloaded runfiles = Runfiles.preload();
+            // Check for Bazel 8 path
+            String pluginJarPath = runfiles.withSourceRepository("rules_jvm_external")
+                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+            if(pluginJarPath == null) {
+                // Check for Bazel 7 path
+                pluginJarPath = runfiles.withSourceRepository("rules_jvm_external")
+                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+            }
+            return Paths.get(pluginJarPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void runGoldenTemplateTest(String testName, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, Set<Coordinates> globalExclusions) throws IOException {
         // Locate template path from runfiles
         Path templatePath = Paths.get(Runfiles.preload()
@@ -149,6 +166,7 @@ public class GradleBuildScriptGeneratorTest {
         GradleBuildScriptGenerator.generateBuildScript(
                 templatePath,
                 outputPath,
+                getPluginJarPath(),
                 repositories,
                 dependencies,
                 boms,

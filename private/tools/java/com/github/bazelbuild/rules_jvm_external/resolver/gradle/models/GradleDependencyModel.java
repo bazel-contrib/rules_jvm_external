@@ -1,7 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +11,8 @@ import java.util.Map;
  * resolvedDependencies - these are the dependencies and their versions after resolution
  * boms - these are BOMs declared and resolved.
  */
-public class GradleDependencyModel implements Serializable {
-    public final Map<String, List<GradleDependency>> declaredDependencies = new LinkedHashMap<>();
-    public final Map<String, List<GradleResolvedDependency>> resolvedDependencies = new LinkedHashMap<>();
-    public final Map<String, List<GradleDependency>> boms = new LinkedHashMap<>();
+public interface GradleDependencyModel extends Serializable {
+    Map<String, List<GradleDependency>> getDeclaredDependencies();
+    Map<String, List<GradleResolvedDependency>> getResolvedDependencies();
+    Map<String, List<GradleDependency>> getBoms();
 }

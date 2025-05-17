@@ -16,16 +16,31 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 
+import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import org.junit.Test;
+
+import java.nio.file.Path;
 
 public class GradleResolverTest extends ResolverTestBase {
 
     @Override
     protected Resolver getResolver(Netrc netrc, EventListener listener) {
         return new GradleResolver(netrc, ResolverConfig.DEFAULT_MAX_THREADS, listener);
+    }
+
+    @Test
+    public void shouldSuccessfullyResolveMultiplatformArtifact() {
+        Coordinates mpArtifact = new Coordinates("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.0");
+
+        Path repo = MavenRepo.create().add(mpArtifact).getPath();
+
+        // There should be no cycle detected by this dependency
+        resolver.resolve(prepareRequestFor(repo.toUri(), mpArtifact));
     }
 }

@@ -17,6 +17,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModelImpl;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
@@ -80,9 +81,10 @@ public class GradleProject implements AutoCloseable  {
                 .map(entry -> "-P" + entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.toList());
 
+        System.out.println(arguments);
         return connection.model(GradleDependencyModel.class)
                 .addProgressListener(new GradleProgressListener(eventListener))
-                .withArguments("--init-script=" + projectDir.resolve("init.gradle.kts").toAbsolutePath().toString())
+                .withArguments(arguments)
                 .get();
     }
 
