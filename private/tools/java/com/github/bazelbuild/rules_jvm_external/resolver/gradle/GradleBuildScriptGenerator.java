@@ -1,6 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.ExclusionImpl;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -65,7 +65,7 @@ public class GradleBuildScriptGenerator {
      * @param globalExclusions - a list of dependencies to be excluded in resolution
      * @throws IOException
      */
-    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, Path pluginJarPath, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<Exclusion> globalExclusions) throws IOException {
+    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, Path pluginJarPath, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<ExclusionImpl> globalExclusions) throws IOException {
         String templateContent = Files.readString(gradleBuildScriptTemplate);
 
         // Compile the template
@@ -87,25 +87,25 @@ public class GradleBuildScriptGenerator {
 
         contextMap.put("boms", boms.stream().map(dep -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("group", dep.group);
-            map.put("artifact", dep.artifact);
-            map.put("version", dep.version);
+            map.put("group", dep.getGroup());
+            map.put("artifact", dep.getArtifact());
+            map.put("version", dep.getVersion());
             return map;
         }).collect(Collectors.toList()));
 
         contextMap.put("dependencies", dependencies.stream().map(dep -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("scope", dep.scope.name());  // e.g., "IMPLEMENTATION"
-            map.put("group", dep.group);
-            map.put("artifact", dep.artifact);
-            map.put("version", dep.version);
+            map.put("scope", dep.getScope().name());  // e.g., "IMPLEMENTATION"
+            map.put("group", dep.getGroup());
+            map.put("artifact", dep.getArtifact());
+            map.put("version", dep.getVersion());
             return map;
         }).collect(Collectors.toList()));
 
         contextMap.put("globalExclusions", globalExclusions.stream().map(exclusion -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("group", exclusion.group);
-            map.put("module", exclusion.module);
+            map.put("group", exclusion.getGroup());
+            map.put("module", exclusion.getModule());
             return map;
         }).collect(Collectors.toList()));
 

@@ -7,6 +7,8 @@ java_library(
     data = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin:plugin-single-jar",
+        "@gradle//:distribution",
+        "@gradle//:gradle-bin/README",
     ],
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__",

@@ -40,12 +40,14 @@ public class GradleProject implements AutoCloseable  {
     private ProjectConnection connection;
     private final Path gradleJavaHome;
     private final EventListener eventListener;
+    private final Path initScript;
 
-    public GradleProject(Path projectDir, Path gradleCacheDir, Path gradleJavaHome, EventListener eventListener) {
+    public GradleProject(Path projectDir, Path gradleCacheDir, Path gradleJavaHome, Path initScript, EventListener eventListener) {
         this.projectDir = projectDir;
         this.gradleCacheDir = gradleCacheDir;
         this.gradleJavaHome = gradleJavaHome;
         this.eventListener = eventListener;
+        this.initScript = initScript;
     }
 
     public void setupProject() throws IOException {
@@ -80,8 +82,10 @@ public class GradleProject implements AutoCloseable  {
         List<String> arguments = gradleProperties.entrySet().stream()
                 .map(entry -> "-P" + entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.toList());
+        if(this.initScript != null) {
+            arguments.add("--init-script=" + this.initScript);
+        }
 
-        System.out.println(arguments);
         return connection.model(GradleDependencyModel.class)
                 .addProgressListener(new GradleProgressListener(eventListener))
                 .withArguments(arguments)

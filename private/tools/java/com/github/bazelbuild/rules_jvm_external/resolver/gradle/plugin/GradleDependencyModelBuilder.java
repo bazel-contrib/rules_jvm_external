@@ -28,7 +28,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     @Override
     public Object buildAll(String modelName, Project project) {
-        GradleDependencyModel gradleDependencyModel = new GradleDependencyModelImpl();
+        GradleDependencyModelImpl gradleDependencyModel = new GradleDependencyModelImpl();
         // Loop through all possible configurations
         // and collect all dependency information on resolution.
         for(Configuration cfg: project.getConfigurations()) {
@@ -41,10 +41,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
                 GradleDependency.Scope scope = configurationScopes.get(cfg.getName());
                 List<Exclusion> exclusions = modDep.getExcludeRules().stream()
-                        .map(rule -> new Exclusion(rule.getGroup(), rule.getModule()))
+                        .map(rule -> new ExclusionImpl(rule.getGroup(), rule.getModule()))
                         .collect(Collectors.toList());
 
-                declaredDeps.add(new GradleDependency(
+                declaredDeps.add(new GradleDependencyImpl(
                         scope,
                         modDep.getGroup(),
                         modDep.getName(),
@@ -63,7 +63,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
                 ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
                 ResolvedComponentResult selected = rdep.getSelected();
-                GradleResolvedDependency info = walkResolvedComponent(selected);
+                GradleResolvedDependencyImpl info = walkResolvedComponent(selected);
 
                 if (rdep.getRequested() instanceof ModuleComponentSelector) {
                     String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
@@ -81,7 +81,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 if (constraint.getGroup() == null || constraint.getVersion() == null) continue;
 
                 GradleDependency.Scope scope = configurationScopes.get(cfg.getName());
-                boms.add(new GradleDependency(
+                boms.add(new GradleDependencyImpl(
                         scope,
                         constraint.getGroup(),
                         constraint.getName(),
@@ -95,8 +95,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         return gradleDependencyModel;
     }
 
-    private GradleResolvedDependency walkResolvedComponent(ResolvedComponentResult component) {
-        GradleResolvedDependency info = new GradleResolvedDependency();
+    private GradleResolvedDependencyImpl walkResolvedComponent(ResolvedComponentResult component) {
+        GradleResolvedDependencyImpl info = new GradleResolvedDependencyImpl();
         info.setGroup(component.getModuleVersion().getGroup());
         info.setName(component.getModuleVersion().getName());
         info.setVersion(component.getModuleVersion().getVersion());

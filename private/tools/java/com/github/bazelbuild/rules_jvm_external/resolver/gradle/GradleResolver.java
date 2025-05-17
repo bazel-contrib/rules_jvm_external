@@ -100,6 +100,9 @@ public class GradleResolver implements Resolver {
 
         Set<Conflict> conflicts = new HashSet<>();
         List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies().get(GradleDependency.Scope.IMPLEMENTATION.toString());
+        if(implementationDependencies == null) {
+            return new ResolutionResult(graph, null);
+        }
         for(GradleResolvedDependency dependency : implementationDependencies) {
             addDependency(graph, dependency.toCoordinates(), dependency);
             if(dependency.isConflict()) {
@@ -131,22 +134,19 @@ public class GradleResolver implements Resolver {
         return new Repository(uri, true, credential.login(), credential.password());
     }
 
-    private GradleDependency createDependency(Artifact artifact) {
+    private GradleDependencyImpl createDependency(Artifact artifact) {
         Coordinates coordinates = artifact.getCoordinates();
-        return new GradleDependency(GradleDependency.Scope.IMPLEMENTATION, coordinates.getGroupId(), coordinates.getArtifactId(), coordinates.getVersion());
+        return new GradleDependencyImpl(GradleDependency.Scope.IMPLEMENTATION, coordinates.getGroupId(), coordinates.getArtifactId(), coordinates.getVersion());
     }
 
 
-    private Path getGradleBuildScriptTemplate() {
+    private Path getGradleBuildScriptTemplate() throws IOException {
         try {
             Runfiles.Preloaded runfiles = Runfiles.preload();
-            // Check for Bazel 8 path
             String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
-            if(gradleBuildPath == null) {
-                // Check for Bazel 7 path
-                gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
+                    .rlocation("rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
+            if(!Files.exists(Paths.get(gradleBuildPath))) {
+                throw new IOException("Gradle build template not found at " + gradleBuildPath);
             }
             return Paths.get(gradleBuildPath);
         } catch (IOException e) {
@@ -154,16 +154,13 @@ public class GradleResolver implements Resolver {
         }
     }
 
-    private Path getGradleInitScriptTemplate() {
+    private Path getGradleInitScriptTemplate() throws IOException {
         try {
             Runfiles.Preloaded runfiles = Runfiles.preload();
-            // Check for Bazel 8 path
             String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/init.gradle.kts.hbs");
-            if(gradleBuildPath == null) {
-                // Check for Bazel 7 path
-                gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/init.gradle.kts.hbs");
+                    .rlocation("rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/init.gradle.hbs");
+            if(!Files.exists(Paths.get(gradleBuildPath))) {
+                throw new IOException("Gradle init template not found at " + gradleBuildPath);
             }
             return Paths.get(gradleBuildPath);
         } catch (IOException e) {
@@ -174,13 +171,10 @@ public class GradleResolver implements Resolver {
     private Path getPluginJarPath() {
         try {
             Runfiles.Preloaded runfiles = Runfiles.preload();
-            // Check for Bazel 8 path
             String pluginJarPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
-            if(pluginJarPath == null) {
-                // Check for Bazel 7 path
-                pluginJarPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+                    .rlocation("rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+            if(!Files.exists(Paths.get(pluginJarPath))) {
+                throw new IOException("Gradle Plugin jar not found at " + pluginJarPath);
             }
             return Paths.get(pluginJarPath);
         } catch (IOException e) {
@@ -203,42 +197,11 @@ public class GradleResolver implements Resolver {
         }
     }
 
-    private Set<Conflict> findConflicts(List<GradleResolvedDependency> dependencyInfos) {
-        Set<Conflict> conflicts = new HashSet<>();
-        for(GradleResolvedDependency dependencyInfo : dependencyInfos) {
-            walkForConflicts(dependencyInfo, conflicts);
-        }
-
-        return conflicts;
-    }
-
-    private void walkForConflicts(GradleResolvedDependency node, Set<Conflict> conflicts) {
-        if (node.getChildren() == null) {
-            return;
-        }
-        Coordinates resolved = node.toCoordinates();
-
-        for (GradleResolvedDependency child : node.getChildren()) {
-            Coordinates requested = child.toCoordinates();
-
-            if (resolved.getGroupId().equals(requested.getGroupId()) &&
-                    resolved.getArtifactId().equals(requested.getArtifactId()) &&
-                    resolved.getClassifier().equals(requested.getClassifier()) &&
-                    resolved.getExtension().equals(requested.getExtension()) &&
-                    !resolved.getVersion().equals(requested.getVersion())) {
-
-                conflicts.add(new Conflict(resolved, requested));
-            }
-
-            walkForConflicts(child, conflicts); // recursive
-        }
-    }
-
     private GradleProject setupFakeGradleProject(List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, Set<Coordinates> globalExclusions, boolean useUnsafeCache) {
         try {
             Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
             Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
-            List<Exclusion> exclusions = globalExclusions.stream().map(exclusion -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId())).collect(Collectors.toList());
+            List<ExclusionImpl> exclusions = globalExclusions.stream().map(exclusion -> new ExclusionImpl(exclusion.getGroupId(), exclusion.getArtifactId())).collect(Collectors.toList());
             Path outputBuildScript = fakeProjectDirectory.resolve("build.gradle.kts");
             GradleBuildScriptGenerator.generateBuildScript(
                     gradleBuildScriptTemplate,
@@ -248,6 +211,14 @@ public class GradleResolver implements Resolver {
                     dependencies,
                     boms,
                     exclusions
+            );
+
+            Path initScriptTemplate = getGradleInitScriptTemplate();
+            Path outputInitScript = fakeProjectDirectory.resolve("init.gradle");
+            GradleBuildScriptGenerator.generateInitScript(
+                    initScriptTemplate,
+                    outputInitScript,
+                    getPluginJarPath()
             );
 
             if(isVerbose()) {
@@ -260,7 +231,7 @@ public class GradleResolver implements Resolver {
                 gradleCacheDir = Paths.get(System.getProperty("user.home"), ".gradle");
             }
 
-            return new GradleProject(fakeProjectDirectory, gradleCacheDir, null, eventListener);
+            return new GradleProject(fakeProjectDirectory, gradleCacheDir, null, outputInitScript, eventListener);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

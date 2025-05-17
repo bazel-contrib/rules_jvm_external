@@ -16,7 +16,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.ExclusionImpl;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.google.devtools.build.runfiles.Runfiles;
 import org.junit.Test;
@@ -156,8 +156,8 @@ public class GradleBuildScriptGeneratorTest {
                 .rlocation("_main/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs")
         );
 
-        List<Exclusion> exclusions = globalExclusions.stream().map(exclusion -> {
-            return new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId());
+        List<ExclusionImpl> exclusions = globalExclusions.stream().map(exclusion -> {
+            return new ExclusionImpl(exclusion.getGroupId(), exclusion.getArtifactId());
         }).collect(Collectors.toList());
 
         // Output path
