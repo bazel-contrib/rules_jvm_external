@@ -16,6 +16,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
@@ -68,7 +69,7 @@ public class GradleProject implements AutoCloseable  {
     /**
      * Triggers dependency resolution by running the custom task to resolve gradle dependencies
      */
-    public void resolveDependencies(Map<String, String> gradleProperties) {
+    public GradleDependencyModel resolveDependencies(Map<String, String> gradleProperties) {
         if (connection == null) {
             throw new IllegalStateException("Gradle connection not established. Call connect() first.");
         }
@@ -79,13 +80,10 @@ public class GradleProject implements AutoCloseable  {
                 .map(entry -> "-P" + entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.toList());
 
-        connection.newBuild()
-                .forTasks("resolveDependencies")
-                .addProgressListener(new GradleProgressListener(this.eventListener))
-                .setStandardOutput(System.out)
-                .setStandardError(System.err)
-                .withArguments(arguments)
-                .run();
+        return connection.model(GradleDependencyModel.class)
+                .addProgressListener(new GradleProgressListener(eventListener))
+                .withArguments("--init-script=" + projectDir.resolve("init.gradle.kts").toAbsolutePath().toString())
+                .get();
     }
 
 

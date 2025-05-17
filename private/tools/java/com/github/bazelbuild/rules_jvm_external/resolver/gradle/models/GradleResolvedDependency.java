@@ -22,15 +22,16 @@ import java.util.List;
 /**
  * Represents a single dependency resolved by gradle
  */
-public class GradleResolvedDependencyInfo {
+public class GradleResolvedDependency {
     private String group;
     private String name;
     private String version;
     private String requestedVersion;
     private boolean conflict;
-    private List<GradleResolvedDependencyInfo> children;
+    private List<GradleResolvedDependency> children;
+    private boolean fromBom;
 
-    public GradleResolvedDependencyInfo() {
+    public GradleResolvedDependency() {
         // Default constructor needed for Gson
     }
 
@@ -74,11 +75,11 @@ public class GradleResolvedDependencyInfo {
         this.conflict = conflict;
     }
 
-    public List<GradleResolvedDependencyInfo> getChildren() {
+    public List<GradleResolvedDependency> getChildren() {
         return children;
     }
 
-    public void setChildren(List<GradleResolvedDependencyInfo> children) {
+    public void setChildren(List<GradleResolvedDependency> children) {
         this.children = children;
     }
 
@@ -91,4 +92,17 @@ public class GradleResolvedDependencyInfo {
                     this.getVersion() != null ? this.getVersion() : ""
             );
     }
+
+    public Coordinates toConflictVersionCoordinates() {
+        return new Coordinates(
+                this.getGroup(),
+                this.getName(),
+                "jar",
+                "",           // TODO: add classifiers
+                this.getRequestedVersion()
+        );
+    }
+
+    public boolean isFromBom() { return fromBom; }
+    public void setFromBom(boolean fromBom) { this.fromBom = fromBom; }
 }

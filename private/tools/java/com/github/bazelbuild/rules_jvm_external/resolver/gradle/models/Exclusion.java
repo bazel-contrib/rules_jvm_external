@@ -15,6 +15,9 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
+/**
+ * An exclusion declared to be excluded in the gradle resolution process
+ */
 public class Exclusion {
     public final String group;
     public final String module;

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class GradleBuildScriptTemplateTest {
+public class GradleBuildScriptGeneratorTest {
 
     @Test
     public void simple() throws IOException {
@@ -146,12 +146,12 @@ public class GradleBuildScriptTemplateTest {
         // Output path
         Path outputPath = Files.createTempFile("rules_jvm_external", "gradle");
 
-        GradleBuildScriptTemplate.generateBuildGradleKts(
+        GradleBuildScriptGenerator.generateBuildScript(
                 templatePath,
                 outputPath,
                 repositories,
-                boms,
                 dependencies,
+                boms,
                 exclusions
         );
 

@@ -1,18 +1,3 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
@@ -30,10 +15,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Helper class to render a build.gradle.kts from the set of the dependencies we have
- * so that we can run the gradle resolver on it.
+ * GradleBuildScriptGenerator is responsible for generating the build.gradle.kts
+ * and init.gradle.kts file that will allow us to setup a gradle project to resolve
+ * dependencies
  */
-public class GradleBuildScriptTemplate {
+public class GradleBuildScriptGenerator {
 
     private static final Handlebars handlebars = new Handlebars();
 
@@ -51,24 +37,36 @@ public class GradleBuildScriptTemplate {
     }
 
     /**
-     * Renders a build.gradle.kts from a template and a context.
-     *
-     * @param templatePath Path to build.gradle.kts.hbs template
-     * @param outputPath   Path to write the rendered build.gradle.kts
-     * @param repositories List of repository definitions
-     * @param boms List of BOM platform dependencies
-     * @param dependencies List of non-BOM dependencies
-     * @throws IOException on file read/write error
+     * Renders the init gradle script used for bootstrapping our custom plugin for resolving dependencies with the gradle daemon.
+     * @param initScriptTemplatePath The handlebars template which has a placeholder for the path for the plugin jar
+     * @param initScriptOutputPath The rendered template which will be used as init.gradle.kts
+     * @param pluginJarPath The actual path to the single jar which has the plugin.
+     * @throws IOException
      */
-    public static void generateBuildGradleKts(
-            Path templatePath,
-            Path outputPath,
-            List<Repository> repositories,
-            List<GradleDependency> boms,
-            List<GradleDependency> dependencies,
-            List<Exclusion> globalExclusions
-    ) throws IOException {
-        String templateContent = Files.readString(templatePath);
+    public static void generateInitScript(Path initScriptTemplatePath, Path initScriptOutputPath, Path pluginJarPath) throws IOException {
+        String templateContent = Files.readString(initScriptTemplatePath);
+        Template template = handlebars.compileInline(templateContent);
+
+        Map<String, Object> contextMap = new HashMap<>();
+
+        contextMap.put("pluginJarPath", pluginJarPath);
+        String output = template.apply(Context.newContext(contextMap)).trim();
+        Files.writeString(initScriptOutputPath, output);
+    }
+
+    /**
+     * Renders the build.gradle.kts for the fake project which has the dependencies, boms and repositories requested
+     * after which resolution can be performed
+     * @param gradleBuildScriptTemplate - the handlebars template with placeholders for generating build.gradle.kts
+     * @param outputGradleBuildScript - the rendered build.gradle.kts to be used with the fake project for resolution
+     * @param repositories - a list of Maven repositories to be used in resolution
+     * @param dependencies - a list of dependencies to be resolved/requested
+     * @param boms - a list of BOMs to be resolved
+     * @param globalExclusions - a list of dependencies to be excluded in resolution
+     * @throws IOException
+     */
+    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<Exclusion> globalExclusions) throws IOException {
+        String templateContent = Files.readString(gradleBuildScriptTemplate);
 
         // Compile the template
         Template template = handlebars.compileInline(templateContent);
@@ -111,11 +109,8 @@ public class GradleBuildScriptTemplate {
             return map;
         }).collect(Collectors.toList()));
 
-        // Render the output
+        // Render the template and write the actual build file
         String output = template.apply(Context.newContext(contextMap)).trim();
-
-        // Write to output file
-        Files.writeString(outputPath, output);
-
+        Files.writeString(outputGradleBuildScript, output);
     }
 }

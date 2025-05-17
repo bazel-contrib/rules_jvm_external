@@ -5,7 +5,8 @@ java_library(
     name = "gradle",
     srcs = glob(["*.java"]),
     data = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:build_gradle_template",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin:plugin-single-jar",
     ],
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__",

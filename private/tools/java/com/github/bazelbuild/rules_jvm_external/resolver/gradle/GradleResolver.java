@@ -14,8 +14,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
-import com.facebook.ktfmt.format.Formatter;
-import com.google.googlejavaformat.java.FormatterException;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependency;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.*;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
@@ -23,18 +23,14 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
-import com.google.gson.Gson;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,12 +74,8 @@ public class GradleResolver implements Resolver {
             if(isVerbose()) {
                 System.err.println("Resolving dependencies with gradle project: " + URI.create(project.getProjectDir().toString()).toString());
             }
-            project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
-            Path dependenciesJsonFile = getDependenciesJsonFile(project.getProjectDir());
-            if(!Files.exists(dependenciesJsonFile)) {
-                throw new IllegalStateException("Failed resolving dependencies with gradle");
-            }
-            return parseDependencies(dependenciesJsonFile);
+            GradleDependencyModel resolved = project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
+            return parseDependencies(resolved);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -98,7 +90,6 @@ public class GradleResolver implements Resolver {
             }
         }
 
-        properties.put("outputJsonFile", getDependenciesJsonFile(projectDir).toString());
         properties.put("org.gradle.workers.max", String.valueOf(maxThreads));
         properties.put("org.gradle.parallel", "true");
         if(isVerbose()) {
@@ -107,37 +98,28 @@ public class GradleResolver implements Resolver {
         return properties;
     }
 
-    private Path getDependenciesJsonFile(Path projectDir) {
-        return projectDir.resolve("resolved-dependencies.json");
-    }
-
-    private ResolutionResult parseDependencies(Path dependenciesJsonFile) throws IOException {
-        Gson gson = new Gson();
-
+    private ResolutionResult parseDependencies(GradleDependencyModel resolved) throws IOException {
         MutableGraph<Coordinates> graph = GraphBuilder.directed()
                 .allowsSelfLoops(false)
                 .build();
 
-        Set<Conflict> conflicts = null;
-        try (FileReader reader = new FileReader(dependenciesJsonFile.toString())) {
-            // Read the resolve dependencies from the gradle task
-            List<GradleResolvedDependencyInfo> dependencies = Arrays.asList(gson.fromJson(reader, GradleResolvedDependencyInfo[].class));
-            // Find any conflicts
-            conflicts = findConflicts(dependencies);
-
-            // And build the dependency graph
-            for(GradleResolvedDependencyInfo dependency : dependencies) {
-                addDependency(graph, dependency.toCoordinates(), dependency);
+        Set<Conflict> conflicts = new HashSet<>();
+        List<GradleResolvedDependency> implementationDependencies = resolved.resolvedDependencies.get(GradleDependency.Scope.IMPLEMENTATION.toString());
+        List<GradleDependency> declaredDependencies = resolved.declaredDependencies.get(GradleDependency.Scope.IMPLEMENTATION.toString());
+        for(GradleResolvedDependency dependency : implementationDependencies) {
+            addDependency(graph, dependency.toCoordinates(), dependency);
+            if(dependency.isConflict()) {
+                conflicts.add(new Conflict(dependency.toCoordinates(), dependency.toConflictVersionCoordinates()));
             }
         }
         return new ResolutionResult(graph, conflicts);
     }
 
-    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependencyInfo parentInfo) {
+    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo) {
         graph.addNode(parent);
 
         if (parentInfo.getChildren() != null) {
-            for (GradleResolvedDependencyInfo childInfo : parentInfo.getChildren()) {
+            for (GradleResolvedDependency childInfo : parentInfo.getChildren()) {
                 Coordinates child = childInfo.toCoordinates();
                 graph.addNode(child);
                 graph.putEdge(parent, child);
@@ -178,6 +160,40 @@ public class GradleResolver implements Resolver {
         }
     }
 
+    private Path getGradleInitScriptTemplate() {
+        try {
+            Runfiles.Preloaded runfiles = Runfiles.preload();
+            // Check for Bazel 8 path
+            String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/init.gradle.kts.hbs");
+            if(gradleBuildPath == null) {
+                // Check for Bazel 7 path
+                gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/init.gradle.kts.hbs");
+            }
+            return Paths.get(gradleBuildPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Path getPluginJarPath() {
+        try {
+            Runfiles.Preloaded runfiles = Runfiles.preload();
+            // Check for Bazel 8 path
+            String pluginJarPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                    .rlocation("rules_jvm_external+/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+            if(pluginJarPath == null) {
+                // Check for Bazel 7 path
+                pluginJarPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                        .rlocation("rules_jvm_external~/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+            }
+            return Paths.get(pluginJarPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Path getGradleInstallationPath() {
         try {
             Runfiles.Preloaded runfiles = Runfiles.preload();
@@ -193,22 +209,22 @@ public class GradleResolver implements Resolver {
         }
     }
 
-    private Set<Conflict> findConflicts(List<GradleResolvedDependencyInfo> dependencyInfos) {
+    private Set<Conflict> findConflicts(List<GradleResolvedDependency> dependencyInfos) {
         Set<Conflict> conflicts = new HashSet<>();
-        for(GradleResolvedDependencyInfo dependencyInfo : dependencyInfos) {
+        for(GradleResolvedDependency dependencyInfo : dependencyInfos) {
             walkForConflicts(dependencyInfo, conflicts);
         }
 
         return conflicts;
     }
 
-    private void walkForConflicts(GradleResolvedDependencyInfo node, Set<Conflict> conflicts) {
+    private void walkForConflicts(GradleResolvedDependency node, Set<Conflict> conflicts) {
         if (node.getChildren() == null) {
             return;
         }
         Coordinates resolved = node.toCoordinates();
 
-        for (GradleResolvedDependencyInfo child : node.getChildren()) {
+        for (GradleResolvedDependency child : node.getChildren()) {
             Coordinates requested = child.toCoordinates();
 
             if (resolved.getGroupId().equals(requested.getGroupId()) &&
@@ -228,18 +244,23 @@ public class GradleResolver implements Resolver {
         try {
             Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
             Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
+            Path initScriptTemplate = getGradleInitScriptTemplate();
+            Path initScriptOutput = fakeProjectDirectory.resolve("init.gradle.kts");
+            GradleBuildScriptGenerator.generateInitScript(
+                    initScriptTemplate,
+                    initScriptOutput,
+                    getPluginJarPath()
+            );
             List<Exclusion> exclusions = globalExclusions.stream().map(exclusion -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId())).collect(Collectors.toList());
             Path outputBuildScript = fakeProjectDirectory.resolve("build.gradle.kts");
-            GradleBuildScriptTemplate.generateBuildGradleKts(
+            GradleBuildScriptGenerator.generateBuildScript(
                     gradleBuildScriptTemplate,
                     outputBuildScript,
                     repositories,
-                    boms,
                     dependencies,
+                    boms,
                     exclusions
             );
-
-            formatgradleBuildFile(outputBuildScript);
 
             if(isVerbose()) {
                 eventListener.onEvent(new LogEvent("gradle", Files.readString(outputBuildScript), null));
@@ -253,17 +274,6 @@ public class GradleResolver implements Resolver {
 
             return new GradleProject(fakeProjectDirectory, gradleCacheDir, null, eventListener);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void formatgradleBuildFile(Path filePath) {
-        try {
-            String content = Files.readString(filePath);
-
-            String formattedContent = Formatter.format(content);
-            Files.writeString(filePath, formattedContent);
-        } catch (IOException | FormatterException e ) {
             throw new RuntimeException(e);
         }
     }
