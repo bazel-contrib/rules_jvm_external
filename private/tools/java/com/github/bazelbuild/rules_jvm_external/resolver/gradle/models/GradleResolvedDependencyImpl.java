@@ -84,23 +84,23 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
         this.children = children;
     }
 
-    public Coordinates toCoordinates() {
-            return new Coordinates(
-                    this.getGroup(),
-                    this.getName(),
-                    "jar",
-                    "",           // TODO: add classifiers
-                    this.getVersion() != null ? this.getVersion() : ""
+    public GradleCoordinates toCoordinates() {
+            return new GradleCoordinatesImpl(
+                    group,
+                    name,
+                    requestedVersion,
+                    "",
+                    "jar"
             );
     }
 
-    public Coordinates toConflictVersionCoordinates() {
-        return new Coordinates(
-                this.getGroup(),
-                this.getName(),
-                "jar",
-                "",           // TODO: add classifiers
-                this.getRequestedVersion()
+    public GradleCoordinates toConflictVersionCoordinates() {
+        return new GradleCoordinatesImpl(
+                group,
+                name,
+                requestedVersion,
+                "",
+                "jar"
         );
     }
 

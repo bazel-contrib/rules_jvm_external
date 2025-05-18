@@ -99,14 +99,18 @@ public class GradleResolver implements Resolver {
                 .build();
 
         Set<Conflict> conflicts = new HashSet<>();
-        List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies().get(GradleDependency.Scope.IMPLEMENTATION.toString());
+        List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies().get("compileClasspath");
         if(implementationDependencies == null) {
             return new ResolutionResult(graph, null);
         }
         for(GradleResolvedDependency dependency : implementationDependencies) {
-            addDependency(graph, dependency.toCoordinates(), dependency);
+            GradleCoordinates gradleCoordinates = dependency.toCoordinates();
+            Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), gradleCoordinates.getExtension(), gradleCoordinates.getClassifier(), gradleCoordinates.getVersion());
+            addDependency(graph, coordinates, dependency);
             if(dependency.isConflict()) {
-                conflicts.add(new Conflict(dependency.toCoordinates(), dependency.toConflictVersionCoordinates()));
+                GradleCoordinates requestedCoordinates = dependency.toConflictVersionCoordinates();
+                Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
+                conflicts.add(new Conflict(coordinates, requested));
             }
         }
         return new ResolutionResult(graph, conflicts);
@@ -117,10 +121,11 @@ public class GradleResolver implements Resolver {
 
         if (parentInfo.getChildren() != null) {
             for (GradleResolvedDependency childInfo : parentInfo.getChildren()) {
-                Coordinates child = childInfo.toCoordinates();
+                GradleCoordinates childCoordinates = childInfo.toCoordinates();
+                Coordinates child = new Coordinates(childCoordinates.getGroupId(), childCoordinates.getArtifactId(), childCoordinates.getExtension(), childCoordinates.getClassifier(), childCoordinates.getVersion());
                 graph.addNode(child);
                 graph.putEdge(parent, child);
-                addDependency(graph, child, childInfo); // recursive traverse the graph
+                addDependency(graph, child, childInfo); // recursively traverse the graph
             }
         }
     }

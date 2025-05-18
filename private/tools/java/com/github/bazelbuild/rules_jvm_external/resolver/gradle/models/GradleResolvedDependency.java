@@ -1,7 +1,5 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
-import com.github.bazelbuild.rules_jvm_external.Coordinates;
-
 import java.util.List;
 
 public interface GradleResolvedDependency {
@@ -28,9 +26,9 @@ public interface GradleResolvedDependency {
 
     public void setChildren(List<GradleResolvedDependency> children);
 
-    public Coordinates toCoordinates();
+    public GradleCoordinates toCoordinates();
 
-    public Coordinates toConflictVersionCoordinates();
+    public GradleCoordinates toConflictVersionCoordinates();
 
     public boolean isFromBom();
     public void setFromBom(boolean fromBom);

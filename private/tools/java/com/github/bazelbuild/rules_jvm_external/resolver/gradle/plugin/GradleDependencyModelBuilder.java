@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     private HashMap<String, GradleDependency.Scope> configurationScopes = new LinkedHashMap<>(Map.of(
-            "implementation", GradleDependency.Scope.IMPLEMENTATION,
-            "runtimeOnly", GradleDependency.Scope.RUNTIME_ONLY,
-            "compileOnly", GradleDependency.Scope.COMPILE_ONLY,
-            "testImplementation", GradleDependency.Scope.TEST_IMPLEMENTATION
+            "compileClasspath", GradleDependency.Scope.IMPLEMENTATION,
+            "runtimeClasspath", GradleDependency.Scope.RUNTIME_ONLY,
+            "testCompileClasspath", GradleDependency.Scope.TEST_IMPLEMENTATION,
+            "testRuntimeClasspath", GradleDependency.Scope.TEST_IMPLEMENTATION
             ));
 
     @Override

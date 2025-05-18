@@ -18,6 +18,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
@@ -41,6 +42,6 @@ public class GradleResolverTest extends ResolverTestBase {
         Path repo = MavenRepo.create().add(mpArtifact).getPath();
 
         // There should be no cycle detected by this dependency
-        resolver.resolve(prepareRequestFor(repo.toUri(), mpArtifact));
+        ResolutionResult result = resolver.resolve(prepareRequestFor(repo.toUri(), mpArtifact));
     }
 }
