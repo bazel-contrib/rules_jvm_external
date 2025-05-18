@@ -27,17 +27,17 @@ public class GradleDependencyImpl implements Serializable, GradleDependency {
     public final String artifact;
     public final String version;
     public final List<Exclusion> exclusions;
+    private final String classifier;
+    private final String extension;
 
-    public GradleDependencyImpl(GradleDependency.Scope scope, String group, String artifact, String version, List<Exclusion> exclusions) {
+    public GradleDependencyImpl(GradleDependency.Scope scope, String group, String artifact, String version, List<Exclusion> exclusions, String classifier, String extension) {
         this.scope = scope;
         this.group = group;
         this.artifact = artifact;
         this.version = version;
         this.exclusions = exclusions != null ? exclusions : List.of();
-    }
-
-    public GradleDependencyImpl(GradleDependency.Scope scope, String group, String artifact, String version) {
-        this(scope, group, artifact, version, List.of());
+        this.classifier = classifier;
+        this.extension = extension;
     }
 
     public String getGroup() {
@@ -54,6 +54,16 @@ public class GradleDependencyImpl implements Serializable, GradleDependency {
 
     public GradleDependency.Scope getScope() {
         return scope;
+    }
+
+    @Override
+    public String getClassifier() {
+        return classifier;
+    }
+
+    @Override
+    public String getExtension() {
+        return extension;
     }
 
     public List<Exclusion> getExclusions() {

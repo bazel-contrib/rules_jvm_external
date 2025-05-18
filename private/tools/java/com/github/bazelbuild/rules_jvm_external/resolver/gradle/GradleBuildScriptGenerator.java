@@ -34,6 +34,14 @@ public class GradleBuildScriptGenerator {
             }
             return raw;
         });
+
+        handlebars.registerHelper("notEmpty", (context, options) -> {
+            if (context != null && !context.toString().trim().isEmpty()) {
+                return options.fn(context);
+            } else {
+                return options.inverse(context);
+            }
+        });
     }
 
     /**
@@ -99,6 +107,16 @@ public class GradleBuildScriptGenerator {
             map.put("group", dep.getGroup());
             map.put("artifact", dep.getArtifact());
             map.put("version", dep.getVersion());
+            if(dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
+                map.put("classifier", ":" + dep.getClassifier());
+            } else {
+                map.put("classifier", "");
+            }
+            if(dep.getExtension() != null && dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
+                map.put("extension", "@" + dep.getExtension());
+            } else {
+                map.put("extension", "");
+            }
             return map;
         }).collect(Collectors.toList()));
 
@@ -108,8 +126,6 @@ public class GradleBuildScriptGenerator {
             map.put("module", exclusion.getModule());
             return map;
         }).collect(Collectors.toList()));
-
-        contextMap.put("pluginJarPath", pluginJarPath);
 
         // Render the template and write the actual build file
         String output = template.apply(Context.newContext(contextMap)).trim();

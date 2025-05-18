@@ -18,6 +18,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,9 +32,10 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
     private boolean conflict;
     private List<GradleResolvedDependency> children;
     private boolean fromBom;
+    private List<GradleResolvedArtifact> artifacts;
 
     public GradleResolvedDependencyImpl() {
-        // Default constructor needed for Gson
+       this.artifacts = new ArrayList<>();
     }
 
     public String getGroup() {
@@ -84,26 +86,21 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
         this.children = children;
     }
 
-    public GradleCoordinates toCoordinates() {
-            return new GradleCoordinatesImpl(
-                    group,
-                    name,
-                    requestedVersion,
-                    "",
-                    "jar"
-            );
-    }
-
-    public GradleCoordinates toConflictVersionCoordinates() {
-        return new GradleCoordinatesImpl(
-                group,
-                name,
-                requestedVersion,
-                "",
-                "jar"
-        );
-    }
-
     public boolean isFromBom() { return fromBom; }
     public void setFromBom(boolean fromBom) { this.fromBom = fromBom; }
+
+    @Override
+    public List<GradleResolvedArtifact> getArtifacts() {
+        return artifacts;
+    }
+
+    @Override
+    public void setArtifacts(List<GradleResolvedArtifact> artifacts) {
+        this.artifacts = artifacts;
+    }
+
+    @Override
+    public void addArtifact(GradleResolvedArtifact artifact) {
+        this.artifacts.add(artifact);
+    }
 }

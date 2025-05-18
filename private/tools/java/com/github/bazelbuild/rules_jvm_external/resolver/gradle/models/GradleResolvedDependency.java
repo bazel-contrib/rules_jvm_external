@@ -26,10 +26,12 @@ public interface GradleResolvedDependency {
 
     public void setChildren(List<GradleResolvedDependency> children);
 
-    public GradleCoordinates toCoordinates();
-
-    public GradleCoordinates toConflictVersionCoordinates();
-
     public boolean isFromBom();
     public void setFromBom(boolean fromBom);
+
+    public List<GradleResolvedArtifact> getArtifacts();
+
+    public void setArtifacts(List<GradleResolvedArtifact> artifacts);
+
+    public void addArtifact(GradleResolvedArtifact artifact);
 }
