@@ -110,25 +110,21 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     @Override
     public Object buildAll(String modelName, Project project) {
         GradleDependencyModelImpl gradleDependencyModel = new GradleDependencyModelImpl();
-        // Loop through all possible configurations
-        // and collect all dependency information on resolution.
-        for(Configuration cfg: project.getConfigurations()) {
-            if(!cfg.isCanBeResolved()) continue;
+        Configuration cfg = project.getConfigurations().getByName("compileClasspath");
 
-            // Collect declared dependencies and their versions
-            List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
-            gradleDependencyModel.getDeclaredDependencies().put(cfg.getName(), declaredDeps);
+        // Collect declared dependencies and their versions
+        List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
+        gradleDependencyModel.getDeclaredDependencies().put(cfg.getName(), declaredDeps);
 
-            // Collect resolved dependencies and walk the resolved components to get the resolved
-            // versions and any conflicts
-            Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts = collectAllResolvedArtifacts(project, cfg);
-            List<GradleResolvedDependency> resolvedRoots = collectResolvedDependencies(cfg, componentArtifacts);
-            gradleDependencyModel.getResolvedDependencies().put(cfg.getName(), resolvedRoots);
+        // Collect resolved dependencies and walk the resolved components to get the resolved
+        // versions and any conflicts
+        Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts = collectAllResolvedArtifacts(project, cfg);
+        List<GradleResolvedDependency> resolvedRoots = collectResolvedDependencies(cfg, componentArtifacts);
+        gradleDependencyModel.getResolvedDependencies().put(cfg.getName(), resolvedRoots);
 
-            // Collect boms from the gradle resolution
-            List<GradleDependency> boms = collectBoms(cfg);
-            gradleDependencyModel.getBoms().put(cfg.getName(), boms);
-        }
+        // Collect boms from the gradle resolution
+        List<GradleDependency> boms = collectBoms(cfg);
+        gradleDependencyModel.getBoms().put(cfg.getName(), boms);
 
         return gradleDependencyModel;
     }

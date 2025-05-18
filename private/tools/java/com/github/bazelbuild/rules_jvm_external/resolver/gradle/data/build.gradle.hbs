@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+{{~#each repositories}}
+    maven {
+        url "{{url}}"
+        {{~#if requiresAuth}}
+        credentials {
+            username = project.findProperty("{{usernameProperty}}") ?: throw new GradleException("Missing {{usernameProperty}}")
+            password = project.findProperty("{{passwordProperty}}") ?: throw new GradleException("Missing {{passwordProperty}}")
+        }
+        {{/if~}}
+    }
+{{/each~}}
+}
+
+dependencies {
+{{~#each boms}}
+    implementation platform("{{group}}:{{artifact}}:{{version}}")
+{{/each~}}
+
+{{~#each dependencies}}
+    {{lowerCase scope}}("{{group}}:{{artifact}}:{{version}}{{#if classifier}}:{{classifier}}{{/if}}{{#if extension}}@{{extension}}{{/if}}"){{#if exclusions}} {
+        {{~#each exclusions}}
+        exclude group: "{{group}}", module: "{{module}}"
+        {{/each~}}
+    }{{/if}}
+{{/each~}}
+}
+
+{{#if globalExclusions}}
+configurations.all {
+    {{~#each globalExclusions}}
+    exclude group: "{{group}}", module: "{{module}}"
+    {{/each~}}
+}
+{{/if}}

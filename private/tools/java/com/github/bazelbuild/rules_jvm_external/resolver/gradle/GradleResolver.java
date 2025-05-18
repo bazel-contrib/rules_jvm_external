@@ -153,7 +153,7 @@ public class GradleResolver implements Resolver {
         try {
             Runfiles.Preloaded runfiles = Runfiles.preload();
             String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                    .rlocation("rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.kts.hbs");
+                    .rlocation("rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data/build.gradle.hbs");
             if(!Files.exists(Paths.get(gradleBuildPath))) {
                 throw new IOException("Gradle build template not found at " + gradleBuildPath);
             }
@@ -211,7 +211,7 @@ public class GradleResolver implements Resolver {
             Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
             Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
             List<ExclusionImpl> exclusions = globalExclusions.stream().map(exclusion -> new ExclusionImpl(exclusion.getGroupId(), exclusion.getArtifactId())).collect(Collectors.toList());
-            Path outputBuildScript = fakeProjectDirectory.resolve("build.gradle.kts");
+            Path outputBuildScript = fakeProjectDirectory.resolve("build.gradle");
             GradleBuildScriptGenerator.generateBuildScript(
                     gradleBuildScriptTemplate,
                     outputBuildScript,

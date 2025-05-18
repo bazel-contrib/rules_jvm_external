@@ -62,6 +62,7 @@ public class GradleProject implements AutoCloseable  {
 
     public void connect(Path gradlePath) throws IOException {
         System.setProperty("gradle.user.home", gradleCacheDir.toAbsolutePath().toString());
+        System.setProperty("org.gradle.parallel", "true");
         //System.setProperty("org.gradle.java.home", gradleJavaHome.toAbsolutePath().toString());
         connection = GradleConnector.newConnector()
                 .forProjectDirectory(projectDir.toFile())
@@ -86,6 +87,8 @@ public class GradleProject implements AutoCloseable  {
             arguments.add("--init-script=" + this.initScript);
         }
 
+        arguments.add("--scan");
+        arguments.add("--profile");
         return connection.model(GradleDependencyModel.class)
                 .addProgressListener(new GradleProgressListener(eventListener))
                 .setStandardOutput(System.out)
