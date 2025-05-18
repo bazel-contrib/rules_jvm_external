@@ -85,6 +85,11 @@ public class GradleBuildScriptGenerator {
         contextMap.put("repositories", repositories.stream().map(repo -> {
             Map<String, Object> map = new HashMap<>();
             map.put("url", repo.getUrl());
+            if(repo.getUrl().startsWith("http://localhost") || (repo.getUrl().startsWith("http://") && repo.getUrl().contains("localhost:"))) {
+                map.put("allowInsecureProtocol", true);
+            } else {
+                map.put("allowInsecureProtocol", false);
+            }
             map.put("requiresAuth", repo.requiresAuth);
             if (repo.requiresAuth) {
                 map.put("usernameProperty", repo.usernameProperty);

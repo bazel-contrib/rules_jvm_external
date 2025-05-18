@@ -6,6 +6,7 @@ repositories {
 {{~#each repositories}}
     maven {
         url "{{url}}"
+        allowInsecureProtocol = {{allowInsecureProtocol}}
         {{~#if requiresAuth}}
         credentials {
             username = project.findProperty("{{usernameProperty}}") ?: throw new GradleException("Missing {{usernameProperty}}")
