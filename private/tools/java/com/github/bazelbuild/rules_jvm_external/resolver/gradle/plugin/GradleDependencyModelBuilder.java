@@ -232,7 +232,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         collectArtifactsFromArtifactView(javadocView, componentResolvedArtifacts);
 
         ArtifactView jarView = cfg.getIncoming().artifactView(spec -> {
-            spec.setLenient(true);
             spec.attributes(attrs -> {
                 attrs.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
             });

@@ -18,8 +18,9 @@ public class GradleProgressListener implements ProgressListener {
     private final EventListener listener;
 
     public GradleProgressListener(EventListener listener) {
-        this.listener = Objects.requireNonNull(listener);
+        this.listener = listener;
     }
+
     @Override
     public void statusChanged(ProgressEvent progressEvent) {
         if (progressEvent instanceof FileDownloadStartEvent) {
