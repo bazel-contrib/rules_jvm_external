@@ -845,10 +845,11 @@ In this case, once pinning is complete, guava `23.3-jre` will be selected.
 
 ### Overriding generated targets
 
-You can override the generated targets for artifacts with a target label of your
-choice. For instance, if you want to provide your own definition of
-`@maven//:com_google_guava_guava` at `//third_party/guava:guava`, specify the
-mapping in the `override_targets` attribute:
+When are using a WORKSPACE file you can override the generated targets for
+artifacts with a target label of your choice. For instance, if you want to
+provide your own definition of `@maven//:com_google_guava_guava` at
+`//third_party/guava:guava`, specify the mapping in the `override_targets`
+attribute:
 
 ```python
 maven_install(
@@ -862,6 +863,15 @@ maven_install(
     override_targets = {
         "com.google.guava:guava": "@//third_party/guava:guava",
     },
+)
+```
+
+When you are using bzlmod you can override the generated target with
+```
+maven.override(
+    name = "maven",
+    coordinates = "com.google.guava:guava",
+    target = "//third_party/guava:guava",
 )
 ```
 
