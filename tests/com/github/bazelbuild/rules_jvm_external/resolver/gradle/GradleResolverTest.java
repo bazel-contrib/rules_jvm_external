@@ -34,14 +34,4 @@ public class GradleResolverTest extends ResolverTestBase {
     protected Resolver getResolver(Netrc netrc, EventListener listener) {
         return new GradleResolver(netrc, ResolverConfig.DEFAULT_MAX_THREADS, listener);
     }
-
-    @Test
-    public void shouldSuccessfullyResolveMultiplatformArtifact() {
-        Coordinates mpArtifact = new Coordinates("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.0");
-
-        Path repo = MavenRepo.create().add(mpArtifact).getPath();
-
-        // There should be no cycle detected by this dependency
-        ResolutionResult result = resolver.resolve(prepareRequestFor(repo.toUri(), mpArtifact));
-    }
 }

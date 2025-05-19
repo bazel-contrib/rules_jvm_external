@@ -1,18 +1,21 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
 
 repositories {
 {{~#each repositories}}
     maven {
         url "{{url}}"
         allowInsecureProtocol = {{allowInsecureProtocol}}
-        {{~#if requiresAuth}}
+        {{#if requiresAuth}}
         credentials {
-            username = project.findProperty("{{usernameProperty}}") ?: throw new GradleException("Missing {{usernameProperty}}")
-            password = project.findProperty("{{passwordProperty}}") ?: throw new GradleException("Missing {{passwordProperty}}")
+            def u = findProperty("{{usernameProperty}}")
+            if (u == null) throw new GradleException("Missing {{usernameProperty}}")
+            username = u
+
+            def p = findProperty("{{passwordProperty}}")
+            if (p == null) throw new GradleException("Missing {{passwordProperty}}")
+            password = p
         }
-        {{/if~}}
+        {{/if}}
     }
 {{/each~}}
 }
@@ -23,7 +26,7 @@ dependencies {
 {{/each~}}
 
 {{~#each dependencies}}
-    {{lowerCase scope}}("{{group}}:{{artifact}}:{{version}}{{#if classifier}}:{{classifier}}{{/if}}{{#if extension}}@{{extension}}{{/if}}"){{#if exclusions}} {
+    {{lowerCase scope}}("{{group}}:{{artifact}}:{{version}}{{#if classifier}}{{classifier}}{{/if}}{{#if extension}}{{extension}}{{/if}}"){{#if exclusions}} {
         {{~#each exclusions}}
         exclude group: "{{group}}", module: "{{module}}"
         {{/each~}}

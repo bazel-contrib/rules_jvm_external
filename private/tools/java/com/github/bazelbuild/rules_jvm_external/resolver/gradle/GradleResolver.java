@@ -27,7 +27,9 @@ import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,9 +80,16 @@ public class GradleResolver implements Resolver {
         }
     }
 
-    private Map<String, String> getGradleTaskProperties(List<Repository> repositories, Path projectDir) {
+    private String getRepositoryURLHost(Repository repository) throws MalformedURLException {
+        URL url = new URL(repository.getUrl());
+        return url.getHost();
+    }
+
+
+    private Map<String, String> getGradleTaskProperties(List<Repository> repositories, Path projectDir) throws MalformedURLException {
         Map<String, String> properties = new HashMap<>();
         for (Repository repository : repositories) {
+            String repositoryHost = getRepositoryURLHost(repository);
             if(repository.requiresAuth) {
                 properties.put(repository.usernameProperty, repository.getUsername());
                 properties.put(repository.passwordProperty, repository.getPassword());

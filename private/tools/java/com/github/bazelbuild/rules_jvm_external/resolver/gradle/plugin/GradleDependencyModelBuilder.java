@@ -1,3 +1,17 @@
+// Copyright 2024 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
@@ -116,9 +130,12 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
         gradleDependencyModel.getDeclaredDependencies().put(cfg.getName(), declaredDeps);
 
-        // Collect resolved dependencies and walk the resolved components to get the resolved
-        // versions and any conflicts
+        // Use the ArtifactView API to get all the resolved artifacts (jars, javadoc, sources)
+        // and map it to the component identifier of each dependency component as Artifacts only have information
+        // about the file and variant
         Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts = collectAllResolvedArtifacts(project, cfg);
+
+        // Now get the dependency graph obtained in resolution and attach the artifacts on the nodes in the graph
         List<GradleResolvedDependency> resolvedRoots = collectResolvedDependencies(cfg, componentArtifacts);
         gradleDependencyModel.getResolvedDependencies().put(cfg.getName(), resolvedRoots);
 
@@ -166,11 +183,12 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
         info.setChildren(children);
 
+        // This is where we attach the artifacts to the resolved dependency (there can be many - like jars, javadoc, sources, poms)
         for(Map.Entry<ComponentIdentifier, List<GradleResolvedArtifact>> entry : componentResolvedArtifacts.entrySet()) {
             ComponentIdentifier identifier = entry.getKey();
             List<GradleResolvedArtifact> resolvedArtifacts = entry.getValue();
             for(GradleResolvedArtifact artifact : resolvedArtifacts) {
-                if(identifier.equals(component.getId())) {
+                if(identifier.getDisplayName().equals(identifier.getDisplayName())) {
                     GradleResolvedArtifact gradleResolvedArtifact = new GradleResolvedArtifactImpl();
                     gradleResolvedArtifact.setClassifier(artifact.getClassifier());
                     gradleResolvedArtifact.setExtension(artifact.getExtension());
@@ -182,22 +200,31 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         return info;
     }
 
+    // The ArtifactView api doesn't provide a way to obtain the classifier (the legacy API does but it doesn't provide a way to obtain additional artifacts
+    // like javadoc/sources from what I can tell
+    // so we interpolate the classifier based on the artifact file
     private String extractClassifier(File file, ComponentIdentifier id) {
         if (!(id instanceof ModuleComponentIdentifier)) return null;
 
         ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
-        String base = module.getModule() + "-" + module.getVersion();
-        String name = file.getName(); // e.g. mylib-1.0-sources.jar
+        String version = module.getVersion();
+        String artifact = module.getModule();
 
-        if (name.startsWith(base) && name.endsWith(".jar")) {
-            String remainder = name.substring(base.length(), name.length() - 4);
-            if (remainder.startsWith("-")) {
-                return remainder.substring(1);
-            }
-        }
+        String name = file.getName(); // e.g. lib-1.0-sources.jar, lib-1.0.pom
 
-        return null;
+        // Strip extension
+        int dotIndex = name.lastIndexOf('.');
+        if (dotIndex <= 0) return null;
+        String nameWithoutExt = name.substring(0, dotIndex);
+
+        String expectedBase = artifact + "-" + version;
+
+        if (!nameWithoutExt.startsWith(expectedBase)) return null;
+
+        String suffix = nameWithoutExt.substring(expectedBase.length());
+        return (suffix.startsWith("-")) ? suffix.substring(1) : null;
     }
+
 
     private String extractExtension(File file) {
         String name = file.getName();
@@ -229,11 +256,13 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
         ArtifactView jarView = cfg.getIncoming().artifactView(spec -> {
             spec.attributes(attrs -> {
+                spec.setLenient(true);
                 attrs.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
             });
         });
 
         collectArtifactsFromArtifactView(jarView, componentResolvedArtifacts);
+        collectPOMsForAllComponents(project, componentResolvedArtifacts);
         return componentResolvedArtifacts;
     }
 
@@ -251,6 +280,37 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 componentResolvedArtifacts.put(identifier, resolvedArtifacts);
             } else {
                 componentResolvedArtifacts.get(identifier).add(resolvedArtifact);
+            }
+        }
+    }
+
+    private void collectPOMsForAllComponents(Project project, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentResolvedArtifacts) {
+        for(ComponentIdentifier identifier : componentResolvedArtifacts.keySet()) {
+            if (!(identifier instanceof ModuleComponentIdentifier)) continue;
+
+            System.out.println("Collecting POM for " + identifier);
+            ModuleComponentIdentifier m = (ModuleComponentIdentifier) identifier;
+            String depNotation = m.getGroup() + ":" + m.getModule() + ":" + m.getVersion() + "@pom";
+            System.out.println("Collecting POM for " + depNotation);
+            Dependency dep = project.getDependencies().create(depNotation);
+
+            Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
+
+            ArtifactView view = pomCfg.getIncoming().artifactView(spec -> {
+                spec.setLenient(true); // avoid failure if a POM is missing
+            });
+
+            for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
+                GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+                resolvedArtifact.setFile(artifact.getFile());
+                resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
+                if(componentResolvedArtifacts.containsKey(identifier)) {
+                    componentResolvedArtifacts.get(identifier).add(resolvedArtifact);
+                } else {
+                    List<GradleResolvedArtifact> resolvedArtifacts = new ArrayList<>();
+                    resolvedArtifacts.add(resolvedArtifact);
+                    componentResolvedArtifacts.put(identifier, resolvedArtifacts);
+                }
             }
         }
     }
