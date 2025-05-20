@@ -1,7 +1,6 @@
 filegroup(
     name = "gradle_build_templates",
     srcs = glob([
-        "**/*.kts.hbs",
         "**/*.hbs",
     ]),
     visibility = [

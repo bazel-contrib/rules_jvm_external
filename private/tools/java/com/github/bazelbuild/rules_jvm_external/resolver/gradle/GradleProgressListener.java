@@ -16,11 +16,14 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
 import org.gradle.tooling.events.download.FileDownloadFinishEvent;
 import org.gradle.tooling.events.download.FileDownloadStartEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,6 +33,7 @@ import java.util.Objects;
 public class GradleProgressListener implements ProgressListener {
     private static final String DOWNLOAD = "Download ";
     private final EventListener listener;
+    private final List<Exception> exceptions = new ArrayList<>();
 
     public GradleProgressListener(EventListener listener) {
         this.listener = listener;

@@ -28,7 +28,7 @@ maven.install(
 maven.install(
     name = "alternative_resolver",
     artifacts = [
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0",
     ],
     # Before the first pin, this file was completely empty. Running:
     # `REPIN=1 bazel run @alternative_resolver//:pin` generated it.

@@ -108,7 +108,7 @@ public class GradleResolver implements Resolver {
                 .build();
 
         Set<Conflict> conflicts = new HashSet<>();
-        List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies().get("compileClasspath");
+        List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
         if(implementationDependencies == null) {
             return new ResolutionResult(graph, null);
         }

@@ -125,6 +125,9 @@ public class GradleBuildScriptGenerator {
             map.put("scope", dep.getScope().name());  // e.g., "IMPLEMENTATION"
             map.put("group", dep.getGroup());
             map.put("artifact", dep.getArtifact());
+            if(dep.getVersion() != null && !dep.getVersion().isEmpty()) {
+                map.put("version", ":" + dep.getVersion());
+            }
             map.put("version", dep.getVersion());
             if(dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
                 map.put("classifier", ":" + dep.getClassifier());

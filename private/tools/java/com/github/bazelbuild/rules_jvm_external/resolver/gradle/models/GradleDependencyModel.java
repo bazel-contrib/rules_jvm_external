@@ -25,7 +25,6 @@ import java.util.Map;
  * boms - these are BOMs declared and resolved.
  */
 public interface GradleDependencyModel {
-    Map<String, List<GradleDependency>> getDeclaredDependencies();
-    Map<String, List<GradleResolvedDependency>> getResolvedDependencies();
-    Map<String, List<GradleDependency>> getBoms();
+    List<GradleResolvedDependency> getResolvedDependencies();
+    List<GradleDependency> getBoms();
 }

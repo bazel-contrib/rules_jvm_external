@@ -43,41 +43,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         return modelName.equals(GradleDependencyModel.class.getName());
     }
 
-    private List<GradleDependency> collectDeclaredDependencies(Configuration cfg) {
-        List<GradleDependency> declaredDeps = new ArrayList<>();
-        for (Dependency dep : cfg.getAllDependencies()) {
-            if (!(dep instanceof ModuleDependency)) continue;
-            ModuleDependency modDep = (ModuleDependency) dep;
-
-            GradleDependency.Scope scope = configurationScopes.get(cfg.getName());
-            List<Exclusion> exclusions = modDep.getExcludeRules().stream()
-                    .map(rule -> new ExclusionImpl(rule.getGroup(), rule.getModule()))
-                    .collect(Collectors.toList());
-
-            String classifier = null;
-            String extension = null;
-            if(dep instanceof ExternalModuleDependency) {
-                ExternalModuleDependency externalDep = (ExternalModuleDependency) dep;
-                Set<DependencyArtifact> artifacts = externalDep.getArtifacts();
-                if(artifacts.iterator().hasNext()) {
-                    System.out.println("found classifier");
-                    classifier = artifacts.iterator().next().getClassifier();
-                    extension = artifacts.iterator().next().getExtension();
-                }
-            }
-            declaredDeps.add(new GradleDependencyImpl(
-                    scope,
-                    modDep.getGroup(),
-                    modDep.getName(),
-                    modDep.getVersion(),
-                    exclusions,
-                    classifier,
-                    extension
-            ));
-        }
-        return declaredDeps;
-    }
-
     private List<GradleResolvedDependency> collectResolvedDependencies(Configuration cfg, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentResolvedArtifacts) {
         List<GradleResolvedDependency> resolvedRoots = new ArrayList<>();
         ResolutionResult result = cfg.getIncoming().getResolutionResult();
@@ -88,7 +53,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
             ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
             ResolvedComponentResult selected = rdep.getSelected();
-            GradleResolvedDependencyImpl info = walkResolvedComponent(selected, componentResolvedArtifacts);
+            Set<ComponentIdentifier> visited = new HashSet<>();
+            GradleResolvedDependencyImpl info = walkResolvedComponent(selected, componentResolvedArtifacts, visited);
             if (rdep.getRequested() instanceof ModuleComponentSelector) {
                 String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
                 info.setRequestedVersion(requested);
@@ -100,7 +66,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         return resolvedRoots;
     }
 
-    private List<GradleDependency> collectBoms(Configuration cfg) {
+    private List<GradleDependency> collectBoms(Project project, Configuration cfg, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts) {
         List<GradleDependency> boms = new ArrayList<>();
 
         for (DependencyConstraint constraint : cfg.getAllDependencyConstraints()) {
@@ -116,7 +82,33 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                     null,
                     null
             ));
+
+            String depNotation = constraint.getGroup() + ":" + constraint.getName() + ":" + constraint.getVersion() + "@pom";
+            Dependency dep = project.getDependencies().create(depNotation);
+            Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
+
+            ArtifactView view = pomCfg.getIncoming().artifactView(spec -> spec.setLenient(true));
+            pomCfg.setTransitive(false);
+
+            for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
+                GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+                resolvedArtifact.setFile(artifact.getFile());
+                resolvedArtifact.setClassifier(null);
+                resolvedArtifact.setExtension("pom");
+
+                // Attach to fake ComponentIdentifier for this BOM
+                ComponentIdentifier id = new ComponentIdentifier() {
+                    @Override
+                    public String getDisplayName() {
+                        return depNotation;
+                    }
+                };
+
+                componentArtifacts.computeIfAbsent(id, __ -> new ArrayList<>()).add(resolvedArtifact);
+            }
         }
+
+        System.out.println(boms);
         return boms;
     }
 
@@ -126,27 +118,37 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         GradleDependencyModelImpl gradleDependencyModel = new GradleDependencyModelImpl();
         Configuration cfg = project.getConfigurations().getByName("compileClasspath");
 
-        // Collect declared dependencies and their versions
-        List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
-        gradleDependencyModel.getDeclaredDependencies().put(cfg.getName(), declaredDeps);
+        Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts = new HashMap<>();
+        // Collect boms from the gradle resolution
+        List<GradleDependency> boms = collectBoms(project, cfg, componentArtifacts);
+        gradleDependencyModel.getBoms().addAll(boms);
 
         // Use the ArtifactView API to get all the resolved artifacts (jars, javadoc, sources)
         // and map it to the component identifier of each dependency component as Artifacts only have information
         // about the file and variant
-        Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts = collectAllResolvedArtifacts(project, cfg);
+        collectAllResolvedArtifacts(project, cfg, componentArtifacts);
 
+        for(Map.Entry<ComponentIdentifier, List<GradleResolvedArtifact>> entry : componentArtifacts.entrySet()) {
+            ComponentIdentifier component = entry.getKey();
+            List<GradleResolvedArtifact> resolvedArtifacts = entry.getValue();
+            for(GradleResolvedArtifact artifact : resolvedArtifacts) {
+                System.out.println(artifact.getFile());
+            }
+        }
         // Now get the dependency graph obtained in resolution and attach the artifacts on the nodes in the graph
         List<GradleResolvedDependency> resolvedRoots = collectResolvedDependencies(cfg, componentArtifacts);
-        gradleDependencyModel.getResolvedDependencies().put(cfg.getName(), resolvedRoots);
-
-        // Collect boms from the gradle resolution
-        List<GradleDependency> boms = collectBoms(cfg);
-        gradleDependencyModel.getBoms().put(cfg.getName(), boms);
+        gradleDependencyModel.getResolvedDependencies().addAll(resolvedRoots);
 
         return gradleDependencyModel;
     }
 
-    private GradleResolvedDependencyImpl walkResolvedComponent(ResolvedComponentResult component, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentResolvedArtifacts) {
+    private GradleResolvedDependencyImpl walkResolvedComponent(ResolvedComponentResult component, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentResolvedArtifacts, Set<ComponentIdentifier> visited) {
+        // Handle cycles as they can exist in resolution
+        if(visited.contains(component.getId())) {
+            return null;
+        }
+
+        visited.add(component.getId());
         GradleResolvedDependencyImpl info = new GradleResolvedDependencyImpl();
         info.setGroup(component.getModuleVersion().getGroup());
         info.setName(component.getModuleVersion().getName());
@@ -162,8 +164,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             ResolvedDependencyResult resolvedDep = (ResolvedDependencyResult) dep;
             ResolvedComponentResult selected = resolvedDep.getSelected();
 
-            GradleResolvedDependency child = walkResolvedComponent(selected, componentResolvedArtifacts);
-
+            GradleResolvedDependency child = walkResolvedComponent(selected, componentResolvedArtifacts, visited);
+            if(child == null) continue;
             if (resolvedDep.getRequested() instanceof ModuleComponentSelector) {
                 String requestedVersion = ((ModuleComponentSelector)
                         resolvedDep.getRequested()).getVersion();
@@ -188,16 +190,31 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             ComponentIdentifier identifier = entry.getKey();
             List<GradleResolvedArtifact> resolvedArtifacts = entry.getValue();
             for(GradleResolvedArtifact artifact : resolvedArtifacts) {
-                if(identifier.getDisplayName().equals(identifier.getDisplayName())) {
+                if(sameComponent(identifier, component.getId())) {
                     GradleResolvedArtifact gradleResolvedArtifact = new GradleResolvedArtifactImpl();
                     gradleResolvedArtifact.setClassifier(artifact.getClassifier());
                     gradleResolvedArtifact.setExtension(artifact.getExtension());
                     gradleResolvedArtifact.setFile(artifact.getFile());
                     info.addArtifact(gradleResolvedArtifact);
+                } else {
+                    System.out.println("Ignoring artifact " + artifact.getFile());
                 }
             }
         }
         return info;
+    }
+
+    private boolean sameComponent(ComponentIdentifier a, ComponentIdentifier b) {
+        if (!(a instanceof ModuleComponentIdentifier) || !(b instanceof ModuleComponentIdentifier)) {
+            return false;
+        }
+
+        ModuleComponentIdentifier m1 = (ModuleComponentIdentifier) a;
+        ModuleComponentIdentifier m2 = (ModuleComponentIdentifier) b;
+
+        return Objects.equals(m1.getGroup(), m2.getGroup()) &&
+                Objects.equals(m1.getModule(), m2.getModule()) &&
+                Objects.equals(m1.getVersion(), m2.getVersion());
     }
 
     // The ArtifactView api doesn't provide a way to obtain the classifier (the legacy API does but it doesn't provide a way to obtain additional artifacts
@@ -232,8 +249,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         return (i > 0) ? name.substring(i + 1) : null;
     }
 
-    private Map<ComponentIdentifier, List<GradleResolvedArtifact>> collectAllResolvedArtifacts(Project project, Configuration cfg) {
-        Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentResolvedArtifacts = new HashMap<>();
+    private void collectAllResolvedArtifacts(Project project, Configuration cfg, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentArtifacts) {
         ArtifactView sourcesView = cfg.getIncoming().artifactView(spec -> {
             spec.withVariantReselection();
             spec.setLenient(true);
@@ -242,7 +258,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             });
         });
 
-        collectArtifactsFromArtifactView(sourcesView, componentResolvedArtifacts);
+        collectArtifactsFromArtifactView(sourcesView, componentArtifacts);
 
         ArtifactView javadocView = cfg.getIncoming().artifactView(spec -> {
             spec.setLenient(true);
@@ -252,7 +268,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             });
         });
 
-        collectArtifactsFromArtifactView(javadocView, componentResolvedArtifacts);
+        collectArtifactsFromArtifactView(javadocView, componentArtifacts);
 
         ArtifactView jarView = cfg.getIncoming().artifactView(spec -> {
             spec.attributes(attrs -> {
@@ -261,25 +277,28 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             });
         });
 
-        collectArtifactsFromArtifactView(jarView, componentResolvedArtifacts);
-        collectPOMsForAllComponents(project, componentResolvedArtifacts);
-        return componentResolvedArtifacts;
+        collectArtifactsFromArtifactView(jarView, componentArtifacts);
+        collectPOMsForAllComponents(project, componentArtifacts);
     }
 
     private void collectArtifactsFromArtifactView(ArtifactView artifactView, Map<ComponentIdentifier, List<GradleResolvedArtifact>> componentResolvedArtifacts) {
         Set<ResolvedArtifactResult> resolvedArtifactResults = artifactView.getArtifacts().getArtifacts();
         for(ResolvedArtifactResult artifact : resolvedArtifactResults) {
             ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
-            GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
-            resolvedArtifact.setFile(artifact.getFile());
-            resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
-            resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
-            if(!componentResolvedArtifacts.containsKey(identifier)) {
-                List<GradleResolvedArtifact> resolvedArtifacts = new ArrayList<>();
-                resolvedArtifacts.add(resolvedArtifact);
-                componentResolvedArtifacts.put(identifier, resolvedArtifacts);
-            } else {
-                componentResolvedArtifacts.get(identifier).add(resolvedArtifact);
+            if(artifact.getFile() != null) {
+                System.out.println("Got artifact " + artifact.getFile());
+                GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+                resolvedArtifact.setFile(artifact.getFile());
+                resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
+                resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
+
+                if(!componentResolvedArtifacts.containsKey(identifier)) {
+                    List<GradleResolvedArtifact> resolvedArtifacts = new ArrayList<>();
+                    resolvedArtifacts.add(resolvedArtifact);
+                    componentResolvedArtifacts.put(identifier, resolvedArtifacts);
+                } else {
+                    componentResolvedArtifacts.get(identifier).add(resolvedArtifact);
+                }
             }
         }
     }
@@ -288,10 +307,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         for(ComponentIdentifier identifier : componentResolvedArtifacts.keySet()) {
             if (!(identifier instanceof ModuleComponentIdentifier)) continue;
 
-            System.out.println("Collecting POM for " + identifier);
             ModuleComponentIdentifier m = (ModuleComponentIdentifier) identifier;
             String depNotation = m.getGroup() + ":" + m.getModule() + ":" + m.getVersion() + "@pom";
-            System.out.println("Collecting POM for " + depNotation);
             Dependency dep = project.getDependencies().create(depNotation);
 
             Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
