@@ -12,6 +12,7 @@ load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
+load("//private/rules:read_artifacts_from_file.bzl", "read_artifacts_from_file")
 
 DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
@@ -42,7 +43,9 @@ install = tag_class(
 
         # Actual artifacts and overrides
         "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
+        "artifacts_file": attr.label(doc = "A file containing a list of artifacts to install, one per line in `artifactId:groupId:version` format", allow_single_file = True),
         "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
+        "boms_file": attr.label(doc = "A file containing a list of BOMs to install, one per line in `artifactId:groupId:version` format", allow_single_file = True),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
 
         # What do we fetch?
@@ -194,6 +197,7 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 
     return seen
 
+
 def maven_impl(mctx):
     repos = {}
     overrides = {}
@@ -281,10 +285,10 @@ def maven_impl(mctx):
             repo["resolver"] = install.resolver
 
             artifacts = repo.get("artifacts", [])
-            repo["artifacts"] = artifacts + install.artifacts
+            repo["artifacts"] = artifacts + install.artifacts + read_artifacts_from_file(mctx, install.artifacts_file)
 
             boms = repo.get("boms", [])
-            repo["boms"] = boms + install.boms
+            repo["boms"] = boms + install.boms + read_artifacts_from_file(mctx, install.boms_file)
 
             existing_repos = repo.get("repositories", [])
             for repository in parse.parse_repository_spec_list(install.repositories):
