@@ -197,7 +197,6 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 def maven_impl(mctx):
     repos = {}
     overrides = {}
-    exclusions = {}
     http_files = []
     compat_repos = []
 
