@@ -310,29 +310,30 @@ public abstract class ResolverTestBase {
 
   @Test
   public void shouldResolveAndDownloadItemIdentifiedByClassifierFromArgsFile() throws IOException {
-    Map<String, Object> args =
-        Map.of(
-            "artifacts",
-            List.of(
-                Map.of(
-                    "artifact", "artifact",
-                    "group", "com.example",
-                    "version", "7.8.9",
-                    "classifier", "jdk15")));
-    Path argsFile = tempFolder.newFolder("argsdir").toPath().resolve("config.json");
-    Files.write(argsFile, new Gson().toJson(args).getBytes(UTF_8));
-
     Coordinates coords = new Coordinates("com.example", "artifact", null, "jdk15", "7.8.9");
     Path repo = MavenRepo.create().add(coords).getPath();
+
+    Map<String, Object> args =
+            Map.of(
+                    "repositories",
+                    List.of(repo.toUri().toString()),
+                    "artifacts",
+                    List.of(
+                            Map.of(
+                                    "artifact", "artifact",
+                                    "group", "com.example",
+                                    "version", "7.8.9",
+                                    "classifier", "jdk15")));
+    Path argsFile = tempFolder.newFolder("argsdir").toPath().resolve("config.json");
+    Files.write(argsFile, new Gson().toJson(args).getBytes(UTF_8));
 
     ResolverConfig config =
         new ResolverConfig(new NullListener(), "--argsfile", argsFile.toAbsolutePath().toString());
     ResolutionRequest request = config.getResolutionRequest();
-    request.addRepository(repo.toUri());
 
     Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
 
-    assertEquals(resolved.nodes(), Set.of(coords));
+    assertEquals(Set.of(coords), resolved.nodes());
   }
 
   @Test
@@ -581,7 +582,7 @@ public abstract class ResolverTestBase {
   }
 
   @Test
-  public void shouldPriortizedVersionsfromBomFilesInOrder() {
+  public void shouldPrioritizeVersionsFromBomFilesInOrder() {
     Coordinates jacksonCoreCoords = new Coordinates("com.fasterxml.jackson.core:jackson-core");
 
     Coordinates jacksonBom13 = new Coordinates("com.fasterxml.jackson:jackson-bom:2.13.5");
@@ -639,11 +640,10 @@ public abstract class ResolverTestBase {
   }
 
   @Test
-  public void shouldCosolidateDifferentClassifierVersionsForADependency() {
+  public void shouldConsolidateDifferentClassifierVersionsForADependency() {
     Coordinates nettyCoords = new Coordinates("io.netty:netty-tcnative-boringssl-static");
 
-    Coordinates nettyOsxBom =
-        new Coordinates("io.netty:netty-tcnative-boringssl-static:osx-aarch_64:2.0.47.Final");
+    Coordinates nettyOsxBom = new Coordinates("io.netty:netty-tcnative-boringssl-static:osx-aarch_64:2.0.47.Final");
     Dependency dependencyOsx = new Dependency();
     dependencyOsx.setGroupId(nettyCoords.getGroupId());
     dependencyOsx.setArtifactId(nettyCoords.getArtifactId());
