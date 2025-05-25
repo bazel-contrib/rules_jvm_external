@@ -22,7 +22,6 @@ import java.util.List;
  * Represents a Gradle dependency in build.gradle.kts
  */
 public class GradleDependencyImpl implements Serializable, GradleDependency {
-    public final GradleDependency.Scope scope;
     public final String group;
     public final String artifact;
     public final String version;
@@ -30,8 +29,7 @@ public class GradleDependencyImpl implements Serializable, GradleDependency {
     private final String classifier;
     private final String extension;
 
-    public GradleDependencyImpl(GradleDependency.Scope scope, String group, String artifact, String version, List<Exclusion> exclusions, String classifier, String extension) {
-        this.scope = scope;
+    public GradleDependencyImpl(String group, String artifact, String version, List<Exclusion> exclusions, String classifier, String extension) {
         this.group = group;
         this.artifact = artifact;
         this.version = version;
@@ -50,10 +48,6 @@ public class GradleDependencyImpl implements Serializable, GradleDependency {
 
     public String getVersion() {
         return version;
-    }
-
-    public GradleDependency.Scope getScope() {
-        return scope;
     }
 
     @Override

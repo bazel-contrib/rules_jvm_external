@@ -112,11 +112,17 @@ public class GradleResolver implements Resolver {
         if(implementationDependencies == null) {
             return new ResolutionResult(graph, null);
         }
+        int depth = 0;
         for(GradleResolvedDependency dependency : implementationDependencies) {
             for(GradleResolvedArtifact artifact: dependency.getArtifacts()) {
                 GradleCoordinates gradleCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getVersion(), artifact.getClassifier(), artifact.getExtension());
-                Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), gradleCoordinates.getExtension(), gradleCoordinates.getClassifier(), gradleCoordinates.getVersion());
-                addDependency(graph, coordinates, dependency);
+                String extension = gradleCoordinates.getExtension();
+                if(extension.equals("pom")) {
+                    extension = "jar";
+                }
+                String classifier = gradleCoordinates.getClassifier();
+                Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), extension, classifier, gradleCoordinates.getVersion());
+                addDependency(graph, coordinates, dependency, depth);
                 if(dependency.isConflict()) {
                     GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getRequestedVersion(), artifact.getClassifier(), artifact.getExtension());
                     Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
@@ -127,17 +133,22 @@ public class GradleResolver implements Resolver {
         return new ResolutionResult(graph, conflicts);
     }
 
-    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo) {
+    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo, int depth) {
         graph.addNode(parent);
+
 
         if (parentInfo.getChildren() != null) {
             for (GradleResolvedDependency childInfo : parentInfo.getChildren()) {
                 for(GradleResolvedArtifact childArtifact: childInfo.getArtifacts()) {
                     GradleCoordinates childCoordinates = new GradleCoordinatesImpl(childInfo.getGroup(), childInfo.getName(), childInfo.getVersion(), childArtifact.getClassifier(), childArtifact.getExtension());
-                    Coordinates child = new Coordinates(childCoordinates.getGroupId(), childCoordinates.getArtifactId(), childCoordinates.getExtension(), childCoordinates.getClassifier(), childCoordinates.getVersion());
+                    String extension = childArtifact.getExtension();
+                    if(extension.equals("pom")) {
+                        extension = "jar";
+                    }
+                    Coordinates child = new Coordinates(childCoordinates.getGroupId(), childCoordinates.getArtifactId(), extension, childCoordinates.getClassifier(), childCoordinates.getVersion());
                     graph.addNode(child);
                     graph.putEdge(parent, child);
-                    addDependency(graph, child, childInfo); // recursively traverse the graph
+                    addDependency(graph, child, childInfo, depth + 1); // recursively traverse the graph
                 }
             }
         }
@@ -154,7 +165,7 @@ public class GradleResolver implements Resolver {
 
     private GradleDependencyImpl createDependency(Artifact artifact) {
         Coordinates coordinates = artifact.getCoordinates();
-        return new GradleDependencyImpl(GradleDependency.Scope.IMPLEMENTATION, coordinates.getGroupId(), coordinates.getArtifactId(), coordinates.getVersion(), List.of(), coordinates.getClassifier(), coordinates.getExtension());
+        return new GradleDependencyImpl(coordinates.getGroupId(), coordinates.getArtifactId(), coordinates.getVersion(), List.of(), coordinates.getClassifier(), coordinates.getExtension());
     }
 
 

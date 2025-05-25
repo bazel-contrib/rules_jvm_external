@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.ExclusionImpl;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.jknack.handlebars.Context;
@@ -23,6 +24,7 @@ import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,13 +124,11 @@ public class GradleBuildScriptGenerator {
 
         contextMap.put("dependencies", dependencies.stream().map(dep -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("scope", dep.getScope().name());  // e.g., "IMPLEMENTATION"
             map.put("group", dep.getGroup());
             map.put("artifact", dep.getArtifact());
             if(dep.getVersion() != null && !dep.getVersion().isEmpty()) {
                 map.put("version", ":" + dep.getVersion());
             }
-            map.put("version", dep.getVersion());
             if(dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
                 map.put("classifier", ":" + dep.getClassifier());
             } else {
@@ -139,14 +139,26 @@ public class GradleBuildScriptGenerator {
             } else {
                 map.put("extension", "");
             }
+
+            if(dep.getExclusions() != null && !dep.getExclusions().isEmpty()) {
+                contextMap.put("exclusions", dep.getExclusions().stream().map(exclusion -> {
+                    Map<String, Object> localExclusions = new HashMap<>();
+                    localExclusions.put("group", exclusion.getGroup());
+                    localExclusions.put("module", exclusion.getModule());
+                    return localExclusions;
+                }));
+            }
+
             return map;
         }).collect(Collectors.toList()));
 
         contextMap.put("globalExclusions", globalExclusions.stream().map(exclusion -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("group", exclusion.getGroup());
-            map.put("module", exclusion.getModule());
-            return map;
+            Map<String, Object> globalExcludes = new HashMap<>();
+            if(exclusion.getGroup() != null && !exclusion.getGroup().isEmpty()) {
+                globalExcludes.put("group", exclusion.getGroup());
+                globalExcludes.put("module", exclusion.getModule());
+            }
+            return globalExcludes;
         }).collect(Collectors.toList()));
 
         // Render the template and write the actual build file

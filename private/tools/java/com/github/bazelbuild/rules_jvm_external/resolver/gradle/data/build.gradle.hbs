@@ -26,7 +26,7 @@ dependencies {
 {{/each~}}
 
 {{~#each dependencies}}
-    {{lowerCase scope}}("{{group}}:{{artifact}}{{version}}{{#if classifier}}{{classifier}}{{/if}}{{#if extension}}{{extension}}{{/if}}"){{#if exclusions}} {
+    implementation("{{group}}:{{artifact}}{{version}}{{#if classifier}}{{classifier}}{{/if}}{{#if extension}}{{extension}}{{/if}}"){{#if exclusions}} {
         {{~#each exclusions}}
         exclude group: "{{group}}", module: "{{module}}"
         {{/each~}}
