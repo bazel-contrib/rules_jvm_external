@@ -16,10 +16,15 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
+import org.gradle.tooling.events.configuration.ProjectConfigurationFailureResult;
+import org.gradle.tooling.events.configuration.ProjectConfigurationFinishEvent;
 import org.gradle.tooling.events.download.FileDownloadFinishEvent;
+import org.gradle.tooling.events.download.FileDownloadProgressEvent;
 import org.gradle.tooling.events.download.FileDownloadStartEvent;
 
 import java.util.ArrayList;
@@ -60,6 +65,24 @@ public class GradleProgressListener implements ProgressListener {
                 name = name.substring(DOWNLOAD.length());
             }
             listener.onEvent(new DownloadEvent(DownloadEvent.Stage.COMPLETE, name));
+        }
+        else if (progressEvent instanceof ProjectConfigurationFailureResult) {
+            String name = progressEvent.getDescriptor().getName();
+            if (name == null) {
+                return;
+            }
+            List<Failure> failures = (List<Failure>) ((ProjectConfigurationFailureResult) progressEvent).getFailures();
+            StringBuilder message = new StringBuilder("Gradle project configuration failed: \n");
+            for (Failure failure : failures) {
+                message.append(failure.getMessage()).append("\n");
+            }
+            listener.onEvent(new LogEvent("gradle", name, message.toString()));
+        } else if (progressEvent instanceof ProjectConfigurationFinishEvent) {
+            String name = progressEvent.getDescriptor().getName();
+            if (name == null) {
+                return;
+            }
+            listener.onEvent(new LogEvent("gradle", name, "Gradle project configuration finished"));
         }
     }
 }

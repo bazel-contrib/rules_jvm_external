@@ -85,11 +85,24 @@ public class GradleResolver implements Resolver {
         return url.getHost();
     }
 
+    private Path getJavaHomePath() {
+        try {
+            Runfiles.Preloaded runfiles = Runfiles.preload();
+            String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
+                    .rlocation("bazel_tools/tools/jdk/host_jdk");
+            if(!Files.exists(Paths.get(gradleBuildPath))) {
+                throw new IOException("Gradle build template not found at " + gradleBuildPath);
+            }
+            return Paths.get(gradleBuildPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private Map<String, String> getGradleTaskProperties(List<Repository> repositories, Path projectDir) throws MalformedURLException {
         Map<String, String> properties = new HashMap<>();
         for (Repository repository : repositories) {
-            String repositoryHost = getRepositoryURLHost(repository);
             if(repository.requiresAuth) {
                 properties.put(repository.usernameProperty, repository.getUsername());
                 properties.put(repository.passwordProperty, repository.getPassword());
@@ -112,17 +125,17 @@ public class GradleResolver implements Resolver {
         if(implementationDependencies == null) {
             return new ResolutionResult(graph, null);
         }
-        int depth = 0;
+
         for(GradleResolvedDependency dependency : implementationDependencies) {
             for(GradleResolvedArtifact artifact: dependency.getArtifacts()) {
                 GradleCoordinates gradleCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getVersion(), artifact.getClassifier(), artifact.getExtension());
                 String extension = gradleCoordinates.getExtension();
                 if(extension.equals("pom")) {
-                    extension = "jar";
+                    extension = null;
                 }
                 String classifier = gradleCoordinates.getClassifier();
                 Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), extension, classifier, gradleCoordinates.getVersion());
-                addDependency(graph, coordinates, dependency, depth);
+                addDependency(graph, coordinates, dependency);
                 if(dependency.isConflict()) {
                     GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getRequestedVersion(), artifact.getClassifier(), artifact.getExtension());
                     Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
@@ -133,9 +146,8 @@ public class GradleResolver implements Resolver {
         return new ResolutionResult(graph, conflicts);
     }
 
-    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo, int depth) {
+    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo) {
         graph.addNode(parent);
-
 
         if (parentInfo.getChildren() != null) {
             for (GradleResolvedDependency childInfo : parentInfo.getChildren()) {
@@ -143,12 +155,12 @@ public class GradleResolver implements Resolver {
                     GradleCoordinates childCoordinates = new GradleCoordinatesImpl(childInfo.getGroup(), childInfo.getName(), childInfo.getVersion(), childArtifact.getClassifier(), childArtifact.getExtension());
                     String extension = childArtifact.getExtension();
                     if(extension.equals("pom")) {
-                        extension = "jar";
+                        extension = null;
                     }
                     Coordinates child = new Coordinates(childCoordinates.getGroupId(), childCoordinates.getArtifactId(), extension, childCoordinates.getClassifier(), childCoordinates.getVersion());
                     graph.addNode(child);
                     graph.putEdge(parent, child);
-                    addDependency(graph, child, childInfo, depth + 1); // recursively traverse the graph
+                    addDependency(graph, child, childInfo); // recursively traverse the graph
                 }
             }
         }

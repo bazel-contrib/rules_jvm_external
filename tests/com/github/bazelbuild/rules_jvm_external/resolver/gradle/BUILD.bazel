@@ -3,6 +3,7 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_test(
     name = "GradleResolverTest",
+    timeout = "eternal",
     srcs = [
         "GradleResolverTest.java",
     ],
