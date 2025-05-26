@@ -665,6 +665,24 @@ dev_maven.install(
     ],
     resolver = "maven",
 )
+dev_maven.install(
+    name = "regression_testing_gradle",
+    artifacts = [
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909
+        "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
+        "androidx.annotation:annotation:1.6.0",
+    ],
+    fail_if_repin_required = True,
+    generate_compat_repositories = True,
+    lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
+    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_gradle//:pin` to refresh the lock file.",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "gradle",
+)
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/1162
 dev_maven.artifact(
@@ -845,8 +863,10 @@ use_repo(
     "org_eclipse_jetty_jetty_http_tests",
     "org_pantsbuild_jarjar",
     "regression_testing_coursier",
+    "regression_testing_gradle",
     "regression_testing_maven",
     "unpinned_regression_testing_coursier",
+    "unpinned_regression_testing_gradle",
     "unpinned_regression_testing_maven",
 
     # Back to the testing repos
