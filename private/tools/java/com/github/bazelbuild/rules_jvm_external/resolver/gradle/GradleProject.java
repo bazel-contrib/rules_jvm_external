@@ -63,7 +63,6 @@ public class GradleProject implements AutoCloseable  {
     public void connect(Path gradlePath) throws IOException {
         System.setProperty("gradle.user.home", gradleCacheDir.toAbsolutePath().toString());
         System.setProperty("org.gradle.parallel", "true");
-        //System.setProperty("org.gradle.java.home", gradleJavaHome.toAbsolutePath().toString());
         connection = GradleConnector.newConnector()
                 .forProjectDirectory(projectDir.toFile())
                 .useInstallation(gradlePath.toFile())

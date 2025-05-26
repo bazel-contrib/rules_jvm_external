@@ -71,7 +71,7 @@ public class GradleResolver implements Resolver {
             eventListener.onEvent(new PhaseEvent("Gathering dependencies"));
             project.connect(gradlePath);
             if(isVerbose()) {
-                System.err.println("Resolving dependencies with gradle project: " + URI.create(project.getProjectDir().toString()).toString());
+                System.err.println("Resolving dependencies with gradle project: " + project.getProjectDir().toUri());
             }
             GradleDependencyModel resolved = project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
             return parseDependencies(resolved);
