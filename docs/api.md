@@ -111,6 +111,58 @@ Generated rules:
 | <a id="java_export-kwargs"></a>kwargs |  <p align="center"> - </p>   |  none |
 
 
+<a id="zip_export"></a>
+
+## zip_export
+
+<pre>
+zip_export(<a href="#zip_export-name">name</a>, <a href="#zip_export-maven_coordinates">maven_coordinates</a>, <a href="#zip_export-target">target</a>,
+            <a href="#zip_export-pom_template">pom_template</a>, <a href="#zip_export-visibility">visibility</a>, <a href="#zip_export-tags">tags</a>, <a href="#zip_export-testonly">testonly</a>, <a href="#zip_export-classifier_artifacts">classifier_artifacts</a>)
+</pre>
+
+Comparable version of `java_export` to allow zip file maven artifacts to be uploaded.
+
+This macro generates an implicit `name.publish` target that can be run to
+publish the provided maven artifacts to a maven repositority.
+The publish rule understands the following variables (declared using `--define`
+when using `bazel run`, or as environment variables in ALL_CAPS form):
+
+  * `maven_repo`: A URL for the repo to use. May be "https" or "file". Can also be set with environment variable `MAVEN_REPO`.
+  * `maven_user`: The user name to use when uploading to the maven repository. Can also be set with environment variable `MAVEN_USER`.
+  * `maven_password`: The password to use when uploading to the maven repository. Can also be set with environment variable `MAVEN_PASSWORD`.
+
+
+This macro also generates a `name-pom` target that creates the `pom.xml` file
+associated with the artifacts. The template used is derived from the (optional)
+`pom_template` argument, and the following substitutions are performed on
+the template file:
+
+  * `{groupId}`: Replaced with the maven coordinates group ID.
+  * `{artifactId}`: Replaced with the maven coordinates artifact ID.
+  * `{version}`: Replaced by the maven coordinates version.
+  * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
+  * `{scope}`: Replaced by the maven coordinates type, if present (defaults to "compile")
+
+Generated rules:
+  * `name-pom`: The pom.xml file.
+  * `name.publish`: To be executed by `bazel run` to publish to a maven repo.
+
+
+**PARAMETERS**
+
+
+| Name  | Description | Default Value |
+| :------------- | :------------- | :------------- |
+| <a id="java_export-name"></a>name |  A unique name for this target   |  none |
+| <a id="java_export-target"></a>target |  The primary artifact to publish to Maven.   |  <code>None</code> |
+| <a id="java_export-maven_coordinates"></a>maven_coordinates |  The maven coordinates for this target.   |  none |
+| <a id="java_export-pom_template"></a>pom_template |  The template to be used for the pom.xml file.   |  <code>None</code> |
+| <a id="java_export-visibility"></a>visibility |  The visibility of the target   |  <code>None</code> |
+| <a id="java_export-tags"></a>tags |  <p align="center"> - </p>   |  <code>[]</code> |
+| <a id="java_export-testonly"></a>testonly |  <p align="center"> - </p>   |  <code>None</code> |
+| <a id="java_export-classifier_artifacts"></a>classifier_artifacts |  A dict of classifier -&gt; artifact of additional artifacts to publish to Maven.   |  <code>{}</code> |
+
+
 <a id="maven_bom"></a>
 
 ## maven_bom
