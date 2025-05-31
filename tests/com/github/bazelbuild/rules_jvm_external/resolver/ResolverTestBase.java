@@ -639,7 +639,7 @@ public abstract class ResolverTestBase {
   }
 
   @Test
-  public void shouldCosolidateDifferentClassifierVersionsForADependency() {
+  public void shouldConsolidateDifferentClassifierVersionsForADependency() {
     Coordinates nettyCoords = new Coordinates("io.netty:netty-tcnative-boringssl-static");
 
     Coordinates nettyOsxBom =

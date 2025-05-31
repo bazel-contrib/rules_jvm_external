@@ -284,6 +284,22 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
   expect_log "@regression_testing_coursier//:org_mockito_mockito_core"
 }
 
+function test_gradle_metadata_is_resolved_correctly_for_aar_artifact {
+   # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right aar artifact
+   # and make it available
+   bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
+
+   expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
+}
+
+function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
+  # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right jvm artifact
+  # and make it available
+  bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
+}
+
 
 TESTS=(
   "test_maven_resolution"
@@ -305,6 +321,8 @@ TESTS=(
   "test_transitive_dependency_with_type_of_pom"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
+  "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
+  "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
 )
 
 function run_tests() {
