@@ -24,10 +24,7 @@ import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +86,7 @@ public class GradleBuildScriptGenerator {
      * @param globalExclusions - a list of dependencies to be excluded in resolution
      * @throws IOException
      */
-    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, Path pluginJarPath, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<ExclusionImpl> globalExclusions) throws IOException {
+    public static void generateBuildScript(Path gradleBuildScriptTemplate, Path outputGradleBuildScript, List<Repository> repositories, List<GradleDependency> dependencies, List<GradleDependency> boms, List<ExclusionImpl> globalExclusions) throws IOException {
         String templateContent = Files.readString(gradleBuildScriptTemplate);
 
         // Compile the template
@@ -114,7 +111,24 @@ public class GradleBuildScriptGenerator {
             return map;
         }).collect(Collectors.toList()));
 
-        contextMap.put("boms", boms.stream().map(dep -> {
+        // If multiple versions of a BOM exists, we want to enforce the first one like maven
+        // Unlike maven, gradle seems to chose the highest versions, so this emulates the maven
+        // behavior by picking the first BOM version in the order we see.
+        Map<String, String> enforcedBomVersions = new LinkedHashMap<>();
+        boms.stream().forEach(bom -> {
+            String artifactKey = bom.getGroup() + ":" + bom.getArtifact();
+            if(!enforcedBomVersions.containsKey(artifactKey)) {
+                enforcedBomVersions.put(artifactKey, bom.getVersion());
+            }
+        });
+
+        // Now get the boms filtered to include the "winning" boms if there are multiple versions of a given one
+        List<GradleDependency> actualBoms = boms.stream().filter(bom -> {
+            String artifactKey = bom.getGroup() + ":" + bom.getArtifact();
+            return enforcedBomVersions.containsKey(artifactKey) && enforcedBomVersions.get(artifactKey).equals(bom.getVersion());
+        }).collect(Collectors.toList());
+
+        contextMap.put("boms", actualBoms.stream().map(dep -> {
             Map<String, Object> map = new HashMap<>();
             map.put("group", dep.getGroup());
             map.put("artifact", dep.getArtifact());

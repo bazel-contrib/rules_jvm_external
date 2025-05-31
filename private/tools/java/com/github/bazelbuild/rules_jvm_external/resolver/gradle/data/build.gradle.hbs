@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
 {{~#each boms}}
-    implementation platform("{{group}}:{{artifact}}:{{version}}")
+        implementation platform("{{group}}:{{artifact}}:{{version}}")
 {{/each~}}
 
 {{~#each dependencies}}

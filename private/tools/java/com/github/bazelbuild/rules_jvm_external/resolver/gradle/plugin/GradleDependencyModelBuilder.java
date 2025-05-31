@@ -77,6 +77,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
                 ResolvedComponentResult selected = rdep.getSelected();
                 Set<ComponentIdentifier> visited = new HashSet<>();
+                // walk the resolve component graph in depth-first manner
+                // and collect all the resolved dependencies
                 GradleResolvedDependencyImpl info = walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
                 if (rdep.getRequested() instanceof ModuleComponentSelector) {
                     String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
@@ -226,8 +228,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
         ArtifactView javadocView = cfg.getIncoming().artifactView(spec -> {
             spec.setLenient(true);
+            spec.withVariantReselection();
             spec.attributes(attrs -> {
-                spec.withVariantReselection();
                 attrs.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.getObjects().named(DocsType.class, DocsType.JAVADOC));
             });
         });

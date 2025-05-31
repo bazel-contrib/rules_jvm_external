@@ -74,7 +74,7 @@ public class GradleResolver implements Resolver {
                 System.err.println("Resolving dependencies with gradle project: " + project.getProjectDir().toUri());
             }
             GradleDependencyModel resolved = project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
-            return parseDependencies(resolved, dependencies);
+            return parseDependencies(resolved, boms);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -95,7 +95,7 @@ public class GradleResolver implements Resolver {
         return properties;
     }
 
-    private ResolutionResult parseDependencies(GradleDependencyModel resolved, List<GradleDependency> requestedDeps) throws IOException {
+    private ResolutionResult parseDependencies(GradleDependencyModel resolved, List<GradleDependency> boms) throws IOException {
         MutableGraph<Coordinates> graph = GraphBuilder.directed()
                 .allowsSelfLoops(false)
                 .build();
@@ -116,6 +116,11 @@ public class GradleResolver implements Resolver {
                 }
                 String classifier = gradleCoordinates.getClassifier();
                 Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), extension, classifier, gradleCoordinates.getVersion());
+                boolean isBom = boms.stream().anyMatch(bom -> new Coordinates(bom.getGroup() + ":" + bom.getArtifact() + ":"  + bom.getVersion()).equals(coordinates));
+                // we don't want to actually have the bom artifacts in the graph
+                if (isBom) {
+                    continue;
+                }
                 addDependency(graph, coordinates, dependency);
                 if(dependency.isConflict()) {
                     GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getRequestedVersion(), artifact.getClassifier(), artifact.getExtension());
@@ -244,7 +249,6 @@ public class GradleResolver implements Resolver {
             GradleBuildScriptGenerator.generateBuildScript(
                     gradleBuildScriptTemplate,
                     outputBuildScript,
-                    getPluginJarPath(),
                     repositories,
                     dependencies,
                     boms,

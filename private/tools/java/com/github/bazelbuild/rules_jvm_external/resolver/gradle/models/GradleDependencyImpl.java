@@ -17,6 +17,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a Gradle dependency in build.gradle.kts
