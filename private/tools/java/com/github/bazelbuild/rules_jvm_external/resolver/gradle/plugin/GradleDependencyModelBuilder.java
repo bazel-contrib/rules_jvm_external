@@ -337,7 +337,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         Coordinates coordinates =
             new Coordinates(
                 module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
-        System.out.println("Adding artifact " + artifact.getFile() + " to " + coordinates);
         coordinatesGradleResolvedDependencyMap.get(coordinates).addArtifact(resolvedArtifact);
       }
     }
@@ -381,7 +380,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         if (artifact.getFile() != null) {
           resolvedArtifact.setFile(artifact.getFile());
           resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
-          System.out.println("Adding artifact " + artifact.getFile() + " to " + coordinates);
           coordinatesArtifacts.get(coordinates).addArtifact(resolvedArtifact);
         }
       }

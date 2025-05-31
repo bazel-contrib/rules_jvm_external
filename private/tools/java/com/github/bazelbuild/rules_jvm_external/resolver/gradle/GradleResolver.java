@@ -179,7 +179,11 @@ public class GradleResolver implements Resolver {
 
     private GradleDependencyImpl createDependency(Artifact artifact) {
         Coordinates coordinates = artifact.getCoordinates();
-        return new GradleDependencyImpl(coordinates.getGroupId(), coordinates.getArtifactId(), coordinates.getVersion(), List.of(), coordinates.getClassifier(), coordinates.getExtension());
+        List<Exclusion> exclusions = new ArrayList<>();
+        artifact.getExclusions().stream().forEach(exclusion -> {
+            exclusions.add(new ExclusionImpl(exclusion.getGroupId(), exclusion.getArtifactId()));
+        });
+        return new GradleDependencyImpl(coordinates.getGroupId(), coordinates.getArtifactId(), coordinates.getVersion(), exclusions, coordinates.getClassifier(), coordinates.getExtension());
     }
 
 
