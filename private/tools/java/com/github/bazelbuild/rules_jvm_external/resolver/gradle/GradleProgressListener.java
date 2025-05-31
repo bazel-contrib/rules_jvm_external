@@ -32,57 +32,57 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Listens to download start/ending events for artifacts from the Gradle daemon
- * while resolving dependencies.
+ * Listens to download start/ending events for artifacts from the Gradle daemon while resolving
+ * dependencies.
  */
 public class GradleProgressListener implements ProgressListener {
-    private static final String DOWNLOAD = "Download ";
-    private final EventListener listener;
-    private final List<Exception> exceptions = new ArrayList<>();
+  private static final String DOWNLOAD = "Download ";
+  private final EventListener listener;
+  private final List<Exception> exceptions = new ArrayList<>();
 
-    public GradleProgressListener(EventListener listener) {
-        this.listener = listener;
+  public GradleProgressListener(EventListener listener) {
+    this.listener = listener;
+  }
+
+  @Override
+  public void statusChanged(ProgressEvent progressEvent) {
+    if (progressEvent instanceof FileDownloadStartEvent) {
+      String name = progressEvent.getDescriptor().getName();
+      if (name == null) {
+        return;
+      }
+      if (name.startsWith(DOWNLOAD)) {
+        name = name.substring(DOWNLOAD.length());
+      }
+
+      listener.onEvent(new DownloadEvent(DownloadEvent.Stage.STARTING, name));
+    } else if (progressEvent instanceof FileDownloadFinishEvent) {
+      String name = progressEvent.getDescriptor().getName();
+      if (name == null) {
+        return;
+      }
+      if (name.startsWith(DOWNLOAD)) {
+        name = name.substring(DOWNLOAD.length());
+      }
+      listener.onEvent(new DownloadEvent(DownloadEvent.Stage.COMPLETE, name));
+    } else if (progressEvent instanceof ProjectConfigurationFailureResult) {
+      String name = progressEvent.getDescriptor().getName();
+      if (name == null) {
+        return;
+      }
+      List<Failure> failures =
+          (List<Failure>) ((ProjectConfigurationFailureResult) progressEvent).getFailures();
+      StringBuilder message = new StringBuilder("Gradle project configuration failed: \n");
+      for (Failure failure : failures) {
+        message.append(failure.getMessage()).append("\n");
+      }
+      listener.onEvent(new LogEvent("gradle", name, message.toString()));
+    } else if (progressEvent instanceof ProjectConfigurationFinishEvent) {
+      String name = progressEvent.getDescriptor().getName();
+      if (name == null) {
+        return;
+      }
+      listener.onEvent(new LogEvent("gradle", name, "Gradle project configuration finished"));
     }
-
-    @Override
-    public void statusChanged(ProgressEvent progressEvent) {
-        if (progressEvent instanceof FileDownloadStartEvent) {
-            String name = progressEvent.getDescriptor().getName();
-            if (name == null) {
-                return;
-            }
-            if (name.startsWith(DOWNLOAD)) {
-                name = name.substring(DOWNLOAD.length());
-            }
-
-            listener.onEvent(new DownloadEvent(DownloadEvent.Stage.STARTING, name));
-        } else if (progressEvent instanceof FileDownloadFinishEvent) {
-            String name = progressEvent.getDescriptor().getName();
-            if (name == null) {
-                return;
-            }
-            if (name.startsWith(DOWNLOAD)) {
-                name = name.substring(DOWNLOAD.length());
-            }
-            listener.onEvent(new DownloadEvent(DownloadEvent.Stage.COMPLETE, name));
-        }
-        else if (progressEvent instanceof ProjectConfigurationFailureResult) {
-            String name = progressEvent.getDescriptor().getName();
-            if (name == null) {
-                return;
-            }
-            List<Failure> failures = (List<Failure>) ((ProjectConfigurationFailureResult) progressEvent).getFailures();
-            StringBuilder message = new StringBuilder("Gradle project configuration failed: \n");
-            for (Failure failure : failures) {
-                message.append(failure.getMessage()).append("\n");
-            }
-            listener.onEvent(new LogEvent("gradle", name, message.toString()));
-        } else if (progressEvent instanceof ProjectConfigurationFinishEvent) {
-            String name = progressEvent.getDescriptor().getName();
-            if (name == null) {
-                return;
-            }
-            listener.onEvent(new LogEvent("gradle", name, "Gradle project configuration finished"));
-        }
-    }
+  }
 }

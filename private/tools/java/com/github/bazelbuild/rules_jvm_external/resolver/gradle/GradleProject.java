@@ -88,6 +88,7 @@ public class GradleProject implements AutoCloseable  {
 
         return connection.model(GradleDependencyModel.class)
                 .addProgressListener(new GradleProgressListener(eventListener))
+                .setStandardOutput(System.out)
                 .withArguments(arguments)
                 .get();
     }

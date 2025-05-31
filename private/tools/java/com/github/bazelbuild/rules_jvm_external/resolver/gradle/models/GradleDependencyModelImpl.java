@@ -19,16 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GradleDependencyModelImpl implements Serializable, GradleDependencyModel {
-    private final List<GradleResolvedDependency> resolved = new ArrayList<>();
-    private final List<GradleDependency> boms = new ArrayList<>();
-    private final List<GradleUnresolvedDependency> unresolved = new ArrayList<>();
+  private final List<GradleResolvedDependency> resolved = new ArrayList<>();
+  private final List<GradleDependency> boms = new ArrayList<>();
+  private final List<GradleUnresolvedDependency> unresolved = new ArrayList<>();
 
-    public List<GradleResolvedDependency> getResolvedDependencies() { return resolved; }
+  public List<GradleResolvedDependency> getResolvedDependencies() {
+    return resolved;
+  }
 
-    @Override
-    public List<GradleUnresolvedDependency> getUnresolvedDependencies() {
-        return unresolved;
-    }
+  @Override
+  public List<GradleUnresolvedDependency> getUnresolvedDependencies() {
+    return unresolved;
+  }
 
-    public List<GradleDependency> getBoms() { return boms; }
+  public List<GradleDependency> getBoms() {
+    return boms;
+  }
 }

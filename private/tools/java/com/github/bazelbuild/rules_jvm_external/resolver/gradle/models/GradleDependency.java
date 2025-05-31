@@ -17,10 +17,15 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 import java.util.List;
 
 public interface GradleDependency {
-    String getGroup();
-    String getArtifact();
-    String getVersion();
-    String getClassifier();
-    String getExtension();
-    List<Exclusion> getExclusions();
+  String getGroup();
+
+  String getArtifact();
+
+  String getVersion();
+
+  String getClassifier();
+
+  String getExtension();
+
+  List<Exclusion> getExclusions();
 }

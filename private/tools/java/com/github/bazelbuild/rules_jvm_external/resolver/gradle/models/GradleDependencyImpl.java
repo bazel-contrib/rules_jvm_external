@@ -12,56 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents a Gradle dependency in build.gradle.kts
- */
+/** Represents a Gradle dependency in build.gradle.kts */
 public class GradleDependencyImpl implements Serializable, GradleDependency {
-    public final String group;
-    public final String artifact;
-    public final String version;
-    public final List<Exclusion> exclusions;
-    private final String classifier;
-    private final String extension;
+  public final String group;
+  public final String artifact;
+  public final String version;
+  public final List<Exclusion> exclusions;
+  private final String classifier;
+  private final String extension;
 
-    public GradleDependencyImpl(String group, String artifact, String version, List<Exclusion> exclusions, String classifier, String extension) {
-        this.group = group;
-        this.artifact = artifact;
-        this.version = version;
-        this.exclusions = exclusions != null ? exclusions : List.of();
-        this.classifier = classifier;
-        this.extension = extension;
-    }
+  public GradleDependencyImpl(
+      String group,
+      String artifact,
+      String version,
+      List<Exclusion> exclusions,
+      String classifier,
+      String extension) {
+    this.group = group;
+    this.artifact = artifact;
+    this.version = version;
+    this.exclusions = exclusions != null ? exclusions : List.of();
+    this.classifier = classifier;
+    this.extension = extension;
+  }
 
-    public String getGroup() {
-        return group;
-    }
+  public String getGroup() {
+    return group;
+  }
 
-    public String getArtifact() {
-        return artifact;
-    }
+  public String getArtifact() {
+    return artifact;
+  }
 
-    public String getVersion() {
-        return version;
-    }
+  public String getVersion() {
+    return version;
+  }
 
-    @Override
-    public String getClassifier() {
-        return classifier;
-    }
+  @Override
+  public String getClassifier() {
+    return classifier;
+  }
 
-    @Override
-    public String getExtension() {
-        return extension;
-    }
+  @Override
+  public String getExtension() {
+    return extension;
+  }
 
-    public List<Exclusion> getExclusions() {
-        return exclusions;
-    }
+  public List<Exclusion> getExclusions() {
+    return exclusions;
+  }
 }

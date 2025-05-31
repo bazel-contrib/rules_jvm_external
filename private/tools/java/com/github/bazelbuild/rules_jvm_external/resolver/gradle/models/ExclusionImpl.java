@@ -12,28 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.Serializable;
 
-/**
- * An exclusion declared to be excluded in the gradle resolution process
- */
+/** An exclusion declared to be excluded in the gradle resolution process */
 public class ExclusionImpl implements Serializable, Exclusion {
-    public final String group;
-    public final String module;
+  public final String group;
+  public final String module;
 
-    public ExclusionImpl(String group, String module) {
-        this.group = group;
-        this.module = module;
-    }
+  public ExclusionImpl(String group, String module) {
+    this.group = group;
+    this.module = module;
+  }
 
-    public String getGroup() {
-        return group;
-    }
+  public String getGroup() {
+    return group;
+  }
 
-    public String getModule() {
-        return module;
-    }
+  public String getModule() {
+    return module;
+  }
 }

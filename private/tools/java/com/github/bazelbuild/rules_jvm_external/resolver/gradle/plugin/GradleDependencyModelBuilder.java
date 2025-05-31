@@ -32,257 +32,359 @@ import java.util.stream.Collectors;
 
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
-    @Override
-    public boolean canBuild(String modelName) {
-        return modelName.equals(GradleDependencyModel.class.getName());
-    }
+  @Override
+  public boolean canBuild(String modelName) {
+    return modelName.equals(GradleDependencyModel.class.getName());
+  }
 
-    @Override
-    public Object buildAll(String modelName, Project project) {
-        GradleDependencyModelImpl gradleDependencyModel = new GradleDependencyModelImpl();
-        // We only resolve dependencies and fetch artifacts for this configuration
-        // similar to how we do in the Maven resolver
-        Configuration cfg = project.getConfigurations().getByName("compileClasspath");
+  @Override
+  public Object buildAll(String modelName, Project project) {
+    GradleDependencyModelImpl gradleDependencyModel = new GradleDependencyModelImpl();
+    // We only resolve dependencies and fetch artifacts for this configuration
+    // similar to how we do in the Maven resolver
+    Configuration cfg = project.getConfigurations().getByName("runtimeClasspath");
 
-        // This stores the mapping between coordinates to the GradleResolvedDependency interface
-        // which contains the resolved dependency information from the tooling API, additionally it'll also
-        // be used to attach the actual artifacts later
-        Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap = new HashMap<>();
-        // We get the root nodes in the dependency graph (or rather forest here since there can be disjoint trees)
-        List<GradleResolvedDependency> resolvedRoots = collectResolvedDependencies(cfg, coordinatesGradleResolvedDependencyMap);
-        gradleDependencyModel.getResolvedDependencies().addAll(resolvedRoots);
+    List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
+    // This stores the mapping between coordinates to the GradleResolvedDependency interface
+    // which contains the resolved dependency information from the tooling API, additionally it'll
+    // also
+    // be used to attach the actual artifacts later
+    Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap =
+        new HashMap<>();
+    // We get the root nodes in the dependency graph (or rather forest here since there can be
+    // disjoint trees)
+    List<GradleResolvedDependency> resolvedRoots =
+        collectResolvedDependencies(cfg, coordinatesGradleResolvedDependencyMap);
+    gradleDependencyModel.getResolvedDependencies().addAll(resolvedRoots);
 
-        // Collect boms from the gradle resolution
-        List<GradleDependency> boms = collectBoms(project, cfg);
-        gradleDependencyModel.getBoms().addAll(boms);
+    // Collect boms from the gradle resolution
+    List<GradleDependency> boms = collectBoms(cfg);
+    gradleDependencyModel.getBoms().addAll(boms);
 
-        // Use the ArtifactView API to get all the resolved artifacts (jars, javadoc, sources)
-        // The ArtifactView API doesn't download some of the classifiers by default, so we handle that here
-        collectAllResolvedArtifacts(project, cfg, resolvedRoots, coordinatesGradleResolvedDependencyMap);
+    // Use the ArtifactView API to get all the resolved artifacts (jars, javadoc, sources)
+    // The ArtifactView API doesn't download some of the classifiers by default, so we handle that
+    // here
+    collectAllResolvedArtifacts(
+        project, cfg, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
 
-        List<GradleUnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies(cfg);
-        gradleDependencyModel.getUnresolvedDependencies().addAll(unresolvedDependencies);
-        return gradleDependencyModel;
-    }
+    List<GradleUnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies(cfg);
+    gradleDependencyModel.getUnresolvedDependencies().addAll(unresolvedDependencies);
+    return gradleDependencyModel;
+  }
 
-    private List<GradleResolvedDependency> collectResolvedDependencies(Configuration cfg, Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
-        List<GradleResolvedDependency> resolvedRoots = new ArrayList<>();
-        ResolutionResult result = cfg.getIncoming().getResolutionResult();
-        ResolvedComponentResult root = result.getRoot();
-
-
-        for (DependencyResult dep : root.getDependencies()) {
-            if(dep instanceof ResolvedDependencyResult) {
-                ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
-
-                ResolvedComponentResult selected = rdep.getSelected();
-                Set<ComponentIdentifier> visited = new HashSet<>();
-                // walk the resolve component graph in depth-first manner
-                // and collect all the resolved dependencies
-                GradleResolvedDependencyImpl info = walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
-                if (rdep.getRequested() instanceof ModuleComponentSelector) {
-                    String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
-                    info.setRequestedVersion(requested);
-                    info.setConflict(!Objects.equals(info.getVersion(), requested));
-                }
-
-                resolvedRoots.add(info);
-            }
+  private List<GradleDependency> collectDeclaredDependencies(Configuration cfg) {
+    List<GradleDependency> dependencies = new ArrayList<>();
+    for (Dependency dependency : cfg.getAllDependencies()) {
+      if (dependency instanceof ModuleDependency) {
+        ModuleDependency externalDependency = (ModuleDependency) dependency;
+        for (DependencyArtifact artifact : externalDependency.getArtifacts()) {
+          GradleDependency dep =
+              new GradleDependencyImpl(
+                  externalDependency.getGroup(),
+                  externalDependency.getName(),
+                  externalDependency.getVersion(),
+                  null,
+                  artifact.getClassifier(),
+                  artifact.getExtension());
+          dependencies.add(dep);
         }
-        return resolvedRoots;
+      }
     }
+    return dependencies;
+  }
 
-    private List<GradleUnresolvedDependency>  getUnresolvedDependencies(Configuration cfg) {
-        List<GradleUnresolvedDependency> unresolvedDependencies = new ArrayList<>();
-        ResolutionResult result = cfg.getIncoming().getResolutionResult();
-        for (DependencyResult dep : result.getAllDependencies()) {
-                if (dep instanceof UnresolvedDependencyResult) {
-                    UnresolvedDependencyResult rdep = (UnresolvedDependencyResult) dep;
-                    ModuleComponentSelector selector = (ModuleComponentSelector) rdep.getAttempted();
-                    Throwable failure = rdep.getFailure();
+  private List<GradleResolvedDependency> collectResolvedDependencies(
+      Configuration cfg,
+      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+    List<GradleResolvedDependency> resolvedRoots = new ArrayList<>();
+    ResolutionResult result = cfg.getIncoming().getResolutionResult();
+    ResolvedComponentResult root = result.getRoot();
 
-                    GradleUnresolvedDependency.FailureReason reason = GradleUnresolvedDependency.FailureReason.INTERNAL;
-                    // This is an internal API, so we can't check for the type
-                    // but this maps to artifact not being found and not some other error
-                    if(failure.toString().contains("org.gradle.internal.resolve.ModuleVersionNotFoundException")) {
-                        reason = GradleUnresolvedDependency.FailureReason.NOT_FOUND;
-                    }
-                    GradleUnresolvedDependency unresolved = new GradleUnresolvedDependencyImpl(selector.getGroup(), selector.getModule(), selector.getVersion(), reason, failure.getMessage());
-                    unresolvedDependencies.add(unresolved);
-                }
-        }
-        return unresolvedDependencies;
-    }
-
-    private List<GradleDependency> collectBoms(Project project, Configuration cfg) {
-        List<GradleDependency> boms = new ArrayList<>();
-
-        for (DependencyConstraint constraint : cfg.getAllDependencyConstraints()) {
-            if (constraint.getGroup() == null || constraint.getVersion() == null) continue;
-
-            boms.add(new GradleDependencyImpl(
-                    constraint.getGroup(),
-                    constraint.getName(),
-                    constraint.getVersion(),
-                    List.of(),
-                    null,
-                    null
-            ));
-
-        }
-        return boms;
-    }
-
-
-    private GradleResolvedDependencyImpl walkResolvedComponent(ResolvedComponentResult component, Set<ComponentIdentifier> visited, Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
-        // Handle cycles as they can exist in resolution
-        if(visited.contains(component.getId())) {
-            return null;
+    for (DependencyResult dep : root.getDependencies()) {
+      if (dep instanceof ResolvedDependencyResult) {
+        ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
+        ResolvedComponentResult selected = rdep.getSelected();
+        Set<ComponentIdentifier> visited = new HashSet<>();
+        // walk the resolve component graph in depth-first manner
+        // and collect all the resolved dependencies
+        GradleResolvedDependencyImpl info =
+            walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
+        if (rdep.getRequested() instanceof ModuleComponentSelector) {
+          String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
+          info.setRequestedVersion(requested);
+          info.setConflict(!Objects.equals(info.getVersion(), requested));
         }
 
-        Coordinates coordinates = new Coordinates(component.getModuleVersion().getGroup() + ":" + component.getModuleVersion().getName() + ":" + component.getModuleVersion().getVersion());
-        visited.add(component.getId());
-        GradleResolvedDependencyImpl info = new GradleResolvedDependencyImpl();
-        info.setGroup(component.getModuleVersion().getGroup());
-        info.setName(component.getModuleVersion().getName());
-        info.setVersion(component.getModuleVersion().getVersion());
-        info.setRequestedVersion(info.getVersion()); // default to the requested version
-        info.setConflict(false); // will be set later if there's a conflict
+        resolvedRoots.add(info);
+      }
+    }
+    return resolvedRoots;
+  }
 
-        List<GradleResolvedDependency> children = new ArrayList<>();
+  private List<GradleUnresolvedDependency> getUnresolvedDependencies(Configuration cfg) {
+    List<GradleUnresolvedDependency> unresolvedDependencies = new ArrayList<>();
+    ResolutionResult result = cfg.getIncoming().getResolutionResult();
+    for (DependencyResult dep : result.getAllDependencies()) {
+      if (dep instanceof UnresolvedDependencyResult) {
+        UnresolvedDependencyResult rdep = (UnresolvedDependencyResult) dep;
+        ModuleComponentSelector selector = (ModuleComponentSelector) rdep.getAttempted();
+        Throwable failure = rdep.getFailure();
 
-        for (DependencyResult dep : component.getDependencies()) {
-            if (!(dep instanceof ResolvedDependencyResult)) continue;
-
-            ResolvedDependencyResult resolvedDep = (ResolvedDependencyResult) dep;
-            ResolvedComponentResult selected = resolvedDep.getSelected();
-
-            GradleResolvedDependency child = walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
-            if(child == null) continue;
-            if (resolvedDep.getRequested() instanceof ModuleComponentSelector) {
-                String requestedVersion = ((ModuleComponentSelector)
-                        resolvedDep.getRequested()).getVersion();
-                child.setRequestedVersion(requestedVersion);
-                child.setConflict(!Objects.equals(child.getVersion(), requestedVersion));
-            }
-
-            children.add(child);
+        GradleUnresolvedDependency.FailureReason reason =
+            GradleUnresolvedDependency.FailureReason.INTERNAL;
+        // This is an internal API, so we can't check for the type
+        // but this maps to artifact not being found and not some other error
+        if (failure
+            .toString()
+            .contains("org.gradle.internal.resolve.ModuleVersionNotFoundException")) {
+          reason = GradleUnresolvedDependency.FailureReason.NOT_FOUND;
         }
+        GradleUnresolvedDependency unresolved =
+            new GradleUnresolvedDependencyImpl(
+                selector.getGroup(),
+                selector.getModule(),
+                selector.getVersion(),
+                reason,
+                failure.getMessage());
+        unresolvedDependencies.add(unresolved);
+      }
+    }
+    return unresolvedDependencies;
+  }
 
-        ComponentSelectionReason reason = component.getSelectionReason();
-        List<String> bomDescriptions = reason.getDescriptions().stream()
-                        .map(descriptor -> descriptor.getDescription().toLowerCase())
-                                .filter(description -> description.contains("platform") || description.contains("constraint"))
-                                        .collect(Collectors.toList());
-        info.setFromBom(!bomDescriptions.isEmpty());
+  private List<GradleDependency> collectBoms(Configuration cfg) {
+    List<GradleDependency> boms = new ArrayList<>();
 
-        info.setChildren(children);
-        String resolvedVersion = component.getModuleVersion().getVersion();
-        info.setConflict(!info.getRequestedVersion().equals(resolvedVersion));
-        coordinatesGradleResolvedDependencyMap.put(coordinates, info);
-        return info;
+    for (DependencyConstraint constraint : cfg.getAllDependencyConstraints()) {
+      if (constraint.getGroup() == null || constraint.getVersion() == null) continue;
+
+      boms.add(
+          new GradleDependencyImpl(
+              constraint.getGroup(),
+              constraint.getName(),
+              constraint.getVersion(),
+              List.of(),
+              null,
+              null));
+    }
+    return boms;
+  }
+
+  private GradleResolvedDependencyImpl walkResolvedComponent(
+      ResolvedComponentResult component,
+      Set<ComponentIdentifier> visited,
+      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+    // Handle cycles as they can exist in resolution
+    if (visited.contains(component.getId())) {
+      return null;
     }
 
-    // The ArtifactView api doesn't provide a way to obtain the classifier (the legacy API does but it doesn't provide a way to obtain additional artifacts
-    // like javadoc/sources from what I can tell
-    // so we interpolate the classifier based on the artifact file
-    private String extractClassifier(File file, ComponentIdentifier id) {
-        if (!(id instanceof ModuleComponentIdentifier)) return null;
+    Coordinates coordinates =
+        new Coordinates(
+            component.getModuleVersion().getGroup()
+                + ":"
+                + component.getModuleVersion().getName()
+                + ":"
+                + component.getModuleVersion().getVersion());
+    visited.add(component.getId());
+    GradleResolvedDependencyImpl info = new GradleResolvedDependencyImpl();
+    info.setGroup(component.getModuleVersion().getGroup());
+    info.setName(component.getModuleVersion().getName());
+    info.setVersion(component.getModuleVersion().getVersion());
+    info.setRequestedVersion(info.getVersion()); // default to the requested version
+    info.setConflict(false); // will be set later if there's a conflict
 
-        ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
-        String version = module.getVersion();
-        String artifact = module.getModule();
+    List<GradleResolvedDependency> children = new ArrayList<>();
 
-        String name = file.getName(); // e.g. lib-1.0-sources.jar, lib-1.0.pom
+    for (DependencyResult dep : component.getDependencies()) {
+      if (!(dep instanceof ResolvedDependencyResult)) continue;
 
-        // Strip extension
-        int dotIndex = name.lastIndexOf('.');
-        if (dotIndex <= 0) return null;
-        String nameWithoutExt = name.substring(0, dotIndex);
+      ResolvedDependencyResult resolvedDep = (ResolvedDependencyResult) dep;
+      ResolvedComponentResult selected = resolvedDep.getSelected();
 
-        String expectedBase = artifact + "-" + version;
+      GradleResolvedDependency child =
+          walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
+      if (child == null) continue;
+      if (resolvedDep.getRequested() instanceof ModuleComponentSelector) {
+        String requestedVersion =
+            ((ModuleComponentSelector) resolvedDep.getRequested()).getVersion();
+        child.setRequestedVersion(requestedVersion);
+        child.setConflict(!Objects.equals(child.getVersion(), requestedVersion));
+      }
 
-        if (!nameWithoutExt.startsWith(expectedBase)) return null;
-
-        String suffix = nameWithoutExt.substring(expectedBase.length());
-        return (suffix.startsWith("-")) ? suffix.substring(1) : null;
+      children.add(child);
     }
 
+    ComponentSelectionReason reason = component.getSelectionReason();
+    List<String> bomDescriptions =
+        reason.getDescriptions().stream()
+            .map(descriptor -> descriptor.getDescription().toLowerCase())
+            .filter(
+                description ->
+                    description.contains("platform") || description.contains("constraint"))
+            .collect(Collectors.toList());
+    info.setFromBom(!bomDescriptions.isEmpty());
 
-    private String extractExtension(File file) {
-        String name = file.getName();
-        int i = name.lastIndexOf('.');
-        return (i > 0) ? name.substring(i + 1) : null;
+    info.setChildren(children);
+    String resolvedVersion = component.getModuleVersion().getVersion();
+    info.setConflict(!info.getRequestedVersion().equals(resolvedVersion));
+    coordinatesGradleResolvedDependencyMap.put(coordinates, info);
+    return info;
+  }
+
+  // The ArtifactView api doesn't provide a way to obtain the classifier (the legacy API does but it
+  // doesn't provide a way to obtain additional artifacts
+  // like javadoc/sources from what I can tell
+  // so we interpolate the classifier based on the artifact file
+  private String extractClassifier(File file, ComponentIdentifier id) {
+    if (!(id instanceof ModuleComponentIdentifier)) return null;
+
+    ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
+    String version = module.getVersion();
+    String artifact = module.getModule();
+
+    String name = file.getName(); // e.g. lib-1.0-sources.jar, lib-1.0.pom
+
+    // Strip extension
+    int dotIndex = name.lastIndexOf('.');
+    if (dotIndex <= 0) return null;
+    String nameWithoutExt = name.substring(0, dotIndex);
+
+    String expectedBase = artifact + "-" + version;
+
+    if (!nameWithoutExt.startsWith(expectedBase)) return null;
+
+    String suffix = nameWithoutExt.substring(expectedBase.length());
+    return (suffix.startsWith("-")) ? suffix.substring(1) : null;
+  }
+
+  private String extractExtension(File file) {
+    String name = file.getName();
+    int i = name.lastIndexOf('.');
+    return (i > 0) ? name.substring(i + 1) : null;
+  }
+
+  private void collectAllResolvedArtifacts(
+      Project project,
+      Configuration cfg,
+      List<GradleResolvedDependency> resolvedRoots,
+      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap,
+      List<GradleDependency> declaredDeps) {
+    ArtifactView sourcesView =
+        cfg.getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.withVariantReselection();
+                  spec.setLenient(true);
+                  spec.attributes(
+                      attrs -> {
+                        attrs.attribute(
+                            DocsType.DOCS_TYPE_ATTRIBUTE,
+                            project.getObjects().named(DocsType.class, DocsType.SOURCES));
+                      });
+                });
+
+    collectArtifactsFromArtifactView(sourcesView, coordinatesGradleResolvedDependencyMap);
+
+    ArtifactView javadocView =
+        cfg.getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true);
+                  spec.withVariantReselection();
+                  spec.attributes(
+                      attrs -> {
+                        attrs.attribute(
+                            DocsType.DOCS_TYPE_ATTRIBUTE,
+                            project.getObjects().named(DocsType.class, DocsType.JAVADOC));
+                      });
+                });
+
+    collectArtifactsFromArtifactView(javadocView, coordinatesGradleResolvedDependencyMap);
+
+    ArtifactView jarView =
+        cfg.getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.attributes(
+                      attrs -> {
+                        spec.setLenient(true);
+                        attrs.attribute(
+                            Usage.USAGE_ATTRIBUTE,
+                            project.getObjects().named(Usage.class, Usage.JAVA_API));
+                      });
+                });
+
+    collectArtifactsFromArtifactView(jarView, coordinatesGradleResolvedDependencyMap);
+    collectPOMsForAllComponents(
+        project, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
+  }
+
+  private void collectArtifactsFromArtifactView(
+      ArtifactView artifactView,
+      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+    Set<ResolvedArtifactResult> resolvedArtifactResults =
+        artifactView.getArtifacts().getArtifacts();
+    for (ResolvedArtifactResult artifact : resolvedArtifactResults) {
+      ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
+      ModuleComponentIdentifier module = (ModuleComponentIdentifier) identifier;
+      if (artifact.getFile() != null) {
+        GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+        resolvedArtifact.setFile(artifact.getFile());
+        resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
+        resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
+
+        Coordinates coordinates =
+            new Coordinates(
+                module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
+        System.out.println("Adding artifact " + artifact.getFile() + " to " + coordinates);
+        coordinatesGradleResolvedDependencyMap.get(coordinates).addArtifact(resolvedArtifact);
+      }
     }
+  }
 
-    private void collectAllResolvedArtifacts(Project project, Configuration cfg, List<GradleResolvedDependency> resolvedRoots,  Map<Coordinates,GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
-        ArtifactView sourcesView = cfg.getIncoming().artifactView(spec -> {
-            spec.withVariantReselection();
-            spec.setLenient(true);
-            spec.attributes(attrs -> {
-                attrs.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.getObjects().named(DocsType.class, DocsType.SOURCES));
-            });
-        });
+  private void collectPOMsForAllComponents(
+      Project project,
+      List<GradleResolvedDependency> resolvedRoots,
+      Map<Coordinates, GradleResolvedDependency> coordinatesArtifacts,
+      List<GradleDependency> declaredDeps) {
+    for (GradleResolvedDependency dependency : resolvedRoots) {
+      Coordinates coordinates =
+          new Coordinates(
+              dependency.getGroup() + ":" + dependency.getName() + ":" + dependency.getVersion());
 
-        collectArtifactsFromArtifactView(sourcesView, coordinatesGradleResolvedDependencyMap);
+      boolean isDeclaredWithExplicitExtension =
+          declaredDeps.stream()
+              .anyMatch(
+                  declaredDep ->
+                      declaredDep.getGroup().equals(dependency.getGroup())
+                          && declaredDep.getArtifact().equals(dependency.getName())
+                          && declaredDep.getVersion().equals(dependency.getVersion())
+                          && declaredDep.getExtension() != null);
+      // If the dependency was declared with an explicit extension, then we shouldn't request POMs
+      // explicitly
+      if (isDeclaredWithExplicitExtension) continue;
+      Dependency dep = project.getDependencies().create(coordinates + "@pom");
 
-        ArtifactView javadocView = cfg.getIncoming().artifactView(spec -> {
-            spec.setLenient(true);
-            spec.withVariantReselection();
-            spec.attributes(attrs -> {
-                attrs.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.getObjects().named(DocsType.class, DocsType.JAVADOC));
-            });
-        });
+      Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
 
-        collectArtifactsFromArtifactView(javadocView, coordinatesGradleResolvedDependencyMap);
+      ArtifactView view =
+          pomCfg
+              .getIncoming()
+              .artifactView(
+                  spec -> {
+                    spec.setLenient(true); // avoid failure if a POM is missing
+                  });
 
-        ArtifactView jarView = cfg.getIncoming().artifactView(spec -> {
-            spec.attributes(attrs -> {
-                spec.setLenient(true);
-                attrs.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
-            });
-        });
-
-        collectArtifactsFromArtifactView(jarView, coordinatesGradleResolvedDependencyMap);
-        collectPOMsForAllComponents(project, resolvedRoots, coordinatesGradleResolvedDependencyMap);
-    }
-
-    private void collectArtifactsFromArtifactView(ArtifactView artifactView, Map<Coordinates,GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
-        Set<ResolvedArtifactResult> resolvedArtifactResults = artifactView.getArtifacts().getArtifacts();
-        for(ResolvedArtifactResult artifact : resolvedArtifactResults) {
-            ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
-            ModuleComponentIdentifier module = (ModuleComponentIdentifier) identifier;
-            if(artifact.getFile() != null) {
-                GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
-                resolvedArtifact.setFile(artifact.getFile());
-                resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
-                resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
-
-                Coordinates coordinates = new Coordinates(module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
-                coordinatesGradleResolvedDependencyMap.get(coordinates).addArtifact(resolvedArtifact);
-            }
+      for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
+        GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+        if (artifact.getFile() != null) {
+          resolvedArtifact.setFile(artifact.getFile());
+          resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
+          System.out.println("Adding artifact " + artifact.getFile() + " to " + coordinates);
+          coordinatesArtifacts.get(coordinates).addArtifact(resolvedArtifact);
         }
+      }
     }
-
-    private void collectPOMsForAllComponents(Project project, List<GradleResolvedDependency> resolvedRoots, Map<Coordinates, GradleResolvedDependency> coordinatesArtifacts) {
-        for(GradleResolvedDependency dependency: resolvedRoots) {
-            Coordinates coordinates = new Coordinates(dependency.getGroup() + ":" + dependency.getName() + ":" + dependency.getVersion());
-            Dependency dep = project.getDependencies().create(coordinates.toString() + "@pom");
-
-            Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
-
-            ArtifactView view = pomCfg.getIncoming().artifactView(spec -> {
-                spec.setLenient(true); // avoid failure if a POM is missing
-            });
-
-            for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
-                GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
-                if(artifact.getFile() != null) {
-                    resolvedArtifact.setFile(artifact.getFile());
-                    resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
-                    coordinatesArtifacts.get(coordinates).addArtifact(resolvedArtifact);
-                }
-            }
-        }
-    }
+  }
 }

@@ -12,93 +12,95 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a single dependency resolved by gradle
- */
+/** Represents a single dependency resolved by gradle */
 public class GradleResolvedDependencyImpl implements Serializable, GradleResolvedDependency {
-    private String group;
-    private String name;
-    private String version;
-    private String requestedVersion;
-    private boolean conflict;
-    private List<GradleResolvedDependency> children;
-    private boolean fromBom;
-    private List<GradleResolvedArtifact> artifacts;
+  private String group;
+  private String name;
+  private String version;
+  private String requestedVersion;
+  private boolean conflict;
+  private List<GradleResolvedDependency> children;
+  private boolean fromBom;
+  private List<GradleResolvedArtifact> artifacts;
 
-    public GradleResolvedDependencyImpl() {
-       this.artifacts = new ArrayList<>();
-    }
+  public GradleResolvedDependencyImpl() {
+    this.artifacts = new ArrayList<>();
+  }
 
-    public String getGroup() {
-        return group;
-    }
+  public String getGroup() {
+    return group;
+  }
 
-    public void setGroup(String group) {
-        this.group = group;
-    }
+  public void setGroup(String group) {
+    this.group = group;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getVersion() {
-        return version;
-    }
+  public String getVersion() {
+    return version;
+  }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
-    public String getRequestedVersion() {
-        return requestedVersion;
-    }
+  public String getRequestedVersion() {
+    return requestedVersion;
+  }
 
-    public void setRequestedVersion(String requestedVersion) {
-        this.requestedVersion = requestedVersion;
-    }
+  public void setRequestedVersion(String requestedVersion) {
+    this.requestedVersion = requestedVersion;
+  }
 
-    public boolean isConflict() {
-        return conflict;
-    }
+  public boolean isConflict() {
+    return conflict;
+  }
 
-    public void setConflict(boolean conflict) {
-        this.conflict = conflict;
-    }
+  public void setConflict(boolean conflict) {
+    this.conflict = conflict;
+  }
 
-    public List<GradleResolvedDependency> getChildren() {
-        return children;
-    }
+  public List<GradleResolvedDependency> getChildren() {
+    return children;
+  }
 
-    public void setChildren(List<GradleResolvedDependency> children) {
-        this.children = children;
-    }
+  public void setChildren(List<GradleResolvedDependency> children) {
+    this.children = children;
+  }
 
-    public boolean isFromBom() { return fromBom; }
-    public void setFromBom(boolean fromBom) { this.fromBom = fromBom; }
+  public boolean isFromBom() {
+    return fromBom;
+  }
 
-    @Override
-    public List<GradleResolvedArtifact> getArtifacts() {
-        return artifacts;
-    }
+  public void setFromBom(boolean fromBom) {
+    this.fromBom = fromBom;
+  }
 
-    @Override
-    public void setArtifacts(List<GradleResolvedArtifact> artifacts) {
-        this.artifacts = artifacts;
-    }
+  @Override
+  public List<GradleResolvedArtifact> getArtifacts() {
+    return artifacts;
+  }
 
-    @Override
-    public void addArtifact(GradleResolvedArtifact artifact) {
-        this.artifacts.add(artifact);
-    }
+  @Override
+  public void setArtifacts(List<GradleResolvedArtifact> artifacts) {
+    this.artifacts = artifacts;
+  }
+
+  @Override
+  public void addArtifact(GradleResolvedArtifact artifact) {
+    this.artifacts.add(artifact);
+  }
 }

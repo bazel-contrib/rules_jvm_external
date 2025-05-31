@@ -17,35 +17,37 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 import java.util.List;
 
 public interface GradleResolvedDependency {
-    public String getGroup();
+  public String getGroup();
 
-    public void setGroup(String group);
+  public void setGroup(String group);
 
-    public String getName();
+  public String getName();
 
-    public void setName(String name);
+  public void setName(String name);
 
-    public String getVersion();
+  public String getVersion();
 
-    public void setVersion(String version);
-    public String getRequestedVersion();
+  public void setVersion(String version);
 
-    public void setRequestedVersion(String requestedVersion);
+  public String getRequestedVersion();
 
-    public boolean isConflict();
+  public void setRequestedVersion(String requestedVersion);
 
-    public void setConflict(boolean conflict);
+  public boolean isConflict();
 
-    public List<GradleResolvedDependency> getChildren();
+  public void setConflict(boolean conflict);
 
-    public void setChildren(List<GradleResolvedDependency> children);
+  public List<GradleResolvedDependency> getChildren();
 
-    public boolean isFromBom();
-    public void setFromBom(boolean fromBom);
+  public void setChildren(List<GradleResolvedDependency> children);
 
-    public List<GradleResolvedArtifact> getArtifacts();
+  public boolean isFromBom();
 
-    public void setArtifacts(List<GradleResolvedArtifact> artifacts);
+  public void setFromBom(boolean fromBom);
 
-    public void addArtifact(GradleResolvedArtifact artifact);
+  public List<GradleResolvedArtifact> getArtifacts();
+
+  public void setArtifacts(List<GradleResolvedArtifact> artifacts);
+
+  public void addArtifact(GradleResolvedArtifact artifact);
 }
