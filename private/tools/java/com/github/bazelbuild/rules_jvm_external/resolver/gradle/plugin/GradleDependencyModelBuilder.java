@@ -60,6 +60,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         // The ArtifactView API doesn't download some of the classifiers by default, so we handle that here
         collectAllResolvedArtifacts(project, cfg, resolvedRoots, coordinatesGradleResolvedDependencyMap);
 
+        List<GradleUnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies(cfg);
+        gradleDependencyModel.getUnresolvedDependencies().addAll(unresolvedDependencies);
         return gradleDependencyModel;
     }
 
@@ -68,22 +70,46 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         ResolutionResult result = cfg.getIncoming().getResolutionResult();
         ResolvedComponentResult root = result.getRoot();
 
+
         for (DependencyResult dep : root.getDependencies()) {
-            if (!(dep instanceof ResolvedDependencyResult)) continue;
+            if(dep instanceof ResolvedDependencyResult) {
+                ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
 
-            ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
-            ResolvedComponentResult selected = rdep.getSelected();
-            Set<ComponentIdentifier> visited = new HashSet<>();
-            GradleResolvedDependencyImpl info = walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
-            if (rdep.getRequested() instanceof ModuleComponentSelector) {
-                String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
-                info.setRequestedVersion(requested);
-                info.setConflict(!Objects.equals(info.getVersion(), requested));
+                ResolvedComponentResult selected = rdep.getSelected();
+                Set<ComponentIdentifier> visited = new HashSet<>();
+                GradleResolvedDependencyImpl info = walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap);
+                if (rdep.getRequested() instanceof ModuleComponentSelector) {
+                    String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
+                    info.setRequestedVersion(requested);
+                    info.setConflict(!Objects.equals(info.getVersion(), requested));
+                }
+
+                resolvedRoots.add(info);
             }
-
-            resolvedRoots.add(info);
         }
         return resolvedRoots;
+    }
+
+    private List<GradleUnresolvedDependency>  getUnresolvedDependencies(Configuration cfg) {
+        List<GradleUnresolvedDependency> unresolvedDependencies = new ArrayList<>();
+        ResolutionResult result = cfg.getIncoming().getResolutionResult();
+        for (DependencyResult dep : result.getAllDependencies()) {
+                if (dep instanceof UnresolvedDependencyResult) {
+                    UnresolvedDependencyResult rdep = (UnresolvedDependencyResult) dep;
+                    ModuleComponentSelector selector = (ModuleComponentSelector) rdep.getAttempted();
+                    Throwable failure = rdep.getFailure();
+
+                    GradleUnresolvedDependency.FailureReason reason = GradleUnresolvedDependency.FailureReason.INTERNAL;
+                    // This is an internal API, so we can't check for the type
+                    // but this maps to artifact not being found and not some other error
+                    if(failure.toString().contains("org.gradle.internal.resolve.ModuleVersionNotFoundException")) {
+                        reason = GradleUnresolvedDependency.FailureReason.NOT_FOUND;
+                    }
+                    GradleUnresolvedDependency unresolved = new GradleUnresolvedDependencyImpl(selector.getGroup(), selector.getModule(), selector.getVersion(), reason, failure.getMessage());
+                    unresolvedDependencies.add(unresolved);
+                }
+        }
+        return unresolvedDependencies;
     }
 
     private List<GradleDependency> collectBoms(Project project, Configuration cfg) {

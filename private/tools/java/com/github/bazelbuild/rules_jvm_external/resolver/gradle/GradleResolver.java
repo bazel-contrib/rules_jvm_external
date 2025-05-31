@@ -74,31 +74,11 @@ public class GradleResolver implements Resolver {
                 System.err.println("Resolving dependencies with gradle project: " + project.getProjectDir().toUri());
             }
             GradleDependencyModel resolved = project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
-            return parseDependencies(resolved);
+            return parseDependencies(resolved, dependencies);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-    private String getRepositoryURLHost(Repository repository) throws MalformedURLException {
-        URL url = new URL(repository.getUrl());
-        return url.getHost();
-    }
-
-    private Path getJavaHomePath() {
-        try {
-            Runfiles.Preloaded runfiles = Runfiles.preload();
-            String gradleBuildPath = runfiles.withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
-                    .rlocation("bazel_tools/tools/jdk/host_jdk");
-            if(!Files.exists(Paths.get(gradleBuildPath))) {
-                throw new IOException("Gradle build template not found at " + gradleBuildPath);
-            }
-            return Paths.get(gradleBuildPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     private Map<String, String> getGradleTaskProperties(List<Repository> repositories, Path projectDir) throws MalformedURLException {
         Map<String, String> properties = new HashMap<>();
@@ -115,13 +95,14 @@ public class GradleResolver implements Resolver {
         return properties;
     }
 
-    private ResolutionResult parseDependencies(GradleDependencyModel resolved) throws IOException {
+    private ResolutionResult parseDependencies(GradleDependencyModel resolved, List<GradleDependency> requestedDeps) throws IOException {
         MutableGraph<Coordinates> graph = GraphBuilder.directed()
                 .allowsSelfLoops(false)
                 .build();
 
         Set<Conflict> conflicts = new HashSet<>();
         List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
+        List<GradleUnresolvedDependency> unresolvedDependencies = resolved.getUnresolvedDependencies();
         if(implementationDependencies == null) {
             return new ResolutionResult(graph, null);
         }
@@ -143,6 +124,22 @@ public class GradleResolver implements Resolver {
                 }
             }
         }
+
+        for(GradleUnresolvedDependency dependency : unresolvedDependencies) {
+            Coordinates coordinates = new Coordinates(dependency.getGroup() + ":" + dependency.getName() + ":" + dependency.getVersion());
+
+            if(dependency.getFailureReason() == GradleUnresolvedDependency.FailureReason.NOT_FOUND) {
+                Coordinates displayable = coordinates.setExtension("pom");
+                String message =
+                        "The POM for "
+                                + displayable
+                                + " is missing, no dependency information available.";
+                String detail = "[WARNING]:    " + dependency.getFailureDetails();
+                eventListener.onEvent(new LogEvent("gradle", message, detail));
+            }
+            graph.addNode(coordinates);
+        }
+
         return new ResolutionResult(graph, conflicts);
     }
 

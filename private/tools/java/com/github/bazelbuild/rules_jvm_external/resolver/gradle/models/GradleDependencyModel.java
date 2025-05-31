@@ -26,5 +26,6 @@ import java.util.Map;
  */
 public interface GradleDependencyModel {
     List<GradleResolvedDependency> getResolvedDependencies();
+    List<GradleUnresolvedDependency> getUnresolvedDependencies();
     List<GradleDependency> getBoms();
 }
