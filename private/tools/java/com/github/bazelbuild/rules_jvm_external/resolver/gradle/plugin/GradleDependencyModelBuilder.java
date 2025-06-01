@@ -408,7 +408,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
         if (artifact.getFile() != null) {
           resolvedArtifact.setFile(artifact.getFile());
-          resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
+          resolvedArtifact.setExtension(PomUtil.extractPackagingFromPom(artifact.getFile()));
           coordinatesArtifacts.get(coordinates).addArtifact(resolvedArtifact);
         }
       }
