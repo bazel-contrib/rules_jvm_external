@@ -77,7 +77,7 @@ public class GradleBuildScriptGenerator {
 
     Map<String, Object> contextMap = new HashMap<>();
 
-    contextMap.put("pluginJarPath", pluginJarPath);
+    contextMap.put("pluginJarPath", pluginJarPath.toUri().toString());
     String output = template.apply(Context.newContext(contextMap)).trim();
     Files.writeString(initScriptOutputPath, output);
   }
