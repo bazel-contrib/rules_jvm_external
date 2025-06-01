@@ -121,7 +121,7 @@ public class GradleResolver implements Resolver {
                 if (isBom) {
                     continue;
                 }
-                addDependency(graph, coordinates, dependency);
+                addDependency(graph, coordinates, dependency, conflicts);
                 if(dependency.isConflict()) {
                     GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getRequestedVersion(), artifact.getClassifier(), artifact.getExtension());
                     Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
@@ -148,7 +148,7 @@ public class GradleResolver implements Resolver {
         return new ResolutionResult(graph, conflicts);
     }
 
-    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo) {
+    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo, Set<Conflict> conflicts) {
         graph.addNode(parent);
 
         if (parentInfo.getChildren() != null) {
@@ -162,7 +162,12 @@ public class GradleResolver implements Resolver {
                     Coordinates child = new Coordinates(childCoordinates.getGroupId(), childCoordinates.getArtifactId(), extension, childCoordinates.getClassifier(), childCoordinates.getVersion());
                     graph.addNode(child);
                     graph.putEdge(parent, child);
-                    addDependency(graph, child, childInfo); // recursively traverse the graph
+                    if(childInfo.isConflict()) {
+                        GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(childInfo.getGroup(), childInfo.getName(), childInfo.getRequestedVersion(), childArtifact.getClassifier(), childArtifact.getExtension());
+                        Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
+                        conflicts.add(new Conflict(child, requested));
+                    }
+                    addDependency(graph, child, childInfo, conflicts); // recursively traverse the graph
                 }
             }
         }

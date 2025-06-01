@@ -90,7 +90,7 @@ public class GradleProject implements AutoCloseable  {
         .addProgressListener(new GradleProgressListener(eventListener))
         .setStandardError(System.err)
         .withArguments(arguments)
-     //   .setJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005") // uncomment if you want tot debug the plugin itself
+      //  .setJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005") // uncomment if you want to debug the plugin itself
         .get();
     }
 

@@ -100,7 +100,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     ResolutionResult result = cfg.getIncoming().getResolutionResult();
     ResolvedComponentResult root = result.getRoot();
 
-    if(isVerbose()) {
+    if (isVerbose()) {
       System.err.println("Dependency graph: ");
     }
 
@@ -179,11 +179,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Set<ComponentIdentifier> visited,
       Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap,
       int depth) {
-    // Handle cycles as they can exist in resolution
-    if (visited.contains(component.getId())) {
-      return null;
-    }
-
     Coordinates coordinates =
         new Coordinates(
             component.getModuleVersion().getGroup()
@@ -191,6 +186,12 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 + component.getModuleVersion().getName()
                 + ":"
                 + component.getModuleVersion().getVersion());
+
+    // Handle cycles as they can exist in resolution
+    if (visited.contains(component.getId())) {
+      return coordinatesGradleResolvedDependencyMap.get(coordinates);
+    }
+
     visited.add(component.getId());
     if (isVerbose()) {
       System.err.println("  ".repeat(depth) + "→ " + coordinates);
@@ -199,7 +200,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // We might visit the same node multiple times through the graph, so check if we've visited
     // node before
     GradleResolvedDependency info = coordinatesGradleResolvedDependencyMap.get(coordinates);
-    if(coordinatesGradleResolvedDependencyMap.get(coordinates) == null) {
+    if (coordinatesGradleResolvedDependencyMap.get(coordinates) == null) {
       // this is a new artifact yet unvisited
       info = new GradleResolvedDependencyImpl();
     }
@@ -218,13 +219,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       ResolvedComponentResult selected = resolvedDep.getSelected();
 
       GradleResolvedDependency child =
-          walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap, depth + 1);
+          walkResolvedComponent(
+              selected, visited, coordinatesGradleResolvedDependencyMap, depth + 1);
       if (child == null) continue;
       if (resolvedDep.getRequested() instanceof ModuleComponentSelector) {
         String requestedVersion =
             ((ModuleComponentSelector) resolvedDep.getRequested()).getVersion();
         child.setRequestedVersion(requestedVersion);
-        child.setConflict(!Objects.equals(child.getVersion(), requestedVersion));
+        boolean isConflict = !Objects.equals(child.getVersion(), requestedVersion);
+        child.setConflict(isConflict);
       }
 
       children.add(child);
@@ -335,12 +338,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         project, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
   }
 
-  private void walkGraphAndAttachArtifacts(GradleResolvedDependency dep, Set<Coordinates> visited, Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
-    Coordinates coordinates = new Coordinates(dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion());
-    if(visited.contains(coordinates)) return;
+  private void walkGraphAndAttachArtifacts(
+      GradleResolvedDependency dep,
+      Set<Coordinates> visited,
+      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+    Coordinates coordinates =
+        new Coordinates(dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion());
+    if (visited.contains(coordinates)) return;
 
     visited.add(coordinates);
-
   }
 
   private void collectArtifactsFromArtifactView(
