@@ -17,7 +17,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModelImpl;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
@@ -86,11 +85,13 @@ public class GradleProject implements AutoCloseable  {
             arguments.add("--init-script=" + this.initScript);
         }
 
-        return connection.model(GradleDependencyModel.class)
-                .addProgressListener(new GradleProgressListener(eventListener))
-                .setStandardOutput(System.out)
-                .withArguments(arguments)
-                .get();
+    return connection
+        .model(GradleDependencyModel.class)
+        .addProgressListener(new GradleProgressListener(eventListener))
+        .setStandardError(System.err)
+        .withArguments(arguments)
+     //   .setJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005") // uncomment if you want tot debug the plugin itself
+        .get();
     }
 
 

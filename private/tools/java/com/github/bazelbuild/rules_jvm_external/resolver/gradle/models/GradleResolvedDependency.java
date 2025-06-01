@@ -16,38 +16,42 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.util.List;
 
+/**
+ * GradleResolvedDependency models a gradle dependency that was successfully resolved,
+ * its children in the graph and any artifacts associated with it.
+ */
 public interface GradleResolvedDependency {
-  public String getGroup();
+  String getGroup();
 
-  public void setGroup(String group);
+  void setGroup(String group);
 
-  public String getName();
+  String getName();
 
-  public void setName(String name);
+  void setName(String name);
 
-  public String getVersion();
+  String getVersion();
 
-  public void setVersion(String version);
+  void setVersion(String version);
 
-  public String getRequestedVersion();
+  String getRequestedVersion();
 
-  public void setRequestedVersion(String requestedVersion);
+  void setRequestedVersion(String requestedVersion);
 
-  public boolean isConflict();
+  boolean isConflict();
 
-  public void setConflict(boolean conflict);
+  void setConflict(boolean conflict);
 
-  public List<GradleResolvedDependency> getChildren();
+  List<GradleResolvedDependency> getChildren();
 
-  public void setChildren(List<GradleResolvedDependency> children);
+  void setChildren(List<GradleResolvedDependency> children);
 
-  public boolean isFromBom();
+  boolean isFromBom();
 
-  public void setFromBom(boolean fromBom);
+  void setFromBom(boolean fromBom);
 
-  public List<GradleResolvedArtifact> getArtifacts();
+  List<GradleResolvedArtifact> getArtifacts();
 
-  public void setArtifacts(List<GradleResolvedArtifact> artifacts);
+  void setArtifacts(List<GradleResolvedArtifact> artifacts);
 
-  public void addArtifact(GradleResolvedArtifact artifact);
+  void addArtifact(GradleResolvedArtifact artifact);
 }

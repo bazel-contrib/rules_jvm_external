@@ -9,7 +9,6 @@ java_test(
     ],
     data = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
-        "//tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/testdata",
     ],
     env = {
         "RJE_VERBOSE": "true",

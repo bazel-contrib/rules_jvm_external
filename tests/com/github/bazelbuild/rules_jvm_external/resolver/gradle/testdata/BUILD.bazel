@@ -1,9 +1,0 @@
-filegroup(
-    name = "testdata",
-    srcs = [
-        "boms_expected_build_gradle.kts",
-        "multipleRepositories_expected_build_gradle.kts",
-        "simple_expected_build_gradle.kts",
-    ],
-    visibility = ["//tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__subpackages__"],
-)

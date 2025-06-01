@@ -18,19 +18,21 @@ import java.io.File;
 import java.util.Map;
 
 public interface GradleResolvedArtifact {
-  public String getClassifier();
+  String getClassifier();
 
-  public String getExtension();
+  String getExtension();
 
-  public File getFile();
+  File getFile();
 
-  public Map<String, String> getVariantAttributes();
+  // Currently used, but can be used to model gradle variants associated with artifacts
+  // useful for KMP especially
+  Map<String, String> getVariantAttributes();
 
-  public void setClassifier(String classifier);
+  void setClassifier(String classifier);
 
-  public void setExtension(String extension);
+  void setExtension(String extension);
 
-  public void setFile(File file);
+  void setFile(File file);
 
-  public void setVariantAttributes(Map<String, String> variantAttributes);
+  void setVariantAttributes(Map<String, String> variantAttributes);
 }

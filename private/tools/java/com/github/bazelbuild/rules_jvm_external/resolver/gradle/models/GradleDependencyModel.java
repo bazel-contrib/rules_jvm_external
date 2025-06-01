@@ -15,7 +15,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Gradle dependency information collected from our GradleDependencyModelPlugin It has the following

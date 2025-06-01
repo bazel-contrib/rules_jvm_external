@@ -40,14 +40,6 @@ public class Repository {
     this.passwordProperty = host + "Password";
   }
 
-  public String getUsernameProperty() {
-    return this.usernameProperty;
-  }
-
-  public String getPasswordProperty() {
-    return this.passwordProperty;
-  }
-
   public String getPassword() {
     return password;
   }

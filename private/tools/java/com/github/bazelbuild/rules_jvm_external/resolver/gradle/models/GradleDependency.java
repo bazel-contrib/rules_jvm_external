@@ -16,6 +16,9 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.util.List;
 
+/**
+ * GradleDependency models a gradle dependency declared in build.gradle.kts
+ */
 public interface GradleDependency {
   String getGroup();
 
