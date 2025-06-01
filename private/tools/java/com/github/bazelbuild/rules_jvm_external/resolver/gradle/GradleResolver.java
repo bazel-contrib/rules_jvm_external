@@ -1,4 +1,4 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
+// Copyright 2025 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class GradleResolver implements Resolver {
                 eventListener.onEvent(new LogEvent("gradle", "Resolving dependencies with gradle", "Project: " + project.getProjectDir().toUri()));
             }
             GradleDependencyModel resolved = project.resolveDependencies(getGradleTaskProperties(repositories, project.getProjectDir()));
-            return parseDependencies(resolved, boms);
+            return parseDependencies(dependencies, resolved, boms);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -95,7 +95,7 @@ public class GradleResolver implements Resolver {
         return properties;
     }
 
-    private ResolutionResult parseDependencies(GradleDependencyModel resolved, List<GradleDependency> boms) throws IOException {
+    private ResolutionResult parseDependencies(List<GradleDependency> requestedDeps, GradleDependencyModel resolved, List<GradleDependency> boms) throws IOException {
         MutableGraph<Coordinates> graph = GraphBuilder.directed()
                 .allowsSelfLoops(false)
                 .build();
@@ -111,14 +111,17 @@ public class GradleResolver implements Resolver {
             for(GradleResolvedArtifact artifact: dependency.getArtifacts()) {
                 GradleCoordinates gradleCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getVersion(), artifact.getClassifier(), artifact.getExtension());
                 String extension = gradleCoordinates.getExtension();
-                if(extension.equals("pom")) {
+                if(extension != null && extension.equals("pom")) {
                     extension = null;
                 }
                 String classifier = gradleCoordinates.getClassifier();
                 Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), extension, classifier, gradleCoordinates.getVersion());
-                addDependency(graph, coordinates, dependency, conflicts);
-                if(dependency.isConflict()) {
-                    GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getRequestedVersion(), artifact.getClassifier(), artifact.getExtension());
+                addDependency(graph, coordinates, dependency, conflicts, requestedDeps);
+                // if there's a conflict and the conflicting version isn't one that's actually requested
+                // then it's an actual conflict we want to report
+                if(dependency.isConflict() && !isRequestedDep(requestedDeps, dependency)) {
+                    String conflictingVersion = dependency.getRequestedVersions().stream().filter(x -> !x.equals(coordinates.getVersion())).findFirst().get();
+                    GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), conflictingVersion, artifact.getClassifier(), artifact.getExtension());
                     Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
                     conflicts.add(new Conflict(coordinates, requested));
                 }
@@ -143,7 +146,11 @@ public class GradleResolver implements Resolver {
         return new ResolutionResult(graph, conflicts);
     }
 
-    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo, Set<Conflict> conflicts) {
+    private boolean isRequestedDep(List<GradleDependency> requestedDeps, GradleResolvedDependency resolved) {
+        return requestedDeps.stream().anyMatch(dep -> dep.getArtifact().equals(resolved.getName()) && dep.getGroup().equals(resolved.getGroup()) && dep.getVersion().equals(resolved.getVersion()));
+    }
+
+    private void addDependency(MutableGraph<Coordinates> graph, Coordinates parent, GradleResolvedDependency parentInfo, Set<Conflict> conflicts, List<GradleDependency> requestedDeps) {
         graph.addNode(parent);
 
         if (parentInfo.getChildren() != null) {
@@ -151,18 +158,21 @@ public class GradleResolver implements Resolver {
                 for(GradleResolvedArtifact childArtifact: childInfo.getArtifacts()) {
                     GradleCoordinates childCoordinates = new GradleCoordinatesImpl(childInfo.getGroup(), childInfo.getName(), childInfo.getVersion(), childArtifact.getClassifier(), childArtifact.getExtension());
                     String extension = childArtifact.getExtension();
-                    if(extension.equals("pom")) {
+                    if(extension != null && extension.equals("pom")) {
                         extension = null;
                     }
                     Coordinates child = new Coordinates(childCoordinates.getGroupId(), childCoordinates.getArtifactId(), extension, childCoordinates.getClassifier(), childCoordinates.getVersion());
                     graph.addNode(child);
                     graph.putEdge(parent, child);
-                    if(childInfo.isConflict()) {
-                        GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(childInfo.getGroup(), childInfo.getName(), childInfo.getRequestedVersion(), childArtifact.getClassifier(), childArtifact.getExtension());
+                    // if there's a conflict and the conflicting version isn't one that's actually requested
+                    // then it's an actual conflict we want to report
+                    if(childInfo.isConflict() && !isRequestedDep(requestedDeps, childInfo)) {
+                        String conflictingVersion = childInfo.getRequestedVersions().stream().filter(x -> !x.equals(child.getVersion())).findFirst().get();
+                        GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(childInfo.getGroup(), childInfo.getName(), conflictingVersion, childArtifact.getClassifier(), childArtifact.getExtension());
                         Coordinates requested = new Coordinates(requestedCoordinates.getGroupId(), requestedCoordinates.getArtifactId(), requestedCoordinates.getExtension(), requestedCoordinates.getClassifier(), requestedCoordinates.getVersion());
                         conflicts.add(new Conflict(child, requested));
                     }
-                    addDependency(graph, child, childInfo, conflicts); // recursively traverse the graph
+                    addDependency(graph, child, childInfo, conflicts, requestedDeps); // recursively traverse the graph
                 }
             }
         }

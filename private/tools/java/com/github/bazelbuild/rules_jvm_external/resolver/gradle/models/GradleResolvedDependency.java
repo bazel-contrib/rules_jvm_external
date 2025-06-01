@@ -1,4 +1,4 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
+// Copyright 2025 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.util.List;
+import java.util.Set;
 
 /**
- * GradleResolvedDependency models a gradle dependency that was successfully resolved,
- * its children in the graph and any artifacts associated with it.
+ * GradleResolvedDependency models a gradle dependency that was successfully resolved, its children
+ * in the graph and any artifacts associated with it.
  */
 public interface GradleResolvedDependency {
   String getGroup();
@@ -33,9 +34,9 @@ public interface GradleResolvedDependency {
 
   void setVersion(String version);
 
-  String getRequestedVersion();
+  Set<String> getRequestedVersions();
 
-  void setRequestedVersion(String requestedVersion);
+  void addRequestedVersion(String requestedVersion);
 
   boolean isConflict();
 

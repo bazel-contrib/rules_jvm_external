@@ -1,4 +1,4 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
+// Copyright 2025 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -130,8 +130,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap, 1);
         if (rdep.getRequested() instanceof ModuleComponentSelector) {
           String requested = ((ModuleComponentSelector) rdep.getRequested()).getVersion();
-          info.setRequestedVersion(requested);
-          info.setConflict(!Objects.equals(info.getVersion(), requested));
+          info.addRequestedVersion(requested);
+          info.setConflict(info.getRequestedVersions().size() > 1);
         }
 
         resolvedRoots.add(info);
@@ -222,8 +222,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     info.setGroup(component.getModuleVersion().getGroup());
     info.setName(component.getModuleVersion().getName());
     info.setVersion(component.getModuleVersion().getVersion());
-    info.setRequestedVersion(info.getVersion()); // default to the requested version
-    info.setConflict(false); // will be set later if there's a conflict
+    info.addRequestedVersion(info.getVersion()); // default to the requested version
 
     List<GradleResolvedDependency> children = new ArrayList<>();
 
@@ -240,9 +239,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       if (resolvedDep.getRequested() instanceof ModuleComponentSelector) {
         String requestedVersion =
             ((ModuleComponentSelector) resolvedDep.getRequested()).getVersion();
-        child.setRequestedVersion(requestedVersion);
-        boolean isConflict = !Objects.equals(child.getVersion(), requestedVersion);
-        child.setConflict(isConflict);
+        child.addRequestedVersion(requestedVersion);
+        child.setConflict(child.getRequestedVersions().size() > 1);
       }
 
       children.add(child);
@@ -259,8 +257,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     info.setFromBom(!bomDescriptions.isEmpty());
 
     info.setChildren(children);
-    String resolvedVersion = component.getModuleVersion().getVersion();
-    info.setConflict(!info.getRequestedVersion().equals(resolvedVersion));
+    info.setConflict(info.getRequestedVersions().size() > 1);
     coordinatesGradleResolvedDependencyMap.put(coordinates, info);
     return info;
   }
@@ -317,6 +314,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                       });
                 });
 
+    // Fetch the source jars
     collectArtifactsFromArtifactView(sourcesView, coordinatesGradleResolvedDependencyMap);
 
     ArtifactView javadocView =
@@ -333,6 +331,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                       });
                 });
 
+    // Fetch the javadoc artifacts
     collectArtifactsFromArtifactView(javadocView, coordinatesGradleResolvedDependencyMap);
 
     ArtifactView jarView =
@@ -348,9 +347,56 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                       });
                 });
 
+    // Fetch the actual JARs
     collectArtifactsFromArtifactView(jarView, coordinatesGradleResolvedDependencyMap);
+    // POMs are not automatically fetched unless requested with ArtifactView
+    // this creates a detached configuration to explicitly fetch them
     collectPOMsForAllComponents(
         project, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
+    // We may have conflicts for some dependency, and we should also
+    // fetch those conflicting artifacts so that we can track it in the graph
+    collectConflictingVersionArtifacts(project, coordinatesGradleResolvedDependencyMap);
+  }
+
+  private void collectConflictingVersionArtifacts(
+      Project project,
+      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+    for (Map.Entry<Coordinates, GradleResolvedDependency> entry :
+        coordinatesGradleResolvedDependencyMap.entrySet()) {
+      GradleResolvedDependency dependency = entry.getValue();
+      if (dependency.getRequestedVersions().size() > 1) {
+        dependency
+            .getRequestedVersions()
+            .forEach(
+                version -> {
+                  Coordinates coordinates =
+                      new Coordinates(
+                          dependency.getGroup() + ":" + dependency.getName() + ":" + version);
+
+                  Dependency dep = project.getDependencies().create(coordinates + "@jar");
+
+                  Configuration jarCfg = project.getConfigurations().detachedConfiguration(dep);
+
+                  ArtifactView view =
+                      jarCfg
+                          .getIncoming()
+                          .artifactView(
+                              spec -> {
+                                spec.setLenient(true); // avoid failure if a POM is missing
+                              });
+
+                  for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
+                    GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+                    if (artifact.getFile() != null) {
+                      resolvedArtifact.setFile(artifact.getFile());
+                      coordinatesGradleResolvedDependencyMap
+                          .get(entry.getKey())
+                          .addArtifact(resolvedArtifact);
+                    }
+                  }
+                });
+      }
+    }
   }
 
   private void collectArtifactsFromArtifactView(
@@ -370,7 +416,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         Coordinates coordinates =
             new Coordinates(
                 module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
-        coordinatesGradleResolvedDependencyMap.get(coordinates).addArtifact(resolvedArtifact);
+        GradleResolvedDependency resolvedDependency =
+            coordinatesGradleResolvedDependencyMap.get(coordinates);
+        resolvedDependency.addArtifact(resolvedArtifact);
       }
     }
   }

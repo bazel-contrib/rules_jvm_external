@@ -1,4 +1,4 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
+// Copyright 2025 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Represents a single dependency resolved by gradle */
 public class GradleResolvedDependencyImpl implements Serializable, GradleResolvedDependency {
   private String group;
   private String name;
   private String version;
-  private String requestedVersion;
+  private Set<String> requestedVersions;
   private boolean conflict;
   private List<GradleResolvedDependency> children;
   private boolean fromBom;
@@ -31,6 +33,8 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
 
   public GradleResolvedDependencyImpl() {
     this.artifacts = new ArrayList<>();
+    this.children = new ArrayList<>();
+    this.requestedVersions = new HashSet<>();
   }
 
   public String getGroup() {
@@ -57,12 +61,12 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
     this.version = version;
   }
 
-  public String getRequestedVersion() {
-    return requestedVersion;
+  public Set<String> getRequestedVersions() {
+    return requestedVersions;
   }
 
-  public void setRequestedVersion(String requestedVersion) {
-    this.requestedVersion = requestedVersion;
+  public void addRequestedVersion(String requestedVersion) {
+    this.requestedVersions.add(requestedVersion);
   }
 
   public boolean isConflict() {
