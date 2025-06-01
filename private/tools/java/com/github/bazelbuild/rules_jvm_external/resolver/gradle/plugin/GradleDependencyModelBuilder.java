@@ -22,6 +22,7 @@ import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentSelector;
 import org.gradle.api.artifacts.result.*;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
@@ -93,6 +94,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     return dependencies;
   }
 
+  private boolean isBom(ResolvedDependencyResult result) {
+    for (Attribute attribute : result.getRequested().getAttributes().keySet()) {
+      if (attribute.getName().equals("org.gradle.category")) {
+        return result.getRequested().getAttributes().getAttribute(attribute).equals("platform");
+      }
+    }
+    return false;
+  }
+
   private List<GradleResolvedDependency> collectResolvedDependencies(
       Configuration cfg,
       Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
@@ -108,6 +118,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       if (dep instanceof ResolvedDependencyResult) {
         ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
         ResolvedComponentResult selected = rdep.getSelected();
+        // we don't want to recurse through a BOM's artifacts
+        // as they wil be explicitly specified
+        if (isBom(rdep)) {
+          continue;
+        }
         Set<ComponentIdentifier> visited = new HashSet<>();
         // walk the resolve component graph in depth-first manner
         // and collect all the resolved dependencies
@@ -336,17 +351,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     collectArtifactsFromArtifactView(jarView, coordinatesGradleResolvedDependencyMap);
     collectPOMsForAllComponents(
         project, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
-  }
-
-  private void walkGraphAndAttachArtifacts(
-      GradleResolvedDependency dep,
-      Set<Coordinates> visited,
-      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
-    Coordinates coordinates =
-        new Coordinates(dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion());
-    if (visited.contains(coordinates)) return;
-
-    visited.add(coordinates);
   }
 
   private void collectArtifactsFromArtifactView(

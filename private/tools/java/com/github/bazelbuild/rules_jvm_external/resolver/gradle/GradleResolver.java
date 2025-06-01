@@ -116,11 +116,6 @@ public class GradleResolver implements Resolver {
                 }
                 String classifier = gradleCoordinates.getClassifier();
                 Coordinates coordinates = new Coordinates(gradleCoordinates.getGroupId(), gradleCoordinates.getArtifactId(), extension, classifier, gradleCoordinates.getVersion());
-                boolean isBom = boms.stream().anyMatch(bom -> new Coordinates(bom.getGroup() + ":" + bom.getArtifact() + ":"  + bom.getVersion()).equals(coordinates));
-                // we don't want to actually have the bom artifacts in the graph
-                if (isBom) {
-                    continue;
-                }
                 addDependency(graph, coordinates, dependency, conflicts);
                 if(dependency.isConflict()) {
                     GradleCoordinates requestedCoordinates = new GradleCoordinatesImpl(dependency.getGroup(), dependency.getName(), dependency.getRequestedVersion(), artifact.getClassifier(), artifact.getExtension());
