@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 /**
  * Used for building a fake gradle project with dependencies we have
- * to run a custom gradle task to resolve the dependencies
+ * to run a custom gradle plugin to build the dependency and artifact graph.
  */
 public class GradleProject implements AutoCloseable  {
 
@@ -59,7 +59,7 @@ public class GradleProject implements AutoCloseable  {
         );
     }
 
-    public void connect(Path gradlePath) throws IOException {
+    public void connect(Path gradlePath) {
         System.setProperty("gradle.user.home", gradleCacheDir.toAbsolutePath().toString());
         System.setProperty("org.gradle.parallel", "true");
         connection = GradleConnector.newConnector()

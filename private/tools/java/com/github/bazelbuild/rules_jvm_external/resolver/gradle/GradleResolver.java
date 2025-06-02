@@ -36,6 +36,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The implementation for the Gradle resolver
+ */
 @AutoBazelRepository
 public class GradleResolver implements Resolver {
 

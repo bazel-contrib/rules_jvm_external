@@ -31,6 +31,11 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * GradleDependencyModelBuilder implenents the core functionality as part of a plugin
+ * to resolve the dependency graph, fetch and associate relevant artifacts, track unresolved
+ * dependencies, report any failures and the final tooling model back to the resolver
+ */
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
   @Override
@@ -57,10 +62,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     List<GradleResolvedDependency> resolvedRoots =
         collectResolvedDependencies(cfg, coordinatesGradleResolvedDependencyMap);
 
-    // Collect boms from the gradle resolution
-    List<GradleDependency> boms = collectBoms(cfg);
-    gradleDependencyModel.getBoms().addAll(boms);
-
     // Use the ArtifactView API to get all the resolved artifacts (jars, javadoc, sources)
     // The ArtifactView API doesn't download some of the classifiers by default, so we handle that
     // here
@@ -68,6 +69,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         project, cfg, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
     gradleDependencyModel.getResolvedDependencies().addAll(resolvedRoots);
 
+    // Collect any unresolved dependencies, and the failure reason
     List<GradleUnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies(cfg);
     gradleDependencyModel.getUnresolvedDependencies().addAll(unresolvedDependencies);
     return gradleDependencyModel;
@@ -96,6 +98,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
   private boolean isBom(ResolvedDependencyResult result) {
     for (Attribute attribute : result.getRequested().getAttributes().keySet()) {
+      // Gradle sets this attributes for BOMs
       if (attribute.getName().equals("org.gradle.category")) {
         return result.getRequested().getAttributes().getAttribute(attribute).equals("platform");
       }
@@ -124,7 +127,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
           continue;
         }
         Set<ComponentIdentifier> visited = new HashSet<>();
-        // walk the resolve component graph in depth-first manner
+        // walk the resolved component graph in depth-first manner
         // and collect all the resolved dependencies
         GradleResolvedDependency info =
             walkResolvedComponent(selected, visited, coordinatesGradleResolvedDependencyMap, 1);
@@ -169,24 +172,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       }
     }
     return unresolvedDependencies;
-  }
-
-  private List<GradleDependency> collectBoms(Configuration cfg) {
-    List<GradleDependency> boms = new ArrayList<>();
-
-    for (DependencyConstraint constraint : cfg.getAllDependencyConstraints()) {
-      if (constraint.getGroup() == null || constraint.getVersion() == null) continue;
-
-      boms.add(
-          new GradleDependencyImpl(
-              constraint.getGroup(),
-              constraint.getName(),
-              constraint.getVersion(),
-              List.of(),
-              null,
-              null));
-    }
-    return boms;
   }
 
   private GradleResolvedDependency walkResolvedComponent(

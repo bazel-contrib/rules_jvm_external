@@ -17,15 +17,19 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 import java.util.List;
 
 /**
- * Gradle dependency information collected from our GradleDependencyModelPlugin It has the following
- * information: declaredDependencies - these are dependencies given as inputs to gradle and the
- * versions declared by the user resolvedDependencies - these are the dependencies and their
- * versions after resolution boms - these are BOMs declared and resolved.
+ * Gradle dependency information collected from our GradleDependencyModelPlugin. It provides all the necessary information
+ * to build the lockfile and report conflicts.
  */
 public interface GradleDependencyModel {
+  /**
+   * This will need to build the dependency graph and resolve all the associated artifacts
+   * @return a list of resolved gradle dependencies
+   */
   List<GradleResolvedDependency> getResolvedDependencies();
 
+  /**
+   * This will fetch and report any unresolved dependencies after the resolution process.
+   * @return A list of unresolved gradle dependencies
+   */
   List<GradleUnresolvedDependency> getUnresolvedDependencies();
-
-  List<GradleDependency> getBoms();
 }

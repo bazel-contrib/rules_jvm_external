@@ -26,10 +26,6 @@ java_library(
             "com.google.guava:guava",
             repository_name = "rules_jvm_external_deps",
         ),
-        artifact(
-            "org.fusesource.jansi:jansi",
-            repository_name = "rules_jvm_external_deps",
-        ),
     ],
 )
 

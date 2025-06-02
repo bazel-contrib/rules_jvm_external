@@ -18,18 +18,15 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
 import org.gradle.tooling.events.configuration.ProjectConfigurationFailureResult;
 import org.gradle.tooling.events.configuration.ProjectConfigurationFinishEvent;
 import org.gradle.tooling.events.download.FileDownloadFinishEvent;
-import org.gradle.tooling.events.download.FileDownloadProgressEvent;
 import org.gradle.tooling.events.download.FileDownloadStartEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Listens to download start/ending events for artifacts from the Gradle daemon while resolving

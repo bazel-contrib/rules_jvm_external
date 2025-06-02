@@ -21,7 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
-/** Utility class to handle POM files */
+/** Utility class to handle POM files ***/
 public class PomUtil {
   public static String extractPackagingFromPom(File pomFile) {
     try {

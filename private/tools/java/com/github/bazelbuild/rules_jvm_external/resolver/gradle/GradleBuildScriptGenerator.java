@@ -65,7 +65,7 @@ public class GradleBuildScriptGenerator {
    *
    * @param initScriptTemplatePath The handlebars template which has a placeholder for the path for
    *     the plugin jar
-   * @param initScriptOutputPath The rendered template which will be used as init.gradle.kts
+   * @param initScriptOutputPath The rendered template which will be used as init.gradle
    * @param pluginJarPath The actual path to the single jar which has the plugin.
    * @throws IOException
    */
@@ -87,7 +87,7 @@ public class GradleBuildScriptGenerator {
    * repositories requested after which resolution can be performed
    *
    * @param gradleBuildScriptTemplate - the handlebars template with placeholders for generating
-   *     build.gradle.kts
+   *     build.gradle
    * @param outputGradleBuildScript - the rendered build.gradle.kts to be used with the fake project
    *     for resolution
    * @param repositories - a list of Maven repositories to be used in resolution
@@ -136,7 +136,7 @@ public class GradleBuildScriptGenerator {
             .collect(Collectors.toList()));
 
     // If multiple versions of a BOM exists, we want to enforce the first one like maven
-    // Unlike maven, gradle seems to chose the highest versions, so this emulates the maven
+    // Unlike maven, gradle seems to choose the highest versions, so this emulates the maven
     // behavior by picking the first BOM version in the order we see.
     Map<String, String> enforcedBomVersions = new LinkedHashMap<>();
     boms.stream()

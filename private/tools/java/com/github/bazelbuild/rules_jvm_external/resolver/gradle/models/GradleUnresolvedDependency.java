@@ -15,7 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 /**
- * GradleUnresolvedDependency models a gradle dependency couldn't be resolved
+ * GradleUnresolvedDependency models a gradle dependency that couldn't be resolved
  */
 public interface GradleUnresolvedDependency {
   enum FailureReason {
