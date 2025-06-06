@@ -50,10 +50,6 @@ public class Repository {
   }
 
   public String getUrl() {
-    try {
-      return uri.toURL().toString();
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
+      return uri.toString();
   }
 }

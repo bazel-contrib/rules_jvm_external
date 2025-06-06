@@ -4,7 +4,7 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
     name = "plugin",
-    srcs = glob(["**/*.java"]),
+    srcs = glob(["*.java"]),
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__subpackages__",
         "//tests:__subpackages__",

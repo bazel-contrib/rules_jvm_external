@@ -53,12 +53,10 @@ public class GradleDependencyImpl implements Serializable, GradleDependency {
     return version;
   }
 
-  @Override
   public String getClassifier() {
     return classifier;
   }
 
-  @Override
   public String getExtension() {
     return extension;
   }

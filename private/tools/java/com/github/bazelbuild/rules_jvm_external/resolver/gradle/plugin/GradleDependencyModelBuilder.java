@@ -19,6 +19,8 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.google.common.io.Files;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.*;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -44,7 +46,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
   @Override
   public Object buildAll(String modelName, Project project) {
-    GradleDependencyModelImpl gradleDependencyModel = new GradleDependencyModelImpl();
+    GradleDependencyModel gradleDependencyModel = new GradleDependencyModelImpl();
     // We only resolve dependencies and fetch artifacts for this configuration
     // similar to how we do in the Maven resolver
     Configuration cfg = project.getConfigurations().getByName("runtimeClasspath");
@@ -199,19 +201,22 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // We might visit the same node multiple times through the graph, so check if we've visited
     // node before
     GradleResolvedDependency info = coordinatesGradleResolvedDependencyMap.get(coordinates);
-    if (coordinatesGradleResolvedDependencyMap.get(coordinates) == null) {
+    if (info == null) {
       // this is a new artifact yet unvisited
       info = new GradleResolvedDependencyImpl();
+      info.setGroup(component.getModuleVersion().getGroup());
+      info.setName(component.getModuleVersion().getName());
+      info.setVersion(component.getModuleVersion().getVersion());
     }
-    info.setGroup(component.getModuleVersion().getGroup());
-    info.setName(component.getModuleVersion().getName());
-    info.setVersion(component.getModuleVersion().getVersion());
-    info.addRequestedVersion(info.getVersion()); // default to the requested version
+
+    info.addRequestedVersion(info.getVersion()); // add a new version that may have been requested
 
     List<GradleResolvedDependency> children = new ArrayList<>();
 
     for (DependencyResult dep : component.getDependencies()) {
-      if (!(dep instanceof ResolvedDependencyResult)) continue;
+      if (!(dep instanceof ResolvedDependencyResult)) {
+        continue;
+      }
 
       ResolvedDependencyResult resolvedDep = (ResolvedDependencyResult) dep;
       ResolvedComponentResult selected = resolvedDep.getSelected();
@@ -219,7 +224,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       GradleResolvedDependency child =
           walkResolvedComponent(
               selected, visited, coordinatesGradleResolvedDependencyMap, depth + 1);
-      if (child == null) continue;
+      if (child == null) {
+        continue;
+      }
       if (resolvedDep.getRequested() instanceof ModuleComponentSelector) {
         String requestedVersion =
             ((ModuleComponentSelector) resolvedDep.getRequested()).getVersion();
@@ -251,7 +258,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   // like javadoc/sources from what I can tell
   // so we interpolate the classifier based on the artifact file
   private String extractClassifier(File file, ComponentIdentifier id) {
-    if (!(id instanceof ModuleComponentIdentifier)) return null;
+    if (!(id instanceof ModuleComponentIdentifier)) {
+      return null;
+    }
 
     ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
     String version = module.getVersion();
@@ -261,12 +270,16 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     // Strip extension
     int dotIndex = name.lastIndexOf('.');
-    if (dotIndex <= 0) return null;
+    if (dotIndex <= 0) {
+      return null;
+    }
     String nameWithoutExt = name.substring(0, dotIndex);
 
     String expectedBase = artifact + "-" + version;
 
-    if (!nameWithoutExt.startsWith(expectedBase)) return null;
+    if (!nameWithoutExt.startsWith(expectedBase)) {
+      return null;
+    }
 
     String suffix = nameWithoutExt.substring(expectedBase.length());
     return (suffix.startsWith("-")) ? suffix.substring(1) : null;
@@ -395,7 +408,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
         resolvedArtifact.setFile(artifact.getFile());
         resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
-        resolvedArtifact.setExtension(extractExtension(artifact.getFile()));
+        resolvedArtifact.setExtension(Files.getFileExtension(artifact.getFile().getName()));
 
         Coordinates coordinates =
             new Coordinates(
@@ -427,7 +440,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                           && declaredDep.getExtension() != null);
       // If the dependency was declared with an explicit extension, then we shouldn't request POMs
       // explicitly
-      if (isDeclaredWithExplicitExtension) continue;
+      if (isDeclaredWithExplicitExtension) {
+        continue;
+      }
       Dependency dep = project.getDependencies().create(coordinates + "@pom");
 
       Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
@@ -452,6 +467,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   }
 
   private boolean isVerbose() {
-    return System.getenv("RJE_VERBOSE") != null && System.getenv("RJE_VERBOSE").equals("true");
+    return System.getenv("RJE_VERBOSE") != null && (System.getenv("RJE_VERBOSE").equals("true") || System.getenv("RJE_VERBOSE").equals("1"));
   }
 }

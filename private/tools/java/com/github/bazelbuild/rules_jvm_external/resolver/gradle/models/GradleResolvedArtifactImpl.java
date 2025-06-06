@@ -26,42 +26,34 @@ public class GradleResolvedArtifactImpl implements Serializable, GradleResolvedA
 
   public GradleResolvedArtifactImpl() {}
 
-  @Override
   public String getClassifier() {
     return this.classifier;
   }
 
-  @Override
   public String getExtension() {
     return this.extension;
   }
 
-  @Override
   public File getFile() {
-    return null;
+    return this.file;
   }
 
-  @Override
   public Map<String, String> getVariantAttributes() {
     return variantAttributes;
   }
 
-  @Override
   public void setClassifier(String classifier) {
     this.classifier = classifier;
   }
 
-  @Override
   public void setExtension(String extension) {
     this.extension = extension;
   }
 
-  @Override
   public void setFile(File file) {
     this.file = file;
   }
 
-  @Override
   public void setVariantAttributes(Map<String, String> variantAttributes) {
     this.variantAttributes = variantAttributes;
   }
