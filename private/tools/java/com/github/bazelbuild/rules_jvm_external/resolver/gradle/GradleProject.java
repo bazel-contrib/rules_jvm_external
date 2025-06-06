@@ -86,9 +86,9 @@ public class GradleProject implements AutoCloseable {
         gradleProperties.entrySet().stream()
             .map(entry -> "-P" + entry.getKey() + "=" + entry.getValue())
             .collect(Collectors.toList());
-      arguments.add("--init-script=" + this.initScript);
+    arguments.add("--init-script=" + this.initScript);
 
-      return connection
+    return connection
         .model(GradleDependencyModel.class)
         .addProgressListener(new GradleProgressListener(eventListener))
         .setStandardError(System.err)

@@ -14,7 +14,6 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Objects;
 
@@ -50,6 +49,6 @@ public class Repository {
   }
 
   public String getUrl() {
-      return uri.toString();
+    return uri.toString();
   }
 }

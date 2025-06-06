@@ -196,7 +196,8 @@ public class GradleBuildScriptGenerator {
                                   localExclusions.put("group", exclusion.getGroup());
                                   localExclusions.put("module", exclusion.getModule());
                                   return localExclusions;
-                                }).collect(Collectors.toList()));
+                                })
+                            .collect(Collectors.toList()));
                   }
 
                   return map;

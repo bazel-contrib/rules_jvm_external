@@ -15,11 +15,24 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.resolver.*;
+import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
+import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.Exclusion;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.ExclusionImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleCoordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleCoordinatesImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedArtifact;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnresolvedDependency;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
@@ -31,7 +44,12 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** The implementation for the Gradle resolver */

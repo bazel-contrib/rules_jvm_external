@@ -15,18 +15,41 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModel;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyModelImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedArtifact;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedArtifactImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleResolvedDependencyImpl;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnresolvedDependency;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnresolvedDependencyImpl;
 import com.google.common.io.Files;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.*;
+import org.gradle.api.artifacts.ArtifactView;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencyArtifact;
+import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentSelector;
-import org.gradle.api.artifacts.result.*;
+import org.gradle.api.artifacts.result.ComponentSelectionReason;
+import org.gradle.api.artifacts.result.DependencyResult;
+import org.gradle.api.artifacts.result.ResolutionResult;
+import org.gradle.api.artifacts.result.ResolvedArtifactResult;
+import org.gradle.api.artifacts.result.ResolvedComponentResult;
+import org.gradle.api.artifacts.result.ResolvedDependencyResult;
+import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
@@ -285,12 +308,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     return (suffix.startsWith("-")) ? suffix.substring(1) : null;
   }
 
-  private String extractExtension(File file) {
-    String name = file.getName();
-    int i = name.lastIndexOf('.');
-    return (i > 0) ? name.substring(i + 1) : null;
-  }
-
   private void collectAllResolvedArtifacts(
       Project project,
       Configuration cfg,
@@ -467,6 +484,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   }
 
   private boolean isVerbose() {
-    return System.getenv("RJE_VERBOSE") != null && (System.getenv("RJE_VERBOSE").equals("true") || System.getenv("RJE_VERBOSE").equals("1"));
+    return System.getenv("RJE_VERBOSE") != null
+        && (System.getenv("RJE_VERBOSE").equals("true")
+            || System.getenv("RJE_VERBOSE").equals("1"));
   }
 }
