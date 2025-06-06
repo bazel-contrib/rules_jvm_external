@@ -14,11 +14,10 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
+import javax.inject.Inject;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
-
-import javax.inject.Inject;
 
 /**
  * This is a plugin that we register to allow resolving gradle dependencies using Gradle's

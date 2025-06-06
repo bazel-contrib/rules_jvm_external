@@ -211,9 +211,9 @@ public class ResolverConfig {
 
     if (chosenResolver.equals("maven")) {
       this.resolver = new MavenResolver(netrc, maxThreads, listener);
-    } else if(chosenResolver.equals("gradle")){
+    } else if (chosenResolver.equals("gradle")) {
       this.resolver = new GradleResolver(netrc, maxThreads, listener);
-    }else {
+    } else {
       throw new RuntimeException("Unknown resolver: " + chosenResolver);
     }
   }

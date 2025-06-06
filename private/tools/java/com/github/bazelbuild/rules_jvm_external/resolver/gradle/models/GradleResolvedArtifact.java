@@ -17,9 +17,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 import java.io.File;
 import java.util.Map;
 
-/**
- * Represents a Maven artifact fetched by Gradle using the ArtifactView API
- */
+/** Represents a Maven artifact fetched by Gradle using the ArtifactView API */
 public interface GradleResolvedArtifact {
   String getClassifier();
 
@@ -27,7 +25,8 @@ public interface GradleResolvedArtifact {
 
   File getFile();
 
-  // Currently unused, but can be used in the future to model gradle variants associated with artifacts
+  // Currently unused, but can be used in the future to model gradle variants associated with
+  // artifacts
   // useful for KMP especially
   Map<String, String> getVariantAttributes();
 

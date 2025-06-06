@@ -15,9 +15,9 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 /**
- * GradleCoordinates models the coordinates representation of Coordinates in build.gradle.
- * Similar to the existing Coordinates class in rules_jvm_external, but we need to use interfaces
- * to work with Gradle Tooling Model builder.
+ * GradleCoordinates models the coordinates representation of Coordinates in build.gradle. Similar
+ * to the existing Coordinates class in rules_jvm_external, but we need to use interfaces to work
+ * with Gradle Tooling Model builder.
  */
 public interface GradleCoordinates {
   String getGroupId();

@@ -19,11 +19,13 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDep
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -35,19 +37,6 @@ public class GradleBuildScriptGenerator {
   private static final Handlebars handlebars = new Handlebars();
 
   static {
-    // Register lowerCase helper to format dependency scopes
-    handlebars.registerHelper(
-        "lowerCase",
-        (context, options) -> {
-          if (context == null) return "";
-          String raw = context.toString().toLowerCase();
-          if (raw.contains("_")) {
-            String[] parts = raw.split("_");
-            return parts[0] + parts[1].substring(0, 1).toUpperCase() + parts[1].substring(1);
-          }
-          return raw;
-        });
-
     handlebars.registerHelper(
         "notEmpty",
         (context, options) -> {
@@ -207,7 +196,7 @@ public class GradleBuildScriptGenerator {
                                   localExclusions.put("group", exclusion.getGroup());
                                   localExclusions.put("module", exclusion.getModule());
                                   return localExclusions;
-                                }));
+                                }).collect(Collectors.toList()));
                   }
 
                   return map;

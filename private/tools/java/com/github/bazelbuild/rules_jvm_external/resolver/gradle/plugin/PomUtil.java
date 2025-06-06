@@ -14,14 +14,13 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-
-/** Utility class to handle POM files ***/
+/** Utility class to handle POM files ** */
 public class PomUtil {
   public static String extractPackagingFromPom(File pomFile) {
     try {

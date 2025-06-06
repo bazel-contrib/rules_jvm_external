@@ -16,6 +16,9 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.*;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.*;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -27,14 +30,10 @@ import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
 
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
- * GradleDependencyModelBuilder implenents the core functionality as part of a plugin
- * to resolve the dependency graph, fetch and associate relevant artifacts, track unresolved
- * dependencies, report any failures and the final tooling model back to the resolver
+ * GradleDependencyModelBuilder implenents the core functionality as part of a plugin to resolve the
+ * dependency graph, fetch and associate relevant artifacts, track unresolved dependencies, report
+ * any failures and the final tooling model back to the resolver
  */
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 

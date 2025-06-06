@@ -676,7 +676,6 @@ dev_maven.install(
     fail_if_repin_required = True,
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
-    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_gradle//:pin` to refresh the lock file.",
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
@@ -866,7 +865,6 @@ use_repo(
     "regression_testing_gradle",
     "regression_testing_maven",
     "unpinned_regression_testing_coursier",
-    "unpinned_regression_testing_gradle",
     "unpinned_regression_testing_maven",
 
     # Back to the testing repos

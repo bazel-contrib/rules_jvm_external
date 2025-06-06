@@ -14,9 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
-/**
- * Exclusion models a local exclusion to be applied to a dependency in build.gradle.kts
- */
+/** Exclusion models a local exclusion to be applied to a dependency in build.gradle.kts */
 public interface Exclusion {
   String getGroup();
 
