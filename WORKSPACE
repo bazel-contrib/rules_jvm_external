@@ -947,3 +947,18 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+# This failure mode is bzlmod only. But the test still runs on Bazel 5/6, which
+# is WORKSPACE based, so we add a shim here to keep the test passing until
+# WORKSPACE support is no longer needed.
+maven_install(
+    name = "root_module_can_override",
+    artifacts = [
+        "com.squareup:javapoet:1.11.1",
+        "com.squareup.okhttp3:okhttp:4.12.0",
+    ],
+    override_targets = {
+        "com.squareup.okhttp3:okhttp": "@root_module_can_override//:com_squareup_javapoet",
+    },
+    repositories = ["https://repo1.maven.org/maven2"],
+)
