@@ -354,11 +354,12 @@ def _merge_repo_lists(root_list, non_root_list):
     return merged_list
 
 def remove_fields(s):
+    """Used for reducing an artifact struct down to only those fields that have values"""
     return {
         k: getattr(s, k)
         for k in dir(s)
         if k != "to_json" and k != "to_proto" and getattr(s, k, None)
-    }
+    } | {"version": getattr(s, "version", "")}
 
 def maven_impl(mctx):
     repos = {}
