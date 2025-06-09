@@ -7,6 +7,7 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/lib:coordinates.bzl", "unpack_coordinates")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
@@ -159,20 +160,17 @@ def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
     repo_name_2_module_name[repo_name] = known_names
 
 def _to_maven_coords(artifact):
-    coords = "%s:%s" % (artifact.get("group"), artifact.get("artifact"))
+    coords = "%s:%s" % (artifact.group, artifact.artifact)
 
-    extension = artifact.get("packaging", "jar")
-    if not extension:
-        extension = "jar"
-    classifier = artifact.get("classifier", "jar")
-    if not classifier:
-        classifier = "jar"
+    # The attribute may be present, but have the value `None`
+    extension = getattr(artifact, "packaging", "jar") or "jar"
+    classifier = getattr(artifact, "classifier", "jar") or "jar"
 
     if classifier != "jar":
         coords += ":%s:%s" % (extension, classifier)
     elif extension != "jar":
         coords += ":%s" % extension
-    coords += ":%s" % artifact.get("version")
+    coords += ":%s" % (getattr(artifact, "version", "") or "")
 
     return coords
 
@@ -193,6 +191,13 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
         )
 
     return seen
+
+def remove_fields(s):
+    return {
+        k: getattr(s, k)
+        for k in dir(s)
+        if k != "to_json" and k != "to_proto" and getattr(s, k, None)
+    }
 
 def maven_impl(mctx):
     repos = {}
@@ -241,33 +246,17 @@ def maven_impl(mctx):
             repo = repos.get(artifact.name, {})
             existing_artifacts = repo.get("artifacts", [])
 
-            to_add = {
-                "group": artifact.group,
-                "artifact": artifact.artifact,
-            }
-
-            if artifact.version:
-                to_add.update({"version": artifact.version})
-
-            if artifact.packaging:
-                to_add.update({"packaging": artifact.packaging})
-
-            if artifact.classifier:
-                to_add.update({"classifier": artifact.classifier})
-
-            if artifact.force_version:
-                to_add.update({"force_version": artifact.force_version})
-
-            if artifact.neverlink:
-                to_add.update({"neverlink": artifact.neverlink})
-
-            if artifact.testonly:
-                to_add.update({"testonly": artifact.testonly})
-
-            if artifact.exclusions:
-                artifact_exclusions = []
-                artifact_exclusions = _add_exclusions(artifact.exclusions + artifact_exclusions)
-                to_add.update({"exclusions": artifact_exclusions})
+            to_add = struct(
+                group = artifact.group,
+                artifact = artifact.artifact,
+                version = artifact.version or None,
+                packaging = artifact.packaging or None,
+                classifier = artifact.classifier or None,
+                force_version = artifact.force_version if artifact.force_version else None,
+                neverlink = artifact.neverlink if artifact.neverlink else None,
+                testonly = artifact.testonly if artifact.testonly else None,
+                exclusions = _add_exclusions(artifact.exclusions) if artifact.exclusions else None,
+            )
 
             existing_artifacts.append(to_add)
             repo["artifacts"] = existing_artifacts
@@ -281,10 +270,10 @@ def maven_impl(mctx):
             repo["resolver"] = install.resolver
 
             artifacts = repo.get("artifacts", [])
-            repo["artifacts"] = artifacts + install.artifacts
+            repo["artifacts"] = artifacts + [unpack_coordinates(a) for a in install.artifacts]
 
             boms = repo.get("boms", [])
-            repo["boms"] = boms + install.boms
+            repo["boms"] = boms + [unpack_coordinates(b) for b in install.boms]
 
             existing_repos = repo.get("repositories", [])
             for repository in parse.parse_repository_spec_list(install.repositories):
@@ -397,10 +386,9 @@ def maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
-        boms = parse.parse_artifact_spec_list(repo.get("boms", []))
-        boms_json = [_json.write_artifact_spec(a) for a in boms]
-        artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
-        artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
+        boms_json = [json.encode(remove_fields(b)) for b in repo.get("boms", [])]
+        artifacts_json = [json.encode(remove_fields(a)) for a in repo.get("artifacts", [])]
+
         excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
         excluded_artifacts_json = [_json.write_exclusion_spec(a) for a in excluded_artifacts]
 
@@ -451,8 +439,8 @@ def maven_impl(mctx):
                 alias = "%s%s//:pin" % (workspace_prefix, name),
             )
 
-        if repo.get("generate_compat_repositories") and not repo.get("lock_file"):
-            seen = _generate_compat_repos(name, compat_repos, artifacts)
+        if repo.get("generate_compat_repositories"):
+            seen = _generate_compat_repos(name, compat_repos, repo.get("artifacts", []))
             compat_repos.extend(seen)
 
         if repo.get("lock_file"):
@@ -505,8 +493,9 @@ def maven_impl(mctx):
             )
 
             if repo.get("generate_compat_repositories"):
-                all_artifacts = parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts])
-                seen = _generate_compat_repos(name, compat_repos, parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts]))
+                # Convert lock file artifacts (which are dicts) to structs
+                lock_file_artifacts = [unpack_coordinates(a["coordinates"]) for a in artifacts]
+                seen = _generate_compat_repos(name, compat_repos, lock_file_artifacts)
                 compat_repos.extend(seen)
 
     if bazel_features.external_deps.extension_metadata_has_reproducible:
