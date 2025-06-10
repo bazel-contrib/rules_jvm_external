@@ -84,7 +84,7 @@ install = tag_class(
                 "none",
             ],
         ),
-        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
+        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = True),
         "lock_file": attr.label(),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
         "generate_compat_repositories": attr.bool(
