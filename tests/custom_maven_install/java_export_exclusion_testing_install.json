@@ -23,5 +23,6 @@
     ]
   },
   "services": {},
+  "exclusions": {},
   "version": "2"
 }

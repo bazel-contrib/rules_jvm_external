@@ -3,7 +3,7 @@ load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 
 def _empty_test_impl(ctx):
     env = unittest.begin(ctx)
-    asserts.equals(env, {"dependencies": []}, deduplicate_and_sort_artifacts({"dependencies": []}, [], [], False))
+    asserts.equals(env, {"dependencies": [], "exclusions": {}}, deduplicate_and_sort_artifacts({"dependencies": []}, [], [], False))
     return unittest.end(env)
 
 empty_test = unittest.make(_empty_test_impl)
@@ -174,7 +174,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, ["*:*"], sorted_dep_tree["dependencies"][0]["exclusions"])
+    asserts.equals(env, ["*:*"], sorted_dep_tree["exclusions"]["com.google.guava:guava"])
 
     dep_tree = {
         "conflict_resolution": {},
@@ -225,7 +225,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
     asserts.equals(
         env,
-        sorted_dep_tree["dependencies"][0]["exclusions"],
+        sorted_dep_tree["exclusions"]["com.google.guava:guava"],
         ["org.codehaus.mojo:animal-sniffer-annotations", "com.google.j2objc:j2objc-annotations"],
     )
 
@@ -288,7 +288,7 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, ["*:*"], sorted_dep_tree["dependencies"][0]["exclusions"])
+    asserts.equals(env, ["*:*"], sorted_dep_tree["exclusions"]["com.google.guava:guava"])
 
     dep_tree = {
         "conflict_resolution": {},
@@ -341,11 +341,11 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
     asserts.equals(
         env,
         [
-            "org.codehaus.mojo:animal-sniffer-annotations",
             "com.google.j2objc:j2objc-annotations",
             "org.checkerframework:checker-qual",
+            "org.codehaus.mojo:animal-sniffer-annotations",
         ],
-        sorted_dep_tree["dependencies"][0]["exclusions"],
+        sorted_dep_tree["exclusions"]["com.google.guava:guava"],
     )
 
     return unittest.end(env)

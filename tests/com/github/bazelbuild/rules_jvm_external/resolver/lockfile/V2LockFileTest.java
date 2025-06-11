@@ -138,6 +138,29 @@ public class V2LockFileTest {
     assertEquals(conflicts, lockFile.getConflicts());
   }
 
+  @Test
+  public void shouldRoundTripExclusions() {
+    DependencyInfo info =
+        new DependencyInfo(
+            new Coordinates("com.google.guava:guava:30.1-jre"),
+            repos,
+            Optional.empty(),
+            Optional.empty(),
+            Set.of(new Coordinates("com.google.errorprone:error_prone_annotations")),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Set<String>> exclusions = new TreeMap<>();
+    exclusions.put(
+        "com.google.guava:guava",
+        Set.of("com.google.errorprone:error_prone_annotations"));
+
+    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of(), exclusions));
+
+    assertEquals(exclusions.size(), lockFile.getExclusions().size());
+    exclusions.forEach((key, value) -> assertEquals(value, lockFile.getExclusions().get(key)));
+  }
+
   private V2LockFile roundTrip(V2LockFile lockFile) {
     Map<String, Object> rendered = lockFile.render();
     String converted =

@@ -1,6 +1,6 @@
 load("@rules_java//java:defs.bzl", "JavaInfo")
 load(":has_maven_deps.bzl", "MavenInfo", "calculate_artifact_jars", "has_maven_deps")
-load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom")
+load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom", "unpack_coordinates")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
@@ -28,6 +28,37 @@ def _pom_file_impl(ctx):
         for coords in export_maven_deps
     ]
 
+    def get_exclusion_coordinates(target):
+        if not info.label_to_javainfo.get(target.label):
+            print("Warning: exclusions key %s not found in dependencies" % (target))
+            return None
+        else:
+            coords = ctx.expand_make_variables("exclusions", target[MavenInfo].coordinates, ctx.var)
+            return coords
+
+    exclusions_unsorted = {
+        get_exclusion_coordinates(target): json.decode(targetExclusions)
+        for target, targetExclusions in ctx.attr.exclusions.items()
+    }
+    exclusions_unsorted = {k: v for k, v in exclusions_unsorted.items() if k != None}
+
+    for coords, exclusion_list in exclusions_unsorted.items():
+        reformatted_exclusion_list = []
+        for exclusion in exclusion_list:
+            reformatted_exclusion_list.append(exclusion["group"] + ":" + exclusion["artifact"])
+        exclusions_unsorted[coords] = reformatted_exclusion_list
+
+    for maven_info in info.all_infos.to_list():
+        if maven_info.coordinates and maven_info.exclusions:
+            for exclusion in maven_info.exclusions:
+                if maven_info.coordinates not in exclusions_unsorted:
+                    exclusions_unsorted[maven_info.coordinates] = []
+                exclusions_unsorted[maven_info.coordinates].append(exclusion)
+
+    exclusions = {}
+    for coords in exclusions_unsorted:
+        exclusions[coords] = sorted(exclusions_unsorted[coords])
+
     # Expand maven coordinates for any variables to be replaced.
     coordinates = ctx.expand_make_variables("coordinates", info.coordinates, ctx.var)
 
@@ -38,6 +69,7 @@ def _pom_file_impl(ctx):
         versioned_export_dep_coordinates = expanded_export_deps,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
+        exclusions = exclusions,
     )
 
     return [
@@ -62,7 +94,8 @@ The following substitutions are performed on the template file:
   {type}: Replaced by the maven coordinates type, if present (defaults to "jar")
   {scope}: Replaced by the maven coordinates type, if present (defaults to "compile")
   {dependencies}: Replaced by a list of maven dependencies directly relied upon
-    by java_library targets within the artifact.
+    by java_library targets within the artifact. Dependencies have exclusions
+    for any transitive dependencies that are occur in deploy_env.
 """,
     attrs = {
         "pom_template": attr.label(
@@ -86,6 +119,13 @@ The following substitutions are performed on the template file:
             providers = [
                 [JavaInfo],
             ],
+            aspects = [
+                has_maven_deps,
+            ],
+        ),
+        "exclusions": attr.label_keyed_string_dict(
+            doc = "Mapping of dependency labels to a list of exclusions (encoded as a json string). Each exclusion is a dict with a group and an artifact.",
+            allow_empty = True,
             aspects = [
                 has_maven_deps,
             ],

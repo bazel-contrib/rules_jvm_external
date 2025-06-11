@@ -751,6 +751,20 @@ dev_maven.install(
         "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
     ],
 )
+dev_maven.install(
+    name = "pom_exclusions_testing",
+    artifacts = [],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+)
+dev_maven.artifact(
+    name = "pom_exclusions_testing",
+    artifact = "guava",
+    exclusions = ["com.google.errorprone:error_prone_annotations"],
+    group = "com.google.guava",
+    version = "31.1-jre",
+)
 
 # Where there are file locks, the pinned and unpinned repos are listed
 # next to each other. Where compat repositories are created, they are
@@ -842,6 +856,7 @@ use_repo(
 
     # Final entries
     "com_google_http_client_google_http_client",
+    "pom_exclusions_testing",
     "testonly_testing",
     "transitive_dependency_with_type_of_pom",
     "unpinned_v1_lock_file_format",
