@@ -455,6 +455,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             "artifacts": {},
             "dependencies": {},
             "repositories": {},
+            "exclusions": {},
             "version": "2",
         }
     else:
@@ -539,6 +540,18 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                     repository_ctx,
                     "The inputs to %s_install.json have changed, but the lock file has not been regenerated. " % user_provided_name +
                     "Consider running 'bazel run %s'" % pin_target,
+                )
+        elif maven_install_json_content.get("exclusions") == None:
+            if _get_fail_if_repin_required(repository_ctx):
+                fail(
+                    "%s_install.json does not contain an exclusions entry. " % user_provided_name +
+                    "To generate this exclusions entry, run %s" % repin_instructions,
+                )
+            else:
+                print_if_not_repinning(
+                    repository_ctx,
+                    "NOTE: %s_install.json does not contain an exclusions entry. " % user_provided_name +
+                    "To generate this exclusions entry, run 'bazel run %s'." % pin_target,
                 )
 
     dep_tree_signature = importer.get_lock_file_hash(maven_install_json_content)
@@ -1252,6 +1265,9 @@ def _coursier_fetch_impl(repository_ctx):
             artifact.update({"services": service_implementations})
 
     # Keep the original output from coursier for debugging
+    # We moved the exclusions from individual artifacts to a
+    # top-level exclusion key on coursier-deps.json. Because the
+    # coursier output explodes an exclusion to all the transitive deps.
     repository_ctx.file(
         "coursier-deps.json",
         content = json.encode_indent(dep_tree),

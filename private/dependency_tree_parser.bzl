@@ -222,6 +222,11 @@ copy_file(
         target_import_string.append("\t\t\"maven:compile-only\",")
     if artifact.get("sha256"):
         target_import_string.append("\t\t\"maven_sha256=%s\"," % artifact["sha256"])
+    if artifact.get("exclusions"):
+        exclusions_list = artifact["exclusions"]
+        for exclusion in exclusions_list:
+            if exclusion:
+                target_import_string.append("\t\t\"maven_exclusion=%s\"," % exclusion)
     target_import_string.append("\t],")
 
     if packaging == "jar":
