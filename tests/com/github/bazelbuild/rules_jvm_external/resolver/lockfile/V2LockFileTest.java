@@ -152,8 +152,7 @@ public class V2LockFileTest {
 
     Map<String, Set<String>> exclusions = new TreeMap<>();
     exclusions.put(
-        "com.google.guava:guava",
-        Set.of("com.google.errorprone:error_prone_annotations"));
+        "com.google.guava:guava", Set.of("com.google.errorprone:error_prone_annotations"));
 
     V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of(), exclusions));
 
