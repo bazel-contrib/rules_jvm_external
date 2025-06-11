@@ -17,8 +17,8 @@ load(
     "//private:coursier_utilities.bzl",
     "SUPPORTED_PACKAGING_TYPES",
     "contains_git_conflict_markers",
-    "escape",
     "is_maven_local_path",
+    "to_repository_name",
 )
 load("//private:dependency_tree_parser.bzl", "parser")
 load("//private:java_utilities.bzl", "build_java_argsfile_content")
@@ -587,7 +587,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     netrc_entries = importer.get_netrc_entries(maven_install_json_content)
 
     for artifact in importer.get_artifacts(maven_install_json_content):
-        http_file_repository_name = escape(artifact["coordinates"])
+        http_file_repository_name = to_repository_name(artifact["coordinates"])
         if artifact.get("file"):
             maven_artifacts.extend([artifact["coordinates"]])
             http_files.extend([
