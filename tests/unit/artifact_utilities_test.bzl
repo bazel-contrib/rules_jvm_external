@@ -226,7 +226,7 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
     asserts.equals(
         env,
         sorted_dep_tree["exclusions"]["com.google.guava:guava"],
-        ["org.codehaus.mojo:animal-sniffer-annotations", "com.google.j2objc:j2objc-annotations"],
+        ["com.google.j2objc:j2objc-annotations", "org.codehaus.mojo:animal-sniffer-annotations"],
     )
 
     return unittest.end(env)
@@ -342,7 +342,6 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
         env,
         [
             "com.google.j2objc:j2objc-annotations",
-            "org.checkerframework:checker-qual",
             "org.codehaus.mojo:animal-sniffer-annotations",
         ],
         sorted_dep_tree["exclusions"]["com.google.guava:guava"],

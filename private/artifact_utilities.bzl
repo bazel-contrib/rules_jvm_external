@@ -24,7 +24,7 @@ def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verb
                     break
                 deduped_exclusions["{}:{}".format(e["group"], e["artifact"])] = True
 
-            artifacts_with_exclusions[coordinate] = deduped_exclusions.keys()
+            artifacts_with_exclusions[coordinate] = sorted(deduped_exclusions.keys())
 
     # As we de-duplicate prefer the duplicates with non-empty dependency lists
     deduped_artifacts = {}
