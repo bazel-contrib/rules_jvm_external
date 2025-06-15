@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
 import java.io.File;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -22,6 +23,12 @@ import org.w3c.dom.NodeList;
 
 /** Utility class to handle POM files ** */
 public class PomUtil {
+  // https://maven.apache.org/pom.html#Packaging
+  // Some artifacts (guava) declare packaging types we can't use for resolution (like "bundle")
+  // so have an allow list of package types we support resolving.
+  private static final Set<String> SUPPORTED_PACKAGING_TYPES =
+      Set.of("pom", "jar", "maven-plugin", "ejb", "war", "rar", "aar");
+
   public static String extractPackagingFromPom(File pomFile) {
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -30,7 +37,10 @@ public class PomUtil {
       Document doc = builder.parse(pomFile);
       NodeList packagingNodes = doc.getElementsByTagName("packaging");
       if (packagingNodes.getLength() > 0) {
-        return packagingNodes.item(0).getTextContent().trim();
+        String packaging = packagingNodes.item(0).getTextContent().trim();
+        if (SUPPORTED_PACKAGING_TYPES.contains(packaging)) {
+          return packaging;
+        }
       }
     } catch (Exception e) {
       // we can gracefully fail here

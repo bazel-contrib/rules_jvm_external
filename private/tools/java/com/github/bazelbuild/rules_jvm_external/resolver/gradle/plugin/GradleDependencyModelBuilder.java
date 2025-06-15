@@ -28,11 +28,16 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnr
 import com.google.common.io.Files;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactView;
@@ -79,8 +84,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // which contains the resolved dependency information from the tooling API, additionally it'll
     // also
     // be used to attach the actual artifacts later
-    Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap =
-        new HashMap<>();
+    ConcurrentHashMap<Coordinates, GradleResolvedDependency>
+        coordinatesGradleResolvedDependencyMap = new ConcurrentHashMap<>();
     // We get the root nodes in the dependency graph (or rather forest here since there can be
     // disjoint trees)
     List<GradleResolvedDependency> resolvedRoots =
@@ -132,7 +137,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
   private List<GradleResolvedDependency> collectResolvedDependencies(
       Configuration cfg,
-      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+      ConcurrentMap<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
     List<GradleResolvedDependency> resolvedRoots = new ArrayList<>();
     ResolutionResult result = cfg.getIncoming().getResolutionResult();
     ResolvedComponentResult root = result.getRoot();
@@ -312,64 +317,83 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Project project,
       Configuration cfg,
       List<GradleResolvedDependency> resolvedRoots,
-      Map<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap,
+      Map<Coordinates, GradleResolvedDependency> coordinatesMap,
       List<GradleDependency> declaredDeps) {
-    ArtifactView sourcesView =
-        cfg.getIncoming()
-            .artifactView(
-                spec -> {
-                  spec.withVariantReselection();
-                  spec.setLenient(true);
-                  spec.attributes(
-                      attrs -> {
-                        attrs.attribute(
-                            DocsType.DOCS_TYPE_ATTRIBUTE,
-                            project.getObjects().named(DocsType.class, DocsType.SOURCES));
-                      });
-                });
 
-    // Fetch the source jars
-    collectArtifactsFromArtifactView(sourcesView, coordinatesGradleResolvedDependencyMap);
+    ExecutorService executor = Executors.newFixedThreadPool(3); // sources, javadoc, jars
 
-    ArtifactView javadocView =
-        cfg.getIncoming()
-            .artifactView(
-                spec -> {
-                  spec.setLenient(true);
-                  spec.withVariantReselection();
-                  spec.attributes(
-                      attrs -> {
-                        attrs.attribute(
-                            DocsType.DOCS_TYPE_ATTRIBUTE,
-                            project.getObjects().named(DocsType.class, DocsType.JAVADOC));
-                      });
-                });
+    List<CompletableFuture<Void>> parallelTasks =
+        List.of(
+            CompletableFuture.runAsync(
+                () -> {
+                  ArtifactView sources =
+                      cfg.getIncoming()
+                          .artifactView(
+                              spec -> {
+                                spec.setLenient(true);
+                                spec.withVariantReselection();
+                                spec.attributes(
+                                    attrs ->
+                                        attrs.attribute(
+                                            DocsType.DOCS_TYPE_ATTRIBUTE,
+                                            project
+                                                .getObjects()
+                                                .named(DocsType.class, DocsType.SOURCES)));
+                              });
+                  collectArtifactsFromArtifactView(sources, coordinatesMap);
+                },
+                executor),
+            CompletableFuture.runAsync(
+                () -> {
+                  ArtifactView javadoc =
+                      cfg.getIncoming()
+                          .artifactView(
+                              spec -> {
+                                spec.setLenient(true);
+                                spec.withVariantReselection();
+                                spec.attributes(
+                                    attrs ->
+                                        attrs.attribute(
+                                            DocsType.DOCS_TYPE_ATTRIBUTE,
+                                            project
+                                                .getObjects()
+                                                .named(DocsType.class, DocsType.JAVADOC)));
+                              });
+                  collectArtifactsFromArtifactView(javadoc, coordinatesMap);
+                },
+                executor),
+            CompletableFuture.runAsync(
+                () -> {
+                  ArtifactView jars =
+                      cfg.getIncoming()
+                          .artifactView(
+                              spec -> {
+                                spec.setLenient(true);
+                                spec.attributes(
+                                    attrs ->
+                                        attrs.attribute(
+                                            Usage.USAGE_ATTRIBUTE,
+                                            project
+                                                .getObjects()
+                                                .named(Usage.class, Usage.JAVA_API)));
+                              });
+                  collectArtifactsFromArtifactView(jars, coordinatesMap);
+                },
+                executor));
 
-    // Fetch the javadoc artifacts
-    collectArtifactsFromArtifactView(javadocView, coordinatesGradleResolvedDependencyMap);
+    // Run artifact views in parallel
+    try {
+      CompletableFuture.allOf(parallelTasks.toArray(new CompletableFuture[0])).join();
+    } catch (CompletionException e) {
+      throw new RuntimeException("Error resolving artifacts", e.getCause());
+    }
 
-    ArtifactView jarView =
-        cfg.getIncoming()
-            .artifactView(
-                spec -> {
-                  spec.attributes(
-                      attrs -> {
-                        spec.setLenient(true);
-                        attrs.attribute(
-                            Usage.USAGE_ATTRIBUTE,
-                            project.getObjects().named(Usage.class, Usage.JAVA_API));
-                      });
-                });
+    // Run detached-configuration work sequentially as Gradle doesn't like it
+    // being created in a different thread
+    collectPOMsForAllComponents(project, resolvedRoots, coordinatesMap, declaredDeps);
+    collectConflictingVersionArtifacts(project, coordinatesMap);
 
-    // Fetch the actual JARs
-    collectArtifactsFromArtifactView(jarView, coordinatesGradleResolvedDependencyMap);
-    // POMs are not automatically fetched unless requested with ArtifactView
-    // this creates a detached configuration to explicitly fetch them
-    collectPOMsForAllComponents(
-        project, resolvedRoots, coordinatesGradleResolvedDependencyMap, declaredDeps);
-    // We may have conflicts for some dependency, and we should also
-    // fetch those conflicting artifacts so that we can track it in the graph
-    collectConflictingVersionArtifacts(project, coordinatesGradleResolvedDependencyMap);
+    executor.shutdown();
   }
 
   private void collectConflictingVersionArtifacts(
@@ -403,9 +427,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                     GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
                     if (artifact.getFile() != null) {
                       resolvedArtifact.setFile(artifact.getFile());
-                      coordinatesGradleResolvedDependencyMap
-                          .get(entry.getKey())
-                          .addArtifact(resolvedArtifact);
+                      GradleResolvedDependency resolvedDependency =
+                          coordinatesGradleResolvedDependencyMap.get(entry.getKey());
+                      synchronized (resolvedDependency) {
+                        resolvedDependency.addArtifact(resolvedArtifact);
+                      }
                     }
                   }
                 });
@@ -432,7 +458,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
         GradleResolvedDependency resolvedDependency =
             coordinatesGradleResolvedDependencyMap.get(coordinates);
-        resolvedDependency.addArtifact(resolvedArtifact);
+        synchronized (resolvedDependency) {
+          resolvedDependency.addArtifact(resolvedArtifact);
+        }
       }
     }
   }
@@ -440,7 +468,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   private void collectPOMsForAllComponents(
       Project project,
       List<GradleResolvedDependency> resolvedRoots,
-      Map<Coordinates, GradleResolvedDependency> coordinatesArtifacts,
+      Map<Coordinates, GradleResolvedDependency> coordinatesResolvedDependencyMap,
       List<GradleDependency> declaredDeps) {
     for (GradleResolvedDependency dependency : resolvedRoots) {
       Coordinates coordinates =
@@ -477,7 +505,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         if (artifact.getFile() != null) {
           resolvedArtifact.setFile(artifact.getFile());
           resolvedArtifact.setExtension(PomUtil.extractPackagingFromPom(artifact.getFile()));
-          coordinatesArtifacts.get(coordinates).addArtifact(resolvedArtifact);
+          GradleResolvedDependency resolvedDependency =
+              coordinatesResolvedDependencyMap.get(coordinates);
+          synchronized (resolvedDependency) {
+            resolvedDependency.addArtifact(resolvedArtifact);
+          }
         }
       }
     }
