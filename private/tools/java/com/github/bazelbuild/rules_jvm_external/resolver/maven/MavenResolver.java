@@ -91,6 +91,10 @@ public class MavenResolver implements Resolver {
     this.listener = listener;
   }
 
+  public String getName() {
+    return "maven";
+  }
+
   private Dependency createBom(
       com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact) {
     Coordinates coordinates = artifact.getCoordinates();
@@ -157,10 +161,10 @@ public class MavenResolver implements Resolver {
             system,
             new ClassicDependencyManager(),
             new CompoundListener(consoleLogListener, errorListener, coordinatesListener),
-            request.getLocalCache());
+            request.getLocalCache("maven"));
 
     List<RemoteRepository> repositories = new ArrayList<>(repos.size());
-    repositories.add(createRemoteRepoFromLocalM2Cache(request.getLocalCache()));
+    repositories.add(createRemoteRepoFromLocalM2Cache(request.getLocalCache("maven")));
     repositories.addAll(repos);
 
     List<Dependency> bomsWithGlobalExclusions = addGlobalExclusions(globalExclusions, boms);
@@ -186,7 +190,7 @@ public class MavenResolver implements Resolver {
             system,
             derived,
             new CompoundListener(consoleLogListener, errorListener, coordinatesListener),
-            request.getLocalCache());
+            request.getLocalCache("maven"));
 
     List<Dependency> depsWithGlobalExclusions = addGlobalExclusions(globalExclusions, dependencies);
     consoleLogListener.setPhase(

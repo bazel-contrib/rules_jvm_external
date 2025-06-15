@@ -68,6 +68,10 @@ public class GradleResolver implements Resolver {
     this.maxThreads = maxThreads;
   }
 
+  public String getName() {
+    return "gradle";
+  }
+
   private boolean isVerbose() {
     return System.getenv("RJE_VERBOSE") != null && System.getenv("RJE_VERBOSE").equals("true");
   }

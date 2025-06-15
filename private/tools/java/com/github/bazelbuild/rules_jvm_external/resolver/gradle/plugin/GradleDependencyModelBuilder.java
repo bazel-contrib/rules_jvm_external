@@ -33,8 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -55,7 +53,6 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
 import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.gradle.api.attributes.Attribute;
-import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
 
@@ -319,72 +316,24 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Map<Coordinates, GradleResolvedDependency> coordinatesMap,
       List<GradleDependency> declaredDeps) {
 
-    List<CompletableFuture<Void>> artifactFutures =
-        List.of(
-            CompletableFuture.runAsync(
-                () -> {
-                  ArtifactView sources =
-                      cfg.getIncoming()
-                          .artifactView(
-                              spec -> {
-                                spec.setLenient(true);
-                                spec.withVariantReselection();
-                                spec.attributes(
-                                    attrs ->
-                                        attrs.attribute(
-                                            DocsType.DOCS_TYPE_ATTRIBUTE,
-                                            project
-                                                .getObjects()
-                                                .named(DocsType.class, DocsType.SOURCES)));
-                              });
-                  collectArtifactsFromArtifactView(sources, coordinatesMap);
-                }),
-            CompletableFuture.runAsync(
-                () -> {
-                  ArtifactView javadoc =
-                      cfg.getIncoming()
-                          .artifactView(
-                              spec -> {
-                                spec.setLenient(true);
-                                spec.withVariantReselection();
-                                spec.attributes(
-                                    attrs ->
-                                        attrs.attribute(
-                                            DocsType.DOCS_TYPE_ATTRIBUTE,
-                                            project
-                                                .getObjects()
-                                                .named(DocsType.class, DocsType.JAVADOC)));
-                              });
-                  collectArtifactsFromArtifactView(javadoc, coordinatesMap);
-                }),
-            CompletableFuture.runAsync(
-                () -> {
-                  ArtifactView jars =
-                      cfg.getIncoming()
-                          .artifactView(
-                              spec -> {
-                                spec.setLenient(true);
-                                spec.attributes(
-                                    attrs ->
-                                        attrs.attribute(
-                                            Usage.USAGE_ATTRIBUTE,
-                                            project
-                                                .getObjects()
-                                                .named(Usage.class, Usage.JAVA_API)));
-                              });
-                  collectArtifactsFromArtifactView(jars, coordinatesMap);
-                }));
+    ArtifactView jars =
+        cfg.getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true);
+                  spec.attributes(
+                      attrs ->
+                          attrs.attribute(
+                              Usage.USAGE_ATTRIBUTE,
+                              project.getObjects().named(Usage.class, Usage.JAVA_API)));
+                });
 
-    // Run artifact views in parallel
-    try {
-      CompletableFuture.allOf(artifactFutures.toArray(new CompletableFuture[0])).join();
-    } catch (CompletionException e) {
-      throw new RuntimeException("Error resolving artifacts", e.getCause());
-    }
+    // collect JAR artifacts
+    collectArtifactsFromArtifactView(jars, coordinatesMap);
 
-    // Run detached-configuration work sequentially as Gradle doesn't like it
-    // being created in a different thread
+    // Collect POM files explicitly as gradle doesn't fetch them unless requested
     collectPOMsForAllComponents(project, resolvedRoots, coordinatesMap, declaredDeps);
+    // Request artifacts which have conflicts so asto record them in the graph
     collectConflictingVersionArtifacts(project, coordinatesMap);
   }
 
