@@ -108,7 +108,7 @@ public class Main {
     Downloader downloader =
         new Downloader(
             config.getNetrc(),
-            request.getLocalCache(),
+            request.getLocalCache(config.getResolver().getName()),
             request.getRepositories(),
             listener,
             cacheResults);
