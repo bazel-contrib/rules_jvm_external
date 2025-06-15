@@ -1,6 +1,9 @@
 apply plugin: 'java'
 
 repositories {
+{{#if isUsingM2Local}}
+    mavenLocal()
+{{/if}}
 {{~#each repositories}}
     maven {
         url "{{url}}"

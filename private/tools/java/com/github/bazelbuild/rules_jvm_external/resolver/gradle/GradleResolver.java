@@ -44,6 +44,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,7 +88,8 @@ public class GradleResolver implements Resolver {
             dependencies,
             boms,
             request.getGlobalExclusions(),
-            request.isUseUnsafeSharedCache())) {
+            request.isUseUnsafeSharedCache(),
+            request.isUsingM2Local())) {
       project.setupProject();
       eventListener.onEvent(new PhaseEvent("Gathering dependencies"));
       project.connect(gradlePath);
@@ -97,10 +100,28 @@ public class GradleResolver implements Resolver {
                 "Resolving dependencies with gradle",
                 "Project: " + project.getProjectDir().toUri()));
       }
+      Instant start = Instant.now();
       GradleDependencyModel resolved =
           project.resolveDependencies(
               getGradleTaskProperties(repositories, project.getProjectDir()));
-      return parseDependencies(dependencies, resolved, boms);
+      Instant end = Instant.now();
+      if (isVerbose()) {
+        System.out.println(
+            "Resolved dependencies and artifacts with Gradle resolver in "
+                + (end.toEpochMilli() - start.toEpochMilli())
+                + " ms");
+      }
+      start = Instant.now();
+      ResolutionResult result = parseDependencies(dependencies, resolved, boms);
+      end = Instant.now();
+
+      if (isVerbose()) {
+        System.err.println(
+            "Building dependency graph took "
+                + (end.toEpochMilli() - start.toEpochMilli())
+                + " ms");
+      }
+      return result;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -375,7 +396,8 @@ public class GradleResolver implements Resolver {
       List<GradleDependency> dependencies,
       List<GradleDependency> boms,
       Set<Coordinates> globalExclusions,
-      boolean useUnsafeCache) {
+      boolean useUnsafeCache,
+      boolean isUsingM2Local) {
     try {
       Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
       Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
@@ -391,7 +413,8 @@ public class GradleResolver implements Resolver {
           repositories,
           dependencies,
           boms,
-          exclusions);
+          exclusions,
+          isUsingM2Local);
 
       Path initScriptTemplate = getGradleInitScriptTemplate();
       Path outputInitScript = fakeProjectDirectory.resolve("init.gradle");

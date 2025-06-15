@@ -83,7 +83,6 @@ public class GradleBuildScriptGenerator {
    * @param dependencies - a list of dependencies to be resolved/requested
    * @param boms - a list of BOMs to be resolved
    * @param globalExclusions - a list of dependencies to be excluded in resolution
-   * @throws IOException
    */
   public static void generateBuildScript(
       Path gradleBuildScriptTemplate,
@@ -91,7 +90,8 @@ public class GradleBuildScriptGenerator {
       List<Repository> repositories,
       List<GradleDependency> dependencies,
       List<GradleDependency> boms,
-      List<ExclusionImpl> globalExclusions)
+      List<ExclusionImpl> globalExclusions,
+      boolean isUsingM2Local)
       throws IOException {
     String templateContent = Files.readString(gradleBuildScriptTemplate);
 
@@ -101,6 +101,7 @@ public class GradleBuildScriptGenerator {
     // Build the Handlebars context
     Map<String, Object> contextMap = new HashMap<>();
 
+    contextMap.put("isUsingM2Local", isUsingM2Local);
     contextMap.put(
         "repositories",
         repositories.stream()
@@ -128,14 +129,13 @@ public class GradleBuildScriptGenerator {
     // Unlike maven, gradle seems to choose the highest versions, so this emulates the maven
     // behavior by picking the first BOM version in the order we see.
     Map<String, String> enforcedBomVersions = new LinkedHashMap<>();
-    boms.stream()
-        .forEach(
-            bom -> {
-              String artifactKey = bom.getGroup() + ":" + bom.getArtifact();
-              if (!enforcedBomVersions.containsKey(artifactKey)) {
-                enforcedBomVersions.put(artifactKey, bom.getVersion());
-              }
-            });
+    boms.forEach(
+        bom -> {
+          String artifactKey = bom.getGroup() + ":" + bom.getArtifact();
+          if (!enforcedBomVersions.containsKey(artifactKey)) {
+            enforcedBomVersions.put(artifactKey, bom.getVersion());
+          }
+        });
 
     // Now get the boms filtered to include the "winning" boms if there are multiple versions of a
     // given one

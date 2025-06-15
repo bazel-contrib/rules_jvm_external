@@ -96,8 +96,6 @@ pin_dependencies = rule(
     _pin_dependencies_impl,
     executable = True,
     attrs = {
-        # Note: We plan to support other resolvers (eg. `gradle`) in the future. Currently, there's just one
-        #       supported option.
         "resolver": attr.string(
             doc = "The resolver to use",
             values = ["maven", "gradle"],

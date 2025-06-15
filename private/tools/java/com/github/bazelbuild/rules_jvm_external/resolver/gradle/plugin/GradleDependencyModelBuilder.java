@@ -28,6 +28,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnr
 import com.google.common.io.Files;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +37,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactView;
@@ -320,9 +319,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Map<Coordinates, GradleResolvedDependency> coordinatesMap,
       List<GradleDependency> declaredDeps) {
 
-    ExecutorService executor = Executors.newFixedThreadPool(3); // sources, javadoc, jars
-
-    List<CompletableFuture<Void>> parallelTasks =
+    List<CompletableFuture<Void>> artifactFutures =
         List.of(
             CompletableFuture.runAsync(
                 () -> {
@@ -341,8 +338,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                                                 .named(DocsType.class, DocsType.SOURCES)));
                               });
                   collectArtifactsFromArtifactView(sources, coordinatesMap);
-                },
-                executor),
+                }),
             CompletableFuture.runAsync(
                 () -> {
                   ArtifactView javadoc =
@@ -360,8 +356,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                                                 .named(DocsType.class, DocsType.JAVADOC)));
                               });
                   collectArtifactsFromArtifactView(javadoc, coordinatesMap);
-                },
-                executor),
+                }),
             CompletableFuture.runAsync(
                 () -> {
                   ArtifactView jars =
@@ -378,12 +373,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                                                 .named(Usage.class, Usage.JAVA_API)));
                               });
                   collectArtifactsFromArtifactView(jars, coordinatesMap);
-                },
-                executor));
+                }));
 
     // Run artifact views in parallel
     try {
-      CompletableFuture.allOf(parallelTasks.toArray(new CompletableFuture[0])).join();
+      CompletableFuture.allOf(artifactFutures.toArray(new CompletableFuture[0])).join();
     } catch (CompletionException e) {
       throw new RuntimeException("Error resolving artifacts", e.getCause());
     }
@@ -392,8 +386,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // being created in a different thread
     collectPOMsForAllComponents(project, resolvedRoots, coordinatesMap, declaredDeps);
     collectConflictingVersionArtifacts(project, coordinatesMap);
-
-    executor.shutdown();
   }
 
   private void collectConflictingVersionArtifacts(
@@ -470,6 +462,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       List<GradleResolvedDependency> resolvedRoots,
       Map<Coordinates, GradleResolvedDependency> coordinatesResolvedDependencyMap,
       List<GradleDependency> declaredDeps) {
+
+    List<Dependency> pomDependencies = new ArrayList<>();
+    Map<Coordinates, Coordinates> moduleToRequestedCoordinates = new HashMap<>();
+
     for (GradleResolvedDependency dependency : resolvedRoots) {
       Coordinates coordinates =
           new Coordinates(
@@ -483,35 +479,60 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                           && declaredDep.getArtifact().equals(dependency.getName())
                           && declaredDep.getVersion().equals(dependency.getVersion())
                           && declaredDep.getExtension() != null);
-      // If the dependency was declared with an explicit extension, then we shouldn't request POMs
-      // explicitly
+
       if (isDeclaredWithExplicitExtension) {
         continue;
       }
+
       Dependency dep = project.getDependencies().create(coordinates + "@pom");
+      pomDependencies.add(dep);
+      moduleToRequestedCoordinates.put(coordinates, coordinates);
+    }
 
-      Configuration pomCfg = project.getConfigurations().detachedConfiguration(dep);
+    if (pomDependencies.isEmpty()) {
+      return;
+    }
 
-      ArtifactView view =
-          pomCfg
-              .getIncoming()
-              .artifactView(
-                  spec -> {
-                    spec.setLenient(true); // avoid failure if a POM is missing
-                  });
+    Configuration batchedPomCfg =
+        project
+            .getConfigurations()
+            .detachedConfiguration(pomDependencies.toArray(new Dependency[0]));
 
-      for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
-        GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
-        if (artifact.getFile() != null) {
-          resolvedArtifact.setFile(artifact.getFile());
-          resolvedArtifact.setExtension(PomUtil.extractPackagingFromPom(artifact.getFile()));
-          GradleResolvedDependency resolvedDependency =
-              coordinatesResolvedDependencyMap.get(coordinates);
-          synchronized (resolvedDependency) {
-            resolvedDependency.addArtifact(resolvedArtifact);
-          }
-        }
+    ArtifactView view =
+        batchedPomCfg
+            .getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true); // tolerate missing POMs
+                });
+
+    for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
+      ComponentIdentifier id = artifact.getId().getComponentIdentifier();
+      if (!(id instanceof ModuleComponentIdentifier)) {
+        continue;
       }
+
+      ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
+      Coordinates moduleCoordinates =
+          new Coordinates(module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
+
+      Coordinates requestedKey = moduleToRequestedCoordinates.get(moduleCoordinates);
+      if (requestedKey == null) {
+        continue;
+      }
+
+      GradleResolvedDependency resolvedDependency =
+          coordinatesResolvedDependencyMap.get(requestedKey);
+      if (resolvedDependency == null) {
+        continue;
+      }
+
+      GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+      resolvedArtifact.setFile(artifact.getFile());
+      if (artifact.getFile() != null) {
+        resolvedArtifact.setExtension(PomUtil.extractPackagingFromPom(artifact.getFile()));
+      }
+      resolvedDependency.addArtifact(resolvedArtifact);
     }
   }
 
