@@ -82,9 +82,9 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "rules_shell",
-        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.5.0/rules_shell-v0.5.0.tar.gz",
-        sha256 = "b15cc2e698a3c553d773ff4af35eb4b3ce2983c319163707dddd9e70faaa062d",
-        strip_prefix = "rules_shell-0.5.0",
+        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
+        sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
+        strip_prefix = "rules_shell-0.3.0",
         # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this
         # patch when we stop supporting Bazel 6.
         patches = ["@rules_jvm_external//:rules_shell_patch.diff"],
