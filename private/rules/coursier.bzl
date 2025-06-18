@@ -29,6 +29,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
+load("//private/lib:coordinates.bzl", "to_external_form")
 load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
@@ -751,21 +752,32 @@ def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
     seen_artifacts = {}
     duplicate_artifacts = {}
     for artifact in artifacts:
-        artifact_coordinate = artifact["group"] + ":" + artifact["artifact"] + (":%s" % artifact["classifier"] if artifact.get("classifier") != None else "")
+        artifact_coordinate = to_external_form(artifact)
         if artifact_coordinate in seen_artifacts:
             # Don't warn if the same version is in the list multiple times
-            if seen_artifacts[artifact_coordinate] != artifact["version"]:
+            if seen_artifacts[artifact_coordinate]["version"] != artifact["version"]:
                 if artifact_coordinate in duplicate_artifacts:
-                    duplicate_artifacts[artifact_coordinate].append(artifact["version"])
+                    duplicate_artifacts[artifact_coordinate].append(artifact)
                 else:
-                    duplicate_artifacts[artifact_coordinate] = [artifact["version"]]
+                    duplicate_artifacts[artifact_coordinate] = [seen_artifacts[artifact_coordinate], artifact]
         else:
-            seen_artifacts[artifact_coordinate] = artifact["version"]
+            seen_artifacts[artifact_coordinate] = artifact
+
+    # go through the duplicate_artifacts and if the list of artifacts contains exactly one with force_version set to True
+    # remove it from the duplicate_artifacts entry
+    duplicate_artifacts_to_remove = []
+    for duplicate in duplicate_artifacts:
+        forced_versions = [artifact for artifact in duplicate_artifacts[duplicate] if artifact.get("force_version", False)]
+        if len(forced_versions) == 1:
+            duplicate_artifacts_to_remove.append(duplicate)
+    for duplicate in duplicate_artifacts_to_remove:
+        duplicate_artifacts.pop(duplicate)
 
     if duplicate_artifacts:
         msg_parts = ["Found duplicate artifact versions"]
         for duplicate in duplicate_artifacts:
-            msg_parts.append("    {} has multiple versions {}".format(duplicate, ", ".join([seen_artifacts[duplicate]] + duplicate_artifacts[duplicate])))
+            versions = [artifact["version"] for artifact in duplicate_artifacts[duplicate]]
+            msg_parts.append("    {} has multiple versions {}".format(duplicate, ", ".join(versions)))
         msg_parts.append("Please remove duplicate artifacts from the artifact list so you do not get unexpected artifact versions")
         if duplicate_version_warning == "error":
             fail("\n".join(msg_parts))
