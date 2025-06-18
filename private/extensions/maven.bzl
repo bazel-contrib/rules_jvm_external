@@ -230,10 +230,12 @@ def maven_impl(mctx):
 
     for mod in mctx.modules:
         for override in mod.tags.override:
+            if not override.name in overrides:
+                overrides[override.name] = {}
             value = str(override.target)
-            current = overrides.get(override.coordinates, None)
+            current = overrides[override.name].get(override.coordinates)
             to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
-            overrides.update({override.coordinates: to_use})
+            overrides[override.name].update({override.coordinates: to_use})
 
         for artifact in mod.tags.artifact:
             _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
@@ -430,7 +432,7 @@ def maven_impl(mctx):
                 excluded_artifacts = excluded_artifacts_json,
                 generate_compat_repositories = False,
                 version_conflict_policy = repo.get("version_conflict_policy"),
-                override_targets = overrides,
+                override_targets = overrides.get(name),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
@@ -491,7 +493,7 @@ def maven_impl(mctx):
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
-                override_targets = overrides,
+                override_targets = overrides.get(name),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
