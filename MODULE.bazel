@@ -1,6 +1,6 @@
 module(
     name = "rules_jvm_external",
-    version = "6.7",
+    version = "6.8",
     bazel_compatibility = [">=7.0.0"],
 )
 
@@ -10,7 +10,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "bazel_features",
-    version = "1.17.0",
+    version = "1.32.0",
 )
 bazel_dep(
     name = "bazel_skylib",
@@ -34,7 +34,7 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_shell",
-    version = "0.3.0",
+    version = "0.5.0",
 )
 
 bazel_dep(
@@ -50,9 +50,9 @@ use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
 
 maven = use_extension(":extensions.bzl", "maven")
 
-_MAVEN_VERSION = "3.9.8"
+_MAVEN_VERSION = "3.9.10"
 
-_MAVEN_RESOLVER_VERSION = "1.9.20"
+_MAVEN_RESOLVER_VERSION = "1.9.23"
 
 # NOTE: Please keep any changes to this maven.install in sync with the
 # definition in repositories.bzl

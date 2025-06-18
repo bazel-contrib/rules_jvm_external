@@ -8,8 +8,8 @@ _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
 ]
 
-_MAVEN_VERSION = "3.9.8"
-_MAVEN_RESOLVER_VERSION = "1.9.20"
+_MAVEN_VERSION = "3.9.10"
+_MAVEN_RESOLVER_VERSION = "1.9.23"
 
 def rules_jvm_external_deps(
         repositories = _DEFAULT_REPOSITORIES,
@@ -82,9 +82,9 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "rules_shell",
-        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
-        sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
-        strip_prefix = "rules_shell-0.3.0",
+        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.5.0/rules_shell-v0.5.0.tar.gz",
+        sha256 = "b15cc2e698a3c553d773ff4af35eb4b3ce2983c319163707dddd9e70faaa062d",
+        strip_prefix = "rules_shell-0.5.0",
         # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this
         # patch when we stop supporting Bazel 6.
         patches = ["@rules_jvm_external//:rules_shell_patch.diff"],
@@ -104,9 +104,9 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "bazel_features",
-        sha256 = "bdc12fcbe6076180d835c9dd5b3685d509966191760a0eb10b276025fcb76158",
-        strip_prefix = "bazel_features-1.17.0",
-        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.17.0/bazel_features-v1.17.0.tar.gz",
+        sha256 = "07bd2b18764cdee1e0d6ff42c9c0a6111ffcbd0c17f0de38e7f44f1519d1c0cd",
+        strip_prefix = "bazel_features-1.32.0",
+        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.32.0/bazel_features-v1.32.0.tar.gz",
     )
 
     maven_install(
