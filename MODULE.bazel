@@ -788,6 +788,7 @@ local_path_override(
 )
 
 dev_maven.override(
+    name = "root_module_can_override",
     # This override demonstrates that this root module's override takes precedence over that transitive override definition.
     # Use something absurd for testing, like overriding okhttp3 to javapoet.
     coordinates = "com.squareup.okhttp3:okhttp",
