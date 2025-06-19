@@ -242,7 +242,7 @@ def _deduplicate_artifacts_with_root_priority(root_artifacts, non_root_artifacts
                 warning_parts.append(maven_module)
 
         print("WARNING: The following maven modules appear in multiple sub-modules with potentially different versions. " +
-              "Consider adding these to your root module to ensure consistent versions:\n\t%s" %
+              "Consider adding one of these to your root module to ensure consistent versions:\n\t%s" %
               "\n\t".join(sorted(warning_parts)))
 
     return root_artifacts + filtered_non_root

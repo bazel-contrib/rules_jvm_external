@@ -96,6 +96,31 @@ diff_test(
     file2 = ":forced-versions-deps-sorted.txt",
 )
 
+genquery(
+    name = "root-wins-deps",
+    expression = "deps(@root_wins//:io_netty_netty_buffer)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@root_wins//:io_netty_netty_buffer"],
+)
+
+genrule(
+    name = "root-wins-deps-sorted",
+    testonly = 1,
+    srcs = [":root-wins-deps"],
+    outs = ["root-wins-deps-sorted.txt"],
+    cmd = "cat $< | grep root_wins | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
+)
+
+# If the root module doesn't win, the version of `netty-buffer` will be `4.1.110.Final`
+diff_test(
+    name = "root-wins-deps-test",
+    file1 = "root-wins-deps.golden.unix",
+    file2 = ":root-wins-deps-sorted.txt",
+)
+
 # This target will fail to build if we're not handling merging of maven.install
 # tags properly, and if we don't handle multiple lock files properly.
 java_library(
