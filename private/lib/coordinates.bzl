@@ -101,6 +101,10 @@ def to_external_form(coords):
 
     if type(coords) == "string":
         unpacked = unpack_coordinates(coords)
+    elif type(coords) == "dict":
+        # Ensures that we have all the fields we expect to be present
+        fully_populated = {"version": None, "packaging": None, "classifier": None} | coords
+        unpacked = struct(**fully_populated)
     else:
         unpacked = coords
 

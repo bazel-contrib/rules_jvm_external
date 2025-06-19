@@ -22,7 +22,7 @@ def maven_install(
         resolve_timeout = 600,
         additional_netrc_lines = [],
         use_credentials_from_home_netrc_file = False,
-        fail_if_repin_required = False,
+        fail_if_repin_required = True,
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
         duplicate_version_warning = "warn",

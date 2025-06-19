@@ -10,6 +10,7 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -33,6 +34,7 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -46,6 +48,7 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -63,6 +66,7 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
@@ -77,6 +81,7 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "//..."
@@ -91,6 +96,7 @@ tasks:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
       - tests/bazel_run_tests.sh
     test_targets:
       - "--"
