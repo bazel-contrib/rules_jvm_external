@@ -188,65 +188,27 @@ public class Outdated {
     return null;
   }
 
-  public static void verboseLog(String logline) {
-    if (System.getenv("RJE_VERBOSE") != null) {
-      System.out.println(logline);
-    }
-  }
-
-  public static void main(String[] args) throws IOException {
-    verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
-
-    Path artifactsFilePath = null;
-    Path repositoriesFilePath = null;
-    boolean useLegacyOutputFormat = false;
-
-    for (int i = 0; i < args.length; i++) {
-      switch (args[i]) {
-        case "--artifacts-file":
-          artifactsFilePath = Paths.get(args[++i]);
-          break;
-
-        case "--repositories-file":
-          repositoriesFilePath = Paths.get(args[++i]);
-          break;
-
-        case "--legacy-output":
-          useLegacyOutputFormat = true;
-          break;
-
-        default:
-          throw new IllegalArgumentException(
-              "Unable to parse command line: " + Arrays.toString(args));
-      }
-    }
-
-    Objects.requireNonNull(artifactsFilePath, "Artifacts file must be set.");
-    Objects.requireNonNull(repositoriesFilePath, "Repositories file must be set.");
-
-    List<String> artifacts = Files.readAllLines(artifactsFilePath, StandardCharsets.UTF_8);
-    List<String> repositories = Files.readAllLines(repositoriesFilePath, StandardCharsets.UTF_8);
-
-    System.out.println(
-        String.format(
-            "Checking for updates of %d artifacts against the following repositories:",
-            artifacts.size()));
-    for (String repository : repositories) {
-      System.out.println(String.format("\t%s", repository));
-    }
-    System.out.println();
-
+  public static void printUpdatesFor(
+      List<String> artifacts, List<String> repositories, boolean useLegacyOutputFormat) {
     boolean foundUpdates = false;
 
     // Note: This should be straightforward to run in a thread and do multiple
     // update checks at once if we want to improve performance in the future.
     for (String artifact : artifacts) {
+      verboseLog(String.format("Checking artifact [%s]", artifact));
       if (artifact.isEmpty()) {
         continue;
       }
       String[] artifactParts = artifact.split(":");
       String groupId = artifactParts[0];
       String artifactId = artifactParts[1];
+
+      // artifacts might have empty versions if they come from a BOM
+      // In this case, skip the artifact.
+      if (artifactParts.length < 3) {
+        continue;
+      }
+
       String version = artifactParts[2];
 
       ArtifactReleaseInfo artifactReleaseInfo = null;
@@ -310,5 +272,83 @@ public class Outdated {
     if (!foundUpdates) {
       System.out.println("No updates found");
     }
+  }
+
+  public static void verboseLog(String logline) {
+    if (System.getenv("RJE_VERBOSE") != null) {
+      System.out.println(logline);
+    }
+  }
+
+  public static void main(String[] args) throws IOException {
+    verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
+
+    Path artifactsFilePath = null;
+    Path bomsFilePath = null;
+    Path repositoriesFilePath = null;
+    boolean useLegacyOutputFormat = false;
+
+    for (int i = 0; i < args.length; i++) {
+      switch (args[i]) {
+        case "--artifacts-file":
+          artifactsFilePath = Paths.get(args[++i]);
+          break;
+
+        case "--boms-file":
+          bomsFilePath = Paths.get(args[++i]);
+          break;
+
+        case "--repositories-file":
+          repositoriesFilePath = Paths.get(args[++i]);
+          break;
+
+        case "--legacy-output":
+          useLegacyOutputFormat = true;
+          break;
+
+        default:
+          throw new IllegalArgumentException(
+              "Unable to parse command line: " + Arrays.toString(args));
+      }
+    }
+
+    Objects.requireNonNull(artifactsFilePath, "Artifacts file must be set.");
+    Objects.requireNonNull(repositoriesFilePath, "Repositories file must be set.");
+
+    List<String> artifacts = Files.readAllLines(artifactsFilePath, StandardCharsets.UTF_8);
+    List<String> boms = List.of();
+    if (bomsFilePath != null) {
+      boms = Files.readAllLines(bomsFilePath, StandardCharsets.UTF_8);
+      if (boms.size() == 1 && boms.get(0).isBlank()) {
+        boms = List.of();
+      }
+    }
+    List<String> repositories = Files.readAllLines(repositoriesFilePath, StandardCharsets.UTF_8);
+
+    if (boms.size() > 0) {
+      System.out.println(
+          String.format(
+              "Checking for updates of %d boms and %d artifacts against the following"
+                  + " repositories:",
+              boms.size(), artifacts.size()));
+    } else {
+      System.out.println(
+          String.format(
+              "Checking for updates of %d artifacts against the following repositories:",
+              artifacts.size()));
+    }
+    for (String repository : repositories) {
+      System.out.println(String.format("\t%s", repository));
+    }
+    System.out.println();
+
+    if (boms.size() > 0) {
+      System.out.println("BOMs");
+      printUpdatesFor(boms, repositories, useLegacyOutputFormat);
+      System.out.println();
+      System.out.println("Artifacts");
+    }
+
+    printUpdatesFor(artifacts, repositories, useLegacyOutputFormat);
   }
 }

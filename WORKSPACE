@@ -98,6 +98,7 @@ maven_install(
     artifacts = [
         "com.google.guava:guava:31.1-jre",
         "org.hamcrest:hamcrest-core:2.1",
+        "io.netty:netty-tcnative-boringssl-static:2.0.61.Final",
     ],
     maven_install_json = "@rules_jvm_external//:maven_install.json",
     repositories = [
@@ -280,6 +281,13 @@ maven_install(
         "com.github.spotbugs:spotbugs:4.7.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1267
         "org.mockito:mockito-core:pom:3.3.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1345
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.13",
+        ),
     ],
     fail_if_repin_required = True,
     generate_compat_repositories = True,
@@ -851,12 +859,14 @@ maven_install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
+        "org.slf4j:slf4j-log4j12:1.7.36",
         "redis.clients:jedis:5.0.2",
     ],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
     override_targets = {
         # This is a transitive dep of `opentelemetry-sdk`
         "io.opentelemetry:opentelemetry-api": "@//tests/integration/override_targets:additional_deps",
+        "org.slf4j:slf4j-log4j12": "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
     },
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -866,6 +876,24 @@ maven_install(
 load("@override_target_in_deps//:defs.bzl", _override_target_in_deps_maven_install = "pinned_maven_install")
 
 _override_target_in_deps_maven_install()
+
+maven_install(
+    name = "same_override_target",
+    artifacts = [
+        "org.slf4j:slf4j-log4j12:1.7.36",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:same_override_target_install.json",
+    override_targets = {
+        "org.slf4j:slf4j-log4j12": "@same_override_target//:org_slf4j_slf4j_reload4j",
+    },
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@same_override_target//:defs.bzl", _same_override_target_maven_install = "pinned_maven_install")
+
+_same_override_target_maven_install()
 
 maven_install(
     name = "forcing_versions",

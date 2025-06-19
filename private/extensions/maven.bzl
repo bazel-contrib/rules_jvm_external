@@ -7,6 +7,7 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/lib:coordinates.bzl", "to_external_form")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
@@ -84,7 +85,7 @@ install = tag_class(
                 "none",
             ],
         ),
-        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
+        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = True),
         "lock_file": attr.label(),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
         "generate_compat_repositories": attr.bool(
@@ -158,29 +159,11 @@ def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
     known_names.append(module_name)
     repo_name_2_module_name[repo_name] = known_names
 
-def _to_maven_coords(artifact):
-    coords = "%s:%s" % (artifact.get("group"), artifact.get("artifact"))
-
-    extension = artifact.get("packaging", "jar")
-    if not extension:
-        extension = "jar"
-    classifier = artifact.get("classifier", "jar")
-    if not classifier:
-        classifier = "jar"
-
-    if classifier != "jar":
-        coords += ":%s:%s" % (extension, classifier)
-    elif extension != "jar":
-        coords += ":%s" % extension
-    coords += ":%s" % artifact.get("version")
-
-    return coords
-
 def _generate_compat_repos(name, existing_compat_repos, artifacts):
     seen = []
 
     for artifact in artifacts:
-        coords = _to_maven_coords(artifact)
+        coords = to_external_form(artifact)
         versionless = escape(strip_packaging_and_classifier_and_version(coords))
         if versionless in existing_compat_repos:
             continue
@@ -197,7 +180,6 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 def maven_impl(mctx):
     repos = {}
     overrides = {}
-    exclusions = {}
     http_files = []
     compat_repos = []
 
@@ -231,10 +213,12 @@ def maven_impl(mctx):
 
     for mod in mctx.modules:
         for override in mod.tags.override:
+            if not override.name in overrides:
+                overrides[override.name] = {}
             value = str(override.target)
-            current = overrides.get(override.coordinates, None)
+            current = overrides[override.name].get(override.coordinates)
             to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
-            overrides.update({override.coordinates: to_use})
+            overrides[override.name].update({override.coordinates: to_use})
 
         for artifact in mod.tags.artifact:
             _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
@@ -431,7 +415,7 @@ def maven_impl(mctx):
                 excluded_artifacts = excluded_artifacts_json,
                 generate_compat_repositories = False,
                 version_conflict_policy = repo.get("version_conflict_policy"),
-                override_targets = overrides,
+                override_targets = overrides.get(name),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
@@ -492,7 +476,7 @@ def maven_impl(mctx):
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
-                override_targets = overrides,
+                override_targets = overrides.get(name),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),

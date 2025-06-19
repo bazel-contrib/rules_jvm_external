@@ -15,7 +15,7 @@ load("//private/rules:coursier.bzl", "compute_dependency_inputs_signature")
 
 _TEMPLATE = """#!/usr/bin/env bash
 
-{resolver_cmd} --argsfile {config} --resolver {resolver} --input_hash '{input_hash}' --output {output}
+{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --resolver {resolver} --input_hash '{input_hash}' --output {output}
 """
 
 def _stringify_exclusions(exclusions):
@@ -79,6 +79,7 @@ def _pin_dependencies_impl(ctx):
             resolver_cmd = ctx.executable._resolver.short_path,
             resolver = ctx.attr.resolver,
             output = "$BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.lock_file,
+            jvm_flags = ctx.attr.jvm_flags,
         ),
         is_executable = True,
     )
@@ -119,6 +120,9 @@ pin_dependencies = rule(
         "lock_file": attr.string(
             doc = "Location of the generated lock file",
             mandatory = True,
+        ),
+        "jvm_flags": attr.string(
+            doc = "JVM flags to pass to resolver",
         ),
         "_resolver": attr.label(
             executable = True,

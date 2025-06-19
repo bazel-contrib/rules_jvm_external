@@ -47,6 +47,7 @@ Table of Contents
     - [Fetch and resolve timeout](#fetch-and-resolve-timeout)
     - [Ignoring empty jars](#ignoring-empty-jars)
     - [Duplicate artifact warning](#duplicate-artifact-warning)
+    - [Provide JVM options for artifact resolution](#provide-jvm-options-for-artifact-resolution)
     - [Provide JVM options for Coursier with `COURSIER_OPTS`](#provide-jvm-options-for-coursier-with-coursier_opts)
     - [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
     - [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
@@ -103,7 +104,7 @@ support versions 6, 7 and 8.
 
 ## Usage
 
-### Recommended: bzlmod (Bazel 7 and above)
+### With bzlmod (Bazel 7 and above)
 
 If you are starting a new project, or your project is already using Bazel 7 and
 above, we recommend using [`bzlmod`](https://bazel.build/external/overview) to
@@ -844,10 +845,11 @@ In this case, once pinning is complete, guava `23.3-jre` will be selected.
 
 ### Overriding generated targets
 
-You can override the generated targets for artifacts with a target label of your
-choice. For instance, if you want to provide your own definition of
-`@maven//:com_google_guava_guava` at `//third_party/guava:guava`, specify the
-mapping in the `override_targets` attribute:
+When are using a WORKSPACE file you can override the generated targets for
+artifacts with a target label of your choice. For instance, if you want to
+provide your own definition of `@maven//:com_google_guava_guava` at
+`//third_party/guava:guava`, specify the mapping in the `override_targets`
+attribute:
 
 ```python
 maven_install(
@@ -861,6 +863,15 @@ maven_install(
     override_targets = {
         "com.google.guava:guava": "@//third_party/guava:guava",
     },
+)
+```
+
+When you are using bzlmod you can override the generated target with
+```
+maven.override(
+    name = "maven",
+    coordinates = "com.google.guava:guava",
+    target = "//third_party/guava:guava",
 )
 ```
 
@@ -1037,6 +1048,15 @@ maven_install(
     duplicate_version_warning = "error"
 )
 ```
+
+### Provide JVM options for artifact resolution
+
+You can set the `JDK_JAVA_OPTIONS` environment variable to provide additional JVM options to the artifact resolver.
+
+```python
+build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=<path-to-cacerts>
+```
+can be added to your .bazelrc file if you need to specify custom cacerts for artifact resolution.
 
 ### Provide JVM options for Coursier with `COURSIER_OPTS`
 

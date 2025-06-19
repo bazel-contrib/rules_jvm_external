@@ -178,7 +178,9 @@ dev_maven = use_extension(
 dev_maven.install(
     artifacts = [
         "com.google.guava:guava:31.1-jre",
+        "com.google.protobuf:protobuf-java:4.29.4",
         "org.hamcrest:hamcrest-core:2.1",
+        "io.netty:netty-tcnative-boringssl-static:2.0.61.Final",
     ],
     lock_file = "@rules_jvm_external//:maven_install.json",
     resolver = "coursier",
@@ -481,6 +483,7 @@ dev_maven.install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
+        "org.slf4j:slf4j-log4j12:1.7.36",
         "redis.clients:jedis:5.0.2",
     ],
     lock_file = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
@@ -490,6 +493,28 @@ dev_maven.override(
     coordinates = "io.opentelemetry:opentelemetry-api",
     target = "@//tests/integration/override_targets:additional_deps",
 )
+
+dev_maven.override(
+    name = "override_target_in_deps",
+    coordinates = "org.slf4j:slf4j-log4j12",
+    target = "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
+)
+
+dev_maven.install(
+    name = "same_override_target",
+    artifacts = [
+        "org.slf4j:slf4j-log4j12:1.7.36",
+    ],
+    lock_file = "@rules_jvm_external//tests/custom_maven_install:same_override_target_install.json",
+)
+
+# Test that we can have the same override in two different repos
+dev_maven.override(
+    name = "same_override_target",
+    coordinates = "org.slf4j:slf4j-log4j12",
+    target = "@same_override_target//:org_slf4j_slf4j_reload4j",
+)
+
 dev_maven.install(
     name = "policy_pinned_testing",
     artifacts = [
@@ -607,6 +632,15 @@ dev_maven.artifact(
     classifier = "javadoc",
     group = "com.google.apis",
     version = "v1-rev235-1.25.0",
+)
+
+# https://github.com/bazelbuild/rules_jvm_external/issues/1345
+dev_maven.artifact(
+    name = "regression_testing_coursier",
+    artifact = "jffi",
+    classifier = "native",
+    group = "com.github.jnr",
+    version = "1.3.13",
 )
 
 # These artifacts helped discover limitations in the Maven resolver. Each
@@ -802,7 +836,9 @@ use_repo(
 
     # Pinned repo
     "override_target_in_deps",
+    "same_override_target",
     "unpinned_override_target_in_deps",
+    "unpinned_same_override_target",
 
     # Pinned repo
     "policy_pinned_testing",
