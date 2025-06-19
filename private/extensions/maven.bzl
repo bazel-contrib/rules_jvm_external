@@ -243,7 +243,7 @@ def maven_impl(mctx):
             else:
                 current = overrides[override.name].get(override.coordinates)
                 to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
-            overrides[override.name].update({override.coordinates: value})
+            overrides[override.name].update({override.coordinates: to_use})
 
     for mod in mctx.modules:
         for artifact in mod.tags.artifact:
