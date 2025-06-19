@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load("//private:coursier_utilities.bzl", "to_repository_name")
 load("//private/lib:urls.bzl", "get_m2local_url")
 
 def escape(string):
@@ -10,7 +11,7 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
     seen_repo_names = []
 
     for artifact in artifacts:
-        http_file_repository_name = escape(artifact["coordinates"])
+        http_file_repository_name = to_repository_name(artifact["coordinates"])
 
         if http_file_repository_name in http_files:
             continue

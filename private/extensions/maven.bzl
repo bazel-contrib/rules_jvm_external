@@ -7,6 +7,7 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/lib:coordinates.bzl", "to_external_form")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
@@ -158,29 +159,11 @@ def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
     known_names.append(module_name)
     repo_name_2_module_name[repo_name] = known_names
 
-def _to_maven_coords(artifact):
-    coords = "%s:%s" % (artifact.get("group"), artifact.get("artifact"))
-
-    extension = artifact.get("packaging", "jar")
-    if not extension:
-        extension = "jar"
-    classifier = artifact.get("classifier", "jar")
-    if not classifier:
-        classifier = "jar"
-
-    if classifier != "jar":
-        coords += ":%s:%s" % (extension, classifier)
-    elif extension != "jar":
-        coords += ":%s" % extension
-    coords += ":%s" % artifact.get("version")
-
-    return coords
-
 def _generate_compat_repos(name, existing_compat_repos, artifacts):
     seen = []
 
     for artifact in artifacts:
-        coords = _to_maven_coords(artifact)
+        coords = to_external_form(artifact)
         versionless = escape(strip_packaging_and_classifier_and_version(coords))
         if versionless in existing_compat_repos:
             continue
