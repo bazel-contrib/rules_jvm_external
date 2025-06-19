@@ -969,7 +969,7 @@ maven_install(
 )
 
 maven_install(
-    name = "pom_exclusions_testing",
+    name = "pom_exclusion_testing_coursier",
     artifacts = [
         maven.artifact(
             artifact = "guava",

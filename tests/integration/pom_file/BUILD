@@ -107,13 +107,13 @@ java_export(
     srcs = ["PomExample.java"],
     # A java_export specific exclusion
     exclusions = {
-        "@pom_exclusions_testing//:com_google_guava_guava": [
+        "@pom_exclusion_testing_coursier//:com_google_guava_guava": [
             "com.google.guava:failureaccess",
         ],
     },
     maven_coordinates = "com.example:app:1.0.0",
     deps = [
-        "@pom_exclusions_testing//:com_google_guava_guava",
+        "@pom_exclusion_testing_coursier//:com_google_guava_guava",
     ],
 )
 
@@ -149,7 +149,7 @@ java_export(
     srcs = ["PomExample.java"],
     maven_coordinates = "com.example:app:1.0.0",
     deps = [
-        "@pom_exclusions_testing//:com_google_guava_guava",
+        "@pom_exclusion_testing_coursier//:com_google_guava_guava",
     ],
 )
 
