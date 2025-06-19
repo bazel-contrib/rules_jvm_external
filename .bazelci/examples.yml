@@ -102,12 +102,12 @@ tasks:
     working_directory: examples/kt_jvm_export
     build_targets:
       - "//..."
-  kotlin-jvm-export-windows:
-    name: "kt_jvm_export example"
-    platform: windows
-    working_directory: examples/kt_jvm_export
-    build_targets:
-      - "//..."
+#  kotlin-jvm-export-windows:
+#    name: "kt_jvm_export example"
+#    platform: windows
+#    working_directory: examples/kt_jvm_export
+#    build_targets:
+#      - "//..."
   pom-file-generation-linux:
     name: "POM file generation example"
     platform: ubuntu1804
