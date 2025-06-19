@@ -781,7 +781,7 @@ dev_maven.install(
     artifacts = ["com.squareup:javapoet:1.11.1"],
 )
 
-bazel_dep(name = "transitive_module_can_override", version = "0.0.0")
+bazel_dep(name = "transitive_module_can_override", version = "0.0.0", dev_dependency = True)
 local_path_override(
     module_name = "transitive_module_can_override",
     path = "tests/integration/override_targets/module",
