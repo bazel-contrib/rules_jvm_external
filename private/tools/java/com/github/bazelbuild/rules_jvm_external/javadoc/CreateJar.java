@@ -1,6 +1,8 @@
 package com.github.bazelbuild.rules_jvm_external.javadoc;
 
 import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,13 +33,15 @@ public class CreateJar {
                 }
 
                 try {
+                  String name = inputDir.relativize(path)
+                      .toString()
+                      .replace(File.separatorChar, '/');
                   if (Files.isDirectory(path)) {
-                    String name = inputDir.relativize(path) + "/";
+                    name += "/";
                     ZipEntry entry = new StableZipEntry(name);
                     zos.putNextEntry(entry);
                     zos.closeEntry();
                   } else {
-                    String name = inputDir.relativize(path).toString();
                     ZipEntry entry = new StableZipEntry(name);
                     zos.putNextEntry(entry);
                     try (InputStream is = Files.newInputStream(path)) {
