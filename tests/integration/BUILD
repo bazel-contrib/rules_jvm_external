@@ -1,6 +1,7 @@
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//:defs.bzl", "artifact")
+load(":is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 
 genquery(
     name = "testonly-deps",
@@ -119,6 +120,8 @@ diff_test(
     name = "root-wins-deps-test",
     file1 = "root-wins-deps.golden.unix",
     file2 = ":root-wins-deps-sorted.txt",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
 )
 
 # This target will fail to build if we're not handling merging of maven.install
