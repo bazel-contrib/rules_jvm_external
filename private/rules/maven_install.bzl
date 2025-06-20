@@ -2,12 +2,15 @@ load("//:specs.bzl", "parse", _json = "json")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:generate_pin_repository.bzl", "generate_pin_repository")
+load("//private/rules:read_artifacts_from_file.bzl", "read_artifacts_from_file")
 
 def maven_install(
         name = DEFAULT_REPOSITORY_NAME,
         repositories = [],
         artifacts = [],
+        artifacts_from_file = None,
         boms = [],
+        boms_from_file = None,
         resolver = "coursier",
         fail_on_missing_checksum = True,
         fetch_sources = False,
@@ -40,7 +43,9 @@ def maven_install(
 
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
       boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
+      boms_from_file: A file containing a list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
+      artifacts_from_file: A file containing a list of Maven artifact coordinates in the form of `group:artifact:version`.
       resolver: Which resolver to use. One of `coursier`, or `maven`.
       fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
       fetch_sources: Additionally fetch source JARs.
@@ -88,9 +93,15 @@ def maven_install(
     for repository in parse.parse_repository_spec_list(repositories):
         repositories_json_strings.append(_json.write_repository_spec(repository))
 
+    if artifacts_from_file:
+        artifacts.extend(read_artifacts_from_file(artifacts_from_file))
+
     artifacts_json_strings = []
     for artifact in parse.parse_artifact_spec_list(artifacts):
         artifacts_json_strings.append(_json.write_artifact_spec(artifact))
+
+    if boms_from_file:
+        boms.extend(read_artifacts_from_file(boms_from_file))
 
     boms_json_strings = []
     for bom in parse.parse_artifact_spec_list(boms):
