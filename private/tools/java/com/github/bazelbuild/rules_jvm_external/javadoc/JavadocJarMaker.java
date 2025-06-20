@@ -200,7 +200,8 @@ public class JavadocJarMaker {
       Path outputTo = Files.createTempDirectory("output-dir");
       tempDirs.add(outputTo);
 
-      options.addAll(Arrays.asList("-d", outputTo.toAbsolutePath().toString()));
+      // Normalize path to use forward slashes for javadoc tool compatibility on Windows
+      options.addAll(Arrays.asList("-d", outputTo.toAbsolutePath().toString().replace('\\', '/')));
 
       // sourcepath and subpackages should work in most cases. A known edge case is when the package
       // names
@@ -214,8 +215,9 @@ public class JavadocJarMaker {
       // package name
       // doesn't match the directory structure.
       if (!expandedExcludedPackages.isEmpty()) {
+        // Normalize path to use forward slashes for javadoc tool compatibility on Windows
         options.add("-sourcepath");
-        options.add(unpackTo.toAbsolutePath().toString());
+        options.add(unpackTo.toAbsolutePath().toString().replace('\\', '/'));
 
         options.add("-subpackages");
         options.add(String.join(":", topLevelPackages));
@@ -227,7 +229,11 @@ public class JavadocJarMaker {
         options.add(String.join(":", expandedExcludedPackages));
       }
 
-      sources.values().stream().flatMap(List::stream).forEach(s -> options.add(s.fileObject.getName()));
+      sources.values().stream().flatMap(List::stream).forEach(s -> {
+        // Normalize path to use forward slashes for javadoc tool compatibility on Windows
+        String normalizedPath = s.fileObject.getName().replace('\\', '/');
+        options.add(normalizedPath);
+      });
 
       for (Path resource : resources) {
         Path target = outputTo.resolve(resource.getFileName());
