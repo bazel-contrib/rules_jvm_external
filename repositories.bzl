@@ -8,8 +8,8 @@ _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
 ]
 
-_MAVEN_VERSION = "3.9.8"
-_MAVEN_RESOLVER_VERSION = "1.9.20"
+_MAVEN_VERSION = "3.9.10"
+_MAVEN_RESOLVER_VERSION = "1.9.23"
 
 def rules_jvm_external_deps(
         repositories = _DEFAULT_REPOSITORIES,
