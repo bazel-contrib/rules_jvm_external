@@ -35,14 +35,3 @@ java_library(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
     ],
 )
-
-java_binary(
-    name = "create_jar",
-    main_class = "com.github.bazelbuild.rules_jvm_external.javadoc.CreateJar",
-    visibility = [
-        "//visibility:public",
-    ],
-    runtime_deps = [
-        ":create_jar_lib",
-    ],
-)

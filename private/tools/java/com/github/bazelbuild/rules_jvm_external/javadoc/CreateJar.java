@@ -18,39 +18,6 @@ import java.util.zip.ZipOutputStream;
 
 public class CreateJar {
 
-  public static void main(String[] args) throws IOException {
-    Path out = Paths.get(args[0]);
-    Set<Path> inputs = Stream.of(args).skip(1).map(Paths::get).collect(Collectors.toSet());
-
-    Path tmpDir = Files.createTempDirectory("create-jar-temp");
-    tmpDir.toFile().deleteOnExit();
-
-    for (Path input : inputs) {
-      if (!Files.isDirectory(input)) {
-        Files.copy(input, tmpDir.resolve(input.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-        continue;
-      }
-
-      Files.walk(input)
-          .forEachOrdered(
-              source -> {
-                try {
-                  Path target = tmpDir.resolve(input.relativize(source));
-                  if (Files.isDirectory(source)) {
-                    Files.createDirectories(target);
-                  } else {
-                    Files.createDirectories(target.getParent());
-                    Files.copy(source, target);
-                  }
-                } catch (IOException e) {
-                  throw new UncheckedIOException(e);
-                }
-              });
-    }
-
-    createJar(out, tmpDir);
-  }
-
   public static void createJar(Path out, Path inputDir) throws IOException {
     try (OutputStream os = Files.newOutputStream(out);
         ZipOutputStream zos = new ZipOutputStream(os);

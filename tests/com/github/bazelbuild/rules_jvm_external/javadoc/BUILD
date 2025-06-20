@@ -22,7 +22,6 @@ java_test(
     test_class = "com.github.bazelbuild.rules_jvm_external.javadoc.ExclusionTest",
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:create_jar_lib",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:javadoc_lib",
         "//tests/com/github/bazelbuild/rules_jvm_external:zip_utils",
         artifact(
