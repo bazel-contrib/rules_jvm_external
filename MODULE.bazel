@@ -493,13 +493,11 @@ dev_maven.override(
     coordinates = "io.opentelemetry:opentelemetry-api",
     target = "@//tests/integration/override_targets:additional_deps",
 )
-
 dev_maven.override(
     name = "override_target_in_deps",
     coordinates = "org.slf4j:slf4j-log4j12",
     target = "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
 )
-
 dev_maven.install(
     name = "same_override_target",
     artifacts = [
@@ -514,7 +512,6 @@ dev_maven.override(
     coordinates = "org.slf4j:slf4j-log4j12",
     target = "@same_override_target//:org_slf4j_slf4j_reload4j",
 )
-
 dev_maven.install(
     name = "policy_pinned_testing",
     artifacts = [
@@ -775,6 +772,26 @@ dev_maven.install(
     ],
 )
 
+# Ensure that if a root module defines an artifact, the version from the root
+# wins when artifact resolution completes.
+dev_maven.install(
+    name = "root_wins",
+    artifacts = [
+        "io.netty:netty-buffer",
+    ],
+    boms = [
+        "io.netty:netty-bom:4.1.121.Final",
+    ],
+    lock_file = "//tests/custom_maven_install:root_wins_install.json",
+    resolver = "maven",
+)
+
+bazel_dep(name = "root_wins_layer", version = "0.0.0", dev_dependency = True)
+local_path_override(
+    module_name = "root_wins_layer",
+    path = "tests/integration/root_wins_layer",
+)
+
 # Where there are file locks, the pinned and unpinned repos are listed
 # next to each other. Where compat repositories are created, they are
 # listed next to the repo that created them. The list is otherwise kept
@@ -867,6 +884,7 @@ use_repo(
 
     # Final entries
     "com_google_http_client_google_http_client",
+    "root_wins",
     "testonly_testing",
     "transitive_dependency_with_type_of_pom",
     "unpinned_v1_lock_file_format",

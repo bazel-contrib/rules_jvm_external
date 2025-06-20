@@ -501,6 +501,18 @@ maven_install(
     ],
 )
 
+# The test this is for is only for `bzlmod`, but we want to
+# be able to run tests in workspace mode too
+maven_install(
+    name = "root_wins",
+    artifacts = [
+        "io.netty:netty-buffer:4.1.121.Final",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
 maven_install(
     name = "service_indexing_testing",
     artifacts = [
