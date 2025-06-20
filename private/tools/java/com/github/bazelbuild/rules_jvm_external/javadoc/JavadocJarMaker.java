@@ -58,17 +58,6 @@ public class JavadocJarMaker {
   private static final Version JAVA_9 = Version.parse("9");
   private static final Version JAVA_13 = Version.parse("13");
 
-  // Wrapper class to store both JavaFileObject and original path
-  private static class SourceFile {
-    final JavaFileObject fileObject;
-    final String originalPath;
-
-    SourceFile(JavaFileObject fileObject, String originalPath) {
-      this.fileObject = fileObject;
-      this.originalPath = originalPath;
-    }
-  }
-
   public static void main(String[] args) throws IOException {
     Set<Path> sourceJars = new HashSet<>();
     Set<Path> resources = new HashSet<>();
@@ -149,7 +138,7 @@ public class JavadocJarMaker {
 
       Path unpackTo = Files.createTempDirectory("unpacked-sources");
       tempDirs.add(unpackTo);
-      Map<String, List<SourceFile>> sources = new HashMap<>();
+      Map<String, List<JavaFileObject>> sources = new HashMap<>();
       readSourceFiles(unpackTo, fileManager, sourceJars, sources);
       Set<String> expandedExcludedPackages = expandPackages(excludedPackages, sources.keySet());
       Set<String> expandedIncludedPackages = expandPackages(includedPackages, sources.keySet());
@@ -227,7 +216,7 @@ public class JavadocJarMaker {
         options.add(String.join(":", expandedExcludedPackages));
       }
 
-      sources.values().stream().flatMap(List::stream).forEach(s -> options.add(s.fileObject.getName()));
+      sources.values().stream().flatMap(List::stream).forEach(s -> options.add(s.getName()));
 
       for (Path resource : resources) {
         Path target = outputTo.resolve(resource.getFileName());
@@ -273,7 +262,7 @@ public class JavadocJarMaker {
       Path unpackTo,
       StandardJavaFileManager fileManager,
       Set<Path> sourceJars,
-      Map<String, List<SourceFile>> sources)
+      Map<String, List<JavaFileObject>> sources)
       throws IOException {
 
     for (Path jar : sourceJars) {
@@ -303,7 +292,7 @@ public class JavadocJarMaker {
               .forEach(
                   s -> {
                     String p = extractPackageName(s);
-                    sources.computeIfAbsent(p, k -> new ArrayList<>()).add(new SourceFile(s, name));
+                    sources.computeIfAbsent(p, k -> new ArrayList<>()).add(s);
                   });
         }
       }
@@ -357,7 +346,7 @@ public class JavadocJarMaker {
 
   private static void filterPackages(
       Path unpackTo,
-      Map<String, List<SourceFile>> sources,
+      Map<String, List<JavaFileObject>> sources,
       Set<String> expandedIncludedPackages,
       Set<String> expandedExcludedPackages) {
     // If no "include" packages are specified, then include everything
@@ -374,9 +363,7 @@ public class JavadocJarMaker {
           .forEach(
               s -> {
                 try {
-                  // Use the original path instead of s.fileObject.getName() to avoid
-                  // Windows path handling issues
-                  Files.deleteIfExists(unpackTo.resolve(s.originalPath));
+                  Files.deleteIfExists(unpackTo.resolve(s.getName()));
                 } catch (IOException e) {
                   throw new UncheckedIOException(e);
                 }
