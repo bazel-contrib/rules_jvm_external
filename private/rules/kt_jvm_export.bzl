@@ -2,7 +2,7 @@ load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load(":java_export.bzl", "maven_export")
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
 
-KOTLIN_STDLIB = Label("@rules_kotlin//kotlin/compiler:kotlin-stdlib")
+KOTLIN_STDLIB = "rules_kotlin"
 
 def kt_jvm_export(
         name,
@@ -70,11 +70,8 @@ def kt_jvm_export(
 
     javadocopts = kwargs.pop("javadocopts", None)
 
-    # ensure that the kotlin-stdlib is included in deploy_env
-    if KOTLIN_STDLIB not in deploy_env:
-        updated_deploy_env = deploy_env + [KOTLIN_STDLIB]
-    else:
-        updated_deploy_env = deploy_env
+    updated_excluded_workspaces = {name: None for name in excluded_workspaces}
+    updated_excluded_workspaces.update({KOTLIN_STDLIB: None})
 
     # Construct the kt_jvm_library we'll export from here.
     kt_jvm_library(
@@ -88,8 +85,8 @@ def kt_jvm_export(
         name = name,
         maven_coordinates = maven_coordinates,
         lib_name = lib_name,
-        deploy_env = updated_deploy_env,
-        excluded_workspaces = excluded_workspaces,
+        deploy_env = deploy_env,
+        excluded_workspaces = updated_excluded_workspaces,
         pom_template = pom_template,
         visibility = visibility,
         tags = tags,

@@ -493,13 +493,11 @@ dev_maven.override(
     coordinates = "io.opentelemetry:opentelemetry-api",
     target = "@//tests/integration/override_targets:additional_deps",
 )
-
 dev_maven.override(
     name = "override_target_in_deps",
     coordinates = "org.slf4j:slf4j-log4j12",
     target = "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
 )
-
 dev_maven.install(
     name = "same_override_target",
     artifacts = [
@@ -514,7 +512,6 @@ dev_maven.override(
     coordinates = "org.slf4j:slf4j-log4j12",
     target = "@same_override_target//:org_slf4j_slf4j_reload4j",
 )
-
 dev_maven.install(
     name = "policy_pinned_testing",
     artifacts = [
