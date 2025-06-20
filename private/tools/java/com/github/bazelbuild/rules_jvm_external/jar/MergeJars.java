@@ -43,20 +43,30 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class MergeJars {
 
+  private static final Set<Predicate<String>> ALWAYS_ALLOW_DUPLICATES =
+      Set.of("COPYRIGHT", "LICENSE", "NOTICE").stream()
+          .map(Pattern::compile)
+          .map(Pattern::asPredicate)
+          .collect(Collectors.toSet());
+
   public static void main(String[] args) throws IOException {
     Path out = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
     Set<Path> excludes = new HashSet<>();
+    Set<Predicate<String>> duplicateAllowList = new HashSet<>(ALWAYS_ALLOW_DUPLICATES);
     DuplicateEntryStrategy onDuplicate = LAST_IN_WINS;
 
     for (int i = 0; i < args.length; i++) {
@@ -64,6 +74,10 @@ public class MergeJars {
         case "--compression":
         case "--normalize":
           // ignore
+          break;
+
+        case "--allow-duplicate":
+          duplicateAllowList.add(Pattern.compile(args[++i]).asPredicate());
           break;
 
         case "--duplicates":
@@ -111,7 +125,7 @@ public class MergeJars {
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
     Map<String, List<String>> allServices = new TreeMap<>();
-    Set<String> excludedPaths = readExcludedClassNames(excludes);
+    Set<String> excludedPaths = readExcludedFileNames(excludes, duplicateAllowList);
 
     // Ultimately, we want the entries in the output zip to be sorted
     // so that we have a deterministic output.
@@ -295,7 +309,8 @@ public class MergeJars {
     }
   }
 
-  private static Set<String> readExcludedClassNames(Set<Path> excludes) throws IOException {
+  private static Set<String> readExcludedFileNames(
+      Set<Path> excludes, Set<Predicate<String>> duplicateAllowList) throws IOException {
     Set<String> paths = new HashSet<>();
 
     for (Path exclude : excludes) {
@@ -307,7 +322,10 @@ public class MergeJars {
           if (entry.isDirectory()) {
             continue;
           }
-          if (!entry.getName().endsWith(".class")) {
+
+          // We hope that the duplicate allow list is nice and short
+          ZipEntry finalEntry = entry;
+          if (duplicateAllowList.stream().anyMatch(pred -> pred.test(finalEntry.getName()))) {
             continue;
           }
 

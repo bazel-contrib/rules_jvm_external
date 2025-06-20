@@ -6,11 +6,10 @@ load("//private/rules:maven_install.bzl", "maven_install")
 
 _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
-    "https://repo.gradle.org/gradle/libs-releases/",
 ]
 
-_MAVEN_VERSION = "3.9.8"
-_MAVEN_RESOLVER_VERSION = "1.9.20"
+_MAVEN_VERSION = "3.9.10"
+_MAVEN_RESOLVER_VERSION = "1.9.23"
 _GRADLE_VERSION = "8.13"
 
 def rules_jvm_external_deps(
@@ -145,21 +144,10 @@ def rules_jvm_external_deps(
             "software.amazon.awssdk:s3:2.26.12",
             "org.bouncycastle:bcprov-jdk15on:1.68",
             "org.bouncycastle:bcpg-jdk15on:1.68",
-            "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
-            "com.github.jknack:handlebars:4.3.1",
         ],
         maven_install_json = deps_lock_file,
         fail_if_repin_required = True,
         strict_visibility = True,
         fetch_sources = True,
         repositories = repositories,
-    )
-
-    http_archive(
-        name = "gradle",
-        add_prefix = "gradle-bin",
-        build_file = "//:gradle.BUILD.bazel",
-        integrity = "sha256-IPGxF2I3JUpvwgTYQ0GW+hGkz7OHVnUZxhVW6HEK7Xg=",
-        strip_prefix = "gradle-{}".format(_GRADLE_VERSION),
-        url = "https://services.gradle.org/distributions/gradle-{}-bin.zip".format(_GRADLE_VERSION),
     )

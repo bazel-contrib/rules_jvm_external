@@ -1,6 +1,6 @@
 module(
     name = "rules_jvm_external",
-    version = "6.7",
+    version = "6.8",
     bazel_compatibility = [">=7.0.0"],
 )
 
@@ -50,9 +50,9 @@ use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
 
 maven = use_extension(":extensions.bzl", "maven")
 
-_MAVEN_VERSION = "3.9.8"
+_MAVEN_VERSION = "3.9.10"
 
-_MAVEN_RESOLVER_VERSION = "1.9.20"
+_MAVEN_RESOLVER_VERSION = "1.9.23"
 
 _GRADLE_VERSION = "8.13"
 
@@ -197,6 +197,7 @@ dev_maven = use_extension(
 dev_maven.install(
     artifacts = [
         "com.google.guava:guava:31.1-jre",
+        "com.google.protobuf:protobuf-java:4.29.4",
         "org.hamcrest:hamcrest-core:2.1",
         "io.netty:netty-tcnative-boringssl-static:2.0.61.Final",
     ],
@@ -501,6 +502,7 @@ dev_maven.install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
+        "org.slf4j:slf4j-log4j12:1.7.36",
         "redis.clients:jedis:5.0.2",
     ],
     lock_file = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
@@ -510,6 +512,28 @@ dev_maven.override(
     coordinates = "io.opentelemetry:opentelemetry-api",
     target = "@//tests/integration/override_targets:additional_deps",
 )
+
+dev_maven.override(
+    name = "override_target_in_deps",
+    coordinates = "org.slf4j:slf4j-log4j12",
+    target = "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
+)
+
+dev_maven.install(
+    name = "same_override_target",
+    artifacts = [
+        "org.slf4j:slf4j-log4j12:1.7.36",
+    ],
+    lock_file = "@rules_jvm_external//tests/custom_maven_install:same_override_target_install.json",
+)
+
+# Test that we can have the same override in two different repos
+dev_maven.override(
+    name = "same_override_target",
+    coordinates = "org.slf4j:slf4j-log4j12",
+    target = "@same_override_target//:org_slf4j_slf4j_reload4j",
+)
+
 dev_maven.install(
     name = "policy_pinned_testing",
     artifacts = [
@@ -848,7 +872,9 @@ use_repo(
 
     # Pinned repo
     "override_target_in_deps",
+    "same_override_target",
     "unpinned_override_target_in_deps",
+    "unpinned_same_override_target",
 
     # Pinned repo
     "policy_pinned_testing",

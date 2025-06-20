@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
+load("//private/lib:coordinates.bzl", "to_external_form")
+
 _REQUIRED_KEYS = ["artifacts", "dependencies", "repositories"]
 
 def _is_valid_lock_file(lock_file_contents):
@@ -66,7 +68,7 @@ def _to_m2_path(unpacked):
     return path
 
 def _to_maven_coordinates(unpacked):
-    coords = "%s:%s" % (unpacked.get("group"), unpacked.get("artifact"))
+    coords = "%s:%s" % (unpacked["group"], unpacked["artifact"])
 
     extension = unpacked.get("packaging", "jar")
     if not extension:
@@ -83,8 +85,37 @@ def _to_maven_coordinates(unpacked):
 
     return coords
 
-def _to_key(coords):
-    return coords.rsplit(":", 1)[0]
+def _to_key(unpacked):
+    coords = "%s:%s" % (unpacked["group"], unpacked["artifact"])
+
+    extension = unpacked.get("packaging", "jar")
+    if not extension:
+        extension = "jar"
+    classifier = unpacked.get("classifier", "jar")
+    if not classifier:
+        classifier = "jar"
+
+    if classifier != "jar":
+        coords += ":%s:%s" % (extension, classifier)
+    elif extension != "jar":
+        coords += ":%s" % extension
+
+    return coords
+
+def _from_key(key, spoofed_version):
+    expected = "%s:%s" % (key, spoofed_version)
+
+    parts = key.split(":")
+
+    # group:artifact[:packaging[:classifier]]:version
+    # group:artifact[:version][:classifier][@packaging]
+    to_return = "%s:%s:%s" % (parts[0], parts[1], spoofed_version)
+    if len(parts) == 4:
+        to_return += ":%s@%s" % (parts[3], parts[2])
+    elif len(parts) == 3:
+        to_return += "@%s" % (parts[2])
+
+    return to_return
 
 def _get_artifacts(lock_file_contents):
     raw_artifacts = lock_file_contents.get("artifacts", {})
@@ -115,8 +146,8 @@ def _get_artifacts(lock_file_contents):
 
         for (classifier, shasum) in data.get("shasums", {}).items():
             root_unpacked["classifier"] = classifier
-            coordinates = _to_maven_coordinates(root_unpacked)
-            key = _to_key(coordinates)
+            coordinates = to_external_form(root_unpacked)
+            key = _to_key(root_unpacked)
 
             urls = []
             for (repo, artifacts_within_repo) in repositories.items():
@@ -134,7 +165,7 @@ def _get_artifacts(lock_file_contents):
             # after we moved to this lock file format. However, all the code in the
             # rest of the repo assumes that the deps will be have them. Since we don't
             # expect those deps to matter, fake it.
-            deps = [dep + ":3.141.59-fake" for dep in dependencies.get(key, [])]
+            deps = [_from_key(dep, "spoofed-version") for dep in dependencies.get(key, [])]
 
             artifacts.append({
                 "coordinates": coordinates,

@@ -600,6 +600,7 @@ public class MergeJarsTest {
           "--output", outputJar.toAbsolutePath().toString(),
           "--sources", inputOne.toAbsolutePath().toString(),
           "--exclude", excludeOne.toAbsolutePath().toString(),
+          "--allow-duplicate", "log4j.properties",
         });
 
     Map<String, String> contents = readJar(outputJar);
@@ -626,6 +627,7 @@ public class MergeJarsTest {
           "--sources", inputOne.toAbsolutePath().toString(),
           "--sources", inputTwo.toAbsolutePath().toString(),
           "--exclude", excludeOne.toAbsolutePath().toString(),
+          "--allow-duplicate", "log4j.properties",
         });
 
     Map<String, String> contents = readJar(outputJar);
@@ -653,6 +655,7 @@ public class MergeJarsTest {
           "--sources", inputTwo.toAbsolutePath().toString(),
           "--duplicates", "first-wins",
           "--exclude", excludeOne.toAbsolutePath().toString(),
+          "--allow-duplicate", "log4j.properties",
         });
 
     Map<String, String> contents = readJar(outputJar);

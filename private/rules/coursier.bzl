@@ -17,8 +17,8 @@ load(
     "//private:coursier_utilities.bzl",
     "SUPPORTED_PACKAGING_TYPES",
     "contains_git_conflict_markers",
-    "escape",
     "is_maven_local_path",
+    "to_repository_name",
 )
 load("//private:dependency_tree_parser.bzl", "parser")
 load("//private:java_utilities.bzl", "build_java_argsfile_content")
@@ -37,6 +37,7 @@ _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_license//rules:package_info.bzl", "package_info")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
@@ -587,7 +588,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     netrc_entries = importer.get_netrc_entries(maven_install_json_content)
 
     for artifact in importer.get_artifacts(maven_install_json_content):
-        http_file_repository_name = escape(artifact["coordinates"])
+        http_file_repository_name = to_repository_name(artifact["coordinates"])
         if artifact.get("file"):
             maven_artifacts.extend([artifact["coordinates"]])
             http_files.extend([
@@ -1277,10 +1278,7 @@ def _coursier_fetch_impl(repository_ctx):
     lock_file_contents = json.decode(result.stdout)
 
     inputs_hash, _ = compute_dependency_inputs_signature(
-        # We are in `coursier_fetch`, and we've decided to require lock files when
-        # using a resolver that can resolve using boms. As such, we lack the `boms`
-        # attr, so pass in an empty array here, which is what we expect.
-        boms = [],
+        boms = repository_ctx.attr.boms,
         artifacts = repository_ctx.attr.artifacts,
         repositories = repository_ctx.attr.repositories,
         excluded_artifacts = repository_ctx.attr.excluded_artifacts,
