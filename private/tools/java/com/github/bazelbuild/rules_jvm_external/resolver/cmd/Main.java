@@ -75,7 +75,13 @@ public class Main {
 
       infos = fulfillDependencyInfos(listener, config, resolutionResult.getResolution());
 
-      writeLockFile(listener, config, request, infos, resolutionResult.getConflicts(), resolutionResult.getExclusions());
+      writeLockFile(
+          listener,
+          config,
+          request,
+          infos,
+          resolutionResult.getConflicts(),
+          resolutionResult.getExclusions());
 
       System.exit(0);
     } catch (Exception e) {
@@ -268,15 +274,18 @@ public class Main {
 
     listener.close();
 
-    Map<String, Set<String>> exclusionsMap = exclusions.entrySet().stream()
-        .collect(Collectors.toMap(
-            entry -> entry.getKey().toString(),
-            entry -> entry.getValue().stream()
-                .map(Coordinates::toString)
-                .collect(Collectors.toSet()),
-            (existing, replacement) -> existing, // merge function in case of duplicates
-            TreeMap::new // supplier to maintain TreeMap ordering
-        ));
+    Map<String, Set<String>> exclusionsMap =
+        exclusions.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    entry -> entry.getKey().toString(),
+                    entry ->
+                        entry.getValue().stream()
+                            .map(Coordinates::toString)
+                            .collect(Collectors.toSet()),
+                    (existing, replacement) -> existing, // merge function in case of duplicates
+                    TreeMap::new // supplier to maintain TreeMap ordering
+                    ));
 
     Map<String, Object> rendered =
         new V2LockFile(request.getRepositories(), infos, conflicts, exclusionsMap).render();
