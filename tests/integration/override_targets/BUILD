@@ -69,3 +69,20 @@ sh_test(
         "@bazel_tools//tools/bash/runfiles",
     ],
 )
+
+genquery(
+    name = "root_module_can_override",
+    expression = "deps(@root_module_can_override//:com_squareup_okhttp3_okhttp)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@root_module_can_override//:com_squareup_okhttp3_okhttp"],
+)
+
+sh_test(
+    name = "root_module_can_override_test",
+    srcs = ["root_module_can_override_test.sh"],
+    data = [":root_module_can_override"],
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)
