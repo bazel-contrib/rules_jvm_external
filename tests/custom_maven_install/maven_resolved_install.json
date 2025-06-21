@@ -771,7 +771,15 @@
       "org.seleniumhq.selenium:selenium-remote-driver"
     ]
   },
-  "exclusions": {},
+  "exclusions": {
+    "com.google.auto.value:auto-value-annotations": [
+      "org.slf4j:slf4j-api"
+    ],
+    "net.sf.json-lib:json-lib": [],
+    "org.drools:drools-mvel": [],
+    "org.optaplanner:optaplanner-core": [],
+    "org.seleniumhq.selenium:selenium-java": []
+  },
   "packages": {
     "com.github.javaparser:javaparser-core": [
       "com.github.javaparser",

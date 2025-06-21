@@ -144,7 +144,13 @@
       "org.slf4j:slf4j-api"
     ]
   },
-  "exclusions": {},
+  "exclusions": {
+    "io.opentelemetry:opentelemetry-api": [],
+    "io.opentelemetry:opentelemetry-sdk": [],
+    "org.apache.parquet:parquet-common": [],
+    "org.codehaus.plexus:plexus": [],
+    "org.hamcrest:hamcrest-core": []
+  },
   "packages": {
     "io.opentelemetry:opentelemetry-api": [
       "io.opentelemetry.api",
