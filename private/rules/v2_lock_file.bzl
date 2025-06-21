@@ -124,6 +124,7 @@ def _get_artifacts(lock_file_contents):
     files = lock_file_contents.get("files", {})
     skipped = lock_file_contents.get("skipped", [])
     services = lock_file_contents.get("services", {})
+    exclusions = lock_file_contents.get("exclusions", {})
 
     artifacts = []
 
@@ -174,6 +175,7 @@ def _get_artifacts(lock_file_contents):
                 "deps": deps,
                 "annotation_processors": services.get(root, {}).get("javax.annotation.processing.Processor", []),
                 "urls": urls,
+                "exclusions": exclusions.get(key, []),
             })
 
     return artifacts
@@ -212,6 +214,7 @@ def _render_lock_file(lock_file_contents, input_hash):
     contents.append("  \"services\": %s," % json.encode_indent(lock_file_contents["services"], prefix = "  ", indent = "  "))
     if lock_file_contents.get("skipped"):
         contents.append("  \"skipped\": %s," % json.encode_indent(lock_file_contents["skipped"], prefix = "  ", indent = "  "))
+    contents.append("  \"exclusions\": %s," % json.encode_indent(lock_file_contents.get("exclusions", {}), prefix = "  ", indent = "  "))
     contents.append("  \"version\": \"2\"")
     contents.append("}")
     contents.append("")

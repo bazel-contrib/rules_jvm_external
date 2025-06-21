@@ -11,7 +11,7 @@ def _whitespace(indent):
         whitespace = whitespace + " "
     return whitespace
 
-def format_dep(unpacked, scope = None, indent = 8, include_version = True):
+def format_dep(unpacked, scope = None, indent = 8, include_version = True, exclusions = {}):
     whitespace = _whitespace(indent)
 
     dependency = [
@@ -47,6 +47,28 @@ def format_dep(unpacked, scope = None, indent = 8, include_version = True):
             "    <scope>%s</scope>\n" % scope,
         ])
 
+    if exclusions:
+        dependency.extend([
+            whitespace,
+            "    <exclusions>\n",
+        ])
+        for exclusion in exclusions:
+            group, artifact = exclusion.split(":")
+            dependency.extend([
+                whitespace,
+                "        <exclusion>\n",
+                whitespace,
+                "            <groupId>%s</groupId>\n" % group,
+                whitespace,
+                "            <artifactId>%s</artifactId>\n" % artifact,
+                whitespace,
+                "        </exclusion>\n",
+            ])
+        dependency.extend([
+            whitespace,
+            "    </exclusions>\n",
+        ])
+
     dependency.extend([
         whitespace,
         "</dependency>",
@@ -64,7 +86,8 @@ def generate_pom(
         versioned_dep_coordinates = [],
         unversioned_dep_coordinates = [],
         versioned_export_dep_coordinates = [],
-        indent = 8):
+        indent = 8,
+        exclusions = {}):
     versioned_export_dep_coordinates_set = {
         k: None
         for k in versioned_export_dep_coordinates
@@ -77,6 +100,10 @@ def generate_pom(
         "{type}": unpacked_coordinates.packaging or "jar",
         "{classifier}": unpacked_coordinates.classifier or "jar",
     }
+
+    for key in exclusions:
+        if key not in versioned_dep_coordinates and key not in unversioned_dep_coordinates:
+            fail("Key %s in exclusions does not occur in versioned_dep_coordinates or unversioned_dep_coordinates" % key)
 
     if parent:
         # We only want the groupId, artifactID, and version
@@ -117,7 +144,7 @@ def generate_pom(
         if unpacked.packaging == "pom":
             new_scope = "import"
 
-        deps.append(format_dep(unpacked, scope = new_scope, indent = indent, include_version = include_version))
+        deps.append(format_dep(unpacked, scope = new_scope, indent = indent, exclusions = exclusions.get(dep, {}), include_version = include_version))
 
     substitutions.update({"{dependencies}": "\n".join(deps)})
 

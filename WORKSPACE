@@ -967,3 +967,51 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+maven_install(
+    name = "pom_exclusion_testing_coursier",
+    artifacts = [
+        maven.artifact(
+            artifact = "guava",
+            exclusions = [
+                maven.exclusion(
+                    artifact = "error_prone_annotations",
+                    group = "com.google.errorprone",
+                ),
+            ],
+            group = "com.google.guava",
+            version = "31.1-jre",
+        ),
+    ],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
+    name = "pom_exclusion_testing_maven",
+    artifacts = [
+        maven.artifact(
+            artifact = "guava",
+            exclusions = [
+                maven.exclusion(
+                    artifact = "error_prone_annotations",
+                    group = "com.google.errorprone",
+                ),
+            ],
+            group = "com.google.guava",
+            version = "31.1-jre",
+        ),
+    ],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "maven",
+)
