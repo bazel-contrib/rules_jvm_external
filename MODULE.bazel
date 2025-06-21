@@ -785,6 +785,22 @@ dev_maven.artifact(
     group = "com.google.guava",
     version = "31.1-jre",
 )
+dev_maven.install(
+    name = "pom_exclusion_testing_maven",
+    artifacts = [],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
+    resolver = "maven",
+)
+dev_maven.artifact(
+    name = "pom_exclusion_testing_maven",
+    artifact = "guava",
+    exclusions = ["com.google.errorprone:error_prone_annotations"],
+    group = "com.google.guava",
+    version = "31.1-jre",
+)
 
 # Where there are file locks, the pinned and unpinned repos are listed
 # next to each other. Where compat repositories are created, they are
@@ -868,6 +884,8 @@ use_repo(
     "unpinned_regression_testing_maven",
 
     # Back to the testing repos
+    "pom_exclusion_testing_coursier",
+    "pom_exclusion_testing_maven",
     "starlark_aar_import_test",
     "starlark_aar_import_with_sources_test",
     "strict_visibility_testing",
@@ -878,7 +896,6 @@ use_repo(
 
     # Final entries
     "com_google_http_client_google_http_client",
-    "pom_exclusion_testing_coursier",
     "testonly_testing",
     "transitive_dependency_with_type_of_pom",
     "unpinned_v1_lock_file_format",
