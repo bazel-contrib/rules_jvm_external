@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -98,6 +99,9 @@ public class MavenPublisher {
     Path pom = Paths.get(args[1]);
     Path mainArtifact = getPathIfSet(args[2]);
 
+    Path maven_metadata_dir = null;
+    Path maven_metadata_xml = null;
+
     try {
       List<CompletableFuture<Void>> futures = new ArrayList<>();
       futures.add(upload(repo, credentials, coords, ".pom", pom, signingMetadata));
@@ -106,6 +110,39 @@ public class MavenPublisher {
         String ext =
             com.google.common.io.Files.getFileExtension(mainArtifact.getFileName().toString());
         futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, signingMetadata));
+      }
+
+      // Update maven-metadata for local maven repositories.
+      // This makes it so the target maven repository can be directly used without further steps.
+      if (repo.startsWith("file:/")) {
+        maven_metadata_dir = Files.createTempDirectory("maven-metadata");
+        maven_metadata_xml = maven_metadata_dir.resolve("maven-metadata.xml");
+        String template =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<metadata>\n"
+                + "  <groupId>{groupId}</groupId>\n"
+                + "  <artifactId>{artifactId}</artifactId>\n"
+                + "  <versioning>\n"
+                + "    <latest>{version}</latest>\n"
+                + "    <release>{version}</release>\n"
+                + "    <versions>\n"
+                + "      <version>{version}</version>\n"
+                + "    </versions>\n"
+                + "    <lastUpdated>{lastUpdated}</lastUpdated>\n"
+                + "  </versioning>\n"
+                + "</metadata>\n";
+        template = template.replace("{groupId}", coords.groupId);
+        template = template.replace("{artifactId}", coords.artifactId);
+        template = template.replace("{version}", coords.version);
+        template =
+            template.replace("{lastUpdated}", String.valueOf(Instant.now().getEpochSecond()));
+        Files.writeString(maven_metadata_xml, template);
+
+        String metadata_url =
+            String.format(
+                "%s/%s/%s/maven-metadata.xml",
+                repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
+        futures.add(upload(metadata_url, credentials, maven_metadata_xml));
       }
 
       if (args.length > 3 && !args[3].isEmpty()) {
@@ -131,6 +168,13 @@ public class MavenPublisher {
       all.get(30, MINUTES);
     } finally {
       EXECUTOR.shutdown();
+
+      if (maven_metadata_xml != null) {
+        Files.delete(maven_metadata_xml);
+      }
+      if (maven_metadata_dir != null) {
+        Files.delete(maven_metadata_dir);
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
+// Copyright 2025 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.bazelbuild.rules_jvm_external.resolver;
+package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
-public interface Resolver {
-  String getName();
+import java.util.List;
 
-  ResolutionResult resolve(ResolutionRequest request);
+/** GradleDependency models a gradle dependency declared in build.gradle.kts */
+public interface GradleDependency {
+  String getGroup();
+
+  String getArtifact();
+
+  String getVersion();
+
+  String getClassifier();
+
+  String getExtension();
+
+  List<Exclusion> getExclusions();
 }

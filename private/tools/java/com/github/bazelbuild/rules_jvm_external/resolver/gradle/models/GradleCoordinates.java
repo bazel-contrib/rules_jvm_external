@@ -1,4 +1,4 @@
-// Copyright 2024 The Bazel Authors. All rights reserved.
+// Copyright 2025 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.bazelbuild.rules_jvm_external.resolver;
+package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
-public interface Resolver {
-  String getName();
+/**
+ * GradleCoordinates models the coordinates representation of Coordinates in build.gradle. Similar
+ * to the existing Coordinates class in rules_jvm_external, but we need to use interfaces to work
+ * with Gradle Tooling Model builder.
+ */
+public interface GradleCoordinates {
+  String getGroupId();
 
-  ResolutionResult resolve(ResolutionRequest request);
+  String getArtifactId();
+
+  String getVersion();
+
+  String getClassifier();
+
+  String getExtension();
 }
