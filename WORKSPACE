@@ -351,6 +351,33 @@ load("@regression_testing_maven//:compat.bzl", "compat_repositories")
 
 compat_repositories()
 
+maven_install(
+    name = "regression_testing_gradle",
+    artifacts = [
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909
+        "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
+        "androidx.annotation:annotation:1.6.0",
+    ],
+    fail_if_repin_required = True,
+    generate_compat_repositories = True,
+    maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
+    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_gradle//:pin` to refresh the lock file.",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "gradle",
+)
+
+load("@regression_testing_gradle//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+load("@regression_testing_gradle//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
 # Grab com.google.ar.sceneform:rendering because we overrode it above
 http_file(
     name = "com.google.ar.sceneform_rendering",

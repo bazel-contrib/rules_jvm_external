@@ -54,6 +54,8 @@ _MAVEN_VERSION = "3.9.10"
 
 _MAVEN_RESOLVER_VERSION = "1.9.23"
 
+_GRADLE_VERSION = "8.13"
+
 # NOTE: Please keep any changes to this maven.install in sync with the
 # definition in repositories.bzl
 maven.install(
@@ -90,16 +92,33 @@ maven.install(
         "software.amazon.awssdk:s3:2.26.12",
         "org.bouncycastle:bcprov-jdk15on:1.68",
         "org.bouncycastle:bcpg-jdk15on:1.68",
+        "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
+        "com.github.jknack:handlebars:4.3.1",
     ],
     fail_if_repin_required = True,
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://repo.gradle.org/gradle/libs-releases/",
+    ],
     strict_visibility = True,
 )
 use_repo(
     maven,
     "rules_jvm_external_deps",
     "unpinned_rules_jvm_external_deps",
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "gradle",
+    add_prefix = "gradle-bin",
+    build_file = "//:gradle.BUILD.bazel",
+    integrity = "sha256-IPGxF2I3JUpvwgTYQ0GW+hGkz7OHVnUZxhVW6HEK7Xg=",
+    strip_prefix = "gradle-{}".format(_GRADLE_VERSION),
+    url = "https://services.gradle.org/distributions/gradle-{}-bin.zip".format(_GRADLE_VERSION),
 )
 
 http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
@@ -670,6 +689,23 @@ dev_maven.install(
     ],
     resolver = "maven",
 )
+dev_maven.install(
+    name = "regression_testing_gradle",
+    artifacts = [
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909
+        "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
+        "androidx.annotation:annotation:1.6.0",
+    ],
+    fail_if_repin_required = True,
+    generate_compat_repositories = True,
+    lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "gradle",
+)
 
 # https://github.com/bazelbuild/rules_jvm_external/issues/1162
 dev_maven.artifact(
@@ -852,6 +888,7 @@ use_repo(
     "org_eclipse_jetty_jetty_http_tests",
     "org_pantsbuild_jarjar",
     "regression_testing_coursier",
+    "regression_testing_gradle",
     "regression_testing_maven",
     "unpinned_regression_testing_coursier",
     "unpinned_regression_testing_maven",
