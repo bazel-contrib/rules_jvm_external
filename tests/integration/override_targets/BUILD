@@ -69,12 +69,15 @@ genrule(
     cmd = "cat $< | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
 )
 
-diff_test(
-    name = "override_contains_additional_deps_test",
-    file1 = ":override_contains_additional_deps.golden",
-    file2 = ":override_contains_additional_deps_sorted.txt",
-    # This test only makes sense if we're running with `bzlmod` enabled
-    tags = [] if is_bzlmod_enabled() else ["manual"],
+sh_test(
+    name = "override_contains_additional_deps",
+    srcs = ["override_contains_additional_deps.sh"],
+    data = [
+        ":trace_otel_deps",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
+    ],
 )
 
 genquery(
