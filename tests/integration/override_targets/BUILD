@@ -61,14 +61,6 @@ genquery(
     scope = ["@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk"],
 )
 
-genrule(
-    name = "override_contains_additional_deps_sorted",
-    testonly = 1,
-    srcs = [":trace_otel_deps"],
-    outs = ["override_contains_additional_deps_sorted.txt"],
-    cmd = "cat $< | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
-)
-
 sh_test(
     name = "override_contains_additional_deps",
     srcs = ["override_contains_additional_deps.sh"],
