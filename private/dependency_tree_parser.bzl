@@ -27,11 +27,12 @@ load(
     "match_group_and_artifact",
     "strip_packaging_and_classifier",
     "strip_packaging_and_classifier_and_version",
+    "to_repository_name",
 )
 load("//private/lib:coordinates.bzl", "unpack_coordinates")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
-    http_file_repository = escape(artifact["coordinates"])
+    http_file_repository = to_repository_name(artifact["coordinates"])
 
     file = artifact.get("out", artifact["file"])
 
@@ -146,7 +147,7 @@ copy_file(
     visibility = ["//visibility:public"],
 )""".format(
                 dylib = dylib,
-                repository = escape(artifact["coordinates"]),
+                repository = to_repository_name(artifact["coordinates"]),
             ),
         )
 
@@ -449,7 +450,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             )
         elif packaging in ("exe", "json"):
             seen_imports[target_label] = True
-            versioned_target_alias_label = "%s_extension" % escape(artifact["coordinates"])
+            versioned_target_alias_label = "%s_extension" % to_repository_name(artifact["coordinates"])
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label),
             )

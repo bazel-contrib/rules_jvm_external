@@ -67,7 +67,7 @@ Table of Contents
 
 * MODULE.bazel bzlmod configuration (Bazel 7 and above) 
 * WORKSPACE configuration
-* Artifact version resolution with Coursier or Maven
+* Artifact version resolution with Coursier, Maven or Gradle
 * Import downloaded JAR, AAR, source JARs
 * Export built JARs to Maven repositories
 * Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file

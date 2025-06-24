@@ -351,6 +351,33 @@ load("@regression_testing_maven//:compat.bzl", "compat_repositories")
 
 compat_repositories()
 
+maven_install(
+    name = "regression_testing_gradle",
+    artifacts = [
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909
+        "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
+        "androidx.annotation:annotation:1.6.0",
+    ],
+    fail_if_repin_required = True,
+    generate_compat_repositories = True,
+    maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
+    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_gradle//:pin` to refresh the lock file.",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "gradle",
+)
+
+load("@regression_testing_gradle//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+load("@regression_testing_gradle//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
 # Grab com.google.ar.sceneform:rendering because we overrode it above
 http_file(
     name = "com.google.ar.sceneform_rendering",
@@ -498,6 +525,18 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
+    ],
+)
+
+# The test this is for is only for `bzlmod`, but we want to
+# be able to run tests in workspace mode too
+maven_install(
+    name = "root_wins",
+    artifacts = [
+        "io.netty:netty-buffer:4.1.121.Final",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -859,12 +898,14 @@ maven_install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
+        "org.slf4j:slf4j-log4j12:1.7.36",
         "redis.clients:jedis:5.0.2",
     ],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
     override_targets = {
         # This is a transitive dep of `opentelemetry-sdk`
         "io.opentelemetry:opentelemetry-api": "@//tests/integration/override_targets:additional_deps",
+        "org.slf4j:slf4j-log4j12": "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
     },
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -874,6 +915,24 @@ maven_install(
 load("@override_target_in_deps//:defs.bzl", _override_target_in_deps_maven_install = "pinned_maven_install")
 
 _override_target_in_deps_maven_install()
+
+maven_install(
+    name = "same_override_target",
+    artifacts = [
+        "org.slf4j:slf4j-log4j12:1.7.36",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:same_override_target_install.json",
+    override_targets = {
+        "org.slf4j:slf4j-log4j12": "@same_override_target//:org_slf4j_slf4j_reload4j",
+    },
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@same_override_target//:defs.bzl", _same_override_target_maven_install = "pinned_maven_install")
+
+_same_override_target_maven_install()
 
 maven_install(
     name = "forcing_versions",
