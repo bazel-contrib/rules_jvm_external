@@ -373,13 +373,21 @@ def maven_impl(mctx):
     repo_name_2_module_name = {}
 
     # Process overrides first (they don't need deduplication)
-    for mod in mctx.modules:
+    # The order of the transitive overrides do not matter, but the root
+    # overrides take precedence over all transitive ones.
+    for idx, mod in enumerate(reversed(mctx.modules)):
+        # Rotate the root module to the last to be visited.
+        is_root_module = idx == (len(mctx.modules) - 1)
         for override in mod.tags.override:
             if not override.name in overrides:
                 overrides[override.name] = {}
             value = str(override.target)
-            current = overrides[override.name].get(override.coordinates)
-            to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
+            if is_root_module:
+                # Allow the root module's overrides to take precedence over any transitive overrides.
+                to_use = value
+            else:
+                current = overrides[override.name].get(override.coordinates)
+                to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
             overrides[override.name].update({override.coordinates: to_use})
 
     # First pass: process the module tags, but keep root and non-root modules separately
