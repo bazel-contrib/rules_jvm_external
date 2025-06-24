@@ -17,8 +17,8 @@ load(
     "//private:coursier_utilities.bzl",
     "SUPPORTED_PACKAGING_TYPES",
     "contains_git_conflict_markers",
-    "escape",
     "is_maven_local_path",
+    "to_repository_name",
 )
 load("//private:dependency_tree_parser.bzl", "parser")
 load("//private:java_utilities.bzl", "build_java_argsfile_content")
@@ -115,6 +115,7 @@ pin_dependencies(
     lock_file = {lock_file},
     jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
+    resolver = {resolver},
 )
 """
 
@@ -587,7 +588,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     netrc_entries = importer.get_netrc_entries(maven_install_json_content)
 
     for artifact in importer.get_artifacts(maven_install_json_content):
-        http_file_repository_name = escape(artifact["coordinates"])
+        http_file_repository_name = to_repository_name(artifact["coordinates"])
         if artifact.get("file"):
             maven_artifacts.extend([artifact["coordinates"]])
             http_files.extend([
@@ -716,6 +717,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
+            resolver = repr(repository_ctx.attr.resolver),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
@@ -1413,7 +1415,7 @@ pinned_coursier_fetch = repository_rule(
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),
-        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "maven"], default = "coursier"),
+        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "maven", "gradle"], default = "coursier"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "boms": attr.string_list(),  # list of bom objects, each as json

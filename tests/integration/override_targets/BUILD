@@ -2,6 +2,7 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_android//android:rules.bzl", "aar_import", "android_binary")
 load("@rules_java//java:defs.bzl", "java_library")
+load("//tests/integration:is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 
 build_test(
     name = "override_targets",
@@ -72,6 +73,8 @@ diff_test(
     name = "override_contains_additional_deps_test",
     file1 = ":override_contains_additional_deps.golden",
     file2 = ":override_contains_additional_deps_sorted.txt",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
 )
 
 genquery(
@@ -96,4 +99,6 @@ diff_test(
     name = "root_module_can_override_test",
     file1 = ":root_module_can_override.golden",
     file2 = ":root_module_can_override_sorted.txt",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
 )

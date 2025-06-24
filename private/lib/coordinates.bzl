@@ -28,6 +28,15 @@ def unpack_coordinates(coords):
     if not coords:
         return None
 
+    if type(coords) == "dict":
+        return struct(
+            group = coords["group"],
+            artifact = coords["artifact"],
+            version = coords.get("version", ""),
+            packaging = coords.get("packaging", None),
+            classifier = coords.get("classifier", None),
+        )
+
     pieces = coords.split(":")
     if len(pieces) < 2:
         fail("Could not parse maven coordinate: %s" % coords)
@@ -101,6 +110,10 @@ def to_external_form(coords):
 
     if type(coords) == "string":
         unpacked = unpack_coordinates(coords)
+    elif type(coords) == "dict":
+        # Ensures that we have all the fields we expect to be present
+        fully_populated = {"version": None, "packaging": None, "classifier": None} | coords
+        unpacked = struct(**fully_populated)
     else:
         unpacked = coords
 

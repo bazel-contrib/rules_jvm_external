@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver;
 
 public interface Resolver {
+  String getName();
 
   ResolutionResult resolve(ResolutionRequest request);
 }
