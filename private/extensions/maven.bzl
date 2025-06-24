@@ -130,6 +130,25 @@ override = tag_class(
     },
 )
 
+from_file = tag_class(
+    attrs = {
+        "name": attr.string(default = DEFAULT_NAME),
+        "artifact_src": attr.label(doc = "File to read artifacts from. There must be one entry per line"),
+        "bom_src": attr.label(doc = "File to read BOMs from. There must be one entry per line"),
+    },
+)
+
+amend_artifact = tag_class(
+    attrs = {
+        "name": attr.string(default = DEFAULT_NAME),
+        "coordinates": attr.string(doc = "Coordinates of the artifact to amend.", mandatory = True),
+        "force_version": attr.bool(default = False),
+        "neverlink": attr.bool(),
+        "testonly": attr.bool(),
+        "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
+    },
+)
+
 def _logical_or(source, key, default_value, new_value):
     current = source.get(key, default_value)
     source[key] = current or new_value
@@ -276,8 +295,84 @@ def _deduplicate_artifacts_with_root_priority(root_artifacts, non_root_artifacts
 
     return root_artifacts + filtered_non_root
 
-def _process_module_tags(mod, target_repos, repo_name_2_module_name):
+def _amend_artifact(original_artifact, amend):
+    """Apply amendments to an artifact struct, returning a new amended struct."""
+
+    # Handle exclusions by merging with existing ones
+    existing_exclusions = getattr(original_artifact, "exclusions", []) or []
+    final_exclusions = existing_exclusions
+    if amend.exclusions:
+        new_exclusions = _add_exclusions(amend.exclusions)
+        final_exclusions = existing_exclusions + new_exclusions
+
+    # Create new struct with amendments applied
+    return struct(
+        group = original_artifact.group,
+        artifact = original_artifact.artifact,
+        version = getattr(original_artifact, "version", None),
+        packaging = getattr(original_artifact, "packaging", None),
+        classifier = getattr(original_artifact, "classifier", None),
+        force_version = amend.force_version if amend.force_version else getattr(original_artifact, "force_version", None),
+        neverlink = amend.neverlink if amend.neverlink else getattr(original_artifact, "neverlink", None),
+        testonly = amend.testonly if amend.testonly else getattr(original_artifact, "testonly", None),
+        exclusions = final_exclusions if final_exclusions else None,
+    )
+
+def _coordinates_match(artifact, coordinates):
+    """Check if an artifact's `group` and `artifact` matches the given coordinate string."""
+    coords = unpack_coordinates(coordinates)
+    return (artifact.group == coords.group and
+            artifact.artifact == coords.artifact)
+
+def _process_coordinates_file(mctx, file_label):
+    """Read and parse coordinates from a file, returning a list of coordinate structs."""
+    if not file_label:
+        return []
+
+    file_content = mctx.read(mctx.path(file_label))
+    lines = file_content.strip().split("\n")
+
+    coords_list = []
+    for line in lines:
+        # Remove comments
+        idx = line.find("#")
+        if idx != -1:
+            line = line[0:idx]
+
+        line = line.strip()
+        if line:  # Skip empty lines and comments
+            coords = unpack_coordinates(line)
+            coords_list.append(coords)
+
+    return coords_list
+
+def _process_module_tags(mctx, mod, target_repos, repo_name_2_module_name):
     """Process artifact and install tags for a single module."""
+
+    # Process from_file tags
+    for from_file_tag in mod.tags.from_file:
+        _check_repo_name(repo_name_2_module_name, from_file_tag.name, mod.name)
+
+        # Validate that at least one source file is specified
+        if not from_file_tag.artifact_src and not from_file_tag.bom_src:
+            fail("`from_file` tag must specify at least one of `artifact_src` or `bom_src`")
+
+        repo = target_repos.get(from_file_tag.name, {})
+
+        # Process artifacts file if specified
+        if from_file_tag.artifact_src:
+            existing_artifacts = repo.get("artifacts", [])
+            new_artifacts = _process_coordinates_file(mctx, from_file_tag.artifact_src)
+            repo["artifacts"] = existing_artifacts + new_artifacts
+
+        # Process BOMs file if specified
+        if from_file_tag.bom_src:
+            existing_boms = repo.get("boms", [])
+            new_boms = _process_coordinates_file(mctx, from_file_tag.bom_src)
+            repo["boms"] = existing_boms + new_boms
+
+        target_repos[from_file_tag.name] = repo
+
     for artifact in mod.tags.artifact:
         _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
 
@@ -297,6 +392,27 @@ def _process_module_tags(mod, target_repos, repo_name_2_module_name):
 
         repo["artifacts"] = existing_artifacts
         target_repos[artifact.name] = repo
+
+    # Process amend_artifact tags
+    for amend in mod.tags.amend_artifact:
+        _check_repo_name(repo_name_2_module_name, amend.name, mod.name)
+
+        repo = target_repos.get(amend.name, {})
+        artifacts = repo.get("artifacts", [])
+
+        # Find matching artifacts and amend them
+        amended = False
+        for i, artifact in enumerate(artifacts):
+            if _coordinates_match(artifact, amend.coordinates):
+                artifacts[i] = _amend_artifact(artifact, amend)
+                amended = True
+
+        if not amended:
+            # If no matching artifact found, this might be an error or we could create a placeholder
+            fail("No artifact found matching coordinates '%s' for amendment" % amend.coordinates)
+
+        repo["artifacts"] = artifacts
+        target_repos[amend.name] = repo
 
     for install in mod.tags.install:
         _check_repo_name(repo_name_2_module_name, install.name, mod.name)
@@ -421,7 +537,7 @@ def maven_impl(mctx):
     # First pass: process the module tags, but keep root and non-root modules separately
     for mod in mctx.modules:
         collection = root_module_repos if mod.is_root else non_root_module_repos
-        _process_module_tags(mod, collection, repo_name_2_module_name)
+        _process_module_tags(mctx, mod, collection, repo_name_2_module_name)
 
     # Second pass: merge and deduplicate repositories
     all_repo_names = {name: True for name in root_module_repos.keys() + non_root_module_repos.keys()}.keys()
@@ -631,7 +747,9 @@ def maven_impl(mctx):
 maven = module_extension(
     maven_impl,
     tag_classes = {
+        "amend_artifact": amend_artifact,
         "artifact": artifact,
+        "from_file": from_file,
         "install": install,
         "override": override,
     },
