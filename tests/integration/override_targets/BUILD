@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_android//android:rules.bzl", "aar_import", "android_binary")
 load("@rules_java//java:defs.bzl", "java_library")
 
@@ -59,15 +60,18 @@ genquery(
     scope = ["@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk"],
 )
 
-sh_test(
-    name = "override_contains_additional_deps",
-    srcs = ["override_contains_additional_deps.sh"],
-    data = [
-        ":trace_otel_deps",
-    ],
-    deps = [
-        "@bazel_tools//tools/bash/runfiles",
-    ],
+genrule(
+    name = "override_contains_additional_deps_sorted",
+    testonly = 1,
+    srcs = [":trace_otel_deps"],
+    outs = ["override_contains_additional_deps_sorted.txt"],
+    cmd = "cat $< | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
+)
+
+diff_test(
+    name = "override_contains_additional_deps_test",
+    file1 = ":override_contains_additional_deps.golden",
+    file2 = ":override_contains_additional_deps_sorted.txt",
 )
 
 genquery(
@@ -80,9 +84,16 @@ genquery(
     scope = ["@root_module_can_override//:com_squareup_okhttp3_okhttp"],
 )
 
-sh_test(
+genrule(
+    name = "root_module_can_override_sorted",
+    testonly = 1,
+    srcs = [":root_module_can_override"],
+    outs = ["root_module_can_override_sorted.txt"],
+    cmd = "cat $< | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
+)
+
+diff_test(
     name = "root_module_can_override_test",
-    srcs = ["root_module_can_override_test.sh"],
-    data = [":root_module_can_override"],
-    deps = ["@bazel_tools//tools/bash/runfiles"],
+    file1 = ":root_module_can_override.golden",
+    file2 = ":root_module_can_override_sorted.txt",
 )
