@@ -226,7 +226,32 @@ function test_outdated_with_boms() {
   bazel run @regression_testing_maven//:outdated >> "$TEST_LOG" 2>&1
 
   expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
-  expect_log "org.seleniumhq.selenium:selenium-bom \[4.14.1"
+  expect_log "io.opentelemetry:opentelemetry-bom \[1.31.0"
+}
+
+function test_outdated_with_boms_does_not_include_artifacts_without_a_version() {
+  bazel run @coursier_resolved_with_boms//:outdated >> "$TEST_LOG" 2>&1
+
+  expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
+  expect_log "com.google.cloud:libraries-bom \[26.59.0"
+  expect_not_log "com.google.cloud:google-cloud-bigquery"
+  expect_not_log "\[None"
+}
+
+function test_coursier_resolution_with_boms() {
+    # Only run for Bazel 7 or above
+    RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
+    # Bail if we can't figure out the release
+    if [[ -z "$RELEASE" ]]; then
+      echo "$RELEASE is a zero-length string"
+      return
+    fi
+    if ! [[ "$RELEASE" =~ ^[0-9]+$ ]]; then
+      return
+    fi
+
+    # should run successfully
+    bazel run @coursier_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
 }
 
 function test_v1_lock_file_format() {
@@ -302,12 +327,15 @@ function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
 
 
 TESTS=(
+  "test_coursier_resolution_with_boms"
   "test_maven_resolution"
   "test_dependency_aggregation"
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
   "test_outdated"
   "test_outdated_no_external_runfiles"
+  "test_outdated_with_boms"
+  "test_outdated_with_boms_does_not_include_artifacts_without_a_version"
   "test_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_m2local_testing_found_local_artifact_through_build"

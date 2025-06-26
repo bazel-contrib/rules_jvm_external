@@ -254,20 +254,18 @@ def _process_module_tags(mod, target_repos, repo_name_2_module_name):
 
         repo = target_repos.get(artifact.name, {})
         existing_artifacts = repo.get("artifacts", [])
-
-        to_add = struct(
+        existing_artifacts.append(struct(
             group = artifact.group,
             artifact = artifact.artifact,
-            version = artifact.version or None,
-            packaging = artifact.packaging or None,
-            classifier = artifact.classifier or None,
-            force_version = artifact.force_version if artifact.force_version else None,
-            neverlink = artifact.neverlink if artifact.neverlink else None,
-            testonly = artifact.testonly if artifact.testonly else None,
-            exclusions = _add_exclusions(artifact.exclusions) if artifact.exclusions else None,
-        )
+            version = artifact.version,
+            packaging = artifact.packaging,
+            classifier = artifact.classifier,
+            force_version = artifact.force_version,
+            neverlink = artifact.neverlink,
+            testonly = artifact.testonly,
+            exclusions = _add_exclusions(artifact.exclusions),
+        ))
 
-        existing_artifacts.append(to_add)
         repo["artifacts"] = existing_artifacts
         target_repos[artifact.name] = repo
 
