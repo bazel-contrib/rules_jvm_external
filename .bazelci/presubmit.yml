@@ -8,6 +8,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -32,6 +33,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -46,6 +48,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -64,6 +67,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -79,6 +83,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -94,6 +99,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin

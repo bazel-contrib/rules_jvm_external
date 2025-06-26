@@ -1415,7 +1415,7 @@ pinned_coursier_fetch = repository_rule(
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),
-        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "maven", "gradle"], default = "coursier"),
+        "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "gradle", "maven"], default = "coursier"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
         "boms": attr.string_list(),  # list of bom objects, each as json

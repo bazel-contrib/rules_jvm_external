@@ -98,7 +98,7 @@ pin_dependencies = rule(
     attrs = {
         "resolver": attr.string(
             doc = "The resolver to use",
-            values = ["maven", "gradle"],
+            values = ["gradle", "maven"],
             default = "maven",
         ),
         "artifacts": attr.string_list(
