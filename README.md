@@ -1279,6 +1279,15 @@ the generated lock file unless the `repositories` attribute contains `m2local`.
 The Maven-backed resolver will use credentials stored in a `$HOME/.netrc`
 file when performing dependency resolution
 
+### Configuring Gradle
+
+**This resolver is considered experimental**
+
+A Gradle-backed resolver can be used by setting the `resolver`
+attribute of `maven_install` to `gradle`. This resolver requires the
+use of a lock file. For bootstrapping purposes, this file may simply
+be an empty file.
+
 ## IPv6 support
 
 Certain IPv4/IPv6 dual-stack environments may require flags to override the default settings for downloading dependencies, for both Bazel's native downloader and Coursier as a downloader:
