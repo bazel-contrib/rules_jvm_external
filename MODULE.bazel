@@ -828,7 +828,6 @@ local_path_override(
     path = "tests/integration/root_wins_layer",
 )
 
-
 dev_maven.install(
     name = "root_module_can_override",
     artifacts = ["com.squareup:javapoet:1.11.1"],
@@ -932,10 +931,10 @@ use_repo(
     "unpinned_regression_testing_maven",
 
     # Back to the testing repos
+    "root_module_can_override",
     "starlark_aar_import_test",
     "starlark_aar_import_with_sources_test",
     "strict_visibility_testing",
-    "root_module_can_override",
 
     # Repo with compat repos
     "com_google_http_client_google_http_client_gson",

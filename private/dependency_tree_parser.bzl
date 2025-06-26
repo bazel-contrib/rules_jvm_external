@@ -209,12 +209,22 @@ copy_file(
     #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
     #   ],
 
+    # The Maven URL should default to Maven Central, if possible. If that's not
+    # where this dependency came from, then just pick any source.
+    if len(artifact["urls"]):
+        maven_url = artifact["urls"][0]
+        for url in artifact["urls"]:
+            if url.startswith("https://repo1.maven.org/maven2"):
+                maven_url = url
+    else:
+        maven_url = None
+
     coordinates = artifact.get("maven_coordinates", artifact["coordinates"])
     target_import_string.append("\ttags = [")
     target_import_string.append("\t\t\"maven_coordinates=%s\"," % coordinates)
     if len(artifact["urls"]):
-        target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
-        repository_url = _find_repository_url(artifact["urls"][0], repository_urls)
+        target_import_string.append("\t\t\"maven_url=%s\"," % maven_url)
+        repository_url = _find_repository_url(maven_url, repository_urls)
         if repository_url:
             target_import_string.append("\t\t\"maven_repository=%s\"," % repository_url)
     else:
@@ -228,10 +238,10 @@ copy_file(
     if packaging == "jar":
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
-            target_import_string.append("\tmaven_url = \"%s\"," % artifact["urls"][0])
+            target_import_string.append("\tmaven_url = \"%s\"," % maven_url)
     else:
         unpacked = unpack_coordinates(coordinates)
-        url = artifact["urls"][0] if len(artifact["urls"]) else None
+        url = maven_url
 
         package_info_name = "%s_package_info" % target_label
         target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
