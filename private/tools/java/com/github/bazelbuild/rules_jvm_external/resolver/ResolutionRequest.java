@@ -192,7 +192,7 @@ public class ResolutionRequest {
     Path localRepo = getM2CachePath();
     // Gradle can download from m2local but never downloads to it
     // so we need to resolve to the gradle cache path here
-    if(resolver.equals("gradle")) {
+    if (resolver.equals("gradle")) {
       localRepo = getGradleCachePath();
     }
     if (!Files.exists(localRepo)) {
@@ -201,7 +201,7 @@ public class ResolutionRequest {
 
     if (!Files.isDirectory(localRepo)) {
       throw new IllegalArgumentException(
-              "Asked to use local repo, but it is not a directory: " + localRepo);
+          "Asked to use local repo, but it is not a directory: " + localRepo);
     }
 
     return localRepo;
