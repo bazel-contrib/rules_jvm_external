@@ -25,19 +25,27 @@ def generate_javadoc(
         javadocopts,
         doc_deps,
         doc_resources,
+        excluded_packages,
         output,
         element_list):
     inputs = []
     transitive_inputs = []
     args = ctx.actions.args()
+
     args.add("--out", output)
     args.add("--element-list", element_list)
+
     args.add_all(source_jars, before_each = "--in")
     inputs.extend(source_jars)
+
     args.add_all(ctx.files.doc_resources, before_each = "--resources")
     inputs.extend(ctx.files.doc_resources)
+
     args.add_all(classpath, before_each = "--cp")
     transitive_inputs.append(classpath)
+
+    args.add_all(excluded_packages, before_each = "--exclude-packages")
+    args.add_all(ctx.attr.included_packages, before_each = "--include-packages")
 
     for dep in doc_deps:
         dep_info = dep[_JavadocInfo]
@@ -90,6 +98,7 @@ def _javadoc_impl(ctx):
         ctx.attr.javadocopts,
         ctx.attr.doc_deps,
         ctx.attr.doc_resources,
+        ctx.attr.excluded_packages,
         jar_file,
         element_list,
     )
@@ -151,6 +160,20 @@ javadoc = rule(
             doc = "Resources to include in the javadoc jar.",
             allow_empty = True,
             allow_files = True,
+            default = [],
+        ),
+        "excluded_packages": attr.string_list(
+            doc = """A list of packages to exclude from the generated javadoc. Wildcards are supported at the end of
+            the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while
+            `com.example` will exclude only the files directly in `com.example`.""",
+            allow_empty = True,
+            default = [],
+        ),
+        "included_packages": attr.string_list(
+            doc = """A list of packages to include in the generated javadoc. Wildcards are supported at the end of
+            the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
+            `com.example` will include only the files directly in `com.example`.""",
+            allow_empty = True,
             default = [],
         ),
         "excluded_workspaces": attr.string_list(

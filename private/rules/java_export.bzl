@@ -79,6 +79,13 @@ def java_export(
         (if not using `tags = ["no-javadocs"]`)
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
         `tags = ["no-javadocs"]`).
+      doc_resources: Resources to be included in the javadoc jar.
+      doc_excluded_packages: A list of packages to exclude from the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while
+        `com.example` will exclude only the files directly in `com.example`
+      doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
+        `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -91,6 +98,8 @@ def java_export(
     doc_deps = kwargs.pop("doc_deps", [])
     doc_url = kwargs.pop("doc_url", "")
     doc_resources = kwargs.pop("doc_resources", [])
+    doc_excluded_packages = kwargs.pop("doc_excluded_packages", [])
+    doc_included_packages = kwargs.pop("doc_included_packages", [])
     toolchains = kwargs.pop("toolchains", [])
 
     # java_library doesn't allow srcs without deps, but users may try to specify deps rather than
@@ -125,6 +134,8 @@ def java_export(
         doc_deps = doc_deps,
         doc_url = doc_url,
         doc_resources = doc_resources,
+        doc_excluded_packages = doc_excluded_packages,
+        doc_included_packages = doc_included_packages,
         toolchains = toolchains,
     )
 
@@ -147,6 +158,8 @@ def maven_export(
         doc_deps = [],
         doc_url = "",
         doc_resources = [],
+        doc_excluded_packages = [],
+        doc_included_packages = [],
         toolchains = None):
     """
     All arguments are the same as java_export with the addition of:
@@ -207,6 +220,12 @@ def maven_export(
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
         `tags = ["no-javadoc"]`).
       doc_resources: Resources to be included in the javadoc jar.
+      doc_excluded_packages: A list of packages to exclude from the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while
+        `com.example` will exclude only the files directly in `com.example`
+      doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
+        `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
@@ -280,6 +299,8 @@ def maven_export(
             doc_deps = doc_deps,
             doc_url = doc_url,
             doc_resources = doc_resources,
+            excluded_packages = doc_excluded_packages,
+            included_packages = doc_included_packages,
             excluded_workspaces = excluded_workspaces.keys(),
             additional_dependencies = additional_dependencies,
             visibility = visibility,

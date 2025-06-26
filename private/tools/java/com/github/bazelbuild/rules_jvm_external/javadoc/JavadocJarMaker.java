@@ -21,12 +21,12 @@ import static java.lang.Runtime.Version;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
-import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -37,12 +37,13 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -63,8 +64,9 @@ public class JavadocJarMaker {
     Path out = null;
     Path elementList = null;
     Set<Path> classpath = new HashSet<>();
+    Set<String> excludedPackages = new HashSet<>();
+    Set<String> includedPackages = new HashSet<>();
     List<String> options = new ArrayList<>();
-
     for (int i = 0; i < args.length; i++) {
       String flag = args[i];
       String next;
@@ -95,6 +97,16 @@ public class JavadocJarMaker {
           resources.add(Paths.get(next));
           break;
 
+        case "--exclude-packages":
+          next = args[++i];
+          excludedPackages.add(next);
+          break;
+
+        case "--include-packages":
+          next = args[++i];
+          includedPackages.add(next);
+          break;
+
         default:
           options.add(flag);
           break;
@@ -119,18 +131,20 @@ public class JavadocJarMaker {
     try (StandardJavaFileManager fileManager =
         tool.getStandardFileManager(null, Locale.getDefault(), UTF_8)) {
       fileManager.setLocation(
-          DocumentationTool.Location.DOCUMENTATION_OUTPUT, Arrays.asList(dir.toFile()));
+          DocumentationTool.Location.DOCUMENTATION_OUTPUT, List.of(dir.toFile()));
       fileManager.setLocation(
           StandardLocation.CLASS_PATH,
           classpath.stream().map(Path::toFile).collect(Collectors.toSet()));
 
-      Set<JavaFileObject> sources = new HashSet<>();
-      Set<String> topLevelPackages = new HashSet<>();
-
       Path unpackTo = Files.createTempDirectory("unpacked-sources");
       tempDirs.add(unpackTo);
-      Set<String> fileNames = new HashSet<>();
-      readSourceFiles(unpackTo, fileManager, sourceJars, sources, topLevelPackages, fileNames);
+      Map<String, List<JavaFileObject>> sources = new HashMap<>();
+      readSourceFiles(unpackTo, fileManager, sourceJars, sources);
+      Set<String> expandedExcludedPackages = expandPackages(excludedPackages, sources.keySet());
+      Set<String> expandedIncludedPackages = expandPackages(includedPackages, sources.keySet());
+      filterPackages(unpackTo, sources, expandedIncludedPackages, expandedExcludedPackages);
+      Set<String> topLevelPackages =
+          sources.keySet().stream().map(p -> p.split("\\.")[0]).collect(Collectors.toSet());
 
       // True if we're just exporting a set of modules
       if (sources.isEmpty()) {
@@ -177,7 +191,32 @@ public class JavadocJarMaker {
 
       options.addAll(Arrays.asList("-d", outputTo.toAbsolutePath().toString()));
 
-      sources.forEach(obj -> options.add(obj.getName()));
+      // sourcepath and subpackages should work in most cases. A known edge case is when the package
+      // names
+      // don't match the directory structure. For example `Main.java` in
+      // `tests/integration/java_export` has
+      // a package of "com.jvm.external.jvm_export" but the file is in
+      // `tests/integration/java_export/Main.java`.
+      // The error comes from the javadoc tool itself. It seems that `-subpackage` looks at the
+      // directory structure,
+      // not the package name in the file. For this reason, include/exclude will not work when the
+      // package name
+      // doesn't match the directory structure.
+      if (!expandedExcludedPackages.isEmpty()) {
+        options.add("-sourcepath");
+        options.add(unpackTo.toAbsolutePath().toString());
+
+        options.add("-subpackages");
+        options.add(String.join(":", topLevelPackages));
+
+        // It might appear that -exclude is not needed since we
+        // remove the source files, but without it
+        // empty package info html files will still be generated.
+        options.add("-exclude");
+        options.add(String.join(":", expandedExcludedPackages));
+      }
+
+      sources.values().stream().flatMap(List::stream).forEach(s -> options.add(s.getName()));
 
       for (Path resource : resources) {
         Path target = outputTo.resolve(resource.getFileName());
@@ -187,7 +226,7 @@ public class JavadocJarMaker {
 
       Writer writer = new StringWriter();
       DocumentationTool.DocumentationTask task =
-          tool.getTask(writer, fileManager, null, null, options, sources);
+          tool.getTask(writer, fileManager, null, null, options, null);
       Boolean result = task.call();
       if (result == null || !result) {
         System.err.println("javadoc " + String.join(" ", options));
@@ -203,37 +242,7 @@ public class JavadocJarMaker {
         Files.createFile(generatedElementList);
       }
 
-      try (OutputStream os = Files.newOutputStream(out);
-          ZipOutputStream zos = new ZipOutputStream(os);
-          Stream<Path> walk = Files.walk(outputTo)) {
-
-        walk.sorted(Comparator.naturalOrder())
-            .forEachOrdered(
-                path -> {
-                  if (path.equals(outputTo)) {
-                    return;
-                  }
-
-                  try {
-                    if (Files.isDirectory(path)) {
-                      String name = outputTo.relativize(path) + "/";
-                      ZipEntry entry = new StableZipEntry(name);
-                      zos.putNextEntry(entry);
-                      zos.closeEntry();
-                    } else {
-                      String name = outputTo.relativize(path).toString();
-                      ZipEntry entry = new StableZipEntry(name);
-                      zos.putNextEntry(entry);
-                      try (InputStream is = Files.newInputStream(path)) {
-                        ByteStreams.copy(is, zos);
-                      }
-                      zos.closeEntry();
-                    }
-                  } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                  }
-                });
-      }
+      CreateJar.createJar(out, outputTo);
     }
     tempDirs.forEach(JavadocJarMaker::delete);
   }
@@ -253,9 +262,7 @@ public class JavadocJarMaker {
       Path unpackTo,
       StandardJavaFileManager fileManager,
       Set<Path> sourceJars,
-      Set<JavaFileObject> sources,
-      Set<String> topLevelPackages,
-      Set<String> fileNames)
+      Map<String, List<JavaFileObject>> sources)
       throws IOException {
 
     for (Path jar : sourceJars) {
@@ -280,16 +287,88 @@ public class JavadocJarMaker {
             ByteStreams.copy(zis, out);
           }
 
-          fileManager.getJavaFileObjects(target.toFile()).forEach(sources::add);
-
-          String[] segments = name.split("/");
-          if (segments.length > 0 && !"META-INF".equals(segments[0])) {
-            topLevelPackages.add(segments[0]);
-          }
-
-          fileNames.add(name);
+          fileManager
+              .getJavaFileObjects(target.toFile())
+              .forEach(
+                  s -> {
+                    String p = extractPackageName(s);
+                    sources.computeIfAbsent(p, k -> new ArrayList<>()).add(s);
+                  });
         }
       }
+    }
+  }
+
+  // If the package ends in .* , then look for all subpackages in packages set
+  private static Set<String> expandPackages(Set<String> wildcardedPackages, Set<String> packages) {
+    Set<String> expandedPackages = new HashSet<>();
+
+    for (String excludedPackage : wildcardedPackages) {
+      if (excludedPackage.endsWith(".*")) {
+        String basePackage = excludedPackage.substring(0, excludedPackage.length() - 2);
+        for (String pkg : packages) {
+          if (pkg.startsWith(basePackage)) {
+            expandedPackages.add(pkg);
+          }
+        }
+      } else {
+        expandedPackages.add(excludedPackage);
+      }
+    }
+
+    return expandedPackages;
+  }
+
+  // Extract the package name from the contents of the file
+  private static String extractPackageName(JavaFileObject fileObject) {
+    Set<String> keywords = Set.of("public", "class", "interface", "enum");
+    try (Reader reader = fileObject.openReader(true);
+        BufferedReader bufferedReader = new BufferedReader(reader)) {
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        line = line.trim();
+        if (line.startsWith("package ")) {
+          return line.substring("package ".length(), line.indexOf(';')).trim();
+        }
+
+        // Stop looking if we hit the class or interface declaration
+        if (keywords.stream().anyMatch(line::startsWith)) {
+          break;
+        }
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    // default package
+    return "";
+  }
+
+  private static void filterPackages(
+      Path unpackTo,
+      Map<String, List<JavaFileObject>> sources,
+      Set<String> expandedIncludedPackages,
+      Set<String> expandedExcludedPackages) {
+    // If no "include" packages are specified, then include everything
+    // minus the excluded packages.
+    // If "include" packages are specified, then only include those packages
+    // AND subtract the excluded packages.
+    if (!expandedIncludedPackages.isEmpty()) {
+      sources.keySet().retainAll(expandedIncludedPackages);
+    }
+
+    for (String excludedPackage : expandedExcludedPackages) {
+      sources
+          .getOrDefault(excludedPackage, new ArrayList<>())
+          .forEach(
+              s -> {
+                try {
+                  Files.deleteIfExists(unpackTo.resolve(s.getName()));
+                } catch (IOException e) {
+                  throw new UncheckedIOException(e);
+                }
+              });
+      sources.remove(excludedPackage);
     }
   }
 }
