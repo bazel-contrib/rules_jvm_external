@@ -355,7 +355,7 @@ maven_install(
     name = "regression_testing_gradle",
     artifacts = [
         # https://github.com/bazel-contrib/rules_jvm_external/issues/909
-        # "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
+        "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
         "androidx.annotation:annotation:1.6.0",
     ],
