@@ -1,7 +1,45 @@
 """
 A simple TOML parser implementation in native Starlark.
 
-It is only a partial implementation currently (see README).
+Current featureset status:
+
+### Basic Types
+- [x] **Strings**: Double quoted (`"string"`) with escape sequences
+- [x] **Strings**: Single quoted literal strings (`'string'`)
+- [ ] **Strings**: Unquoted bare values (not part of TOML spec)
+- [x] **Numbers**: Basic integers (`42`, `-17`)
+- [x] **Numbers**: Basic floats (`3.14`, `-2.5`)
+- [ ] **Numbers**: Integer formats with underscores (`1_000`)
+- [ ] **Numbers**: Hexadecimal (`0xFF`), octal (`0o755`), binary (`0b1010`)
+- [ ] **Numbers**: Float scientific notation (`5e+22`)
+- [ ] **Numbers**: Special float values (`inf`, `nan`)
+- [x] **Booleans**: `true` and `false`
+- [x] **Comments**: Full-line comments starting with `#`
+- [x] **Comments**: Inline comments (comments after values)
+
+### Structure
+- [x] **Key-value pairs**: `key = value`
+- [x] **Sections**: `[section]`
+- [x] **Nested sections**: `[section.subsection]`
+- [ ] **Quoted keys**: `"127.0.0.1" = "value"`
+- [ ] **Dotted keys**: `physical.color = "orange"`
+
+### String Features
+- [x] **Basic escape sequences**: `\n`, `\t`, `\r`, `\\`, `\"`, `\'`
+- [ ] **Unicode escape sequences**: `\uXXXX`, `\UXXXXXXXX`
+- [ ] **Multi-line basic strings**: `"""..."""`
+- [ ] **Multi-line literal strings**: `'''...'''`
+
+### Collections
+- [ ] **Arrays**: `[1, 2, 3]`
+- [ ] **Inline tables**: `{key = "value"}`
+- [ ] **Array of tables**: `[[table]]`
+
+### Advanced Types
+- [ ] **Date and time**: `1979-05-27T07:32:00Z`
+- [ ] **Local date**: `1979-05-27`
+- [ ] **Local time**: `07:32:00`
+- [ ] **Local date-time**: `1979-05-27T07:32:00`
 """
 
 JSON_DECODE_ERROR = struct()
