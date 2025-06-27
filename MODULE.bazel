@@ -499,6 +499,30 @@ dev_maven.artifact(
     version = "2.4",
 )
 dev_maven.install(
+    name = "coursier_resolved_with_boms",
+    artifacts = [
+        "com.google.auth:google-auth-library-oauth2-http",
+        "com.google.auto:auto-common:1.2.2",
+    ],
+    boms = [
+        "com.google.cloud:libraries-bom:26.59.0",
+    ],
+    lock_file = "@rules_jvm_external//tests/custom_maven_install:coursier_resolved_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    version_conflict_policy = "pinned",
+)
+dev_maven.artifact(
+    name = "coursier_resolved_with_boms",
+    artifact = "google-cloud-bigquery",
+    exclusions = [
+        "io.grpc:grpc-auth",
+        "io.grpc:grpc-netty",
+    ],
+    group = "com.google.cloud",
+)
+dev_maven.install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
@@ -905,6 +929,7 @@ use_repo(
     "multiple_lock_files",
 
     # Pinned repo
+    "coursier_resolved_with_boms",
     "maven_resolved_with_boms",
 
     # Pinned repo

@@ -954,6 +954,34 @@ maven_install(
 )
 
 maven_install(
+    name = "coursier_resolved_with_boms",
+    artifacts = [
+        "com.google.auth:google-auth-library-oauth2-http",
+        "com.google.auto:auto-common:1.2.2",
+        maven.artifact(
+            artifact = "google-cloud-bigquery",
+            exclusions = [
+                "io.grpc:grpc-auth",
+                "io.grpc:grpc-netty",
+            ],
+            group = "com.google.cloud",
+        ),
+    ],
+    boms = [
+        "com.google.cloud:libraries-bom:26.59.0",
+    ],
+    fail_if_repin_required = True,
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:coursier_resolved_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@coursier_resolved_with_boms//:defs.bzl", _coursier_resolved_maven_install = "pinned_maven_install")
+
+_coursier_resolved_maven_install()
+
+maven_install(
     name = "maven_resolved_with_boms",
     artifacts = [
         # A transitive dependency pulls in a `managedDependencies` section which sets the
