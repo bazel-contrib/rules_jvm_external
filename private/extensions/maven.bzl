@@ -1,4 +1,5 @@
 load("@bazel_features//:features.bzl", "bazel_features")
+load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
@@ -91,6 +92,10 @@ install = tag_class(
         "generate_compat_repositories": attr.bool(
             doc = "Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
         ),
+        "known_contributing_modules": attr.string_list(
+            doc = "List of Bzlmod modules that are known to be contributing to this repository. Only honoured for the root module.",
+            default = [],
+        ),
 
         # When using an unpinned repo
         "excluded_artifacts": attr.string_list(doc = "Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs", default = []),  # list of artifacts to exclude
@@ -153,11 +158,32 @@ def _add_exclusions(exclusions):
 # This can be typical for the default @maven namespace, if a bzlmod dependency
 # wishes to contribute to the users' jars.
 def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
-    known_names = repo_name_2_module_name.get(repo_name, [])
-    if module_name in known_names:
+    contributing_module_names = repo_name_2_module_name.get(repo_name, [])
+    if module_name in contributing_module_names:
         return
-    known_names.append(module_name)
-    repo_name_2_module_name[repo_name] = known_names
+    contributing_module_names.append(module_name)
+    repo_name_2_module_name[repo_name] = contributing_module_names
+
+def _warn_if_multiple_contributing_modules(repo_name_2_module_name, repos):
+    for (repo_name, contributing_module_names) in repo_name_2_module_name.items():
+        if len(contributing_module_names) == 1:
+            continue
+        known_contributing_modules = repos[repo_name].get("known_contributing_modules", sets.make())
+        new_contributing_modules = sets.difference(sets.make(contributing_module_names), known_contributing_modules)
+        if sets.length(new_contributing_modules) == 0:
+            continue
+        print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s." % (
+                  repo_name,
+                  sorted(contributing_module_names),
+              ) + "\nSee https://github.com/bazel-contrib/rules_jvm_external/blob/master/docs/bzlmod.md#module-dependency-layering" +
+              " for more information. \n" +
+              " To suppress this warning review the contributions from the other modules and add the following attribute" +
+              " in the root MODULE.bazel file: \n" +
+              "maven.install(\n" +
+              ("  name = \"{0}\"\n".format(repo_name) if repo_name != DEFAULT_NAME else "") +
+              "  known_contributing_modules = {0},\n".format(sorted(contributing_module_names)) +
+              "  ...\n" +
+              ")")
 
 def _generate_compat_repos(name, existing_compat_repos, artifacts):
     seen = []
@@ -336,6 +362,7 @@ def _process_module_tags(mod, target_repos, repo_name_2_module_name):
 
         if mod.is_root:
             repo["repin_instructions"] = install.repin_instructions
+            repo["known_contributing_modules"] = sets.make(install.known_contributing_modules)
 
         repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
 
@@ -429,12 +456,7 @@ def maven_impl(mctx):
         repos[repo_name] = merged_repo
 
     # Warn users if multiple modules contribute to the same maven `name`
-    for (repo_name, known_names) in repo_name_2_module_name.items():
-        if len(known_names) > 1:
-            print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s" % (
-                repo_name,
-                sorted(known_names),
-            ))
+    _warn_if_multiple_contributing_modules(repo_name_2_module_name, repos)
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
     repo_to_lock_file = {}
