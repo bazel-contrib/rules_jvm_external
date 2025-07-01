@@ -26,8 +26,11 @@ public class MavenPackagingMappings {
   private static final Map<String, ExtensionAndClassifier> PACKAGING_TO_EXTENSION =
       Map.of(
           "aar", new ExtensionAndClassifier("aar", ""),
+          "dll", new ExtensionAndClassifier("dll", ""),
+          "dylib", new ExtensionAndClassifier("dylib", ""),
           "exe", new ExtensionAndClassifier("exe", ""),
-          "json", new ExtensionAndClassifier("json", ""));
+          "json", new ExtensionAndClassifier("json", ""),
+          "so", new ExtensionAndClassifier("so", ""));
 
   private static final ArtifactTypeRegistry TYPE_REGISTRY =
       MavenRepositorySystemUtils.newSession().getArtifactTypeRegistry();

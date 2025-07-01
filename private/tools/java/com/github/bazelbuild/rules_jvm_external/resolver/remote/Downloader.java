@@ -74,9 +74,8 @@ public class Downloader {
 
     // There is a fallback we can use.
     // RealisedMavenModuleResolveMetadata.getArtifactsForConfiguration
-    // says that if the artifact isn't a "known java packaging", then we should just look for a
-    // `jar`
-    // variant as well.
+    // says that if the artifact isn't a "known java packaging",
+    // then we should just look for a `jar` variant as well.
     if (isFallbackAvailable(coords)) {
       result = performDownload(coords.setExtension("jar"));
     }

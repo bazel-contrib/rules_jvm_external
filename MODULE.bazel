@@ -696,6 +696,8 @@ dev_maven.install(
         "org.hamcrest:hamcrest-core:1.3",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1162
         "io.opentelemetry:opentelemetry-sdk",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/132
+        "com.amazonaws:DynamoDBLocal:1.25.0",
     ],
     boms = [
         "io.opentelemetry:opentelemetry-bom:1.31.0",

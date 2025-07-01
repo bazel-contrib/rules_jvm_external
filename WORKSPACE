@@ -328,6 +328,8 @@ maven_install(
             group = "io.opentelemetry",
             neverlink = True,
         ),
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/132
+        "com.amazonaws:DynamoDBLocal:1.25.0",
     ],
     boms = [
         "io.opentelemetry:opentelemetry-bom:1.31.0",
