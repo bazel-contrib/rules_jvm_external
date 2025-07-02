@@ -3,8 +3,8 @@
   "__INPUT_ARTIFACTS_HASH": -1749225327,
   "__RESOLVED_ARTIFACTS_HASH": -821389950,
   "conflict_resolution": {
-    "com.google.auth:google-auth-library-oauth2-http:": "com.google.auth:google-auth-library-oauth2-http:1.33.1",
-    "com.google.cloud:google-cloud-bigquery:": "com.google.cloud:google-cloud-bigquery:2.49.0"
+    "com.google.auth:google-auth-library-oauth2-http": "com.google.auth:google-auth-library-oauth2-http:1.33.1",
+    "com.google.cloud:google-cloud-bigquery": "com.google.cloud:google-cloud-bigquery:2.49.0"
   },
   "artifacts": {
     "com.fasterxml.jackson.core:jackson-annotations": {

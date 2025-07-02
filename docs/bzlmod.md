@@ -108,6 +108,10 @@ you which modules are contributing to which namespace:
 
 `The maven repository 'multiple_lock_files' has contributions from multiple bzlmod modules, and will be resolved together: ["bzlmod_lock_files", "rules_jvm_external"]`
 
+In the root module, if this is expected and known, you can disable this warning by adding
+the list of modules to the `known_contributing_modules` attribute of the `install` tag. The entry
+to add will be printed for you as part of the warning.
+
 The default name used is `maven`. Modules that are expected to be included via a `bazel_dep` should
 avoid using the default name, and should always set their own (eg. `rules_jvm_external` uses
 `rules_jvm_external_deps` for its own dependencies) The exception to this is where a module provides
