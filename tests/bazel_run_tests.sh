@@ -309,20 +309,20 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
   expect_log "@regression_testing_coursier//:org_mockito_mockito_core"
 }
 
-# function test_gradle_metadata_is_resolved_correctly_for_aar_artifact {
-#    # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right aar artifact
-#    # and make it available
-#    bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
+function test_gradle_metadata_is_resolved_correctly_for_aar_artifact {
+   # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right aar artifact
+   # and make it available
+   bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
 
-#    expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
-# }
+   expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
+}
 
 function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
   # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right jvm artifact
   # and make it available
-  bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
+  bazel query @regression_testing_gradle//:androidx_annotation_annotation >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
+  expect_log "@regression_testing_gradle//:androidx_annotation_annotation"
 }
 
 

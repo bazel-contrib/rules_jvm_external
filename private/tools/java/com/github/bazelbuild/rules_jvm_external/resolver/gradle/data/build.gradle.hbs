@@ -23,13 +23,25 @@ repositories {
 {{/each~}}
 }
 
+configurations {
+    resolveAll {
+        transitive = true
+        attributes {
+            attribute(
+                LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                objects.named(LibraryElements, "aar")
+            )
+        }
+    }
+}
+
 dependencies {
 {{~#each boms}}
         implementation platform("{{group}}:{{artifact}}:{{version}}")
 {{/each~}}
 
 {{~#each dependencies}}
-    implementation("{{group}}:{{artifact}}{{version}}{{#if classifier}}{{classifier}}{{/if}}{{#if extension}}{{extension}}{{/if}}"){{#if exclusions}} {
+    resolveAll("{{group}}:{{artifact}}{{version}}{{#if classifier}}{{classifier}}{{/if}}{{#if extension}}{{extension}}{{/if}}"){{#if exclusions}} {
         {{~#each exclusions}}
         exclude group: "{{group}}", module: "{{module}}"
         {{/each~}}

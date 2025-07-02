@@ -72,7 +72,7 @@ public class GradleResolver implements Resolver {
   }
 
   private boolean isVerbose() {
-    return System.getenv("RJE_VERBOSE") != null && System.getenv("RJE_VERBOSE").equals("true");
+    return System.getenv("RJE_VERBOSE") != null;
   }
 
   @Override
@@ -100,8 +100,8 @@ public class GradleResolver implements Resolver {
         eventListener.onEvent(
             new LogEvent(
                 "gradle",
-                "Resolving dependencies with gradle",
-                "Project: " + project.getProjectDir().toUri()));
+                "Resolving dependencies with Gradle",
+                "Gradle Project Directory: " + project.getProjectDir().toUri()));
       }
       Instant start = Instant.now();
       GradleDependencyModel resolved =
@@ -425,7 +425,11 @@ public class GradleResolver implements Resolver {
           initScriptTemplate, outputInitScript, getPluginJarPath());
 
       if (isVerbose()) {
-        eventListener.onEvent(new LogEvent("gradle", Files.readString(outputBuildScript), null));
+        eventListener.onEvent(
+            new LogEvent(
+                "gradle",
+                "Gradle Build Script: (" + outputBuildScript + ")",
+                Files.readString(outputBuildScript)));
       }
 
       Path gradleCacheDir = fakeProjectDirectory.resolve(".gradle");

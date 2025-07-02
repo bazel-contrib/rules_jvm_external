@@ -73,7 +73,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     GradleDependencyModel gradleDependencyModel = new GradleDependencyModelImpl();
     // We only resolve dependencies and fetch artifacts for this configuration
     // similar to how we do in the Maven resolver
-    Configuration cfg = project.getConfigurations().getByName("runtimeClasspath");
+    Configuration cfg = project.getConfigurations().getByName("resolveAll");
 
     List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
     // This stores the mapping between coordinates to the GradleResolvedDependency interface
@@ -486,8 +486,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   }
 
   private boolean isVerbose() {
-    return System.getenv("RJE_VERBOSE") != null
-        && (System.getenv("RJE_VERBOSE").equals("true")
-            || System.getenv("RJE_VERBOSE").equals("1"));
+    return System.getenv("RJE_VERBOSE") != null;
   }
 }
