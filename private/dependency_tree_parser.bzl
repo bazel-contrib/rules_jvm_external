@@ -71,6 +71,19 @@ def _find_repository_url(artifact_url, repositories):
                 longest_match = repository
     return longest_match
 
+def _get_maven_url(artifact_urls):
+    if len(artifact_urls) == 0:
+        return None
+
+    # We want to use the Maven Central repo if it's there
+    # since so much of the world expects that.
+    for url in artifact_urls:
+        if url.startswith("https://repo1.maven.org/maven2/"):
+            return url
+
+    # Return anything
+    return artifact_urls[0]
+
 def _generate_target(
         repository_ctx,
         jar_versionless_target_labels,
@@ -210,11 +223,13 @@ copy_file(
     #   ],
 
     coordinates = artifact.get("maven_coordinates", artifact["coordinates"])
+    maven_url = _get_maven_url(artifact["urls"])
+
     target_import_string.append("\ttags = [")
     target_import_string.append("\t\t\"maven_coordinates=%s\"," % coordinates)
     if len(artifact["urls"]):
-        target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
-        repository_url = _find_repository_url(artifact["urls"][0], repository_urls)
+        target_import_string.append("\t\t\"maven_url=%s\"," % maven_url)
+        repository_url = _find_repository_url(maven_url, repository_urls)
         if repository_url:
             target_import_string.append("\t\t\"maven_repository=%s\"," % repository_url)
     else:
@@ -228,10 +243,10 @@ copy_file(
     if packaging == "jar":
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
-            target_import_string.append("\tmaven_url = \"%s\"," % artifact["urls"][0])
+            target_import_string.append("\tmaven_url = \"%s\"," % maven_url)
     else:
         unpacked = unpack_coordinates(coordinates)
-        url = artifact["urls"][0] if len(artifact["urls"]) else None
+        url = maven_url if len(artifact["urls"]) else None
 
         package_info_name = "%s_package_info" % target_label
         target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
