@@ -455,6 +455,10 @@ dev_maven.install(
     # This name matches the one in `tests/integration/bzlmod_lock_files`
     name = "multiple_lock_files",
     artifacts = ["org.zeromq:jeromq:0.5.4"],
+    known_contributing_modules = [
+        "bzlmod_lock_files",
+        "rules_jvm_external",
+    ],
     lock_file = "//tests/custom_maven_install:multiple_lock_files_install.json",
 )
 dev_maven.install(
@@ -844,6 +848,10 @@ dev_maven.install(
     boms = [
         "io.netty:netty-bom:4.1.121.Final",
     ],
+    known_contributing_modules = [
+        "root_wins_layer",
+        "rules_jvm_external",
+    ],
     lock_file = "//tests/custom_maven_install:root_wins_install.json",
     resolver = "maven",
 )
@@ -857,6 +865,10 @@ local_path_override(
 dev_maven.install(
     name = "root_module_can_override",
     artifacts = ["com.squareup:javapoet:1.11.1"],
+    known_contributing_modules = [
+        "rules_jvm_external",
+        "transitive_module_can_override",
+    ],
 )
 
 bazel_dep(name = "transitive_module_can_override", version = "0.0.0", dev_dependency = True)
