@@ -221,6 +221,10 @@ public class GradleResolver implements Resolver {
             "The POM for " + displayable + " is missing, no dependency information available.";
         String detail = "[WARNING]:    " + dependency.getFailureDetails();
         eventListener.onEvent(new LogEvent("gradle", message, detail));
+      } else {
+        String message = "Could not resolve " + coordinates;
+        String detail = "[WARNING]: " + dependency.getFailureDetails();
+        eventListener.onEvent(new LogEvent("gradle", message, detail));
       }
       graph.addNode(coordinates);
     }
