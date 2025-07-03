@@ -99,12 +99,13 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     ).collect(Collectors.toList());
 
     // Create a configuration to resolve android dependencies (it can be used for other platforms
-    // in the future as well like Kotlin multiplatform.
+    // in the future as well like Kotlin multiplatform).
     Configuration detachedCfg = project.getConfigurations().detachedConfiguration(
             unresolvedDependencies.toArray(new Dependency[0])
     );
 
-    // build the
+    // build the updated dependency graph with the detached configuration for all the
+    // dependencies that we couldn't resolve with the default configuration
     List<GradleResolvedDependency> resolvedDetachedRoots =
             resolveDetachedGraph(detachedCfg, coordinatesGradleResolvedDependencyMap);
 
@@ -357,7 +358,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // collect JAR artifacts
     collectArtifactsFromArtifactView(jars, coordinatesMap);
 
-    ArtifactView aarView = androidCfg.getIncoming().artifactView(
+    ArtifactView aarView = detachedCfg.getIncoming().artifactView(
             spec -> {
               spec.setLenient(true); // tolerate dependencies without AAR variants
               spec.attributes(attrs -> {
@@ -374,6 +375,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
             }
     );
 
+    // Collect Android artifacts  (AARs)
     collectArtifactsFromArtifactView(aarView, coordinatesMap);
 
     // Collect POM files explicitly as gradle doesn't fetch them unless requested
