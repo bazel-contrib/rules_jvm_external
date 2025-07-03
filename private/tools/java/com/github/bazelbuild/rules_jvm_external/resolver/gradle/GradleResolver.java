@@ -243,8 +243,9 @@ public class GradleResolver implements Resolver {
       Coordinates parent,
       GradleResolvedDependency parentInfo,
       Set<Conflict> conflicts,
-      List<GradleDependency> requestedDeps, Set<Coordinates> visited) {
-    if(visited.contains(parent)) {
+      List<GradleDependency> requestedDeps,
+      Set<Coordinates> visited) {
+    if (visited.contains(parent)) {
       return;
     }
     visited.add(parent);
@@ -298,7 +299,12 @@ public class GradleResolver implements Resolver {
             conflicts.add(new Conflict(child, requested));
           }
           addDependency(
-              graph, child, childInfo, conflicts, requestedDeps, visited); // recursively traverse the graph
+              graph,
+              child,
+              childInfo,
+              conflicts,
+              requestedDeps,
+              visited); // recursively traverse the graph
         }
       }
     }

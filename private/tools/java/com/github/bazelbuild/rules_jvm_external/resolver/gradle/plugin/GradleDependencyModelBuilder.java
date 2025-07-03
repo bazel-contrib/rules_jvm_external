@@ -90,26 +90,33 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         collectResolvedDependencies(cfg, coordinatesGradleResolvedDependencyMap);
 
     // Collect any unresolved dependencies from the runtimeClasspath configuration
-    List<GradleUnresolvedDependency> unresolvedDependenciesRuntimeClasspath = getUnresolvedDependencies(cfg);
+    List<GradleUnresolvedDependency> unresolvedDependenciesRuntimeClasspath =
+        getUnresolvedDependencies(cfg);
 
-    List<Dependency> unresolvedDependencies = unresolvedDependenciesRuntimeClasspath.stream().map(dep -> {
-              String coords = dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion();
-              return project.getDependencies().create(coords);
-            }
-    ).collect(Collectors.toList());
+    List<Dependency> unresolvedDependencies =
+        unresolvedDependenciesRuntimeClasspath.stream()
+            .map(
+                dep -> {
+                  String coords = dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion();
+                  return project.getDependencies().create(coords);
+                })
+            .collect(Collectors.toList());
 
     // Create a configuration to resolve android dependencies (it can be used for other platforms
     // in the future as well like Kotlin multiplatform).
-    Configuration detachedCfg = project.getConfigurations().detachedConfiguration(
-            unresolvedDependencies.toArray(new Dependency[0])
-    );
+    Configuration detachedCfg =
+        project
+            .getConfigurations()
+            .detachedConfiguration(unresolvedDependencies.toArray(new Dependency[0]));
 
     // build the updated dependency graph with the detached configuration for all the
     // dependencies that we couldn't resolve with the default configuration
     List<GradleResolvedDependency> resolvedDetachedRoots =
-            resolveDetachedGraph(detachedCfg, coordinatesGradleResolvedDependencyMap);
+        resolveDetachedGraph(detachedCfg, coordinatesGradleResolvedDependencyMap);
 
-    List<GradleResolvedDependency> roots = Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream()).collect(Collectors.toList());
+    List<GradleResolvedDependency> roots =
+        Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream())
+            .collect(Collectors.toList());
     // Use the ArtifactView API to get all the resolved artifacts (jars, aars)
     // The ArtifactView API doesn't download some of the classifiers by default, so we handle that
     // here
@@ -118,11 +125,16 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     gradleDependencyModel.getResolvedDependencies().addAll(roots);
 
     // if anything is still unresolved, then add it for reporting
-    gradleDependencyModel.getUnresolvedDependencies().addAll(getUnresolvedDependencies(detachedCfg));
+    gradleDependencyModel
+        .getUnresolvedDependencies()
+        .addAll(getUnresolvedDependencies(detachedCfg));
     return gradleDependencyModel;
   }
 
-  private List<GradleResolvedDependency> resolveDetachedGraph(Configuration detachedCfg, ConcurrentHashMap<Coordinates, GradleResolvedDependency> coordinatesGradleResolvedDependencyMap) {
+  private List<GradleResolvedDependency> resolveDetachedGraph(
+      Configuration detachedCfg,
+      ConcurrentHashMap<Coordinates, GradleResolvedDependency>
+          coordinatesGradleResolvedDependencyMap) {
     return collectResolvedDependencies(detachedCfg, coordinatesGradleResolvedDependencyMap);
   }
 
@@ -344,7 +356,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       List<GradleDependency> declaredDeps) {
 
     ArtifactView jars =
-        runtimeClassPathCfg.getIncoming()
+        runtimeClassPathCfg
+            .getIncoming()
             .artifactView(
                 spec -> {
                   spec.setLenient(true);
@@ -358,22 +371,23 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // collect JAR artifacts
     collectArtifactsFromArtifactView(jars, coordinatesMap);
 
-    ArtifactView aarView = detachedCfg.getIncoming().artifactView(
-            spec -> {
-              spec.setLenient(true); // tolerate dependencies without AAR variants
-              spec.attributes(attrs -> {
-                attrs.attribute(
-                        Usage.USAGE_ATTRIBUTE,
-                        project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)
-                );
-                attrs.attribute(
-                        LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                        project.getObjects().named(LibraryElements.class, "aar")
-                );
-              });
-              spec.withVariantReselection();
-            }
-    );
+    ArtifactView aarView =
+        detachedCfg
+            .getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true); // tolerate dependencies without AAR variants
+                  spec.attributes(
+                      attrs -> {
+                        attrs.attribute(
+                            Usage.USAGE_ATTRIBUTE,
+                            project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
+                        attrs.attribute(
+                            LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                            project.getObjects().named(LibraryElements.class, "aar"));
+                      });
+                  spec.withVariantReselection();
+                });
 
     // Collect Android artifacts  (AARs)
     collectArtifactsFromArtifactView(aarView, coordinatesMap);
