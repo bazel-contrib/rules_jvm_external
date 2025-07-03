@@ -149,7 +149,6 @@ def rules_jvm_external_deps(
             "com.github.jknack:handlebars:4.3.1",
         ],
         maven_install_json = deps_lock_file,
-        fail_if_repin_required = True,
         strict_visibility = True,
         fetch_sources = True,
         repositories = repositories,
