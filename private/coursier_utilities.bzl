@@ -15,25 +15,12 @@
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
 
-load("//:specs.bzl", "parse")
+# Do not load from external dependencies since this is called from the `repositories.bzl` file
+# TODO: lift this restriction once we drop workspace-based build support
 
-SUPPORTED_PACKAGING_TYPES = [
-    "jar",
-    "json",
-    "aar",
-    "bundle",
-    "eclipse-plugin",
-    "exe",
-    "orbit",
-    "test-jar",
-    "hk2-jar",
-    "maven-plugin",
-    "scala-jar",
-    "dylib",
-    "so",
-    "dll",
-    "pom",
-]
+load("//private/lib:coordinates.bzl", "unpack_coordinates", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES")
+
+SUPPORTED_PACKAGING_TYPES = _SUPPORTED_PACKAGING_TYPES
 
 # See https://github.com/bazelbuild/rules_jvm_external/issues/686
 # A single package uses classifier to distinguish the jar files (one per platform),
@@ -46,44 +33,76 @@ PLATFORM_CLASSIFIER = [
     "windows-x86_64",
 ]
 
+# Lifted from bazel-skylib
+def struct_to_dict(s):
+    return {
+        key: getattr(s, key)
+        for key in dir(s)
+        if key != "to_json" and key != "to_proto"
+    }
+
+def to_repository_name(coords):
+    """Converts `coords` into group:artifact[:packaging[:classifier]]:version"""
+    unpacked = unpack_coordinates(coords)
+
+    to_return = "%s:%s" % (unpacked.group, unpacked.artifact)
+
+    if unpacked.packaging:
+        to_return += ":%s" % unpacked.packaging
+
+    if unpacked.classifier:
+        to_return += ":%s" % unpacked.classifier
+
+    if unpacked.version:
+        to_return += ":%s" % unpacked.version
+
+    return escape(to_return)
+
+def _to_legacy_format(coord, include_version):
+    unpacked = unpack_coordinates(coord)
+
+    to_return = "%s:%s" % (unpacked.group, unpacked.artifact)
+
+    # Note that although "pom" is not a packaging type that Coursier CLI accepts,
+    # it's included in the `SUPPORTED_PACKAGING_TYPES` array so we don't need to
+    # check it here as well.
+    if unpacked.packaging and not unpacked.packaging in SUPPORTED_PACKAGING_TYPES:
+        to_return += ":%s" % unpacked.packaging
+
+    if unpacked.classifier and not unpacked.classifier in ["sources", "natives"]:
+        to_return += ":%s" % unpacked.classifier
+
+    if include_version and unpacked.version:
+        to_return += ":%s" % unpacked.version
+
+    return to_return
+
 def strip_packaging_and_classifier(coord):
-    # Strip some packaging and classifier values based on the following maven coordinate formats
+    # Strip some packaging and classifier values.
+    #
+    # We are expected to return one of:
+    #
     # groupId:artifactId:version
     # groupId:artifactId:packaging:version
     # groupId:artifactId:packaging:classifier:version
-    coordinates = coord.split(":")
-    if len(coordinates) > 4:
-        if coordinates[3] in ["sources", "natives"]:
-            coordinates.pop(3)
 
-    if len(coordinates) > 3:
-        # We add "pom" into SUPPORTED_PACKAGING_TYPES here because "pom" is not a
-        # packaging type that Coursier CLI accepts.
-        if coordinates[2] in SUPPORTED_PACKAGING_TYPES + ["pom"]:
-            coordinates.pop(2)
-
-    return ":".join(coordinates)
+    return _to_legacy_format(coord, True)
 
 def strip_packaging_and_classifier_and_version(coord):
-    coordinates = coord.split(":")
-
-    # Support for simplified versionless groupId:artifactId coordinate format
-    if len(coordinates) == 2:
-        return ":".join(coordinates)
-    return ":".join(strip_packaging_and_classifier(coord).split(":")[:-1])
+    return _to_legacy_format(coord, False)
 
 def match_group_and_artifact(source, target):
-    source_coord = parse.parse_maven_coordinate(source)
-    target_coord = parse.parse_maven_coordinate(target)
-    return source_coord["group"] == target_coord["group"] and source_coord["artifact"] == target_coord["artifact"]
+    source_coord = unpack_coordinates(source)
+    target_coord = unpack_coordinates(target)
+    return source_coord.group == target_coord.group and source_coord.artifact == target_coord.artifact
 
 def get_packaging(coord):
     # Get packaging from the following maven coordinate
-    return parse.parse_maven_coordinate(coord).get("packaging", None)
+    return unpack_coordinates(coord).packaging
 
 def get_classifier(coord):
     # Get classifier from the following maven coordinate
-    return parse.parse_maven_coordinate(coord).get("classifier", None)
+    return unpack_coordinates(coord).classifier
 
 def escape(string):
     for char in [".", "-", ":", "/", "+", "$"]:

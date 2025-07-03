@@ -1,4 +1,5 @@
 load("@bazel_features//:features.bzl", "bazel_features")
+load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
@@ -7,6 +8,7 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private/lib:coordinates.bzl", "to_external_form", "unpack_coordinates")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
@@ -50,7 +52,7 @@ install = tag_class(
         "fetch_sources": attr.bool(default = False),
 
         # How do we do artifact resolution?
-        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "maven"], default = _DEFAULT_RESOLVER),
+        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "gradle", "maven"], default = _DEFAULT_RESOLVER),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
@@ -84,11 +86,15 @@ install = tag_class(
                 "none",
             ],
         ),
-        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = False),
+        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = True),
         "lock_file": attr.label(),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
         "generate_compat_repositories": attr.bool(
             doc = "Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
+        ),
+        "known_contributing_modules": attr.string_list(
+            doc = "List of Bzlmod modules that are known to be contributing to this repository. Only honoured for the root module.",
+            default = [],
         ),
 
         # When using an unpinned repo
@@ -152,35 +158,38 @@ def _add_exclusions(exclusions):
 # This can be typical for the default @maven namespace, if a bzlmod dependency
 # wishes to contribute to the users' jars.
 def _check_repo_name(repo_name_2_module_name, repo_name, module_name):
-    known_names = repo_name_2_module_name.get(repo_name, [])
-    if module_name in known_names:
+    contributing_module_names = repo_name_2_module_name.get(repo_name, [])
+    if module_name in contributing_module_names:
         return
-    known_names.append(module_name)
-    repo_name_2_module_name[repo_name] = known_names
+    contributing_module_names.append(module_name)
+    repo_name_2_module_name[repo_name] = contributing_module_names
 
-def _to_maven_coords(artifact):
-    coords = "%s:%s" % (artifact.get("group"), artifact.get("artifact"))
-
-    extension = artifact.get("packaging", "jar")
-    if not extension:
-        extension = "jar"
-    classifier = artifact.get("classifier", "jar")
-    if not classifier:
-        classifier = "jar"
-
-    if classifier != "jar":
-        coords += ":%s:%s" % (extension, classifier)
-    elif extension != "jar":
-        coords += ":%s" % extension
-    coords += ":%s" % artifact.get("version")
-
-    return coords
+def _warn_if_multiple_contributing_modules(repo_name_2_module_name, repos):
+    for (repo_name, contributing_module_names) in repo_name_2_module_name.items():
+        if len(contributing_module_names) == 1:
+            continue
+        known_contributing_modules = repos[repo_name].get("known_contributing_modules", sets.make())
+        new_contributing_modules = sets.difference(sets.make(contributing_module_names), known_contributing_modules)
+        if sets.length(new_contributing_modules) == 0:
+            continue
+        print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s." % (
+                  repo_name,
+                  sorted(contributing_module_names),
+              ) + "\nSee https://github.com/bazel-contrib/rules_jvm_external/blob/master/docs/bzlmod.md#module-dependency-layering" +
+              " for more information. \n" +
+              " To suppress this warning review the contributions from the other modules and add the following attribute" +
+              " in the root MODULE.bazel file: \n" +
+              "maven.install(\n" +
+              ("  name = \"{0}\"\n".format(repo_name) if repo_name != DEFAULT_NAME else "") +
+              "  known_contributing_modules = {0},\n".format(sorted(contributing_module_names)) +
+              "  ...\n" +
+              ")")
 
 def _generate_compat_repos(name, existing_compat_repos, artifacts):
     seen = []
 
     for artifact in artifacts:
-        coords = _to_maven_coords(artifact)
+        coords = to_external_form(artifact)
         versionless = escape(strip_packaging_and_classifier_and_version(coords))
         if versionless in existing_compat_repos:
             continue
@@ -194,164 +203,260 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 
     return seen
 
+def _get_maven_module(artifact_spec):
+    """Extract group:artifact (maven module) coordinates from an artifact spec."""
+    return "%s:%s" % (artifact_spec.group, artifact_spec.artifact)
+
+def _find_duplicate_artifacts_across_submodules(non_root_artifacts, root_maven_modules):
+    """Find artifacts that appear in multiple sub-modules with detailed version info."""
+
+    # Group artifacts by maven module (group:artifact)
+    maven_module_to_versions = {}
+
+    for artifact in non_root_artifacts:
+        maven_module = _get_maven_module(artifact)
+        if maven_module not in maven_module_to_versions:
+            maven_module_to_versions[maven_module] = []
+
+        # Extract version information
+        version = getattr(artifact, "version", "unspecified")
+        maven_module_to_versions[maven_module].append(version)
+
+    # Find duplicates that aren't overridden by root
+    duplicates = {}
+    for maven_module, versions in maven_module_to_versions.items():
+        # Only warn if:
+        # 1. There are multiple artifacts with the same group:artifact
+        # 2. This maven module is NOT overridden by the root module
+        if len(versions) > 1 and maven_module not in root_maven_modules:
+            # Deduplicate versions for cleaner output
+            unique_versions = {v: True for v in versions}.keys()
+            duplicates[maven_module] = sorted(unique_versions)
+
+    return duplicates
+
+def _deduplicate_artifacts_with_root_priority(root_artifacts, non_root_artifacts):
+    """Deduplicate artifacts, giving priority to root module artifacts."""
+
+    # Collect maven modules from root artifacts (handle mixed types)
+    root_maven_modules = []
+    for artifact in root_artifacts:
+        maven_module = _get_maven_module(artifact)
+        if maven_module not in root_maven_modules:
+            root_maven_modules.append(maven_module)
+
+    # Find duplicates across sub-modules that aren't overridden by root
+    duplicate_submodule_artifacts = _find_duplicate_artifacts_across_submodules(
+        non_root_artifacts,
+        root_maven_modules,
+    )
+
+    # Filter non-root artifacts that conflict with root artifacts
+    filtered_non_root = []
+    for artifact in non_root_artifacts:
+        maven_module = _get_maven_module(artifact)
+        if not maven_module in root_maven_modules:
+            filtered_non_root.append(artifact)
+
+    # Log detailed warning for duplicate sub-module artifacts
+    if len(duplicate_submodule_artifacts):
+        warning_parts = []
+        for maven_module, versions in duplicate_submodule_artifacts.items():
+            if len(versions) > 1:
+                warning_parts.append("%s (versions: %s)" % (maven_module, ", ".join(versions)))
+            else:
+                warning_parts.append(maven_module)
+
+        print("WARNING: The following maven modules appear in multiple sub-modules with potentially different versions. " +
+              "Consider adding one of these to your root module to ensure consistent versions:\n\t%s" %
+              "\n\t".join(sorted(warning_parts)))
+
+    return root_artifacts + filtered_non_root
+
+def _process_module_tags(mod, target_repos, repo_name_2_module_name):
+    """Process artifact and install tags for a single module."""
+    for artifact in mod.tags.artifact:
+        _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
+
+        repo = target_repos.get(artifact.name, {})
+        existing_artifacts = repo.get("artifacts", [])
+        existing_artifacts.append(struct(
+            group = artifact.group,
+            artifact = artifact.artifact,
+            version = artifact.version,
+            packaging = artifact.packaging,
+            classifier = artifact.classifier,
+            force_version = artifact.force_version,
+            neverlink = artifact.neverlink,
+            testonly = artifact.testonly,
+            exclusions = _add_exclusions(artifact.exclusions),
+        ))
+
+        repo["artifacts"] = existing_artifacts
+        target_repos[artifact.name] = repo
+
+    for install in mod.tags.install:
+        _check_repo_name(repo_name_2_module_name, install.name, mod.name)
+
+        repo = target_repos.get(install.name, {})
+
+        repo["resolver"] = install.resolver
+
+        artifacts = repo.get("artifacts", [])
+        repo["artifacts"] = artifacts + [unpack_coordinates(a) for a in install.artifacts]
+
+        boms = repo.get("boms", [])
+        repo["boms"] = boms + [unpack_coordinates(b) for b in install.boms]
+
+        existing_repos = repo.get("repositories", [])
+        for repository in parse.parse_repository_spec_list(install.repositories):
+            repo_string = _json.write_repository_spec(repository)
+            if repo_string not in existing_repos:
+                existing_repos.append(repo_string)
+        repo["repositories"] = existing_repos
+
+        repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
+
+        _logical_or(repo, "fetch_sources", False, install.fetch_sources)
+        _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
+        _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
+        _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
+        _logical_or(repo, "use_credentials_from_home_netrc_file", False, install.use_credentials_from_home_netrc_file)
+
+        repo["version_conflict_policy"] = _fail_if_different(
+            "version_conflict_policy",
+            repo.get("version_conflict_policy"),
+            install.version_conflict_policy,
+            [None, "default"],
+        )
+
+        repo["strict_visibility_value"] = _fail_if_different(
+            "strict_visibility_value",
+            repo.get("strict_visibility_value", []),
+            install.strict_visibility_value,
+            [None, []],
+        )
+
+        additional_netrc_lines = repo.get("additional_netrc_lines", []) + getattr(install, "additional_netrc_lines", [])
+        repo["additional_netrc_lines"] = additional_netrc_lines
+
+        repo["aar_import_bzl_label"] = _fail_if_different(
+            "aar_import_bzl_label",
+            repo.get("aar_import_bzl_label"),
+            install.aar_import_bzl_label,
+            [DEFAULT_AAR_IMPORT_LABEL, None],
+        )
+
+        repo["duplicate_version_warning"] = _fail_if_different(
+            "duplicate_version_warning",
+            repo.get("duplicate_version_warning"),
+            install.duplicate_version_warning,
+            [None, "warn"],
+        )
+
+        # Get the longest timeout
+        timeout = repo.get("resolve_timeout", install.resolve_timeout)
+        if install.resolve_timeout > timeout:
+            timeout = install.resolve_timeout
+        repo["resolve_timeout"] = timeout
+
+        if mod.is_root:
+            repo["repin_instructions"] = install.repin_instructions
+            repo["known_contributing_modules"] = sets.make(install.known_contributing_modules)
+
+        repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
+
+        target_repos[install.name] = repo
+
+def _merge_repo_lists(root_list, non_root_list):
+    """Merge two lists, removing duplicates while preserving order, root items first."""
+    seen = []
+    merged_list = []
+    for item in root_list + non_root_list:
+        if item not in seen:
+            merged_list.append(item)
+            seen.append(item)
+    return merged_list
+
+def remove_fields(s):
+    """Used for reducing an artifact struct down to only those fields that have values"""
+    return {
+        k: getattr(s, k)
+        for k in dir(s)
+        if k != "to_json" and k != "to_proto" and getattr(s, k, None)
+    } | {"version": getattr(s, "version", "")}
+
 def maven_impl(mctx):
     repos = {}
     overrides = {}
-    exclusions = {}
     http_files = []
     compat_repos = []
 
-    # Iterate over all the tags we care about. For each `name` we want to construct
-    # a dict with the following keys:
-
-    # - aar_import_bzl_label: string. Build will fail if this is duplicated and different.
-    # - additional_netrc_lines: string list. Accumulated from all `install` tags
-    # - artifacts: the exploded tuple for each artifact we want to include.
-    # - duplicate_version_warning: string. Build will fail if duplicated and different
-    # - fail_if_repin_required: bool. A logical OR over all `fail_if_repin_required` for all `install` tags with the same name.
-    # - fail_on_missing_checksum: bool. A logical OR over all `fail_on_missing_checksum` for all `install` tags with the same name.
-    # - fetch_javadoc: bool. A logical OR over all `fetch_javadoc` for all `install` tags with the same name.
-    # - fetch_sources: bool. A logical OR over all `fetch_sources` for all `install` tags with the same name.
-    # - generate_compat_repositories: bool. A logical OR over all `generate_compat_repositories` for all `install` tags with the same name.
-    # - lock_file: the lock file to use, if present. Multiple lock files will cause the build to fail.
-    # - overrides: a dict mapping `artfifactId:groupId` to Bazel label.
-    # - repositories: the list of repositories to pull files from.
-    # - strict_visibility: bool. A logical OR over all `strict_visibility` for all `install` tags with the same name.
-    # - strict_visibility_value: a string list. Build will fail is duplicated and different.
-    # - use_starlark_android_rules: bool. A logical OR over all `use_starlark_android_rules` for all `install` tags with the same name.
-    # - version_conflict_policy: string. Fails build if different and not a default.
-    # - ignore_empty_files: Treat jars that are empty as if they were not found.
-    # - additional_coursier_options: Additional options that will be passed to coursier.
-
-    # Mapping of `name`s to a list of `bazel_module.name`. This will allow us to
-    # warn users when more than one module attempts to update a maven repo
-    # (which is normally undesired behaviour, but supported as multiple modules
-    # can intentionally contribute to the default `maven` repo namespace.)
+    # Separate tracking for root vs non-root artifacts
+    root_module_repos = {}
+    non_root_module_repos = {}
     repo_name_2_module_name = {}
 
-    for mod in mctx.modules:
+    # Process overrides first (they don't need deduplication)
+    # The order of the transitive overrides do not matter, but the root
+    # overrides take precedence over all transitive ones.
+    for idx, mod in enumerate(reversed(mctx.modules)):
+        # Rotate the root module to the last to be visited.
+        is_root_module = idx == (len(mctx.modules) - 1)
         for override in mod.tags.override:
+            if not override.name in overrides:
+                overrides[override.name] = {}
             value = str(override.target)
-            current = overrides.get(override.coordinates, None)
-            to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
-            overrides.update({override.coordinates: to_use})
+            if is_root_module:
+                # Allow the root module's overrides to take precedence over any transitive overrides.
+                to_use = value
+            else:
+                current = overrides[override.name].get(override.coordinates)
+                to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
+            overrides[override.name].update({override.coordinates: to_use})
 
-        for artifact in mod.tags.artifact:
-            _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
+    # First pass: process the module tags, but keep root and non-root modules separately
+    for mod in mctx.modules:
+        collection = root_module_repos if mod.is_root else non_root_module_repos
+        _process_module_tags(mod, collection, repo_name_2_module_name)
 
-            repo = repos.get(artifact.name, {})
-            existing_artifacts = repo.get("artifacts", [])
+    # Second pass: merge and deduplicate repositories
+    all_repo_names = {name: True for name in root_module_repos.keys() + non_root_module_repos.keys()}.keys()
 
-            to_add = {
-                "group": artifact.group,
-                "artifact": artifact.artifact,
-            }
+    for repo_name in all_repo_names:
+        root_repo = root_module_repos.get(repo_name, {})
+        non_root_repo = non_root_module_repos.get(repo_name, {})
 
-            if artifact.version:
-                to_add.update({"version": artifact.version})
+        # Start with non-root repo as base, then override with root repo settings
+        merged_repo = {}
+        merged_repo.update(non_root_repo)
+        merged_repo.update(root_repo)
 
-            if artifact.packaging:
-                to_add.update({"packaging": artifact.packaging})
+        # Special handling for artifacts and boms - deduplicate with root priority
+        root_artifacts = root_repo.get("artifacts", [])
+        non_root_artifacts = non_root_repo.get("artifacts", [])
+        merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
+            root_artifacts,
+            non_root_artifacts,
+        )
 
-            if artifact.classifier:
-                to_add.update({"classifier": artifact.classifier})
+        root_boms = root_repo.get("boms", [])
+        non_root_boms = non_root_repo.get("boms", [])
+        merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
+            root_boms,
+            non_root_boms,
+        )
 
-            if artifact.force_version:
-                to_add.update({"force_version": artifact.force_version})
+        # For list attributes, concatenate but avoid duplicates (root items first)
+        for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:
+            root_list = root_repo.get(list_attr, [])
+            non_root_list = non_root_repo.get(list_attr, [])
+            merged_repo[list_attr] = _merge_repo_lists(root_list, non_root_list)
 
-            if artifact.neverlink:
-                to_add.update({"neverlink": artifact.neverlink})
+        repos[repo_name] = merged_repo
 
-            if artifact.testonly:
-                to_add.update({"testonly": artifact.testonly})
-
-            if artifact.exclusions:
-                artifact_exclusions = []
-                artifact_exclusions = _add_exclusions(artifact.exclusions + artifact_exclusions)
-                to_add.update({"exclusions": artifact_exclusions})
-
-            existing_artifacts.append(to_add)
-            repo["artifacts"] = existing_artifacts
-            repos[artifact.name] = repo
-
-        for install in mod.tags.install:
-            _check_repo_name(repo_name_2_module_name, install.name, mod.name)
-
-            repo = repos.get(install.name, {})
-
-            repo["resolver"] = install.resolver
-
-            artifacts = repo.get("artifacts", [])
-            repo["artifacts"] = artifacts + install.artifacts
-
-            boms = repo.get("boms", [])
-            repo["boms"] = boms + install.boms
-
-            existing_repos = repo.get("repositories", [])
-            for repository in parse.parse_repository_spec_list(install.repositories):
-                repo_string = _json.write_repository_spec(repository)
-                if repo_string not in existing_repos:
-                    existing_repos.append(repo_string)
-            repo["repositories"] = existing_repos
-
-            repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
-
-            _logical_or(repo, "fetch_sources", False, install.fetch_sources)
-            _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
-            _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
-            _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
-            _logical_or(repo, "use_credentials_from_home_netrc_file", False, install.use_credentials_from_home_netrc_file)
-
-            repo["version_conflict_policy"] = _fail_if_different(
-                "version_conflict_policy",
-                repo.get("version_conflict_policy"),
-                install.version_conflict_policy,
-                [None, "default"],
-            )
-
-            repo["strict_visibility_value"] = _fail_if_different(
-                "strict_visibility_value",
-                repo.get("strict_visibility_value", []),
-                install.strict_visibility_value,
-                [None, []],
-            )
-
-            additional_netrc_lines = repo.get("additional_netrc_lines", []) + getattr(install, "additional_netrc_lines", [])
-            repo["additional_netrc_lines"] = additional_netrc_lines
-
-            repo["aar_import_bzl_label"] = _fail_if_different(
-                "aar_import_bzl_label",
-                repo.get("aar_import_bzl_label"),
-                install.aar_import_bzl_label,
-                [DEFAULT_AAR_IMPORT_LABEL, None],
-            )
-
-            repo["duplicate_version_warning"] = _fail_if_different(
-                "duplicate_version_warning",
-                repo.get("duplicate_version_warning"),
-                install.duplicate_version_warning,
-                [None, "warn"],
-            )
-
-            # Get the longest timeout
-            timeout = repo.get("resolve_timeout", install.resolve_timeout)
-            if install.resolve_timeout > timeout:
-                timeout = install.resolve_timeout
-            repo["resolve_timeout"] = timeout
-
-            if mod.is_root:
-                repo["repin_instructions"] = install.repin_instructions
-
-            repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
-
-            repos[install.name] = repo
-
-    for (repo_name, known_names) in repo_name_2_module_name.items():
-        if len(known_names) > 1:
-            print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s" % (
-                repo_name, # e.g. "maven"
-                sorted(known_names), # e.g. bzl_module_bar, bzl_module_bar
-            ))
+    # Warn users if multiple modules contribute to the same maven `name`
+    _warn_if_multiple_contributing_modules(repo_name_2_module_name, repos)
 
     # Breaking out the logic for picking lock files, because it's not terribly simple
     repo_to_lock_file = {}
@@ -398,10 +503,9 @@ def maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
-        boms = parse.parse_artifact_spec_list(repo.get("boms", []))
-        boms_json = [_json.write_artifact_spec(a) for a in boms]
-        artifacts = parse.parse_artifact_spec_list(repo["artifacts"])
-        artifacts_json = [_json.write_artifact_spec(a) for a in artifacts]
+        boms_json = [json.encode(remove_fields(b)) for b in repo.get("boms", [])]
+        artifacts_json = [json.encode(remove_fields(a)) for a in repo.get("artifacts", [])]
+
         excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
         excluded_artifacts_json = [_json.write_exclusion_spec(a) for a in excluded_artifacts]
 
@@ -424,13 +528,14 @@ def maven_impl(mctx):
                 user_provided_name = name,
                 repositories = repo.get("repositories"),
                 artifacts = artifacts_json,
+                boms = boms_json,
                 fail_on_missing_checksum = repo.get("fail_on_missing_checksum"),
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
                 excluded_artifacts = excluded_artifacts_json,
                 generate_compat_repositories = False,
                 version_conflict_policy = repo.get("version_conflict_policy"),
-                override_targets = overrides,
+                override_targets = overrides.get(name),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
@@ -451,8 +556,8 @@ def maven_impl(mctx):
                 alias = "%s%s//:pin" % (workspace_prefix, name),
             )
 
-        if repo.get("generate_compat_repositories") and not repo.get("lock_file"):
-            seen = _generate_compat_repos(name, compat_repos, artifacts)
+        if repo.get("generate_compat_repositories"):
+            seen = _generate_compat_repos(name, compat_repos, repo.get("artifacts", []))
             compat_repos.extend(seen)
 
         if repo.get("lock_file"):
@@ -491,7 +596,7 @@ def maven_impl(mctx):
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
-                override_targets = overrides,
+                override_targets = overrides.get(name),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
@@ -505,8 +610,9 @@ def maven_impl(mctx):
             )
 
             if repo.get("generate_compat_repositories"):
-                all_artifacts = parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts])
-                seen = _generate_compat_repos(name, compat_repos, parse.parse_artifact_spec_list([(a["coordinates"]) for a in artifacts]))
+                # Convert lock file artifacts (which are dicts) to structs
+                lock_file_artifacts = [unpack_coordinates(a["coordinates"]) for a in artifacts]
+                seen = _generate_compat_repos(name, compat_repos, lock_file_artifacts)
                 compat_repos.extend(seen)
 
     if bazel_features.external_deps.extension_metadata_has_reproducible:

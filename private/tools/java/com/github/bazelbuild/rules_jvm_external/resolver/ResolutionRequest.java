@@ -179,9 +179,22 @@ public class ResolutionRequest {
     return userHome;
   }
 
-  public Path getLocalCache() {
-    Path localRepo = getUserHome().resolve(".m2").resolve("repository");
+  private Path getGradleCachePath() {
+    // https://docs.gradle.org/current/userguide/dependency_caching.html
+    return getUserHome().resolve(".gradle").resolve("caches/modules-2/files-2.1");
+  }
 
+  private Path getM2CachePath() {
+    return getUserHome().resolve(".m2").resolve("repository");
+  }
+
+  public Path getLocalCache(String resolver) {
+    Path localRepo = getM2CachePath();
+    // Gradle can download from m2local but never downloads to it
+    // so we need to resolve to the gradle cache path here
+    if (resolver.equals("gradle")) {
+      localRepo = getGradleCachePath();
+    }
     if (!Files.exists(localRepo)) {
       createDirectories(localRepo);
     }

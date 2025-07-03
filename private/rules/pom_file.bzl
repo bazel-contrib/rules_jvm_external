@@ -4,38 +4,45 @@ load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
-    if not ctx.attr.target[MavenInfo].coordinates:
-        fail("pom_file target must have maven coordinates.")
+    expanded_maven_deps = []
+    expanded_export_deps = []
+    if ctx.attr.target:
+        if not ctx.attr.target[MavenInfo].coordinates:
+            fail("pom_file target must have maven coordinates.")
 
-    info = ctx.attr.target[MavenInfo]
+        info = ctx.attr.target[MavenInfo]
 
-    artifact_jars = calculate_artifact_jars(info)
-    additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
+        artifact_jars = calculate_artifact_jars(info)
+        additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
 
-    all_maven_deps = info.maven_deps.to_list()
-    runtime_maven_deps = info.maven_runtime_deps.to_list()
+        all_maven_deps = info.maven_deps.to_list()
+        export_maven_deps = info.maven_export_deps.to_list()
 
-    for dep in additional_deps:
-        for coords in dep[MavenInfo].as_maven_dep.to_list():
-            all_maven_deps.append(coords)
+        for dep in additional_deps:
+            for coords in dep[MavenInfo].as_maven_dep.to_list():
+                all_maven_deps.append(coords)
 
-    expanded_maven_deps = [
-        ctx.expand_make_variables("additional_deps", coords, ctx.var)
-        for coords in all_maven_deps
-    ]
-    expanded_runtime_deps = [
-        ctx.expand_make_variables("maven_runtime_deps", coords, ctx.var)
-        for coords in runtime_maven_deps
-    ]
+        expanded_maven_deps = [
+            ctx.expand_make_variables("additional_deps", coords, ctx.var)
+            for coords in all_maven_deps
+        ]
+        expanded_export_deps = [
+            ctx.expand_make_variables("maven_export_deps", coords, ctx.var)
+            for coords in export_maven_deps
+        ]
 
-    # Expand maven coordinates for any variables to be replaced.
-    coordinates = ctx.expand_make_variables("coordinates", info.coordinates, ctx.var)
+        # Expand maven coordinates for any variables to be replaced.
+        coordinates = ctx.expand_make_variables("coordinates", info.coordinates, ctx.var)
+    else:
+        if not ctx.attr.coordinates:
+            fail("pom_file must have either a target with maven coordinates, or manually specified coordinates.")
+        coordinates = ctx.expand_make_variables("coordinates", ctx.attr.coordinates, ctx.var)
 
     out = generate_pom(
         ctx,
         coordinates = coordinates,
         versioned_dep_coordinates = sorted(expanded_maven_deps),
-        runtime_deps = expanded_runtime_deps,
+        versioned_export_dep_coordinates = expanded_export_deps,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
     )
@@ -72,13 +79,15 @@ The following substitutions are performed on the template file:
         ),
         "target": attr.label(
             doc = "The rule to base the pom file on. Must be a java_library and have a maven_coordinate tag.",
-            mandatory = True,
             providers = [
                 [JavaInfo],
             ],
             aspects = [
                 has_maven_deps,
             ],
+        ),
+        "coordinates": attr.string(
+            doc = "Manual maven coordinates to use",
         ),
         "additional_dependencies": attr.label_keyed_string_dict(
             doc = "Mapping of `Label`s to the excluded workspace names",

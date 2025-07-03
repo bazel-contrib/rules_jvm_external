@@ -222,6 +222,38 @@ function test_outdated_no_external_runfiles() {
   expect_log "junit:junit \[4.12"
 }
 
+function test_outdated_with_boms() {
+  bazel run @regression_testing_maven//:outdated >> "$TEST_LOG" 2>&1
+
+  expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
+  expect_log "io.opentelemetry:opentelemetry-bom \[1.31.0"
+}
+
+function test_outdated_with_boms_does_not_include_artifacts_without_a_version() {
+  bazel run @coursier_resolved_with_boms//:outdated >> "$TEST_LOG" 2>&1
+
+  expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
+  expect_log "com.google.cloud:libraries-bom \[26.59.0"
+  expect_not_log "com.google.cloud:google-cloud-bigquery"
+  expect_not_log "\[None"
+}
+
+function test_coursier_resolution_with_boms() {
+    # Only run for Bazel 7 or above
+    RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
+    # Bail if we can't figure out the release
+    if [[ -z "$RELEASE" ]]; then
+      echo "$RELEASE is a zero-length string"
+      return
+    fi
+    if ! [[ "$RELEASE" =~ ^[0-9]+$ ]]; then
+      return
+    fi
+
+    # should run successfully
+    bazel run @coursier_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
+}
+
 function test_v1_lock_file_format() {
   # Because we run with `-e` this command succeeding is enough to
   # know that the v1 lock file format was parsed successfully
@@ -277,14 +309,33 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
   expect_log "@regression_testing_coursier//:org_mockito_mockito_core"
 }
 
+ function test_gradle_metadata_is_resolved_correctly_for_aar_artifact {
+    # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right aar artifact
+    # and make it available
+    bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
+
+    expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
+ }
+
+function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
+  # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right jvm artifact
+  # and make it available
+  bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
+}
+
 
 TESTS=(
+  "test_coursier_resolution_with_boms"
   "test_maven_resolution"
   "test_dependency_aggregation"
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
   "test_outdated"
   "test_outdated_no_external_runfiles"
+  "test_outdated_with_boms"
+  "test_outdated_with_boms_does_not_include_artifacts_without_a_version"
   "test_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build"
   "test_m2local_testing_found_local_artifact_through_build"
@@ -298,6 +349,8 @@ TESTS=(
   "test_transitive_dependency_with_type_of_pom"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
+  # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
+  "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
 )
 
 function run_tests() {

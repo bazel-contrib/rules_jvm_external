@@ -26,6 +26,7 @@ def _label(label_or_string):
 
 def _maven_bom_impl(ctx):
     fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
+    dep_coordinates = [f.coordinates for f in fragments]
 
     # Expand maven coordinates for any variables to be replaced.
     coordinates = ctx.expand_make_variables("coordinates", ctx.attr.maven_coordinates, {})
@@ -33,7 +34,8 @@ def _maven_bom_impl(ctx):
     bom = generate_pom(
         ctx,
         coordinates = coordinates,
-        versioned_dep_coordinates = [f[MavenBomFragmentInfo].coordinates for f in ctx.attr.fragments],
+        is_bom = True,
+        versioned_dep_coordinates = dep_coordinates,
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
     )
@@ -75,6 +77,7 @@ def _maven_dependencies_bom_impl(ctx):
     dependencies_bom = generate_pom(
         ctx,
         coordinates = ctx.attr.maven_coordinates,
+        is_bom = True,
         versioned_dep_coordinates = combined_deps + ["%s:%s:pom:%s" % (unpacked.group, unpacked.artifact, unpacked.version)],
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,

@@ -22,7 +22,7 @@ def maven_install(
         resolve_timeout = 600,
         additional_netrc_lines = [],
         use_credentials_from_home_netrc_file = False,
-        fail_if_repin_required = False,
+        fail_if_repin_required = True,
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
         duplicate_version_warning = "warn",
@@ -39,7 +39,7 @@ def maven_install(
       repositories: A list of Maven repository URLs, specified in lookup order.
 
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
-      boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs. The `coursier` `resolver` does not support using BOMs.
+      boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
       resolver: Which resolver to use. One of `coursier`, or `maven`.
       fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
@@ -81,9 +81,6 @@ def maven_install(
       ignore_empty_files: Treat jars that are empty as if they were not found.
       additional_coursier_options: Additional options that will be passed to coursier.
     """
-    if boms and resolver == "coursier":
-        fail("The coursier resolver does not support resolving Maven BOMs. Please use another resolver.")
-
     if resolver != "coursier" and not maven_install_json:
         fail("Only the coursier resolver supports build time resolution. Please set `maven_install_json`. An empty file will work.")
 
@@ -126,6 +123,7 @@ def maven_install(
             pinned_repo_name = None if maven_install_json == None else name,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
+            boms = boms_json_strings,
             fail_on_missing_checksum = fail_on_missing_checksum,
             fetch_sources = fetch_sources,
             fetch_javadoc = fetch_javadoc,

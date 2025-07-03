@@ -47,6 +47,7 @@ Table of Contents
     - [Fetch and resolve timeout](#fetch-and-resolve-timeout)
     - [Ignoring empty jars](#ignoring-empty-jars)
     - [Duplicate artifact warning](#duplicate-artifact-warning)
+    - [Provide JVM options for artifact resolution](#provide-jvm-options-for-artifact-resolution)
     - [Provide JVM options for Coursier with `COURSIER_OPTS`](#provide-jvm-options-for-coursier-with-coursier_opts)
     - [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
     - [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
@@ -66,7 +67,7 @@ Table of Contents
 
 * MODULE.bazel bzlmod configuration (Bazel 7 and above) 
 * WORKSPACE configuration
-* Artifact version resolution with Coursier or Maven
+* Artifact version resolution with Coursier, Maven or Gradle
 * Import downloaded JAR, AAR, source JARs
 * Export built JARs to Maven repositories
 * Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file
@@ -103,7 +104,7 @@ support versions 6, 7 and 8.
 
 ## Usage
 
-### Recommended: bzlmod (Bazel 7 and above)
+### With bzlmod (Bazel 7 and above)
 
 If you are starting a new project, or your project is already using Bazel 7 and
 above, we recommend using [`bzlmod`](https://bazel.build/external/overview) to
@@ -362,19 +363,10 @@ bar_pinned_maven_install()
 
 ## (Experimental) Support for Maven BOM files
 
-Support for Maven BOMs can be enabled by switching the resolver used by `maven_install` to one that supports Maven BOMs.
-This can be done by setting the `resolver` attribute to `maven`. The new resolver will likely result in different
-resolutions than the existing resolver, so it is advised to re-run your dependencies pin.
-
-The new resolver requires you to use a `maven_install_json` file, though if you have not yet pinned your dependencies,
-this can simply be an empty file.
-
-As an example:
+Maven BOMs can be used by using the `boms` attribute, for example:
 
 ```starlark
 maven.install(
-    # Resolution using BOMs is supported by using the `maven` resolver
-    resolver = "maven",
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.18.1",
     ],
@@ -382,8 +374,6 @@ maven.install(
         # This dependency is included in the `selenium-bom`, so we can omit the version number
         "org.seleniumhq.selenium:selenium-java",
     ],
-    # The `maven` resolver requires a lock file, though this can be an empty file before pinning
-    lock_file = "//:manifest_install.json",
 )
 ```
 
@@ -855,10 +845,11 @@ In this case, once pinning is complete, guava `23.3-jre` will be selected.
 
 ### Overriding generated targets
 
-You can override the generated targets for artifacts with a target label of your
-choice. For instance, if you want to provide your own definition of
-`@maven//:com_google_guava_guava` at `//third_party/guava:guava`, specify the
-mapping in the `override_targets` attribute:
+When are using a WORKSPACE file you can override the generated targets for
+artifacts with a target label of your choice. For instance, if you want to
+provide your own definition of `@maven//:com_google_guava_guava` at
+`//third_party/guava:guava`, specify the mapping in the `override_targets`
+attribute:
 
 ```python
 maven_install(
@@ -872,6 +863,15 @@ maven_install(
     override_targets = {
         "com.google.guava:guava": "@//third_party/guava:guava",
     },
+)
+```
+
+When you are using bzlmod you can override the generated target with
+```
+maven.override(
+    name = "maven",
+    coordinates = "com.google.guava:guava",
+    target = "//third_party/guava:guava",
 )
 ```
 
@@ -1048,6 +1048,15 @@ maven_install(
     duplicate_version_warning = "error"
 )
 ```
+
+### Provide JVM options for artifact resolution
+
+You can set the `JDK_JAVA_OPTIONS` environment variable to provide additional JVM options to the artifact resolver.
+
+```python
+build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=<path-to-cacerts>
+```
+can be added to your .bazelrc file if you need to specify custom cacerts for artifact resolution.
 
 ### Provide JVM options for Coursier with `COURSIER_OPTS`
 
@@ -1269,6 +1278,15 @@ the generated lock file unless the `repositories` attribute contains `m2local`.
 
 The Maven-backed resolver will use credentials stored in a `$HOME/.netrc`
 file when performing dependency resolution
+
+### Configuring Gradle
+
+**This resolver is considered experimental**
+
+A Gradle-backed resolver can be used by setting the `resolver`
+attribute of `maven_install` to `gradle`. This resolver requires the
+use of a lock file. For bootstrapping purposes, this file may simply
+be an empty file.
 
 ## IPv6 support
 

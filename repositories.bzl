@@ -6,10 +6,12 @@ load("//private/rules:maven_install.bzl", "maven_install")
 
 _DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
+    "https://repo.gradle.org/gradle/libs-releases/",
 ]
 
-_MAVEN_VERSION = "3.9.8"
-_MAVEN_RESOLVER_VERSION = "1.9.20"
+_MAVEN_VERSION = "3.9.10"
+_MAVEN_RESOLVER_VERSION = "1.9.23"
+_GRADLE_VERSION = "8.13"
 
 def rules_jvm_external_deps(
         repositories = _DEFAULT_REPOSITORIES,
@@ -82,10 +84,7 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "rules_shell",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
-            "https://github.com/bazelbuild/rules_shell/releases/download/v%s/rules_shell-v0.3.0.tar.gz",
-        ],
+        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
         sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
         strip_prefix = "rules_shell-0.3.0",
         # 0.3.0 uses load visibility and other Bazel 7+ features. Remove this
@@ -107,9 +106,9 @@ def rules_jvm_external_deps(
     maybe(
         http_archive,
         name = "bazel_features",
-        sha256 = "bdc12fcbe6076180d835c9dd5b3685d509966191760a0eb10b276025fcb76158",
-        strip_prefix = "bazel_features-1.17.0",
-        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.17.0/bazel_features-v1.17.0.tar.gz",
+        sha256 = "3646ffd447753490b77d2380fa63f4d55dd9722e565d84dfda01536b48e183da",
+        strip_prefix = "bazel_features-1.19.0",
+        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.19.0/bazel_features-v1.19.0.tar.gz",
     )
 
     maven_install(
@@ -146,10 +145,20 @@ def rules_jvm_external_deps(
             "software.amazon.awssdk:s3:2.26.12",
             "org.bouncycastle:bcprov-jdk15on:1.68",
             "org.bouncycastle:bcpg-jdk15on:1.68",
+            "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
+            "com.github.jknack:handlebars:4.3.1",
         ],
         maven_install_json = deps_lock_file,
-        fail_if_repin_required = True,
         strict_visibility = True,
         fetch_sources = True,
         repositories = repositories,
+    )
+
+    http_archive(
+        name = "gradle",
+        add_prefix = "gradle-bin",
+        build_file = "//:gradle.BUILD.bazel",
+        integrity = "sha256-IPGxF2I3JUpvwgTYQ0GW+hGkz7OHVnUZxhVW6HEK7Xg=",
+        strip_prefix = "gradle-{}".format(_GRADLE_VERSION),
+        url = "https://services.gradle.org/distributions/gradle-{}-bin.zip".format(_GRADLE_VERSION),
     )
