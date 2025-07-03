@@ -500,8 +500,6 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     unpinned_pin_target = "@{}//:pin".format(unpinned_repo)
     pin_target = "@{}//:pin".format(user_provided_name)
 
-    repin_instructions = " REPIN=1 bazel run %s\n" % pin_target
-
     user_provided_repin_instructions = repository_ctx.attr.repin_instructions
     repin_instructions = user_provided_repin_instructions if user_provided_repin_instructions else (
         " REPIN=1 bazel run %s\n" % pin_target
@@ -530,7 +528,11 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             )
         elif computed_artifacts_hash != input_artifacts_hash:
             if _get_fail_if_repin_required(repository_ctx):
-                fail("%s_install.json contains an invalid input signature and must be regenerated. " % (user_provided_name) +
+                fail("%s_install.json contains an invalid input signature (expected %s and got %s) and must be regenerated. " % (
+                         user_provided_name,
+                         input_artifacts_hash,
+                         computed_artifacts_hash,
+                     ) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
                      "%s_install.json and re-pin the artifacts, please run:\n" % user_provided_name +

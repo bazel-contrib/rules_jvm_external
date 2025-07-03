@@ -95,7 +95,6 @@ maven.install(
         "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
         "com.github.jknack:handlebars:4.3.1",
     ],
-    fail_if_repin_required = True,
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
     repositories = [
@@ -477,7 +476,6 @@ dev_maven.install(
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
-    fail_if_repin_required = True,
     lock_file = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
     repositories = [
         "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
@@ -633,7 +631,6 @@ dev_maven.install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1267
         "org.mockito:mockito-core:pom:3.3.3",
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_coursier_install.json",
     repositories = [
@@ -706,7 +703,6 @@ dev_maven.install(
     boms = [
         "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_maven_install.json",
     repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_maven//:pin` to refresh the lock file.",
@@ -732,7 +728,6 @@ dev_maven.install(
         # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
         "androidx.annotation:annotation:1.6.0",
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
     repositories = [

@@ -289,7 +289,6 @@ maven_install(
             version = "1.3.13",
         ),
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_coursier_install.json",
     override_targets = {
@@ -334,7 +333,6 @@ maven_install(
     boms = [
         "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_maven_install.json",
     repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_maven//:pin` to refresh the lock file.",
@@ -361,7 +359,6 @@ maven_install(
         # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
         "androidx.annotation:annotation:1.6.0",
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
     repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_gradle//:pin` to refresh the lock file.",
@@ -972,7 +969,6 @@ maven_install(
     boms = [
         "com.google.cloud:libraries-bom:26.59.0",
     ],
-    fail_if_repin_required = True,
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:coursier_resolved_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -1011,7 +1007,6 @@ maven_install(
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
-    fail_if_repin_required = True,
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
     repositories = [
         "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
