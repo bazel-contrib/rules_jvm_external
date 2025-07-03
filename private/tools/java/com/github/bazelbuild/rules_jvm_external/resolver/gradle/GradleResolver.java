@@ -161,6 +161,7 @@ public class GradleResolver implements Resolver {
     }
 
     for (GradleResolvedDependency dependency : implementationDependencies) {
+      Set<Coordinates> visited = new HashSet<>();
       for (GradleResolvedArtifact artifact : dependency.getArtifacts()) {
         GradleCoordinates gradleCoordinates =
             new GradleCoordinatesImpl(
@@ -181,7 +182,7 @@ public class GradleResolver implements Resolver {
                 extension,
                 classifier,
                 gradleCoordinates.getVersion());
-        addDependency(graph, coordinates, dependency, conflicts, requestedDeps);
+        addDependency(graph, coordinates, dependency, conflicts, requestedDeps, visited);
         // if there's a conflict and the conflicting version isn't one that's actually requested
         // then it's an actual conflict we want to report
         if (dependency.isConflict() && !isRequestedDep(requestedDeps, dependency)) {
@@ -220,6 +221,10 @@ public class GradleResolver implements Resolver {
             "The POM for " + displayable + " is missing, no dependency information available.";
         String detail = "[WARNING]:    " + dependency.getFailureDetails();
         eventListener.onEvent(new LogEvent("gradle", message, detail));
+      } else {
+        String message = "Could not resolve " + coordinates;
+        String detail = "[WARNING]: " + dependency.getFailureDetails();
+        eventListener.onEvent(new LogEvent("gradle", message, detail));
       }
       graph.addNode(coordinates);
     }
@@ -242,7 +247,12 @@ public class GradleResolver implements Resolver {
       Coordinates parent,
       GradleResolvedDependency parentInfo,
       Set<Conflict> conflicts,
-      List<GradleDependency> requestedDeps) {
+      List<GradleDependency> requestedDeps,
+      Set<Coordinates> visited) {
+    if (visited.contains(parent)) {
+      return;
+    }
+    visited.add(parent);
     graph.addNode(parent);
 
     if (parentInfo.getChildren() != null) {
@@ -293,7 +303,12 @@ public class GradleResolver implements Resolver {
             conflicts.add(new Conflict(child, requested));
           }
           addDependency(
-              graph, child, childInfo, conflicts, requestedDeps); // recursively traverse the graph
+              graph,
+              child,
+              childInfo,
+              conflicts,
+              requestedDeps,
+              visited); // recursively traverse the graph
         }
       }
     }
