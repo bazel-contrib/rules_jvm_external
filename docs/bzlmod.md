@@ -77,6 +77,10 @@ maven.install(
 Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation described in the
 [workspace instructions](/README.md#updating-maven_installjson) to update the dependencies.
 
+## Extension and tag documentation
+
+The extension and tag documentation can be found [in this document](bzlmod-api.md).
+
 ## Artifact exclusion
 
 The non-bzlmod instructions for how to configure
