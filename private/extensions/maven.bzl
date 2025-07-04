@@ -1,6 +1,7 @@
 load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("//:specs.bzl", "parse", _json = "json")
+load("//:toml_parser.bzl", "parse_toml")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
     "//private:coursier_utilities.bzl",
@@ -130,18 +131,20 @@ override = tag_class(
     },
 )
 
-from_file = tag_class(
+from_toml = tag_class(
+    doc = "Allows a project to import dependencies from a Gradle format `libs.versions.toml` file.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
-        "artifact_src": attr.label(doc = "File to read artifacts from. There must be one entry per line"),
-        "bom_src": attr.label(doc = "File to read BOMs from. There must be one entry per line"),
+        "libs_versions_toml": attr.label(doc = "Gradle `libs.versions.toml` file to use", mandatory = True),
+        "bom_modules": attr.string_list(doc = "List of modules in `group:artifact` format to treat as BOMs, not artifacts"),
     },
 )
 
 amend_artifact = tag_class(
+    doc = "Modifies an artifact with `coordintes` defined in other tags with additional properties.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
-        "coordinates": attr.string(doc = "Coordinates of the artifact to amend.", mandatory = True),
+        "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
         "force_version": attr.bool(default = False),
         "neverlink": attr.bool(),
         "testonly": attr.bool(),
@@ -324,54 +327,47 @@ def _coordinates_match(artifact, coordinates):
     return (artifact.group == coords.group and
             artifact.artifact == coords.artifact)
 
-def _process_coordinates_file(mctx, file_label):
-    """Read and parse coordinates from a file, returning a list of coordinate structs."""
-    if not file_label:
-        return []
+def _process_gradle_versions_file(parsed, bom_modules):
+    artifacts = []
+    boms = []
 
-    file_content = mctx.read(mctx.path(file_label))
-    lines = file_content.strip().split("\n")
+    for value in parsed.get("libraries", {}).values():
+        if not "module" in value.keys():
+            continue
+        coords = value["module"]
 
-    coords_list = []
-    for line in lines:
-        # Remove comments
-        idx = line.find("#")
-        if idx != -1:
-            line = line[0:idx]
+        if "version.ref" in value.keys():
+            version = parsed.get("versions", {}).get(value["version.ref"])
+            if not version:
+                fail("Unable to resolve version.ref %s" % value["version.ref"])
+            coords += ":%s" % version
+        elif "version" in value.keys():
+            coords += ":%s" % value["version"]
 
-        line = line.strip()
-        if line:  # Skip empty lines and comments
-            coords = unpack_coordinates(line)
-            coords_list.append(coords)
+        if value["module"] in bom_modules:
+            boms.append(unpack_coordinates(coords))
+        else:
+            artifacts.append(unpack_coordinates(coords))
 
-    return coords_list
+    return artifacts, boms
 
 def _process_module_tags(mctx, mod, target_repos, repo_name_2_module_name):
     """Process artifact and install tags for a single module."""
 
-    # Process from_file tags
-    for from_file_tag in mod.tags.from_file:
-        _check_repo_name(repo_name_2_module_name, from_file_tag.name, mod.name)
+    # Process from_toml tags
+    for from_toml_tag in mod.tags.from_toml:
+        _check_repo_name(repo_name_2_module_name, from_toml_tag.name, mod.name)
 
-        # Validate that at least one source file is specified
-        if not from_file_tag.artifact_src and not from_file_tag.bom_src:
-            fail("`from_file` tag must specify at least one of `artifact_src` or `bom_src`")
+        repo = target_repos.get(from_toml_tag.name, {})
 
-        repo = target_repos.get(from_file_tag.name, {})
+        content = mctx.read(mctx.path(from_toml_tag.libs_versions_toml))
+        parsed = parse_toml(content)
 
-        # Process artifacts file if specified
-        if from_file_tag.artifact_src:
-            existing_artifacts = repo.get("artifacts", [])
-            new_artifacts = _process_coordinates_file(mctx, from_file_tag.artifact_src)
-            repo["artifacts"] = existing_artifacts + new_artifacts
+        (new_artifacts, new_boms) = _process_gradle_versions_file(parsed, from_toml_tag.bom_modules)
 
-        # Process BOMs file if specified
-        if from_file_tag.bom_src:
-            existing_boms = repo.get("boms", [])
-            new_boms = _process_coordinates_file(mctx, from_file_tag.bom_src)
-            repo["boms"] = existing_boms + new_boms
-
-        target_repos[from_file_tag.name] = repo
+        repo["artifacts"] = repo.get("artifacts", []) + new_artifacts
+        repo["boms"] = repo.get("boms", []) + new_boms
+        target_repos[from_toml_tag.name] = repo
 
     for artifact in mod.tags.artifact:
         _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
@@ -392,27 +388,6 @@ def _process_module_tags(mctx, mod, target_repos, repo_name_2_module_name):
 
         repo["artifacts"] = existing_artifacts
         target_repos[artifact.name] = repo
-
-    # Process amend_artifact tags
-    for amend in mod.tags.amend_artifact:
-        _check_repo_name(repo_name_2_module_name, amend.name, mod.name)
-
-        repo = target_repos.get(amend.name, {})
-        artifacts = repo.get("artifacts", [])
-
-        # Find matching artifacts and amend them
-        amended = False
-        for i, artifact in enumerate(artifacts):
-            if _coordinates_match(artifact, amend.coordinates):
-                artifacts[i] = _amend_artifact(artifact, amend)
-                amended = True
-
-        if not amended:
-            # If no matching artifact found, this might be an error or we could create a placeholder
-            fail("No artifact found matching coordinates '%s' for amendment" % amend.coordinates)
-
-        repo["artifacts"] = artifacts
-        target_repos[amend.name] = repo
 
     for install in mod.tags.install:
         _check_repo_name(repo_name_2_module_name, install.name, mod.name)
@@ -486,6 +461,27 @@ def _process_module_tags(mctx, mod, target_repos, repo_name_2_module_name):
         repo["additional_coursier_options"] = repo.get("additional_coursier_options", []) + getattr(install, "additional_coursier_options", [])
 
         target_repos[install.name] = repo
+
+    # Process amend_artifact tags
+    for amend in mod.tags.amend_artifact:
+        _check_repo_name(repo_name_2_module_name, amend.name, mod.name)
+
+        repo = target_repos.get(amend.name, {})
+        artifacts = repo.get("artifacts", [])
+
+        # Find matching artifacts and amend them
+        amended = False
+        for i, artifact in enumerate(artifacts):
+            if _coordinates_match(artifact, amend.coordinates):
+                artifacts[i] = _amend_artifact(artifact, amend)
+                amended = True
+
+        if not amended:
+            # If no matching artifact found, this might be an error or we could create a placeholder
+            fail("No artifact found matching coordinates '%s' for amendment" % amend.coordinates)
+
+        repo["artifacts"] = artifacts
+        target_repos[amend.name] = repo
 
 def _merge_repo_lists(root_list, non_root_list):
     """Merge two lists, removing duplicates while preserving order, root items first."""
@@ -749,7 +745,7 @@ maven = module_extension(
     tag_classes = {
         "amend_artifact": amend_artifact,
         "artifact": artifact,
-        "from_file": from_file,
+        "from_toml": from_toml,
         "install": install,
         "override": override,
     },

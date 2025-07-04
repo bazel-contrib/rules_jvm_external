@@ -284,6 +284,22 @@ dev_maven.artifact(
     version = "23.3-jre",
 )
 dev_maven.install(
+    name = "from_files",
+    lock_file = "//tests/custom_maven_install:from_files_install.json",
+)
+dev_maven.from_toml(
+    name = "from_files",
+    bom_modules = [
+        "com.google.guava:guava-bom",
+    ],
+    libs_versions_toml = "//tests/integration:libs.versions.toml",
+)
+dev_maven.amend_artifact(
+    name = "from_files",
+    testonly = True,
+    coordinates = "org.junit.jupiter:junit-jupiter-api",
+)
+dev_maven.install(
     name = "global_exclusion_testing",
     artifacts = [
         "com.google.guava:guava:27.0-jre",  # depends on animal-sniffer-annotations and j2objc-annotations
@@ -893,6 +909,7 @@ use_repo(
     "duplicate_version_warning_same_version",
     "exclusion_testing",
     "forcing_versions",
+    "from_files",
     "global_exclusion_testing",
     "m2local_testing",
     "m2local_testing_ignore_empty_files",

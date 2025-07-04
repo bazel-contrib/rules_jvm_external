@@ -141,6 +141,30 @@ java_library(
     ],
 )
 
+genquery(
+    name = "import-from-file-query",
+    expression = "@from_files//:org_junit_jupiter_junit_jupiter_api",
+    opts = [
+        "--output=build",
+    ],
+    scope = ["@from_files//:org_junit_jupiter_junit_jupiter_api"],
+)
+
+genrule(
+    name = "import-from-file-extract",
+    srcs = [":import-from-file-query"],
+    outs = ["import-from-file-extract.txt"],
+    cmd = "cat $< | grep testonly >$@",
+)
+
+diff_test(
+    name = "import-from-file",
+    file1 = "import-from-file.unix",
+    file2 = ":import-from-file-extract",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
+)
+
 # Depend on something from the maven-resolved repo to ensure that things like the
 # artifacts hash is consistent
 genquery(

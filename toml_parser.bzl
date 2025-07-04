@@ -26,8 +26,8 @@ Current featureset status:
 
 ### String Features
 - [x] **Basic escape sequences**: `\n`, `\t`, `\r`, `\\`, `\"`, `\'`
-- [ ] **Unicode escape sequences**: `\uXXXX`, `\UXXXXXXXX`
-- [ ] **Multi-line basic strings**: `"""..."""`
+- [ ] **Unicode escape sequences**: `\\uXXXX`, `\\UXXXXXXXX`
+- [ ] **Multi-line basic strings**: `""\"...\"""`
 - [ ] **Multi-line literal strings**: `'''...'''`
 
 ### Collections
@@ -234,7 +234,7 @@ def _parse_value(value_str, line_num, section_path):
 
     # Check for inline tables
     if value_str.startswith("{") and value_str.endswith("}"):
-        fail("Inline tables are not supported %s" % _parser_location(line_num, section_path))
+        return _parse_inline_table(value_str, line_num, section_path)
 
     # Handle quoted strings
     if (value_str.startswith('"') and value_str.endswith('"')) or \
@@ -259,6 +259,53 @@ def _parse_value(value_str, line_num, section_path):
         fail("Date/time values are not supported %s" % _parser_location(line_num, section_path))
 
     fail("Invalid value %s: '%s'" % (_parser_location(line_num, section_path), value_str))
+
+def _parse_inline_table(value_str, line_num, section_path):
+    """Parse an inline table"""
+    if not (value_str.startswith("{") and value_str.endswith("}")):
+        fail("Invalid inline table %s: '%s'" % (_parser_location(line_num, section_path), value_str))
+
+    result = {}
+
+    # We can't recurse, but that's fine. We'll just loop, and we know
+    # the maximum number of times we need to do that.
+    i = 1
+    end = len(value_str)
+    for _ in range(end):
+        (key, value, i) = _read_key_and_value(value_str, i, line_num, section_path)
+
+        if key in result:
+            fail("Duplicate key seen %s: '%s'" % (_parser_location(line_num, section_path), value_str))
+
+        result[key] = value
+
+        # Are we done yet?
+        for idx in range(i, end):
+            if value_str[idx] == "}":
+                return result
+            if value_str[idx] == ",":
+                i = idx + 1
+                break  #  Out of this inner loop
+
+    return result
+
+def _read_key_and_value(value_str, i, line_num, section_path):
+    equals_idx = value_str.find("=", i)
+    quote_char = '"'
+    quote_idx = value_str.find(quote_char, i)
+    if quote_idx == -1:
+        quote_char = "'"
+        quote_idx = value_str.find(quote_char, i)
+
+    if equals_idx > quote_idx:
+        fail("Invalid quoted string inline table %s: '%s'" % (_parser_location(line_num, section_path), value_str))
+    key = value_str[i:equals_idx].strip()
+
+    # Find the end of the string, assuming we don't have an escape sequence
+    end_quote = value_str.find(quote_char, quote_idx + 1) + 1
+    value = _parse_string(value_str[quote_idx:end_quote], line_num, section_path)
+
+    return key, value, end_quote
 
 def _parse_string(value_str, line_num, section_path):
     """Parse a quoted string."""
