@@ -1042,7 +1042,7 @@ maven_install(
     repositories = ["https://repo1.maven.org/maven2"],
 )
 
-# This  is bzlmod only. But the test still runs on Bazel 5/6, which
+# This is bzlmod only. But the test still runs on Bazel 5/6, which
 # is WORKSPACE based, so we add a shim here to keep the test passing until
 # WORKSPACE support is no longer needed.
 maven_install(
