@@ -141,7 +141,7 @@ from_toml = tag_class(
 )
 
 amend_artifact = tag_class(
-    doc = "Modifies an artifact with `coordintes` defined in other tags with additional properties.",
+    doc = "Modifies an artifact with `coordinates` defined in other tags with additional properties.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
