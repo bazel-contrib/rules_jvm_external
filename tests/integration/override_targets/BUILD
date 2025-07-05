@@ -1,6 +1,4 @@
-load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
-load("@rules_android//android:rules.bzl", "aar_import", "android_binary")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//tests/integration:is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 

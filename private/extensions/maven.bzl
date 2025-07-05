@@ -1,6 +1,7 @@
 load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("//:specs.bzl", "parse", _json = "json")
+load("//:toml_parser.bzl", "parse_toml")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
     "//private:coursier_utilities.bzl",
@@ -127,6 +128,27 @@ override = tag_class(
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Maven artifact tuple in `artifactId:groupId` format", mandatory = True),
         "target": attr.label(doc = "Target to use in place of maven coordinates", mandatory = True),
+    },
+)
+
+from_toml = tag_class(
+    doc = "Allows a project to import dependencies from a Gradle format `libs.versions.toml` file.",
+    attrs = {
+        "name": attr.string(default = DEFAULT_NAME),
+        "libs_versions_toml": attr.label(doc = "Gradle `libs.versions.toml` file to use", mandatory = True),
+        "bom_modules": attr.string_list(doc = "List of modules in `group:artifact` format to treat as BOMs, not artifacts"),
+    },
+)
+
+amend_artifact = tag_class(
+    doc = "Modifies an artifact with `coordinates` defined in other tags with additional properties.",
+    attrs = {
+        "name": attr.string(default = DEFAULT_NAME),
+        "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
+        "force_version": attr.bool(default = False),
+        "neverlink": attr.bool(),
+        "testonly": attr.bool(),
+        "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
     },
 )
 
@@ -276,8 +298,77 @@ def _deduplicate_artifacts_with_root_priority(root_artifacts, non_root_artifacts
 
     return root_artifacts + filtered_non_root
 
-def _process_module_tags(mod, target_repos, repo_name_2_module_name):
+def _amend_artifact(original_artifact, amend):
+    """Apply amendments to an artifact struct, returning a new amended struct."""
+
+    # Handle exclusions by merging with existing ones
+    existing_exclusions = getattr(original_artifact, "exclusions", []) or []
+    final_exclusions = existing_exclusions
+    if amend.exclusions:
+        new_exclusions = _add_exclusions(amend.exclusions)
+        final_exclusions = existing_exclusions + new_exclusions
+
+    # Create new struct with amendments applied
+    return struct(
+        group = original_artifact.group,
+        artifact = original_artifact.artifact,
+        version = getattr(original_artifact, "version", None),
+        packaging = getattr(original_artifact, "packaging", None),
+        classifier = getattr(original_artifact, "classifier", None),
+        force_version = amend.force_version if amend.force_version else getattr(original_artifact, "force_version", None),
+        neverlink = amend.neverlink if amend.neverlink else getattr(original_artifact, "neverlink", None),
+        testonly = amend.testonly if amend.testonly else getattr(original_artifact, "testonly", None),
+        exclusions = final_exclusions if final_exclusions else None,
+    )
+
+def _coordinates_match(artifact, coordinates):
+    """Check if an artifact's `group` and `artifact` matches the given coordinate string."""
+    coords = unpack_coordinates(coordinates)
+    return (artifact.group == coords.group and
+            artifact.artifact == coords.artifact)
+
+def _process_gradle_versions_file(parsed, bom_modules):
+    artifacts = []
+    boms = []
+
+    for value in parsed.get("libraries", {}).values():
+        if not "module" in value.keys():
+            continue
+        coords = value["module"]
+
+        if "version.ref" in value.keys():
+            version = parsed.get("versions", {}).get(value["version.ref"])
+            if not version:
+                fail("Unable to resolve version.ref %s" % value["version.ref"])
+            coords += ":%s" % version
+        elif "version" in value.keys():
+            coords += ":%s" % value["version"]
+
+        if value["module"] in bom_modules:
+            boms.append(unpack_coordinates(coords))
+        else:
+            artifacts.append(unpack_coordinates(coords))
+
+    return artifacts, boms
+
+def _process_module_tags(mctx, mod, target_repos, repo_name_2_module_name):
     """Process artifact and install tags for a single module."""
+
+    # Process from_toml tags
+    for from_toml_tag in mod.tags.from_toml:
+        _check_repo_name(repo_name_2_module_name, from_toml_tag.name, mod.name)
+
+        repo = target_repos.get(from_toml_tag.name, {})
+
+        content = mctx.read(mctx.path(from_toml_tag.libs_versions_toml))
+        parsed = parse_toml(content)
+
+        (new_artifacts, new_boms) = _process_gradle_versions_file(parsed, from_toml_tag.bom_modules)
+
+        repo["artifacts"] = repo.get("artifacts", []) + new_artifacts
+        repo["boms"] = repo.get("boms", []) + new_boms
+        target_repos[from_toml_tag.name] = repo
+
     for artifact in mod.tags.artifact:
         _check_repo_name(repo_name_2_module_name, artifact.name, mod.name)
 
@@ -371,6 +462,27 @@ def _process_module_tags(mod, target_repos, repo_name_2_module_name):
 
         target_repos[install.name] = repo
 
+    # Process amend_artifact tags
+    for amend in mod.tags.amend_artifact:
+        _check_repo_name(repo_name_2_module_name, amend.name, mod.name)
+
+        repo = target_repos.get(amend.name, {})
+        artifacts = repo.get("artifacts", [])
+
+        # Find matching artifacts and amend them
+        amended = False
+        for i, artifact in enumerate(artifacts):
+            if _coordinates_match(artifact, amend.coordinates):
+                artifacts[i] = _amend_artifact(artifact, amend)
+                amended = True
+
+        if not amended:
+            # If no matching artifact found, this might be an error or we could create a placeholder
+            fail("No artifact found matching coordinates '%s' for amendment" % amend.coordinates)
+
+        repo["artifacts"] = artifacts
+        target_repos[amend.name] = repo
+
 def _merge_repo_lists(root_list, non_root_list):
     """Merge two lists, removing duplicates while preserving order, root items first."""
     seen = []
@@ -421,7 +533,7 @@ def maven_impl(mctx):
     # First pass: process the module tags, but keep root and non-root modules separately
     for mod in mctx.modules:
         collection = root_module_repos if mod.is_root else non_root_module_repos
-        _process_module_tags(mod, collection, repo_name_2_module_name)
+        _process_module_tags(mctx, mod, collection, repo_name_2_module_name)
 
     # Second pass: merge and deduplicate repositories
     all_repo_names = {name: True for name in root_module_repos.keys() + non_root_module_repos.keys()}.keys()
@@ -631,7 +743,9 @@ def maven_impl(mctx):
 maven = module_extension(
     maven_impl,
     tag_classes = {
+        "amend_artifact": amend_artifact,
         "artifact": artifact,
+        "from_toml": from_toml,
         "install": install,
         "override": override,
     },

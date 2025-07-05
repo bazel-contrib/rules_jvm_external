@@ -10,17 +10,8 @@ See the `/examples/bzlmod` folder in this repository for a complete, tested exam
 
 ## Installation
 
-First, you must enable bzlmod.
-Note, the Bazel team plans to enable it by default starting in version 7.0.
-The simplest way is by adding this line to your `.bazelrc`:
-
-```
-common --enable_bzlmod
-```
-
-Now, create a `MODULE.bazel` file in the root of your workspace,
-setting the `version` to the latest one available
-on https://registry.bazel.build/modules/rules_jvm_external:
+Add the following to your `MODULE.bazel` file, setting the `version` to the latest one
+available on https://registry.bazel.build/modules/rules_jvm_external:
 
 ```starlark
 bazel_dep(name = "rules_jvm_external", version = "...")
@@ -81,6 +72,46 @@ Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation de
 
 The extension and tag documentation can be found [in this document](bzlmod-api.md).
 
+## Declaring dependencies in files
+
+It is possible to use a
+gradle [version catalog](https://docs.gradle.org/current/userguide/version_catalogs.html)
+to declare dependencies. These should be declared in a `libs.versions.toml` file, and can be
+imported to your bazel project by using the `from_toml` tag:
+
+```starlark
+maven.from_toml(
+    libs_versions_toml = "//gradle:libs.versions.toml",
+)
+```
+
+An example `libs.versions.toml` file could look like:
+
+```toml
+[versions]
+junitJupiter = "5.12.2"
+
+[libraries]
+guava = { module = "com.google.guava:guava" }
+guavaBom = { module = "com.google.guava:guava-bom", version = "33.4.8-jre" }
+junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
+```
+
+### Declaring BOMs from external files
+
+This can be done by using the `bom_modules` attribute of the `from_toml` tag. This is
+a list of gradle modules, matching the `module` in the `libs.versions.toml` file. We
+can change our module declaration like so to correctly use the guava bom:
+
+```starlark
+maven.from_toml(
+    libs_versions_toml = "//gradle:libs.versions.toml",
+    bom_modules = [
+        "com.google.guava:guava-bom",
+    ],
+)
+```
+
 ## Artifact exclusion
 
 The non-bzlmod instructions for how to configure
@@ -102,6 +133,24 @@ maven.install(
         "junit:junit:4.13.2",
         ...
 ```
+
+Alternatively, you can use the mechanism outlined below to add exclusions.
+
+## Modifying artifact declarations
+
+Because artifacts are not always declared in the module file, `rules_jvm_external` offers
+a mechanism for modifying artifacts that are declared elsewhere (eg. in an `install` or a
+`from_toml` tag). This is done using the `amend_artifact` tag:
+
+```starlark
+maven.amend_artifact(
+    coordinates = "io.grpc:grpc-core",
+    exclusions = ["io.grpc:grpc-util"],
+)
+```
+
+When matching artifacts that have been declared, only the `group:artifact` tuple is used
+for matching.
 
 ## Module dependency layering
 
