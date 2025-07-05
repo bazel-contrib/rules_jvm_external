@@ -112,7 +112,6 @@ maven.from_toml(
 )
 ```
 
->>>>>>> 2794755 (Document and clean up)
 ## Artifact exclusion
 
 The non-bzlmod instructions for how to configure
