@@ -24,6 +24,7 @@ DEFAULT_NAME = "maven"
 _DEFAULT_RESOLVER = "coursier"
 
 artifact = tag_class(
+    doc = "Used to define a single artifact where the simple coordinates are insufficient. Will be added to the other artifacts declared by tags with the same `name` attribute.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "group": attr.string(mandatory = True),
@@ -39,6 +40,7 @@ artifact = tag_class(
 )
 
 install = tag_class(
+    doc = "Combines artifact and bom declarations with setting the location of lock files to use, and repositories to download artifacts from. There can only be one `install` tag with a given `name` per module. `install` tags with the same name across multiple modules will be merged, with the root module taking precedence.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
 
@@ -120,6 +122,7 @@ install = tag_class(
 )
 
 override = tag_class(
+    doc = "Allows specific maven coordinates to be redirected elsewhere. Commonly used to replace an external dependency with another, or a compatible implementation from within this module.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Maven artifact tuple in `artifactId:groupId` format", mandatory = True),
