@@ -221,7 +221,7 @@ maven_install(
         "com.github.fommil.netlib:all:1.1.2",
         "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/111
-        "com.android.support:appcompat-v7:aar:28.0.0",
+        "com.android.support:appcompat-v7:28.0.0@aar",
         "com.google.android.gms:play-services-base:16.1.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-484278260
         "org.apache.flink:flink-test-utils_2.12:1.8.0",
@@ -269,14 +269,14 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/917
         # androidx core-testing POM has "exclusion" for "byte-buddy" but it should be downloaded as mockito-core
         # dependency when the usually omitted "jar" packaging type is specified.
-        "org.mockito:mockito-core:jar:3.3.3",
-        "androidx.arch.core:core-testing:aar:2.1.0",
+        "org.mockito:mockito-core:3.3.3@jar",
+        "androidx.arch.core:core-testing:2.1.0@aar",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1028
         "build.buf:protovalidate:0.1.9",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1250
         "com.github.spotbugs:spotbugs:4.7.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1267
-        "org.mockito:mockito-core:pom:3.3.3",
+        "org.mockito:mockito-core:3.3.3@pom",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1345
         maven.artifact(
             artifact = "jffi",
