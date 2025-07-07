@@ -1,7 +1,6 @@
 load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("//:specs.bzl", "parse", _json = "json")
-load("//:toml_parser.bzl", "parse_toml")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
     "//private:coursier_utilities.bzl",
@@ -10,6 +9,7 @@ load(
     "strip_packaging_and_classifier_and_version",
 )
 load("//private/lib:coordinates.bzl", "to_external_form", "unpack_coordinates")
+load("//private/lib:toml_parser.bzl", "parse_toml")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
