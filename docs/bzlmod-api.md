@@ -8,8 +8,10 @@
 
 <pre>
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.amend_artifact(<a href="#maven.amend_artifact-name">name</a>, <a href="#maven.amend_artifact-coordinates">coordinates</a>, <a href="#maven.amend_artifact-exclusions">exclusions</a>, <a href="#maven.amend_artifact-force_version">force_version</a>, <a href="#maven.amend_artifact-neverlink">neverlink</a>, <a href="#maven.amend_artifact-testonly">testonly</a>)
 maven.artifact(<a href="#maven.artifact-name">name</a>, <a href="#maven.artifact-artifact">artifact</a>, <a href="#maven.artifact-classifier">classifier</a>, <a href="#maven.artifact-exclusions">exclusions</a>, <a href="#maven.artifact-force_version">force_version</a>, <a href="#maven.artifact-group">group</a>, <a href="#maven.artifact-neverlink">neverlink</a>, <a href="#maven.artifact-packaging">packaging</a>,
                <a href="#maven.artifact-testonly">testonly</a>, <a href="#maven.artifact-version">version</a>)
+maven.from_toml(<a href="#maven.from_toml-name">name</a>, <a href="#maven.from_toml-bom_modules">bom_modules</a>, <a href="#maven.from_toml-libs_versions_toml">libs_versions_toml</a>)
 maven.install(<a href="#maven.install-name">name</a>, <a href="#maven.install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven.install-additional_coursier_options">additional_coursier_options</a>, <a href="#maven.install-additional_netrc_lines">additional_netrc_lines</a>,
               <a href="#maven.install-artifacts">artifacts</a>, <a href="#maven.install-boms">boms</a>, <a href="#maven.install-duplicate_version_warning">duplicate_version_warning</a>, <a href="#maven.install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven.install-exclusions">exclusions</a>,
               <a href="#maven.install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven.install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven.install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven.install-fetch_sources">fetch_sources</a>,
@@ -22,6 +24,23 @@ maven.override(<a href="#maven.override-name">name</a>, <a href="#maven.override
 
 
 **TAG CLASSES**
+
+<a id="maven.amend_artifact"></a>
+
+### amend_artifact
+
+Modifies an artifact with `coordinates` defined in other tags with additional properties.
+
+**Attributes**
+
+| Name  | Description | Type | Mandatory | Default |
+| :------------- | :------------- | :------------- | :------------- | :------------- |
+| <a id="maven.amend_artifact-name"></a>name |  -   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | optional |  `"maven"`  |
+| <a id="maven.amend_artifact-coordinates"></a>coordinates |  Coordinates of the artifact to amend. Only `group:artifact` are used for matching.   | String | required |  |
+| <a id="maven.amend_artifact-exclusions"></a>exclusions |  Maven artifact tuples, in `artifactId:groupId` format   | List of strings | optional |  `[]`  |
+| <a id="maven.amend_artifact-force_version"></a>force_version |  -   | Boolean | optional |  `False`  |
+| <a id="maven.amend_artifact-neverlink"></a>neverlink |  -   | Boolean | optional |  `False`  |
+| <a id="maven.amend_artifact-testonly"></a>testonly |  -   | Boolean | optional |  `False`  |
 
 <a id="maven.artifact"></a>
 
@@ -43,6 +62,20 @@ Used to define a single artifact where the simple coordinates are insufficient. 
 | <a id="maven.artifact-packaging"></a>packaging |  -   | String | optional |  `""`  |
 | <a id="maven.artifact-testonly"></a>testonly |  -   | Boolean | optional |  `False`  |
 | <a id="maven.artifact-version"></a>version |  -   | String | optional |  `""`  |
+
+<a id="maven.from_toml"></a>
+
+### from_toml
+
+Allows a project to import dependencies from a Gradle format `libs.versions.toml` file.
+
+**Attributes**
+
+| Name  | Description | Type | Mandatory | Default |
+| :------------- | :------------- | :------------- | :------------- | :------------- |
+| <a id="maven.from_toml-name"></a>name |  -   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | optional |  `"maven"`  |
+| <a id="maven.from_toml-bom_modules"></a>bom_modules |  List of modules in `group:artifact` format to treat as BOMs, not artifacts   | List of strings | optional |  `[]`  |
+| <a id="maven.from_toml-libs_versions_toml"></a>libs_versions_toml |  Gradle `libs.versions.toml` file to use   | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
 
 <a id="maven.install"></a>
 
