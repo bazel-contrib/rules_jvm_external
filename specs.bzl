@@ -126,11 +126,11 @@ def _parse_exclusion_spec_list(exclusion_specs):
         exclusions.append(exclusion_spec)
     return exclusions
 
-def _parse_maven_coordinate_string(mvn_coord):
+def _parse_maven_coordinate_string(mvn_coord, is_test = False):
     """
     Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v) or gradle external dependency (g:a:v:c@p), returns a maven artifact map (see above).
     """
-    unpacked = unpack_coordinates(mvn_coord)
+    unpacked = unpack_coordinates(mvn_coord, is_test = is_test)
 
     # It would be nice to use `bazel_skylib//lib:structs.bzl` for this, but this file is
     # included from the `repositories.bzl` file, so skylib has not been loaded yet.

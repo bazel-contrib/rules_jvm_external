@@ -42,7 +42,7 @@ complete_original_format_test = unittest.make(_complete_original_format_impl)
 def _original_format_omitting_scope_impl(ctx):
     env = unittest.begin(ctx)
 
-    unpacked = unpack_coordinates("group:artifact:test-jar:1.2.3")
+    unpacked = unpack_coordinates("group:artifact:test-jar:1.2.3", is_test = True)
     asserts.equals(env, "group", unpacked.group)
     asserts.equals(env, "artifact", unpacked.artifact)
     asserts.equals(env, "1.2.3", unpacked.version)
@@ -108,7 +108,7 @@ def _multiple_formats_impl(ctx):
     }
 
     for (coords, expected) in coords_to_structs.items():
-        unpacked = unpack_coordinates(coords)
+        unpacked = unpack_coordinates(coords, is_test = True)
         asserts.equals(env, expected, unpacked)
 
     return unittest.end(env)

@@ -236,7 +236,7 @@ def _add_netrc_entries_from_mirror_urls_noop_test_impl(ctx):
     asserts.equals(
         env,
         {},
-        add_netrc_entries_from_mirror_urls({}, ["https://c1", "https://c1/something@there"]),
+        add_netrc_entries_from_mirror_urls({}, ["https://c1", "https://c1/something@there"], is_test = True),
     )
     return unittest.end(env)
 
@@ -247,7 +247,7 @@ def _add_netrc_entries_from_mirror_urls_basic_test_impl(ctx):
     asserts.equals(
         env,
         {"c1": {"a": "b"}},
-        add_netrc_entries_from_mirror_urls({}, ["https://a:b@c1"]),
+        add_netrc_entries_from_mirror_urls({}, ["https://a:b@c1"], is_test = True),
     )
     asserts.equals(
         env,
@@ -255,6 +255,7 @@ def _add_netrc_entries_from_mirror_urls_basic_test_impl(ctx):
         add_netrc_entries_from_mirror_urls(
             {"c1": {"a": "b"}},
             ["https://a:b@c1"],
+            is_test = True,
         ),
     )
     return unittest.end(env)
@@ -266,7 +267,7 @@ def _add_netrc_entries_from_mirror_urls_multi_login_ignored_test_impl(ctx):
     asserts.equals(
         env,
         {"c1": {"a": "b"}},
-        add_netrc_entries_from_mirror_urls({}, ["https://a:b@c1", "https://a:b2@c1", "https://a2:b3@c1"]),
+        add_netrc_entries_from_mirror_urls({}, ["https://a:b@c1", "https://a:b2@c1", "https://a2:b3@c1"], is_test = True),
     )
     asserts.equals(
         env,
@@ -274,6 +275,7 @@ def _add_netrc_entries_from_mirror_urls_multi_login_ignored_test_impl(ctx):
         add_netrc_entries_from_mirror_urls(
             {"c1": {"a": "b"}},
             ["https://a:b@c1", "https://a:b2@c1", "https://a2:b3@c1"],
+            is_test = True,
         ),
     )
     return unittest.end(env)
@@ -292,6 +294,7 @@ def _add_netrc_entries_from_mirror_urls_multi_case_test_impl(ctx):
         add_netrc_entries_from_mirror_urls(
             {"foo": {"bar": "baz"}},
             ["https://a1:b1@c1", "https://a2:b2@c2", "https://a:b@c1", "https://a:b2@c1", "https://a2:b3@c1"],
+            is_test = True,
         ),
     )
     return unittest.end(env)

@@ -100,7 +100,7 @@ def _get_artifacts(lock_file_contents):
 
     return to_return
 
-def add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls):
+def add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls, is_test = False):
     """Add a url's auth credentials into a netrc dict of form return[machine][login] = password."""
     for url in mirror_urls:
         entry = extract_netrc_from_auth_url(url)
@@ -113,14 +113,16 @@ def add_netrc_entries_from_mirror_urls(netrc_entries, mirror_urls):
             netrc_entries[machine] = {}
         if login not in netrc_entries[machine]:
             if netrc_entries[machine]:
-                print("Received multiple logins for machine '{}'! Only using '{}'".format(
-                    machine,
-                    netrc_entries[machine].keys()[0],
-                ))
+                if not is_test:
+                    print("Received multiple logins for machine '{}'! Only using '{}'".format(
+                        machine,
+                        netrc_entries[machine].keys()[0],
+                    ))
                 continue
             netrc_entries[machine][login] = password
         elif netrc_entries[machine][login] != password:
-            print("Received different passwords for {}@{}! Only using the first".format(login, machine))
+            if not is_test:
+                print("Received different passwords for {}@{}! Only using the first".format(login, machine))
     return netrc_entries
 
 def _get_netrc_entries(lock_file_contents):

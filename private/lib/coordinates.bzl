@@ -16,7 +16,7 @@ SUPPORTED_PACKAGING_TYPES = [
     "test-jar",
 ]
 
-def unpack_coordinates(coords):
+def unpack_coordinates(coords, is_test = False):
     """Takes a maven coordinate and unpacks it into a struct with fields
     `group`, `artifact`, `version`, `packaging`, `classifier`
     where `version,` `packaging` and `classifier` may be `None`
@@ -82,7 +82,8 @@ def unpack_coordinates(coords):
             packaging = pieces[2]
             version = pieces[3]
             rewritten = "%s:%s:%s@%s" % (group, artifact, version, packaging)
-            print("Assuming %s should be interpreted as %s" % (coords, rewritten))
+            if not is_test:
+                print("Assuming %s should be interpreted as %s" % (coords, rewritten))
             return struct(group = group, artifact = artifact, packaging = packaging, version = version, classifier = None)
 
         # We could still be in one of `g:a:p:v` or `g:a:v:c`, but it's likely the latter. I do not
