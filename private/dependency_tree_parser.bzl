@@ -244,12 +244,26 @@ copy_file(
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
             target_import_string.append("\tmaven_url = \"%s\"," % maven_url)
+
+        package_metadata_name = "%s_package_metadata" % target_label
+        target_import_string.append("\tapplicable_licenses = [\":{}\"],".format(package_metadata_name))
+        to_return.append("""
+package_metadata(
+    name = {package_metadata_name},
+    purl = {url},
+    visibility = ["//visibility:public"],
+)
+""".format(
+            package_metadata_name = repr(package_metadata_name),
+            url = repr(maven_url if len(artifact["urls"]) else None),
+        ))
     else:
         unpacked = unpack_coordinates(coordinates)
         url = maven_url if len(artifact["urls"]) else None
 
         package_info_name = "%s_package_info" % target_label
-        target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
+        package_metadata_name = "%s_package_metadata" % target_label
+        target_import_string.append("\tapplicable_licenses = [\n\t\t\":{}\",\n\t\t\":{}\",\n\t],".format(package_info_name, package_metadata_name))
         to_return.append("""
 package_info(
     name = {name},
@@ -257,9 +271,16 @@ package_info(
     package_url = {url},
     package_version = {version},
 )
+
+package_metadata(
+    name = {package_metadata_name},
+    purl = {url},
+    visibility = ["//visibility:public"],
+)
 """.format(
             coordinates = repr(coordinates),
             name = repr(package_info_name),
+            package_metadata_name = repr(package_metadata_name),
             url = repr(url),
             version = repr(unpacked.version),
         ))
