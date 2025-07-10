@@ -6,6 +6,8 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+    build_targets:
+      - "//..."
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_gradle//:pin
