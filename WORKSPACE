@@ -352,6 +352,8 @@ maven_install(
         "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
         "androidx.annotation:annotation:1.6.0",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1409
+        "com.squareup.okhttp3:okhttp:4.12.0",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
