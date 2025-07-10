@@ -323,6 +323,21 @@ function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
   bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
 
   expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
+
+  bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
+
+  # This is KMP artifact which is a transitive depndency
+  # and the JAR for this will just be a dummy jar/placeholder (in some cases a klib file)
+  # Regardless we'll want to pull this in because the actual artifacts will be its children
+  # in the resolved graph with gradle
+  bazel query @regression_testing_gradle//:com_squareup_okio_okio >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_gradle//:com_squareup_okio_okio"
+
+  # This is the actual JVM artifact which will have the jar for the KMP artifact
+  bazel query @regression_testing_gradle//:com_squareup_okio_okio_jvm >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_gradle//:com_squareup_okio_okio_jvm"
 }
 
 
