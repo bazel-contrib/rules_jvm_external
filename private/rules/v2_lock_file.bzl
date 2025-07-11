@@ -48,10 +48,11 @@ def _compute_lock_file_hash(lock_file_contents):
     return hash(repr(to_hash))
 
 def _to_m2_path(unpacked):
-    path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
+    path = "{group}/{artifact}/{version}/{artifact}-{version_revision}".format(
         artifact = unpacked["artifact"],
         group = unpacked["group"].replace(".", "/"),
         version = unpacked["version"],
+        version_revision = unpacked.get("version_revision") or unpacked["version"]
     )
 
     classifier = unpacked.get("classifier", "jar")
@@ -138,6 +139,7 @@ def _get_artifacts(lock_file_contents):
             "group": parts[0],
             "artifact": parts[1],
             "version": data["version"],
+            "version_revision": data.get("version_revision"),
         }
         if len(parts) > 2:
             root_unpacked["packaging"] = parts[2]
