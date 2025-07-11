@@ -34,6 +34,10 @@ public interface GradleResolvedDependency {
 
   void setVersion(String version);
 
+  String getVersionRevision();
+
+  void setVersionRevision(String versionRevision);
+
   Set<String> getRequestedVersions();
 
   void addRequestedVersion(String requestedVersion);
