@@ -326,7 +326,7 @@ function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
 
   bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
 
-  # This is KMP artifact which is a transitive depndency
+  # This is KMP artifact which is a transitive dependency
   # and the JAR for this coordinate will just be a dummy jar/placeholder (in some cases a klib file)
   # as gradle will use metadata to resolve the right one.
   # Regardless we'll want to pull this in because the actual artifacts will be its children
