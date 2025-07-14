@@ -26,7 +26,7 @@ maven.install(
     ],
     fetch_sources = True,
     known_contributing_modules = [
-        "protobuf",
+        "bazel_worker_java",
         "rules_jvm_external_examples_bzlmod",
     ],
     lock_file = "//:maven_install.json",
