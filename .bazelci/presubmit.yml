@@ -6,8 +6,11 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+    build_targets:
+      - "//..."
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -15,16 +18,6 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  android_ubuntu2204:
-    name: Android Tests
-    platform: ubuntu2204
-    test_flags:
-      # TODO(https://github.com/bazelbuild/rules_jvm_external/issues/978):
-      #   These tests are not compatible with Android platforms, so use the legacy mode
-      - "--noincompatible_enable_android_toolchain_resolution"
-    test_targets:
-      - "--"
-      - "//tests/integration/override_targets:override_targets"
   ubuntu2204_6_4_0:
     platform: ubuntu2204
     bazel: 6.4.0
@@ -32,6 +25,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -46,6 +40,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -64,6 +59,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -79,6 +75,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin
@@ -94,6 +91,7 @@ tasks:
       REPIN: 1
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
       - bazel run @regression_testing_maven//:pin
       - bazel run @maven_install_in_custom_location//:pin
       - bazel run @same_override_target//:pin

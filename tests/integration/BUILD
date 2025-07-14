@@ -1,6 +1,7 @@
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//:defs.bzl", "artifact")
+load(":is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 
 genquery(
     name = "testonly-deps",
@@ -96,6 +97,33 @@ diff_test(
     file2 = ":forced-versions-deps-sorted.txt",
 )
 
+genquery(
+    name = "root-wins-deps",
+    expression = "deps(@root_wins//:io_netty_netty_buffer)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@root_wins//:io_netty_netty_buffer"],
+)
+
+genrule(
+    name = "root-wins-deps-sorted",
+    testonly = 1,
+    srcs = [":root-wins-deps"],
+    outs = ["root-wins-deps-sorted.txt"],
+    cmd = "cat $< | grep root_wins | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
+)
+
+# If the root module doesn't win, the version of `netty-buffer` will be `4.1.110.Final`
+diff_test(
+    name = "root-wins-deps-test",
+    file1 = "root-wins-deps.golden.unix",
+    file2 = ":root-wins-deps-sorted.txt",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
+)
+
 # This target will fail to build if we're not handling merging of maven.install
 # tags properly, and if we don't handle multiple lock files properly.
 java_library(
@@ -111,6 +139,30 @@ java_library(
             repository_name = "multiple_lock_files",
         ),
     ],
+)
+
+genquery(
+    name = "import-from-file-query",
+    expression = "@from_files//:org_junit_jupiter_junit_jupiter_api",
+    opts = [
+        "--output=build",
+    ],
+    scope = ["@from_files//:org_junit_jupiter_junit_jupiter_api"],
+)
+
+genrule(
+    name = "import-from-file-extract",
+    srcs = [":import-from-file-query"],
+    outs = ["import-from-file-extract.txt"],
+    cmd = "cat $< | grep testonly >$@",
+)
+
+diff_test(
+    name = "import-from-file",
+    file1 = "import-from-file.unix",
+    file2 = ":import-from-file-extract",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
 )
 
 # Depend on something from the maven-resolved repo to ensure that things like the

@@ -18,8 +18,8 @@ load("@rules_jvm_external//:defs.bzl", "maven_install", "artifact")
 <pre>
 load("@rules_jvm_external//:defs.bzl", "javadoc")
 
-javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_resources">doc_resources</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>,
-        <a href="#javadoc-javadocopts">javadocopts</a>)
+javadoc(<a href="#javadoc-name">name</a>, <a href="#javadoc-deps">deps</a>, <a href="#javadoc-additional_dependencies">additional_dependencies</a>, <a href="#javadoc-doc_deps">doc_deps</a>, <a href="#javadoc-doc_resources">doc_resources</a>, <a href="#javadoc-doc_url">doc_url</a>, <a href="#javadoc-excluded_packages">excluded_packages</a>,
+        <a href="#javadoc-excluded_workspaces">excluded_workspaces</a>, <a href="#javadoc-included_packages">included_packages</a>, <a href="#javadoc-javadocopts">javadocopts</a>)
 </pre>
 
 Generate a javadoc from all the `deps`
@@ -35,7 +35,9 @@ Generate a javadoc from all the `deps`
 | <a id="javadoc-doc_deps"></a>doc_deps |  `javadoc` targets referenced by the current target.<br><br>Use this to automatically add appropriate `-linkoffline` javadoc options to resolve references to packages documented by the given javadoc targets that have `url` specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="javadoc-doc_resources"></a>doc_resources |  Resources to include in the javadoc jar.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="javadoc-doc_url"></a>doc_url |  The URL at which this documentation will be hosted.<br><br>This information is only used by javadoc targets depending on this target.   | String | optional |  `""`  |
+| <a id="javadoc-excluded_packages"></a>excluded_packages |  A list of packages to exclude from the generated javadoc. Wildcards are supported at the end of the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while `com.example` will exclude only the files directly in `com.example`.   | List of strings | optional |  `[]`  |
 | <a id="javadoc-excluded_workspaces"></a>excluded_workspaces |  A list of bazel workspace names to exclude from the generated jar   | List of strings | optional |  `["com_google_protobuf", "protobuf"]`  |
+| <a id="javadoc-included_packages"></a>included_packages |  A list of packages to include in the generated javadoc. Wildcards are supported at the end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while `com.example` will include only the files directly in `com.example`.   | List of strings | optional |  `[]`  |
 | <a id="javadoc-javadocopts"></a>javadocopts |  javadoc options. Note sources and classpath are derived from the deps. Any additional options can be passed here. If nothing is passed, a default list of options is used: ["-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"]   | List of strings | optional |  `["-notimestamp", "-use", "-quiet", "-Xdoclint:-missing", "-encoding", "UTF8"]`  |
 
 
@@ -212,7 +214,7 @@ and fetch Maven artifacts transitively.
 | <a id="maven_install-repositories"></a>repositories |  A list of Maven repository URLs, specified in lookup order.<br><br>Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".   |  `[]` |
 | <a id="maven_install-artifacts"></a>artifacts |  A list of Maven artifact coordinates in the form of `group:artifact:version`.   |  `[]` |
 | <a id="maven_install-boms"></a>boms |  A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.   |  `[]` |
-| <a id="maven_install-resolver"></a>resolver |  Which resolver to use. One of `coursier`, or `maven`.   |  `"coursier"` |
+| <a id="maven_install-resolver"></a>resolver |  Which resolver to use. One of `coursier`, `gradle` or `maven`.   |  `"coursier"` |
 | <a id="maven_install-fail_on_missing_checksum"></a>fail_on_missing_checksum |  fail the fetch if checksum attributes are not present.   |  `True` |
 | <a id="maven_install-fetch_sources"></a>fetch_sources |  Additionally fetch source JARs.   |  `False` |
 | <a id="maven_install-fetch_javadoc"></a>fetch_javadoc |  Additionally fetch javadoc JARs.   |  `False` |

@@ -28,6 +28,15 @@ def unpack_coordinates(coords):
     if not coords:
         return None
 
+    if type(coords) == "dict":
+        return struct(
+            group = coords["group"],
+            artifact = coords["artifact"],
+            version = coords.get("version", ""),
+            packaging = coords.get("packaging", None),
+            classifier = coords.get("classifier", None),
+        )
+
     pieces = coords.split(":")
     if len(pieces) < 2:
         fail("Could not parse maven coordinate: %s" % coords)

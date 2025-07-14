@@ -19,6 +19,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleResolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenResolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.gson.Gson;
@@ -101,6 +102,10 @@ public class ResolverConfig {
         case "--resolver":
           i++;
           switch (args[i]) {
+            case "gradle":
+              chosenResolver = "gradle";
+              break;
+
             case "maven":
               chosenResolver = "maven";
               break;
@@ -206,6 +211,8 @@ public class ResolverConfig {
 
     if (chosenResolver.equals("maven")) {
       this.resolver = new MavenResolver(netrc, maxThreads, listener);
+    } else if (chosenResolver.equals("gradle")) {
+      this.resolver = new GradleResolver(netrc, maxThreads, listener);
     } else {
       throw new RuntimeException("Unknown resolver: " + chosenResolver);
     }

@@ -67,7 +67,7 @@ Table of Contents
 
 * MODULE.bazel bzlmod configuration (Bazel 7 and above) 
 * WORKSPACE configuration
-* Artifact version resolution with Coursier or Maven
+* Artifact version resolution with Coursier, Maven or Gradle
 * Import downloaded JAR, AAR, source JARs
 * Export built JARs to Maven repositories
 * Pin resolved artifacts with their SHA-256 checksums into a version-controllable JSON file
@@ -1278,6 +1278,15 @@ the generated lock file unless the `repositories` attribute contains `m2local`.
 
 The Maven-backed resolver will use credentials stored in a `$HOME/.netrc`
 file when performing dependency resolution
+
+### Configuring Gradle
+
+**This resolver is considered experimental**
+
+A Gradle-backed resolver can be used by setting the `resolver`
+attribute of `maven_install` to `gradle`. This resolver requires the
+use of a lock file. For bootstrapping purposes, this file may simply
+be an empty file.
 
 ## IPv6 support
 

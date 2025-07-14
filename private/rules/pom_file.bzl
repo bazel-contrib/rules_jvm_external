@@ -4,63 +4,70 @@ load(":maven_utils.bzl", "determine_additional_dependencies", "generate_pom")
 
 def _pom_file_impl(ctx):
     # Ensure the target has coordinates
-    if not ctx.attr.target[MavenInfo].coordinates:
-        fail("pom_file target must have maven coordinates.")
+    expanded_maven_deps = []
+    expanded_export_deps = []
+    if ctx.attr.target:
+        if not ctx.attr.target[MavenInfo].coordinates:
+            fail("pom_file target must have maven coordinates.")
 
-    info = ctx.attr.target[MavenInfo]
+        info = ctx.attr.target[MavenInfo]
 
-    artifact_jars = calculate_artifact_jars(info)
-    additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
+        artifact_jars = calculate_artifact_jars(info)
+        additional_deps = determine_additional_dependencies(artifact_jars, ctx.attr.additional_dependencies)
 
-    all_maven_deps = info.maven_deps.to_list()
-    export_maven_deps = info.maven_export_deps.to_list()
+        all_maven_deps = info.maven_deps.to_list()
+        export_maven_deps = info.maven_export_deps.to_list()
 
-    for dep in additional_deps:
-        for coords in dep[MavenInfo].as_maven_dep.to_list():
-            all_maven_deps.append(coords)
+        for dep in additional_deps:
+            for coords in dep[MavenInfo].as_maven_dep.to_list():
+                all_maven_deps.append(coords)
 
-    expanded_maven_deps = [
-        ctx.expand_make_variables("additional_deps", coords, ctx.var)
-        for coords in all_maven_deps
-    ]
-    expanded_export_deps = [
-        ctx.expand_make_variables("maven_export_deps", coords, ctx.var)
-        for coords in export_maven_deps
-    ]
+        expanded_maven_deps = [
+            ctx.expand_make_variables("additional_deps", coords, ctx.var)
+            for coords in all_maven_deps
+        ]
+        expanded_export_deps = [
+            ctx.expand_make_variables("maven_export_deps", coords, ctx.var)
+            for coords in export_maven_deps
+        ]
 
-    def get_exclusion_coordinates(target):
-        if not info.label_to_javainfo.get(target.label):
-            print("Warning: exclusions key %s not found in dependencies" % (target))
-            return None
-        else:
-            coords = ctx.expand_make_variables("exclusions", target[MavenInfo].coordinates, ctx.var)
-            return coords
+        def get_exclusion_coordinates(target):
+            if not info.label_to_javainfo.get(target.label):
+                print("Warning: exclusions key %s not found in dependencies" % (target))
+                return None
+            else:
+                coords = ctx.expand_make_variables("exclusions", target[MavenInfo].coordinates, ctx.var)
+                return coords
 
-    exclusions_unsorted = {
-        get_exclusion_coordinates(target): json.decode(targetExclusions)
-        for target, targetExclusions in ctx.attr.exclusions.items()
-    }
-    exclusions_unsorted = {k: v for k, v in exclusions_unsorted.items() if k != None}
+        exclusions_unsorted = {
+            get_exclusion_coordinates(target): json.decode(targetExclusions)
+            for target, targetExclusions in ctx.attr.exclusions.items()
+        }
+        exclusions_unsorted = {k: v for k, v in exclusions_unsorted.items() if k != None}
 
-    for coords, exclusion_list in exclusions_unsorted.items():
-        reformatted_exclusion_list = []
-        for exclusion in exclusion_list:
-            reformatted_exclusion_list.append(exclusion["group"] + ":" + exclusion["artifact"])
-        exclusions_unsorted[coords] = reformatted_exclusion_list
+        for coords, exclusion_list in exclusions_unsorted.items():
+            reformatted_exclusion_list = []
+            for exclusion in exclusion_list:
+                reformatted_exclusion_list.append(exclusion["group"] + ":" + exclusion["artifact"])
+            exclusions_unsorted[coords] = reformatted_exclusion_list
 
-    for maven_info in info.all_infos.to_list():
-        if maven_info.coordinates and maven_info.exclusions:
-            for exclusion in maven_info.exclusions:
-                if maven_info.coordinates not in exclusions_unsorted:
-                    exclusions_unsorted[maven_info.coordinates] = []
-                exclusions_unsorted[maven_info.coordinates].append(exclusion)
+        for maven_info in info.all_infos.to_list():
+            if maven_info.coordinates and maven_info.exclusions:
+                for exclusion in maven_info.exclusions:
+                    if maven_info.coordinates not in exclusions_unsorted:
+                        exclusions_unsorted[maven_info.coordinates] = []
+                    exclusions_unsorted[maven_info.coordinates].append(exclusion)
 
-    exclusions = {}
-    for coords in exclusions_unsorted:
-        exclusions[coords] = sorted(exclusions_unsorted[coords])
+        exclusions = {}
+        for coords in exclusions_unsorted:
+            exclusions[coords] = sorted(exclusions_unsorted[coords])
 
-    # Expand maven coordinates for any variables to be replaced.
-    coordinates = ctx.expand_make_variables("coordinates", info.coordinates, ctx.var)
+        # Expand maven coordinates for any variables to be replaced.
+        coordinates = ctx.expand_make_variables("coordinates", info.coordinates, ctx.var)
+    else:
+        if not ctx.attr.coordinates:
+            fail("pom_file must have either a target with maven coordinates, or manually specified coordinates.")
+        coordinates = ctx.expand_make_variables("coordinates", ctx.attr.coordinates, ctx.var)
 
     out = generate_pom(
         ctx,
@@ -105,13 +112,15 @@ The following substitutions are performed on the template file:
         ),
         "target": attr.label(
             doc = "The rule to base the pom file on. Must be a java_library and have a maven_coordinate tag.",
-            mandatory = True,
             providers = [
                 [JavaInfo],
             ],
             aspects = [
                 has_maven_deps,
             ],
+        ),
+        "coordinates": attr.string(
+            doc = "Manual maven coordinates to use",
         ),
         "additional_dependencies": attr.label_keyed_string_dict(
             doc = "Mapping of `Label`s to the excluded workspace names",
