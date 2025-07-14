@@ -145,6 +145,27 @@ diff_test(
 )
 
 java_export(
+    name = "pom-example-with-exclusions-gradle",
+    srcs = ["PomExample.java"],
+    # A java_export specific exclusion
+    exclusions = {
+        "@pom_exclusion_testing_gradle//:com_google_guava_guava": [
+            "com.google.guava:failureaccess",
+        ],
+    },
+    maven_coordinates = "com.example:app:1.0.0",
+    deps = [
+        "@pom_exclusion_testing_gradle//:com_google_guava_guava",
+    ],
+)
+
+diff_test(
+    name = "validate-pom-example-with-exclusions-gradle",
+    file1 = ":pom-example-with-exclusions-gradle-pom",
+    file2 = "pom-with-exclusions.golden.xml",
+)
+
+java_export(
     name = "pom-example-with-specific-exclusions",
     srcs = ["PomExample.java"],
     # A java_export specific exclusion
