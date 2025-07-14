@@ -1,17 +1,3 @@
-# Copyright 2021 The Bazel Authors. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
@@ -33,20 +19,60 @@ build_test(
     ],
 )
 
-build_test(
-    name = "starlark_aar_import_test",
-    targets = [
-        "@starlark_aar_import_test//:com_android_support_appcompat_v7_28_0_0",
+java_library(
+    name = "additional_deps",
+    visibility = ["//visibility:public"],
+    exports = [
+        "@override_target_in_deps//:original_io_opentelemetry_opentelemetry_api",
+    ],
+    runtime_deps = [
+        "@override_target_in_deps//:redis_clients_jedis",
     ],
 )
 
-build_test(
-    name = "starlark_aar_import_with_sources_test",
-    targets = [
-        "@starlark_aar_import_with_sources_test//:androidx_work_work_runtime_2_6_0",
+genquery(
+    name = "trace_otel_deps",
+    expression = "deps(@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@override_target_in_deps//:io_opentelemetry_opentelemetry_sdk"],
+)
+
+sh_test(
+    name = "override_contains_additional_deps",
+    srcs = ["override_contains_additional_deps.sh"],
+    data = [
+        ":trace_otel_deps",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
     ],
 )
 
-aar_import_test_suite(
-    name = "starlark_aar_import_with_srcjar_tests",
+genquery(
+    name = "root_module_can_override",
+    expression = "deps(@root_module_can_override//:com_squareup_okhttp3_okhttp)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@root_module_can_override//:com_squareup_okhttp3_okhttp"],
+)
+
+genrule(
+    name = "root_module_can_override_sorted",
+    testonly = 1,
+    srcs = [":root_module_can_override"],
+    outs = ["root_module_can_override_sorted.txt"],
+    cmd = "cat $< | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
+)
+
+diff_test(
+    name = "root_module_can_override_test",
+    file1 = ":root_module_can_override.golden",
+    file2 = ":root_module_can_override_sorted.txt",
+    # This test only makes sense if we're running with `bzlmod` enabled
+    tags = [] if is_bzlmod_enabled() else ["manual"],
 )
