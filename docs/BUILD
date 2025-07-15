@@ -22,6 +22,7 @@ stardoc(
     deps = [
         "//:implementation",
         "@bazel_skylib//lib:structs",
+        "@rules_java//java/private:proto_support",
     ],
 )
 
