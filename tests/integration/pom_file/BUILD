@@ -102,6 +102,9 @@ diff_test(
     file2 = "pom-example-with-exported-compile-only-dep.golden.xml",
 )
 
+####
+# Exclusion Tests
+####
 java_export(
     name = "pom-example-with-exclusions-coursier",
     srcs = ["PomExample.java"],
@@ -213,5 +216,20 @@ java_export(
 diff_test(
     name = "validate-pom-example-with-maven-defined-exclusions-maven",
     file1 = ":pom-example-with-maven-defined-exclusions-maven-pom",
+    file2 = "pom-with-maven-defined-exclusions.golden.xml",
+)
+
+java_export(
+    name = "pom-example-with-maven-defined-exclusions-gradle",
+    srcs = ["PomExample.java"],
+    maven_coordinates = "com.example:app:1.0.0",
+    deps = [
+        "@pom_exclusion_testing_gradle//:com_google_guava_guava",
+    ],
+)
+
+diff_test(
+    name = "validate-pom-example-with-maven-defined-exclusions-gradle",
+    file1 = ":pom-example-with-maven-defined-exclusions-gradle-pom",
     file2 = "pom-with-maven-defined-exclusions.golden.xml",
 )
