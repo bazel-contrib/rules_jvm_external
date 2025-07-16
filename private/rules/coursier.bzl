@@ -969,7 +969,6 @@ def make_coursier_dep_tree(
     dep_tree = deduplicate_and_sort_artifacts(
         json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
         artifacts,
-        excluded_artifacts,
         _is_verbose(repository_ctx),
     )
     return rewrite_files_attribute_if_necessary(repository_ctx, dep_tree)

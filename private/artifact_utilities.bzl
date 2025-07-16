@@ -4,27 +4,12 @@
 
 load("//:specs.bzl", "utils")
 
-def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verbose):
+def deduplicate_and_sort_artifacts(dep_tree, artifacts, verbose):
     # The deps json returned from coursier can have duplicate artifacts with
     # different dependencies and exclusions. We want to de-duplicate the
-    # artifacts, match the exclusions specified in the maven_install declaration
-    # and not choose ones with empty dependencies if possible
-
-    # First we find all of the artifacts that have user-defined exclusions.
-    artifacts_with_exclusions = {}
-    for a in artifacts:
-        coordinate = utils.artifact_coordinate(a)
-        parts = coordinate.split(":")
-        coordinate = "{}:{}".format(parts[0], parts[1])
-        if "exclusions" in a and len(a["exclusions"]) > 0:
-            deduped_exclusions = {}
-            for e in a["exclusions"]:
-                if e["group"] == "*" and e["artifact"] == "*":
-                    deduped_exclusions = {"*:*": True}
-                    break
-                deduped_exclusions["{}:{}".format(e["group"], e["artifact"])] = True
-
-            artifacts_with_exclusions[coordinate] = sorted(deduped_exclusions.keys())
+    # artifacts and not choose ones with empty dependencies if possible.
+    # We will ignore the exclusions from the resolver and rely on the user-specified
+    # exclusions from the maven_install declaration.
 
     # As we de-duplicate prefer the duplicates with non-empty dependency lists
     deduped_artifacts = {}
@@ -48,6 +33,5 @@ def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verb
         sorted_deduped_values.append(deduped_artifacts[key])
 
     dep_tree.update({"dependencies": sorted_deduped_values + null_artifacts})
-    dep_tree.update({"exclusions": artifacts_with_exclusions})
 
     return dep_tree
