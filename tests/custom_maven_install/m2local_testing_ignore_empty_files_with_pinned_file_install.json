@@ -24,6 +24,5 @@
   "skipped": [
     "com.example:kt:jar:sources"
   ],
-  "exclusions": {},
   "version": "2"
 }

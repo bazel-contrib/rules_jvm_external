@@ -147,30 +147,6 @@ public class MavenResolver implements Resolver {
         request.getBoms().stream().map(this::createBom).collect(Collectors.toList());
     List<Dependency> dependencies =
         request.getDependencies().stream().map(this::createDependency).collect(Collectors.toList());
-    Map<Coordinates, Set<Coordinates>> exclusions =
-        dependencies.stream()
-            .collect(
-                Collectors.toMap(
-                    d ->
-                        new Coordinates(
-                            d.getArtifact().getGroupId(),
-                            d.getArtifact().getArtifactId(),
-                            null,
-                            null,
-                            null),
-                    d ->
-                        d.getExclusions().stream()
-                            .map(
-                                e ->
-                                    new Coordinates(
-                                        e.getGroupId(), e.getArtifactId(), null, null, null))
-                            .collect(Collectors.toSet()),
-                    (existing, replacement) -> {
-                      Set<Coordinates> merged = new HashSet<>(existing);
-                      merged.addAll(replacement);
-                      return merged;
-                    }));
-
     Set<Exclusion> globalExclusions =
         request.getGlobalExclusions().stream()
             .map(this::createExclusion)
@@ -291,8 +267,7 @@ public class MavenResolver implements Resolver {
             getConflicts(request.getDependencies(), resolvedDependencies),
             graphNormalizationResult.getConflicts());
 
-    return new ResolutionResult(
-        graphNormalizationResult.getNormalizedGraph(), conflicts, exclusions);
+    return new ResolutionResult(graphNormalizationResult.getNormalizedGraph(), conflicts);
   }
 
   private GraphNormalizationResult makeVersionsConsistent(Graph<Coordinates> dependencyGraph) {

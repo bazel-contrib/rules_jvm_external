@@ -38,9 +38,6 @@
       "org.apiguardian:apiguardian-api"
     ]
   },
-  "exclusions": {
-    "org.junit.jupiter:junit-jupiter-api": []
-  },
   "packages": {
     "org.apiguardian:apiguardian-api": [
       "org.apiguardian.api"

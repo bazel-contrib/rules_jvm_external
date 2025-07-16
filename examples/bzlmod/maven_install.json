@@ -3064,10 +3064,5 @@
   "skipped": [
     "com.google.guava:listenablefuture:jar:sources"
   ],
-  "exclusions": {
-    "com.google.guava:guava": [
-      "com.google.code.findbugs:jsr305"
-    ]
-  },
   "version": "2"
 }

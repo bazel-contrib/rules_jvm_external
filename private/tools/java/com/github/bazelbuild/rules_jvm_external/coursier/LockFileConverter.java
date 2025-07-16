@@ -38,7 +38,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -100,10 +99,8 @@ public class LockFileConverter {
     LockFileConverter converter = new LockFileConverter(repositories, unsortedJson);
     Set<DependencyInfo> infos = converter.getDependencies();
     Set<Conflict> conflicts = converter.getConflicts();
-    Map<String, Set<String>> exclusions = converter.getExclusions();
 
-    Map<String, Object> rendered =
-        new V2LockFile(repositories, infos, conflicts, exclusions).render();
+    Map<String, Object> rendered = new V2LockFile(repositories, infos, conflicts).render();
 
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
@@ -117,25 +114,6 @@ public class LockFileConverter {
         throw new UncheckedIOException(e);
       }
     }
-  }
-
-  public Map<String, Set<String>> getExclusions() {
-    Map<String, Object> depTree = readDepTree();
-
-    @SuppressWarnings("unchecked")
-    Map<String, List<String>> rawExclusions =
-        (Map<String, List<String>>) depTree.getOrDefault("exclusions", Collections.EMPTY_LIST);
-
-    Map<String, Set<String>> exclusions = new HashMap<>();
-    for (Map.Entry<String, List<String>> entry : rawExclusions.entrySet()) {
-      String key = entry.getKey();
-      List<String> values = entry.getValue();
-
-      Set<String> valueSet = new HashSet<>(values);
-      exclusions.put(key, valueSet);
-    }
-
-    return Collections.unmodifiableMap(exclusions);
   }
 
   public LockFileConverter(Set<URI> repositories, Path unsortedJson) {

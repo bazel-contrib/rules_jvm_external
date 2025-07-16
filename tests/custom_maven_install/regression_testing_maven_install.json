@@ -955,13 +955,6 @@
       "software.amazon.awssdk:annotations"
     ]
   },
-  "exclusions": {
-    "io.opentelemetry:opentelemetry-api": [],
-    "io.opentelemetry:opentelemetry-sdk": [],
-    "org.apache.parquet:parquet-common": [],
-    "org.codehaus.plexus:plexus": [],
-    "org.hamcrest:hamcrest-core": []
-  },
   "packages": {
     "com.almworks.sqlite4java:sqlite4java": [
       "com.almworks.sqlite4java",

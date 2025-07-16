@@ -58,7 +58,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class Main {
 
@@ -75,13 +74,7 @@ public class Main {
 
       infos = fulfillDependencyInfos(listener, config, resolutionResult.getResolution());
 
-      writeLockFile(
-          listener,
-          config,
-          request,
-          infos,
-          resolutionResult.getConflicts(),
-          resolutionResult.getExclusions());
+      writeLockFile(listener, config, request, infos, resolutionResult.getConflicts());
 
       System.exit(0);
     } catch (Exception e) {
@@ -266,29 +259,15 @@ public class Main {
       ResolverConfig config,
       ResolutionRequest request,
       Set<DependencyInfo> infos,
-      Set<Conflict> conflicts,
-      Map<Coordinates, Set<Coordinates>> exclusions)
+      Set<Conflict> conflicts)
       throws IOException {
     listener.onEvent(new PhaseEvent("Building lock file"));
     Path output = config.getOutput();
 
     listener.close();
 
-    Map<String, Set<String>> exclusionsMap =
-        exclusions.entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    entry -> entry.getKey().toString(),
-                    entry ->
-                        entry.getValue().stream()
-                            .map(Coordinates::toString)
-                            .collect(Collectors.toSet()),
-                    (existing, replacement) -> existing, // merge function in case of duplicates
-                    TreeMap::new // supplier to maintain TreeMap ordering
-                    ));
-
     Map<String, Object> rendered =
-        new V2LockFile(request.getRepositories(), infos, conflicts, exclusionsMap).render();
+        new V2LockFile(request.getRepositories(), infos, conflicts).render();
 
     Map<Object, Object> toReturn = new TreeMap<>(rendered);
     // We don't need this, and having it will cause problems

@@ -83,21 +83,7 @@ public class GradleResolver implements Resolver {
         request.getDependencies().stream().map(this::createDependency).collect(Collectors.toList());
     List<GradleDependency> boms =
         request.getBoms().stream().map(this::createDependency).collect(Collectors.toList());
-    Map<Coordinates, Set<Coordinates>> exclusions =
-        dependencies.stream()
-            .collect(
-                Collectors.toMap(
-                    d -> new Coordinates(d.getGroup(), d.getArtifact(), null, null, null),
-                    d ->
-                        d.getExclusions().stream()
-                            .map(
-                                e -> new Coordinates(e.getGroup(), e.getModule(), null, null, null))
-                            .collect(Collectors.toSet()),
-                    (existing, replacement) -> {
-                      Set<Coordinates> merged = new HashSet<>(existing);
-                      merged.addAll(replacement);
-                      return merged;
-                    }));
+
     Path gradlePath = getGradleInstallationPath();
     try (GradleProject project =
         setupFakeGradleProject(
@@ -129,7 +115,7 @@ public class GradleResolver implements Resolver {
                 + " ms");
       }
       start = Instant.now();
-      ResolutionResult result = parseDependencies(dependencies, resolved, boms, exclusions);
+      ResolutionResult result = parseDependencies(dependencies, resolved, boms);
       end = Instant.now();
 
       if (isVerbose()) {
@@ -163,8 +149,7 @@ public class GradleResolver implements Resolver {
   private ResolutionResult parseDependencies(
       List<GradleDependency> requestedDeps,
       GradleDependencyModel resolved,
-      List<GradleDependency> boms,
-      Map<Coordinates, Set<Coordinates>> exclusions)
+      List<GradleDependency> boms)
       throws IOException {
     MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(false).build();
 
@@ -172,7 +157,7 @@ public class GradleResolver implements Resolver {
     List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
     List<GradleUnresolvedDependency> unresolvedDependencies = resolved.getUnresolvedDependencies();
     if (implementationDependencies == null) {
-      return new ResolutionResult(graph, null, exclusions);
+      return new ResolutionResult(graph, null);
     }
 
     for (GradleResolvedDependency dependency : implementationDependencies) {
@@ -244,7 +229,7 @@ public class GradleResolver implements Resolver {
       graph.addNode(coordinates);
     }
 
-    return new ResolutionResult(graph, conflicts, exclusions);
+    return new ResolutionResult(graph, conflicts);
   }
 
   private boolean isRequestedDep(

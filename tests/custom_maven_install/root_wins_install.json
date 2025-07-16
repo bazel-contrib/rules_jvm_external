@@ -21,9 +21,6 @@
       "io.netty:netty-common"
     ]
   },
-  "exclusions": {
-    "io.netty:netty-buffer": []
-  },
   "packages": {
     "io.netty:netty-buffer": [
       "io.netty.buffer",

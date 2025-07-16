@@ -43,26 +43,12 @@ public class V2LockFile {
   private final Collection<URI> allRepos;
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
-  private final Map<String, Set<String>> exclusions = new TreeMap<>();
 
   public V2LockFile(
       Collection<URI> repositories, Set<DependencyInfo> infos, Set<Conflict> conflicts) {
     this.allRepos = repositories;
     this.infos = infos;
     this.conflicts = conflicts;
-  }
-
-  public V2LockFile(
-      Collection<URI> repositories,
-      Set<DependencyInfo> infos,
-      Set<Conflict> conflicts,
-      Map<String, Set<String>> exclusions) {
-    this.allRepos = repositories;
-    this.infos = infos;
-    this.conflicts = conflicts;
-    for (Map.Entry<String, Set<String>> entry : exclusions.entrySet()) {
-      this.exclusions.put(entry.getKey(), Set.copyOf(entry.getValue()));
-    }
   }
 
   public Collection<URI> getRepositories() {
@@ -75,10 +61,6 @@ public class V2LockFile {
 
   public Set<Conflict> getConflicts() {
     return conflicts;
-  }
-
-  public Map<String, Set<String>> getExclusions() {
-    return exclusions;
   }
 
   @SuppressWarnings("unchecked")
@@ -189,12 +171,7 @@ public class V2LockFile {
       conflicts.add(new Conflict(resolved, requested));
     }
 
-    Map<String, Set<String>> rawExclusions = (Map<String, Set<String>>) raw.get("exclusions");
-    if (rawExclusions == null) {
-      rawExclusions = Map.of();
-    }
-
-    return new V2LockFile(repos, infos, conflicts, rawExclusions);
+    return new V2LockFile(repos, infos, conflicts);
   }
 
   /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
@@ -279,7 +256,6 @@ public class V2LockFile {
     lock.put("dependencies", removeEmptyItems(deps));
     lock.put("packages", removeEmptyItems(packages));
     lock.put("services", removeEmptyItemsMap(services));
-    lock.put("exclusions", this.exclusions);
     if (isUsingM2Local) {
       lock.put("m2local", true);
     }
