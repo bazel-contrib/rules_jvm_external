@@ -1070,9 +1070,11 @@ maven_install(
     excluded_artifacts = [
         "log4j:log4j",
     ],
+    maven_install_json = "//tests/integration/pom_file:pom_exclusion_testing_coursier_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+    resolver = "coursier",
 )
 
 maven_install(
@@ -1118,6 +1120,7 @@ maven_install(
     excluded_artifacts = [
         "log4j:log4j",
     ],
+    maven_install_json = "//tests/integration/pom_file:pom_exclusion_testing_gradle_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],

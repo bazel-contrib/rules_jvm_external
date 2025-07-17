@@ -854,6 +854,8 @@ dev_maven.install(
     excluded_artifacts = [
         "log4j:log4j",
     ],
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_coursier_install.json",
+    resolver = "coursier",
 )
 dev_maven.artifact(
     name = "pom_exclusion_testing_coursier",
@@ -884,7 +886,7 @@ dev_maven.install(
     excluded_artifacts = [
         "log4j:log4j",
     ],
-    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_gradle_install.json",
     resolver = "gradle",
 )
 dev_maven.artifact(
