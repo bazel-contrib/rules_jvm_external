@@ -1093,7 +1093,7 @@ maven_install(
     excluded_artifacts = [
         "log4j:log4j",
     ],
-    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
+    maven_install_json = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
