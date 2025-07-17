@@ -325,6 +325,10 @@ function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
   expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
 }
 
+function test_gradle_versions_catalog {
+  # When source files are requested and we have a bug, this will fail
+  bazel build @from_files//:all
+}
 
 TESTS=(
   "test_coursier_resolution_with_boms"
@@ -351,6 +355,7 @@ TESTS=(
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
   # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
+  "test_gradle_versions_catalog"
 )
 
 function run_tests() {

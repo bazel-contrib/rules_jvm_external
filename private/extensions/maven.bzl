@@ -347,6 +347,9 @@ def _process_gradle_versions_file(parsed, bom_modules):
         if value["module"] in bom_modules:
             boms.append(unpack_coordinates(coords))
         else:
+            packaging = value.get("package", "jar")
+            if packaging != "jar":
+                coords += "@%s" % packaging
             artifacts.append(unpack_coordinates(coords))
 
     return artifacts, boms
