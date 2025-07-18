@@ -2,8 +2,6 @@ workspace(name = "rules_jvm_external")
 
 android_sdk_repository(name = "androidsdk")
 
-android_ndk_repository(name = "androidndk")
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load(
     "//private:versions.bzl",
@@ -223,7 +221,7 @@ maven_install(
         "com.github.fommil.netlib:all:1.1.2",
         "nz.ac.waikato.cms.weka:weka-stable:3.8.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/111
-        "com.android.support:appcompat-v7:aar:28.0.0",
+        "com.android.support:appcompat-v7:28.0.0@aar",
         "com.google.android.gms:play-services-base:16.1.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-484278260
         "org.apache.flink:flink-test-utils_2.12:1.8.0",
@@ -233,8 +231,6 @@ maven_install(
         "org.openjfx:javafx-base:11.0.1",
         # https://github.com/bazelbuild/rules_jvm_external/issues/178
         "io.kubernetes:client-java:4.0.0-beta1",
-        # https://github.com/bazelbuild/rules_jvm_external/issues/199
-        "com.google.ar.sceneform.ux:sceneform-ux:1.10.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/119#issuecomment-504704752
         "com.github.oshi:oshi-parent:3.4.0",
         "com.github.spinalhdl:spinalhdl-core_2.11:1.3.6",
@@ -273,21 +269,24 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/917
         # androidx core-testing POM has "exclusion" for "byte-buddy" but it should be downloaded as mockito-core
         # dependency when the usually omitted "jar" packaging type is specified.
-        "org.mockito:mockito-core:jar:3.3.3",
-        "androidx.arch.core:core-testing:aar:2.1.0",
+        "org.mockito:mockito-core:3.3.3@jar",
+        "androidx.arch.core:core-testing:2.1.0@aar",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1028
         "build.buf:protovalidate:0.1.9",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1250
         "com.github.spotbugs:spotbugs:4.7.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1267
-        "org.mockito:mockito-core:pom:3.3.3",
+        "org.mockito:mockito-core:3.3.3@pom",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/1345
+        maven.artifact(
+            artifact = "jffi",
+            classifier = "native",
+            group = "com.github.jnr",
+            version = "1.3.13",
+        ),
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_coursier_install.json",
-    override_targets = {
-        "com.google.ar.sceneform:rendering": "@//tests/integration/override_targets:sceneform_rendering",
-    },
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
@@ -314,6 +313,7 @@ maven_install(
         # https://github.com/bazelbuild/rules_jvm_external/issues/1144
         "org.codehaus.plexus:plexus:1.0.4",
         "org.hamcrest:hamcrest-core:1.3",
+        # https://github.com/bazelbuild/rules_jvm_external/issues/199
         # https://github.com/bazelbuild/rules_jvm_external/issues/1162
         "io.opentelemetry:opentelemetry-sdk",
         maven.artifact(
@@ -321,11 +321,12 @@ maven_install(
             group = "io.opentelemetry",
             neverlink = True,
         ),
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/132
+        "com.amazonaws:DynamoDBLocal:1.25.0",
     ],
     boms = [
         "io.opentelemetry:opentelemetry-bom:1.31.0",
     ],
-    fail_if_repin_required = True,
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_maven_install.json",
     repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_maven//:pin` to refresh the lock file.",
@@ -341,6 +342,32 @@ load("@regression_testing_maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 
 load("@regression_testing_maven//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
+maven_install(
+    name = "regression_testing_gradle",
+    artifacts = [
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909
+        "androidx.compose.foundation:foundation-layout:1.5.0-beta01",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/909#issuecomment-2019217013
+        "androidx.annotation:annotation:1.6.0",
+    ],
+    generate_compat_repositories = True,
+    maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
+    repin_instructions = "Please run `REPIN=1 bazel run @regression_testing_gradle//:pin` to refresh the lock file.",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "gradle",
+)
+
+load("@regression_testing_gradle//:defs.bzl", "pinned_maven_install")
+
+pinned_maven_install()
+
+load("@regression_testing_gradle//:compat.bzl", "compat_repositories")
 
 compat_repositories()
 
@@ -491,6 +518,18 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
+    ],
+)
+
+# The test this is for is only for `bzlmod`, but we want to
+# be able to run tests in workspace mode too
+maven_install(
+    name = "root_wins",
+    artifacts = [
+        "io.netty:netty-buffer:4.1.121.Final",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
     ],
 )
 
@@ -852,12 +891,15 @@ maven_install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
+        "org.slf4j:slf4j-log4j12:1.7.36",
         "redis.clients:jedis:5.0.2",
     ],
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:override_target_in_deps_install.json",
     override_targets = {
+        # https://github.com/bazelbuild/rules_jvm_external/issues/199
         # This is a transitive dep of `opentelemetry-sdk`
         "io.opentelemetry:opentelemetry-api": "@//tests/integration/override_targets:additional_deps",
+        "org.slf4j:slf4j-log4j12": "@override_target_in_deps//:org_slf4j_slf4j_reload4j",
     },
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -867,6 +909,24 @@ maven_install(
 load("@override_target_in_deps//:defs.bzl", _override_target_in_deps_maven_install = "pinned_maven_install")
 
 _override_target_in_deps_maven_install()
+
+maven_install(
+    name = "same_override_target",
+    artifacts = [
+        "org.slf4j:slf4j-log4j12:1.7.36",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:same_override_target_install.json",
+    override_targets = {
+        "org.slf4j:slf4j-log4j12": "@same_override_target//:org_slf4j_slf4j_reload4j",
+    },
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@same_override_target//:defs.bzl", _same_override_target_maven_install = "pinned_maven_install")
+
+_same_override_target_maven_install()
 
 maven_install(
     name = "forcing_versions",
@@ -886,6 +946,33 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
 )
+
+maven_install(
+    name = "coursier_resolved_with_boms",
+    artifacts = [
+        "com.google.auth:google-auth-library-oauth2-http",
+        "com.google.auto:auto-common:1.2.2",
+        maven.artifact(
+            artifact = "google-cloud-bigquery",
+            exclusions = [
+                "io.grpc:grpc-auth",
+                "io.grpc:grpc-netty",
+            ],
+            group = "com.google.cloud",
+        ),
+    ],
+    boms = [
+        "com.google.cloud:libraries-bom:26.59.0",
+    ],
+    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:coursier_resolved_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@coursier_resolved_with_boms//:defs.bzl", _coursier_resolved_maven_install = "pinned_maven_install")
+
+_coursier_resolved_maven_install()
 
 maven_install(
     name = "maven_resolved_with_boms",
@@ -915,7 +1002,6 @@ maven_install(
     boms = [
         "org.seleniumhq.selenium:selenium-bom:4.14.1",
     ],
-    fail_if_repin_required = True,
     maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_resolved_install.json",
     repositories = [
         "https://repo.spring.io/plugins-release/",  # Requires auth, but we don't have it
@@ -939,4 +1025,30 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
+)
+
+# This failure mode is bzlmod only. But the test still runs on Bazel 5/6, which
+# is WORKSPACE based, so we add a shim here to keep the test passing until
+# WORKSPACE support is no longer needed.
+maven_install(
+    name = "root_module_can_override",
+    artifacts = [
+        "com.squareup:javapoet:1.11.1",
+        "com.squareup.okhttp3:okhttp:4.12.0",
+    ],
+    override_targets = {
+        "com.squareup.okhttp3:okhttp": "@root_module_can_override//:com_squareup_javapoet",
+    },
+    repositories = ["https://repo1.maven.org/maven2"],
+)
+
+# This is bzlmod only. But the test still runs on Bazel 5/6, which
+# is WORKSPACE based, so we add a shim here to keep the test passing until
+# WORKSPACE support is no longer needed.
+maven_install(
+    name = "from_files",
+    artifacts = [
+        "org.junit.jupiter:junit-jupiter-api:5.12.2",
+    ],
+    repositories = ["https://repo1.maven.org/maven2"],
 )

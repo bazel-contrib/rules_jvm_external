@@ -10,15 +10,8 @@ See the `/examples/bzlmod` folder in this repository for a complete, tested exam
 
 ## Installation
 
-First, you must enable bzlmod.
-Note, the Bazel team plans to enable it by default starting in version 7.0.
-The simplest way is by adding this line to your `.bazelrc`:
-```
-common --enable_bzlmod
-```
-
-Now, create a `MODULE.bazel` file in the root of your workspace,
-setting the `version` to the latest one available on https://registry.bazel.build/modules/rules_jvm_external:
+Add the following to your `MODULE.bazel` file, setting the `version` to the latest one
+available on https://registry.bazel.build/modules/rules_jvm_external:
 
 ```starlark
 bazel_dep(name = "rules_jvm_external", version = "...")
@@ -60,9 +53,11 @@ a longer name than it should, so we rename it:
 $ mv rules_jvm_external~4.5~maven~maven_install.json maven_install.json
 ```
 
-Now that this file exists, we can update the `MODULE.bazel` to reflect that we pinned the dependencies.
+Now that this file exists, we can update the `MODULE.bazel` to reflect that we pinned the
+dependencies.
 
 Add a `lock_file` attribute to the `maven.install()` call like so:
+
 ```starlark
 maven.install(
     ...
@@ -73,9 +68,54 @@ maven.install(
 Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation described in the
 [workspace instructions](/README.md#updating-maven_installjson) to update the dependencies.
 
+## Extension and tag documentation
+
+The extension and tag documentation can be found [in this document](bzlmod-api.md).
+
+## Declaring dependencies in files
+
+It is possible to use a
+gradle [version catalog](https://docs.gradle.org/current/userguide/version_catalogs.html)
+to declare dependencies. These should be declared in a `libs.versions.toml` file, and can be
+imported to your bazel project by using the `from_toml` tag:
+
+```starlark
+maven.from_toml(
+    libs_versions_toml = "//gradle:libs.versions.toml",
+)
+```
+
+An example `libs.versions.toml` file could look like:
+
+```toml
+[versions]
+junitJupiter = "5.12.2"
+
+[libraries]
+guava = { module = "com.google.guava:guava" }
+guavaBom = { module = "com.google.guava:guava-bom", version = "33.4.8-jre" }
+junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
+```
+
+### Declaring BOMs from external files
+
+This can be done by using the `bom_modules` attribute of the `from_toml` tag. This is
+a list of gradle modules, matching the `module` in the `libs.versions.toml` file. We
+can change our module declaration like so to correctly use the guava bom:
+
+```starlark
+maven.from_toml(
+    libs_versions_toml = "//gradle:libs.versions.toml",
+    bom_modules = [
+        "com.google.guava:guava-bom",
+    ],
+)
+```
+
 ## Artifact exclusion
 
-The non-bzlmod instructions for how to configure `exclusions` [from the README](../README.md#artifact-exclusion)
+The non-bzlmod instructions for how to configure
+`exclusions` [from the README](../README.md#artifact-exclusion)
 don't work as shown for bzlmod; it's not possible to "inline" them as shown (it will cause an `ERROR: in tag at
 <root>/MODULE.bazel:22:14, error converting value for attribute artifacts: expected value of type 'string' for
 element 9 of artifacts, but got None (NoneType)`). Split it like this instead:
@@ -94,6 +134,60 @@ maven.install(
         ...
 ```
 
+Alternatively, you can use the mechanism outlined below to add exclusions.
+
+## Modifying artifact declarations
+
+Because artifacts are not always declared in the module file, `rules_jvm_external` offers
+a mechanism for modifying artifacts that are declared elsewhere (eg. in an `install` or a
+`from_toml` tag). This is done using the `amend_artifact` tag:
+
+```starlark
+maven.amend_artifact(
+    coordinates = "io.grpc:grpc-core",
+    exclusions = ["io.grpc:grpc-util"],
+)
+```
+
+When matching artifacts that have been declared, only the `group:artifact` tuple is used
+for matching.
+
+## Module dependency layering
+
+In order to allow modules to collaborate on required dependencies, the `bzlmod` extension will
+collect the artifacts from all tags with the same `name` attribute together before performing a
+dependency resolution. You'll know this is happening because a message will be printed to inform
+you which modules are contributing to which namespace:
+
+`The maven repository 'multiple_lock_files' has contributions from multiple bzlmod modules, and will be resolved together: ["bzlmod_lock_files", "rules_jvm_external"]`
+
+In the root module, if this is expected and known, you can disable this warning by adding
+the list of modules to the `known_contributing_modules` attribute of the `install` tag. The entry
+to add will be printed for you as part of the warning.
+
+The default name used is `maven`. Modules that are expected to be included via a `bazel_dep` should
+avoid using the default name, and should always set their own (eg. `rules_jvm_external` uses
+`rules_jvm_external_deps` for its own dependencies) The exception to this is where a module provides
+functionality that would otherwise be obtained using a maven dependency.
+
+Put another way, only projects that are only ever going to be used as root modules should use the
+default name.
+
+The message is printed so that should you need to understand why a particular dependency or
+transitive dependency is at an unexpected version you'll have the information you need to diagnose
+the problem.
+
+When dependencies are layered in this way, you may see a warning similar to:
+
+```
+"WARNING: The following maven modules appear in multiple sub-modules with potentially different versions. Consider adding one of these to your root module to ensure consistent versions:
+    com.google.guava:guava (31.1-jre, 33.2.1-jre)
+```
+
+To resolve this issue, ensure that the artifact is listed in the root module. That will be the
+version used in the dependency resolution.
+
 ## Known issues
 
-- Some error messages print instructions that don't apply under bzlmod, e.g. https://github.com/bazelbuild/rules_jvm_external/issues/827
+- Some error messages print instructions that don't apply under bzlmod,
+  e.g. https://github.com/bazelbuild/rules_jvm_external/issues/827

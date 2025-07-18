@@ -27,23 +27,27 @@ load(
     "match_group_and_artifact",
     "strip_packaging_and_classifier",
     "strip_packaging_and_classifier_and_version",
+    "to_repository_name",
 )
 load("//private/lib:coordinates.bzl", "unpack_coordinates")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
-    http_file_repository = escape(artifact["coordinates"])
+    http_file_repository = to_repository_name(artifact["coordinates"])
 
     file = artifact.get("out", artifact["file"])
 
     genrule = [
-        "genrule(",
+        "copy_file(",
         "     name = \"%s_extension\"," % http_file_repository,
-        "     srcs = [\"@%s//file\"]," % http_file_repository,
-        "     outs = [\"%s\"]," % file,
-        "     cmd = \"cp $< $@\",",
+        "     src = \"@%s//file\"," % http_file_repository,
+        "     out = \"%s\"," % file,
+        # Windows doesn't care about the executable bit for executables, but copy_file
+        # will fail in some cases (disable this line and run ` bazel test //tests/unit/build_tests:all_artifacts`
+        # to see this failing
+        "     allow_symlink = %s," % ("False" if file.endswith(".exe") else "True"),
     ]
     if get_packaging(artifact["coordinates"]) == "exe":
-        genrule.append("     executable = True,")
+        genrule.append("     is_executable = True,")
     genrule.extend([
         "     visibility = [%s]" % (",".join(["\"%s\"" % v for v in visibilities])),
         ")",
@@ -66,6 +70,19 @@ def _find_repository_url(artifact_url, repositories):
             if len(repository) > len(longest_match or ""):
                 longest_match = repository
     return longest_match
+
+def _get_maven_url(artifact_urls):
+    if len(artifact_urls) == 0:
+        return None
+
+    # We want to use the Maven Central repo if it's there
+    # since so much of the world expects that.
+    for url in artifact_urls:
+        if url.startswith("https://repo1.maven.org/maven2/"):
+            return url
+
+    # Return anything
+    return artifact_urls[0]
 
 def _generate_target(
         repository_ctx,
@@ -135,15 +152,15 @@ def _generate_target(
         dylib = simple_coord.split(":")[-1] + "." + packaging
         to_return.append(
             """
-genrule(
+copy_file(
     name = "{dylib}_extension",
-    srcs = ["@{repository}//file"],
-    outs = ["{dylib}"],
-    cmd = "cp $< $@",
+    src = "@{repository}//file",
+    out = "{dylib}",
+    allow_symlink = True,
     visibility = ["//visibility:public"],
 )""".format(
                 dylib = dylib,
-                repository = escape(artifact["coordinates"]),
+                repository = to_repository_name(artifact["coordinates"]),
             ),
         )
 
@@ -206,11 +223,13 @@ genrule(
     #   ],
 
     coordinates = artifact.get("maven_coordinates", artifact["coordinates"])
+    maven_url = _get_maven_url(artifact["urls"])
+
     target_import_string.append("\ttags = [")
     target_import_string.append("\t\t\"maven_coordinates=%s\"," % coordinates)
     if len(artifact["urls"]):
-        target_import_string.append("\t\t\"maven_url=%s\"," % artifact["urls"][0])
-        repository_url = _find_repository_url(artifact["urls"][0], repository_urls)
+        target_import_string.append("\t\t\"maven_url=%s\"," % maven_url)
+        repository_url = _find_repository_url(maven_url, repository_urls)
         if repository_url:
             target_import_string.append("\t\t\"maven_repository=%s\"," % repository_url)
     else:
@@ -224,10 +243,10 @@ genrule(
     if packaging == "jar":
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
-            target_import_string.append("\tmaven_url = \"%s\"," % artifact["urls"][0])
+            target_import_string.append("\tmaven_url = \"%s\"," % maven_url)
     else:
         unpacked = unpack_coordinates(coordinates)
-        url = artifact["urls"][0] if len(artifact["urls"]) else None
+        url = maven_url if len(artifact["urls"]) else None
 
         package_info_name = "%s_package_info" % target_label
         target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
@@ -446,7 +465,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             )
         elif packaging in ("exe", "json"):
             seen_imports[target_label] = True
-            versioned_target_alias_label = "%s_extension" % escape(artifact["coordinates"])
+            versioned_target_alias_label = "%s_extension" % to_repository_name(artifact["coordinates"])
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label),
             )

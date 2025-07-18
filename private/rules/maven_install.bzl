@@ -22,7 +22,7 @@ def maven_install(
         resolve_timeout = 600,
         additional_netrc_lines = [],
         use_credentials_from_home_netrc_file = False,
-        fail_if_repin_required = False,
+        fail_if_repin_required = True,
         use_starlark_android_rules = False,
         aar_import_bzl_label = DEFAULT_AAR_IMPORT_LABEL,
         duplicate_version_warning = "warn",
@@ -41,7 +41,7 @@ def maven_install(
         Supports URLs with HTTP Basic Authentication, e.g. "https://username:password@example.com".
       boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
-      resolver: Which resolver to use. One of `coursier`, or `maven`.
+      resolver: Which resolver to use. One of `coursier`, `gradle` or `maven`.
       fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
       fetch_sources: Additionally fetch source JARs.
       fetch_javadoc: Additionally fetch javadoc JARs.

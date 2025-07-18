@@ -12,6 +12,7 @@ def java_export(
         deploy_env = [],
         excluded_workspaces = {name: None for name in DEFAULT_EXCLUDED_WORKSPACES},
         pom_template = None,
+        allowed_duplicate_names = None,
         visibility = None,
         tags = [],
         testonly = None,
@@ -65,6 +66,8 @@ def java_export(
       maven_coordinates: The maven coordinates for this target.
       pom_template: The template to be used for the pom.xml file.
       manifest_entries: A dict of `String: String` containing additional manifest entry attributes and values.
+      allowed_duplicate_names: A list of `String` containing patterns for files that can be included more than
+        once in the jar file. Examples include `["log4j.properties"]`
       deploy_env: A list of labels of Java targets to exclude from the generated jar.
         [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
         supported.
@@ -74,9 +77,16 @@ def java_export(
         with an extra dependency.
       classifier_artifacts: A dict of classifier -> artifact of additional artifacts to publish to Maven.
       doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
-        (if not using `tags = ["no-javadoc"]`)
+        (if not using `tags = ["no-javadocs"]`)
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
-        `tags = ["no-javadoc"]`).
+        `tags = ["no-javadocs"]`).
+      doc_resources: Resources to be included in the javadoc jar.
+      doc_excluded_packages: A list of packages to exclude from the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while
+        `com.example` will exclude only the files directly in `com.example`
+      doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
+        `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
       publish_maven_metadata: Whether to publish a maven-metadata.xml
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
@@ -90,6 +100,8 @@ def java_export(
     doc_deps = kwargs.pop("doc_deps", [])
     doc_url = kwargs.pop("doc_url", "")
     doc_resources = kwargs.pop("doc_resources", [])
+    doc_excluded_packages = kwargs.pop("doc_excluded_packages", [])
+    doc_included_packages = kwargs.pop("doc_included_packages", [])
     toolchains = kwargs.pop("toolchains", [])
 
     # java_library doesn't allow srcs without deps, but users may try to specify deps rather than
@@ -115,6 +127,7 @@ def java_export(
         deploy_env = deploy_env,
         excluded_workspaces = excluded_workspaces,
         pom_template = pom_template,
+        allowed_duplicate_names = allowed_duplicate_names,
         visibility = visibility,
         tags = tags,
         testonly = testonly,
@@ -124,17 +137,21 @@ def java_export(
         doc_deps = doc_deps,
         doc_url = doc_url,
         doc_resources = doc_resources,
+        doc_excluded_packages = doc_excluded_packages,
+        doc_included_packages = doc_included_packages,
         toolchains = toolchains,
     )
 
 def maven_export(
         name,
         maven_coordinates,
-        lib_name,
+        lib_name = None,
+        target = None,
         manifest_entries = {},
         deploy_env = [],
         excluded_workspaces = {},
         pom_template = None,
+        allowed_duplicate_names = None,
         visibility = None,
         tags = [],
         testonly = False,
@@ -144,11 +161,14 @@ def maven_export(
         doc_deps = [],
         doc_url = "",
         doc_resources = [],
+        doc_excluded_packages = [],
+        doc_included_packages = [],
         publish_maven_metadata = False,
         toolchains = None):
     """
     All arguments are the same as java_export with the addition of:
-      lib_name: Name of the library that has been built.
+      lib_name: Name of the library that has been built if a library is being exported.
+      target: Name of the zip archive being exported if only zip files are being exported.
       javadocopts: The options to be used for javadocs.
 
     This macro is used by java_export and kt_jvm_export to generate implicit `name.publish`
@@ -204,6 +224,12 @@ def maven_export(
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
         `tags = ["no-javadoc"]`).
       doc_resources: Resources to be included in the javadoc jar.
+      doc_excluded_packages: A list of packages to exclude from the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will exclude all the subpackages of `com.example`, while
+        `com.example` will exclude only the files directly in `com.example`
+      doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
+        end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
+        `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
       publish_maven_metadata: Whether to publish a maven-metadata.xml
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
@@ -215,6 +241,7 @@ def maven_export(
     manifest_entries = manifest_entries if manifest_entries else {}
     deploy_env = deploy_env if deploy_env else []
     excluded_workspaces = excluded_workspaces if excluded_workspaces else {}
+    allowed_duplicate_names = allowed_duplicate_names if allowed_duplicate_names else []
     doc_url = doc_url if doc_url else ""
     doc_deps = doc_deps if doc_deps else []
     tags = tags if tags else []
@@ -224,47 +251,49 @@ def maven_export(
 
     classifier_artifacts = dict(classifier_artifacts)  # unfreeze
 
-    # Merge the jars to create the maven project jar
-    maven_project_jar(
-        name = "%s-project" % name,
-        target = ":%s" % lib_name,
-        maven_coordinates = maven_coordinates,
-        manifest_entries = manifest_entries,
-        deploy_env = deploy_env,
-        excluded_workspaces = excluded_workspaces.keys(),
-        additional_dependencies = additional_dependencies,
-        visibility = visibility,
-        tags = tags + maven_coordinates_tags,
-        testonly = testonly,
-        toolchains = toolchains,
-    )
+    if lib_name:
+        # Merge the jars to create the maven project jar
+        maven_project_jar(
+            name = "%s-project" % name,
+            target = ":%s" % lib_name,
+            maven_coordinates = maven_coordinates,
+            manifest_entries = manifest_entries,
+            deploy_env = deploy_env,
+            excluded_workspaces = excluded_workspaces.keys(),
+            additional_dependencies = additional_dependencies,
+            allowed_duplicate_names = allowed_duplicate_names,
+            visibility = visibility,
+            tags = tags + maven_coordinates_tags,
+            testonly = testonly,
+            toolchains = toolchains,
+        )
 
-    native.filegroup(
-        name = "%s-maven-artifact" % name,
-        srcs = [
-            ":%s-project" % name,
-        ],
-        output_group = "maven_artifact",
-        visibility = visibility,
-        tags = tags,
-        testonly = testonly,
-    )
-
-    if not "no-sources" in tags:
         native.filegroup(
-            name = "%s-maven-source" % name,
+            name = "%s-maven-artifact" % name,
             srcs = [
                 ":%s-project" % name,
             ],
-            output_group = "maven_source",
+            output_group = "maven_artifact",
             visibility = visibility,
             tags = tags,
             testonly = testonly,
         )
-        classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
+
+        if not "no-sources" in tags:
+            native.filegroup(
+                name = "%s-maven-source" % name,
+                srcs = [
+                    ":%s-project" % name,
+                ],
+                output_group = "maven_source",
+                visibility = visibility,
+                tags = tags,
+                testonly = testonly,
+            )
+            classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
 
     docs_jar = None
-    if not "no-javadocs" in tags:
+    if not "no-javadocs" in tags and lib_name:
         docs_jar = "%s-docs" % name
         javadoc(
             name = docs_jar,
@@ -275,6 +304,8 @@ def maven_export(
             doc_deps = doc_deps,
             doc_url = doc_url,
             doc_resources = doc_resources,
+            excluded_packages = doc_excluded_packages,
+            included_packages = doc_included_packages,
             excluded_workspaces = excluded_workspaces.keys(),
             additional_dependencies = additional_dependencies,
             visibility = visibility,
@@ -286,7 +317,8 @@ def maven_export(
 
     pom_file(
         name = "%s-pom" % name,
-        target = ":%s" % lib_name,
+        target = ":%s" % lib_name if lib_name else None,
+        coordinates = maven_coordinates if not lib_name else None,
         pom_template = pom_template,
         additional_dependencies = additional_dependencies,
         visibility = visibility,
@@ -299,7 +331,7 @@ def maven_export(
         name = "%s.publish" % name,
         coordinates = maven_coordinates,
         pom = "%s-pom" % name,
-        artifact = ":%s-maven-artifact" % name,
+        artifact = (":%s-maven-artifact" % name) if lib_name else target,
         classifier_artifacts = {v: k for (k, v) in classifier_artifacts.items() if v},
         visibility = visibility,
         tags = tags,
@@ -310,24 +342,25 @@ def maven_export(
 
     # We may want to aggregate several `java_export` targets into a single Maven BOM POM
     # https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#bill-of-materials-bom-poms
-    maven_bom_fragment(
-        name = "%s.bom-fragment" % name,
-        maven_coordinates = maven_coordinates,
-        artifact = ":%s" % lib_name,
-        src_artifact = ":%s-maven-source" % name,
-        javadoc_artifact = None if "no-javadocs" in tags else ":%s-docs" % name,
-        pom = ":%s-pom" % name,
-        testonly = testonly,
-        tags = tags,
-        visibility = visibility,
-        toolchains = toolchains,
-    )
+    if lib_name:
+        maven_bom_fragment(
+            name = "%s.bom-fragment" % name,
+            maven_coordinates = maven_coordinates,
+            artifact = ":%s" % lib_name,
+            src_artifact = ":%s-maven-source" % name,
+            javadoc_artifact = None if "no-javadocs" in tags else ":%s-docs" % name,
+            pom = ":%s-pom" % name,
+            testonly = testonly,
+            tags = tags,
+            visibility = visibility,
+            toolchains = toolchains,
+        )
 
-    # Finally, alias the primary output
-    native.alias(
-        name = name,
-        actual = ":%s-project" % name,
-        visibility = visibility,
-        tags = tags,
-        testonly = testonly,
-    )
+        # Finally, alias the primary output
+        native.alias(
+            name = name,
+            actual = ":%s-project" % name,
+            visibility = visibility,
+            tags = tags,
+            testonly = testonly,
+        )

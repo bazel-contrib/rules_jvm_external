@@ -40,3 +40,13 @@ stardoc(
         "@bazel_skylib//lib:structs",
     ],
 )
+
+stardoc(
+    name = "bzlmod",
+    out = "bzlmod.md",
+    input = "//:extensions.bzl",
+    visibility = ["//scripts:__pkg__"],
+    deps = [
+        "//:implementation",
+    ],
+)

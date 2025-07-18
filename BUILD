@@ -2,6 +2,7 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 exports_files([
     "defs.bzl",
+    "extensions.bzl",
     "specs.bzl",
 ])
 
@@ -23,9 +24,13 @@ bzl_library(
     ],
     deps = [
         "//private:implementation",
+        "//private/extensions:implementation",
         "//private/lib:implementation",
         "//private/rules:implementation",
         "//settings:implementation",
+        "@bazel_features//:bzl_files",
+        "@bazel_skylib//lib:new_sets",
+        "@bazel_tools//tools:bzl_srcs",
         "@rules_java//java:rules",
     ],
 )
