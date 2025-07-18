@@ -450,7 +450,11 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
         simple_coord = strip_packaging_and_classifier_and_version(artifact["coordinates"])
         packaging = get_packaging(artifact["coordinates"])
         target_label = escape(simple_coord)
-        alias_visibility = ""
+        visibility = ""
+        if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
+            visibility = "[\"//visibility:public\"]"
+        else:
+            visibility = "[%s]" % (",".join(["\"%s\"" % v for v in default_visibilities]))
 
         if target_label in seen_imports:
             # Skip if we've seen this target label before. Every versioned artifact is uniquely mapped to a target label.
@@ -461,13 +465,13 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
         elif repository_ctx.attr.fetch_javadoc and get_classifier(artifact["coordinates"]) == "javadoc":
             seen_imports[target_label] = True
             all_imports.append(
-                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, artifact_path),
+                "filegroup(\n\tname = \"%s\",\n\tsrcs = [\"%s\"],\n\ttags = [\"javadoc\"],\n\tvisibility = %s,\n)" % (target_label, artifact_path, visibility),
             )
         elif packaging in ("exe", "json"):
             seen_imports[target_label] = True
             versioned_target_alias_label = "%s_extension" % to_repository_name(artifact["coordinates"])
             all_imports.append(
-                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],\n)" % (target_label, versioned_target_alias_label),
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = %s,\n)" % (target_label, versioned_target_alias_label, visibility),
             )
             if repository_ctx.attr.maven_install_json:
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
@@ -476,7 +480,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # a jvm_import/aar_import based on information in dep_tree.
             seen_imports[target_label] = True
             all_imports.append(
-                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = [\"//visibility:public\"],)" % (target_label, labels_to_override.get(target_label)),
+                "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = %s,)" % (target_label, labels_to_override.get(target_label), visibility),
             )
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
@@ -550,12 +554,8 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             coordinates = artifact.get("maven_coordinates", artifact["coordinates"])
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % coordinates)
 
-            if repository_ctx.attr.strict_visibility and explicit_artifacts.get(simple_coord):
-                target_import_string.append("\tvisibility = [\"//visibility:public\"],")
-                alias_visibility = "\tvisibility = [\"//visibility:public\"],\n"
-            else:
-                target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % v for v in default_visibilities])))
-                alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % v for v in default_visibilities]))
+            alias_visibility = "\tvisibility = %s,\n" % visibility
+            target_import_string.append("\tvisibility = %s," % visibility)
 
             target_import_string.append(")")
 
