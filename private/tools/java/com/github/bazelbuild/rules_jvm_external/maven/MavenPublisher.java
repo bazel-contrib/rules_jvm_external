@@ -24,6 +24,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.HttpDownloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.AnsiConsoleListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.PlainConsoleListener;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.WriteChannel;
@@ -31,26 +37,36 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.common.base.Splitter;
+import com.google.common.io.CharStreams;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -58,8 +74,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public class MavenPublisher {
 
@@ -112,41 +137,10 @@ public class MavenPublisher {
         futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, signingMetadata));
       }
 
-      // Update maven-metadata for local maven repositories.
-      // This makes it so the target maven repository can be directly used without further steps.
-      if (repo.startsWith("file:/")) {
-        maven_metadata_dir = Files.createTempDirectory("maven-metadata");
-        maven_metadata_xml = maven_metadata_dir.resolve("maven-metadata.xml");
-        String template =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<metadata>\n"
-                + "  <groupId>{groupId}</groupId>\n"
-                + "  <artifactId>{artifactId}</artifactId>\n"
-                + "  <versioning>\n"
-                + "    <latest>{version}</latest>\n"
-                + "    <release>{version}</release>\n"
-                + "    <versions>\n"
-                + "      <version>{version}</version>\n"
-                + "    </versions>\n"
-                + "    <lastUpdated>{lastUpdated}</lastUpdated>\n"
-                + "  </versioning>\n"
-                + "</metadata>\n";
-        template = template.replace("{groupId}", coords.groupId);
-        template = template.replace("{artifactId}", coords.artifactId);
-        template = template.replace("{version}", coords.version);
-        template =
-            template.replace("{lastUpdated}", String.valueOf(Instant.now().getEpochSecond()));
-        Files.writeString(maven_metadata_xml, template);
+      boolean publishMavenMetadata = Boolean.valueOf(args[3]);
 
-        String metadata_url =
-            String.format(
-                "%s/%s/%s/maven-metadata.xml",
-                repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
-        futures.add(upload(metadata_url, credentials, maven_metadata_xml));
-      }
-
-      if (args.length > 3 && !args[3].isEmpty()) {
-        List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[3]);
+      if (args.length > 4 && !args[4].isEmpty()) {
+        List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[4]);
         for (String artifactTuple : extraArtifactTuples) {
           String[] splits = artifactTuple.split("=");
           String classifier = splits[0];
@@ -165,6 +159,15 @@ public class MavenPublisher {
 
       CompletableFuture<Void> all =
           CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+      // uploading the maven-metadata.xml signals to cut over to the new version, so it must be at
+      // the end.
+      // publishing the file is opt-in for remote repositories, but always done for local file
+      // repositories.
+      if (publishMavenMetadata || repo.startsWith("file:/")) {
+        all = all.thenCompose(Void -> uploadMavenMetadata(repo, credentials, coords));
+      }
+
       all.get(30, MINUTES);
     } finally {
       EXECUTOR.shutdown();
@@ -192,6 +195,81 @@ public class MavenPublisher {
       }
     }
     return false;
+  }
+
+  /**
+   * Download the pre-existing maven-metadata.xml file if it exists. If no such file exists, create
+   * a default Metadata with the Coordinates provided.
+   */
+  private static CompletableFuture<Metadata> downloadExistingMavenMetadata(
+      String repo, Coordinates coords) {
+    String mavenMetadataUrl =
+        String.format(
+            "%s/%s/%s/maven-metadata.xml",
+            repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
+
+    return download(mavenMetadataUrl)
+        .thenApply(
+            optionalFileContents -> {
+              try {
+                if (optionalFileContents.isEmpty()) {
+                  // no file so just upload a new one
+                  // we must bootstrap
+                  Metadata metadata = new Metadata();
+                  metadata.setGroupId(coords.groupId);
+                  metadata.setArtifactId(coords.artifactId);
+                  metadata.setVersioning(new Versioning());
+                  return metadata;
+                }
+                return new MetadataXpp3Reader()
+                    .read(new StringReader(optionalFileContents.get()), false);
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
+  }
+
+  /**
+   * Upload the new maven-metadata.xml with the new version included in the version list & set the
+   * latest and release tags in the Metadata XML object. This function will first download the
+   * pre-existing metadata-xml and augment. If no maven-metadata.xml exists, a new one will be
+   * hydrated.
+   */
+  private static CompletableFuture<Void> uploadMavenMetadata(
+      String repo, Credentials credentials, Coordinates coords) {
+
+    String mavenMetadataUrl =
+        String.format(
+            "%s/%s/%s/maven-metadata.xml",
+            repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
+    return downloadExistingMavenMetadata(repo, coords)
+        .thenCompose(
+            metadata -> {
+              try {
+
+                // There is a chance versioning is null; handle it by creating the empty object.
+                Versioning versioning =
+                    Optional.ofNullable(metadata.getVersioning()).orElse(new Versioning());
+                versioning.setLatest(coords.version);
+                versioning.setRelease(coords.version);
+                // This may be needed for SNAPSHOT support
+                String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                versioning.setLastUpdated("20200731090423");
+                versioning.getVersions().add(coords.version);
+                // Let's handle adding multiple versions many times by turning it back to a set
+                versioning.setVersions(
+                    versioning.getVersions().stream().distinct().collect(Collectors.toList()));
+                metadata.setVersioning(versioning);
+
+                Path newMavenMetadataXml = Files.createTempFile("maven-metadata", ".xml");
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                new MetadataXpp3Writer().write(os, metadata);
+                Files.write(newMavenMetadataXml, os.toByteArray());
+                return upload(mavenMetadataUrl, credentials, newMavenMetadataXml);
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   private static CompletableFuture<Void> upload(
@@ -303,6 +381,96 @@ public class MavenPublisher {
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  // Copied from resolver/cmd/Main.java
+  private static EventListener createEventListener() {
+    boolean termAvailable = !Objects.equals(System.getenv().get("TERM"), "dumb");
+    boolean consoleAvailable = System.console() != null;
+    if (System.getenv("RJE_VERBOSE") != null) {
+      return new PlainConsoleListener();
+    } else if (termAvailable && consoleAvailable) {
+      return new AnsiConsoleListener();
+    }
+    return new NullListener();
+  }
+
+  /**
+   * Attempts to download the file at the given targetUrl. Valid protocols are: http(s), file, and
+   * s3 at the moment.
+   */
+  private static CompletableFuture<Optional<String>> download(String targetUrl) {
+    if (targetUrl.startsWith("http")) {
+      return httpDownload(targetUrl);
+    } else if (targetUrl.startsWith("file://")) {
+      return fileDownload(targetUrl);
+    } else if (targetUrl.startsWith("s3://")) {
+      return s3Download(targetUrl);
+    } else {
+      throw new IllegalArgumentException("Unsupported protocol for download.");
+    }
+  }
+
+  private static CompletableFuture<Optional<String>> s3Download(String targetUrl) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          S3Client s3Client = S3Client.create();
+          try {
+            URI s3Uri = new URI(targetUrl);
+            String bucketName = s3Uri.getHost();
+            String key = s3Uri.getPath().substring(1);
+            GetObjectRequest request =
+                GetObjectRequest.builder().bucket(bucketName).key(key).build();
+            ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(request);
+            return Optional.of(
+                CharStreams.toString(new InputStreamReader(s3Object, StandardCharsets.UTF_8)));
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+          } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+              return Optional.empty();
+            } else {
+              throw new RuntimeException(e);
+            }
+          }
+        });
+  }
+
+  private static CompletableFuture<Optional<String>> fileDownload(String targetUrl) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            Path path = Paths.get(new URL(targetUrl).toURI());
+            if (!Files.exists(path)) {
+              return Optional.empty();
+            }
+            return Optional.of(Files.readString(path, StandardCharsets.UTF_8));
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  private static CompletableFuture<Optional<String>> httpDownload(String targetUrl) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          HttpDownloader downloader =
+              new HttpDownloader(Netrc.fromUserHome(), createEventListener());
+
+          Path path = downloader.get(URI.create(targetUrl));
+          if (path == null || !Files.exists(path)) {
+            return Optional.empty();
+          }
+          try {
+            return Optional.of(Files.readString(path, StandardCharsets.UTF_8));
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
   }
 
   private static CompletableFuture<Void> upload(
@@ -422,10 +590,10 @@ public class MavenPublisher {
       S3Client s3Client = S3Client.create();
       URI s3Uri = new URI(targetUrl);
       String bucketName = s3Uri.getHost();
-      String path = s3Uri.getPath().substring(1);
+      String key = s3Uri.getPath().substring(1);
 
-      LOG.info(String.format("Copying %s to s3://%s/%s", toUpload, bucketName, path));
-      s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(path).build(), toUpload);
+      LOG.info(String.format("Copying %s to s3://%s/%s", toUpload, bucketName, key));
+      s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(), toUpload);
 
       return null;
     };
