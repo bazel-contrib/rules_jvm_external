@@ -286,6 +286,14 @@ dev_maven.artifact(
 dev_maven.install(
     name = "from_files",
     lock_file = "//tests/custom_maven_install:from_files_install.json",
+    # This must be `True` to tickle a bug where requesting source jars caused
+    # a missing dependency to be declared by accident in the generated build
+    # file.
+    fetch_sources = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
 )
 dev_maven.from_toml(
     name = "from_files",

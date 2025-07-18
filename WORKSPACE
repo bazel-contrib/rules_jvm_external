@@ -1050,4 +1050,5 @@ maven_install(
     artifacts = [
         "org.junit.jupiter:junit-jupiter-api:5.12.2",
     ],
+    repositories = ["https://repo1.maven.org/maven2"],
 )
