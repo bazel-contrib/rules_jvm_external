@@ -216,6 +216,11 @@ public class V2LockFile {
           Map<String, Object> artifactValue =
               artifacts.computeIfAbsent(shortKey, k -> new TreeMap<>());
           artifactValue.put("version", coords.getVersion());
+          
+          // Add version_revision for reproducible builds when available
+          if (coords.getVersionRevision() != null && !coords.getVersionRevision().isEmpty()) {
+            artifactValue.put("version_revision", coords.getVersionRevision());
+          }
 
           String classifier;
           if (coords.getClassifier() == null || coords.getClassifier().isEmpty()) {
