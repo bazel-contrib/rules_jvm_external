@@ -57,7 +57,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -163,7 +162,8 @@ public class MavenPublisher {
 
       // uploading the maven-metadata.xml signals to cut over to the new version, so it must be at
       // the end.
-      // publishing the file is opt-in for remote repositories, but always done for local file repositories.
+      // publishing the file is opt-in for remote repositories, but always done for local file
+      // repositories.
       if (publishMavenMetadata || repo.startsWith("file:/")) {
         all = all.thenCompose(Void -> uploadMavenMetadata(repo, credentials, coords));
       }
@@ -383,7 +383,7 @@ public class MavenPublisher {
     }
   }
 
-    // Copied from resolver/cmd/Main.java
+  // Copied from resolver/cmd/Main.java
   private static EventListener createEventListener() {
     boolean termAvailable = !Objects.equals(System.getenv().get("TERM"), "dumb");
     boolean consoleAvailable = System.console() != null;
@@ -399,8 +399,7 @@ public class MavenPublisher {
    * Attempts to download the file at the given targetUrl. Valid protocols are: http(s), file, and
    * s3 at the moment.
    */
-  private static CompletableFuture<Optional<String>> download(
-      String targetUrl) {
+  private static CompletableFuture<Optional<String>> download(String targetUrl) {
     if (targetUrl.startsWith("http")) {
       return httpDownload(targetUrl);
     } else if (targetUrl.startsWith("file://")) {
@@ -456,11 +455,11 @@ public class MavenPublisher {
         });
   }
 
-  private static CompletableFuture<Optional<String>> httpDownload(
-      String targetUrl) {
+  private static CompletableFuture<Optional<String>> httpDownload(String targetUrl) {
     return CompletableFuture.supplyAsync(
         () -> {
-          HttpDownloader downloader = new HttpDownloader(Netrc.fromUserHome(), createEventListener());
+          HttpDownloader downloader =
+              new HttpDownloader(Netrc.fromUserHome(), createEventListener());
 
           Path path = downloader.get(URI.create(targetUrl));
           if (path == null || !Files.exists(path)) {
@@ -471,8 +470,7 @@ public class MavenPublisher {
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
-        }
-      );
+        });
   }
 
   private static CompletableFuture<Void> upload(
