@@ -149,7 +149,6 @@ def rules_jvm_external_deps(
             "org.bouncycastle:bcpg-jdk15on:1.68",
             "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
             "com.github.jknack:handlebars:4.3.1",
-            "com.google.http-client:google-http-client:1.45.0",
         ],
         maven_install_json = deps_lock_file,
         strict_visibility = True,

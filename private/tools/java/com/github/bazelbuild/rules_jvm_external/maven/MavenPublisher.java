@@ -24,12 +24,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.HttpDownloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.AnsiConsoleListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.PlainConsoleListener;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.WriteChannel;
@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -137,41 +138,6 @@ public class MavenPublisher {
         futures.add(upload(repo, credentials, coords, "." + ext, mainArtifact, signingMetadata));
       }
 
-      // Update maven-metadata for local maven repositories.
-      // This makes it so the target maven repository can be directly used without further steps.
-      if (repo.startsWith("file:/")) {
-        maven_metadata_dir = Files.createTempDirectory("maven-metadata");
-        maven_metadata_xml = maven_metadata_dir.resolve("maven-metadata.xml");
-        String template =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<metadata>\n"
-                + "  <groupId>{groupId}</groupId>\n"
-                + "  <artifactId>{artifactId}</artifactId>\n"
-                + "  <versioning>\n"
-                + "    <latest>{version}</latest>\n"
-                + "    <release>{version}</release>\n"
-                + "    <versions>\n"
-                + "      <version>{version}</version>\n"
-                + "    </versions>\n"
-                + "    <lastUpdated>{lastUpdated}</lastUpdated>\n"
-                + "  </versioning>\n"
-                + "</metadata>\n";
-        template = template.replace("{groupId}", coords.groupId);
-        template = template.replace("{artifactId}", coords.artifactId);
-        template = template.replace("{version}", coords.version);
-        template =
-            template.replace("{lastUpdated}", String.valueOf(Instant.now().getEpochSecond()));
-        Files.writeString(maven_metadata_xml, template);
-
-        String metadata_url =
-            String.format(
-                "%s/%s/%s/maven-metadata.xml",
-                repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
-        futures.add(upload(metadata_url, credentials, maven_metadata_xml));
-      }
-
-      if (args.length > 3 && !args[3].isEmpty()) {
-        List<String> extraArtifactTuples = Splitter.onPattern(",").splitToList(args[3]);
       boolean publishMavenMetadata = Boolean.valueOf(args[3]);
 
       if (args.length > 4 && !args[4].isEmpty()) {
@@ -197,7 +163,8 @@ public class MavenPublisher {
 
       // uploading the maven-metadata.xml signals to cut over to the new version, so it must be at
       // the end.
-      if (publishMavenMetadata) {
+      // publishing the file is opt-in for remote repositories, but always done for local file repositories.
+      if (publishMavenMetadata || repo.startsWith("file:/")) {
         all = all.thenCompose(Void -> uploadMavenMetadata(repo, credentials, coords));
       }
 
@@ -235,13 +202,13 @@ public class MavenPublisher {
    * a default Metadata with the Coordinates provided.
    */
   private static CompletableFuture<Metadata> downloadExistingMavenMetadata(
-      String repo, Credentials credentials, Coordinates coords) {
+      String repo, Coordinates coords) {
     String mavenMetadataUrl =
         String.format(
             "%s/%s/%s/maven-metadata.xml",
             repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
 
-    return download(mavenMetadataUrl, credentials)
+    return download(mavenMetadataUrl)
         .thenApply(
             optionalFileContents -> {
               try {
@@ -275,7 +242,7 @@ public class MavenPublisher {
         String.format(
             "%s/%s/%s/maven-metadata.xml",
             repo.replaceAll("/$", ""), coords.groupId.replace('.', '/'), coords.artifactId);
-    return downloadExistingMavenMetadata(repo, credentials, coords)
+    return downloadExistingMavenMetadata(repo, coords)
         .thenCompose(
             metadata -> {
               try {
@@ -416,14 +383,26 @@ public class MavenPublisher {
     }
   }
 
+    // Copied from resolver/cmd/Main.java
+  private static EventListener createEventListener() {
+    boolean termAvailable = !Objects.equals(System.getenv().get("TERM"), "dumb");
+    boolean consoleAvailable = System.console() != null;
+    if (System.getenv("RJE_VERBOSE") != null) {
+      return new PlainConsoleListener();
+    } else if (termAvailable && consoleAvailable) {
+      return new AnsiConsoleListener();
+    }
+    return new NullListener();
+  }
+
   /**
    * Attempts to download the file at the given targetUrl. Valid protocols are: http(s), file, and
    * s3 at the moment.
    */
   private static CompletableFuture<Optional<String>> download(
-      String targetUrl, Credentials credentials) {
+      String targetUrl) {
     if (targetUrl.startsWith("http")) {
-      return httpDownload(targetUrl, credentials);
+      return httpDownload(targetUrl);
     } else if (targetUrl.startsWith("file://")) {
       return fileDownload(targetUrl);
     } else if (targetUrl.startsWith("s3://")) {
@@ -478,38 +457,22 @@ public class MavenPublisher {
   }
 
   private static CompletableFuture<Optional<String>> httpDownload(
-      String targetUrl, Credentials credentials) {
+      String targetUrl) {
     return CompletableFuture.supplyAsync(
         () -> {
+          HttpDownloader downloader = new HttpDownloader(Netrc.fromUserHome(), createEventListener());
+
+          Path path = downloader.get(URI.create(targetUrl));
+          if (path == null || !Files.exists(path)) {
+            return Optional.empty();
+          }
           try {
-            HttpTransport httpTransport = new NetHttpTransport();
-            HttpRequest request =
-                httpTransport
-                    .createRequestFactory(
-                        initRequest -> {
-                          Map<String, List<String>> authHeaders = credentials.getRequestMetadata();
-                          // Add the authorization headers to the HTTP request
-                          if (authHeaders != null) {
-                            for (Map.Entry<String, List<String>> entry : authHeaders.entrySet()) {
-                              initRequest.getHeaders().put(entry.getKey(), entry.getValue());
-                            }
-                          }
-                        })
-                    .buildGetRequest(new GenericUrl(targetUrl));
-            HttpResponse response = request.execute();
-            return Optional.of(
-                CharStreams.toString(
-                    new InputStreamReader(response.getContent(), StandardCharsets.UTF_8)));
-          } catch (HttpResponseException e) {
-            if (e.getStatusCode() == 404) {
-              return Optional.empty();
-            } else {
-              throw new UncheckedIOException(e);
-            }
+            return Optional.of(Files.readString(path, StandardCharsets.UTF_8));
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
-        });
+        }
+      );
   }
 
   private static CompletableFuture<Void> upload(

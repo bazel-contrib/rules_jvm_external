@@ -96,7 +96,6 @@ maven.install(
         "org.bouncycastle:bcpg-jdk15on:1.68",
         "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
         "com.github.jknack:handlebars:4.3.1",
-        "com.google.http-client:google-http-client:1.45.0",
     ],
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",
