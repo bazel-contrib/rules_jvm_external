@@ -2,8 +2,6 @@
 # Utilities for working with artifacts
 #
 
-load("//:specs.bzl", "utils")
-
 def deduplicate_and_sort_artifacts(dep_tree, artifacts, verbose):
     # The deps json returned from coursier can have duplicate artifacts with
     # different dependencies and exclusions. We want to de-duplicate the
