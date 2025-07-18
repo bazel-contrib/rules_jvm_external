@@ -84,6 +84,15 @@ def _get_maven_url(artifact_urls):
     # Return anything
     return artifact_urls[0]
 
+def _create_purl(coordinates):
+    # https://github.com/package-url/purl-spec/blob/main/PURL-TYPES.rst#maven
+    #
+    # TODO(yannic): Support qualifiers (e.g., the maven repo).
+    if coordinates.version:
+        return "pkg:maven/{}/{}@{}".format(coordinates.group, coordinates.artifact, coordinates.version)
+    else:
+        return "pkg:maven/{}/{}".format(coordinates.group, coordinates.artifact)
+
 def _generate_target(
         repository_ctx,
         jar_versionless_target_labels,
@@ -244,12 +253,26 @@ copy_file(
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
             target_import_string.append("\tmaven_url = \"%s\"," % maven_url)
+
+        package_metadata_name = "%s_package_metadata" % target_label
+        target_import_string.append("\tapplicable_licenses = [\":{}\"],".format(package_metadata_name))
+        to_return.append("""
+package_metadata(
+    name = {package_metadata_name},
+    purl = {purl},
+    visibility = ["//visibility:public"],
+)
+""".format(
+            package_metadata_name = repr(package_metadata_name),
+            purl = repr(_create_purl(unpack_coordinates(coordinates))),
+        ))
     else:
         unpacked = unpack_coordinates(coordinates)
         url = maven_url if len(artifact["urls"]) else None
 
         package_info_name = "%s_package_info" % target_label
-        target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
+        package_metadata_name = "%s_package_metadata" % target_label
+        target_import_string.append("\tapplicable_licenses = [\n\t\t\":{}\",\n\t\t\":{}\",\n\t],".format(package_info_name, package_metadata_name))
         to_return.append("""
 package_info(
     name = {name},
@@ -257,9 +280,17 @@ package_info(
     package_url = {url},
     package_version = {version},
 )
+
+package_metadata(
+    name = {package_metadata_name},
+    purl = {purl},
+    visibility = ["//visibility:public"],
+)
 """.format(
             coordinates = repr(coordinates),
             name = repr(package_info_name),
+            package_metadata_name = repr(package_metadata_name),
+            purl = repr(_create_purl(unpacked)),
             url = repr(url),
             version = repr(unpacked.version),
         ))
