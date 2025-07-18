@@ -93,6 +93,7 @@ def _generate_target(
         repository_urls,
         neverlink_artifacts,
         testonly_artifacts,
+        exclusions,
         default_visibilities,
         artifact):
     to_return = []
@@ -238,6 +239,9 @@ copy_file(
         target_import_string.append("\t\t\"maven:compile-only\",")
     if artifact.get("sha256"):
         target_import_string.append("\t\t\"maven_sha256=%s\"," % artifact["sha256"])
+    if simple_coord in exclusions:
+        for exclusion in exclusions[simple_coord]:
+            target_import_string.append("\t\t\"maven_exclusion=%s\"," % exclusion)
     target_import_string.append("\t],")
 
     if packaging == "jar":
@@ -398,7 +402,7 @@ processor_class = "{processor_class}",
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlink_artifacts, testonly_artifacts, override_targets, skip_maven_local_dependencies):
+def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlink_artifacts, testonly_artifacts, exclusions, override_targets, skip_maven_local_dependencies):
     repository_urls = [json.decode(repository)["repo_url"] for repository in repository_ctx.attr.repositories]
 
     # The list of java_import/aar_import declaration strings to be joined at the end
@@ -495,6 +499,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 repository_urls,
                 neverlink_artifacts,
                 testonly_artifacts,
+                exclusions,
                 default_visibilities,
                 raw_artifact,
             ))
@@ -510,6 +515,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 repository_urls,
                 neverlink_artifacts,
                 testonly_artifacts,
+                exclusions,
                 default_visibilities,
                 artifact,
             ))

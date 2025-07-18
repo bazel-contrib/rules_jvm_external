@@ -655,6 +655,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             for a in artifacts
             if a.get("testonly", False)
         },
+        exclusions = {
+            a["group"] + ":" + a["artifact"]: [
+                e["group"] + ":" + e["artifact"]
+                for e in a.get("exclusions", [])
+            ]
+            for a in artifacts
+        },
         override_targets = repository_ctx.attr.override_targets,
         skip_maven_local_dependencies = False,
     )
@@ -962,7 +969,6 @@ def make_coursier_dep_tree(
     dep_tree = deduplicate_and_sort_artifacts(
         json.decode(repository_ctx.read(repository_ctx.path("dep-tree.json"))),
         artifacts,
-        excluded_artifacts,
         _is_verbose(repository_ctx),
     )
     return rewrite_files_attribute_if_necessary(repository_ctx, dep_tree)
@@ -1311,6 +1317,13 @@ def _coursier_fetch_impl(repository_ctx):
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
             if a.get("testonly", False)
+        },
+        exclusions = {
+            a["group"] + ":" + a["artifact"]: [
+                e["group"] + ":" + e["artifact"]
+                for e in a.get("exclusions", [])
+            ]
+            for a in artifacts
         },
         override_targets = repository_ctx.attr.override_targets,
         # Skip maven local dependencies if generating the unpinned repository

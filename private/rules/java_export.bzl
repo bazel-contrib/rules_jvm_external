@@ -1,4 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_library")
+load("//:specs.bzl", "parse", _json = "json")
 load(":javadoc.bzl", "javadoc")
 load(":maven_bom_fragment.bzl", "maven_bom_fragment")
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES", "maven_project_jar")
@@ -11,6 +12,7 @@ def java_export(
         manifest_entries = {},
         deploy_env = [],
         excluded_workspaces = {name: None for name in DEFAULT_EXCLUDED_WORKSPACES},
+        exclusions = {},
         pom_template = None,
         allowed_duplicate_names = None,
         visibility = None,
@@ -74,6 +76,9 @@ def java_export(
         that should not be included in the maven jar to a `Label` pointing to the dependency
         that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
         with an extra dependency.
+      exclusions: Mapping of target labels to a list of exclusions to be added to the POM file.
+        Each label must correspond to a direct maven dependency of this target.
+        Each exclusion is represented as a `group:artifact` string.
       classifier_artifacts: A dict of classifier -> artifact of additional artifacts to publish to Maven.
       doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
         (if not using `tags = ["no-javadocs"]`)
@@ -124,6 +129,7 @@ def java_export(
         manifest_entries = manifest_entries,
         deploy_env = deploy_env,
         excluded_workspaces = excluded_workspaces,
+        exclusions = exclusions,
         pom_template = pom_template,
         allowed_duplicate_names = allowed_duplicate_names,
         visibility = visibility,
@@ -147,6 +153,7 @@ def maven_export(
         manifest_entries = {},
         deploy_env = [],
         excluded_workspaces = {},
+        exclusions = {},
         pom_template = None,
         allowed_duplicate_names = None,
         visibility = None,
@@ -215,6 +222,9 @@ def maven_export(
         that should not be included in the maven jar to a `Label` pointing to the dependency
         that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced
         with an extra dependency.
+      exclusions: Mapping of target labels to a list of exclusions to be added to the POM file.
+        Each label must correspond to a direct maven dependency of this target.
+        Each exclusion is represented as a `group:artifact` string.
       doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
         (if not using `tags = ["no-javadoc"]`)
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
@@ -310,6 +320,13 @@ def maven_export(
         )
         classifier_artifacts.setdefault("javadoc", docs_jar)
 
+    exclusions_dict_json_strings = {
+        target: _json.write_exclusion_spec_list(
+            parse.parse_exclusion_spec_list(targetExclusions),
+        )
+        for target, targetExclusions in exclusions.items()
+    }
+
     pom_file(
         name = "%s-pom" % name,
         target = ":%s" % lib_name if lib_name else None,
@@ -320,6 +337,7 @@ def maven_export(
         tags = tags,
         testonly = testonly,
         toolchains = toolchains,
+        exclusions = exclusions_dict_json_strings,
     )
 
     maven_publish(
