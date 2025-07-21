@@ -553,19 +553,23 @@ def maven_impl(mctx):
         # Special handling for artifacts and boms - deduplicate with root priority
         root_artifacts = root_repo.get("artifacts", [])
         non_root_artifacts = non_root_repo.get("artifacts", [])
-        merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
-            repo_name,
-            root_artifacts,
-            non_root_artifacts,
-        )
+        if repo_name in root_module_repos.keys():
+            merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
+                repo_name,
+                root_artifacts,
+                non_root_artifacts,
+            )
 
-        root_boms = root_repo.get("boms", [])
-        non_root_boms = non_root_repo.get("boms", [])
-        merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
-            repo_name,
-            root_boms,
-            non_root_boms,
-        )
+            root_boms = root_repo.get("boms", [])
+            non_root_boms = non_root_repo.get("boms", [])
+            merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
+                repo_name,
+                root_boms,
+                non_root_boms,
+            )
+        else:
+            merged_repo["artifacts"] = non_root_artifacts
+            merged_repo["boms"] = non_root_boms
 
         # For list attributes, concatenate but avoid duplicates (root items first)
         for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:
