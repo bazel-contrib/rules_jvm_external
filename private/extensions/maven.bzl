@@ -260,7 +260,7 @@ def _find_duplicate_artifacts_across_submodules(non_root_artifacts, root_maven_m
 
     return duplicates
 
-def _deduplicate_artifacts_with_root_priority(root_artifacts, non_root_artifacts):
+def _deduplicate_artifacts_with_root_priority(name, root_artifacts, non_root_artifacts):
     """Deduplicate artifacts, giving priority to root module artifacts."""
 
     # Collect maven modules from root artifacts (handle mixed types)
@@ -292,7 +292,7 @@ def _deduplicate_artifacts_with_root_priority(root_artifacts, non_root_artifacts
             else:
                 warning_parts.append(maven_module)
 
-        print("WARNING: The following maven modules appear in multiple sub-modules with potentially different versions. " +
+        print("WARNING: The following coordinates from `%s` appear in multiple sub-modules with potentially different versions. " % name +
               "Consider adding one of these to your root module to ensure consistent versions:\n\t%s" %
               "\n\t".join(sorted(warning_parts)))
 
@@ -554,6 +554,7 @@ def maven_impl(mctx):
         root_artifacts = root_repo.get("artifacts", [])
         non_root_artifacts = non_root_repo.get("artifacts", [])
         merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
+            repo_name,
             root_artifacts,
             non_root_artifacts,
         )
@@ -561,6 +562,7 @@ def maven_impl(mctx):
         root_boms = root_repo.get("boms", [])
         non_root_boms = non_root_repo.get("boms", [])
         merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
+            repo_name,
             root_boms,
             non_root_boms,
         )
