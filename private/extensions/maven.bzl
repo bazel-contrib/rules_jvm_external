@@ -553,6 +553,9 @@ def maven_impl(mctx):
         # Special handling for artifacts and boms - deduplicate with root priority
         root_artifacts = root_repo.get("artifacts", [])
         non_root_artifacts = non_root_repo.get("artifacts", [])
+        root_boms = root_repo.get("boms", [])
+        non_root_boms = non_root_repo.get("boms", [])
+
         if repo_name in root_module_repos.keys():
             merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
                 repo_name,
@@ -560,8 +563,6 @@ def maven_impl(mctx):
                 non_root_artifacts,
             )
 
-            root_boms = root_repo.get("boms", [])
-            non_root_boms = non_root_repo.get("boms", [])
             merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
                 repo_name,
                 root_boms,
