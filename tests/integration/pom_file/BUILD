@@ -233,3 +233,22 @@ diff_test(
     file1 = ":pom-example-with-maven-defined-exclusions-gradle-pom",
     file2 = "pom-with-maven-defined-exclusions.golden.xml",
 )
+
+java_library(
+    name = "other-library",
+    srcs = ["OtherLibrary.java"],
+    deps = [
+        "@pom_exclusion_testing_coursier//:com_google_guava_guava",
+    ],
+)
+
+# This is to ensure that the guava dependency appears in the pom.xml with the correct exclusions,
+# even though it is not directly on the java_export, it is on the java_library dep.
+java_export(
+    name = "pom-transitive-exclusion",
+    srcs = ["PomExample.java"],
+    maven_coordinates = "com.example:app:1.0.0",
+    deps = [
+        ":other-library",
+    ],
+)

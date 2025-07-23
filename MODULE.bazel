@@ -36,11 +36,12 @@ bazel_dep(
     name = "rules_shell",
     version = "0.3.0",
 )
+
 bazel_dep(
     name = "aspect_bazel_lib",
     version = "2.20.0",
+    dev_dependency = True,
 )
-
 bazel_dep(
     name = "stardoc",
     version = "0.7.0",

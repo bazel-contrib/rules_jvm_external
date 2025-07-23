@@ -34,6 +34,7 @@ _EMPTY_INFO = MavenInfo(
     as_maven_dep = depset(),
     maven_export_deps = depset(),
     exclusions = [],
+    all_infos = depset(),
     artifact_infos = depset(),
     dep_infos = depset(),
     label_to_javainfo = {},
@@ -46,6 +47,7 @@ _STOPPED_INFO = MavenInfo(
     as_maven_dep = depset(),
     maven_export_deps = depset(),
     exclusions = [],
+    all_infos = depset(),
     artifact_infos = depset(),
     dep_infos = depset(),
     label_to_javainfo = {},
@@ -211,7 +213,7 @@ def _has_maven_deps_impl(target, ctx):
 
     info = MavenInfo(
         coordinates = coordinates,
-        all_infos = depset(direct = all_infos),
+        all_infos = depset(direct = all_infos, transitive = [i.all_infos for i in all_infos]),
         maven_deps = maven_deps,
         maven_export_deps = maven_export_deps,
         as_maven_dep = depset([coordinates]) if coordinates else maven_deps,
