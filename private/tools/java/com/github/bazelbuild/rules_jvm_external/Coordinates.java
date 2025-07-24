@@ -24,6 +24,7 @@ public class Coordinates implements Comparable<Coordinates> {
   private final String groupId;
   private final String artifactId;
   private final String version;
+  private final String versionRevision;
   private final String classifier;
   private final String extension;
 
@@ -59,16 +60,23 @@ public class Coordinates implements Comparable<Coordinates> {
       classifier = "jar".equals(parts[3]) ? "" : parts[3];
       version = parts[4];
     }
+    this.versionRevision = null;
   }
 
   public Coordinates(
       String groupId, String artifactId, String extension, String classifier, String version) {
+    this(groupId, artifactId, extension, classifier, version, null);
+  }
+
+  public Coordinates(
+      String groupId, String artifactId, String extension, String classifier, String version, String versionRevision) {
     this.groupId = Objects.requireNonNull(groupId, "Group ID");
     this.artifactId = Objects.requireNonNull(artifactId, "Artifact ID");
     this.extension = extension == null || extension.isEmpty() ? "jar" : extension;
     this.classifier =
         classifier == null || classifier.isEmpty() || "jar".equals(classifier) ? "" : classifier;
     this.version = version == null || version.isEmpty() ? "" : version;
+    this.versionRevision = versionRevision;
   }
 
   public String getGroupId() {
@@ -88,19 +96,27 @@ public class Coordinates implements Comparable<Coordinates> {
   }
 
   public Coordinates setClassifier(String classifier) {
-    return new Coordinates(getGroupId(), getArtifactId(), getExtension(), classifier, getVersion());
+    return new Coordinates(getGroupId(), getArtifactId(), getExtension(), classifier, getVersion(), getVersionRevision());
   }
 
   public Coordinates setExtension(String extension) {
-    return new Coordinates(getGroupId(), getArtifactId(), extension, getClassifier(), getVersion());
+    return new Coordinates(getGroupId(), getArtifactId(), extension, getClassifier(), getVersion(), getVersionRevision());
   }
 
   public Coordinates setVersion(String version) {
-    return new Coordinates(getGroupId(), getArtifactId(), getExtension(), getClassifier(), version);
+    return new Coordinates(getGroupId(), getArtifactId(), getExtension(), getClassifier(), version, getVersionRevision());
+  }
+
+  public Coordinates setVersionRevision(String versionRevision) {
+    return new Coordinates(getGroupId(), getArtifactId(), getExtension(), getClassifier(), getVersion(), versionRevision);
   }
 
   public String getExtension() {
     return extension;
+  }
+
+  public String getVersionRevision() {
+    return versionRevision;
   }
 
   public String asKey() {
@@ -133,7 +149,7 @@ public class Coordinates implements Comparable<Coordinates> {
         .append("/")
         .append(getArtifactId())
         .append("-")
-        .append(getVersion());
+        .append(isNullOrEmpty(getVersionRevision()) ? getVersion() : getVersionRevision());
 
     String classifier = getClassifier();
 
@@ -178,6 +194,7 @@ public class Coordinates implements Comparable<Coordinates> {
     return getGroupId().equals(that.getGroupId())
         && getArtifactId().equals(that.getArtifactId())
         && Objects.equals(getVersion(), that.getVersion())
+        && Objects.equals(getVersionRevision(), that.getVersionRevision())
         && Objects.equals(getClassifier(), that.getClassifier())
         && Objects.equals(getExtension(), that.getExtension());
   }
@@ -185,7 +202,7 @@ public class Coordinates implements Comparable<Coordinates> {
   @Override
   public int hashCode() {
     return Objects.hash(
-        getGroupId(), getArtifactId(), getVersion(), getClassifier(), getExtension());
+        getGroupId(), getArtifactId(), getVersion(), getVersionRevision(), getClassifier(), getExtension());
   }
 
   private boolean isNullOrEmpty(String value) {

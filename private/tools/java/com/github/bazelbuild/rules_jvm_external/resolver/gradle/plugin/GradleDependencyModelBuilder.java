@@ -268,7 +268,17 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       info = new GradleResolvedDependencyImpl();
       info.setGroup(component.getModuleVersion().getGroup());
       info.setName(component.getModuleVersion().getName());
-      info.setVersion(component.getModuleVersion().getVersion());
+      String version = component.getModuleVersion().getVersion();
+      info.setVersion(version);
+
+      // For snapshot dependencies, extract the timestamped version from the component ID
+      // Note: this is unsafe, is there a better way of obtaining the timestamp for an snapshot? I could not find any
+      if (component.getId().getClass().getName().contains("MavenUniqueSnapshotComponentIdentifier")) {
+        String snapshotVersion = version.substring(0, version.length() - "-SNAPSHOT".length());
+        // Extract timestamped version from format: group:artifact:version:timestamp-buildnum
+        String snapshotId = snapshotVersion + "-" + component.getId().toString().split(":")[3];
+        info.setVersionRevision(snapshotId);
+      }
     }
 
     info.addRequestedVersion(info.getVersion()); // add a new version that may have been requested
