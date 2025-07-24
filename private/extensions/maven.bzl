@@ -261,26 +261,36 @@ def _find_duplicate_artifacts_across_submodules(non_root_artifacts, root_maven_m
     return duplicates
 
 def _deduplicate_artifacts_with_root_priority(name, root_artifacts, non_root_artifacts):
-    """Deduplicate artifacts, giving priority to root module artifacts."""
+    """Deduplicate artifacts, giving priority to root module artifacts with force_version set."""
 
-    # Collect maven modules from root artifacts (handle mixed types)
-    root_maven_modules = []
+    # Collect maven modules from root artifacts that have force_version = True
+    root_maven_modules_with_force_version = []
+    for artifact in root_artifacts:
+        if getattr(artifact, "force_version", False):
+            maven_module = _get_maven_module(artifact)
+            if maven_module not in root_maven_modules_with_force_version:
+                root_maven_modules_with_force_version.append(maven_module)
+
+    # Collect all maven modules from root artifacts (for duplicate detection)
+    all_root_maven_modules = []
     for artifact in root_artifacts:
         maven_module = _get_maven_module(artifact)
-        if maven_module not in root_maven_modules:
-            root_maven_modules.append(maven_module)
+        if maven_module not in all_root_maven_modules:
+            all_root_maven_modules.append(maven_module)
 
     # Find duplicates across sub-modules that aren't overridden by root
     duplicate_submodule_artifacts = _find_duplicate_artifacts_across_submodules(
         non_root_artifacts,
-        root_maven_modules,
+        all_root_maven_modules,
     )
 
-    # Filter non-root artifacts that conflict with root artifacts
+    # Filter non-root artifacts that conflict with root artifacts that have force_version = True
     filtered_non_root = []
     for artifact in non_root_artifacts:
         maven_module = _get_maven_module(artifact)
-        if not maven_module in root_maven_modules:
+
+        # Only exclude if root module has force_version = True for this coordinate
+        if not maven_module in root_maven_modules_with_force_version:
             filtered_non_root.append(artifact)
 
     # Log detailed warning for duplicate sub-module artifacts
@@ -293,7 +303,7 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, non_root_art
                 warning_parts.append(maven_module)
 
         print("WARNING: The following coordinates from `%s` appear in multiple sub-modules with potentially different versions. " % name +
-              "Consider adding one of these to your root module to ensure consistent versions:\n\t%s" %
+              "Consider adding one of these to your root module to ensure consistent versions and setting `force_version = True` on that artifact:\n\t%s" %
               "\n\t".join(sorted(warning_parts)))
 
     return root_artifacts + filtered_non_root

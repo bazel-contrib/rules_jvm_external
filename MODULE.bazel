@@ -876,6 +876,11 @@ dev_maven.install(
     lock_file = "//tests/custom_maven_install:root_wins_install.json",
     resolver = "maven",
 )
+dev_maven.amend_artifact(
+    name = "root_wins",
+    coordinates = "io.netty:netty-buffer",
+    force_version = True,
+)
 
 bazel_dep(name = "root_wins_layer", version = "0.0.0", dev_dependency = True)
 local_path_override(
