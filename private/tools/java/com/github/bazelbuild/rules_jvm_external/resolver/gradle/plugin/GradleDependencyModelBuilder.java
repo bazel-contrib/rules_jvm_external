@@ -476,7 +476,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     List<Dependency> pomDependencies = new ArrayList<>();
     Map<Coordinates, Coordinates> moduleToRequestedCoordinates = new HashMap<>();
 
-    for (GradleResolvedDependency dependency : resolvedRoots) {
+    // We need to request POMs for all deps including transitive deps when we request
+    // a coordinate with explicit extension, as transitive poms aren't fetched by default
+    for (GradleResolvedDependency dependency : coordinatesResolvedDependencyMap.values()) {
       Coordinates coordinates =
           new Coordinates(
               dependency.getGroup() + ":" + dependency.getName() + ":" + dependency.getVersion());
