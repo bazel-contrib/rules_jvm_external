@@ -16,9 +16,9 @@ maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.artifact(
     artifact = "guava",
     exclusions = ["com.google.code.findbugs:jsr305"],
+    force_version = True,
     group = "com.google.guava",
     version = "31.1-jre",
-    force_version = True,
 )
 maven.install(
     artifacts = [

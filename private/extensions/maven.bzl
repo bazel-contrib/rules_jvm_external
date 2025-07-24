@@ -288,6 +288,7 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, non_root_art
     filtered_non_root = []
     for artifact in non_root_artifacts:
         maven_module = _get_maven_module(artifact)
+
         # Only exclude if root module has force_version = True for this coordinate
         if not maven_module in root_maven_modules_with_force_version:
             filtered_non_root.append(artifact)
@@ -302,7 +303,7 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, non_root_art
                 warning_parts.append(maven_module)
 
         print("WARNING: The following coordinates from `%s` appear in multiple sub-modules with potentially different versions. " % name +
-              "Consider adding one of these to your root module to ensure consistent versions:\n\t%s" %
+              "Consider adding one of these to your root module to ensure consistent versions and setting `force_version = True` on that artifact:\n\t%s" %
               "\n\t".join(sorted(warning_parts)))
 
     return root_artifacts + filtered_non_root
