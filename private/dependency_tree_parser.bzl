@@ -29,7 +29,8 @@ load(
     "strip_packaging_and_classifier_and_version",
     "to_repository_name",
 )
-load("//private/lib:coordinates.bzl", "unpack_coordinates")
+load("//private/lib:coordinates.bzl", "unpack_coordinates", "to_purl")
+load("//private/lib:urls.bzl", "scheme_and_host")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     http_file_repository = to_repository_name(artifact["coordinates"])
@@ -83,15 +84,6 @@ def _get_maven_url(artifact_urls):
 
     # Return anything
     return artifact_urls[0]
-
-def _create_purl(coordinates):
-    # https://github.com/package-url/purl-spec/blob/main/PURL-TYPES.rst#maven
-    #
-    # TODO(yannic): Support qualifiers (e.g., the maven repo).
-    if coordinates.version:
-        return "pkg:maven/{}/{}@{}".format(coordinates.group, coordinates.artifact, coordinates.version)
-    else:
-        return "pkg:maven/{}/{}".format(coordinates.group, coordinates.artifact)
 
 def _generate_target(
         repository_ctx,
@@ -264,7 +256,7 @@ package_metadata(
 )
 """.format(
             package_metadata_name = repr(package_metadata_name),
-            purl = repr(_create_purl(unpack_coordinates(coordinates))),
+            purl = repr(to_purl(coordinates, scheme_and_host(maven_url))),
         ))
     else:
         unpacked = unpack_coordinates(coordinates)
@@ -290,7 +282,7 @@ package_metadata(
             coordinates = repr(coordinates),
             name = repr(package_info_name),
             package_metadata_name = repr(package_metadata_name),
-            purl = repr(_create_purl(unpacked)),
+            purl = repr(to_purl(coordinates, scheme_and_host(url))),
             url = repr(url),
             version = repr(unpacked.version),
         ))
