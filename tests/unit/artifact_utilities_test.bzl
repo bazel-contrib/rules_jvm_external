@@ -3,7 +3,7 @@ load("//private:artifact_utilities.bzl", "deduplicate_and_sort_artifacts")
 
 def _empty_test_impl(ctx):
     env = unittest.begin(ctx)
-    asserts.equals(env, {"dependencies": []}, deduplicate_and_sort_artifacts({"dependencies": []}, [], [], False))
+    asserts.equals(env, {"dependencies": []}, deduplicate_and_sort_artifacts({"dependencies": []}, [], False))
     return unittest.end(env)
 
 empty_test = unittest.make(_empty_test_impl)
@@ -32,11 +32,10 @@ def _one_artifact_no_exclusions_test_impl(ctx):
         "exclusions": [],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, [], sorted_dep_tree["dependencies"][0]["exclusions"])
 
     return unittest.end(env)
 
@@ -73,11 +72,10 @@ def _one_artifact_no_exclusions_with_nulls_test_impl(ctx):
         "exclusions": [],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 2, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, [], sorted_dep_tree["dependencies"][0]["exclusions"])
     asserts.equals(env, "org.checkerframework:checker-qual:2.5.2", sorted_dep_tree["dependencies"][1]["coord"])
 
     return unittest.end(env)
@@ -115,11 +113,10 @@ def _one_artifact_duplicate_no_exclusions_test_impl(ctx):
         "exclusions": [],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, [], sorted_dep_tree["dependencies"][0]["exclusions"])
 
     return unittest.end(env)
 
@@ -170,11 +167,10 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
         ],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, ["*:*"], sorted_dep_tree["dependencies"][0]["exclusions"])
 
     dep_tree = {
         "conflict_resolution": {},
@@ -219,15 +215,10 @@ def _one_artifact_duplicate_matches_exclusions_test_impl(ctx):
         ],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(
-        env,
-        sorted_dep_tree["dependencies"][0]["exclusions"],
-        ["org.codehaus.mojo:animal-sniffer-annotations", "com.google.j2objc:j2objc-annotations"],
-    )
 
     return unittest.end(env)
 
@@ -284,11 +275,10 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
         {"group": "org.checkerframework", "artifact": "checker-qual"},
     ]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(env, ["*:*"], sorted_dep_tree["dependencies"][0]["exclusions"])
 
     dep_tree = {
         "conflict_resolution": {},
@@ -334,19 +324,10 @@ def _one_artifact_duplicate_with_global_exclusions_test_impl(ctx):
         ],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:27.0-jre", sorted_dep_tree["dependencies"][0]["coord"])
-    asserts.equals(
-        env,
-        [
-            "org.codehaus.mojo:animal-sniffer-annotations",
-            "com.google.j2objc:j2objc-annotations",
-            "org.checkerframework:checker-qual",
-        ],
-        sorted_dep_tree["dependencies"][0]["exclusions"],
-    )
 
     return unittest.end(env)
 
@@ -397,7 +378,7 @@ def _duplicate_with_and_without_dependencies_test_impl(ctx):
         "exclusions": [],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:31.1-jre", sorted_dep_tree["dependencies"][0]["coord"])
@@ -477,7 +458,7 @@ def _duplicate_with_and_without_dependencies_and_exclusions_test_impl(ctx):
         ],
     }]
 
-    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, [], False)
+    sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, artifacts, False)
 
     asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
     asserts.equals(env, "com.google.guava:guava:31.1-jre", sorted_dep_tree["dependencies"][0]["coord"])

@@ -1,4 +1,4 @@
-load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
 load("@rules_java//java:defs.bzl", "java_library")
 load("//:defs.bzl", "artifact")
 load(":is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
