@@ -29,7 +29,8 @@ load(
     "strip_packaging_and_classifier_and_version",
     "to_repository_name",
 )
-load("//private/lib:coordinates.bzl", "unpack_coordinates")
+load("//private/lib:coordinates.bzl", "unpack_coordinates", "to_purl")
+load("//private/lib:urls.bzl", "scheme_and_host")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
     http_file_repository = to_repository_name(artifact["coordinates"])
@@ -244,12 +245,26 @@ copy_file(
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
             target_import_string.append("\tmaven_url = \"%s\"," % maven_url)
+
+        package_metadata_name = "%s_package_metadata" % target_label
+        target_import_string.append("\tapplicable_licenses = [\":{}\"],".format(package_metadata_name))
+        to_return.append("""
+package_metadata(
+    name = {package_metadata_name},
+    purl = {purl},
+    visibility = ["//visibility:public"],
+)
+""".format(
+            package_metadata_name = repr(package_metadata_name),
+            purl = repr(to_purl(coordinates, scheme_and_host(maven_url))),
+        ))
     else:
         unpacked = unpack_coordinates(coordinates)
         url = maven_url if len(artifact["urls"]) else None
 
         package_info_name = "%s_package_info" % target_label
-        target_import_string.append("\tapplicable_licenses = [\":%s\"]," % package_info_name)
+        package_metadata_name = "%s_package_metadata" % target_label
+        target_import_string.append("\tapplicable_licenses = [\n\t\t\":{}\",\n\t\t\":{}\",\n\t],".format(package_info_name, package_metadata_name))
         to_return.append("""
 package_info(
     name = {name},
@@ -257,9 +272,17 @@ package_info(
     package_url = {url},
     package_version = {version},
 )
+
+package_metadata(
+    name = {package_metadata_name},
+    purl = {purl},
+    visibility = ["//visibility:public"],
+)
 """.format(
             coordinates = repr(coordinates),
             name = repr(package_info_name),
+            package_metadata_name = repr(package_metadata_name),
+            purl = repr(to_purl(coordinates, scheme_and_host(url))),
             url = repr(url),
             version = repr(unpacked.version),
         ))

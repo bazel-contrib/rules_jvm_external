@@ -17,6 +17,10 @@ bazel_dep(
     version = "1.7.1",
 )
 bazel_dep(
+    name = "package_metadata",
+    version = "0.0.3",
+)
+bazel_dep(
     name = "platforms",
     version = "0.0.10",
 )
