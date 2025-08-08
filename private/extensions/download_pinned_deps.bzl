@@ -37,7 +37,9 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
 
         http_file(
             name = http_file_repository_name,
-            sha256 = artifact["sha256"],
+            # sha256 is optional: non-versioned snapshots may not have it
+            # See: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+            sha256 = artifact.get("sha256"),
             urls = urls,
             # https://github.com/bazelbuild/rules_jvm_external/issues/1028
             downloaded_file_path = "v1/%s" % artifact["file"] if artifact["file"] else artifact["file"],
