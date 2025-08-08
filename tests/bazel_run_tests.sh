@@ -339,6 +339,18 @@ function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
   expect_log "@regression_testing_gradle//:com_squareup_okio_okio_jvm"
 }
 
+function test_gradle_resolves_correctly_a_versioned_snapshot {
+  bazel query @regression_testing_gradle//:com_google_guava_guava >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_gradle//:com_google_guava_guava"
+}
+
+function test_gradle_resolves_correctly_a_non_versioned_snapshot {
+  bazel query @regression_testing_gradle//:org_seleniumhq_selenium_selenium_java >> "$TEST_LOG" 2>&1
+
+  expect_log "@regression_testing_gradle//:org_seleniumhq_selenium_selenium_java"
+}
+
 function test_gradle_versions_catalog {
   # When source files are requested and we have a bug, this will fail
   bazel build @from_files//:all
@@ -367,8 +379,10 @@ TESTS=(
   "test_transitive_dependency_with_type_of_pom"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
-  # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
+  "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
+  "test_gradle_resolves_correctly_a_versioned_snapshot"
+  "test_gradle_resolves_correctly_a_non_versioned_snapshot"
   "test_gradle_versions_catalog"
 )
 
