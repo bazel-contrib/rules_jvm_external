@@ -84,6 +84,7 @@ public class Downloader {
       return result;
     }
 
+
     // Are we dealing with a packaging dep? Download the `pom.xml` and check
     String originalTarget = coords.toRepoPath();
     String pomName = String.format("%s-%s.pom", coords.getArtifactId(), coords.getVersion());
