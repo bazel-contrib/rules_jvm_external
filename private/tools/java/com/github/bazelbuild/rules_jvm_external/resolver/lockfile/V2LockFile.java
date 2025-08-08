@@ -231,7 +231,15 @@ public class V2LockFile {
           @SuppressWarnings("unchecked")
           Map<String, String> shasums =
               (Map<String, String>) artifactValue.computeIfAbsent("shasums", k -> new TreeMap<>());
-          info.getSha256().ifPresent(sha -> shasums.put(classifier, sha));
+          
+          // For non-versioned snapshots, their content can change any moment, so we need to avoid storing the SHA256 
+          boolean isNonVersionedSnapshot = coords.getVersion().endsWith("-SNAPSHOT") && coords.getVersionRevision() == null;
+          if (isNonVersionedSnapshot) {
+            // Classifier indicates the files associated to the dependency: store it even if the sha is not present
+            shasums.put(classifier, null);
+          } else {
+            info.getSha256().ifPresent(sha -> shasums.put(classifier, sha));
+          }
 
           info.getRepositories()
               .forEach(
