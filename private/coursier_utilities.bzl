@@ -58,8 +58,8 @@ def to_repository_name(coords):
 
     return escape(to_return)
 
-def _to_legacy_format(coord, include_version):
-    unpacked = unpack_coordinates(coord)
+def _to_legacy_format(coord, include_version, is_test = False):
+    unpacked = unpack_coordinates(coord, is_test = is_test)
 
     to_return = "%s:%s" % (unpacked.group, unpacked.artifact)
 
@@ -77,7 +77,7 @@ def _to_legacy_format(coord, include_version):
 
     return to_return
 
-def strip_packaging_and_classifier(coord):
+def strip_packaging_and_classifier(coord, is_test = False):
     # Strip some packaging and classifier values.
     #
     # We are expected to return one of:
@@ -86,10 +86,10 @@ def strip_packaging_and_classifier(coord):
     # groupId:artifactId:packaging:version
     # groupId:artifactId:packaging:classifier:version
 
-    return _to_legacy_format(coord, True)
+    return _to_legacy_format(coord, True, is_test = is_test)
 
-def strip_packaging_and_classifier_and_version(coord):
-    return _to_legacy_format(coord, False)
+def strip_packaging_and_classifier_and_version(coord, is_test = False):
+    return _to_legacy_format(coord, False, is_test = is_test)
 
 def match_group_and_artifact(source, target):
     source_coord = unpack_coordinates(source)

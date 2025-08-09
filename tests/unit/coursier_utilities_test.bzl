@@ -52,7 +52,7 @@ def _strip_packaging_and_classifier_test_impl(ctx):
     asserts.equals(
         env,
         "groupId:artifactId:1.2.3",
-        strip_packaging_and_classifier("groupId:artifactId:bundle:1.2.3"),
+        strip_packaging_and_classifier("groupId:artifactId:bundle:1.2.3", is_test = True),
     )
     asserts.equals(
         env,
@@ -75,7 +75,7 @@ def _strip_packaging_and_classifier_and_version_test_impl(ctx):
     asserts.equals(
         env,
         "groupId:artifactId",
-        strip_packaging_and_classifier_and_version("groupId:artifactId:bundle:1.2.3"),
+        strip_packaging_and_classifier_and_version("groupId:artifactId:bundle:1.2.3", is_test = True),
     )
     asserts.equals(
         env,
