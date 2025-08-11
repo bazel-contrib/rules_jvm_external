@@ -114,7 +114,7 @@ def generate_pom(
         # Bazel `exports` -> Maven `compile`
         # For boms, it seems the best practice is to use the default `compile` scope, unless the dependency is a BOM itself.
         new_scope = "compile" if dep in versioned_export_dep_coordinates_set or is_bom else "runtime"
-        if unpacked.packaging == "pom":
+        if unpacked.packaging == "pom" and is_bom:
             new_scope = "import"
 
         deps.append(format_dep(unpacked, scope = new_scope, indent = indent, include_version = include_version))
