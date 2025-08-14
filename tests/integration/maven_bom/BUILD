@@ -1,5 +1,5 @@
+load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("//:defs.bzl", "artifact", "java_export", "maven_bom")
 
 maven_bom(

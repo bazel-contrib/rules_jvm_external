@@ -7,6 +7,8 @@ MavenInfo = provider(
         "maven_deps": "Depset of first-order maven dependencies",
         "maven_export_deps": "Depset of first-order maven dependency exports",
         "as_maven_dep": "Depset of this project if used as a maven dependency",
+        "exclusions": "List of exclusions for this artifact in 'group:artifact' format",
+        "all_infos": "Depset of all MavenInfo instances for this target and its dependencies",
 
         # Fields used for generating artifacts
         "artifact_infos": "Depset of JavaInfo instances of targets to include in the maven artifact",
@@ -31,6 +33,8 @@ _EMPTY_INFO = MavenInfo(
     maven_deps = depset(),
     as_maven_dep = depset(),
     maven_export_deps = depset(),
+    exclusions = [],
+    all_infos = depset(),
     artifact_infos = depset(),
     dep_infos = depset(),
     label_to_javainfo = {},
@@ -42,6 +46,8 @@ _STOPPED_INFO = MavenInfo(
     maven_deps = depset(),
     as_maven_dep = depset(),
     maven_export_deps = depset(),
+    exclusions = [],
+    all_infos = depset(),
     artifact_infos = depset(),
     dep_infos = depset(),
     label_to_javainfo = {},
@@ -49,6 +55,7 @@ _STOPPED_INFO = MavenInfo(
 )
 
 _MAVEN_PREFIX = "maven_coordinates="
+_EXCLUSION_PREFIX = "maven_exclusion="
 
 _STOP_TAGS = [
     "maven:compile-only",
@@ -73,6 +80,16 @@ def read_coordinates(tags):
         return coordinates[0]
 
     return None
+
+def read_exclusions(tags):
+    """Read maven exclusions from tags in the format maven_exclusion=group:artifact"""
+    exclusions = []
+    for tag in tags:
+        if tag.startswith(_EXCLUSION_PREFIX):
+            exclusion = tag[len(_EXCLUSION_PREFIX):]
+            if exclusion:
+                exclusions.append(exclusion)
+    return exclusions
 
 _ASPECT_ATTRS = [
     "deps",
@@ -155,6 +172,7 @@ def _has_maven_deps_impl(target, ctx):
             return [_STOPPED_INFO]
 
     coordinates = read_coordinates(ctx.rule.attr.tags)
+    exclusions = read_exclusions(ctx.rule.attr.tags)
 
     gathered = _gathered(
         all_infos = [],
@@ -195,9 +213,11 @@ def _has_maven_deps_impl(target, ctx):
 
     info = MavenInfo(
         coordinates = coordinates,
+        all_infos = depset(direct = all_infos, transitive = [i.all_infos for i in all_infos]),
         maven_deps = maven_deps,
         maven_export_deps = maven_export_deps,
         as_maven_dep = depset([coordinates]) if coordinates else maven_deps,
+        exclusions = exclusions,
         artifact_infos = depset(direct = artifact_infos),
         dep_infos = depset(direct = dep_infos, transitive = [i.dep_infos for i in all_infos]),
         label_to_javainfo = label_to_javainfo,

@@ -42,6 +42,11 @@ bazel_dep(
 )
 
 bazel_dep(
+    name = "aspect_bazel_lib",
+    version = "2.20.0",
+    dev_dependency = True,
+)
+bazel_dep(
     name = "stardoc",
     version = "0.7.0",
     dev_dependency = True,
@@ -862,6 +867,54 @@ dev_maven.install(
         "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
     ],
 )
+dev_maven.install(
+    name = "pom_exclusion_testing_coursier",
+    artifacts = [],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_coursier_install.json",
+    resolver = "coursier",
+)
+dev_maven.artifact(
+    name = "pom_exclusion_testing_coursier",
+    artifact = "guava",
+    exclusions = ["com.google.errorprone:error_prone_annotations"],
+    group = "com.google.guava",
+    version = "31.1-jre",
+)
+dev_maven.install(
+    name = "pom_exclusion_testing_maven",
+    artifacts = [],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
+    resolver = "maven",
+)
+dev_maven.artifact(
+    name = "pom_exclusion_testing_maven",
+    artifact = "guava",
+    exclusions = ["com.google.errorprone:error_prone_annotations"],
+    group = "com.google.guava",
+    version = "31.1-jre",
+)
+dev_maven.install(
+    name = "pom_exclusion_testing_gradle",
+    artifacts = [],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    lock_file = "//tests/integration/pom_file:pom_exclusion_testing_gradle_install.json",
+    resolver = "gradle",
+)
+dev_maven.artifact(
+    name = "pom_exclusion_testing_gradle",
+    artifact = "guava",
+    exclusions = ["com.google.errorprone:error_prone_annotations"],
+    group = "com.google.guava",
+    version = "31.1-jre",
+)
 
 # Ensure that if a root module defines an artifact, the version from the root
 # wins when artifact resolution completes.
@@ -1000,6 +1053,11 @@ use_repo(
     "unpinned_regression_testing_coursier",
     "unpinned_regression_testing_gradle",
     "unpinned_regression_testing_maven",
+
+    # exclusion testing
+    "pom_exclusion_testing_coursier",
+    "pom_exclusion_testing_gradle",
+    "pom_exclusion_testing_maven",
 
     # Back to the testing repos
     "root_module_can_override",
