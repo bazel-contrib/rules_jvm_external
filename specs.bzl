@@ -203,6 +203,12 @@ def _exclusion_spec_to_json(exclusion_spec):
     """
     return "{ \"group\": \"" + exclusion_spec["group"] + "\", \"artifact\": \"" + exclusion_spec["artifact"] + "\" }"
 
+def _exclusion_spec_list_to_json(exclusion_spec):
+    """
+    Given a list of artifact exclusion spec, returns its json serialization.
+    """
+    return "[" + ", ".join([_exclusion_spec_to_json(spec) for spec in exclusion_spec]) + "]"
+
 def _override_license_types_spec_to_json(override_license_types_spec):
     """
     Given an override license types spec, returns the json serialization of the object.
@@ -239,6 +245,7 @@ json = struct(
     write_repository_credentials_spec = _repository_credentials_spec_to_json,
     write_repository_spec = _repository_spec_to_json,
     write_exclusion_spec = _exclusion_spec_to_json,
+    write_exclusion_spec_list = _exclusion_spec_list_to_json,
     write_override_license_types_spec = _override_license_types_spec_to_json,
     write_artifact_spec = _artifact_spec_to_json,
 )

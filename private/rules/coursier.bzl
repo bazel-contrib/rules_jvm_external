@@ -656,6 +656,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             for a in artifacts
             if a.get("testonly", False)
         },
+        exclusions = {
+            a["group"] + ":" + a["artifact"]: [
+                e["group"] + ":" + e["artifact"]
+                for e in a.get("exclusions", [])
+            ]
+            for a in artifacts
+        },
         override_targets = repository_ctx.attr.override_targets,
         skip_maven_local_dependencies = False,
     )
@@ -1312,6 +1319,13 @@ def _coursier_fetch_impl(repository_ctx):
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
             if a.get("testonly", False)
+        },
+        exclusions = {
+            a["group"] + ":" + a["artifact"]: [
+                e["group"] + ":" + e["artifact"]
+                for e in a.get("exclusions", [])
+            ]
+            for a in artifacts
         },
         override_targets = repository_ctx.attr.override_targets,
         # Skip maven local dependencies if generating the unpinned repository

@@ -57,6 +57,40 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_testing/releases/download/v0.6.0/rules_testing-v0.6.0.tar.gz",
 )
 
+http_archive(
+    name = "aspect_bazel_lib",
+    sha256 = "3522895fa13b97e8b27e3b642045682aa4233ae1a6b278aad6a3b483501dc9f2",
+    strip_prefix = "bazel-lib-2.20.0",
+    url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v2.20.0/bazel-lib-v2.20.0.tar.gz",
+)
+
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies", "aspect_bazel_lib_register_toolchains")
+
+# Required bazel-lib dependencies
+
+aspect_bazel_lib_dependencies()
+
+# Required rules_shell dependencies
+load("@rules_shell//shell:repositories.bzl", "rules_shell_dependencies", "rules_shell_toolchains")
+
+rules_shell_dependencies()
+
+rules_shell_toolchains()
+
+# Register bazel-lib toolchains
+
+aspect_bazel_lib_register_toolchains()
+
+# Create the host platform repository transitively required by bazel-lib
+
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("@platforms//host:extension.bzl", "host_platform_repo")
+
+maybe(
+    host_platform_repo,
+    name = "host_platform",
+)
+
 # Stardoc also depends on skydoc_repositories, rules_sass, rules_nodejs, but our
 # usage of Stardoc (scripts/generate_docs) doesn't require any of these
 # dependencies. So, we omit them to keep the WORKSPACE file simpler.
@@ -1052,5 +1086,82 @@ maven_install(
     artifacts = [
         "org.junit.jupiter:junit-jupiter-api:5.12.2",
     ],
-    repositories = ["https://repo1.maven.org/maven2"],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+maven_install(
+    name = "pom_exclusion_testing_coursier",
+    artifacts = [
+        maven.artifact(
+            artifact = "guava",
+            exclusions = [
+                maven.exclusion(
+                    artifact = "error_prone_annotations",
+                    group = "com.google.errorprone",
+                ),
+            ],
+            group = "com.google.guava",
+            version = "31.1-jre",
+        ),
+    ],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    maven_install_json = "//tests/integration/pom_file:pom_exclusion_testing_coursier_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "coursier",
+)
+
+maven_install(
+    name = "pom_exclusion_testing_maven",
+    artifacts = [
+        maven.artifact(
+            artifact = "guava",
+            exclusions = [
+                maven.exclusion(
+                    artifact = "error_prone_annotations",
+                    group = "com.google.errorprone",
+                ),
+            ],
+            group = "com.google.guava",
+            version = "31.1-jre",
+        ),
+    ],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    maven_install_json = "//tests/integration/pom_file:pom_exclusion_testing_maven_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "maven",
+)
+
+maven_install(
+    name = "pom_exclusion_testing_gradle",
+    artifacts = [
+        maven.artifact(
+            artifact = "guava",
+            exclusions = [
+                maven.exclusion(
+                    artifact = "error_prone_annotations",
+                    group = "com.google.errorprone",
+                ),
+            ],
+            group = "com.google.guava",
+            version = "31.1-jre",
+        ),
+    ],
+    excluded_artifacts = [
+        "log4j:log4j",
+    ],
+    maven_install_json = "//tests/integration/pom_file:pom_exclusion_testing_gradle_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "gradle",
 )

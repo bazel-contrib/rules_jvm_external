@@ -194,6 +194,25 @@ def _exclusion_spec_to_json_test_impl(ctx):
 
 exclusion_spec_to_json_test = unittest.make(_exclusion_spec_to_json_test_impl)
 
+def _exclusion_spec_list_to_json_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "[" +
+        "{ \"group\": \"org.eclipse.aether\", \"artifact\": \"aether-api\" }, " +
+        "{ \"group\": \"org.eclipse.aether\", \"artifact\": \"aether-util\" }" +
+        "]",
+        json.write_exclusion_spec_list(
+            [
+                {"group": "org.eclipse.aether", "artifact": "aether-api"},
+                {"group": "org.eclipse.aether", "artifact": "aether-util"},
+            ],
+        ),
+    )
+    return unittest.end(env)
+
+exclusion_spec_list_to_json_test = unittest.make(_exclusion_spec_list_to_json_test_impl)
+
 def _override_license_types_to_json_test_impl(ctx):
     env = unittest.begin(ctx)
     asserts.equals(
@@ -394,6 +413,7 @@ def artifact_specs_test_suite():
         repository_credentials_spec_to_json_test,
         repository_spec_to_json_test,
         exclusion_spec_to_json_test,
+        exclusion_spec_list_to_json_test,
         override_license_types_spec_to_json_test,
         artifact_spec_to_json_test,
     )

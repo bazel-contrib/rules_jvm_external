@@ -48,7 +48,7 @@ Generate a javadoc from all the `deps`
 <pre>
 load("@rules_jvm_external//:defs.bzl", "java_export")
 
-java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-manifest_entries">manifest_entries</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>,
+java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-manifest_entries">manifest_entries</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>, <a href="#java_export-exclusions">exclusions</a>,
             <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-allowed_duplicate_names">allowed_duplicate_names</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-classifier_artifacts">classifier_artifacts</a>,
             <a href="#java_export-kwargs">kwargs</a>)
 </pre>
@@ -106,6 +106,7 @@ Generated rules:
 | <a id="java_export-manifest_entries"></a>manifest_entries |  A dict of `String: String` containing additional manifest entry attributes and values.   |  `{}` |
 | <a id="java_export-deploy_env"></a>deploy_env |  A list of labels of Java targets to exclude from the generated jar. [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not* supported.   |  `[]` |
 | <a id="java_export-excluded_workspaces"></a>excluded_workspaces |  A dict of strings representing the workspace names of artifacts that should not be included in the maven jar to a `Label` pointing to the dependency that workspace should be replaced by, or `None` if the exclusion shouldn't be replaced with an extra dependency.   |  `{"com_google_protobuf": None, "protobuf": None}` |
+| <a id="java_export-exclusions"></a>exclusions |  Mapping of target labels to a list of exclusions to be added to the POM file. Each label must correspond to a direct maven dependency of this target. Each exclusion is represented as a `group:artifact` string.   |  `{}` |
 | <a id="java_export-pom_template"></a>pom_template |  The template to be used for the pom.xml file.   |  `None` |
 | <a id="java_export-allowed_duplicate_names"></a>allowed_duplicate_names |  A list of `String` containing patterns for files that can be included more than once in the jar file. Examples include `["log4j.properties"]`   |  `None` |
 | <a id="java_export-visibility"></a>visibility |  The visibility of the target   |  `None` |
