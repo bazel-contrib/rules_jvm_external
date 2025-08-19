@@ -236,13 +236,6 @@ public class MavenPublisher {
     MavenSigning.SigningMethod signingMethod = signingMetadata.signingMethod;
     if (signingMethod.equals(MavenSigning.SigningMethod.GPG)) {
       uploads.add(upload(String.format("%s%s.asc", base, append), credentials, gpg_sign(item)));
-      uploads.add(upload(String.format("%s%s.md5.asc", base, append), credentials, gpg_sign(md5)));
-      uploads.add(
-          upload(String.format("%s%s.sha1.asc", base, append), credentials, gpg_sign(sha1)));
-      uploads.add(
-          upload(String.format("%s%s.sha256.asc", base, append), credentials, gpg_sign(sha256)));
-      uploads.add(
-          upload(String.format("%s%s.sha512.asc", base, append), credentials, gpg_sign(sha512)));
     } else if (signingMethod.equals(MavenSigning.SigningMethod.PGP)) {
       uploads.add(
           upload(
@@ -250,30 +243,6 @@ public class MavenPublisher {
               credentials,
               in_memory_pgp_sign(
                   item, signingMetadata.signingKey, signingMetadata.signingPassword)));
-      uploads.add(
-          upload(
-              String.format("%s%s.md5.asc", base, append),
-              credentials,
-              in_memory_pgp_sign(
-                  md5, signingMetadata.signingKey, signingMetadata.signingPassword)));
-      uploads.add(
-          upload(
-              String.format("%s%s.sha1.asc", base, append),
-              credentials,
-              in_memory_pgp_sign(
-                  sha1, signingMetadata.signingKey, signingMetadata.signingPassword)));
-      uploads.add(
-          upload(
-              String.format("%s%s.sha256.asc", base, append),
-              credentials,
-              in_memory_pgp_sign(
-                  sha256, signingMetadata.signingKey, signingMetadata.signingPassword)));
-      uploads.add(
-          upload(
-              String.format("%s%s.sha512.asc", base, append),
-              credentials,
-              in_memory_pgp_sign(
-                  sha512, signingMetadata.signingKey, signingMetadata.signingPassword)));
     }
 
     return CompletableFuture.allOf(uploads.toArray(new CompletableFuture<?>[0]));
