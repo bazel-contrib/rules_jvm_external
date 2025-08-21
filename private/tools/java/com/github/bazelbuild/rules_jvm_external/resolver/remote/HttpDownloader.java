@@ -23,6 +23,9 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.AnsiConsoleListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.PlainConsoleListener;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.Authenticator;
@@ -39,6 +42,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -84,6 +88,21 @@ public class HttpDownloader {
         };
     builder = builder.authenticator(authenticator);
     this.client = builder.build();
+  }
+
+  public HttpDownloader(Netrc netrc) {
+    this(netrc, defaultEventListener());
+  }
+
+  public static EventListener defaultEventListener() {
+    boolean termAvailable = !Objects.equals(System.getenv().get("TERM"), "dumb");
+    boolean consoleAvailable = System.console() != null;
+    if (System.getenv("RJE_VERBOSE") != null) {
+      return new PlainConsoleListener();
+    } else if (termAvailable && consoleAvailable) {
+      return new AnsiConsoleListener();
+    }
+    return new NullListener();
   }
 
   public Path get(URI uriToGet) {

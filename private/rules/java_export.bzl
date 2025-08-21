@@ -19,6 +19,7 @@ def java_export(
         tags = [],
         testonly = None,
         classifier_artifacts = {},
+        publish_maven_metadata = False,
         **kwargs):
     """Extends `java_library` to allow maven artifacts to be uploaded.
 
@@ -92,6 +93,8 @@ def java_export(
         end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
         `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
+      publish_maven_metadata: Whether to publish a maven-metadata.xml to remote repository. Some repositories
+            (like AWS CodeArtifact) require the client to publish this file. It is disabled by default.
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
     """
@@ -137,6 +140,7 @@ def java_export(
         testonly = testonly,
         javadocopts = javadocopts,
         classifier_artifacts = classifier_artifacts,
+        publish_maven_metadata = publish_maven_metadata,
         doc_deps = doc_deps,
         doc_url = doc_url,
         doc_resources = doc_resources,
@@ -167,6 +171,7 @@ def maven_export(
         doc_resources = [],
         doc_excluded_packages = [],
         doc_included_packages = [],
+        publish_maven_metadata = False,
         toolchains = None):
     """
     All arguments are the same as java_export with the addition of:
@@ -237,6 +242,8 @@ def maven_export(
         end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
         `com.example` will include only the files directly in `com.example`
       visibility: The visibility of the target
+      publish_maven_metadata: Whether to publish a maven-metadata.xml to remote repository. Some repositories
+            (like AWS CodeArtifact) require the client to publish this file. It is disabled by default.
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
         and so may contain any valid parameter for that rule.
     """
@@ -350,6 +357,7 @@ def maven_export(
         tags = tags,
         testonly = testonly,
         toolchains = toolchains,
+        publish_maven_metadata = publish_maven_metadata,
     )
 
     # We may want to aggregate several `java_export` targets into a single Maven BOM POM
