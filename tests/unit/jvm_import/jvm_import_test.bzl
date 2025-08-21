@@ -55,13 +55,13 @@ def _package_metadata_info_propagator_impl(target, ctx):
     for t in direct:
         if PackageMetadataInfo not in t:
             continue
-        
+
         return [
             PackageMetadataInfoCollectionInfo(
                 info = t[PackageMetadataInfo],
             ),
         ]
-    
+
     return []
 
 package_metadata_info_propagator = aspect(
@@ -100,7 +100,7 @@ def _does_jvm_import_have_applicable_licenses_impl(ctx):
     asserts.true(env, PackageMetadataInfoCollectionInfo in ctx.attr.src)
     info = ctx.attr.src[PackageMetadataInfoCollectionInfo]
     asserts.true(env, info.info)
-    
+
     return analysistest.end(env)
 
 does_jvm_import_have_applicable_licenses_test = analysistest.make(

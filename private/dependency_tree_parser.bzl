@@ -29,7 +29,7 @@ load(
     "strip_packaging_and_classifier_and_version",
     "to_repository_name",
 )
-load("//private/lib:coordinates.bzl", "unpack_coordinates", "to_purl")
+load("//private/lib:coordinates.bzl", "to_purl", "unpack_coordinates")
 load("//private/lib:urls.bzl", "scheme_and_host")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
