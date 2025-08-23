@@ -167,7 +167,8 @@ def maven_export(
         doc_resources = [],
         doc_excluded_packages = [],
         doc_included_packages = [],
-        toolchains = None):
+        toolchains = None,
+        target_compatible_with = None):
     """
     All arguments are the same as java_export with the addition of:
       lib_name: Name of the library that has been built if a library is being exported.
@@ -271,6 +272,7 @@ def maven_export(
             tags = tags + maven_coordinates_tags,
             testonly = testonly,
             toolchains = toolchains,
+            target_compatible_with = target_compatible_with,
         )
 
         native.filegroup(
@@ -282,6 +284,7 @@ def maven_export(
             visibility = visibility,
             tags = tags,
             testonly = testonly,
+            target_compatible_with = target_compatible_with,
         )
 
         if not "no-sources" in tags:
@@ -294,6 +297,7 @@ def maven_export(
                 visibility = visibility,
                 tags = tags,
                 testonly = testonly,
+                target_compatible_with = target_compatible_with,
             )
             classifier_artifacts.setdefault("sources", ":%s-maven-source" % name)
 
@@ -316,6 +320,7 @@ def maven_export(
             visibility = visibility,
             tags = tags,
             testonly = testonly,
+            target_compatible_with = target_compatible_with,
             toolchains = toolchains,
         )
         classifier_artifacts.setdefault("javadoc", docs_jar)
@@ -334,6 +339,7 @@ def maven_export(
         pom_template = pom_template,
         additional_dependencies = additional_dependencies,
         visibility = visibility,
+        target_compatible_with = target_compatible_with,
         tags = tags,
         testonly = testonly,
         toolchains = toolchains,
@@ -347,6 +353,7 @@ def maven_export(
         artifact = (":%s-maven-artifact" % name) if lib_name else target,
         classifier_artifacts = {v: k for (k, v) in classifier_artifacts.items() if v},
         visibility = visibility,
+        target_compatible_with = target_compatible_with,
         tags = tags,
         testonly = testonly,
         toolchains = toolchains,
@@ -366,6 +373,7 @@ def maven_export(
             tags = tags,
             visibility = visibility,
             toolchains = toolchains,
+            target_compatible_with = target_compatible_with,
         )
 
         # Finally, alias the primary output
@@ -375,4 +383,5 @@ def maven_export(
             visibility = visibility,
             tags = tags,
             testonly = testonly,
+            target_compatible_with = target_compatible_with,
         )
