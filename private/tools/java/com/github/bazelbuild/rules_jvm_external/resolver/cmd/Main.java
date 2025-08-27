@@ -30,10 +30,8 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.HttpDownloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.UriNotFoundException;
-import com.github.bazelbuild.rules_jvm_external.resolver.ui.AnsiConsoleListener;
-import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
-import com.github.bazelbuild.rules_jvm_external.resolver.ui.PlainConsoleListener;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.graph.Graph;
@@ -49,7 +47,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -63,7 +60,7 @@ public class Main {
 
   public static void main(String[] args) throws IOException {
     Set<DependencyInfo> infos;
-    try (EventListener listener = createEventListener()) {
+    try (EventListener listener = HttpDownloader.defaultEventListener()) {
       ResolverConfig config = new ResolverConfig(listener, args);
 
       ResolutionRequest request = config.getResolutionRequest();
@@ -81,17 +78,6 @@ public class Main {
       e.printStackTrace();
       System.exit(1);
     }
-  }
-
-  private static EventListener createEventListener() {
-    boolean termAvailable = !Objects.equals(System.getenv().get("TERM"), "dumb");
-    boolean consoleAvailable = System.console() != null;
-    if (System.getenv("RJE_VERBOSE") != null) {
-      return new PlainConsoleListener();
-    } else if (termAvailable && consoleAvailable) {
-      return new AnsiConsoleListener();
-    }
-    return new NullListener();
   }
 
   private static Set<DependencyInfo> fulfillDependencyInfos(

@@ -50,7 +50,7 @@ load("@rules_jvm_external//:defs.bzl", "java_export")
 
 java_export(<a href="#java_export-name">name</a>, <a href="#java_export-maven_coordinates">maven_coordinates</a>, <a href="#java_export-manifest_entries">manifest_entries</a>, <a href="#java_export-deploy_env">deploy_env</a>, <a href="#java_export-excluded_workspaces">excluded_workspaces</a>, <a href="#java_export-exclusions">exclusions</a>,
             <a href="#java_export-pom_template">pom_template</a>, <a href="#java_export-allowed_duplicate_names">allowed_duplicate_names</a>, <a href="#java_export-visibility">visibility</a>, <a href="#java_export-tags">tags</a>, <a href="#java_export-testonly">testonly</a>, <a href="#java_export-classifier_artifacts">classifier_artifacts</a>,
-            <a href="#java_export-kwargs">kwargs</a>)
+            <a href="#java_export-publish_maven_metadata">publish_maven_metadata</a>, <a href="#java_export-kwargs">kwargs</a>)
 </pre>
 
 Extends `java_library` to allow maven artifacts to be uploaded.
@@ -113,6 +113,7 @@ Generated rules:
 | <a id="java_export-tags"></a>tags |  <p align="center"> - </p>   |  `[]` |
 | <a id="java_export-testonly"></a>testonly |  <p align="center"> - </p>   |  `None` |
 | <a id="java_export-classifier_artifacts"></a>classifier_artifacts |  A dict of classifier -> artifact of additional artifacts to publish to Maven.   |  `{}` |
+| <a id="java_export-publish_maven_metadata"></a>publish_maven_metadata |  Whether to publish a maven-metadata.xml to remote repository. Some repositories (like AWS CodeArtifact) require the client to publish this file. It is disabled by default.   |  `False` |
 | <a id="java_export-kwargs"></a>kwargs |  <p align="center"> - </p>   |  none |
 
 
