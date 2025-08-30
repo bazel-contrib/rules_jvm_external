@@ -5,7 +5,6 @@ java_library(
     name = "remote",
     srcs = glob(["*.java"]),
     visibility = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:__pkg__",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:__pkg__",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__",
         "//tests/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__",
