@@ -84,7 +84,11 @@ public class Downloader {
       return result;
     }
 
-    String pom = coords.setExtension("pom").toRepoPath();
+    // Are we dealing with a packaging dep? Download the `pom.xml` and check
+    String originalTarget = coords.toRepoPath();
+    String pomName = String.format("%s-%s.pom", coords.getArtifactId(), coords.getVersion());
+    String pom = Paths.get(originalTarget).getParent().resolve(pomName).toString();
+
     DownloadResult pomResult = performDownload(coords, pom);
     if (pomResult == null) {
       System.out.println(
