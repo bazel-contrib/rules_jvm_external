@@ -21,6 +21,7 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
+import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -28,10 +29,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,6 +51,10 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /** Reads the output of the coursier resolve and generate a v2 lock file */
 public class LockFileConverter {
@@ -139,7 +147,48 @@ public class LockFileConverter {
     return Set.copyOf(conflicts);
   }
 
+  // Not all mirror URLs will exist and we want to avoid spurious 404s
+  // in builds with the v2 lockfile structure, so we need to check the mirror
+  // url actually exists. Ideally mirror url is confirmed to exist already but
+  // with the v1 lockfile it's not necessarily the case as all URLs are included
+  // and it worked before because it was a list and http_file would always download the
+  // first/"primary" URL whereas there's no ordering of the repositories/URLs in v2 lockfile
+  private boolean doesMirrorUrlExist(Netrc netrc, String mirrorUrl) {
+    // We ideally use the HttpDownloader implementation in private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote/HttpDownloader.java
+    // but we can't use the deploy jar for the LockFileConverter with it and the embedded JDK because
+    // the java.net.http package isn't available out of the box with it.
+    try (CloseableHttpClient httpClient = HttpClients.createDefault(); ) {
+      URI uri = new URI(mirrorUrl);
+      String host = uri.getHost();
+
+      HttpHead head = new HttpHead(uri);
+
+      // Add Basic Auth if .netrc has credentials for this host
+      Netrc.Credential cred = netrc.getCredential(host);
+      if (cred != null && cred.login() != null && !cred.login().isEmpty()) {
+        String userpass = cred.login() + ":" + (cred.password() == null ? "" : cred.password());
+        String encoded =
+            Base64.getEncoder().encodeToString(userpass.getBytes(StandardCharsets.UTF_8));
+        head.addHeader("Authorization", "Basic " + encoded);
+      }
+
+      HttpResponse response = httpClient.execute(head);
+      int code = response.getStatusLine().getStatusCode();
+      return code >= 200 && code < 300;
+    } catch (IOException | URISyntaxException e) {
+      // If we have an exception, still return true
+      // because including this check is only to know for sure if the mirror url exists.
+      // Returning true is better because the url would be checked by Bazel later again,
+      // and this is to only avoid 404 spurious warnings later on.
+      return true;
+    }
+  }
+
   public Set<DependencyInfo> getDependencies() {
+    // We need to use the downloader to check
+    // if any of the mirror URLs actually exist
+    Netrc netrc = Netrc.fromUserHome();
+
     Map<String, Object> depTree = readDepTree();
     Map<Coordinates, Coordinates> mappings = deriveCoordinateMappings(depTree);
 
@@ -165,7 +214,7 @@ public class LockFileConverter {
           if (m2local.equals(repo)) {
             continue;
           }
-          if (mirrorUrl.startsWith(repo.toString())) {
+          if (mirrorUrl.startsWith(repo.toString()) && doesMirrorUrlExist(netrc, mirrorUrl)) {
             repos.add(repo);
           }
         }
