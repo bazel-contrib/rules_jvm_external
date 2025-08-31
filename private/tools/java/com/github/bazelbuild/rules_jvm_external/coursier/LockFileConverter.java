@@ -21,6 +21,7 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
+import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -28,16 +29,21 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,7 +52,14 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /** Reads the output of the coursier resolve and generate a v2 lock file */
 public class LockFileConverter {
@@ -139,84 +152,176 @@ public class LockFileConverter {
     return Set.copyOf(conflicts);
   }
 
-  public Set<DependencyInfo> getDependencies() {
-    Map<String, Object> depTree = readDepTree();
-    Map<Coordinates, Coordinates> mappings = deriveCoordinateMappings(depTree);
+  // Not all mirror URLs will exist and we want to avoid spurious 404s
+  // in builds with the v2 lockfile structure, so we need to check the mirror
+  // url actually exists. Ideally mirror url is confirmed to exist already but
+  // with the v1 lockfile it's not necessarily the case as all URLs are included
+  // and it worked before because it was a list and http_file would always download the
+  // first/"primary" URL whereas there's no ordering of the repositories/URLs in v2 lockfile
+  // This is done async to avoid blocking iterating over all dependencies
+  private CompletableFuture<Boolean> doesMirrorUrlExistAsync(
+      Netrc netrc, String mirrorUrl, ExecutorService executor) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          // We ideally use the HttpDownloader implementation in
+          // private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote/HttpDownloader.java
+          // but we can't use the deploy jar for the LockFileConverter with it and the embedded JDK
+          // because
+          // the java.net.http package isn't available out of the box with it.
+          try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            URI uri = new URI(mirrorUrl);
+            String host = uri.getHost();
 
-    Set<DependencyInfo> toReturn =
-        new TreeSet<>(Comparator.comparing(DependencyInfo::getCoordinates));
+            HttpHead head = new HttpHead(uri);
 
-    @SuppressWarnings("unchecked")
-    Collection<Map<String, Object>> coursierDeps =
-        (Collection<Map<String, Object>>) depTree.get("dependencies");
-    for (Map<String, Object> coursierDep : coursierDeps) {
-      String coord = (String) coursierDep.get("coord");
-      Coordinates coords = mappings.get(new Coordinates(coord));
+            // Add Basic Auth if .netrc has credentials for this host
+            Netrc.Credential cred = netrc.getCredential(host);
+            if (cred != null && cred.login() != null && !cred.login().isEmpty()) {
+              String userpass =
+                  cred.login() + ":" + (cred.password() == null ? "" : cred.password());
+              String encoded =
+                  Base64.getEncoder().encodeToString(userpass.getBytes(StandardCharsets.UTF_8));
+              head.addHeader("Authorization", "Basic " + encoded);
+            }
 
-      Set<URI> repos = new LinkedHashSet<>();
-      @SuppressWarnings("unchecked")
-      Collection<String> mirrorUrls =
-          (Collection<String>) coursierDep.getOrDefault("mirror_urls", new TreeSet<>());
-
-      URI m2local = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
-
-      for (String mirrorUrl : mirrorUrls) {
-        for (URI repo : repositories) {
-          if (m2local.equals(repo)) {
-            continue;
+            HttpResponse response = httpClient.execute(head);
+            int code = response.getStatusLine().getStatusCode();
+            return code >= 200 && code < 300;
+          } catch (IOException | URISyntaxException e) {
+            // If we have an exception, still return true
+            // because including this check is only to know for sure if the mirror url exists.
+            // Returning true is better because the url would be checked by Bazel later again,
+            // and this is to only avoid 404 spurious warnings later on.
+            return true;
           }
-          if (mirrorUrl.startsWith(repo.toString())) {
-            repos.add(repo);
+        },
+        executor);
+  }
+
+  public Set<DependencyInfo> getDependencies() {
+    // Use a reasonable thread pool size based on available processors
+    // as this is I/O bound
+    int threadPoolSize = Math.min(Math.max(Runtime.getRuntime().availableProcessors() * 2, 4), 20);
+    ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+
+    // We need this to check if any of the mirror URLs actually exist
+    // and if they use auth, they'll need the netrc
+    Netrc netrc = Netrc.fromUserHome();
+
+    try {
+      Map<String, Object> depTree = readDepTree();
+      Map<Coordinates, Coordinates> mappings = deriveCoordinateMappings(depTree);
+
+      Set<DependencyInfo> toReturn =
+          new TreeSet<>(Comparator.comparing(DependencyInfo::getCoordinates));
+
+      @SuppressWarnings("unchecked")
+      Collection<Map<String, Object>> coursierDeps =
+          (Collection<Map<String, Object>>) depTree.get("dependencies");
+
+      // Collect all repo validation futures for all mirror urls
+      // we do it in async to make the lockfile conversion faster
+      List<CompletableFuture<Set<URI>>> repoFutures = new ArrayList<>();
+      List<Map<String, Object>> depData = new ArrayList<>();
+
+      for (Map<String, Object> coursierDep : coursierDeps) {
+        @SuppressWarnings("unchecked")
+        Collection<String> mirrorUrls =
+            (Collection<String>) coursierDep.getOrDefault("mirror_urls", new TreeSet<>());
+
+        URI m2local = Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
+
+        // Create async validation tasks for each mirror URL/repo combination
+        List<CompletableFuture<URI>> urlFutures = new ArrayList<>();
+        for (String mirrorUrl : mirrorUrls) {
+          for (URI repo : repositories) {
+            if (m2local.equals(repo)) {
+              continue;
+            }
+            if (mirrorUrl.startsWith(repo.toString())) {
+              // Compute if mirror url exists async to make this check faster
+              CompletableFuture<URI> urlFuture =
+                  doesMirrorUrlExistAsync(netrc, mirrorUrl, executor)
+                      .thenApply(exists -> exists ? repo : null);
+              urlFutures.add(urlFuture);
+            }
           }
         }
+
+        // Combine all repo validation futures for this dependency
+        CompletableFuture<Set<URI>> reposFuture =
+            CompletableFuture.allOf(urlFutures.toArray(new CompletableFuture[0]))
+                .thenApply(
+                    v ->
+                        urlFutures.stream()
+                            .map(CompletableFuture::join)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
+
+        repoFutures.add(reposFuture);
+        depData.add(coursierDep);
       }
 
-      // If there's a file, make a note of where it came from
-      String file = (String) coursierDep.get("file");
+      // Wait for all repo validations to complete
+      CompletableFuture.allOf(repoFutures.toArray(new CompletableFuture[0])).join();
 
-      String classifier = coords.getClassifier();
-      if (classifier == null || classifier.isEmpty()) {
-        classifier = "jar";
+      // Create DependencyInfo objects with validated repos
+      for (int i = 0; i < depData.size(); i++) {
+        Map<String, Object> coursierDep = depData.get(i);
+        Set<URI> repos = repoFutures.get(i).join();
+
+        String coord = (String) coursierDep.get("coord");
+        Coordinates coords = mappings.get(new Coordinates(coord));
+
+        // If there's a file, make a note of where it came from
+        String file = (String) coursierDep.get("file");
+
+        String classifier = coords.getClassifier();
+        if (classifier == null || classifier.isEmpty()) {
+          classifier = "jar";
+        }
+
+        Set<Coordinates> directDeps = new TreeSet<>();
+        if (!"sources".equals(classifier) && !"javadoc".equals(classifier)) {
+          @SuppressWarnings("unchecked")
+          Collection<String> depCoords =
+              (Collection<String>) coursierDep.getOrDefault("directDependencies", new TreeSet<>());
+          directDeps =
+              depCoords.stream()
+                  .map(Coordinates::new)
+                  .map(c -> mappings.getOrDefault(c, c))
+                  .collect(Collectors.toCollection(TreeSet::new));
+        }
+
+        Object rawPackages = coursierDep.get("packages");
+        Set<String> packages = Collections.EMPTY_SET;
+        if (rawPackages != null) {
+          @SuppressWarnings("unchecked")
+          Collection<String> depPackages = (Collection<String>) rawPackages;
+          packages = new TreeSet<>(depPackages);
+        }
+
+        SortedMap<String, SortedSet<String>> services = new TreeMap<>();
+        Object rawServices = coursierDep.get("services");
+        if (rawServices != null) {
+          services = new TreeMap<>((Map<String, SortedSet<String>>) rawServices);
+        }
+
+        toReturn.add(
+            new DependencyInfo(
+                coords,
+                repos,
+                Optional.ofNullable(file).map(Paths::get),
+                Optional.ofNullable((String) coursierDep.get("sha256")),
+                directDeps,
+                packages,
+                services));
       }
 
-      Set<Coordinates> directDeps = new TreeSet<>();
-      if (!"sources".equals(classifier) && !"javadoc".equals(classifier)) {
-        @SuppressWarnings("unchecked")
-        Collection<String> depCoords =
-            (Collection<String>) coursierDep.getOrDefault("directDependencies", new TreeSet<>());
-        directDeps =
-            depCoords.stream()
-                .map(Coordinates::new)
-                .map(c -> mappings.getOrDefault(c, c))
-                .collect(Collectors.toCollection(TreeSet::new));
-      }
-
-      Object rawPackages = coursierDep.get("packages");
-      Set<String> packages = Collections.EMPTY_SET;
-      if (rawPackages != null) {
-        @SuppressWarnings("unchecked")
-        Collection<String> depPackages = (Collection<String>) rawPackages;
-        packages = new TreeSet<>(depPackages);
-      }
-
-      SortedMap<String, SortedSet<String>> services = new TreeMap<>();
-      Object rawServices = coursierDep.get("services");
-      if (rawServices != null) {
-        services = new TreeMap<>((Map<String, SortedSet<String>>) rawServices);
-      }
-
-      toReturn.add(
-          new DependencyInfo(
-              coords,
-              repos,
-              Optional.ofNullable(file).map(Paths::get),
-              Optional.ofNullable((String) coursierDep.get("sha256")),
-              directDeps,
-              packages,
-              services));
+      return toReturn;
+    } finally {
+      executor.shutdown();
     }
-
-    return toReturn;
   }
 
   private Map<String, Object> readDepTree() {
