@@ -599,7 +599,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             http_files.extend([
                 "    http_file(",
                 "        name = \"%s\"," % http_file_repository_name,
-                "        sha256 = \"%s\"," % artifact["sha256"],
+                # sha256 is optional: non-versioned snapshots may not have it
+                # See: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+                "        sha256 = %s," % repr(artifact.get("sha256", None)),
                 # repository_ctx should point to external/$repository_ctx.name
                 # The http_file should point to external/$http_file_repository_name
                 # File-path is relative defined from http_file traveling to repository_ctx.
