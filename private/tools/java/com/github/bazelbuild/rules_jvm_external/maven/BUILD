@@ -1,19 +1,38 @@
-load("@rules_java//java:defs.bzl", "java_binary")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_binary(
     name = "MavenPublisher",
+    main_class = "com.github.bazelbuild.rules_jvm_external.maven.MavenPublisher",
+    visibility = ["//visibility:public"],
+    runtime_deps = [
+        artifact(
+            "org.slf4j:slf4j-simple",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        ":MavenPublisherLib",
+    ],
+)
+
+java_library(
+    name = "MavenPublisherLib",
     srcs = [
         "MavenPublisher.java",
         "MavenSigning.java",
     ],
-    main_class = "com.github.bazelbuild.rules_jvm_external.maven.MavenPublisher",
-    visibility = ["//visibility:public"],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",
+        artifact(
+            "org.slf4j:slf4j-api",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "com.google.code.findbugs:jsr305",
+            repository_name = "rules_jvm_external_deps",
+        ),
         artifact(
             "software.amazon.awssdk:sdk-core",
             repository_name = "rules_jvm_external_deps",
@@ -66,6 +85,26 @@ java_binary(
         artifact(
             "org.apache.maven:maven-artifact",
             repository_name = "rules_jvm_external_deps",
+        ),
+    ],
+)
+
+java_test(
+    name = "MavenPublisherTest",
+    srcs = ["MavenPublisherTest.java"],
+    env = {
+    },
+    runtime_deps = [
+        artifact(
+            "org.slf4j:slf4j-simple",
+            repository_name = "rules_jvm_external_deps",
+        ),
+    ],
+    deps = [
+        ":MavenPublisherLib",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
         ),
     ],
 )
