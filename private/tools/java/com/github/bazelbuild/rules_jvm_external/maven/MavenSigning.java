@@ -234,10 +234,14 @@ public class MavenSigning {
     NONE
   }
 
-  protected static class SigningMetadata {
-    protected final String signingKey;
-    protected final String signingPassword;
+  public static class SigningMetadata {
+    public final String signingKey;
+    public final String signingPassword;
     protected final SigningMethod signingMethod;
+
+    protected static SigningMetadata noSigner() {
+      return new SigningMetadata(false, false, null, null);
+    }
 
     protected SigningMetadata(
         boolean gpgSign, boolean useInMemoryPgpKeys, String signingKey, String signingPassword) {
