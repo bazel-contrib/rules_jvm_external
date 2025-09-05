@@ -259,8 +259,9 @@ public class V2LockFile {
     if (isUsingM2Local) {
       lock.put("m2local", true);
     }
-    // Use a treemap to sort the repo map by keys in the lock file
-    lock.put("repositories", new TreeMap<>(repos));
+    // repos is a LinkedHashSet which is iterated in insertion order.
+    // Meaning the order from the Starlark repositories array will be preserved.
+    lock.put("repositories", repos);
 
     lock.put("skipped", skipped);
     if (conflicts != null && !conflicts.isEmpty()) {
