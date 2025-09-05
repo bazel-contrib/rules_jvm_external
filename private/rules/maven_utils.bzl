@@ -121,6 +121,8 @@ def generate_pom(
         substitutions.update({"{parent}": "".join(parts)})
 
     deps = []
+    # print("versioned_dep_coordinates = {}".format(versioned_dep_coordinates))
+    # print("unversioned_dep_coordinates = {}".format(unversioned_dep_coordinates))
     for dep in sorted(versioned_dep_coordinates) + sorted(unversioned_dep_coordinates):
         include_version = dep in versioned_dep_coordinates
         unpacked = _unpack_coordinates(dep)
