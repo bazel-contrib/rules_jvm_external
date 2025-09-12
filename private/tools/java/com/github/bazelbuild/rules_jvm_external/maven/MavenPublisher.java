@@ -98,7 +98,7 @@ public class MavenPublisher {
 
     if (args.length < 4) {
       throw new IllegalArgumentException(
-          "Expected at least 3 arguments: <coordinates> <path to pom> <path to main artifact>"
+          "Expected at least 4 arguments: <coordinates> <path to pom> <path to main artifact>"
               + " <publish maven metadata> [<extra artifacts>]");
     }
 
@@ -107,7 +107,6 @@ public class MavenPublisher {
       throw new IllegalArgumentException("MAVEN_REPO environment variable must be set");
     }
 
-    // give friendly warning if true/false not explicitly set as args[3]
     if (!"true".equalsIgnoreCase(args[3]) && !"false".equalsIgnoreCase(args[3])) {
       throw new IllegalArgumentException(
           String.format(

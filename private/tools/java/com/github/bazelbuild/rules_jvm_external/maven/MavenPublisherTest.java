@@ -19,12 +19,8 @@ public class MavenPublisherTest {
 
   @Test
   public void testPublishLocal() throws Exception {
-    // Create a temp file called pom.xml
     File pom = File.createTempFile("pom", ".xml");
-
-    // Create a temp file called example-project.jar
     File jar = File.createTempFile("example-project", ".jar");
-
     final Path root = Paths.get(System.getenv("TEST_TMPDIR"));
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -79,10 +75,7 @@ public class MavenPublisherTest {
         });
     server.start();
 
-    // Create a temp file called pom.xml
     File pom = File.createTempFile("pom", ".xml");
-
-    // Create a temp file called example-project.jar
     File jar = File.createTempFile("example-project", ".jar");
 
     File testJar = File.createTempFile("example-project-test", ".jar");
