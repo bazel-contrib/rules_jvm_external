@@ -6,10 +6,6 @@ java_binary(
     main_class = "com.github.bazelbuild.rules_jvm_external.maven.MavenPublisher",
     visibility = ["//visibility:public"],
     runtime_deps = [
-        artifact(
-            "org.slf4j:slf4j-simple",
-            repository_name = "rules_jvm_external_deps",
-        ),
         ":MavenPublisherLib",
     ],
 )
@@ -25,10 +21,6 @@ java_library(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",
-        artifact(
-            "org.slf4j:slf4j-api",
-            repository_name = "rules_jvm_external_deps",
-        ),
         artifact(
             "com.google.code.findbugs:jsr305",
             repository_name = "rules_jvm_external_deps",
@@ -94,12 +86,6 @@ java_test(
     srcs = ["MavenPublisherTest.java"],
     env = {
     },
-    runtime_deps = [
-        artifact(
-            "org.slf4j:slf4j-simple",
-            repository_name = "rules_jvm_external_deps",
-        ),
-    ],
     deps = [
         ":MavenPublisherLib",
         artifact(

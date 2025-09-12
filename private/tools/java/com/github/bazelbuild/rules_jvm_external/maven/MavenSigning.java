@@ -235,8 +235,8 @@ public class MavenSigning {
   }
 
   public static class SigningMetadata {
-    public final String signingKey;
-    public final String signingPassword;
+    private final String signingKey;
+    private final String signingPassword;
     protected final SigningMethod signingMethod;
 
     protected static SigningMetadata noSigner() {
@@ -257,6 +257,14 @@ public class MavenSigning {
       } else {
         this.signingMethod = SigningMethod.NONE;
       }
+    }
+
+    public String getSigningKey() {
+      return signingKey;
+    }
+
+    public String getSigningPassword() {
+      return signingPassword;
     }
   }
 }

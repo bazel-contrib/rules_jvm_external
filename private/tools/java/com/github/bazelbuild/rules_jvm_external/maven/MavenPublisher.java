@@ -69,14 +69,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -86,7 +85,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public class MavenPublisher {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MavenPublisher.class);
+  private static final Logger LOG = Logger.getLogger(MavenPublisher.class.getName());
+
   private static final String[] SUPPORTED_SCHEMES = {
     "file:/", "http://", "https://", "gs://", "s3://", "artifactregistry://",
   };
@@ -109,10 +109,10 @@ public class MavenPublisher {
 
     // give friendly warning if true/false not explicitly set as args[3]
     if (!"true".equalsIgnoreCase(args[3]) && !"false".equalsIgnoreCase(args[3])) {
-      LOG.warn(
-          "Fourth argument <publish maven metadata> should be true or false. Found: {}. Defaulting"
-              + " to false.",
-          args[3]);
+      throw new IllegalArgumentException(
+          String.format(
+              "Fourth argument <publish maven metadata> should be true or false. Found: %s.",
+              args[3]));
     }
     boolean publishMavenMetadata = Boolean.parseBoolean(args[3]);
 
@@ -161,9 +161,9 @@ public class MavenPublisher {
               + Arrays.toString(SUPPORTED_SCHEMES));
     }
 
-    if (!isUploadSchemeSupported(repo)) {
+    if (!isUploadSchemeSupported(repo) && publishMavenMetadata) {
       throw new IllegalArgumentException(
-          "Repository must be uploaded to via the supported schemes: "
+          "publishMavenMetadata enabled. Repository must be uploaded to via the supported schemes: "
               + Arrays.toString(SUPPORTED_UPLOAD_SCHEMES));
     }
 
@@ -215,7 +215,7 @@ public class MavenPublisher {
       all = all.thenCompose(Void -> uploadMavenMetadata(repo, credentials, coords, executor));
     }
 
-    all.get(5, MINUTES);
+    all.get(30, MINUTES);
   }
 
   private static boolean isSchemeSupported(String repo) {
@@ -360,7 +360,8 @@ public class MavenPublisher {
           upload(
               String.format("%s%s.asc", base, append),
               credentials,
-              in_memory_pgp_sign(item, signingMetadata.signingKey, signingMetadata.signingPassword),
+              in_memory_pgp_sign(
+                  item, signingMetadata.getSigningKey(), signingMetadata.getSigningPassword()),
               executor));
     }
 
@@ -493,7 +494,7 @@ public class MavenPublisher {
   private static Callable<Void> httpUpload(
       String targetUrl, Credentials credentials, Path toUpload) {
     return () -> {
-      LOG.info("Uploading to {}", targetUrl);
+      LOG.info(String.format("Uploading to %s", targetUrl));
       URL url = new URL(targetUrl);
 
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -539,14 +540,14 @@ public class MavenPublisher {
           }
         }
       }
-      LOG.info("Upload to {} complete.", targetUrl);
+      LOG.info(String.format("Upload to %s complete.", targetUrl));
       return null;
     };
   }
 
   private static Callable<Void> writeFile(String targetUrl, Path toUpload) {
     return () -> {
-      LOG.info("Copying {} to {}", toUpload, targetUrl);
+      LOG.info(String.format("Copying %s to %s", toUpload, targetUrl));
       Path path = Paths.get(URI.create(targetUrl));
       Files.createDirectories(path.getParent());
       Files.deleteIfExists(path);
@@ -563,7 +564,7 @@ public class MavenPublisher {
       String bucketName = gsUri.getHost();
       String path = gsUri.getPath().substring(1);
 
-      LOG.info("Copying {} to gs://{}/{}", toUpload, bucketName, path);
+      LOG.info(String.format("Copying %s to gs://%s/%s", toUpload, bucketName, path));
       BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, path).build();
       try (WriteChannel writer = storage.writer(blobInfo);
           InputStream is = Files.newInputStream(toUpload)) {
@@ -581,7 +582,7 @@ public class MavenPublisher {
         String bucketName = s3Uri.getHost();
         String path = s3Uri.getPath().substring(1);
 
-        LOG.info("Copying {} to s3://{}/{}", toUpload, bucketName, path);
+        LOG.info(String.format("Copying %s to s3://%s/%s", toUpload, bucketName, path));
         s3Client.putObject(
             PutObjectRequest.builder().bucket(bucketName).key(path).build(), toUpload);
       }
