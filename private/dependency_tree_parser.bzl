@@ -359,7 +359,34 @@ package_metadata(
     target_import_string.append("\tvisibility = [%s]," % (",".join(["\"%s\"" % t for t in target_visibilities])))
     alias_visibility = "\tvisibility = [%s],\n" % (",".join(["\"%s\"" % t for t in target_visibilities]))
 
-    # 9. Finish the java_import rule.
+    # 9. If `targets_compatible_with` is configured, set it on non-transitive dependencies; the effect applies transitively already.
+    #    visibility only for non-transitive dependencies.
+    #
+    # java_import(
+    # 	name = "org_hamcrest_hamcrest_library",
+    # 	jars = ["https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar"],
+    # 	srcjar = "https/repo1.maven.org/maven2/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar",
+    # 	deps = [
+    # 		":org_hamcrest_hamcrest_core",
+    # 	],
+    #   tags = [
+    #       "maven_coordinates=org.hamcrest:hamcrest.library:1.3"],
+    #       "maven_url=https://repo1.maven.org/maven/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+    #       "maven:compile-only",
+    #   ],
+    #   neverlink = True,
+    #   testonly = True,
+    #   visibility = ["//visibility:public"],
+    #   targets_compatible_with = [
+    #       "@platforms//os:linux",
+    #   ],
+    if repository_ctx.attr.targets_compatible_with:
+        target_import_string.append("\ttarget_compatible_with = [")
+        for t in repository_ctx.attr.targets_compatible_with:
+            target_import_string.append("\t\t\"%s\"," % t)
+        target_import_string.append("\t],")
+
+    # 10. Finish the java_import rule.
     #
     # java_import(
     # 	name = "org_hamcrest_hamcrest_library",
@@ -380,7 +407,7 @@ package_metadata(
 
     to_return.append("\n".join(target_import_string))
 
-    # 10. Create a versionless alias target
+    # 11. Create a versionless alias target
     #
     # alias(
     #   name = "org_hamcrest_hamcrest_library_1_3",
@@ -406,7 +433,7 @@ processor_class = "{processor_class}",
             ),
         )
 
-    # 11. If using maven_install.json, use a genrule to copy the file from the http_file
+    # 12. If using maven_install.json, use a genrule to copy the file from the http_file
     # repository into this repository.
     #
     # genrule(
