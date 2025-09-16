@@ -7,8 +7,8 @@ java_library(
         "//tests/com/github/bazelbuild/rules_jvm_external/javadoc:__pkg__",
     ],
     deps = [
-        ":create_jar_lib",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:create_jar_lib",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
     ],
 )
@@ -21,17 +21,5 @@ java_binary(
     ],
     runtime_deps = [
         ":javadoc_lib",
-    ],
-)
-
-java_library(
-    name = "create_jar_lib",
-    srcs = ["CreateJar.java"],
-    visibility = [
-        "//tests/com/github/bazelbuild/rules_jvm_external/javadoc:__pkg__",
-    ],
-    deps = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
     ],
 )

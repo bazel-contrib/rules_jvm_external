@@ -22,6 +22,7 @@ stardoc(
     deps = [
         "//:implementation",
         "@bazel_skylib//lib:structs",
+        "@bazel_skylib//rules:run_binary",
     ],
 )
 

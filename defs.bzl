@@ -15,6 +15,7 @@
 load("//private:constants.bzl", _DEFAULT_REPOSITORY_NAME = "DEFAULT_REPOSITORY_NAME")
 load("//private/rules:artifact.bzl", _artifact = "artifact", _java_plugin_artifact = "java_plugin_artifact", _maven_artifact = "maven_artifact")
 load("//private/rules:has_maven_deps.bzl", _read_coordinates = "read_coordinates")
+load("//private/rules:jar.bzl", _create_jar = "create_jar")
 load("//private/rules:java_export.bzl", _java_export = "java_export", _maven_export = "maven_export")
 load("//private/rules:javadoc.bzl", _javadoc = "javadoc")
 load("//private/rules:maven_bom.bzl", _maven_bom = "maven_bom")
@@ -33,5 +34,6 @@ maven_artifact = _maven_artifact
 maven_bom = _maven_bom
 maven_install = _maven_install
 pom_file = _pom_file
+create_jar = _create_jar
 read_coordinates = _read_coordinates
 MavenPublishInfo = _MavenPublishInfo
