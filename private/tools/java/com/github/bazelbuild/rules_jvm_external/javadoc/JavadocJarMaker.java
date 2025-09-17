@@ -21,7 +21,7 @@ import static java.lang.Runtime.Version;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
-import com.github.bazelbuild.rules_jvm_external.jar.CreateJar; // Added import after relocation
+import com.github.bazelbuild.rules_jvm_external.jar.CreateJar;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
