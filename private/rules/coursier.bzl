@@ -283,6 +283,7 @@ def _java_path(repository_ctx):
 def _generate_java_jar_command(repository_ctx, jar_path):
     coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
     coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
+
     # if coursier OOMs from a large dependency tree, have it crash instead of hanging
     coursier_opts.append("-XX:+ExitOnOutOfMemoryError")
     java_path = _java_path(repository_ctx)
