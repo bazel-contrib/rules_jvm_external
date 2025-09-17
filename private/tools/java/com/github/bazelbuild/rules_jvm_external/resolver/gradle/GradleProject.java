@@ -65,7 +65,9 @@ public class GradleProject implements AutoCloseable {
   }
 
   public void connect(Path gradlePath) {
-    System.setProperty("gradle.user.home", gradleCacheDir.toAbsolutePath().toString());
+    // Note: We do not set gradle.user.home here to avoid timing issues.
+    // Instead, we symlink necessary files and directories when
+    // `useUnsafeCache` is enabled.
     System.setProperty("org.gradle.parallel", "true");
     connection =
         GradleConnector.newConnector()
