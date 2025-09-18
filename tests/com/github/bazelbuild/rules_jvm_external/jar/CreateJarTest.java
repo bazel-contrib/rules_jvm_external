@@ -32,7 +32,6 @@ public class CreateJarTest {
 
     // Create output jar path
     Path outputJar = temp.newFile("output.jar").toPath();
-    ;
     Files.delete(outputJar); // Delete so createJar can create it
 
     CreateJar.main(
