@@ -31,7 +31,7 @@ load(
 )
 load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
-load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
+load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
 
 _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
@@ -283,6 +283,7 @@ def _java_path(repository_ctx):
 def _generate_java_jar_command(repository_ctx, jar_path):
     coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
     coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
+
     # if coursier OOMs from a large dependency tree, have it crash instead of hanging
     coursier_opts.append("-XX:+ExitOnOutOfMemoryError")
     java_path = _java_path(repository_ctx)
@@ -327,6 +328,13 @@ def _stable_artifact(artifact):
     keys = sorted(parsed.keys())
     return ":".join(["%s=%s" % (key, parsed[key]) for key in keys])
 
+def _add_to_hash_dictionary(dictionary, artifact, salt):
+    artifact_dict = json.decode(artifact)
+    key = artifact_dict["group"] + ":" + artifact_dict["artifact"]
+    value = dictionary.get(key, [])
+    value.append(hash(_stable_artifact(artifact) + salt))
+    dictionary[key] = value
+
 # Compute a signature of the list of artifacts that will be used to build
 # the dependency tree. This is used as a check to see whether the dependency
 # tree needs to be repinned.
@@ -345,24 +353,36 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
     artifact_inputs = []
     excluded_artifact_inputs = []
 
+    all_hashes = dict()
+
     if boms and len(boms):
         for bom in sorted(boms):
             artifact_inputs.append(_stable_artifact(bom))
+            _add_to_hash_dictionary(all_hashes, bom, "bom")
 
     for artifact in sorted(artifacts):
         artifact_inputs.append(_stable_artifact(artifact))
+        _add_to_hash_dictionary(all_hashes, artifact, "artifact")
 
     for artifact in sorted(excluded_artifacts):
         excluded_artifact_inputs.append(_stable_artifact(artifact))
+        _add_to_hash_dictionary(all_hashes, artifact, "excluded_artifact")
 
     v1_sig = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
 
     hash_parts = [sorted(artifact_inputs), sorted(repositories), sorted(excluded_artifact_inputs)]
-    current_version_sig = 0
+    v2_sig = 0
     for part in hash_parts:
-        current_version_sig ^= hash(repr(part))
+        v2_sig ^= hash(repr(part))
 
-    return (current_version_sig, [v1_sig])
+    for k in all_hashes.keys():
+        all_hashes[k] = sorted(all_hashes[k])
+
+    repo_hash = list()
+    repo_hash.append(hash(repr(sorted(repositories))))
+    all_hashes["repositories"] = repo_hash
+
+    return (all_hashes, [v1_sig, v2_sig])
 
 def get_netrc_lines_from_entries(netrc_entries):
     netrc_lines = []
@@ -459,21 +479,26 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             "artifacts": {},
             "dependencies": {},
             "repositories": {},
-            "version": "2",
+            "version": "3",
         }
     else:
         maven_install_json_content = json.decode(lock_file_content)
 
-    if v1_lock_file.is_valid_lock_file(maven_install_json_content):
+    if v3_lock_file.is_valid_lock_file(maven_install_json_content):
+        importer = v3_lock_file
+    elif v2_lock_file.is_valid_lock_file(maven_install_json_content):
+        importer = v2_lock_file
+    elif v1_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v1_lock_file
+    else:
+        fail("Unable to read lock file: %s" % repository_ctx.attr.maven_install_json)
+
+    # Check if using the most recent lock file format.
+    if importer != v3_lock_file:
         print_if_not_repinning(
             repository_ctx,
             "Lock file should be updated. Please run `REPIN=1 bazel run @unpinned_%s//:pin`" % repository_ctx.name,
         )
-    elif v2_lock_file.is_valid_lock_file(maven_install_json_content):
-        importer = v2_lock_file
-    else:
-        fail("Unable to read lock file: %s" % repository_ctx.attr.maven_install_json)
 
     # Validation steps for maven_install.json.
 
@@ -1298,7 +1323,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     repository_ctx.file(
         "unsorted_deps.json",
-        content = v2_lock_file.render_lock_file(
+        content = v3_lock_file.render_lock_file(
             lock_file_contents,
             inputs_hash,
         ),
@@ -1307,7 +1332,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.report_progress("Generating BUILD targets..")
     (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
         repository_ctx = repository_ctx,
-        dependencies = v2_lock_file.get_artifacts(lock_file_contents),
+        dependencies = v3_lock_file.get_artifacts(lock_file_contents),
         explicit_artifacts = {
             a["group"] + ":" + a["artifact"] + (":" + a["classifier"] if "classifier" in a else ""): True
             for a in artifacts
