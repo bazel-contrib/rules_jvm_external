@@ -19,16 +19,22 @@ import static org.junit.Assert.assertEquals;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
+import com.github.bazelbuild.rules_jvm_external.resolver.cmd.AbstractMain;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.junit.Test;
 
-public class V2LockFileTest {
+public class V3LockFileTest {
 
   private final URI defaultRepo = URI.create("http://localhost/m2/repository/");
   private final Set<URI> repos = Set.of(defaultRepo);
@@ -45,7 +51,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    Map<String, Object> rendered = new V2LockFile(repos, Set.of(aggregator), Set.of()).render();
+    Map<String, Object> rendered = new V3LockFile(repos, Set.of(aggregator), Set.of()).render();
 
     Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
     Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");
@@ -58,7 +64,7 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripASimpleSetOfDependencies() {
-    V2LockFile roundTripped = roundTrip(new V2LockFile(repos, Set.of(), Set.of()));
+    V3LockFile roundTripped = roundTrip(new V3LockFile(repos, Set.of(), Set.of()));
 
     assertEquals(repos, roundTripped.getRepositories());
     assertEquals(Set.of(), roundTripped.getDependencyInfos());
@@ -67,15 +73,15 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripM2Local() {
-    V2LockFile lockFile = new V2LockFile(repos, Set.of(), Set.of());
+    V3LockFile lockFile = new V3LockFile(repos, Set.of(), Set.of());
     Map<String, Object> rendered = lockFile.render();
     rendered.put("m2local", true);
 
-    V2LockFile roundTripped =
-        V2LockFile.create(
+    V3LockFile roundTripped =
+        V3LockFile.create(
             new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered));
 
-    assertEquals(Set.of(defaultRepo, V2LockFile.M2_LOCAL_URI), roundTripped.getRepositories());
+    assertEquals(Set.of(defaultRepo, V3LockFile.M2_LOCAL_URI), roundTripped.getRepositories());
   }
 
   @Test
@@ -90,7 +96,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of()));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info), Set.of()));
 
     assertEquals(Set.of(info), lockFile.getDependencyInfos());
   }
@@ -119,7 +125,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info, dep), Set.of()));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info, dep), Set.of()));
 
     assertEquals(Set.of(info, dep), lockFile.getDependencyInfos());
   }
@@ -133,15 +139,46 @@ public class V2LockFileTest {
             new Conflict(
                 new Coordinates("com.foo:bar:1.2.3"), new Coordinates("com.foo:bar:1.2.1")));
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(), conflicts));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(), conflicts));
 
     assertEquals(conflicts, lockFile.getConflicts());
   }
 
-  private V2LockFile roundTrip(V2LockFile lockFile) {
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testCalculateArtifactHashMatchesStoredHash() throws IOException {
+    String lockFileContent = new String(
+        getClass().getClassLoader().getResourceAsStream("maven_install.json").readAllBytes());
+
+    Gson gson = new GsonBuilder().create();
+    Map<String, Object> lockFileData = gson.fromJson(lockFileContent, Map.class);
+    Map<String, Double> storedHash = (Map<String, Double>) lockFileData.get("__RESOLVED_ARTIFACTS_HASH");
+
+    Map<String, Object> dependencies = (Map<String, Object>) lockFileData.remove("dependencies");
+    Map<String, Set<String>> convertedDeps = new TreeMap<>();
+    for (Map.Entry<String, Object> entry : dependencies.entrySet()) {
+      java.util.List<String> depList = (java.util.List<String>) entry.getValue();
+      convertedDeps.put(entry.getKey(), new TreeSet<>(depList));
+    }
+    lockFileData.put("dependencies", convertedDeps);
+
+    Map<String, Integer> calculatedHash = AbstractMain.calculateArtifactHash(lockFileData);
+
+    assertEquals("Hash mismatch: calculated hash does not match stored hash", storedHash.size(), calculatedHash.size());
+
+    for (Map.Entry<String, Double> entry : storedHash.entrySet()) {
+      String key = entry.getKey();
+      int expectedHash = entry.getValue().intValue();
+      int actualHash = calculatedHash.get(key);
+
+      assertEquals(String.format("Hash mismatch for artifact '%s'", key), expectedHash, actualHash);
+    }
+  }
+
+  private V3LockFile roundTrip(V3LockFile lockFile) {
     Map<String, Object> rendered = lockFile.render();
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered) + "\n";
-    return V2LockFile.create(converted);
+    return V3LockFile.create(converted);
   }
 }

@@ -13,7 +13,7 @@ load("//private/lib:toml_parser.bzl", "parse_toml")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
-load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
+load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
 
 DEFAULT_REPOSITORIES = [
@@ -728,12 +728,15 @@ def maven_impl(mctx):
                     "artifacts": {},
                     "dependencies": {},
                     "repositories": {},
-                    "version": "2",
+                    "version": "3",
                 }
             else:
                 lock_file = json.decode(lock_file_content)
 
-            if v2_lock_file.is_valid_lock_file(lock_file):
+            if v3_lock_file.is_valid_lock_file(lock_file):
+                artifacts = v3_lock_file.get_artifacts(lock_file)
+                importer = v3_lock_file
+            elif v2_lock_file.is_valid_lock_file(lock_file):
                 artifacts = v2_lock_file.get_artifacts(lock_file)
                 importer = v2_lock_file
             elif v1_lock_file.is_valid_lock_file(lock_file):
