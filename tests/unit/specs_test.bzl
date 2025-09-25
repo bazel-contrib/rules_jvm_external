@@ -69,7 +69,7 @@ def _parse_coordinate_test_impl(ctx):
     asserts.equals(
         env,
         {"group": "org.eclipse.aether", "artifact": "aether-api", "version": "1.1.0", "packaging": "jar", "classifier": None},
-        parse.parse_maven_coordinate("org.eclipse.aether:aether-api:jar:1.1.0"),
+        parse.parse_maven_coordinate("org.eclipse.aether:aether-api:jar:1.1.0", is_test = True),
     )
     asserts.equals(
         env,
