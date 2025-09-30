@@ -3,7 +3,7 @@ load("//:defs.bzl", "artifact")
 java_test(
     name = "V3LockFileTest",
     srcs = ["V3LockFileTest.java"],
-    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFileTest",
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFileTest",
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
