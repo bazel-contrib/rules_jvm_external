@@ -45,7 +45,7 @@ public class ResolverConfig {
   private final boolean fetchJavadoc;
   private final Netrc netrc;
   private final Path output;
-  private final Map<String, List<Integer>> inputHash;
+  private final Map<String, Integer> inputHash;
   private final int maxThreads;
 
   public ResolverConfig(EventListener listener, String... args) throws IOException {
@@ -203,7 +203,7 @@ public class ResolverConfig {
 
     if (inputHashPath != null) {
       String rawJson = Files.readString(inputHashPath);
-      Map<String, List<Integer>> json = new Gson().fromJson(rawJson, new TypeToken<Map<String, List<Integer>>>() {}.getType());
+      Map<String, Integer> json = new Gson().fromJson(rawJson, new TypeToken<Map<String, Integer>>() {}.getType());
       this.inputHash = new TreeMap<>(json);
     } else {
       this.inputHash = null;
@@ -252,7 +252,7 @@ public class ResolverConfig {
     return maxThreads;
   }
 
-  public Map<String, List<Integer>> getInputHash() {
+  public Map<String, Integer> getInputHash() {
     return inputHash;
   }
 

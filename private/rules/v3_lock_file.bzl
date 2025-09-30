@@ -90,7 +90,7 @@ def _compute_final_hash(all_infos):
             remaining.pop(dep, None)
             continue
 
-        all_infos[curr]["dependency_hashes"] = {dep: final_hashes.get(dep, backup_hashes[dep]) for dep in deps}
+        all_infos[curr]["dependency_hashes"] = {dep: final_hashes.get(dep, backup_hashes.get(dep, 0)) for dep in deps}
         final_hashes[curr] = hash(repr(all_infos[curr]))
 
     return final_hashes
@@ -102,8 +102,12 @@ def _compute_lock_file_hash_v3(lock_file_contents):
         shasums = dep_info["shasums"]
         common_info = {k: v for k, v in dep_info.items() if k != "shasums"}
 
+        is_jar_type = dep.count(":") == 1
+
         for type, sha in shasums.items():
-            suffix = ":jar:%s" % type if type != "jar" else ""
+            jar_suffix = ":jar" if is_jar_type else ""
+            suffix = jar_suffix + ":" + type if type != "jar" else ""
+
             type_info = dict()
             type_info["standard"] = common_info
             type_info["sha"] = sha

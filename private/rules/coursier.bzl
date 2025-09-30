@@ -375,12 +375,13 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
     for part in hash_parts:
         v2_sig ^= hash(repr(part))
 
-    for k in all_hashes.keys():
-        all_hashes[k] = sorted(all_hashes[k])
+    for k, v in all_hashes.items():
+        if len(v) == 1:
+            all_hashes[k] = v[0]
+        else:
+            all_hashes[k] = hash(repr(sorted(v)))
 
-    repo_hash = list()
-    repo_hash.append(hash(repr(sorted(repositories))))
-    all_hashes["repositories"] = repo_hash
+    all_hashes["repositories"] = hash(repr(sorted(repositories)))
 
     return (all_hashes, [v1_sig, v2_sig])
 

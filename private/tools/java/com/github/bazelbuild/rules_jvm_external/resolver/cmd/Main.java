@@ -289,10 +289,14 @@ public class Main {
       Map<String, Object> commonInfo = new LinkedHashMap<>(depInfo);
       commonInfo.remove("shasums");
 
+      boolean isJarType = dep.getKey().chars().filter(x -> x == ':').count() == 1;
+
       for (Map.Entry<String, String> shaEntry : shasums.entrySet()) {
         String type = shaEntry.getKey();
         String sha = shaEntry.getValue();
-        String suffix = (type != "jar") ? ":jar:" + type : "";
+
+        String jarSuffix = isJarType ? ":jar" : "";
+        String suffix = (type != "jar") ? jarSuffix + ":" + type : "";
 
         Map<String, Object> typeInfo = new LinkedHashMap<>();
         typeInfo.put("standard", commonInfo);
@@ -327,6 +331,10 @@ public class Main {
     if (finalHash.containsKey(curr)) {
       return finalHash.get(curr);
     }
+    if (!allInfos.containsKey(curr)) {
+      return 0;
+    }
+
     finalHash.put(curr, repr.repr(allInfos.get(curr)).hashCode());
 
 
