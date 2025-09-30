@@ -388,6 +388,10 @@ maven_install(
         "androidx.annotation:annotation:1.6.0",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/1409
         "com.squareup.okhttp3:okhttp:4.12.0",
+        # Versioned snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+        "com.google.guava:guava:999.0.0-HEAD-jre-SNAPSHOT",
+        # Non-versioned snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+        "org.seleniumhq.selenium:selenium-java:4.34.0-SNAPSHOT",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
