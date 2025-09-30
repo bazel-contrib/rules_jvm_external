@@ -399,6 +399,7 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
+        "https://oss.sonatype.org/content/repositories/snapshots",
     ],
     resolver = "gradle",
 )
