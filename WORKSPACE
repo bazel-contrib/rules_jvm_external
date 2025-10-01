@@ -391,7 +391,7 @@ maven_install(
         # Versioned snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
         "com.google.guava:guava:999.0.0-HEAD-jre-SNAPSHOT",
         # Non-versioned snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
-        "org.seleniumhq.selenium:selenium-java:4.34.0-SNAPSHOT",
+        "org.seleniumhq.selenium:selenium-java:4.35.0-SNAPSHOT",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",
@@ -399,7 +399,7 @@ maven_install(
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
-        "https://oss.sonatype.org/content/repositories/snapshots",
+        "https://central.sonatype.com/repository/maven-snapshots",
     ],
     resolver = "gradle",
 )
