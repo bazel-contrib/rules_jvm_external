@@ -728,8 +728,6 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
         else:
             fail("Unknown resolver")
 
-        print("resolver target", resolver_target)
-
         return _IN_REPO_PIN.format(
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
