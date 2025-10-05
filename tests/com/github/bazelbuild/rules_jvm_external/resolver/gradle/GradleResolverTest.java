@@ -25,6 +25,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.Graph;
+import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
 
+@AutoBazelRepository
 public class GradleResolverTest extends ResolverTestBase {
 
   @Override
@@ -53,18 +55,19 @@ public class GradleResolverTest extends ResolverTestBase {
     MavenRepo mavenRepo = MavenRepo.create();
     GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
 
-    Runfiles runfiles = Runfiles.preload().withSourceRepository("rules_jvm_external");
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
     Path baseMetadataPath =
         Paths.get(
             runfiles.rlocation(
-                "_main/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-1.0.module"));
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-1.0.module"));
     String baseMetadata = Files.readString(baseMetadataPath);
     moduleMetadataHelper.addToMavenRepo(baseCoordinates, baseMetadata);
 
     Path jvmMetadataPath =
         Paths.get(
             runfiles.rlocation(
-                "_main/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-jvm-1.0.module"));
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-jvm-1.0.module"));
     String jvmMetadata = Files.readString(jvmMetadataPath);
     moduleMetadataHelper.addToMavenRepo(jvmCoordinates, jvmMetadata);
 
@@ -93,25 +96,26 @@ public class GradleResolverTest extends ResolverTestBase {
     MavenRepo mavenRepo = MavenRepo.create();
     GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
 
-    Runfiles runfiles = Runfiles.preload().withSourceRepository("rules_jvm_external");
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
     Path baseMetadataPath =
         Paths.get(
             runfiles.rlocation(
-                "_main/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/sample-1.0.module"));
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/sample-1.0.module"));
     String baseMetadata = Files.readString(baseMetadataPath);
     moduleMetadataHelper.addToMavenRepo(baseCoordinates, baseMetadata);
 
     Path jvmMetadataPath =
         Paths.get(
             runfiles.rlocation(
-                "_main/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/sample-jvm-1.0.module"));
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/sample-jvm-1.0.module"));
     String jvmMetadata = Files.readString(jvmMetadataPath);
     moduleMetadataHelper.addToMavenRepo(jvmCoordinates, jvmMetadata);
 
     Path androidMetadataPath =
         Paths.get(
             runfiles.rlocation(
-                "_main/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/sample-android-1.0.module"));
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/sample-android-1.0.module"));
     String androidMetadata = Files.readString(androidMetadataPath);
     moduleMetadataHelper.addToMavenRepo(androidCoordinates, androidMetadata);
 
