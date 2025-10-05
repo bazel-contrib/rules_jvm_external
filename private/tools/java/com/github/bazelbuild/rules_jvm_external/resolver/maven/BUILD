@@ -3,7 +3,10 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
     name = "maven",
-    srcs = glob(["*.java"]),
+    srcs = glob(
+        ["*.java"],
+        exclude = ["MavenMain.java"],
+    ),
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__",
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
@@ -89,5 +92,21 @@ java_library(
             "org.slf4j:slf4j-simple",
             repository_name = "rules_jvm_external_deps",
         ),
+    ],
+)
+
+java_binary(
+    name = "MavenMain",
+    srcs = [
+        "MavenMain.java",
+    ],
+    main_class = "com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenMain",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":maven",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
     ],
 )

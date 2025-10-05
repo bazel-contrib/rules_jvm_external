@@ -3,7 +3,10 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
     name = "gradle",
-    srcs = glob(["*.java"]),
+    srcs = glob(
+        ["*.java"],
+        exclude = ["GradleMain.java"],
+    ),
     data = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin:plugin-single-jar",
@@ -39,5 +42,21 @@ java_library(
         ),
         "@bazel_tools//tools/java/runfiles",
         "@gradle",
+    ],
+)
+
+java_binary(
+    name = "GradleMain",
+    srcs = [
+        "GradleMain.java",
+    ],
+    main_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleMain",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":gradle",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
     ],
 )
