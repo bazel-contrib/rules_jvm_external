@@ -46,7 +46,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
-public class HttpDownloader {
+public class HttpDownloader implements AutoCloseable {
 
   private static final int MAX_RETRY_COUNT = 3;
   private static final Set<Integer> RETRY_RESPONSE_CODES = Set.of(500, 502, 503, 504);
@@ -99,7 +99,7 @@ public class HttpDownloader {
     boolean consoleAvailable = System.console() != null;
     if (System.getenv("RJE_VERBOSE") != null) {
       return new PlainConsoleListener();
-    } else if (termAvailable && consoleAvailable) {
+    } else if (termAvailable && consoleAvailable || System.getenv("FORCE_ANSI") != null) {
       return new AnsiConsoleListener();
     }
     return new NullListener();
@@ -240,5 +240,10 @@ public class HttpDownloader {
 
   private boolean isSuccessful(HttpResponse<?> response) {
     return response.statusCode() > 199 && response.statusCode() < 300;
+  }
+
+  @Override
+  public void close() throws Exception {
+    listener.close();
   }
 }

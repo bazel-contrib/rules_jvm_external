@@ -129,6 +129,7 @@ def rules_jvm_external_deps(
             "com.google.auth:google-auth-library-oauth2-http:1.23.0",
             "com.google.cloud:google-cloud-core:2.40.0",
             "com.google.cloud:google-cloud-storage:2.40.1",
+            "com.google.code.findbugs:jsr305:3.0.2",
             "com.google.code.gson:gson:2.11.0",
             "com.google.googlejavaformat:google-java-format:1.22.0",
             "com.google.guava:guava:33.2.1-jre",
