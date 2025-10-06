@@ -666,6 +666,8 @@ dev_maven.install(
         "com.github.spotbugs:spotbugs:4.7.0",
         # https://github.com/bazelbuild/rules_jvm_external/issues/1267
         "org.mockito:mockito-core:3.3.3@pom",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1461
+        "com.almworks.sqlite4java:libsqlite4java-linux-i386:1.0.392",
     ],
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_coursier_install.json",
@@ -735,6 +737,8 @@ dev_maven.install(
         "io.opentelemetry:opentelemetry-sdk",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/132
         "com.amazonaws:DynamoDBLocal:1.25.0",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1461
+        "com.almworks.sqlite4java:libsqlite4java-linux-i386:1.0.392",
     ],
     boms = [
         "io.opentelemetry:opentelemetry-bom:1.31.0",
@@ -765,6 +769,8 @@ dev_maven.install(
         "androidx.annotation:annotation:1.6.0",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/1409
         "com.squareup.okhttp3:okhttp:4.12.0",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1461
+        "com.almworks.sqlite4java:libsqlite4java-linux-i386:1.0.392",
     ],
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
