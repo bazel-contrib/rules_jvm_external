@@ -15,7 +15,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
@@ -31,8 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
 
@@ -78,7 +76,7 @@ public class GradleResolverTest extends ResolverTestBase {
 
     assertEquals(2, resolved.nodes().size());
     // sample-jvm resolves indirectly through sample using the gradle module metadata redirect
-    assertEquals(List.of(baseCoordinates, jvmCoordinates), new ArrayList<>(resolved.nodes()));
+    assertEquals(Set.of(baseCoordinates, jvmCoordinates), resolved.nodes());
   }
 
   @Test
@@ -125,13 +123,10 @@ public class GradleResolverTest extends ResolverTestBase {
             .getResolution();
 
     // sample-jvm resolves indirectly through sample using the gradle module metadata redirect
-    // but not sample-android as we don't resolve multiple variants currently. O
+    // but not sample-android as we don't resolve multiple variants currently.
     assertEquals(2, resolved.nodes().size());
-    ArrayList allNodes = new ArrayList<>(resolved.nodes());
-    assertEquals(List.of(baseCoordinates, jvmCoordinates), allNodes);
     // Once we support resolving android variant, this test should be updated to ensure
-    // sample-android is also
-    // resolved
-    assertFalse(allNodes.contains(androidCoordinates));
+    // sample-android is also resolved
+    assertEquals(Set.of(baseCoordinates, jvmCoordinates), resolved.nodes());
   }
 }

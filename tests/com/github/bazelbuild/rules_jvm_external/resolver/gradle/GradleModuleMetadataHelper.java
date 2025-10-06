@@ -38,6 +38,7 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class GradleModuleMetadataHelper {
   private final MavenRepo mavenRepo;
+  private final String GRADLE_POM_MARKER = "do_not_remove: published-with-gradle-metadata";
 
   public GradleModuleMetadataHelper(MavenRepo mavenRepo) throws IOException {
     Objects.requireNonNull(mavenRepo);
@@ -57,16 +58,19 @@ public class GradleModuleMetadataHelper {
 
     Path pomFile =
         dir.resolve(coordinates.getArtifactId() + "-" + coordinates.getVersion() + ".pom");
+
+    injectGradleMarkerInPom(pomFile);
+  }
+
+  private void injectGradleMarkerInPom(Path pomPath) throws IOException, XMLStreamException {
     // To resolve artifacts with gradle metadata, gradle looks for a marker comment in pom.xml
     // e.g https://repo1.maven.org/maven2/com/squareup/okio/okio/3.6.0/okio-3.6.0.pom
     // so we insert them for the same reason for the pom.xml in these test cases
-    injectGradleMarkerInPOM(pomFile);
-  }
 
-  private void injectGradleMarkerInPOM(Path pomPath) throws IOException, XMLStreamException {
     String content = Files.readString(pomPath, StandardCharsets.UTF_8);
-    String GRADLE_POM_MARKER = "do_not_remove: published-with-gradle-metadata";
-    if (content.contains(GRADLE_POM_MARKER)) return; // already has marker, nothing to do
+    if (content.contains(GRADLE_POM_MARKER)) {
+      return; // already has marker, nothing to do
+    }
 
     XMLInputFactory inFactory = XMLInputFactory.newInstance();
     XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
