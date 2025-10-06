@@ -453,7 +453,7 @@ public class GradleResolver implements Resolver {
         // Instead of changing gradleCacheDir, symlink the user's caches directory
         // This avoids timing issues with gradle.user.home system property
         Path userCaches = Paths.get(System.getProperty("user.home"), ".gradle", "caches");
-        if (Files.exists(userCaches)) {
+        if (Files.isDirectory(userCaches)) {
           try {
             Path cacheSymlink = gradleCacheDir.resolve("caches");
             Files.createSymbolicLink(cacheSymlink, userCaches);
@@ -475,10 +475,11 @@ public class GradleResolver implements Resolver {
             }
           }
         } else if (isVerbose()) {
+          String reason = Files.exists(userCaches) ? "is not a directory" : "not found";
           eventListener.onEvent(
               new LogEvent(
                   "gradle",
-                  "User gradle caches directory not found, using isolated cache",
+                  "User gradle caches directory " + reason + ", using isolated cache",
                   "Expected: " + userCaches));
         }
       }
