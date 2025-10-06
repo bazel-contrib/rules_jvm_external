@@ -3,6 +3,6 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.example.bazel">
 
-    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="27" />
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27" />
 
 </manifest>
