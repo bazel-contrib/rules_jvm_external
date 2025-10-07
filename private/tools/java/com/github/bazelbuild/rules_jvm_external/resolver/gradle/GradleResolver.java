@@ -181,7 +181,8 @@ public class GradleResolver implements Resolver {
                 gradleCoordinates.getArtifactId(),
                 extension,
                 classifier,
-                gradleCoordinates.getVersion());
+                gradleCoordinates.getVersion(),
+                dependency.getVersionRevision());
         addDependency(graph, coordinates, dependency, conflicts, requestedDeps, visited);
         // if there's a conflict and the conflicting version isn't one that's actually requested
         // then it's an actual conflict we want to report
@@ -275,7 +276,8 @@ public class GradleResolver implements Resolver {
                   childCoordinates.getArtifactId(),
                   extension,
                   childCoordinates.getClassifier(),
-                  childCoordinates.getVersion());
+                  childCoordinates.getVersion(),
+                  childInfo.getVersionRevision());
           graph.addNode(child);
           graph.putEdge(parent, child);
           // if there's a conflict and the conflicting version isn't one that's actually requested

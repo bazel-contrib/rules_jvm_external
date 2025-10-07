@@ -25,6 +25,7 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
   private String group;
   private String name;
   private String version;
+  private String versionRevision;
   private Set<String> requestedVersions;
   private boolean conflict;
   private List<GradleResolvedDependency> children;
@@ -59,6 +60,14 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
 
   public void setVersion(String version) {
     this.version = version;
+  }
+
+  public String getVersionRevision() {
+    return versionRevision;
+  }
+
+  public void setVersionRevision(String versionRevision) {
+    this.versionRevision = versionRevision;
   }
 
   public Set<String> getRequestedVersions() {

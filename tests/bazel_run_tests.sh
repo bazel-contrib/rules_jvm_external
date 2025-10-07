@@ -312,31 +312,43 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
  function test_gradle_metadata_is_resolved_correctly_for_aar_artifact {
     # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right aar artifact
     # and make it available
-    bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
+    bazel query --output=label_kind @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
 
-    expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
+    expect_log "aar_import rule @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
  }
 
 function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
   # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right jvm artifact
   # and make it available
-  bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
+  expect_log "jvm_import rule @regression_testing_gradle//:androidx_annotation_annotation_jvm"
 
   # This is KMP artifact which is a transitive dependency
   # and the JAR for this coordinate will just be a dummy jar/placeholder (in some cases a klib file)
   # as gradle will use metadata to resolve the right one.
   # Regardless we'll want to pull this in because the actual artifacts will be its children
   # in the resolved graph with gradle
-  bazel query @regression_testing_gradle//:com_squareup_okio_okio >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind @regression_testing_gradle//:com_squareup_okio_okio >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:com_squareup_okio_okio"
+  expect_log "jvm_import rule @regression_testing_gradle//:com_squareup_okio_okio"
 
   # This is the actual JVM artifact which will have the jar for the KMP artifact
-  bazel query @regression_testing_gradle//:com_squareup_okio_okio_jvm >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind @regression_testing_gradle//:com_squareup_okio_okio_jvm >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:com_squareup_okio_okio_jvm"
+  expect_log "jvm_import rule @regression_testing_gradle//:com_squareup_okio_okio_jvm"
+}
+
+function test_gradle_resolves_correctly_a_versioned_snapshot {
+  bazel query --output=label_kind @regression_testing_gradle//:com_google_guava_guava >> "$TEST_LOG" 2>&1
+
+  expect_log "jvm_import rule @regression_testing_gradle//:com_google_guava_guava"
+}
+
+function test_gradle_resolves_correctly_a_non_versioned_snapshot {
+  bazel query --output=label_kind @regression_testing_gradle//:org_seleniumhq_selenium_selenium_java >> "$TEST_LOG" 2>&1
+
+  expect_log "jvm_import rule @regression_testing_gradle//:org_seleniumhq_selenium_selenium_java"
 }
 
 function test_gradle_versions_catalog {
@@ -367,8 +379,10 @@ TESTS=(
   "test_transitive_dependency_with_type_of_pom"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
-  # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
+  "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
+  "test_gradle_resolves_correctly_a_versioned_snapshot"
+  "test_gradle_resolves_correctly_a_non_versioned_snapshot"
   "test_gradle_versions_catalog"
 )
 
