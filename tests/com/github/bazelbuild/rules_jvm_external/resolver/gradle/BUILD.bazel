@@ -5,10 +5,12 @@ java_test(
     name = "GradleResolverTest",
     timeout = "eternal",
     srcs = [
+        "GradleModuleMetadataHelper.java",
         "GradleResolverTest.java",
     ],
     data = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
+        "//tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures",
     ],
     env = {
         "RJE_VERBOSE": "true",
@@ -26,6 +28,10 @@ java_test(
         artifact(
             "junit:junit",
             repository_name = "regression_testing_coursier",
+        ),
+        artifact(
+            "com.google.guava:guava",
+            repository_name = "rules_jvm_external_deps",
         ),
         "@bazel_tools//tools/java/runfiles",
     ],
