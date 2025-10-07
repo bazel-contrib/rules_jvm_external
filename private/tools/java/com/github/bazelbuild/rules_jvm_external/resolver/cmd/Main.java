@@ -283,9 +283,39 @@ public class Main {
 
     Set<String> keys = new TreeSet<>(Set.of("artifacts", "dependencies", "repositories"));
     for (String key : keys) {
-      toHash.put(key, rendered.get(key));
+      Object value = rendered.get(key);
+      // Sort nested structures the same way Starlark does with json.decode(json.encode(value))
+      // to ensure consistent hashing between Java and Starlark
+      if (value instanceof Map) {
+        value = sortMapRecursively((Map<?, ?>) value);
+      }
+      toHash.put(key, value);
     }
 
     return new StarlarkRepr().repr(toHash).hashCode();
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> sortMapRecursively(Map<?, ?> map) {
+    TreeMap<String, Object> sorted = new TreeMap<>();
+    for (Map.Entry<?, ?> entry : map.entrySet()) {
+      Object value = entry.getValue();
+      if (value instanceof Map) {
+        value = sortMapRecursively((Map<?, ?>) value);
+      } else if (value instanceof List) {
+        List<?> list = (List<?>) value;
+        List<Object> sortedList = new java.util.ArrayList<>();
+        for (Object item : list) {
+          if (item instanceof Map) {
+            sortedList.add(sortMapRecursively((Map<?, ?>) item));
+          } else {
+            sortedList.add(item);
+          }
+        }
+        value = sortedList;
+      }
+      sorted.put(String.valueOf(entry.getKey()), value);
+    }
+    return sorted;
   }
 }
