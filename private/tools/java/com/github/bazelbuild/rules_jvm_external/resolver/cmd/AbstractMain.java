@@ -28,6 +28,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
+import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.HttpDownloader;
@@ -56,20 +57,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-public class Main {
+public abstract class AbstractMain {
 
-  public static void main(String[] args) throws IOException {
+  public void doMain(String[] args) {
     Set<DependencyInfo> infos;
     try (EventListener listener = HttpDownloader.defaultEventListener()) {
       ResolverConfig config = new ResolverConfig(listener, args);
 
       ResolutionRequest request = config.getResolutionRequest();
 
-      Resolver resolver = config.getResolver();
+      Resolver resolver = getResolver(config.getNetrc(), config.getMaxThreads(), listener);
 
       ResolutionResult resolutionResult = resolver.resolve(request);
 
-      infos = fulfillDependencyInfos(listener, config, resolutionResult.getResolution());
+      infos = fulfillDependencyInfos(resolver, listener, config, resolutionResult.getResolution());
 
       writeLockFile(listener, config, request, infos, resolutionResult.getConflicts());
 
@@ -80,8 +81,13 @@ public class Main {
     }
   }
 
+  public abstract Resolver getResolver(Netrc netrc, int maxThreads, EventListener listener);
+
   private static Set<DependencyInfo> fulfillDependencyInfos(
-      EventListener listener, ResolverConfig config, Graph<Coordinates> resolved) {
+      Resolver resolver,
+      EventListener listener,
+      ResolverConfig config,
+      Graph<Coordinates> resolved) {
     listener.onEvent(new PhaseEvent("Downloading dependencies"));
 
     ResolutionRequest request = config.getResolutionRequest();
@@ -94,7 +100,7 @@ public class Main {
     Downloader downloader =
         new Downloader(
             config.getNetrc(),
-            request.getLocalCache(config.getResolver().getName()),
+            request.getLocalCache(resolver.getName()),
             request.getRepositories(),
             listener,
             cacheResults);

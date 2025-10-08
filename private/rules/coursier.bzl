@@ -721,6 +721,13 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
         else:
             lock_file_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
 
+        if repository_ctx.attr.resolver == "maven":
+            resolver_target = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven:MavenMain")
+        elif repository_ctx.attr.resolver == "gradle":
+            resolver_target = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:GradleMain")
+        else:
+            fail("Unknown resolver")
+
         return _IN_REPO_PIN.format(
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
@@ -730,7 +737,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
-            resolver = repr(repository_ctx.attr.resolver),
+            resolver = repr(str(resolver_target)),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):

@@ -16,11 +16,8 @@ package com.github.bazelbuild.rules_jvm_external.resolver.cmd;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
-import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
-import com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleResolver;
-import com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenResolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -37,7 +34,6 @@ public class ResolverConfig {
   public static final int DEFAULT_MAX_THREADS =
       Math.min(5, Runtime.getRuntime().availableProcessors());
   private final ResolutionRequest request;
-  private final Resolver resolver;
   private final boolean fetchSources;
   private final boolean fetchJavadoc;
   private final Netrc netrc;
@@ -50,7 +46,6 @@ public class ResolverConfig {
     this.netrc = Netrc.fromUserHome();
 
     ResolutionRequest request = new ResolutionRequest();
-    String chosenResolver = "maven";
     boolean fetchSources = false;
     boolean fetchJavadoc = false;
     int maxThreads = DEFAULT_MAX_THREADS;
@@ -99,22 +94,6 @@ public class ResolverConfig {
           }
           break;
 
-        case "--resolver":
-          i++;
-          switch (args[i]) {
-            case "gradle":
-              chosenResolver = "gradle";
-              break;
-
-            case "maven":
-              chosenResolver = "maven";
-              break;
-
-            default:
-              throw new IllegalArgumentException("Resolver must be one of `maven` or `gradle`");
-          }
-          break;
-
         case "--sources":
           fetchSources = true;
           break;
@@ -152,10 +131,6 @@ public class ResolverConfig {
           request.isUseUnsafeSharedCache() || config.isUsingUnsafeSharedCache());
 
       config.getRepositories().forEach(request::addRepository);
-
-      if (config.getResolver() != null) {
-        chosenResolver = config.getResolver();
-      }
 
       config.getGlobalExclusions().forEach(request::exclude);
 
@@ -208,22 +183,10 @@ public class ResolverConfig {
     this.inputHash = inputHash;
     this.maxThreads = maxThreads;
     this.output = output;
-
-    if (chosenResolver.equals("maven")) {
-      this.resolver = new MavenResolver(netrc, maxThreads, listener);
-    } else if (chosenResolver.equals("gradle")) {
-      this.resolver = new GradleResolver(netrc, maxThreads, listener);
-    } else {
-      throw new RuntimeException("Unknown resolver: " + chosenResolver);
-    }
   }
 
   public ResolutionRequest getResolutionRequest() {
     return request;
-  }
-
-  public Resolver getResolver() {
-    return resolver;
   }
 
   public boolean isFetchSources() {
