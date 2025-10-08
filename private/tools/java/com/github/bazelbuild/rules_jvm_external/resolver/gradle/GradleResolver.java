@@ -450,7 +450,38 @@ public class GradleResolver implements Resolver {
       Path gradleCacheDir = fakeProjectDirectory.resolve(".gradle");
       Files.createDirectories(gradleCacheDir);
       if (useUnsafeCache) {
-        gradleCacheDir = Paths.get(System.getProperty("user.home"), ".gradle");
+        // Instead of changing gradleCacheDir, symlink the user's caches directory
+        // This avoids timing issues with gradle.user.home system property
+        Path userCaches = Paths.get(System.getProperty("user.home"), ".gradle", "caches");
+        if (Files.isDirectory(userCaches)) {
+          try {
+            Path cacheSymlink = gradleCacheDir.resolve("caches");
+            Files.createSymbolicLink(cacheSymlink, userCaches);
+            if (isVerbose()) {
+              eventListener.onEvent(
+                  new LogEvent(
+                      "gradle",
+                      "Using unsafe shared cache",
+                      "Symlinked " + userCaches + " -> " + cacheSymlink));
+            }
+          } catch (IOException e) {
+            // If symlinking fails, fall back to isolated cache
+            if (isVerbose()) {
+              eventListener.onEvent(
+                  new LogEvent(
+                      "gradle",
+                      "Failed to create cache symlink, using isolated cache",
+                      e.getMessage()));
+            }
+          }
+        } else if (isVerbose()) {
+          String reason = Files.exists(userCaches) ? "is not a directory" : "not found";
+          eventListener.onEvent(
+              new LogEvent(
+                  "gradle",
+                  "User gradle caches directory " + reason + ", using isolated cache",
+                  "Expected: " + userCaches));
+        }
       }
 
       return new GradleProject(
