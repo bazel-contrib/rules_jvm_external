@@ -38,9 +38,9 @@ public class PomUtil {
       NodeList packagingNodes = doc.getElementsByTagName("packaging");
       if (packagingNodes.getLength() > 0) {
         String packaging = packagingNodes.item(0).getTextContent().trim();
-        if (SUPPORTED_PACKAGING_TYPES.contains(packaging)) {
-          return packaging;
-        }
+        // Return the actual packaging from the POM, even if not in our supported list
+        // The caller can decide how to handle unsupported types
+        return packaging;
       }
     } catch (Exception e) {
       // we can gracefully fail here
