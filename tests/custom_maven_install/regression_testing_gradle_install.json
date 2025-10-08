@@ -994,6 +994,21 @@
     ]
   },
   "repositories": {
+    "https://repo1.maven.org/maven2/": [
+      "com.google.guava:listenablefuture",
+      "com.squareup.okhttp3:okhttp",
+      "com.squareup.okio:okio",
+      "com.squareup.okio:okio-jvm",
+      "org.jetbrains.kotlin:kotlin-stdlib",
+      "org.jetbrains.kotlin:kotlin-stdlib-common",
+      "org.jetbrains.kotlin:kotlin-stdlib-jdk7",
+      "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
+      "org.jetbrains.kotlinx:kotlinx-coroutines-android",
+      "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
+      "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+      "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",
+      "org.jetbrains:annotations"
+    ],
     "https://maven.google.com/": [
       "androidx.activity:activity-ktx:aar",
       "androidx.activity:activity:aar",
@@ -1052,21 +1067,6 @@
       "androidx.startup:startup-runtime:aar",
       "androidx.tracing:tracing:aar",
       "androidx.versionedparcelable:versionedparcelable:aar"
-    ],
-    "https://repo1.maven.org/maven2/": [
-      "com.google.guava:listenablefuture",
-      "com.squareup.okhttp3:okhttp",
-      "com.squareup.okio:okio",
-      "com.squareup.okio:okio-jvm",
-      "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlin:kotlin-stdlib-common",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk7",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-android",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",
-      "org.jetbrains:annotations"
     ]
   },
   "services": {

@@ -1999,7 +1999,6 @@
     ]
   },
   "repositories": {
-    "https://maven.google.com/": [],
     "https://repo1.maven.org/maven2/": [
       "com.almworks.sqlite4java:libsqlite4java-linux-amd64:so",
       "com.almworks.sqlite4java:libsqlite4java-linux-i386:so",
@@ -2093,7 +2092,8 @@
       "software.amazon.awssdk:utils",
       "software.amazon.eventstream:eventstream",
       "software.amazon.ion:ion-java"
-    ]
+    ],
+    "https://maven.google.com/": []
   },
   "services": {
     "com.fasterxml.jackson.core:jackson-core": {
