@@ -115,7 +115,7 @@ public class GradleResolver implements Resolver {
                 + " ms");
       }
       start = Instant.now();
-      ResolutionResult result = parseDependencies(dependencies, resolved, boms);
+      ResolutionResult result = parseDependencies(dependencies, resolved);
       end = Instant.now();
 
       if (isVerbose()) {
@@ -147,10 +147,8 @@ public class GradleResolver implements Resolver {
   }
 
   private ResolutionResult parseDependencies(
-      List<GradleDependency> requestedDeps,
-      GradleDependencyModel resolved,
-      List<GradleDependency> boms)
-      throws IOException {
+      List<GradleDependency> requestedDeps, GradleDependencyModel resolved)
+      throws GradleDependencyResolutionException {
     MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(false).build();
 
     Set<Conflict> conflicts = new HashSet<>();
@@ -229,6 +227,9 @@ public class GradleResolver implements Resolver {
       graph.addNode(coordinates);
     }
 
+    if (unresolvedDependencies.size() > 0) {
+      throw new GradleDependencyResolutionException(unresolvedDependencies);
+    }
     return new ResolutionResult(graph, conflicts);
   }
 

@@ -14,7 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
@@ -128,5 +128,56 @@ public class GradleResolverTest extends ResolverTestBase {
     // Once we support resolving android variant, this test should be updated to ensure
     // sample-android is also resolved
     assertEquals(Set.of(baseCoordinates, jvmCoordinates), resolved.nodes());
+  }
+
+  @Test
+  public void throwsAnExceptionIfASingleDependencyWasNotResolved() throws IOException {
+    Coordinates validCoordinates = new Coordinates("com.example:sample:1.0");
+    Coordinates invalidCoordinates = new Coordinates("com.example:does-not-exist:1.0");
+    MavenRepo mavenRepo = MavenRepo.create().add(validCoordinates);
+    // Junit 4 doesn't have a clean way to assert exceptions
+    // so we handle the exception explicitly and assert on it
+    try {
+      resolver
+          .resolve(
+              prepareRequestFor(mavenRepo.getPath().toUri(), validCoordinates, invalidCoordinates))
+          .getResolution();
+      fail("Resolution shouldn't succeed if invalid coordinates are specified");
+
+    } catch (Exception e) {
+      assertTrue(e.getCause() instanceof GradleDependencyResolutionException);
+      assertEquals(
+          "Failed to resolve dependency: com.example:does-not-exist:1.0 (NOT_FOUND)",
+          e.getCause().getMessage());
+    }
+  }
+
+  @Test
+  public void throwsAnExceptionIfMultipleDependenciesWereNotResolved() throws IOException {
+    Coordinates validCoordinates = new Coordinates("com.example:sample:1.0");
+    Coordinates invalidCoordinates1 = new Coordinates("com.example:does-not-exist:1.0");
+    Coordinates invalidCoordinates2 = new Coordinates("com.example:does-not-exist-too:1.0");
+    MavenRepo mavenRepo = MavenRepo.create().add(validCoordinates);
+    // Junit 4 doesn't have a clean way to assert exceptions
+    // so we handle the exception explicitly and assert on it
+    try {
+      resolver
+          .resolve(
+              prepareRequestFor(
+                  mavenRepo.getPath().toUri(),
+                  validCoordinates,
+                  invalidCoordinates1,
+                  invalidCoordinates2))
+          .getResolution();
+      fail("Resolution shouldn't succeed if invalid coordinates are specified");
+
+    } catch (Exception e) {
+      assertTrue(e.getCause() instanceof GradleDependencyResolutionException);
+      assertEquals(
+          "Multiple dependencies failed to resolve:\n"
+              + "  - com.example:does-not-exist:1.0 (NOT_FOUND)\n"
+              + "  - com.example:does-not-exist-too:1.0 (NOT_FOUND)",
+          e.getCause().getMessage());
+    }
   }
 }
