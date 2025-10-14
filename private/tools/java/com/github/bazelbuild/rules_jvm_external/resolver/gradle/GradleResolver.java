@@ -115,7 +115,7 @@ public class GradleResolver implements Resolver {
                 + " ms");
       }
       start = Instant.now();
-      ResolutionResult result = parseDependencies(dependencies, resolved, boms);
+      ResolutionResult result = parseDependencies(dependencies, resolved);
       end = Instant.now();
 
       if (isVerbose()) {
@@ -147,10 +147,8 @@ public class GradleResolver implements Resolver {
   }
 
   private ResolutionResult parseDependencies(
-      List<GradleDependency> requestedDeps,
-      GradleDependencyModel resolved,
-      List<GradleDependency> boms)
-      throws IOException {
+      List<GradleDependency> requestedDeps, GradleDependencyModel resolved)
+      throws GradleDependencyResolutionException {
     MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(false).build();
 
     Set<Conflict> conflicts = new HashSet<>();
@@ -229,6 +227,16 @@ public class GradleResolver implements Resolver {
       graph.addNode(coordinates);
     }
 
+    // If any of the deps we requested failed to resolve, we should throw an exception.
+    // For missing transitive deps, we only appear to log a warning in the maven, so keep that
+    // behavior here as well
+    List<GradleUnresolvedDependency> unresolvedRequestedDeps =
+        unresolvedDependencies.stream()
+            .filter(dep -> isRequestedDep(requestedDeps, dep))
+            .collect(Collectors.toList());
+    if (!unresolvedRequestedDeps.isEmpty()) {
+      throw new GradleDependencyResolutionException(unresolvedRequestedDeps);
+    }
     return new ResolutionResult(graph, conflicts);
   }
 
@@ -240,6 +248,16 @@ public class GradleResolver implements Resolver {
                 dep.getArtifact().equals(resolved.getName())
                     && dep.getGroup().equals(resolved.getGroup())
                     && dep.getVersion().equals(resolved.getVersion()));
+  }
+
+  private boolean isRequestedDep(
+      List<GradleDependency> requestedDeps, GradleUnresolvedDependency unresolved) {
+    return requestedDeps.stream()
+        .anyMatch(
+            dep ->
+                dep.getArtifact().equals(unresolved.getName())
+                    && dep.getGroup().equals(unresolved.getGroup())
+                    && dep.getVersion().equals(unresolved.getVersion()));
   }
 
   private void addDependency(
