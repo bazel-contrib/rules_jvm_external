@@ -24,7 +24,7 @@ tasks:
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
- android-local-test-macos:
+  android-local-test-macos:
    name: "Android Robolectric test example"
    platform: macos
    working_directory: examples/android_local_test
