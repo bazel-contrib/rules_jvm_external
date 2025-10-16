@@ -5,19 +5,19 @@ tasks:
     platform: ubuntu1804
     working_directory: examples/android_kotlin_app
     build_targets:
-    - "//:app"
+      - "//:app"
   android-kotlin-macos:
     name: "Android Kotlin example"
     platform: macos
     working_directory: examples/android_kotlin_app
     build_targets:
-    - "//:app"
+      - "//:app"
   android-kotlin-windows:
     name: "Android Kotlin example"
     platform: windows
     working_directory: examples/android_kotlin_app
     build_targets:
-    - "//:app"
+      - "//:app"
   android-local-test-linux:
     name: "Android Robolectric test example"
     platform: ubuntu1804
@@ -25,11 +25,11 @@ tasks:
     test_targets:
       - "//..."
   android-local-test-macos:
-   name: "Android Robolectric test example"
-   platform: macos
-   working_directory: examples/android_local_test
-   test_targets:
-     - "//..."
+    name: "Android Robolectric test example"
+    platform: macos
+    working_directory: examples/android_local_test
+    test_targets:
+      - "//..."
   android-local-test-windows:
     name: "Android Robolectric test example"
     platform: windows
@@ -78,12 +78,12 @@ tasks:
     working_directory: examples/kt_android_local_test
     test_targets:
       - "//..."
-#  kotlin-android-local-test-macos:
-#    name: "Kotlin Android Robolectric test example"
-#    platform: macos
-#    working_directory: examples/kt_android_local_test
-#    test_targets:
-#      - "//..."
+  #  kotlin-android-local-test-macos:
+  #    name: "Kotlin Android Robolectric test example"
+  #    platform: macos
+  #    working_directory: examples/kt_android_local_test
+  #    test_targets:
+  #      - "//..."
   kotlin-android-local-test-windows:
     name: "Kotlin Android Robolectric test example"
     platform: windows
@@ -102,14 +102,14 @@ tasks:
     working_directory: examples/kt_jvm_export
     build_targets:
       - "//..."
-# Ignored because none of the rje team have access to a Windows
-# machine to properly investigate the issue
-#  kotlin-jvm-export-windows:
-#    name: "kt_jvm_export example"
-#    platform: windows
-#    working_directory: examples/kt_jvm_export
-#    build_targets:
-#      - "//..."
+  # Ignored because none of the rje team have access to a Windows
+  # machine to properly investigate the issue
+  #  kotlin-jvm-export-windows:
+  #    name: "kt_jvm_export example"
+  #    platform: windows
+  #    working_directory: examples/kt_jvm_export
+  #    build_targets:
+  #      - "//..."
   pom-file-generation-linux:
     name: "POM file generation example"
     platform: ubuntu1804
@@ -142,7 +142,7 @@ tasks:
       - "//..."
   protobuf-java-windows:
     name: "Protobuf Java example"
-    platform: windows 
+    platform: windows
     working_directory: examples/protobuf-java
     # //src/test:diff_json_test / diff_test does not ignore line endings
     # correctly on Windows.
@@ -153,23 +153,23 @@ tasks:
     platform: ubuntu1804
     working_directory: examples/scala_akka
     build_targets:
-    - "//..."
+      - "//..."
     test_targets:
-    - "//..."
+      - "//..."
   scala-akka-macos:
     name: "Scala example"
     platform: macos
     working_directory: examples/scala_akka
     build_targets:
-    - "//..."
+      - "//..."
     test_targets:
-    - "//..."
+      - "//..."
   scala-akka-windows:
     name: "Scala example"
     platform: windows
     working_directory: examples/scala_akka
     build_targets:
-    - "//..."
+      - "//..."
     # test_targets:
     # https://github.com/bazelbuild/rules_jvm_external/issues/103
     # - "//..."
@@ -177,7 +177,7 @@ tasks:
     name: "Simple example"
     platform: ubuntu1804
     working_directory: examples/simple
-    shell_command: 
+    shell_command:
       - "bazel run @maven//:pin"
     build_targets:
       - "//..."
@@ -185,7 +185,7 @@ tasks:
     name: "Simple example"
     platform: macos
     working_directory: examples/simple
-    shell_command: 
+    shell_command:
       - "bazel run @maven//:pin"
     build_targets:
       - "//..."
@@ -200,22 +200,22 @@ tasks:
     platform: ubuntu1804
     working_directory: examples/spring_boot
     build_targets:
-    - "//..."
+      - "//..."
     test_targets:
-    - "//..."
+      - "//..."
   spring-boot-macos:
     name: "Spring boot example"
     platform: macos
     working_directory: examples/spring_boot
     build_targets:
-    - "//..."
+      - "//..."
     test_targets:
-    - "//..."
+      - "//..."
   spring-boot-windows:
     name: "Spring boot example"
     platform: windows
     working_directory: examples/spring_boot
     build_targets:
-    - "//..."
+      - "//..."
     test_targets:
-    - "//..."
+      - "//..."
