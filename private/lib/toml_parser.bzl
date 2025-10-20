@@ -321,14 +321,7 @@ def _parse_string(value_str, line_num, section_path):
         # Basic string - handle escape sequences
         # Double-quoted TOML strings have the same spec as JSON strings <3
 
-        result = json.decode(value_str, default = JSON_DECODE_ERROR)
-        if result == JSON_DECODE_ERROR:
-            print("Invalid string %s: '%s'" % (_parser_location(line_num, section_path), value_str))
-
-            # Re-run json.decode() without defaults to get the error message.
-            json.decode(value_str)
-
-        return result
+        return json.decode(value_str)
     else:
         fail("Invalid string format %s: %'s'" % (_parser_location(line_num, section_path), value_str))
 
