@@ -277,7 +277,7 @@ public abstract class AbstractMain {
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(toReturn) + "\n";
 
     try (OutputStream os = output == null ? System.out : Files.newOutputStream(output);
-        BufferedOutputStream bos = new BufferedOutputStream(os)) {
+         BufferedOutputStream bos = new BufferedOutputStream(os)) {
       bos.write(converted.getBytes(UTF_8));
     }
   }
@@ -287,9 +287,9 @@ public abstract class AbstractMain {
   private static Map<String, Integer> calculateArtifactHash(Map<String, Object> rendered) {
     Map<String, Map<String, Object>> allInfos = new LinkedHashMap<>();
 
-    Map<String, Object> artifacts = (Map<String, Object>) rendered.get("artifacts");
-    for (Map.Entry<String, Object> dep : artifacts.entrySet()) {
-      Map<String, Object> depInfo = (Map<String, Object>) dep.getValue();
+    Map<String, Map<String, Object>> artifacts = sortMapRecursively((Map<?, ?>) rendered.get("artifacts"));
+    for (Map.Entry<String, Map<String, Object>> dep : artifacts.entrySet()) {
+      Map<String, Object> depInfo = dep.getValue();
       Map<String, String> shasums = (Map<String, String>) depInfo.get("shasums");
 
       Map<String, Object> commonInfo = new LinkedHashMap<>(depInfo);
@@ -302,7 +302,7 @@ public abstract class AbstractMain {
         String sha = shaEntry.getValue();
 
         String jarSuffix = isJarType ? ":jar" : "";
-        String suffix = (type != "jar") ? jarSuffix + ":" + type : "";
+        String suffix = (!type.equals("jar")) ? jarSuffix + ":" + type : "";
 
         Map<String, Object> typeInfo = new LinkedHashMap<>();
         typeInfo.put("standard", commonInfo);
@@ -311,15 +311,15 @@ public abstract class AbstractMain {
       }
     }
 
-    Map<String, Object> repositories = (Map<String, Object>) rendered.get("repositories");
-    for (Map.Entry<String, Object> repo : repositories.entrySet()) {
-      Iterable<String> repoArtifacts = (Iterable<String>) repo.getValue();
+    Map<String, Iterable<String>> repositories = sortMapRecursively((Map<?, ?>) rendered.get("repositories"));
+    for (Map.Entry<String, Iterable<String>> repo : repositories.entrySet()) {
+      Iterable<String> repoArtifacts = repo.getValue();
       for (String art : repoArtifacts) {
         allInfos.get(art).put("repository", repo.getKey());
       }
     }
 
-    Map<String, Set<String>> dependencies = (Map<String, Set<String>>) rendered.get("dependencies");
+    Map<String, Set<String>> dependencies = sortMapRecursively((Map<?, ?>) rendered.get("dependencies"));
     for (Map.Entry<String, Set<String>> dep : dependencies.entrySet()) {
       allInfos.get(dep.getKey()).put("dependencies", dep.getValue());
     }
@@ -356,8 +356,8 @@ public abstract class AbstractMain {
   }
 
   @SuppressWarnings("unchecked")
-  private static Map<String, Object> sortMapRecursively(Map<?, ?> map) {
-    TreeMap<String, Object> sorted = new TreeMap<>();
+  private static <T> Map<String, T> sortMapRecursively(Map<?, ?> map) {
+    TreeMap<String, T> sorted = new TreeMap<>();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       Object value = entry.getValue();
       if (value instanceof Map) {
@@ -374,7 +374,7 @@ public abstract class AbstractMain {
         }
         value = sortedList;
       }
-      sorted.put(String.valueOf(entry.getKey()), value);
+      sorted.put(String.valueOf(entry.getKey()), (T) value);
     }
     return sorted;
   }
