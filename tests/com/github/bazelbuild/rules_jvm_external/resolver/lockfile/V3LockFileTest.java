@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.junit.Test;
 
-public class V2LockFileTest {
+public class V3LockFileTest {
 
   private final URI defaultRepo = URI.create("http://localhost/m2/repository/");
   private final Set<URI> repos = Set.of(defaultRepo);
@@ -45,7 +45,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    Map<String, Object> rendered = new V2LockFile(repos, Set.of(aggregator), Set.of()).render();
+    Map<String, Object> rendered = new V3LockFile(repos, Set.of(aggregator), Set.of()).render();
 
     Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
     Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");
@@ -58,7 +58,7 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripASimpleSetOfDependencies() {
-    V2LockFile roundTripped = roundTrip(new V2LockFile(repos, Set.of(), Set.of()));
+    V3LockFile roundTripped = roundTrip(new V3LockFile(repos, Set.of(), Set.of()));
 
     assertEquals(repos, roundTripped.getRepositories());
     assertEquals(Set.of(), roundTripped.getDependencyInfos());
@@ -67,15 +67,15 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripM2Local() {
-    V2LockFile lockFile = new V2LockFile(repos, Set.of(), Set.of());
+    V3LockFile lockFile = new V3LockFile(repos, Set.of(), Set.of());
     Map<String, Object> rendered = lockFile.render();
     rendered.put("m2local", true);
 
-    V2LockFile roundTripped =
-        V2LockFile.create(
+    V3LockFile roundTripped =
+        V3LockFile.create(
             new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered));
 
-    assertEquals(Set.of(defaultRepo, V2LockFile.M2_LOCAL_URI), roundTripped.getRepositories());
+    assertEquals(Set.of(defaultRepo, V3LockFile.M2_LOCAL_URI), roundTripped.getRepositories());
   }
 
   @Test
@@ -90,7 +90,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of()));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info), Set.of()));
 
     assertEquals(Set.of(info), lockFile.getDependencyInfos());
   }
@@ -119,7 +119,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info, dep), Set.of()));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info, dep), Set.of()));
 
     assertEquals(Set.of(info, dep), lockFile.getDependencyInfos());
   }
@@ -133,15 +133,15 @@ public class V2LockFileTest {
             new Conflict(
                 new Coordinates("com.foo:bar:1.2.3"), new Coordinates("com.foo:bar:1.2.1")));
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(), conflicts));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(), conflicts));
 
     assertEquals(conflicts, lockFile.getConflicts());
   }
 
-  private V2LockFile roundTrip(V2LockFile lockFile) {
+  private V3LockFile roundTrip(V3LockFile lockFile) {
     Map<String, Object> rendered = lockFile.render();
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered) + "\n";
-    return V2LockFile.create(converted);
+    return V3LockFile.create(converted);
   }
 }
