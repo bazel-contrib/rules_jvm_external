@@ -388,6 +388,8 @@ maven_install(
         "androidx.annotation:annotation:1.6.0",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/1409
         "com.squareup.okhttp3:okhttp:4.12.0",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1471
+        "androidx.fragment:fragment-ktx:1.6.1",
     ],
     generate_compat_repositories = True,
     maven_install_json = "//tests/custom_maven_install:regression_testing_gradle_install.json",

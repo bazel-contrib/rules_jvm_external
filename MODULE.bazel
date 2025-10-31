@@ -771,6 +771,8 @@ dev_maven.install(
         "com.squareup.okhttp3:okhttp:4.12.0",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/1461
         "com.almworks.sqlite4java:libsqlite4java-linux-i386:1.0.392",
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1471
+        "androidx.fragment:fragment-ktx:1.6.1",
     ],
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
