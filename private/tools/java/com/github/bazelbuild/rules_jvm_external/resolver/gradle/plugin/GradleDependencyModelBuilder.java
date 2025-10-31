@@ -211,7 +211,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   private List<GradleUnresolvedDependency> getUnresolvedDependencies(Configuration cfg) {
     List<GradleUnresolvedDependency> unresolvedDependencies = new ArrayList<>();
     ResolutionResult result = cfg.getIncoming().getResolutionResult();
-    for (DependencyResult dep : result.getRoot().getDependencies()) {
+    for (DependencyResult dep : result.getAllDependencies()) {
       if (dep instanceof UnresolvedDependencyResult) {
         UnresolvedDependencyResult rdep = (UnresolvedDependencyResult) dep;
         ModuleComponentSelector selector = (ModuleComponentSelector) rdep.getAttempted();
