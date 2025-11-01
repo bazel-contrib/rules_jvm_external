@@ -465,7 +465,21 @@ public class GradleResolver implements Resolver {
                 Files.readString(outputBuildScript)));
       }
 
+      // By default, use a directory under bazel's runfiles tree
+      // for gradle home. This will mean incremental triggering of lockfile
+      // generation will be significantly and reduce redundant storage
+      String runfilesDir = System.getenv("JAVA_RUNFILES");
       Path gradleCacheDir = fakeProjectDirectory.resolve(".gradle");
+      if (runfilesDir != null) {
+        gradleCacheDir = Paths.get(runfilesDir).resolve(".gradle");
+        if (isVerbose()) {
+          eventListener.onEvent(
+              new LogEvent(
+                  "gradle",
+                  "Using directory under runfiles for gradle home",
+                  "Gradle Home: " + gradleCacheDir));
+        }
+      }
       Files.createDirectories(gradleCacheDir);
       if (useUnsafeCache) {
         // Instead of changing gradleCacheDir, symlink the user's caches directory
