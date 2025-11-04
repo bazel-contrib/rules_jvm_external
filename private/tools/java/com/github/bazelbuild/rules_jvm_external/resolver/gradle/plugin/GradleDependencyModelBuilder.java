@@ -14,6 +14,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
+import static com.github.bazelbuild.rules_jvm_external.resolver.PackagingMappings.mapPackagingToExtension;
+
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyImpl;
@@ -462,7 +464,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
         resolvedArtifact.setFile(artifact.getFile());
         resolvedArtifact.setClassifier(extractClassifier(artifact.getFile(), identifier));
-        resolvedArtifact.setExtension(Files.getFileExtension(artifact.getFile().getName()));
+        String fileExtension = Files.getFileExtension(artifact.getFile().getName());
+        resolvedArtifact.setExtension(mapPackagingToExtension(fileExtension));
 
         Coordinates coordinates =
             new Coordinates(
@@ -551,7 +554,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
       resolvedArtifact.setFile(artifact.getFile());
       if (artifact.getFile() != null) {
-        resolvedArtifact.setExtension(PomUtil.extractPackagingFromPom(artifact.getFile()));
+        String packaging = PomUtil.extractPackagingFromPom(artifact.getFile());
+        resolvedArtifact.setExtension(mapPackagingToExtension(packaging));
       }
       resolvedDependency.addArtifact(resolvedArtifact);
     }

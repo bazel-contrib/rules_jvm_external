@@ -14,7 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
-import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenPackagingMappings.mapPackagingToExtension;
+import static com.github.bazelbuild.rules_jvm_external.resolver.PackagingMappings.mapPackagingToExtension;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import java.io.BufferedInputStream;
