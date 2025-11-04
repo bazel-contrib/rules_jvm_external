@@ -177,6 +177,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     ResolvedComponentResult root = result.getRoot();
 
     if (isVerbose()) {
+      System.err.println("DEBUG: Resolving configuration: " + cfg.getName());
       System.err.println("Dependency graph: ");
     }
 
@@ -189,6 +190,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         if (isBom(rdep)) {
           continue;
         }
+
         Set<ComponentIdentifier> visited = new HashSet<>();
         // walk the resolved component graph in depth-first manner
         // and collect all the resolved dependencies
@@ -282,6 +284,13 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
       ResolvedDependencyResult resolvedDep = (ResolvedDependencyResult) dep;
       ResolvedComponentResult selected = resolvedDep.getSelected();
+
+      // Skip dependency constraint edges
+      // These are not actual dependencies but show up as edges in the graph.
+      // If we don't handle this, this can lead to cycles in the graph
+      if (resolvedDep.isConstraint()) {
+        continue;
+      }
 
       GradleResolvedDependency child =
           walkResolvedComponent(
