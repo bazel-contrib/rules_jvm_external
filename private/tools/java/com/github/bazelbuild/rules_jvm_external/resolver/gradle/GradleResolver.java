@@ -149,7 +149,7 @@ public class GradleResolver implements Resolver {
   private ResolutionResult parseDependencies(
       List<GradleDependency> requestedDeps, GradleDependencyModel resolved)
       throws GradleDependencyResolutionException {
-    MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(false).build();
+    MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(true).build();
 
     Set<Conflict> conflicts = new HashSet<>();
     List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
