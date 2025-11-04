@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.github.bazelbuild.rules_jvm_external.resolver.maven;
+package com.github.bazelbuild.rules_jvm_external.resolver;
 
 import java.util.Map;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.artifact.ArtifactType;
 import org.eclipse.aether.artifact.ArtifactTypeRegistry;
 
-public class MavenPackagingMappings {
+public class PackagingMappings {
 
   // A set of known packaging types that are not already handled by the type registry that do not
   // also default to `jar`

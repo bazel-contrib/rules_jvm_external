@@ -14,8 +14,8 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
-import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenPackagingMappings.mapPackagingToExtension;
-import static com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenPackagingMappings.mapPackingToClassifier;
+import static com.github.bazelbuild.rules_jvm_external.resolver.PackagingMappings.mapPackagingToExtension;
+import static com.github.bazelbuild.rules_jvm_external.resolver.PackagingMappings.mapPackingToClassifier;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import org.eclipse.aether.artifact.Artifact;
