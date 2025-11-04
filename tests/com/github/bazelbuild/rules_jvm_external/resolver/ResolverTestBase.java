@@ -309,6 +309,24 @@ public abstract class ResolverTestBase {
   }
 
   @Test
+  public void bundlePackagingShouldBeRewrittenToJar() throws IOException {
+    Coordinates coords = new Coordinates("com.example:bundle-artifact:2.0.1");
+    Model model = createModel(coords);
+    model.setPackaging("bundle");
+
+    // Create a jar file in the repo, but the POM declares packaging as "bundle"
+    Coordinates jarCoords = new Coordinates("com.example:bundle-artifact:jar:2.0.1");
+    Path repo = MavenRepo.create().add(jarCoords).writePomFile(model).getPath();
+
+    Graph<Coordinates> resolved =
+        resolver.resolve(prepareRequestFor(repo.toUri(), coords)).getResolution();
+    assertEquals(1, resolved.nodes().size());
+
+    Coordinates resolvedCoords = resolved.nodes().iterator().next();
+    assertEquals("jar", resolvedCoords.getExtension());
+  }
+
+  @Test
   public void shouldResolveAndDownloadItemIdentifiedByClassifierFromArgsFile() throws IOException {
     Map<String, Object> args =
         Map.of(
