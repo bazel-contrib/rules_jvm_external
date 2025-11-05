@@ -4,18 +4,18 @@ module(
     bazel_compatibility = [">=7.0.0"],
 )
 
-bazel_dep(name = "rules_android", version = "0.6.3")
-bazel_dep(name = "bazel_features", version = "1.19.0")
+bazel_dep(name = "rules_android", version = "0.6.6")
+bazel_dep(name = "bazel_features", version = "1.30.0")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "package_metadata", version = "0.0.3")
-bazel_dep(name = "platforms", version = "0.0.10")
+bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "rules_license", version = "1.0.0")
-bazel_dep(name = "rules_java", version = "7.12.2")
+bazel_dep(name = "rules_java", version = "8.13.0")
 bazel_dep(name = "rules_kotlin", version = "1.9.6")
-bazel_dep(name = "rules_shell", version = "0.3.0")
+bazel_dep(name = "rules_shell", version = "0.4.1")
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.20.0", dev_dependency = True)
-bazel_dep(name = "stardoc", version = "0.7.0", dev_dependency = True, repo_name = "io_bazel_stardoc")
+bazel_dep(name = "stardoc", version = "0.7.2", dev_dependency = True, repo_name = "io_bazel_stardoc")
 
 # Remove this once rules_android has rolled out official Bzlmod support
 remote_android_extensions = use_extension("@bazel_tools//tools/android:android_extensions.bzl", "remote_android_tools_extensions")
@@ -151,7 +151,7 @@ bazel_dep(
     # https://github.com/protocolbuffers/protobuf/commit/a80daa2a2caaaac9ebe9ae6bb1b639c2771c5c55
     # This should be ok because we only use protobuf to pull in the google/protobuf/wrappers.proto
     # for testing.
-    version = "29.3",
+    version = "31.1",
     dev_dependency = True,
 )
 bazel_dep(
@@ -171,10 +171,14 @@ dev_maven = use_extension(
 )
 dev_maven.install(
     artifacts = [
-        "com.google.guava:guava:31.1-jre",
-        "com.google.protobuf:protobuf-java:4.29.4",
+        "com.google.guava:guava:33.5.0-jre",
+        "com.google.protobuf:protobuf-java:4.31.0",
         "org.hamcrest:hamcrest-core:2.1",
         "io.netty:netty-tcnative-boringssl-static:2.0.61.Final",
+    ],
+    known_contributing_modules = [
+        "bazel_worker_java",
+        "rules_jvm_external",
     ],
     lock_file = "@rules_jvm_external//:maven_install.json",
     resolver = "coursier",
@@ -298,7 +302,7 @@ dev_maven.install(
 dev_maven.install(
     name = "java_export_exclusion_testing",
     artifacts = [
-        "com.google.protobuf:protobuf-java:3.23.1",
+        "com.google.protobuf:protobuf-java:4.31.1",
     ],
     lock_file = "//tests/custom_maven_install:java_export_exclusion_testing_install.json",
 )
@@ -340,7 +344,6 @@ dev_maven.install(
     name = "jvm_import_test",
     artifacts = [
         "com.google.code.findbugs:jsr305:3.0.2",
-        "com.android.support:appcompat-v7:28.0.0@aar",
     ],
     repositories = [
         "https://repo1.maven.org/maven2",
@@ -755,6 +758,7 @@ dev_maven.install(
         "com.android.support:appcompat-v7:28.0.0",
     ],
     fetch_sources = False,
+    generate_compat_repositories = True,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",

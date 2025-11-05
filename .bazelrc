@@ -13,6 +13,11 @@ build --explicit_java_test_deps
 test --verbose_failures
 test --test_output=errors
 
+# Required to get `protobuf` compiling, which is required for `rules_closure`
+build --incompatible_enable_cc_toolchain_resolution
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
 # Every JVM creates a temporary performance instrumentation file in
 # /tmp/hsperfdata_$USERNAME/$PID. When we use sandboxing, we use PID
 # namespaces, which means that the PIDs are virtualized and all
