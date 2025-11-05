@@ -24,3 +24,18 @@ java_test(
         artifact("org.hamcrest:hamcrest"),
     ],
 )
+
+java_test(
+    name = "MavenPublisherTest",
+    srcs = ["MavenPublisherTest.java"],
+    env = {
+    },
+    test_class = "com.github.bazelbuild.rules_jvm_external.maven.MavenPublisherTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:maven-publisher-lib",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+    ],
+)
