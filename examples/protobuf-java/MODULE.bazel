@@ -18,6 +18,10 @@ maven.install(
         "com.google.protobuf:protobuf-java:3.%s" % protobuf_version,
         "com.google.protobuf:protobuf-java-util:3.%s" % protobuf_version,
     ],
+    known_contributing_modules = [
+        "bazel_worker_java",
+        "rules_jvm_external_example_protobuf_java",
+    ],
     repositories = [
         "https://repo1.maven.org/maven2",
     ],

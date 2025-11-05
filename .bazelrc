@@ -13,7 +13,7 @@ build --explicit_java_test_deps
 test --verbose_failures
 test --test_output=errors
 
-# Required to get `protobuf` compiling, which is required for `rules_closure`
+# Required to get `protobuf` compiling
 build --incompatible_enable_cc_toolchain_resolution
 build --cxxopt=-std=c++17
 build --host_cxxopt=-std=c++17
