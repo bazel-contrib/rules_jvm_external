@@ -1,6 +1,6 @@
 module(name = "rules_jvm_external_example_protobuf_java")
 
-protobuf_version = "25.5"
+protobuf_version = "31.1"
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "protobuf", version = protobuf_version, repo_name = "com_google_protobuf")
@@ -15,8 +15,8 @@ local_path_override(
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     artifacts = [
-        "com.google.protobuf:protobuf-java:3.%s" % protobuf_version,
-        "com.google.protobuf:protobuf-java-util:3.%s" % protobuf_version,
+        "com.google.protobuf:protobuf-java:4.%s" % protobuf_version,
+        "com.google.protobuf:protobuf-java-util:4.%s" % protobuf_version,
     ],
     known_contributing_modules = [
         "bazel_worker_java",
