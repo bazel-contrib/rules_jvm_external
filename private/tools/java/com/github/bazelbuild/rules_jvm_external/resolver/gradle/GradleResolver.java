@@ -36,11 +36,13 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnr
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import com.google.common.hash.Hashing;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -427,6 +429,19 @@ public class GradleResolver implements Resolver {
     }
   }
 
+  private Path getPersistentGradleHomeForRepo() {
+    String workspaceRoot = System.getenv("BUILD_WORKSPACE_DIRECTORY");
+    // This will be always set under bazel run
+    // but this is being defensive against it
+    if (workspaceRoot == null) {
+      return null;
+    }
+
+    String md5 = Hashing.md5().hashString(workspaceRoot, StandardCharsets.UTF_8).toString();
+
+    return Paths.get(System.getProperty("java.io.tmpdir"), "rje-gradle-" + md5);
+  }
+
   private GradleProject setupFakeGradleProject(
       List<Repository> repositories,
       List<GradleDependency> dependencies,
@@ -465,18 +480,18 @@ public class GradleResolver implements Resolver {
                 Files.readString(outputBuildScript)));
       }
 
-      // By default, use a directory under bazel's runfiles tree
-      // for gradle home. This will mean incremental triggering of lockfile
-      // generation will be significantly and reduce redundant storage
-      String runfilesDir = System.getenv("JAVA_RUNFILES");
       Path gradleCacheDir = fakeProjectDirectory.resolve(".gradle");
-      if (runfilesDir != null) {
-        gradleCacheDir = Paths.get(runfilesDir).resolve(".gradle");
+      // Get a persistent directory under temp dir specific to the repo directory under which
+      // we're running so that we use a gradle home that's persistent between invocations
+      // to help improve performance
+      Path persistentGradleHome = getPersistentGradleHomeForRepo();
+      if (persistentGradleHome != null) {
+        gradleCacheDir = persistentGradleHome.resolve(".gradle");
         if (isVerbose()) {
           eventListener.onEvent(
               new LogEvent(
                   "gradle",
-                  "Using directory under runfiles for gradle home",
+                  "Using persistent directory for gradle home",
                   "Gradle Home: " + gradleCacheDir));
         }
       }
