@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -430,12 +431,15 @@ public class GradleResolver implements Resolver {
   }
 
   private Path getPersistentGradleHomeForRepo() {
-    String workspaceRoot = System.getenv("BUILD_WORKSPACE_DIRECTORY");
-    // This will be always set under bazel run
-    // but this is being defensive against it
-    if (workspaceRoot == null) {
-      return null;
-    }
+    // We check for BUILD_WORKSPACE_DIRECTORY which will be set for most usages
+    // with bazel run. It won't be available with tests, so we fall back to TEST_SRCDIR
+    // which will map to the root of the runfiles tree
+    String workspaceRoot =
+        Optional.ofNullable(System.getenv("BUILD_WORKSPACE_DIRECTORY"))
+            .orElse(System.getenv("TEST_SRCDIR"));
+
+    // If none are set, just return null so we fall back to the isolated cache
+    if (workspaceRoot == null) return null;
 
     String md5 = Hashing.md5().hashString(workspaceRoot, StandardCharsets.UTF_8).toString();
 
