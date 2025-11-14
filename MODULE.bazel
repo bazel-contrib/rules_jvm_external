@@ -840,10 +840,17 @@ dev_maven.install(
 # https://github.com/bazelbuild/rules_jvm_external/issues/1206
 dev_maven.install(
     name = "transitive_dependency_with_type_of_pom",
-    # an arbitrary artifact which depends on org.javamoney:moneta:pom
     artifacts = [
+        # an arbitrary artifact which depends on org.javamoney:moneta:pom
         # https://github.com/quarkiverse/quarkus-moneta/blob/2.0.0/runtime/pom.xml#L16-L21
         "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
+
+        # has a transitive dependency on
+        # org.apache.logging.log4j:log4j:3.0.0-beta3 which has packaging=pom.
+        # enabling fetch_sources=True yields a regression documented at
+        # https://github.com/bazel-contrib/rules_jvm_external/issues/1477 since
+        # that artifact has no sources jar.
+        "org.opencadc:cadc-util:1.12.10",
     ],
     fetch_sources = True,
     lock_file = "//tests/custom_maven_install:transitive_dependency_with_type_of_pom.json",
