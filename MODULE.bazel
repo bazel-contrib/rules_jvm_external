@@ -845,6 +845,8 @@ dev_maven.install(
         # https://github.com/quarkiverse/quarkus-moneta/blob/2.0.0/runtime/pom.xml#L16-L21
         "io.quarkiverse.moneta:quarkus-moneta:2.0.0",
     ],
+    fetch_sources = True,
+    lock_file = "//tests/custom_maven_install:transitive_dependency_with_type_of_pom.json",
 )
 dev_maven.install(
     name = "pom_exclusion_testing_coursier",
@@ -1019,6 +1021,10 @@ use_repo(
     "policy_pinned_testing",
     "unpinned_policy_pinned_testing",
 
+    # Pinned repo
+    "transitive_dependency_with_type_of_pom",
+    "unpinned_transitive_dependency_with_type_of_pom",
+
     # Regression testing and libraries exposed as compat repos
     "com_android_support_appcompat_v7_aar_28_0_0",
     "com_google_guava_guava_27_0_jre",
@@ -1052,7 +1058,6 @@ use_repo(
     "com_google_http_client_google_http_client",
     "root_wins",
     "testonly_testing",
-    "transitive_dependency_with_type_of_pom",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",
