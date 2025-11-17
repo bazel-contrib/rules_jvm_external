@@ -1106,9 +1106,6 @@ def _coursier_fetch_impl(repository_ctx):
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
     # to generate the repository's BUILD file.
-    #
-    # Coursier generates duplicate artifacts sometimes. Deduplicate them using
-    # the file name value as the key.
     dep_tree = make_coursier_dep_tree(
         repository_ctx,
         artifacts,
