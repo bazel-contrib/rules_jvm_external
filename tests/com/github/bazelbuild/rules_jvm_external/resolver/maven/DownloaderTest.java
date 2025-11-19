@@ -25,6 +25,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
@@ -58,7 +59,12 @@ public class DownloaderTest {
 
     DownloadResult downloadResult =
         new Downloader(
-                Netrc.fromUserHome(), localRepo, Set.of(repo.toUri()), new NullListener(), false)
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                false,
+                Map.of())
             .download(coords);
 
     assertTrue(downloadResult.getPath().isEmpty());
