@@ -1,3 +1,4 @@
+load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("@rules_java//java:defs.bzl", "JavaInfo", "java_common")
 load("@rules_license//rules:providers.bzl", "PackageInfo")
 load("//private/lib:bzlmod.bzl", "get_module_name_of_owner_of_repo")
@@ -29,6 +30,17 @@ def _strip_excluded_workspace_jars(jar_files, excluded_workspaces):
 
     return to_return
 
+def _strip_toolchain_protobuf_runtime(jar_files, java_toolchain):
+    if not java_toolchain:
+        return jar_files
+
+    protobuf_runtime = java_toolchain.proto.runtime
+    transitive_proto_jars = protobuf_runtime[JavaInfo].transitive_runtime_jars.to_list()
+    return sets.to_list(sets.difference(
+        sets.make(jar_files),
+        sets.make(transitive_proto_jars),
+    ))
+
 def _combine_jars(ctx, merge_jars, inputs, excludes, allowed_duplicates, output):
     args = ctx.actions.args()
     args.add("--output", output)
@@ -58,6 +70,12 @@ def _maven_project_jar_impl(ctx):
     artifact_jars = _strip_excluded_workspace_jars(
         artifact_jars,
         ctx.attr.excluded_workspaces,
+    )
+
+    # Strip protobuf runtime
+    artifact_jars = _strip_toolchain_protobuf_runtime(
+        artifact_jars,
+        ctx.toolchains["@rules_java//java/proto:toolchain_type"],
     )
 
     artifact_srcs = calculate_artifact_source_jars(info)
@@ -252,5 +270,8 @@ single artifact that other teams can download and use.
             default = "@bazel_tools//tools/jdk:current_java_toolchain",
         ),
     },
-    toolchains = ["@bazel_tools//tools/jdk:toolchain_type"],
+    toolchains = [
+        "@bazel_tools//tools/jdk:toolchain_type",
+        config_common.toolchain_type("@rules_java//java/proto:toolchain_type", mandatory = False),
+    ],
 )
