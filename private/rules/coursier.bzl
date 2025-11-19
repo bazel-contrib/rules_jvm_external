@@ -17,6 +17,7 @@ load(
     "//private:coursier_utilities.bzl",
     "SUPPORTED_PACKAGING_TYPES",
     "contains_git_conflict_markers",
+    "get_classifier",
     "is_maven_local_path",
     "to_repository_name",
 )
@@ -985,18 +986,35 @@ def make_coursier_dep_tree(
         excluded_artifacts,
         _is_verbose(repository_ctx),
     )
-    return rewrite_files_attribute_if_necessary(repository_ctx, dep_tree)
+    return filter_dependencies_if_necessary(repository_ctx, dep_tree)
 
-def rewrite_files_attribute_if_necessary(repository_ctx, dep_tree):
-    # There are cases where `coursier` will download both the pom and the
+def filter_dependencies_if_necessary(repository_ctx, dep_tree):
+    # This loops check for two things:
+    #
+    # 1. There are cases where `coursier` will download both the pom and the
     # jar but will include the path to the pom instead of the jar in the
     # `file` attribute. This differs from both gradle and maven. Massage the
     # `file` attributes if necessary.
     # https://github.com/bazelbuild/rules_jvm_external/issues/1250
+    #
+    # 2. When asked to fetch sources for a pom artifact, coursier will return a
+    #    dependency object with `"file": null`. There is no need to propagate
+    #    this to the external repo we are generating, so strip those out here.
+    #    We can't check the coordinates for pom packaging though because
+    #    coursier doesn't consistently include pom in the string, for example it
+    #    will return dependencies both like
+    #    "org.javamoney:moneta:pom:sources:1.4.4" and
+    #    "org.apache.logging.log4j:log4j:jar:sources:3.0.0-beta3".
+
     amended_deps = []
     for dep in dep_tree["dependencies"]:
         if not dep.get("file", None):
-            amended_deps.append(dep)
+            if get_classifier(dep["coord"]) == "sources":
+                # Skip source artifacts with no file.
+                if _is_verbose(repository_ctx):
+                    print("Removing source artifact with no file: %s" % dep["coord"])
+            else:
+              amended_deps.append(dep)
             continue
 
         # You'd think we could use skylib here to do the heavy lifting, but
@@ -1088,9 +1106,6 @@ def _coursier_fetch_impl(repository_ctx):
     # Once coursier finishes a fetch, it generates a tree of artifacts and their
     # transitive dependencies in a JSON file. We use that as the source of truth
     # to generate the repository's BUILD file.
-    #
-    # Coursier generates duplicate artifacts sometimes. Deduplicate them using
-    # the file name value as the key.
     dep_tree = make_coursier_dep_tree(
         repository_ctx,
         artifacts,
