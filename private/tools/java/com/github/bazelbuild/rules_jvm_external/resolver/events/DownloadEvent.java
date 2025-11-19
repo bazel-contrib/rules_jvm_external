@@ -20,10 +20,16 @@ public class DownloadEvent implements Event {
 
   private final Stage stage;
   private final String target;
+  private final String method;
 
   public DownloadEvent(Stage stage, String target) {
+    this(stage, null, target);
+  }
+
+  public DownloadEvent(Stage stage, String method, String target) {
     this.stage = stage;
     this.target = Objects.requireNonNull(target);
+    this.method = method;
   }
 
   public Stage getStage() {
@@ -32,6 +38,10 @@ public class DownloadEvent implements Event {
 
   public String getTarget() {
     return target;
+  }
+
+  public String getMethod() {
+    return method;
   }
 
   public enum Stage {

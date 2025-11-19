@@ -252,7 +252,12 @@ public abstract class ResolverTestBase {
 
     DownloadResult parentDownload =
         new Downloader(
-                Netrc.fromUserHome(), localRepo, Set.of(repo.toUri()), new NullListener(), false)
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                false,
+                Map.of())
             .download(parentCoords);
 
     assertTrue(parentDownload.getPath().isEmpty());
