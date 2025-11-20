@@ -1,6 +1,7 @@
 ---
 tasks:
   prebuilt_jars_up_to_date:
+    name: Prebuilt JARs are up to date
     platform: ubuntu2204
     shell_commands:
       - bazel run //scripts:refresh-prebuilts
