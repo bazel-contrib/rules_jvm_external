@@ -439,11 +439,13 @@ public class GradleResolver implements Resolver {
             .orElse(System.getenv("TEST_SRCDIR"));
 
     // If none are set, just return null so we fall back to the isolated cache
-    if (workspaceRoot == null) return null;
+    if (workspaceRoot == null) {
+      return null;
+    }
 
     // We want gradle home to be persistent but unique for each repo under which we're running
     // so we compute a MD5 hash, similiar to Bazel's output base and use that in the persistent
-    // directory name
+    // directory nameaz
     String md5 = Hashing.md5().hashString(workspaceRoot, StandardCharsets.UTF_8).toString();
 
     return Paths.get(System.getProperty("java.io.tmpdir"), "rje-gradle-" + md5);

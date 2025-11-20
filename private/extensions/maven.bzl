@@ -348,14 +348,12 @@ def process_gradle_versions_file(parsed, bom_modules):
         # Case 1: Simple string notation: "group:artifact:version"
         if type(value) == "string":
             coords = value
-            # Case 2: Map notation
-
+        # Case 2: Map notation
         elif type(value) == "dict":
             # Case 2a: Map with "module" key
             if "module" in value.keys():
                 coords = value["module"]
-                # Case 2b: Map with "group" and "name" keys
-
+            # Case 2b: Map with "group" and "name" keys
             elif "group" in value.keys() and "name" in value.keys():
                 coords = "%s:%s" % (value["group"], value["name"])
             else:
