@@ -1,5 +1,9 @@
 ---
 tasks:
+  prebuilt_jars_up_to_date:
+    shell_commands:
+      - bazel run //scripts:refresh-prebuilts
+      - git diff --exit-code
   ubuntu2204:
     environment:
       # This tests custom cache locations.
