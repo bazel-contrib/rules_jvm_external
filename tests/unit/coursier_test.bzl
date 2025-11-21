@@ -614,6 +614,7 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
 
     asserts.false(env, hash1 == hash2)
     asserts.true(env, old_hashes1[0] == old_hashes2[0])
+    asserts.false(env, old_hashes1[1] == old_hashes2[1])
 
     return unittest.end(env)
 
