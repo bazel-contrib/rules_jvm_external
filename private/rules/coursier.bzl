@@ -670,6 +670,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             for a in artifacts
         },
         override_targets = repository_ctx.attr.override_targets,
+        override_target_visibilities = repository_ctx.attr.override_target_visibilities,
         skip_maven_local_dependencies = False,
     )
 
@@ -1355,6 +1356,7 @@ def _coursier_fetch_impl(repository_ctx):
             for a in artifacts
         },
         override_targets = repository_ctx.attr.override_targets,
+        override_target_visibilities = repository_ctx.attr.override_target_visibilities,
         # Skip maven local dependencies if generating the unpinned repository
         skip_maven_local_dependencies = _is_unpinned(repository_ctx),
     )
@@ -1468,6 +1470,7 @@ pinned_coursier_fetch = repository_rule(
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies.
 
@@ -1538,6 +1541,7 @@ coursier_fetch = repository_rule(
         ),
         "maven_install_json": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies
 
