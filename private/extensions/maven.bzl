@@ -326,9 +326,9 @@ def _amend_artifact(original_artifact, amend):
         version = getattr(original_artifact, "version", None),
         packaging = getattr(original_artifact, "packaging", None),
         classifier = getattr(original_artifact, "classifier", None),
-        force_version = amend.force_version if amend.force_version else getattr(original_artifact, "force_version", None),
-        neverlink = amend.neverlink if amend.neverlink else getattr(original_artifact, "neverlink", None),
-        testonly = amend.testonly if amend.testonly else getattr(original_artifact, "testonly", None),
+        force_version = amend.force_version if amend.force_version != None else getattr(original_artifact, "force_version", None),
+        neverlink = amend.neverlink if amend.neverlink != None else getattr(original_artifact, "neverlink", None),
+        testonly = amend.testonly if amend.testonly != None else getattr(original_artifact, "testonly", None),
         exclusions = final_exclusions if final_exclusions else None,
     )
 
