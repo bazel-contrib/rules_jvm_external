@@ -36,11 +36,13 @@ import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleUnr
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import com.google.common.hash.Hashing;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -427,6 +430,27 @@ public class GradleResolver implements Resolver {
     }
   }
 
+  private Path getPersistentGradleHomeForRepo() {
+    // We check for BUILD_WORKSPACE_DIRECTORY which will be set for most usages
+    // with bazel run. It won't be available with tests, so we fall back to TEST_SRCDIR
+    // which will map to the root of the runfiles tree
+    String workspaceRoot =
+        Optional.ofNullable(System.getenv("BUILD_WORKSPACE_DIRECTORY"))
+            .orElse(System.getenv("TEST_SRCDIR"));
+
+    // If none are set, just return null so we fall back to the isolated cache
+    if (workspaceRoot == null) {
+      return null;
+    }
+
+    // We want gradle home to be persistent but unique for each repo under which we're running
+    // so we compute a MD5 hash, similiar to Bazel's output base and use that in the persistent
+    // directory nameaz
+    String md5 = Hashing.md5().hashString(workspaceRoot, StandardCharsets.UTF_8).toString();
+
+    return Paths.get(System.getProperty("java.io.tmpdir"), "rje-gradle-" + md5);
+  }
+
   private GradleProject setupFakeGradleProject(
       List<Repository> repositories,
       List<GradleDependency> dependencies,
@@ -466,6 +490,20 @@ public class GradleResolver implements Resolver {
       }
 
       Path gradleCacheDir = fakeProjectDirectory.resolve(".gradle");
+      // Get a persistent directory under temp dir specific to the repo directory under which
+      // we're running so that we use a gradle home that's persistent between invocations
+      // to help improve performance
+      Path persistentGradleHome = getPersistentGradleHomeForRepo();
+      if (persistentGradleHome != null) {
+        gradleCacheDir = persistentGradleHome.resolve(".gradle");
+        if (isVerbose()) {
+          eventListener.onEvent(
+              new LogEvent(
+                  "gradle",
+                  "Using persistent directory for gradle home",
+                  "Gradle Home: " + gradleCacheDir));
+        }
+      }
       Files.createDirectories(gradleCacheDir);
       if (useUnsafeCache) {
         // Instead of changing gradleCacheDir, symlink the user's caches directory
