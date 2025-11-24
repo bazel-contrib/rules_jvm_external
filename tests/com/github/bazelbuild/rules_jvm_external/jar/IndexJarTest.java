@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.devtools.build.runfiles.Runfiles;
 import com.google.gson.Gson;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -26,9 +27,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.Test;
 
 public class IndexJarTest {
@@ -121,9 +129,155 @@ public class IndexJarTest {
     }
   }
 
+  @Test
+  public void aarWithSinglePackage() throws Exception {
+    Path aarFile = new AarTestBuilder()
+        .withClass("com.example.TestClass")
+        .build();
+    try {
+      PerJarIndexResults result = new IndexJar().index(aarFile);
+      assertEquals(sortedSet("com.example"), result.getPackages());
+      assertEquals(new TreeMap<>(), result.getServiceImplementations());
+    } finally {
+      Files.deleteIfExists(aarFile);
+    }
+  }
+
+  @Test
+  public void aarWithMultiplePackages() throws Exception {
+    Path aarFile = new AarTestBuilder()
+        .withClass("com.example.MainClass")
+        .withClass("com.example.model.User")
+        .withClass("com.example.utils.Helper")
+        .build();
+    try {
+      PerJarIndexResults result = new IndexJar().index(aarFile);
+      assertEquals(
+          sortedSet("com.example", "com.example.model", "com.example.utils"),
+          result.getPackages());
+      assertEquals(new TreeMap<>(), result.getServiceImplementations());
+    } finally {
+      Files.deleteIfExists(aarFile);
+    }
+  }
+
+  @Test
+  public void aarWithServiceImplementations() throws Exception {
+    Path aarFile = new AarTestBuilder()
+        .withClass("com.example.Service")
+        .withClass("com.example.ServiceImpl")
+        .withService("com.example.Service", "com.example.ServiceImpl")
+        .build();
+    try {
+      PerJarIndexResults result = new IndexJar().index(aarFile);
+      assertEquals(sortedSet("com.example"), result.getPackages());
+
+      TreeMap<String, TreeSet<String>> expectedServices = new TreeMap<>();
+      expectedServices.put("com.example.Service", sortedSet("com.example.ServiceImpl"));
+      assertEquals(expectedServices, result.getServiceImplementations());
+    } finally {
+      Files.deleteIfExists(aarFile);
+    }
+  }
+
+  @Test
+  public void aarWithLibsDirectory() throws Exception {
+    AarTestBuilder libJar = new AarTestBuilder()
+        .withClass("com.third.party.LibraryClass");
+
+    Path aarFile = new AarTestBuilder()
+        .withClass("com.example.MainClass")
+        .withLibJar(libJar)
+        .build();
+    try {
+      PerJarIndexResults result = new IndexJar().index(aarFile);
+      // Should include packages from both classes.jar and libs/additional.jar
+      assertEquals(
+          sortedSet("com.example", "com.third.party"),
+          result.getPackages());
+      assertEquals(new TreeMap<>(), result.getServiceImplementations());
+    } finally {
+      Files.deleteIfExists(aarFile);
+    }
+  }
+
   private InputStream streamOf(String string) {
     return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
   }
+
+  private static class AarTestBuilder {
+    private final List<String> classes = new ArrayList<>();
+    private final Map<String, List<String>> services = new LinkedHashMap<>();
+    private final List<AarTestBuilder> libJars = new ArrayList<>();
+
+    public AarTestBuilder withClass(String fullyQualifiedClassName) {
+      classes.add(fullyQualifiedClassName);
+      return this;
+    }
+
+    public AarTestBuilder withService(String serviceInterface, String... implementations) {
+      services.put(serviceInterface, Arrays.asList(implementations));
+      return this;
+    }
+
+    public AarTestBuilder withLibJar(AarTestBuilder libJarBuilder) {
+      libJars.add(libJarBuilder);
+      return this;
+    }
+
+    public Path build() throws IOException {
+      Path aarFile = Files.createTempFile("test-aar", ".aar");
+
+      try (ZipOutputStream aar = new ZipOutputStream(Files.newOutputStream(aarFile))) {
+        addAndroidManifest(aar);
+
+        byte[] classesJarBytes = createClassesJar();
+        aar.putNextEntry(new ZipEntry("classes.jar"));
+        aar.write(classesJarBytes);
+        aar.closeEntry();
+
+        for (int i = 0; i < libJars.size(); i++) {
+          AarTestBuilder libJarBuilder = libJars.get(i);
+          byte[] libJarBytes = libJarBuilder.createClassesJar();
+          aar.putNextEntry(new ZipEntry("libs/lib" + i + ".jar"));
+          aar.write(libJarBytes);
+          aar.closeEntry();
+        }
+      }
+
+      return aarFile;
+    }
+
+    private void addAndroidManifest(ZipOutputStream aar) throws IOException {
+      aar.putNextEntry(new ZipEntry("AndroidManifest.xml"));
+      String manifest = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+          "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"com.example\">\n" +
+          "</manifest>\n";
+      aar.write(manifest.getBytes(StandardCharsets.UTF_8));
+      aar.closeEntry();
+    }
+
+    private byte[] createClassesJar() throws IOException {
+      ByteArrayOutputStream jarBytes = new ByteArrayOutputStream();
+      try (ZipOutputStream jar = new ZipOutputStream(jarBytes)) {
+        for (String className : classes) {
+          String classPath = className.replace('.', '/') + ".class";
+          jar.putNextEntry(new ZipEntry(classPath));
+          jar.closeEntry();
+        }
+
+        for (Map.Entry<String, List<String>> service : services.entrySet()) {
+          String servicePath = "META-INF/services/" + service.getKey();
+          jar.putNextEntry(new ZipEntry(servicePath));
+          String serviceContent = String.join("\n", service.getValue()) + "\n";
+          jar.write(serviceContent.getBytes(StandardCharsets.UTF_8));
+          jar.closeEntry();
+        }
+      }
+      return jarBytes.toByteArray();
+    }
+  }
+
 
   @Test
   public void invalidCRC() throws Exception {
