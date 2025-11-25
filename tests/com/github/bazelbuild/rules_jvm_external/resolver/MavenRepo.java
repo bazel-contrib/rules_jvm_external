@@ -155,8 +155,9 @@ public class MavenRepo {
 
   private void writeFile(Coordinates coords) throws IOException {
     Path output = root.resolve(coords.toRepoPath());
-    // We don't read the contents, it just needs to exist
-    Files.write(output, "Hello, World!".getBytes(UTF_8));
+    // Write unique content based on coordinates so different versions have different SHA256 hashes
+    String content = "Artifact: " + coords.toString() + "\n";
+    Files.write(output, content.getBytes(UTF_8));
 
     writeSha1File(output);
   }
