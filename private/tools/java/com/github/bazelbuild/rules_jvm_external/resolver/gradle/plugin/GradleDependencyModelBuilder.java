@@ -59,6 +59,12 @@ import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
+import org.gradle.api.artifacts.query.ArtifactResolutionQuery;
+import org.gradle.api.artifacts.result.ArtifactResolutionResult;
+import org.gradle.api.artifacts.result.ArtifactResult;
+import org.gradle.api.artifacts.result.ComponentArtifactsResult;
+import org.gradle.maven.MavenModule;
+import org.gradle.maven.MavenPomArtifact;
 
 /**
  * GradleDependencyModelBuilder implenents the core functionality as part of a plugin to resolve the
@@ -405,8 +411,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     // Collect POM files explicitly as gradle doesn't fetch them unless requested
     collectPOMsForAllComponents(project, resolvedRoots, coordinatesMap, declaredDeps);
-    // Request artifacts which have conflicts so asto record them in the graph
-    collectConflictingVersionArtifacts(project, coordinatesMap);
+    // Don't collect conflicting version artifacts - we only need artifacts for the resolved graph
+    // The conflicts are tracked for reporting purposes only, we don't need to download rejected versions
   }
 
   private void collectConflictingVersionArtifacts(
@@ -415,7 +421,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     for (Map.Entry<Coordinates, GradleResolvedDependency> entry :
         coordinatesGradleResolvedDependencyMap.entrySet()) {
       GradleResolvedDependency dependency = entry.getValue();
-      if (dependency.getRequestedVersions().size() > 1) {
+      // Skip if no conflicts, or if dependency already has artifacts from main resolution
+      // (collecting via detached config would bypass resolutionStrategy and override force_version)
+      if (dependency.getRequestedVersions().size() <= 1) {
+        continue;
+      }
+      if (!dependency.getArtifacts().isEmpty()) {
+        continue;  // Already has artifacts, don't re-resolve in detached config
+      }
+      {
         dependency
             .getRequestedVersions()
             .forEach(
@@ -485,16 +499,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Map<Coordinates, GradleResolvedDependency> coordinatesResolvedDependencyMap,
       List<GradleDependency> declaredDeps) {
 
-    List<Dependency> pomDependencies = new ArrayList<>();
-    Map<Coordinates, Coordinates> moduleToRequestedCoordinates = new HashMap<>();
+    ArtifactResolutionQuery query = project.getDependencies().createArtifactResolutionQuery();
+    query.withArtifacts(MavenModule.class, MavenPomArtifact.class);
 
-    // We need to request POMs for all deps including transitive deps when we request
-    // a coordinate with explicit extension, as transitive poms aren't fetched by default
+    boolean hasItems = false;
     for (GradleResolvedDependency dependency : coordinatesResolvedDependencyMap.values()) {
-      Coordinates coordinates =
-          new Coordinates(
-              dependency.getGroup() + ":" + dependency.getName() + ":" + dependency.getVersion());
-
       boolean isDeclaredWithExplicitExtension =
           declaredDeps.stream()
               .anyMatch(
@@ -508,56 +517,43 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         continue;
       }
 
-      Dependency dep = project.getDependencies().create(coordinates + "@pom");
-      pomDependencies.add(dep);
-      moduleToRequestedCoordinates.put(coordinates, coordinates);
+      query.forModule(dependency.getGroup(), dependency.getName(), dependency.getVersion());
+      hasItems = true;
     }
 
-    if (pomDependencies.isEmpty()) {
+    if (!hasItems) {
       return;
     }
 
-    Configuration batchedPomCfg =
-        project
-            .getConfigurations()
-            .detachedConfiguration(pomDependencies.toArray(new Dependency[0]));
+    ArtifactResolutionResult result = query.execute();
 
-    ArtifactView view =
-        batchedPomCfg
-            .getIncoming()
-            .artifactView(
-                spec -> {
-                  spec.setLenient(true); // tolerate missing POMs
-                });
-
-    for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
-      ComponentIdentifier id = artifact.getId().getComponentIdentifier();
+    for (ComponentArtifactsResult component : result.getResolvedComponents()) {
+      ComponentIdentifier id = component.getId();
       if (!(id instanceof ModuleComponentIdentifier)) {
         continue;
       }
-
       ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
-      Coordinates moduleCoordinates =
+      Coordinates coordinates =
           new Coordinates(module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
 
-      Coordinates requestedKey = moduleToRequestedCoordinates.get(moduleCoordinates);
-      if (requestedKey == null) {
-        continue;
-      }
-
       GradleResolvedDependency resolvedDependency =
-          coordinatesResolvedDependencyMap.get(requestedKey);
+          coordinatesResolvedDependencyMap.get(coordinates);
       if (resolvedDependency == null) {
         continue;
       }
 
-      GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
-      resolvedArtifact.setFile(artifact.getFile());
-      if (artifact.getFile() != null) {
-        String packaging = PomUtil.extractPackagingFromPom(artifact.getFile());
-        resolvedArtifact.setExtension(mapPackagingToExtension(packaging));
+      for (ArtifactResult artifact : component.getArtifacts(MavenPomArtifact.class)) {
+        if (artifact instanceof ResolvedArtifactResult) {
+          ResolvedArtifactResult resolvedArtifactResult = (ResolvedArtifactResult) artifact;
+          if (resolvedArtifactResult.getFile() != null) {
+            GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+            resolvedArtifact.setFile(resolvedArtifactResult.getFile());
+            String packaging = PomUtil.extractPackagingFromPom(resolvedArtifactResult.getFile());
+            resolvedArtifact.setExtension(mapPackagingToExtension(packaging));
+            resolvedDependency.addArtifact(resolvedArtifact);
+          }
+        }
       }
-      resolvedDependency.addArtifact(resolvedArtifact);
     }
   }
 
