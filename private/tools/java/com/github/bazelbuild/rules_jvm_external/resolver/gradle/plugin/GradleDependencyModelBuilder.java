@@ -151,16 +151,27 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     for (Dependency dependency : cfg.getAllDependencies()) {
       if (dependency instanceof ModuleDependency) {
         ModuleDependency externalDependency = (ModuleDependency) dependency;
-        for (DependencyArtifact artifact : externalDependency.getArtifacts()) {
-          GradleDependency dep =
+        if (externalDependency.getArtifacts().isEmpty()) {
+          dependencies.add(
               new GradleDependencyImpl(
                   externalDependency.getGroup(),
                   externalDependency.getName(),
                   externalDependency.getVersion(),
                   null,
-                  artifact.getClassifier(),
-                  artifact.getExtension());
-          dependencies.add(dep);
+                  null,
+                  null));
+        } else {
+          for (DependencyArtifact artifact : externalDependency.getArtifacts()) {
+            GradleDependency dep =
+                new GradleDependencyImpl(
+                    externalDependency.getGroup(),
+                    externalDependency.getName(),
+                    externalDependency.getVersion(),
+                    null,
+                    artifact.getClassifier(),
+                    artifact.getExtension());
+            dependencies.add(dep);
+          }
         }
       }
     }
@@ -382,7 +393,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                       attrs ->
                           attrs.attribute(
                               Usage.USAGE_ATTRIBUTE,
-                              project.getObjects().named(Usage.class, Usage.JAVA_API)));
+                              project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)));
                 });
 
     // collect JAR artifacts
@@ -508,8 +519,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
           declaredDeps.stream()
               .anyMatch(
                   declaredDep ->
-                      declaredDep.getGroup().equals(dependency.getGroup())
+                      declaredDep.getGroup() != null
+                          && declaredDep.getGroup().equals(dependency.getGroup())
+                          && declaredDep.getArtifact() != null
                           && declaredDep.getArtifact().equals(dependency.getName())
+                          && declaredDep.getVersion() != null
                           && declaredDep.getVersion().equals(dependency.getVersion())
                           && declaredDep.getExtension() != null);
 

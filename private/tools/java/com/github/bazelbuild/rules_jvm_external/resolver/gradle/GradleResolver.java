@@ -597,6 +597,7 @@ public class GradleResolver implements Resolver {
             break;
           }
         }
+      }
 
       // If there are non-POM artifacts, this is not an aggregating dependency
       if (hasNonPomArtifact) {
