@@ -512,26 +512,6 @@ public class GradleResolver implements Resolver {
     }
   }
 
-  private String readPackaging(File pomFile) {
-    try (FileInputStream fis = new FileInputStream(pomFile);
-        BufferedInputStream bis = new BufferedInputStream(fis)) {
-      MavenXpp3Reader reader = new MavenXpp3Reader();
-      Model model = reader.read(ReaderFactory.newXmlReader(bis));
-      return model.getPackaging();
-    } catch (Exception e) {
-      // If parsing fails, the file is not a valid Maven POM.
-      // It could be:
-      // 1. A corrupted file.
-      // 2. Another metadata format (e.g. Gradle Module Metadata JSON) used in tests/internal setups
-      //    that masquerades as a .pom file.
-      //
-      // In these cases, we cannot assume the standard Maven default packaging ("jar").
-      // Instead, we treat it as "pom" (metadata only) to avoid incorrectly assuming a JAR artifact
-      // exists when one might not. This is critical for correctly identifying aggregating dependencies
-      // that rely on non-standard metadata files in tests.
-      return "pom";
-    }
-  }
 
   private Coordinates readRelocationTarget(File pomFile, Coordinates fallback) {
     try (FileInputStream fis = new FileInputStream(pomFile);
@@ -587,16 +567,6 @@ public class GradleResolver implements Resolver {
           hasNonPomArtifact = true;
           break;
         }
-        // If the file is a POM, check its packaging. If it is not "pom", then it's likely a
-        // jar dependency where the jar is missing (so we only have the POM). In this case,
-        // we should NOT treat it as an aggregating dependency (which would be removed).
-        if (file != null && file.getName().endsWith(".pom")) {
-          String packaging = readPackaging(file);
-          if (!"pom".equals(packaging)) {
-            hasNonPomArtifact = true;
-            break;
-          }
-        }
       }
 
       // If there are non-POM artifacts, this is not an aggregating dependency
@@ -624,8 +594,9 @@ public class GradleResolver implements Resolver {
                   && successor.getArtifactId().equals(node.getArtifactId())
                   && successor.getVersion().equals(node.getVersion())
                   && successor.getClassifier() != null
-                  && !successor.getClassifier().isEmpty();
-
+                  && !successor.getClassifier().isEmpty()
+                  && !"javadoc".equals(successor.getClassifier())
+                  && !"sources".equals(successor.getClassifier());
           if (!isClassifiedVariant) {
             allSuccessorsAreClassifiedVariants = false;
             break;
@@ -640,7 +611,9 @@ public class GradleResolver implements Resolver {
               && other.getArtifactId().equals(node.getArtifactId())
               && other.getVersion().equals(node.getVersion())
               && other.getClassifier() != null
-              && !other.getClassifier().isEmpty()) {
+              && !other.getClassifier().isEmpty()
+              && !"javadoc".equals(other.getClassifier())
+              && !"sources".equals(other.getClassifier())) {
             isAggregating = true;
             break;
           }
