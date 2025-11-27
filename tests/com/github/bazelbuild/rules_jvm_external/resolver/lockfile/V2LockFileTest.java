@@ -43,6 +43,7 @@ public class V2LockFileTest {
             Optional.empty(),
             Set.of(),
             Set.of(),
+            Set.of(),
             new TreeMap<>());
 
     Map<String, Object> rendered = new V2LockFile(repos, Set.of(aggregator), Set.of()).render();
@@ -88,6 +89,7 @@ public class V2LockFileTest {
             Optional.of("c2c97a708be197aae5fee64dcc8b5e8a09c76c79a44c0e8e5b48b235084ec395"),
             Set.of(),
             Set.of(),
+            Set.of(),
             new TreeMap<>());
 
     V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of()));
@@ -107,6 +109,7 @@ public class V2LockFileTest {
             Optional.of("cafebad08be197aae5fee64dcc8b5e8a09c76c79a44c0e8e5b48b235084ec395"),
             Set.of(),
             Set.of(),
+            Set.of(),
             new TreeMap<>());
 
     DependencyInfo info =
@@ -116,6 +119,7 @@ public class V2LockFileTest {
             Optional.empty(),
             Optional.of("c2c97a708be197aae5fee64dcc8b5e8a09c76c79a44c0e8e5b48b235084ec395"),
             Set.of(depCoords),
+            Set.of(),
             Set.of(),
             new TreeMap<>());
 

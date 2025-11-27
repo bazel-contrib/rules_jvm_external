@@ -124,6 +124,7 @@ pin_dependencies(
     fetch_sources = {fetch_sources},
     fetch_javadocs = {fetch_javadocs},
     lock_file = {lock_file},
+    dependency_index = {dependency_index},
     jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
     resolver = {resolver},
@@ -810,6 +811,15 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
         else:
             fail("Unknown resolver")
 
+        dependency_index_location = None
+        if repository_ctx.attr.dependency_index:
+            dep_index_package_path = repository_ctx.attr.dependency_index.package
+            dep_index_file_name = repository_ctx.attr.dependency_index.name
+            if dep_index_package_path == "":
+                dependency_index_location = dep_index_file_name
+            else:
+                dependency_index_location = "/".join([dep_index_package_path, dep_index_file_name])
+
         return _IN_REPO_PIN.format(
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
@@ -819,6 +829,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
+            dependency_index = repr(dependency_index_location),
             resolver = repr(str(resolver_target)),
         )
 
@@ -1551,6 +1562,7 @@ pinned_coursier_fetch = repository_rule(
         "fetch_javadoc": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
+        "dependency_index": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
         "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
@@ -1622,6 +1634,7 @@ coursier_fetch = repository_rule(
             ],
         ),
         "maven_install_json": attr.label(allow_single_file = True),
+        "dependency_index": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
         "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(

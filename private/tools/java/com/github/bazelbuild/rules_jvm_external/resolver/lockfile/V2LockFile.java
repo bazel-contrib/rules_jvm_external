@@ -156,6 +156,7 @@ public class V2LockFile {
               Optional.of(entry.getValue()),
               dependencies.getOrDefault(coords, Set.of()),
               Set.of(),
+              Set.of(),
               new TreeMap<>()));
     }
 

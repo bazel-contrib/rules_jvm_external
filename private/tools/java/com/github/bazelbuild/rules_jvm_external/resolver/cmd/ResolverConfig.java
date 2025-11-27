@@ -38,6 +38,7 @@ public class ResolverConfig {
   private final boolean fetchJavadoc;
   private final Netrc netrc;
   private final Path output;
+  private final Path dependencyIndexOutput;
   private final String inputHash;
   private final int maxThreads;
 
@@ -50,6 +51,7 @@ public class ResolverConfig {
     boolean fetchJavadoc = false;
     int maxThreads = DEFAULT_MAX_THREADS;
     Path output = null;
+    Path dependencyIndexOutput = null;
     String inputHash = null;
 
     if (System.getenv("RJE_MAX_THREADS") != null) {
@@ -91,6 +93,16 @@ public class ResolverConfig {
             output = Paths.get(args[i]);
           } else {
             output = Paths.get(bazelWorkspaceDir).resolve(args[i]);
+          }
+          break;
+
+        case "--dependency-index-output":
+          i++;
+          String workspaceDir = System.getenv("BUILD_WORKSPACE_DIRECTORY");
+          if (workspaceDir == null) {
+            dependencyIndexOutput = Paths.get(args[i]);
+          } else {
+            dependencyIndexOutput = Paths.get(workspaceDir).resolve(args[i]);
           }
           break;
 
@@ -183,6 +195,7 @@ public class ResolverConfig {
     this.inputHash = inputHash;
     this.maxThreads = maxThreads;
     this.output = output;
+    this.dependencyIndexOutput = dependencyIndexOutput;
   }
 
   public ResolutionRequest getResolutionRequest() {
@@ -211,5 +224,9 @@ public class ResolverConfig {
 
   public Path getOutput() {
     return output;
+  }
+
+  public Path getDependencyIndexOutput() {
+    return dependencyIndexOutput;
   }
 }

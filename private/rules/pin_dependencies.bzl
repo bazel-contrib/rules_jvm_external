@@ -15,7 +15,7 @@ load("//private/rules:coursier.bzl", "compute_dependency_inputs_signature")
 
 _TEMPLATE = """#!/usr/bin/env bash
 
-{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --input_hash '{input_hash}' --output {output}
+{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --input_hash '{input_hash}' --output {output}{dependency_index_output}
 """
 
 def _stringify_exclusions(exclusions):
@@ -70,6 +70,10 @@ def _pin_dependencies_impl(ctx):
         excluded_artifacts = ctx.attr.excluded_artifacts,
     )
 
+    dependency_index_output = ""
+    if ctx.attr.dependency_index:
+        dependency_index_output = " --dependency-index-output $BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.dependency_index
+
     script = ctx.actions.declare_file(ctx.label.name)
     ctx.actions.write(
         script,
@@ -78,6 +82,7 @@ def _pin_dependencies_impl(ctx):
             input_hash = input_hash[0],
             resolver_cmd = ctx.executable.resolver.short_path,
             output = "$BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.lock_file,
+            dependency_index_output = dependency_index_output,
             jvm_flags = ctx.attr.jvm_flags,
         ),
         is_executable = True,
@@ -112,6 +117,9 @@ pin_dependencies = rule(
         "lock_file": attr.string(
             doc = "Location of the generated lock file",
             mandatory = True,
+        ),
+        "dependency_index": attr.string(
+            doc = "Location of the generated dependency index file",
         ),
         "jvm_flags": attr.string(
             doc = "JVM flags to pass to resolver",
