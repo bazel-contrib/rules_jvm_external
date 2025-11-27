@@ -34,6 +34,7 @@ public class DependencyInfo {
   private final Optional<String> sha256;
   private final Set<Coordinates> dependencies;
   private final Set<String> packages;
+  private final Set<String> classes;
   private final SortedMap<String, SortedSet<String>> services;
 
   public DependencyInfo(
@@ -43,6 +44,7 @@ public class DependencyInfo {
       Optional<String> sha256,
       Set<Coordinates> dependencies,
       Set<String> packages,
+      Set<String> classes,
       SortedMap<String, SortedSet<String>> services) {
     this.coordinates = coordinates;
     this.repos = ImmutableSet.copyOf(repos);
@@ -51,6 +53,7 @@ public class DependencyInfo {
     this.dependencies = ImmutableSet.copyOf(new TreeSet<>(dependencies));
 
     this.packages = ImmutableSet.copyOf(new TreeSet<>(packages));
+    this.classes = ImmutableSet.copyOf(new TreeSet<>(classes));
     this.services = services;
   }
 
@@ -72,6 +75,10 @@ public class DependencyInfo {
 
   public Set<String> getPackages() {
     return packages;
+  }
+
+  public Set<String> getClasses() {
+    return classes;
   }
 
   public Optional<Path> getPath() {
@@ -104,11 +111,12 @@ public class DependencyInfo {
         && Objects.equals(sha256, that.sha256)
         && Objects.equals(dependencies, that.dependencies)
         && Objects.equals(packages, that.packages)
+        && Objects.equals(classes, that.classes)
         && Objects.equals(services, that.services);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(coordinates, sha256, dependencies, packages, services);
+    return Objects.hash(coordinates, sha256, dependencies, packages, classes, services);
   }
 }

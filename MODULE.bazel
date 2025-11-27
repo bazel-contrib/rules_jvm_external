@@ -741,6 +741,7 @@ dev_maven.install(
         # https://github.com/bazel-contrib/rules_jvm_external/issues/1471
         "androidx.fragment:fragment-ktx:1.6.1",
     ],
+    dependency_index = "//tests/custom_maven_install:regression_testing_gradle_index.json",
     generate_compat_repositories = True,
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
     repositories = [

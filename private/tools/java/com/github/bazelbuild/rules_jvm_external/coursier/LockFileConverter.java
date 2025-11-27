@@ -213,6 +213,7 @@ public class LockFileConverter {
               Optional.ofNullable((String) coursierDep.get("sha256")),
               directDeps,
               packages,
+              Set.of(),
               services));
     }
 
