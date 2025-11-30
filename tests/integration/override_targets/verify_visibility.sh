@@ -13,9 +13,10 @@ fi
 
 CONTENT=$(cat "$QUERY_OUTPUT")
 
-if [ -n "$CONTENT" ]; then
-  echo "SUCCESS: Target has private visibility"
+# The query should return the target itself
+if [ -n "$CONTENT" ] && [[ "$CONTENT" == *"com_squareup_okio_okio"* ]]; then
+  echo "SUCCESS: Target exists and has custom visibility set"
 else
-  echo "FAILURE: Target does not have private visibility. Content is empty."
+  echo "FAILURE: Target not found or visibility not properly set. Content: $CONTENT"
   exit 1
 fi
