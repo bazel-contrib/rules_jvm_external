@@ -15,6 +15,9 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
@@ -46,7 +49,8 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    Map<String, Object> rendered = new V2LockFile(repos, Set.of(aggregator), Set.of()).render();
+    Map<String, Object> rendered =
+        new V2LockFile(repos, Set.of(aggregator), Set.of(), true).render();
 
     Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
     Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");
@@ -59,7 +63,7 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripASimpleSetOfDependencies() {
-    V2LockFile roundTripped = roundTrip(new V2LockFile(repos, Set.of(), Set.of()));
+    V2LockFile roundTripped = roundTrip(new V2LockFile(repos, Set.of(), Set.of(), true));
 
     assertEquals(repos, roundTripped.getRepositories());
     assertEquals(Set.of(), roundTripped.getDependencyInfos());
@@ -68,7 +72,7 @@ public class V2LockFileTest {
 
   @Test
   public void shouldRoundTripM2Local() {
-    V2LockFile lockFile = new V2LockFile(repos, Set.of(), Set.of());
+    V2LockFile lockFile = new V2LockFile(repos, Set.of(), Set.of(), true);
     Map<String, Object> rendered = lockFile.render();
     rendered.put("m2local", true);
 
@@ -92,7 +96,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of()));
+    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info), Set.of(), true));
 
     assertEquals(Set.of(info), lockFile.getDependencyInfos());
   }
@@ -123,7 +127,7 @@ public class V2LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info, dep), Set.of()));
+    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(info, dep), Set.of(), true));
 
     assertEquals(Set.of(info, dep), lockFile.getDependencyInfos());
   }
@@ -137,9 +141,75 @@ public class V2LockFileTest {
             new Conflict(
                 new Coordinates("com.foo:bar:1.2.3"), new Coordinates("com.foo:bar:1.2.1")));
 
-    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(), conflicts));
+    V2LockFile lockFile = roundTrip(new V2LockFile(repos, Set.of(), conflicts, true));
 
     assertEquals(conflicts, lockFile.getConflicts());
+  }
+
+  @Test
+  public void shouldIncludePackagesWhenIncludePackagesIsTrue() {
+    DependencyInfo info =
+        new DependencyInfo(
+            new Coordinates("com.example:item:1.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.of("abc123"),
+            Set.of(),
+            Set.of("com.example", "com.example.sub"),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Object> rendered = new V2LockFile(repos, Set.of(info), Set.of(), true).render();
+
+    assertNotNull(rendered.get("packages"));
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertFalse(packages.isEmpty());
+    assertEquals(Set.of("com.example", "com.example.sub"), packages.get("com.example:item"));
+  }
+
+  @Test
+  public void shouldExcludePackagesWhenIncludePackagesIsFalse() {
+    DependencyInfo info =
+        new DependencyInfo(
+            new Coordinates("com.example:item:1.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.of("abc123"),
+            Set.of(),
+            Set.of("com.example", "com.example.sub"),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Object> rendered = new V2LockFile(repos, Set.of(info), Set.of(), false).render();
+
+    assertNull(rendered.get("packages"));
+  }
+
+  @Test
+  public void shouldStillIncludeOtherFieldsWhenPackagesExcluded() {
+    DependencyInfo info =
+        new DependencyInfo(
+            new Coordinates("com.example:item:1.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.of("abc123"),
+            Set.of(),
+            Set.of("com.example"),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Object> rendered = new V2LockFile(repos, Set.of(info), Set.of(), false).render();
+
+    // Packages should be excluded
+    assertNull(rendered.get("packages"));
+
+    // But other fields should still be present
+    assertNotNull(rendered.get("artifacts"));
+    assertNotNull(rendered.get("dependencies"));
+    assertNotNull(rendered.get("services"));
+    assertNotNull(rendered.get("repositories"));
+    assertEquals("2", rendered.get("version"));
   }
 
   private V2LockFile roundTrip(V2LockFile lockFile) {
