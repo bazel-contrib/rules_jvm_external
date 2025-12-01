@@ -744,8 +744,8 @@ dev_maven.install(
         # https://github.com/bazel-contrib/rules_jvm_external/issues/250
         "org.slf4j:slf4j-log4j12:2.0.0",
     ],
-    dependency_index = "//tests/custom_maven_install:regression_testing_gradle_index.json",
     generate_compat_repositories = True,
+    index_file = "//tests/custom_maven_install:regression_testing_gradle_index.json",
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",

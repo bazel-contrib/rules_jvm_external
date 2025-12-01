@@ -91,7 +91,7 @@ install = tag_class(
         ),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = True),
         "lock_file": attr.label(),
-        "dependency_index": attr.label(doc = "If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`."),
+        "index_file": attr.label(doc = "If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`."),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
         "generate_compat_repositories": attr.bool(
             doc = "Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
@@ -650,7 +650,7 @@ def maven_impl(mctx):
 
                 # We will always have a lock file, so this is fine
                 repo_to_lock_file[install.name] = [install.lock_file]
-                repo["dependency_index"] = install.dependency_index
+                repo["dependency_index"] = install.index_file
                 repo["fail_if_repin_required"] = install.fail_if_repin_required
                 repo["fail_on_missing_checksum"] = install.fail_on_missing_checksum
                 repo["fetch_javadoc"] = install.fetch_javadoc
