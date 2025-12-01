@@ -26,15 +26,29 @@ import java.util.TreeSet;
  * separately from the lock file since class information can be large and is not needed for
  * resolution.
  *
- * <p>Classes are grouped by package to reduce file size. For example:
+ * <p>To minimize file size:
+ *
+ * <ul>
+ *   <li>Packages that appear in only one artifact are listed in the "packages" section (just
+ *       package names)
+ *   <li>Packages that appear in multiple artifacts (collisions) are listed in the "classes" section
+ *       with full class listings
+ * </ul>
+ *
+ * <p>Example:
  *
  * <pre>
  * {
  *   "version": 1,
+ *   "packages": {
+ *     "com.google.guava:guava": ["com.google.common.base", "com.google.common.collect"]
+ *   },
  *   "classes": {
  *     "com.google.guava:guava": {
- *       "com.google.common.base": ["Optional", "Preconditions"],
- *       "com.google.common.collect": ["ImmutableList", "ImmutableMap"]
+ *       "javax.annotation": ["Nullable"]
+ *     },
+ *     "com.google.code.findbugs:jsr305": {
+ *       "javax.annotation": ["Nonnull", "Nullable"]
  *     }
  *   }
  * }
@@ -51,42 +65,83 @@ public class DependencyIndex {
   }
 
   public Map<String, Object> render() {
-    // Map from artifact key -> (package -> set of simple class names)
+    // Step 1: Collect all data and track which packages appear in multiple artifacts
+    // Map: package -> set of artifact keys that contain this package
+    Map<String, Set<String>> packageToArtifacts = new TreeMap<>();
+    // Map: artifact key -> (package -> set of simple class names)
+    Map<String, Map<String, Set<String>>> artifactToPackageToClasses = new TreeMap<>();
+
+    for (DependencyInfo info : infos) {
+      // Skip sources and javadoc artifacts - they don't have classes
+      String classifier = info.getCoordinates().getClassifier();
+      if ("sources".equals(classifier) || "javadoc".equals(classifier)) {
+        continue;
+      }
+
+      Set<String> infoClasses = info.getClasses();
+      if (infoClasses == null || infoClasses.isEmpty()) {
+        continue;
+      }
+
+      String artifactKey = asKey(info.getCoordinates());
+      Map<String, Set<String>> packageToClasses = new TreeMap<>();
+
+      for (String fqcn : infoClasses) {
+        String packageName = extractPackage(fqcn);
+        String simpleClassName = extractSimpleClassName(fqcn);
+
+        packageToClasses.computeIfAbsent(packageName, k -> new TreeSet<>()).add(simpleClassName);
+        packageToArtifacts.computeIfAbsent(packageName, k -> new TreeSet<>()).add(artifactKey);
+      }
+
+      artifactToPackageToClasses.put(artifactKey, packageToClasses);
+    }
+
+    // Step 2: Identify colliding packages (appear in more than one artifact)
+    Set<String> collidingPackages = new TreeSet<>();
+    for (Map.Entry<String, Set<String>> entry : packageToArtifacts.entrySet()) {
+      if (entry.getValue().size() > 1) {
+        collidingPackages.add(entry.getKey());
+      }
+    }
+
+    // Step 3: Build the packages and classes sections
+    // packages: artifact -> [package names] (for unique packages)
+    Map<String, Set<String>> packages = new TreeMap<>();
+    // classes: artifact -> {package -> [class names]} (for colliding packages)
     Map<String, Map<String, Set<String>>> classes = new TreeMap<>();
 
-    infos.forEach(
-        info -> {
-          // Skip sources and javadoc artifacts - they don't have classes
-          String classifier = info.getCoordinates().getClassifier();
-          if ("sources".equals(classifier) || "javadoc".equals(classifier)) {
-            return;
-          }
+    for (Map.Entry<String, Map<String, Set<String>>> entry :
+        artifactToPackageToClasses.entrySet()) {
+      String artifactKey = entry.getKey();
+      Map<String, Set<String>> pkgToClasses = entry.getValue();
 
-          Set<String> infoClasses = info.getClasses();
-          if (infoClasses == null || infoClasses.isEmpty()) {
-            return;
-          }
+      Set<String> uniquePackages = new TreeSet<>();
+      Map<String, Set<String>> collidingClasses = new TreeMap<>();
 
-          String artifactKey = asKey(info.getCoordinates());
-          Map<String, Set<String>> packageToClasses = new TreeMap<>();
+      for (Map.Entry<String, Set<String>> pkgEntry : pkgToClasses.entrySet()) {
+        String pkg = pkgEntry.getKey();
+        if (collidingPackages.contains(pkg)) {
+          collidingClasses.put(pkg, pkgEntry.getValue());
+        } else {
+          uniquePackages.add(pkg);
+        }
+      }
 
-          for (String fqcn : infoClasses) {
-            String packageName = extractPackage(fqcn);
-            String simpleClassName = extractSimpleClassName(fqcn);
-
-            packageToClasses
-                .computeIfAbsent(packageName, k -> new TreeSet<>())
-                .add(simpleClassName);
-          }
-
-          classes.put(artifactKey, packageToClasses);
-        });
+      if (!uniquePackages.isEmpty()) {
+        packages.put(artifactKey, uniquePackages);
+      }
+      if (!collidingClasses.isEmpty()) {
+        classes.put(artifactKey, collidingClasses);
+      }
+    }
 
     Map<String, Object> index = new TreeMap<>();
     index.put(
         "__AUTOGENERATED_FILE_DO_NOT_MODIFY_THIS_FILE_MANUALLY", "THERE_IS_NO_DATA_ONLY_ZUUL");
-    index.put("version", VERSION);
     index.put("classes", classes);
+    index.put("packages", packages);
+    index.put("version", VERSION);
 
     return index;
   }

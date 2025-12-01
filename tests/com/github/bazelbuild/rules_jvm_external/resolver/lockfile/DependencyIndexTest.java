@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -37,13 +38,17 @@ public class DependencyIndexTest {
     DependencyIndex index = new DependencyIndex(Set.of());
     Map<String, Object> rendered = index.render();
 
-    assertEquals(2, rendered.get("version"));
+    assertEquals(1, rendered.get("version"));
   }
 
   @Test
-  public void shouldRenderEmptyClassesForEmptyInfos() {
+  public void shouldRenderEmptySectionsForEmptyInfos() {
     DependencyIndex index = new DependencyIndex(Set.of());
     Map<String, Object> rendered = index.render();
+
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertTrue(packages.isEmpty());
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
@@ -52,7 +57,7 @@ public class DependencyIndexTest {
   }
 
   @Test
-  public void shouldGroupClassesByPackage() {
+  public void shouldPutUniquePackagesInPackagesSection() {
     Set<String> artifactClasses = new TreeSet<>();
     artifactClasses.add("com.example.Foo");
     artifactClasses.add("com.example.Bar");
@@ -72,17 +77,127 @@ public class DependencyIndexTest {
     DependencyIndex index = new DependencyIndex(Set.of(info));
     Map<String, Object> rendered = index.render();
 
+    // Unique packages go to "packages" section
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertEquals(1, packages.size());
+    assertEquals(Set.of("com.example", "com.example.sub"), packages.get("com.example:item"));
+
+    // No collisions, so "classes" section should be empty for this artifact
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
         (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+    assertTrue(classes.isEmpty());
+  }
 
-    assertEquals(1, classes.size());
+  @Test
+  public void shouldPutCollidingPackagesInClassesSection() {
+    // Two artifacts share the same package "javax.annotation"
+    Set<String> guavaClasses = new TreeSet<>();
+    guavaClasses.add("javax.annotation.Nullable");
+    guavaClasses.add("com.google.common.base.Optional");
 
-    Map<String, Set<String>> artifactPackages = classes.get("com.example:item");
-    assertEquals(2, artifactPackages.size());
+    Set<String> jsr305Classes = new TreeSet<>();
+    jsr305Classes.add("javax.annotation.Nonnull");
+    jsr305Classes.add("javax.annotation.Nullable");
 
-    assertEquals(Set.of("Bar", "Foo"), artifactPackages.get("com.example"));
-    assertEquals(Set.of("Baz"), artifactPackages.get("com.example.sub"));
+    DependencyInfo guava =
+        new DependencyInfo(
+            new Coordinates("com.google.guava:guava:33.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.of("abc123"),
+            Set.of(),
+            Set.of("javax.annotation", "com.google.common.base"),
+            guavaClasses,
+            new TreeMap<>());
+
+    DependencyInfo jsr305 =
+        new DependencyInfo(
+            new Coordinates("com.google.code.findbugs:jsr305:3.0.2"),
+            repos,
+            Optional.empty(),
+            Optional.of("def456"),
+            Set.of(),
+            Set.of("javax.annotation"),
+            jsr305Classes,
+            new TreeMap<>());
+
+    DependencyIndex index = new DependencyIndex(Set.of(guava, jsr305));
+    Map<String, Object> rendered = index.render();
+
+    // Unique packages go to "packages" section
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertEquals(1, packages.size());
+    assertEquals(Set.of("com.google.common.base"), packages.get("com.google.guava:guava"));
+    assertNull(packages.get("com.google.code.findbugs:jsr305")); // jsr305 has no unique packages
+
+    // Colliding package goes to "classes" section with full class listings
+    @SuppressWarnings("unchecked")
+    Map<String, Map<String, Set<String>>> classes =
+        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+    assertEquals(2, classes.size());
+
+    Map<String, Set<String>> guavaCollisions = classes.get("com.google.guava:guava");
+    assertEquals(1, guavaCollisions.size());
+    assertEquals(Set.of("Nullable"), guavaCollisions.get("javax.annotation"));
+
+    Map<String, Set<String>> jsr305Collisions = classes.get("com.google.code.findbugs:jsr305");
+    assertEquals(1, jsr305Collisions.size());
+    assertEquals(Set.of("Nonnull", "Nullable"), jsr305Collisions.get("javax.annotation"));
+  }
+
+  @Test
+  public void shouldHandleArtifactWithBothUniqueAndCollidingPackages() {
+    Set<String> artifact1Classes = new TreeSet<>();
+    artifact1Classes.add("com.shared.Foo");
+    artifact1Classes.add("com.unique1.Bar");
+
+    Set<String> artifact2Classes = new TreeSet<>();
+    artifact2Classes.add("com.shared.Baz");
+    artifact2Classes.add("com.unique2.Qux");
+
+    DependencyInfo artifact1 =
+        new DependencyInfo(
+            new Coordinates("com.example:artifact1:1.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.of("abc123"),
+            Set.of(),
+            Set.of("com.shared", "com.unique1"),
+            artifact1Classes,
+            new TreeMap<>());
+
+    DependencyInfo artifact2 =
+        new DependencyInfo(
+            new Coordinates("com.example:artifact2:1.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.of("def456"),
+            Set.of(),
+            Set.of("com.shared", "com.unique2"),
+            artifact2Classes,
+            new TreeMap<>());
+
+    DependencyIndex index = new DependencyIndex(Set.of(artifact1, artifact2));
+    Map<String, Object> rendered = index.render();
+
+    // Unique packages in "packages" section
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertEquals(2, packages.size());
+    assertEquals(Set.of("com.unique1"), packages.get("com.example:artifact1"));
+    assertEquals(Set.of("com.unique2"), packages.get("com.example:artifact2"));
+
+    // Colliding package in "classes" section
+    @SuppressWarnings("unchecked")
+    Map<String, Map<String, Set<String>>> classes =
+        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+    assertEquals(2, classes.size());
+
+    assertEquals(Set.of("Foo"), classes.get("com.example:artifact1").get("com.shared"));
+    assertEquals(Set.of("Baz"), classes.get("com.example:artifact2").get("com.shared"));
   }
 
   @Test
@@ -104,12 +219,10 @@ public class DependencyIndexTest {
     DependencyIndex index = new DependencyIndex(Set.of(info));
     Map<String, Object> rendered = index.render();
 
+    // Default package (empty string) should be in packages section since it's unique
     @SuppressWarnings("unchecked")
-    Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
-
-    Map<String, Set<String>> artifactPackages = classes.get("com.example:item");
-    assertEquals(Set.of("Foo"), artifactPackages.get(""));
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertEquals(Set.of(""), packages.get("com.example:item"));
   }
 
   @Test
@@ -130,6 +243,10 @@ public class DependencyIndexTest {
 
     DependencyIndex index = new DependencyIndex(Set.of(sources));
     Map<String, Object> rendered = index.render();
+
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertTrue(packages.isEmpty());
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
@@ -157,6 +274,10 @@ public class DependencyIndexTest {
     Map<String, Object> rendered = index.render();
 
     @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertTrue(packages.isEmpty());
+
+    @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
         (Map<String, Map<String, Set<String>>>) rendered.get("classes");
     assertTrue(classes.isEmpty());
@@ -177,6 +298,10 @@ public class DependencyIndexTest {
 
     DependencyIndex index = new DependencyIndex(Set.of(info));
     Map<String, Object> rendered = index.render();
+
+    @SuppressWarnings("unchecked")
+    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
+    assertTrue(packages.isEmpty());
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
