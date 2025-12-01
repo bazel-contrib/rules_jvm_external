@@ -43,12 +43,17 @@ public class V2LockFile {
   private final Collection<URI> allRepos;
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
+  private final boolean renderPackages;
 
   public V2LockFile(
-      Collection<URI> repositories, Set<DependencyInfo> infos, Set<Conflict> conflicts) {
+      Collection<URI> repositories,
+      Set<DependencyInfo> infos,
+      Set<Conflict> conflicts,
+      boolean renderPackages) {
     this.allRepos = repositories;
     this.infos = infos;
     this.conflicts = conflicts;
+    this.renderPackages = renderPackages;
   }
 
   public Collection<URI> getRepositories() {
@@ -172,10 +177,9 @@ public class V2LockFile {
       conflicts.add(new Conflict(resolved, requested));
     }
 
-    return new V2LockFile(repos, infos, conflicts);
+    return new V2LockFile(repos, infos, conflicts, true);
   }
 
-  /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
   public Map<String, Object> render() {
     Set<URI> repositories = new LinkedHashSet<>(allRepos);
 
@@ -243,7 +247,9 @@ public class V2LockFile {
                   .map(Coordinates::asKey)
                   .map(Object::toString)
                   .collect(Collectors.toCollection(TreeSet::new)));
-          packages.put(key, info.getPackages());
+          if (renderPackages) {
+            packages.put(key, info.getPackages());
+          }
           services.put(key, info.getServices());
 
           if (info.getPath().isPresent()) {
@@ -255,7 +261,9 @@ public class V2LockFile {
     Map<String, Object> lock = new LinkedHashMap<>();
     lock.put("artifacts", ensureArtifactsAllHaveAtLeastOneShaSum(artifacts));
     lock.put("dependencies", removeEmptyItems(deps));
-    lock.put("packages", removeEmptyItems(packages));
+    if (renderPackages) {
+      lock.put("packages", removeEmptyItems(packages));
+    }
     lock.put("services", removeEmptyItemsMap(services));
     if (isUsingM2Local) {
       lock.put("m2local", true);
