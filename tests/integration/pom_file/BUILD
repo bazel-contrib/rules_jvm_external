@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
 load("//:defs.bzl", "artifact", "java_export")
 
