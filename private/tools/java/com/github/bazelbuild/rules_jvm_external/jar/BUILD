@@ -60,27 +60,3 @@ java_binary(
     ],
 )
 
-java_library(
-    name = "create_jar_lib",
-    srcs = ["CreateJar.java"],
-    visibility = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:__pkg__",
-        "//tests/com/github/bazelbuild/rules_jvm_external/jar:__pkg__",
-        "//tests/com/github/bazelbuild/rules_jvm_external/javadoc:__pkg__",
-    ],
-    deps = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
-    ],
-)
-
-java_binary(
-    name = "CreateJar",
-    main_class = "com.github.bazelbuild.rules_jvm_external.jar.CreateJar",
-    visibility = [
-        "//visibility:public",
-    ],
-    runtime_deps = [
-        ":create_jar_lib",
-    ],
-)

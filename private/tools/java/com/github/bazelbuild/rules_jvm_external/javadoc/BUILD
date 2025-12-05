@@ -8,8 +8,6 @@ java_library(
     ],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:create_jar_lib",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
     ],
 )
 
