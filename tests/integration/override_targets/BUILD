@@ -94,5 +94,6 @@ genquery(
 sh_test(
     name = "verify_visibility_test",
     srcs = ["verify_visibility.sh"],
+    args = ["$(location :verify_visibility_query)"],
     data = [":verify_visibility_query"],
 )

@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-# The genquery output file should contain the target label if it matches the visibility attribute.
-# The file path is passed as the first argument or found in runfiles.
-
-QUERY_OUTPUT=$(find . -name "verify_visibility_query")
+# The file path is passed as the first argument.
+QUERY_OUTPUT="$1"
 
 if [ -z "$QUERY_OUTPUT" ]; then
   echo "Could not find query output file"
