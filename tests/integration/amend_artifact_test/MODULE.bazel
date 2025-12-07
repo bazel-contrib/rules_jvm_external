@@ -1,0 +1,63 @@
+module(
+    name = "amend_artifact_test",
+    version = "0.0.1",
+)
+
+
+bazel_dep(name = "rules_jvm_external", version = "0.0.1")
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../../..",
+)
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+
+maven.install(
+    artifacts = [
+        "com.google.guava:guava:31.1-jre",
+        "org.apache.commons:commons-lang3:3.12.0",
+        "commons-io:commons-io:2.11.0",
+        "org.slf4j:slf4j-api:1.7.32",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+# guava is not testonly by default. We try to set it to true.
+# 1. Unset via Chaining: Set to 1, then set to 0. Result should be False.
+maven.amend_artifact(
+    name = "maven",
+    coordinates = "com.google.guava:guava",
+    testonly_int = 1,
+)
+maven.amend_artifact(
+    name = "maven",
+    coordinates = "com.google.guava:guava",
+    testonly_int = 0,
+)
+
+# 2. Set True via Int
+maven.amend_artifact(
+    name = "maven",
+    coordinates = "org.apache.commons:commons-lang3",
+    testonly_int = 1,
+)
+
+# 3. Set True via Legacy Bool
+maven.amend_artifact(
+    name = "maven",
+    coordinates = "commons-io:commons-io",
+    testonly = True,
+)
+
+# 4. Set Neverlink True via Int
+maven.amend_artifact(
+    name = "maven",
+    coordinates = "org.slf4j:slf4j-api",
+    neverlink_int = 1,
+)
+
+use_repo(maven, "maven")
