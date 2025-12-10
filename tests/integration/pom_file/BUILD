@@ -235,29 +235,8 @@ diff_test(
     file2 = "pom-with-maven-defined-exclusions.golden.xml",
 )
 
-java_library(
-    name = "other-library",
-    srcs = ["OtherLibrary.java"],
-    deps = [
-        "@pom_exclusion_testing_coursier//:com_google_guava_guava",
-    ],
-)
-
-# This is to ensure that the guava dependency appears in the pom.xml with the correct exclusions,
-# even though it is not directly on the java_export, it is on the java_library dep.
-java_export(
-    name = "pom-transitive-exclusion",
-    srcs = ["PomExample.java"],
-    maven_coordinates = "com.example:app:1.0.0",
-    deps = [
-        ":other-library",
-    ],
-)
-
 ####
 # Test for transitive dependency with maven.artifact() exclusions
-# These tests might be a bit overkill and overlap with the above, but
-# they were helpful for me to dig a bit more into the exclusions logic.
 ####
 
 # Scenario 1: java_export -> java_export -> guava (with exclusions)
