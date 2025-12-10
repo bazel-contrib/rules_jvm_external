@@ -280,7 +280,7 @@ diff_test(
 # direct dependency of the java_export's POM (with exclusions).
 
 java_library(
-    name = "helper-library-no-coords",
+    name = "other-library",
     srcs = ["OtherLibrary.java"],
     deps = [
         "@pom_exclusion_testing_coursier//:com_google_guava_guava",
@@ -292,7 +292,7 @@ java_export(
     srcs = ["PomExample.java"],
     maven_coordinates = "com.example:app:1.0.0",
     deps = [
-        ":helper-library-no-coords",
+        ":other-library",
     ],
 )
 
