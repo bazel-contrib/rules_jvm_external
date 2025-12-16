@@ -6,6 +6,7 @@ def _pom_file_impl(ctx):
     # Ensure the target has coordinates
     expanded_maven_deps = []
     expanded_export_deps = []
+    exclusions = {}
     if ctx.attr.target:
         if not ctx.attr.target[MavenInfo].coordinates:
             fail("pom_file target must have maven coordinates.")
@@ -58,7 +59,6 @@ def _pom_file_impl(ctx):
                         exclusions_unsorted[maven_info.coordinates] = []
                     exclusions_unsorted[maven_info.coordinates].append(exclusion)
 
-        exclusions = {}
         for coords in exclusions_unsorted:
             exclusions[coords] = sorted(exclusions_unsorted[coords])
 
