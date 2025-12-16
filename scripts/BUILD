@@ -1,4 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_binary")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("//private:versions.bzl", "COURSIER_CLI_HTTP_FILE_NAME")
 load("//private/rules:artifact.bzl", "artifact")
 
