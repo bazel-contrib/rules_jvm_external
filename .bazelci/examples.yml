@@ -2,13 +2,13 @@
 tasks:
   android-kotlin-linux:
     name: "Android Kotlin example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/android_kotlin_app
     build_targets:
       - "//:app"
   android-kotlin-macos:
     name: "Android Kotlin example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/android_kotlin_app
     build_targets:
       - "//:app"
@@ -20,13 +20,13 @@ tasks:
       - "//:app"
   android-local-test-linux:
     name: "Android Robolectric test example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
   android-local-test-macos:
     name: "Android Robolectric test example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
@@ -38,13 +38,13 @@ tasks:
       - "//..."
   bzlmod-linux:
     name: "bzlmod example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/bzlmod
     build_targets:
       - "//..."
   bzlmod-macos:
     name: "bzlmod example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/bzlmod
     build_targets:
       - "//..."
@@ -56,13 +56,13 @@ tasks:
       - "//..."
   java-export-linux:
     name: "java-export example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/java-export
     build_targets:
       - "//..."
   java-export-macos:
     name: "java-export example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/java-export
     build_targets:
       - "//..."
@@ -74,7 +74,7 @@ tasks:
       - "//..."
   kotlin-android-local-test-linux:
     name: "Kotlin Android Robolectric test example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/kt_android_local_test
     test_targets:
       - "//..."
@@ -92,13 +92,13 @@ tasks:
       - "//..."
   kotlin-jvm-export-linux:
     name: "kt_jvm_export example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/kt_jvm_export
     build_targets:
       - "//..."
   kotlin-jvm-export-macos:
     name: "kt_jvm_export example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/kt_jvm_export
     build_targets:
       - "//..."
@@ -112,13 +112,13 @@ tasks:
   #      - "//..."
   pom-file-generation-linux:
     name: "POM file generation example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/pom_file_generation
     build_targets:
       - "//..."
   pom-file-generation-macos:
     name: "POM file generation example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/pom_file_generation
     build_targets:
       - "//..."
@@ -130,13 +130,13 @@ tasks:
       - "//..."
   protobuf-java-linux:
     name: "Protobuf Java example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/protobuf-java
     test_targets:
       - "//..."
   protobuf-java-macos:
     name: "Protobuf Java example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/protobuf-java
     test_targets:
       - "//..."
@@ -150,7 +150,7 @@ tasks:
       - "//..."
   scala-akka-linux:
     name: "Scala example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/scala_akka
     build_targets:
       - "//..."
@@ -158,7 +158,7 @@ tasks:
       - "//..."
   scala-akka-macos:
     name: "Scala example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/scala_akka
     build_targets:
       - "//..."
@@ -175,7 +175,7 @@ tasks:
     # - "//..."
   simple-linux:
     name: "Simple example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/simple
     shell_command:
       - "bazel run @maven//:pin"
@@ -183,7 +183,7 @@ tasks:
       - "//..."
   simple-macos:
     name: "Simple example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/simple
     shell_command:
       - "bazel run @maven//:pin"
@@ -197,7 +197,7 @@ tasks:
       - "//..."
   spring-boot-linux:
     name: "Spring boot example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/spring_boot
     build_targets:
       - "//..."
@@ -205,7 +205,7 @@ tasks:
       - "//..."
   spring-boot-macos:
     name: "Spring boot example"
-    platform: macos
+    platform: macos_arm64
     working_directory: examples/spring_boot
     build_targets:
       - "//..."

@@ -1,5 +1,9 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
+load("@protobuf//bazel:java_proto_library.bzl", "java_proto_library")
+load("@protobuf//bazel:proto_library.bzl", "proto_library")
 load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_test.bzl", "java_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//:defs.bzl", "artifact", "java_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
@@ -164,7 +168,7 @@ proto_library(
     name = "example_proto",
     srcs = ["example.proto"],
     deps = [
-        # It's important that we pull our dep from `@com_google_protobuf`
+        # It's important that we pull our dep from `@protobuf`
         "@protobuf//:wrappers_proto",
     ],
 )
