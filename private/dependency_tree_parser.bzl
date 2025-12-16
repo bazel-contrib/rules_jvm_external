@@ -425,7 +425,7 @@ processor_class = "{processor_class}",
 # tree.
 #
 # Made function public for testing.
-def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlink_artifacts, testonly_artifacts, exclusions, override_targets, skip_maven_local_dependencies):
+def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlink_artifacts, testonly_artifacts, exclusions, override_targets, override_target_visibilities, skip_maven_local_dependencies):
     repository_urls = [json.decode(repository)["repo_url"] for repository in repository_ctx.attr.repositories]
 
     # The list of java_import/aar_import declaration strings to be joined at the end
@@ -445,6 +445,10 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
     labels_to_override = {}
     for coord in override_targets:
         labels_to_override.update({escape(coord): override_targets.get(coord)})
+
+    visibilities_to_override = {}
+    for coord in override_target_visibilities:
+        visibilities_to_override.update({escape(coord): override_target_visibilities.get(coord)})
 
     default_visibilities = repository_ctx.attr.strict_visibility_value if repository_ctx.attr.strict_visibility else ["//visibility:public"]
 
@@ -506,6 +510,8 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # Override target labels with the user provided mapping, instead of generating
             # a jvm_import/aar_import based on information in dep_tree.
             seen_imports[target_label] = True
+            if visibilities_to_override.get(target_label):
+                 visibility = "[%s]" % (",".join(["\"%s\"" % v for v in visibilities_to_override.get(target_label)]))
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = %s,)" % (target_label, labels_to_override.get(target_label), visibility),
             )

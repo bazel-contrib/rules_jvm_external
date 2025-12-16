@@ -128,6 +128,7 @@ override = tag_class(
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Maven artifact tuple in `artifactId:groupId` format", mandatory = True),
         "target": attr.label(doc = "Target to use in place of maven coordinates", mandatory = True),
+        "visibility": attr.string_list(doc = "Visibility of the generated alias target", default = []),
     },
 )
 
@@ -542,6 +543,7 @@ def remove_fields(s):
 def maven_impl(mctx):
     repos = {}
     overrides = {}
+    override_visibilities = {}
     http_files = []
     compat_repos = []
 
@@ -559,14 +561,25 @@ def maven_impl(mctx):
         for override in mod.tags.override:
             if not override.name in overrides:
                 overrides[override.name] = {}
+            if not override.name in override_visibilities:
+                override_visibilities[override.name] = {}
             value = str(override.target)
             if is_root_module:
                 # Allow the root module's overrides to take precedence over any transitive overrides.
                 to_use = value
+                visibility_to_use = override.visibility
             else:
                 current = overrides[override.name].get(override.coordinates)
                 to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
+                
+                current_visibility = override_visibilities[override.name].get(override.coordinates)
+                if current_visibility == None:
+                    visibility_to_use = override.visibility
+                else:
+                    visibility_to_use = _fail_if_different("Visibility of override for %s" % override.coordinates, current_visibility, override.visibility, [[]])
+
             overrides[override.name].update({override.coordinates: to_use})
+            override_visibilities[override.name].update({override.coordinates: visibility_to_use})
 
     # First pass: process the module tags, but keep root and non-root modules separately
     for mod in mctx.modules:
@@ -696,6 +709,7 @@ def maven_impl(mctx):
                 generate_compat_repositories = False,
                 version_conflict_policy = repo.get("version_conflict_policy"),
                 override_targets = overrides.get(name),
+                override_target_visibilities = override_visibilities.get(name, {}),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
@@ -757,6 +771,7 @@ def maven_impl(mctx):
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
                 override_targets = overrides.get(name),
+                override_target_visibilities = override_visibilities.get(name, {}),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
