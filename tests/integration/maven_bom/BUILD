@@ -14,15 +14,15 @@ string_flag(
     make_variable = "LIB_VERSION",
 )
 
-# Basic BOM test that also validates $(VERSION) substitution
-# in both BOM coordinates and transitive java_export coordinates
+# Basic BOM test that also validates make variable substitution:
+# - $(VERSION) in BOM coordinates
+# - $(LIB_VERSION) in java_export coordinates (two-deps)
 maven_bom(
     name = "bom",
     dependencies_maven_coordinates = "com.example:bom-deps:$(VERSION)",
     java_exports = [
         ":one-dep",
         ":two-deps",
-        ":versioned-lib",
     ],
     maven_coordinates = "com.example:bom:$(VERSION)",
     toolchains = [":version"],
@@ -43,7 +43,8 @@ diff_test(
 java_export(
     name = "two-deps",
     srcs = ["TwoDeps.java"],
-    maven_coordinates = "com.example:two-deps:1.0.0",
+    maven_coordinates = "com.example:two-deps:$(LIB_VERSION)",
+    toolchains = [":lib-version"],
     deps = [
         artifact("com.google.guava:guava"),
         artifact("org.hamcrest:hamcrest"),
@@ -63,16 +64,6 @@ java_export(
     ],
 )
 
-java_export(
-    name = "versioned-lib",
-    srcs = ["OneDep.java"],
-    maven_coordinates = "com.example:versioned-lib:$(LIB_VERSION)",
-    toolchains = [":lib-version"],
-    deps = [
-        artifact("com.google.guava:guava"),
-    ],
-)
-
 maven_bom(
     name = "transitive-bom",
     dependencies_maven_coordinates = "com.example:bom-transitive-deps:1.0.0",
@@ -85,12 +76,14 @@ maven_bom(
         # But not the second!
     ],
     maven_coordinates = "com.example:bom-transitive:1.0.0",
+    toolchains = [":lib-version"],
 )
 
 java_export(
     name = "transitive-dep",
     srcs = ["TransitiveDep.java"],
     maven_coordinates = "com.example:transitive:1.0.0",
+    toolchains = [":lib-version"],
     deps = [
         ":one-dep",
         ":two-deps",
