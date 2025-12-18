@@ -107,7 +107,6 @@ diff_test(
 java_export(
     name = "with-combined-exclusions",
     srcs = ["OneDep.java"],
-    maven_coordinates = "com.example:with-combined-exclusions:1.0.0",
     # Source 1: maven_exclusion= tag on the artifact (defined in MODULE.bazel)
     # excludes com.google.errorprone:error_prone_annotations
     # Source 2: java_export exclusions attribute
@@ -116,6 +115,7 @@ java_export(
             "com.google.guava:failureaccess",
         ],
     },
+    maven_coordinates = "com.example:with-combined-exclusions:1.0.0",
     deps = [
         "@pom_exclusion_testing_coursier//:com_google_guava_guava",
     ],

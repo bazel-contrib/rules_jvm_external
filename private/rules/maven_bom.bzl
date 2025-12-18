@@ -91,7 +91,10 @@ def _maven_dependencies_bom_impl(ctx):
     for fragment in fragments:
         # Source 1: maven_exclusion= tags from transitive maven dependencies
         all_exclusion_dicts.append(collect_exclusions_from_maven_infos(
-            fragment.maven_info.all_infos.to_list(), ctx))
+            fragment.maven_info.all_infos.to_list(),
+            ctx,
+        ))
+
         # Source 2: exclusions from java_export's exclusions attribute
         all_exclusion_dicts.append(expand_dict_keys(ctx, fragment.exclusions))
 
