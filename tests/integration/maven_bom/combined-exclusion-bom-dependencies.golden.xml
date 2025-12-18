@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>java-export-exclusion-bom-deps</artifactId>
+    <artifactId>combined-exclusion-bom-deps</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
@@ -12,7 +12,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.example</groupId>
-                <artifactId>java-export-exclusion-bom</artifactId>
+                <artifactId>combined-exclusion-bom</artifactId>
                 <version>1.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -20,8 +20,12 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.5.0-jre</version>
+                <version>31.1-jre</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>com.google.guava</groupId>
                         <artifactId>failureaccess</artifactId>
