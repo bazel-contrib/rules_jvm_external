@@ -28,7 +28,9 @@ def maven_install(
         duplicate_version_warning = "warn",
         repin_instructions = None,
         ignore_empty_files = False,
-        additional_coursier_options = []):
+        additional_coursier_options = [],
+        targets_compatible_with = [],
+    ):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
     This macro runs a repository rule that invokes the Coursier CLI to resolve
@@ -81,6 +83,7 @@ def maven_install(
       repin_instructions: Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.
       ignore_empty_files: Treat jars that are empty as if they were not found.
       additional_coursier_options: Additional options that will be passed to coursier.
+      targets_compatible_with: Platform constraints to add to the repository's targets.
     """
     if resolver != "coursier" and not maven_install_json:
         fail("Only the coursier resolver supports build time resolution. Please set `maven_install_json`. An empty file will work.")
@@ -147,6 +150,7 @@ def maven_install(
             duplicate_version_warning = duplicate_version_warning,
             ignore_empty_files = ignore_empty_files,
             additional_coursier_options = additional_coursier_options,
+            targets_compatible_with = targets_compatible_with,
         )
 
     else:
@@ -177,6 +181,7 @@ def maven_install(
             use_starlark_android_rules = use_starlark_android_rules,
             aar_import_bzl_label = aar_import_bzl_label,
             repin_instructions = repin_instructions,
+            targets_compatible_with = targets_compatible_with,
             # Extra arguments only used for hash generation
             excluded_artifacts = excluded_artifacts_json_strings,
         )
