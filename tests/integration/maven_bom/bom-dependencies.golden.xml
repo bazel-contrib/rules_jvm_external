@@ -5,7 +5,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>bom-deps</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.0-dev</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
@@ -13,7 +13,7 @@
             <dependency>
                 <groupId>com.example</groupId>
                 <artifactId>bom</artifactId>
-                <version>1.0.0</version>
+                <version>0.0.0-dev</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
