@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>bom-substitution</artifactId>
+    <artifactId>versioned-transitive-bom</artifactId>
     <version>0.0.0-dev</version>
     <packaging>pom</packaging>
 
@@ -12,7 +12,7 @@
         <dependencies>
         <dependency>
             <groupId>com.example</groupId>
-            <artifactId>one-dep</artifactId>
+            <artifactId>depends-on-versioned</artifactId>
             <version>1.0.0</version>
         </dependency>
         </dependencies>

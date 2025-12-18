@@ -2,7 +2,13 @@ load("@bazel_features//:features.bzl", "bazel_features")
 load("//private/lib:coordinates.bzl", "unpack_coordinates")
 load(":maven_bom_fragment.bzl", "MavenBomFragmentInfo")
 load(":maven_publish.bzl", "maven_publish")
-load(":maven_utils.bzl", "generate_pom")
+load(
+    ":maven_utils.bzl",
+    "collect_exclusions_from_maven_infos",
+    "expand_dict_keys",
+    "generate_pom",
+    "merge_and_sort_exclusions",
+)
 
 def _label(label_or_string):
     if type(label_or_string) == "Label":
@@ -26,10 +32,10 @@ def _label(label_or_string):
 
 def _maven_bom_impl(ctx):
     fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
-    dep_coordinates = [f.coordinates for f in fragments]
 
     # Expand maven coordinates for any variables to be replaced.
-    coordinates = ctx.expand_make_variables("coordinates", ctx.attr.maven_coordinates, {})
+    coordinates = ctx.expand_make_variables("coordinates", ctx.attr.maven_coordinates, ctx.var)
+    dep_coordinates = [ctx.expand_make_variables("dep", f.coordinates, ctx.var) for f in fragments]
 
     bom = generate_pom(
         ctx,
@@ -67,21 +73,40 @@ _maven_bom = rule(
 def _maven_dependencies_bom_impl(ctx):
     fragments = [f[MavenBomFragmentInfo] for f in ctx.attr.fragments]
 
+    # Expand coordinates for any variables to be replaced.
+    bom_coordinates = ctx.expand_make_variables("bom_coordinates", ctx.attr.bom_coordinates, ctx.var)
+    coordinates = ctx.expand_make_variables("coordinates", ctx.attr.maven_coordinates, ctx.var)
+
     # We want to include all the dependencies that aren't
-    # included in the main BOM
-    first_order_deps = [f[MavenBomFragmentInfo].coordinates for f in ctx.attr.fragments]
-    all_deps = depset(transitive = [f.maven_info.maven_deps for f in fragments]).to_list()
+    # included in the main BOM.
+    first_order_deps = [ctx.expand_make_variables("dep", f[MavenBomFragmentInfo].coordinates, ctx.var) for f in ctx.attr.fragments]
+    all_deps = [ctx.expand_make_variables("dep", a, ctx.var) for a in depset(transitive = [f.maven_info.maven_deps for f in fragments]).to_list()]
     combined_deps = [a for a in all_deps if a not in first_order_deps]
 
-    unpacked = unpack_coordinates(ctx.attr.bom_coordinates)
+    # Collect exclusions from two sources:
+    # 1. MavenInfo.exclusions - from maven_exclusion= tags on maven dependencies
+    # 2. Fragment.exclusions - from java_export's exclusions attribute
+    all_exclusion_dicts = []
+
+    for fragment in fragments:
+        # Source 1: maven_exclusion= tags from transitive maven dependencies
+        all_exclusion_dicts.append(collect_exclusions_from_maven_infos(
+            fragment.maven_info.all_infos.to_list(), ctx))
+        # Source 2: exclusions from java_export's exclusions attribute
+        all_exclusion_dicts.append(expand_dict_keys(ctx, fragment.exclusions))
+
+    exclusions = merge_and_sort_exclusions(*all_exclusion_dicts)
+
+    unpacked = unpack_coordinates(bom_coordinates)
     dependencies_bom = generate_pom(
         ctx,
-        coordinates = ctx.attr.maven_coordinates,
+        coordinates = coordinates,
         is_bom = True,
         versioned_dep_coordinates = combined_deps + ["%s:%s:%s@pom" % (unpacked.group, unpacked.artifact, unpacked.version)],
         pom_template = ctx.file.pom_template,
         out_name = "%s.xml" % ctx.label.name,
         indent = 12,
+        exclusions = exclusions,
     )
 
     return [
