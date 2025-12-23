@@ -27,37 +27,38 @@ maven.install(
 )
 
 # guava is not testonly by default. We try to set it to true.
-# 1. Unset via Chaining: Set to 1, then set to 0. Result should be False.
+# 1. Unset via Chaining: Set to "on", then set to "off". Result should be False.
 maven.amend_artifact(
     name = "maven",
     coordinates = "com.google.guava:guava",
-    testonly_int = 1,
+    testonly = "on",
 )
 maven.amend_artifact(
     name = "maven",
     coordinates = "com.google.guava:guava",
-    testonly_int = 0,
+    testonly = "off",
 )
 
-# 2. Set True via Int
+# 2. Set True via String "true"
 maven.amend_artifact(
     name = "maven",
     coordinates = "org.apache.commons:commons-lang3",
-    testonly_int = 1,
+    testonly = "true",
 )
 
-# 3. Set True via Legacy Bool
+# 3. Set True via String "on" (was Bool)
 maven.amend_artifact(
     name = "maven",
     coordinates = "commons-io:commons-io",
-    testonly = True,
+    # valid values are on, off, true, false
+    testonly = "on",
 )
 
-# 4. Set Neverlink True via Int
+# 4. Set Neverlink True via String "on"
 maven.amend_artifact(
     name = "maven",
     coordinates = "org.slf4j:slf4j-api",
-    neverlink_int = 1,
+    neverlink = "on",
 )
 
 use_repo(maven, "maven")
