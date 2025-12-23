@@ -36,7 +36,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /** Format resolution results into the v2 lock file format. */
-public class V2LockFile {
+public class V3LockFile {
 
   public static final URI M2_LOCAL_URI =
       Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
@@ -44,7 +44,7 @@ public class V2LockFile {
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
 
-  public V2LockFile(
+  public V3LockFile(
       Collection<URI> repositories, Set<DependencyInfo> infos, Set<Conflict> conflicts) {
     this.allRepos = repositories;
     this.infos = infos;
@@ -64,7 +64,7 @@ public class V2LockFile {
   }
 
   @SuppressWarnings("unchecked")
-  public static V2LockFile create(String from) {
+  public static V3LockFile create(String from) {
     Map<?, ?> raw = new Gson().fromJson(from, Map.class);
 
     Set<URI> repos = new LinkedHashSet<>();
@@ -171,7 +171,7 @@ public class V2LockFile {
       conflicts.add(new Conflict(resolved, requested));
     }
 
-    return new V2LockFile(repos, infos, conflicts);
+    return new V3LockFile(repos, infos, conflicts);
   }
 
   /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
@@ -275,7 +275,7 @@ public class V2LockFile {
     }
     lock.put("files", files);
 
-    lock.put("version", "2");
+    lock.put("version", "3");
 
     return lock;
   }
