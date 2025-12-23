@@ -284,7 +284,7 @@ dev_maven.from_toml(
 )
 dev_maven.amend_artifact(
     name = "from_files",
-    testonly = True,
+    testonly = "true",
     coordinates = "org.junit.jupiter:junit-jupiter-api",
 )
 dev_maven.install(
@@ -924,7 +924,7 @@ dev_maven.install(
 dev_maven.amend_artifact(
     name = "root_wins",
     coordinates = "io.netty:netty-buffer",
-    force_version = True,
+    force_version = "true",
 )
 
 bazel_dep(name = "root_wins_layer", version = "0.0.0", dev_dependency = True)
