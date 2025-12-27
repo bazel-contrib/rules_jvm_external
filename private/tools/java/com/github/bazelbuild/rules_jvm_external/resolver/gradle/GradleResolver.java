@@ -154,6 +154,12 @@ public class GradleResolver implements Resolver {
       throws GradleDependencyResolutionException {
     MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(true).build();
 
+    // Create lookup cache for requested dependencies
+    Set<String> requestedDepKeys =
+        requestedDeps.stream()
+            .map(dep -> makeDepKey(dep.getGroup(), dep.getArtifact(), dep.getVersion()))
+            .collect(Collectors.toSet());
+
     Set<Conflict> conflicts = new HashSet<>();
     List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
     List<GradleUnresolvedDependency> unresolvedDependencies = resolved.getUnresolvedDependencies();
@@ -183,10 +189,12 @@ public class GradleResolver implements Resolver {
                 extension,
                 classifier,
                 gradleCoordinates.getVersion());
-        addDependency(graph, coordinates, dependency, conflicts, requestedDeps, visited);
+        addDependency(graph, coordinates, dependency, conflicts, requestedDepKeys, visited);
         // if there's a conflict and the conflicting version isn't one that's actually requested
         // then it's an actual conflict we want to report
-        if (dependency.isConflict() && !isRequestedDep(requestedDeps, dependency)) {
+        if (dependency.isConflict()
+            && !requestedDepKeys.contains(
+                makeDepKey(dependency.getGroup(), dependency.getName(), dependency.getVersion()))) {
           String conflictingVersion =
               dependency.getRequestedVersions().stream()
                   .filter(x -> !x.equals(coordinates.getVersion()))
@@ -235,7 +243,10 @@ public class GradleResolver implements Resolver {
     // behavior here as well
     List<GradleUnresolvedDependency> unresolvedRequestedDeps =
         unresolvedDependencies.stream()
-            .filter(dep -> isRequestedDep(requestedDeps, dep))
+            .filter(
+                dep ->
+                    requestedDepKeys.contains(
+                        makeDepKey(dep.getGroup(), dep.getName(), dep.getVersion())))
             .collect(Collectors.toList());
     if (!unresolvedRequestedDeps.isEmpty()) {
       throw new GradleDependencyResolutionException(unresolvedRequestedDeps);
@@ -243,24 +254,8 @@ public class GradleResolver implements Resolver {
     return new ResolutionResult(graph, conflicts);
   }
 
-  private boolean isRequestedDep(
-      List<GradleDependency> requestedDeps, GradleResolvedDependency resolved) {
-    return requestedDeps.stream()
-        .anyMatch(
-            dep ->
-                dep.getArtifact().equals(resolved.getName())
-                    && dep.getGroup().equals(resolved.getGroup())
-                    && dep.getVersion().equals(resolved.getVersion()));
-  }
-
-  private boolean isRequestedDep(
-      List<GradleDependency> requestedDeps, GradleUnresolvedDependency unresolved) {
-    return requestedDeps.stream()
-        .anyMatch(
-            dep ->
-                dep.getArtifact().equals(unresolved.getName())
-                    && dep.getGroup().equals(unresolved.getGroup())
-                    && dep.getVersion().equals(unresolved.getVersion()));
+  private String makeDepKey(String group, String artifact, String version) {
+    return group + ":" + artifact + ":" + version;
   }
 
   private void addDependency(
@@ -268,7 +263,7 @@ public class GradleResolver implements Resolver {
       Coordinates parent,
       GradleResolvedDependency parentInfo,
       Set<Conflict> conflicts,
-      List<GradleDependency> requestedDeps,
+      Set<String> requestedDepKeys,
       Set<Coordinates> visited) {
     if (visited.contains(parent)) {
       return;
@@ -301,7 +296,9 @@ public class GradleResolver implements Resolver {
           graph.putEdge(parent, child);
           // if there's a conflict and the conflicting version isn't one that's actually requested
           // then it's an actual conflict we want to report
-          if (childInfo.isConflict() && !isRequestedDep(requestedDeps, childInfo)) {
+          if (childInfo.isConflict()
+              && !requestedDepKeys.contains(
+                  makeDepKey(childInfo.getGroup(), childInfo.getName(), childInfo.getVersion()))) {
             String conflictingVersion =
                 childInfo.getRequestedVersions().stream()
                     .filter(x -> !x.equals(child.getVersion()))
@@ -328,7 +325,7 @@ public class GradleResolver implements Resolver {
               child,
               childInfo,
               conflicts,
-              requestedDeps,
+              requestedDepKeys,
               visited); // recursively traverse the graph
         }
       }
