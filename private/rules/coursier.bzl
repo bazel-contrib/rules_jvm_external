@@ -1015,7 +1015,7 @@ def filter_dependencies_if_necessary(repository_ctx, dep_tree):
                 if _is_verbose(repository_ctx):
                     print("Removing source artifact with no file: %s" % dep["coord"])
             else:
-              amended_deps.append(dep)
+                amended_deps.append(dep)
             continue
 
         # You'd think we could use skylib here to do the heavy lifting, but

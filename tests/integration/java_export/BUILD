@@ -1,5 +1,5 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
-load("@rules_java//java:defs.bzl", "java_library", "java_binary")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("//:defs.bzl", "artifact", "java_export", "maven_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
@@ -236,11 +236,14 @@ diff_test(
 
 java_binary(
     name = "some-java-binary",
-    srcs = ["Main.java", "Dependency.java"],
+    srcs = [
+        "Dependency.java",
+        "Main.java",
+    ],
     main_class = "com.jvm.external.jvm_export.Main",
     deps = [
         artifact("com.google.guava:guava"),
-    ]
+    ],
 )
 
 maven_export(
