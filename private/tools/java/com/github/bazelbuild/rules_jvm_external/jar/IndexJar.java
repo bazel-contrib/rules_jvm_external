@@ -84,6 +84,7 @@ public class IndexJar {
 
   public PerJarIndexResults index(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
+    SortedSet<String> classes = new TreeSet<>();
     SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
     try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
         ZipInputStream zis = new ZipInputStream(fis)) {
@@ -103,12 +104,17 @@ public class IndexJar {
               || entry.getName().endsWith("/module-info.class")) {
             continue;
           }
+          // Skip inner classes, anonymous classes, and local classes (contain $)
+          if (isInnerClass(entry.getName())) {
+            continue;
+          }
           packages.add(extractPackageName(entry.getName()));
+          classes.add(extractClassName(entry.getName()));
         }
       } catch (ZipException e) {
         System.err.printf("Caught ZipException: %s%n", e);
       }
-      return new PerJarIndexResults(packages, serviceImplementations);
+      return new PerJarIndexResults(packages, classes, serviceImplementations);
     }
   }
 
@@ -151,7 +157,31 @@ public class IndexJar {
     return Arrays.stream(parts).skip(skip).limit(limit).collect(Collectors.joining("."));
   }
 
+  private String extractClassName(String zipEntryName) {
+    String[] parts = zipEntryName.split("/");
+    int skip = 0;
+    // As per https://docs.oracle.com/en/java/javase/13/docs/specs/jar/jar.html
+    if (parts.length > 3
+        && "META-INF".equals(parts[0])
+        && "versions".equals(parts[1])
+        && isNumericVersion(parts[2])) {
+      skip = 3;
+    }
+
+    // Remove .class suffix and join with dots
+    String className = Arrays.stream(parts).skip(skip).collect(Collectors.joining("."));
+    return className.substring(0, className.length() - ".class".length());
+  }
+
   private boolean isNumericVersion(String part) {
     return IS_NUMERIC_VERSION.test(part);
+  }
+
+  private boolean isInnerClass(String zipEntryName) {
+    // Inner classes, anonymous classes, and local classes all contain '$' in the class file name
+    // Examples: Outer$Inner.class, Outer$1.class, Outer$1LocalClass.class
+    int lastSlash = zipEntryName.lastIndexOf('/');
+    String fileName = lastSlash == -1 ? zipEntryName : zipEntryName.substring(lastSlash + 1);
+    return fileName.contains("$");
   }
 }

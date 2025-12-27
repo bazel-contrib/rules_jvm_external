@@ -742,6 +742,7 @@ dev_maven.install(
         "androidx.fragment:fragment-ktx:1.6.1",
     ],
     generate_compat_repositories = True,
+    index_file = "//tests/custom_maven_install:regression_testing_gradle_index.json",
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
