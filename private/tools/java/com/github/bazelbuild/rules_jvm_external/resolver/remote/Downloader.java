@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.apache.maven.model.Model;
@@ -53,17 +54,20 @@ public class Downloader {
   private final Set<URI> repos;
   private final boolean cacheDownloads;
   private final HttpDownloader httpDownloader;
+  private final Map<Coordinates, Path> knownPaths;
 
   public Downloader(
       Netrc netrc,
       Path localRepository,
       Collection<URI> repositories,
       EventListener listener,
-      boolean cacheDownloads) {
+      boolean cacheDownloads,
+      Map<Coordinates, Path> knownPaths) {
     this.localRepository = localRepository;
     this.repos = Set.copyOf(repositories);
     this.cacheDownloads = cacheDownloads;
     this.httpDownloader = new HttpDownloader(netrc, listener);
+    this.knownPaths = knownPaths != null ? Map.copyOf(knownPaths) : Map.of();
   }
 
   public DownloadResult download(Coordinates coords) {
@@ -119,11 +123,16 @@ public class Downloader {
     Set<URI> repos = new LinkedHashSet<>();
 
     Path pathInRepo = null;
+    Path knownPath = knownPaths.get(coordsToUse);
 
-    // Check the local cache for the path first
-    Path cachedResult = localRepository.resolve(path);
-    if (Files.exists(cachedResult)) {
-      pathInRepo = cachedResult;
+    if (knownPath != null && Files.exists(knownPath)) {
+      pathInRepo = knownPath;
+    } else {
+      // Check the local cache for the path first
+      Path cachedResult = localRepository.resolve(path);
+      if (Files.exists(cachedResult)) {
+        pathInRepo = cachedResult;
+      }
     }
 
     String rjeAssumePresent = System.getenv("RJE_ASSUME_PRESENT");
@@ -141,6 +150,7 @@ public class Downloader {
           repos.add(repo);
           downloaded = true;
 
+          Path cachedResult = localRepository.resolve(path);
           if (cacheDownloads && !cachedResult.equals(pathInRepo)) {
             try {
               Files.createDirectories(cachedResult.getParent());
@@ -150,10 +160,10 @@ public class Downloader {
             }
           }
         }
-      } else if (assumedDownloaded) { // path is set
+      } else if (assumedDownloaded) {
         LOG.fine(String.format("Assuming %s is cached%n", coordsToUse));
         downloaded = true;
-      } else if (httpDownloader.head(buildUri(repo, path))) { // path is set
+      } else if (httpDownloader.head(buildUri(repo, path))) {
         LOG.fine(String.format("Checking head of %s%n", coordsToUse));
         repos.add(repo);
         downloaded = true;

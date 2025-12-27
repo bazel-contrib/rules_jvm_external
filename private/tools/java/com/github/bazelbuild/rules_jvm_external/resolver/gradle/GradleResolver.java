@@ -39,6 +39,7 @@ import com.google.common.graph.MutableGraph;
 import com.google.common.hash.Hashing;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -155,10 +156,11 @@ public class GradleResolver implements Resolver {
     MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(true).build();
 
     Set<Conflict> conflicts = new HashSet<>();
+    Map<Coordinates, Path> paths = new HashMap<>();
     List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
     List<GradleUnresolvedDependency> unresolvedDependencies = resolved.getUnresolvedDependencies();
     if (implementationDependencies == null) {
-      return new ResolutionResult(graph, null);
+      return new ResolutionResult(graph, Set.of(), Map.of());
     }
 
     for (GradleResolvedDependency dependency : implementationDependencies) {
@@ -183,6 +185,12 @@ public class GradleResolver implements Resolver {
                 extension,
                 classifier,
                 gradleCoordinates.getVersion());
+
+        File artifactFile = artifact.getFile();
+        if (artifactFile != null && artifactFile.exists()) {
+          paths.put(coordinates, artifactFile.toPath());
+        }
+
         addDependency(graph, coordinates, dependency, conflicts, requestedDeps, visited);
         // if there's a conflict and the conflicting version isn't one that's actually requested
         // then it's an actual conflict we want to report
@@ -240,7 +248,7 @@ public class GradleResolver implements Resolver {
     if (!unresolvedRequestedDeps.isEmpty()) {
       throw new GradleDependencyResolutionException(unresolvedRequestedDeps);
     }
-    return new ResolutionResult(graph, conflicts);
+    return new ResolutionResult(graph, conflicts, paths);
   }
 
   private boolean isRequestedDep(
