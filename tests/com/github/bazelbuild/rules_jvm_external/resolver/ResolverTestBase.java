@@ -703,6 +703,46 @@ public abstract class ResolverTestBase {
         resolved.nodes());
   }
 
+  @Test
+  public void shouldContractRelocatedPomButKeepAggregatorPom() {
+    // Relocated artifact: old:relocated -> new:target
+    Coordinates relocated = new Coordinates("com.example:relocated:1.0.0");
+    Coordinates target = new Coordinates("com.example:target:1.0.0");
+
+    // Aggregator POM with two children should remain in the graph
+    Coordinates aggregator = new Coordinates("com.example:aggregator:9.9.9");
+    Model aggregatorModel = createModel(aggregator);
+    aggregatorModel.setPackaging("pom");
+
+    Coordinates childA = new Coordinates("com.example:childA:1.2.3");
+    Coordinates childB = new Coordinates("com.example:childB:4.5.6");
+
+    Path repo =
+        MavenRepo.create()
+            // target and its jar
+            .add(target)
+            // relocated POM that points to target
+            .addRelocation(relocated, target)
+            // aggregator POM and its children
+            .add(childA)
+            .add(childB)
+            .add(aggregatorModel, childA, childB)
+            .getPath();
+
+    // Ask to resolve both the relocated coordinate and the aggregator coordinate
+    Graph<Coordinates> graph =
+        resolver.resolve(prepareRequestFor(repo.toUri(), relocated, aggregator)).getResolution();
+
+    // The relocated coordinate should be contracted to the target, so the graph should contain
+    // the target instead of the relocated origin.
+    assertTrue(graph.nodes().contains(target));
+    assertFalse(graph.nodes().contains(relocated));
+
+    // The aggregator POM should stay as a node with edges to both children
+    assertTrue(graph.nodes().contains(aggregator));
+    assertEquals(Set.of(childA, childB), graph.successors(aggregator));
+  }
+
   protected Model createModel(Coordinates coords) {
     Model model = new Model();
     model.setModelVersion("4.0.0");
