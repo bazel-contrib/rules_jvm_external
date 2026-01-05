@@ -571,7 +571,7 @@ def maven_impl(mctx):
             else:
                 current = overrides[override.name].get(override.coordinates)
                 to_use = _fail_if_different("Target of override for %s" % override.coordinates, current, value, [None])
-                
+
                 current_visibility = override_visibilities[override.name].get(override.coordinates)
                 if current_visibility == None:
                     visibility_to_use = override.visibility
