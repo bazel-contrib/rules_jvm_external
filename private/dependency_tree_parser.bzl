@@ -511,7 +511,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # a jvm_import/aar_import based on information in dep_tree.
             seen_imports[target_label] = True
             if visibilities_to_override.get(target_label):
-                 visibility = "[%s]" % (",".join(["\"%s\"" % v for v in visibilities_to_override.get(target_label)]))
+                visibility = "[%s]" % (",".join(["\"%s\"" % v for v in visibilities_to_override.get(target_label)]))
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = %s,)" % (target_label, labels_to_override.get(target_label), visibility),
             )

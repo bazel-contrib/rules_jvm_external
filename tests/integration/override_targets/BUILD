@@ -87,7 +87,7 @@ diff_test(
 
 genquery(
     name = "verify_visibility_query",
-    expression = '@root_module_can_override//:com_squareup_okio_okio',
+    expression = "@root_module_can_override//:com_squareup_okio_okio",
     scope = ["@root_module_can_override//:com_squareup_okio_okio"],
 )
 

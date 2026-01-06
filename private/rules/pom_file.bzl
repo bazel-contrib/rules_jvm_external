@@ -13,6 +13,7 @@ def _pom_file_impl(ctx):
     # Ensure the target has coordinates
     expanded_maven_deps = []
     expanded_export_deps = []
+    exclusions = {}
     if ctx.attr.target:
         if not ctx.attr.target[MavenInfo].coordinates:
             fail("pom_file target must have maven coordinates.")
