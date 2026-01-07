@@ -30,7 +30,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
-load("//private/lib:coordinates.bzl", "to_key")
+load("//private/lib:coordinates.bzl", "to_key", "unpack_coordinates")
 load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
@@ -445,17 +445,35 @@ def get_direct_dependencies(all_artifacts, input_artifacts):
         A sorted list of resolved coordinates in Gradle External format.
     """
 
-    # Build a lookup from versionless key to full coordinates
+    # Build a lookup from versionless key to full coordinates.
+    # We store both the full key and a simplified group:artifact key
+    # to handle cases where input doesn't specify packaging but the
+    # resolved artifact has non-jar packaging (e.g., pom, aar).
     resolved_lookup = {}
+    simple_lookup = {}
     for artifact in all_artifacts:
         coords = artifact.get("coordinates", "")
         if coords:
-            resolved_lookup[to_key(coords)] = coords
+            full_key = to_key(coords)
+            resolved_lookup[full_key] = coords
+            # Also store by simple group:artifact for fallback matching
+            unpacked = unpack_coordinates(coords)
+            simple_key = "%s:%s" % (unpacked.group, unpacked.artifact)
+            # Only use simple key if no classifier (classifiers are intentional)
+            classifier = getattr(unpacked, "classifier", None)
+            if not classifier:
+                simple_lookup[simple_key] = coords
 
     direct_deps = {}
     for input_artifact in input_artifacts:
         key = to_key(input_artifact)
         resolved = resolved_lookup.get(key)
+        if not resolved:
+            # Fallback: try simple group:artifact lookup for artifacts where
+            # user didn't specify packaging but resolution found non-jar packaging
+            unpacked = unpack_coordinates(input_artifact)
+            simple_key = "%s:%s" % (unpacked.group, unpacked.artifact)
+            resolved = simple_lookup.get(simple_key)
         if resolved:
             direct_deps[resolved] = True
 
