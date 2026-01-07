@@ -43,6 +43,42 @@ def _get_input_artifacts_hash(lock_file_contents):
 def _get_lock_file_hash(lock_file_contents):
     return lock_file_contents.get("__RESOLVED_ARTIFACTS_HASH")
 
+def _print_friendly_hash_difference_v2(old_hash, new_hash):
+    if old_hash == new_hash:
+        return ""
+    return "expected %s and got %s" % (old_hash, new_hash)
+
+def _print_friendly_hash_difference_v3(old_hash, new_hash):
+    if old_hash == new_hash:
+        return ""
+
+    differences = []
+
+    all_keys = {k: True for k in list(old_hash.keys()) + list(new_hash.keys())}
+
+    for key in sorted(all_keys.keys()):
+        old_val = old_hash.get(key)
+        new_val = new_hash.get(key)
+
+        if old_val != new_val:
+            if old_val == None:
+                differences.append("%s: added" % key)
+            elif new_val == None:
+                differences.append("%s: removed" % key)
+            else:
+                differences.append("%s: %s vs %s" % (key, old_val, new_val))
+
+    total_count = len(differences)
+    shown = differences[:3]
+    other_count = total_count - len(shown)
+
+    result = "changes: " + ", ".join(shown)
+    if other_count == 1:
+        result += ", and 1 other change"
+    elif other_count > 1:
+        result += ", and %d other changes" % other_count
+    return result
+
 def _compute_lock_file_hash_v2(lock_file_contents):
     to_hash = {}
     for key in sorted(_REQUIRED_KEYS):
@@ -297,6 +333,7 @@ v2_lock_file = struct(
     is_valid_lock_file = _is_valid_lock_file_v2,
     get_input_artifacts_hash = _get_input_artifacts_hash,
     get_lock_file_hash = _get_lock_file_hash,
+    print_friendly_hash_difference = _print_friendly_hash_difference_v2,
     compute_lock_file_hash = _compute_lock_file_hash_v2,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
@@ -307,6 +344,7 @@ v3_lock_file = struct(
     is_valid_lock_file = _is_valid_lock_file_v3,
     get_input_artifacts_hash = _get_input_artifacts_hash,
     get_lock_file_hash = _get_lock_file_hash,
+    print_friendly_hash_difference = _print_friendly_hash_difference_v3,
     compute_lock_file_hash = _compute_lock_file_hash_v3,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,

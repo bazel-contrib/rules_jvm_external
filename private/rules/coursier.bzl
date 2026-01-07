@@ -560,10 +560,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             )
         elif computed_artifacts_hash != input_artifacts_hash:
             if _get_fail_if_repin_required(repository_ctx):
-                fail("%s_install.json contains an invalid input signature (expected %s and got %s) and must be regenerated. " % (
+                to_print = importer.print_friendly_hash_difference(input_artifacts_hash, computed_artifacts_hash)
+                fail("%s_install.json contains an invalid input signature (%s) and must be regenerated. " % (
                          user_provided_name,
-                         input_artifacts_hash,
-                         computed_artifacts_hash,
+                         to_print,
                      ) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
                      "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
@@ -589,11 +589,12 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         # Then, validate that the signature provided matches the contents of the dependency_tree.
         # This is to stop users from manually modifying maven_install.json.
         if _get_fail_if_repin_required(repository_ctx):
+            computed_hash = importer.compute_lock_file_hash(maven_install_json_content)
+            to_print = importer.print_friendly_hash_difference(dep_tree_signature, computed_hash)
             fail(
-                "%s_install.json contains an invalid signature (expected %s and got %s) and may be corrupted. " % (
+                "%s_install.json contains an invalid signature (%s) and may be corrupted. " % (
                     user_provided_name,
-                    dep_tree_signature,
-                    importer.compute_lock_file_hash(maven_install_json_content),
+                    to_print,
                 ) +
                 "PLEASE DO NOT MODIFY THIS FILE DIRECTLY! To generate a new " +
                 "%s_install.json and re-pin the artifacts, follow these steps: \n\n" % user_provided_name +

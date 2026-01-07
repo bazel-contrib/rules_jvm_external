@@ -42,6 +42,11 @@ def _get_lock_file_hash(lock_file_contents):
     dep_tree = lock_file_contents.get("dependency_tree", {})
     return dep_tree.get("__RESOLVED_ARTIFACTS_HASH")
 
+def _print_friendly_hash_difference(old_hash, new_hash):
+    if old_hash == new_hash:
+        return ""
+    return "expected %s and got %s" % (old_hash, new_hash)
+
 # The representation of a Windows path when read from the parsed Coursier JSON
 # is delimited by 4 back slashes. Replace them with 1 forward slash.
 def _normalize_to_unix_path(path):
@@ -138,6 +143,7 @@ v1_lock_file = struct(
     is_valid_lock_file = _is_valid_lock_file,
     get_input_artifacts_hash = _get_input_artifacts_hash,
     get_lock_file_hash = _get_lock_file_hash,
+    print_friendly_hash_difference = _print_friendly_hash_difference,
     compute_lock_file_hash = _compute_lock_file_hash,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
