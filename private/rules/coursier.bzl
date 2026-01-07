@@ -30,6 +30,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
+load("//private/lib:coordinates.bzl", "to_key")
 load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v2_lock_file.bzl", "v2_lock_file")
@@ -79,6 +80,14 @@ sh_binary(
     deps = [
         "@bazel_tools//tools/bash/runfiles",
     ],
+    visibility = ["//visibility:public"],
+)
+"""
+
+_BUILD_DIRECT_DEPS = """
+sh_binary(
+    name = "direct_deps",
+    srcs = ["direct_deps.sh"],
     visibility = ["//visibility:public"],
 )
 """
@@ -422,6 +431,53 @@ def _add_outdated_files(repository_ctx, artifacts, boms, repositories):
         executable = True,
     )
 
+def get_direct_dependencies(all_artifacts, input_artifacts):
+    """Returns the resolved coordinates for the given input (direct) artifacts.
+
+    Args:
+        all_artifacts: The list of all resolved artifacts from importer.get_artifacts(),
+                      each with a "coordinates" field in Gradle External format.
+        input_artifacts: A list of dicts with "group", "artifact", and optionally
+                        "classifier" and "packaging" keys representing the direct
+                        dependencies the user requested.
+
+    Returns:
+        A sorted list of resolved coordinates in Gradle External format.
+    """
+
+    # Build a lookup from versionless key to full coordinates
+    resolved_lookup = {}
+    for artifact in all_artifacts:
+        coords = artifact.get("coordinates", "")
+        if coords:
+            resolved_lookup[to_key(coords)] = coords
+
+    direct_deps = {}
+    for input_artifact in input_artifacts:
+        key = to_key(input_artifact)
+        resolved = resolved_lookup.get(key)
+        if resolved:
+            direct_deps[resolved] = True
+
+    return sorted(direct_deps.keys())
+
+def _add_direct_deps_files(repository_ctx, direct_deps):
+    """Creates the direct_deps.sh script file.
+
+    Args:
+        repository_ctx: The repository context.
+        direct_deps: A list of resolved coordinates in Gradle External format.
+    """
+    script_content = "#!/bin/bash\n"
+    for dep in direct_deps:
+        script_content += "echo '%s'\n" % dep
+
+    repository_ctx.file(
+        "direct_deps.sh",
+        script_content,
+        executable = True,
+    )
+
 def is_repin_required(repository_ctx):
     env_var_names = repository_ctx.os.environ.keys()
     return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
@@ -683,9 +739,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     pin_target = generate_pin_target(repository_ctx, unpinned_pin_target)
 
+    all_artifacts = importer.get_artifacts(maven_install_json_content)
+    direct_deps = get_direct_dependencies(all_artifacts, artifacts)
+    _add_direct_deps_files(repository_ctx, direct_deps)
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_OUTDATED).format(
+        (_BUILD + _BUILD_OUTDATED + _BUILD_DIRECT_DEPS).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
@@ -1373,9 +1433,13 @@ def _coursier_fetch_impl(repository_ctx):
         outdated_build_file_content = _BUILD_OUTDATED
         _add_outdated_files(repository_ctx, artifacts, boms, repositories)
 
+    all_artifacts = v2_lock_file.get_artifacts(lock_file_contents)
+    direct_deps = get_direct_dependencies(all_artifacts, artifacts)
+    _add_direct_deps_files(repository_ctx, direct_deps)
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_PIN + outdated_build_file_content).format(
+        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_name,
             imports = generated_imports,
