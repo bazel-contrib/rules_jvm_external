@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-load("//private/lib:coordinates.bzl", "to_external_form")
+load("//private/lib:coordinates.bzl", "to_external_form", "to_key")
 
 _REQUIRED_KEYS = ["artifacts", "dependencies", "repositories"]
 
@@ -85,23 +85,6 @@ def _to_maven_coordinates(unpacked):
 
     return coords
 
-def _to_key(unpacked):
-    coords = "%s:%s" % (unpacked["group"], unpacked["artifact"])
-
-    extension = unpacked.get("packaging", "jar")
-    if not extension:
-        extension = "jar"
-    classifier = unpacked.get("classifier", "jar")
-    if not classifier:
-        classifier = "jar"
-
-    if classifier != "jar":
-        coords += ":%s:%s" % (extension, classifier)
-    elif extension != "jar":
-        coords += ":%s" % extension
-
-    return coords
-
 def _from_key(key, spoofed_version):
     expected = "%s:%s" % (key, spoofed_version)
 
@@ -147,7 +130,7 @@ def _get_artifacts(lock_file_contents):
         for (classifier, shasum) in data.get("shasums", {}).items():
             root_unpacked["classifier"] = classifier
             coordinates = to_external_form(root_unpacked)
-            key = _to_key(root_unpacked)
+            key = to_key(root_unpacked)
 
             urls = []
             for (repo, artifacts_within_repo) in repositories.items():
