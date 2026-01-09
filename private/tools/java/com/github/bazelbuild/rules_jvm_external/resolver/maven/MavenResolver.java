@@ -118,13 +118,20 @@ public class MavenResolver implements Resolver {
   private Dependency createDependency(
       com.github.bazelbuild.rules_jvm_external.resolver.Artifact source) {
     Coordinates coords = source.getCoordinates();
+
+    // When force_version is true, use Maven version range syntax [version] to force exact version
+    String version = coords.getVersion();
+    if (source.isForceVersion() && version != null && !version.isEmpty()) {
+      version = "[" + version + "]";
+    }
+
     Artifact artifact =
         new DefaultArtifact(
             coords.getGroupId(),
             coords.getArtifactId(),
             coords.getClassifier(),
             coords.getExtension(),
-            coords.getVersion());
+            version);
 
     Set<Exclusion> excluded =
         source.getExclusions().stream().map(this::createExclusion).collect(Collectors.toSet());
