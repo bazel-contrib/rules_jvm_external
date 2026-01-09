@@ -748,6 +748,45 @@ public abstract class ResolverTestBase {
     assertEquals(Set.of(childA, childB), graph.successors(aggregator));
   }
 
+  @Test
+  public void shouldHandleRelocationWithVersionConflict() {
+    // This test reproduces the mysql-connector-java issue where:
+    // - mysql:mysql-connector-java:8.0.33 is a relocation POM pointing to
+    // com.mysql:mysql-connector-j
+    // - When both the old coordinate (8.0.33) and new coordinate (8.4.0) are requested,
+    // - The resolver should handle the version conflict and pick the higher version
+
+    // The old artifact that has been relocated
+    Coordinates oldCoord = new Coordinates("mysql:mysql-connector-java:8.0.33");
+    // The new artifact at the same version as the relocation
+    Coordinates newCoordSameVersion = new Coordinates("com.mysql:mysql-connector-j:8.0.33");
+    // The new artifact at a higher version
+    Coordinates newCoordHigherVersion = new Coordinates("com.mysql:mysql-connector-j:8.4.0");
+
+    Path repo =
+        MavenRepo.create()
+            // Add the new coordinate at both versions
+            .add(newCoordSameVersion)
+            .add(newCoordHigherVersion)
+            // Add the relocation POM: old -> new (at same version)
+            .addRelocation(oldCoord, newCoordSameVersion)
+            .getPath();
+
+    // Request both the old coordinate and the new coordinate at different version
+    Graph<Coordinates> graph =
+        resolver
+            .resolve(prepareRequestFor(repo.toUri(), oldCoord, newCoordHigherVersion))
+            .getResolution();
+
+    // The resolver should:
+    // 1. Follow the relocation from mysql:mysql-connector-java:8.0.33 to
+    // com.mysql:mysql-connector-j:8.0.33
+    // 2. Resolve the version conflict between 8.0.33 and 8.4.0
+    // 3. Pick the higher version (8.4.0)
+    // The graph should only contain the higher version of the new coordinate
+    assertEquals(Set.of(newCoordHigherVersion), graph.nodes());
+  }
+
   protected Model createModel(Coordinates coords) {
     Model model = new Model();
     model.setModelVersion("4.0.0");
