@@ -370,6 +370,7 @@ def maven_export(
             src_artifact = ":%s-maven-source" % name,
             javadoc_artifact = None if "no-javadocs" in tags else ":%s-docs" % name,
             pom = ":%s-pom" % name,
+            exclusions = exclusions_dict_json_strings,
             testonly = testonly,
             tags = tags,
             visibility = visibility,
