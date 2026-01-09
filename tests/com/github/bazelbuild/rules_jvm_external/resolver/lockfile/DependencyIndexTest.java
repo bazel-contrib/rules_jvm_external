@@ -52,7 +52,7 @@ public class DependencyIndexTest {
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertTrue(classes.isEmpty());
   }
 
@@ -83,10 +83,10 @@ public class DependencyIndexTest {
     assertEquals(1, packages.size());
     assertEquals(Set.of("com.example", "com.example.sub"), packages.get("com.example:item"));
 
-    // No collisions, so "classes" section should be empty for this artifact
+    // No collisions, so "split_package_classes" section should be empty for this artifact
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertTrue(classes.isEmpty());
   }
 
@@ -133,10 +133,10 @@ public class DependencyIndexTest {
     assertEquals(Set.of("com.google.common.base"), packages.get("com.google.guava:guava"));
     assertNull(packages.get("com.google.code.findbugs:jsr305")); // jsr305 has no unique packages
 
-    // Colliding package goes to "classes" section with full class listings
+    // Colliding package goes to "split_package_classes" section with full class listings
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertEquals(2, classes.size());
 
     Map<String, Set<String>> guavaCollisions = classes.get("com.google.guava:guava");
@@ -190,10 +190,10 @@ public class DependencyIndexTest {
     assertEquals(Set.of("com.unique1"), packages.get("com.example:artifact1"));
     assertEquals(Set.of("com.unique2"), packages.get("com.example:artifact2"));
 
-    // Colliding package in "classes" section
+    // Colliding package in "split_package_classes" section
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertEquals(2, classes.size());
 
     assertEquals(Set.of("Foo"), classes.get("com.example:artifact1").get("com.shared"));
@@ -250,7 +250,7 @@ public class DependencyIndexTest {
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertTrue(classes.isEmpty());
   }
 
@@ -279,7 +279,7 @@ public class DependencyIndexTest {
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertTrue(classes.isEmpty());
   }
 
@@ -305,7 +305,7 @@ public class DependencyIndexTest {
 
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Set<String>>> classes =
-        (Map<String, Map<String, Set<String>>>) rendered.get("classes");
+        (Map<String, Map<String, Set<String>>>) rendered.get("split_package_classes");
     assertTrue(classes.isEmpty());
   }
 }
