@@ -745,6 +745,7 @@ dev_maven.install(
         "org.slf4j:slf4j-log4j12:2.0.0",
     ],
     generate_compat_repositories = True,
+    index_file = "//tests/custom_maven_install:regression_testing_gradle_index.json",
     lock_file = "//tests/custom_maven_install:regression_testing_gradle_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",

@@ -91,6 +91,7 @@ install = tag_class(
         ),
         "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = True),
         "lock_file": attr.label(),
+        "index_file": attr.label(doc = "If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`."),
         "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
         "generate_compat_repositories": attr.bool(
             doc = "Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
@@ -649,6 +650,7 @@ def maven_impl(mctx):
 
                 # We will always have a lock file, so this is fine
                 repo_to_lock_file[install.name] = [install.lock_file]
+                repo["dependency_index"] = install.index_file
                 repo["fail_if_repin_required"] = install.fail_if_repin_required
                 repo["fail_on_missing_checksum"] = install.fail_on_missing_checksum
                 repo["fetch_javadoc"] = install.fetch_javadoc
@@ -714,6 +716,7 @@ def maven_impl(mctx):
                 strict_visibility_value = repo.get("strict_visibility_value"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
                 maven_install_json = repo.get("lock_file"),
+                dependency_index = repo.get("dependency_index"),
                 resolve_timeout = repo.get("resolve_timeout"),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
@@ -770,6 +773,7 @@ def maven_impl(mctx):
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
+                dependency_index = repo.get("dependency_index"),
                 override_targets = overrides.get(name),
                 override_target_visibilities = override_visibilities.get(name, {}),
                 strict_visibility = repo.get("strict_visibility"),
