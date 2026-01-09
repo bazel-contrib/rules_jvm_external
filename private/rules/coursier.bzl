@@ -456,9 +456,11 @@ def get_direct_dependencies(all_artifacts, input_artifacts):
         if coords:
             full_key = to_key(coords)
             resolved_lookup[full_key] = coords
+
             # Also store by simple group:artifact for fallback matching
             unpacked = unpack_coordinates(coords)
             simple_key = "%s:%s" % (unpacked.group, unpacked.artifact)
+
             # Only use simple key if no classifier (classifiers are intentional)
             classifier = getattr(unpacked, "classifier", None)
             if not classifier:

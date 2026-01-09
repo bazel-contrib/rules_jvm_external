@@ -172,10 +172,11 @@ public class GradleResolver implements Resolver {
     Map<Coordinates, String> coordinateHashes = new HashMap<>();
     // Track artifacts per node so we can inspect POM files for relocation later
     Map<Coordinates, List<GradleResolvedArtifact>> artifactsByNode = new HashMap<>();
+    Map<Coordinates, Path> paths = new HashMap<>();
     List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
     List<GradleUnresolvedDependency> unresolvedDependencies = resolved.getUnresolvedDependencies();
     if (implementationDependencies == null) {
-      return new ResolutionResult(graph, null);
+      return new ResolutionResult(graph, Set.of(), Map.of());
     }
 
     for (GradleResolvedDependency dependency : implementationDependencies) {
@@ -203,6 +204,12 @@ public class GradleResolver implements Resolver {
                 gradleCoordinates.getVersion());
         // Track artifact for this node
         artifactsByNode.computeIfAbsent(coordinates, k -> new ArrayList<>()).add(artifact);
+
+        File artifactFile = artifact.getFile();
+        if (artifactFile != null && artifactFile.exists()) {
+          paths.put(coordinates, artifactFile.toPath());
+        }
+
         addDependency(
             graph, coordinates, dependency, conflicts, requestedDepKeys, visited, artifactsByNode);
         // if there's a conflict and the conflicting version isn't one that's actually requested
@@ -270,7 +277,7 @@ public class GradleResolver implements Resolver {
     // After building the graph, contract relocation stubs (keep aggregating POMs)
     collapseRelocations(graph, coordinateHashes, conflicts, artifactsByNode);
 
-    return new ResolutionResult(graph, conflicts);
+    return new ResolutionResult(graph, conflicts, paths);
   }
 
   private String makeDepKey(String group, String artifact, String version) {

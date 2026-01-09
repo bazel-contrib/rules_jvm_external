@@ -70,7 +70,7 @@ public abstract class AbstractMain {
 
       ResolutionResult resolutionResult = resolver.resolve(request);
 
-      infos = fulfillDependencyInfos(resolver, listener, config, resolutionResult.getResolution());
+      infos = fulfillDependencyInfos(resolver, listener, config, resolutionResult);
 
       writeLockFile(listener, config, request, infos, resolutionResult.getConflicts());
 
@@ -87,7 +87,7 @@ public abstract class AbstractMain {
       Resolver resolver,
       EventListener listener,
       ResolverConfig config,
-      Graph<Coordinates> resolved) {
+      ResolutionResult resolutionResult) {
     listener.onEvent(new PhaseEvent("Downloading dependencies"));
 
     ResolutionRequest request = config.getResolutionRequest();
@@ -103,9 +103,12 @@ public abstract class AbstractMain {
             request.getLocalCache(resolver.getName()),
             request.getRepositories(),
             listener,
-            cacheResults);
+            cacheResults,
+            resolutionResult.getPaths());
 
     List<CompletableFuture<Set<DependencyInfo>>> futures = new LinkedList<>();
+
+    Graph<Coordinates> resolved = resolutionResult.getResolution();
 
     ExecutorService downloadService =
         Executors.newFixedThreadPool(
