@@ -182,4 +182,69 @@ public class GradleResolverTest extends ResolverTestBase {
           e.getCause().getMessage());
     }
   }
+
+  @Test
+  public void resolvesAggregatingDependencyWithOnlyClassifiedArtifacts()
+      throws IOException, XMLStreamException {
+    // This test validates that dependencies with only platform-specific classified artifacts
+    // (e.g., native libraries like netty-transport-native-kqueue with -osx-aarch_64.jar)
+    // are correctly marked as aggregating and resolution completes successfully
+    // without trying to download a non-existent base JAR.
+    Coordinates rootCoordinates = new Coordinates("com.example:app:1.0");
+    Coordinates nativeLibCoordinates = new Coordinates("com.example:native-lib:1.0");
+    MavenRepo mavenRepo = MavenRepo.create();
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+
+    // Add root artifact with dependency on native-lib
+    Path rootMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/aggregatingDependency/app-1.0.module"));
+    String rootMetadata = Files.readString(rootMetadataPath);
+    moduleMetadataHelper.addToMavenRepo(rootCoordinates, rootMetadata);
+
+    // Add native-lib with only classified artifacts (no base JAR)
+    // Use POM extension to avoid creating a base JAR file
+    Path nativeLibMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/aggregatingDependency/native-lib-1.0.module"));
+    String nativeLibMetadata = Files.readString(nativeLibMetadataPath);
+    Coordinates nativeLibPomCoordinates = nativeLibCoordinates.setExtension("pom");
+    moduleMetadataHelper.addToMavenRepo(nativeLibPomCoordinates, nativeLibMetadata);
+
+    // Add classified artifacts for native-lib
+    Coordinates osxAarch64 = new Coordinates("com.example:native-lib:jar:osx-aarch_64:1.0");
+    Coordinates osxX8664 = new Coordinates("com.example:native-lib:jar:osx-x86_64:1.0");
+    mavenRepo.add(osxAarch64);
+    mavenRepo.add(osxX8664);
+
+    // This should complete successfully without trying to download the base JAR
+    // (com.example:native-lib:1.0 without classifier)
+    var result = resolver.resolve(prepareRequestFor(mavenRepo.getPath().toUri(), rootCoordinates));
+    Graph<Coordinates> resolved = result.getResolution();
+
+    // Verify the graph contains the root coordinate
+    assertTrue(resolved.nodes().contains(rootCoordinates));
+
+    // The base coordinate for native-lib should NOT be in the graph
+    // because it only has a POM (it's an aggregating dependency with no base artifact)
+    assertEquals(
+        "Expected aggregating native-lib coordinate to be removed from graph",
+        false,
+        resolved.nodes().contains(nativeLibCoordinates));
+
+    // The classified artifacts should be in the graph
+    assertTrue(
+        "Expected osx-aarch_64 classified artifact in graph",
+        resolved.nodes().contains(osxAarch64));
+    assertTrue(
+        "Expected osx-x86_64 classified artifact in graph", resolved.nodes().contains(osxX8664));
+
+    // The graph should contain: app + 2 classified native-lib artifacts
+    assertEquals("Expected 3 coordinates in graph", 3, resolved.nodes().size());
+  }
 }
