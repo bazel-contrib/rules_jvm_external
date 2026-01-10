@@ -830,6 +830,47 @@ public abstract class ResolverTestBase {
     assertEquals(coords, resolved.nodes().iterator().next());
   }
 
+  @Test
+  public void shouldRespectForceVersionWhenResolvingConflicts() {
+    // When force_version is set on a lower version, it should win over the higher version
+    // that would normally be selected during version conflict resolution.
+    Coordinates lowerVersion = new Coordinates("com.example:forced:1.0");
+    Coordinates higherVersion = new Coordinates("com.example:forced:2.0");
+    Coordinates dependsOnLower = new Coordinates("com.example:uses-lower:1.0");
+    Coordinates dependsOnHigher = new Coordinates("com.example:uses-higher:1.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(lowerVersion)
+            .add(higherVersion)
+            .add(dependsOnLower, lowerVersion)
+            .add(dependsOnHigher, higherVersion)
+            .getPath();
+
+    // Create a request that forces the lower version using the new forceVersion capability
+    ResolutionRequest request = new ResolutionRequest().addRepository(repo.toUri());
+    request.addArtifact(dependsOnLower.toString());
+    // Force the lower version by creating an Artifact with forceVersion=true
+    Artifact forcedArtifact = new Artifact(lowerVersion, Set.of(), true);
+    request.addArtifact(forcedArtifact);
+    request.addArtifact(dependsOnHigher.toString());
+
+    // Without force_version implementation, this test will fail for Gradle resolver
+    // because it will resolve to the higher version (2.0) instead of the forced lower version (1.0)
+    Graph<Coordinates> graph = resolver.resolve(request).getResolution();
+
+    Set<Coordinates> forcedNodes =
+        graph.nodes().stream()
+            .filter(c -> "forced".equals(c.getArtifactId()))
+            .collect(Collectors.toSet());
+
+    assertEquals("Should resolve to exactly one version", 1, forcedNodes.size());
+
+    assertTrue(
+        "Should resolve to forced lower version when force_version is set",
+        forcedNodes.contains(lowerVersion));
+  }
+
   protected ResolutionRequest prepareRequestFor(URI repo, Coordinates... coordinates) {
     ResolutionRequest request = new ResolutionRequest().addRepository(repo);
     for (Coordinates coordinate : coordinates) {

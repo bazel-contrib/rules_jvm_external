@@ -177,11 +177,10 @@ public class ResolverConfig {
                         art.getExtension(),
                         art.getClassifier(),
                         art.getVersion());
-                request.addArtifact(
-                    coords.toString(),
-                    art.getExclusions().stream()
-                        .map(c -> c.getGroupId() + ":" + c.getArtifactId())
-                        .toArray(String[]::new));
+                com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact =
+                    new com.github.bazelbuild.rules_jvm_external.resolver.Artifact(
+                        coords, art.getExclusions(), art.isForceVersion());
+                request.addArtifact(artifact);
               });
     }
 

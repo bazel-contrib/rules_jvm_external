@@ -607,10 +607,18 @@ public class GradleResolver implements Resolver {
             exclusion -> {
               exclusions.add(new ExclusionImpl(exclusion.getGroupId(), exclusion.getArtifactId()));
             });
+
+    // When force_version is true, use Gradle's !! shorthand which is equivalent to strictly()
+    // This forces the exact version and prevents transitive dependencies from overriding it
+    String version = coordinates.getVersion();
+    if (artifact.isForceVersion() && version != null && !version.isEmpty()) {
+      version = version + "!!";
+    }
+
     return new GradleDependencyImpl(
         coordinates.getGroupId(),
         coordinates.getArtifactId(),
-        coordinates.getVersion(),
+        version,
         exclusions,
         coordinates.getClassifier(),
         coordinates.getExtension());
