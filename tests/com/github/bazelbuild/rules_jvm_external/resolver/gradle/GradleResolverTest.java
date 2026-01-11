@@ -15,11 +15,13 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
@@ -32,7 +34,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
 
@@ -246,5 +250,44 @@ public class GradleResolverTest extends ResolverTestBase {
 
     // The graph should contain: app + 2 classified native-lib artifacts
     assertEquals("Expected 3 coordinates in graph", 3, resolved.nodes().size());
+  }
+
+  @Test
+  public void shouldRecordCorrectShaForResolvedVersionNotConflictingVersion() {
+    // When there's a version conflict, the paths map should contain only the resolved version,
+    // not the conflicting lower version. This ensures we record the correct SHA for the artifact.
+    Coordinates lowerVersion = new Coordinates("com.example:conflicted:2.8");
+    Coordinates higherVersion = new Coordinates("com.example:conflicted:3.0.0");
+    Coordinates dependsOnLower = new Coordinates("com.example:uses-lower:1.0");
+    Coordinates dependsOnHigher = new Coordinates("com.example:uses-higher:1.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(lowerVersion)
+            .add(higherVersion)
+            .add(dependsOnLower, lowerVersion)
+            .add(dependsOnHigher, higherVersion)
+            .getPath();
+
+    ResolutionResult result =
+        resolver.resolve(prepareRequestFor(repo.toUri(), dependsOnLower, dependsOnHigher));
+
+    // Verify there's a conflict
+    assertFalse("Expected a conflict to be recorded", result.getConflicts().isEmpty());
+
+    // Verify the resolution graph contains only the higher version
+    Graph<Coordinates> graph = result.getResolution();
+    Set<Coordinates> conflictedNodes =
+        graph.nodes().stream()
+            .filter(c -> "conflicted".equals(c.getArtifactId()))
+            .collect(Collectors.toSet());
+    assertEquals("Should resolve to exactly one version", 1, conflictedNodes.size());
+    assertTrue("Should resolve to higher version", conflictedNodes.contains(higherVersion));
+
+    // Verify paths map contains only the resolved (higher) version, not the lower version
+    Map<Coordinates, Path> paths = result.getPaths();
+    assertTrue("Paths should contain resolved version", paths.containsKey(higherVersion));
+    assertFalse(
+        "Paths should not contain conflicting lower version", paths.containsKey(lowerVersion));
   }
 }

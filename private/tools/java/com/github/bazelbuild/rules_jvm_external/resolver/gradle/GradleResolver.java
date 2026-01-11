@@ -280,6 +280,45 @@ public class GradleResolver implements Resolver {
     // Collapse aggregating dependencies (dependencies with only classified artifacts)
     collapseAggregatingDependencies(graph, paths, artifactsByNode);
 
+    // Populate paths for all nodes in the final graph from collected artifacts
+    for (Map.Entry<Coordinates, List<GradleResolvedArtifact>> entry : artifactsByNode.entrySet()) {
+      Coordinates coords = entry.getKey();
+      if (!graph.nodes().contains(coords)) {
+        continue; // Only process nodes in the final graph
+      }
+
+      File bestFile = null;
+      // Prefer jar/aar with name matching artifactId-version to avoid picking wrong version
+      for (GradleResolvedArtifact artifact : entry.getValue()) {
+        File file = artifact.getFile();
+        if (file == null || !file.exists()) {
+          continue;
+        }
+        String name = file.getName();
+        boolean isJarOrAar = name.endsWith(".jar") || name.endsWith(".aar");
+        if (isJarOrAar && name.contains(coords.getArtifactId() + "-" + coords.getVersion())) {
+          bestFile = file;
+          break;
+        }
+      }
+      // Fallback: any existing file (including pom)
+      if (bestFile == null) {
+        for (GradleResolvedArtifact artifact : entry.getValue()) {
+          File file = artifact.getFile();
+          if (file != null && file.exists()) {
+            bestFile = file;
+            break;
+          }
+        }
+      }
+      if (bestFile != null) {
+        paths.put(coords, bestFile.toPath());
+      }
+    }
+
+    // Only include paths for coordinates that are actually in the final resolved graph
+    paths.keySet().retainAll(graph.nodes());
+
     return new ResolutionResult(graph, conflicts, paths);
   }
 
