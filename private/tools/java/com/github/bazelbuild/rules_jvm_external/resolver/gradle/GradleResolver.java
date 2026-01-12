@@ -512,7 +512,6 @@ public class GradleResolver implements Resolver {
     }
   }
 
-
   private Coordinates readRelocationTarget(File pomFile, Coordinates fallback) {
     try (FileInputStream fis = new FileInputStream(pomFile);
         BufferedInputStream bis = new BufferedInputStream(fis)) {

@@ -170,7 +170,7 @@ public class GradleBuildScriptGenerator {
                   Map<String, Object> map = new HashMap<>();
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
-                  
+
                   String version = dep.getVersion();
                   boolean isForceVersion = version != null && version.endsWith("!!");
                   if (isForceVersion) {
@@ -179,7 +179,7 @@ public class GradleBuildScriptGenerator {
                     map.put("forceVersion", true);
                     map.put("versionOnly", version); // Version without : prefix for strictly()
                   }
-                  
+
                   if (version != null && !version.isEmpty()) {
                     map.put("version", ":" + version);
                   }

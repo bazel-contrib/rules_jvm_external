@@ -56,12 +56,6 @@ configurations.all {
 {{~/each}}
         eachDependency { details ->
 {{~#each dependencies}}
-{{~#if forceVersion}}
-            if (details.requested.group == "{{group}}" && details.requested.name == "{{artifact}}") {
-                System.err.println("FORCE_VERSION: Intercepted ${details.requested.group}:${details.requested.name}:${details.requested.version} -> forcing to {{versionOnly}}")
-                details.useVersion("{{versionOnly}}")
-            }
-{{~/if}}
 {{~/each}}
         }
     }

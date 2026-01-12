@@ -31,6 +31,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.Graph;
+import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
@@ -882,13 +883,11 @@ public abstract class ResolverTestBase {
       // Compare SHA256 of downloaded file vs expected file in repo
       byte[] downloadedBytes = Files.readAllBytes(downloadedArtifact);
       byte[] expectedBytes = Files.readAllBytes(expectedArtifact);
-      String downloadedSha =
-          com.google.common.hash.Hashing.sha256().hashBytes(downloadedBytes).toString();
-      String expectedSha =
-          com.google.common.hash.Hashing.sha256().hashBytes(expectedBytes).toString();
+      String downloadedSha = Hashing.sha256().hashBytes(downloadedBytes).toString();
+      String expectedSha = Hashing.sha256().hashBytes(expectedBytes).toString();
 
       assertEquals(
-          "Downloaded artifact SHA should match the forced version's artifact, not the higher version",
+          "Downloaded artifact SHA should match the forced version's artifact",
           expectedSha,
           downloadedSha);
     }
