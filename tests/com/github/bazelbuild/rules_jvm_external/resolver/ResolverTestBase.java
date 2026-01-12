@@ -831,7 +831,7 @@ public abstract class ResolverTestBase {
   }
 
   @Test
-  public void shouldRespectForceVersionWhenResolvingConflicts() {
+  public void shouldRespectForceVersionWhenResolvingConflicts() throws IOException {
     // When force_version is set on a lower version, it should win over the higher version
     // that would normally be selected during version conflict resolution.
     Coordinates lowerVersion = new Coordinates("com.example:forced:1.0");
@@ -857,7 +857,8 @@ public abstract class ResolverTestBase {
 
     // Without force_version implementation, this test will fail for Gradle resolver
     // because it will resolve to the higher version (2.0) instead of the forced lower version (1.0)
-    Graph<Coordinates> graph = resolver.resolve(request).getResolution();
+    ResolutionResult result = resolver.resolve(request);
+    Graph<Coordinates> graph = result.getResolution();
 
     Set<Coordinates> forcedNodes =
         graph.nodes().stream()
@@ -869,6 +870,55 @@ public abstract class ResolverTestBase {
     assertTrue(
         "Should resolve to forced lower version when force_version is set",
         forcedNodes.contains(lowerVersion));
+
+    // Validate that the downloaded artifact has the correct SHA for the forced version.
+    // This catches bugs where the resolver fetches artifacts via detached configurations
+    // that bypass force_version, resulting in the wrong file being downloaded.
+    Map<Coordinates, Path> paths = result.getPaths();
+    if (paths.containsKey(lowerVersion)) {
+      Path downloadedArtifact = paths.get(lowerVersion);
+      Path expectedArtifact = repo.resolve(lowerVersion.toRepoPath());
+
+      // Compare SHA256 of downloaded file vs expected file in repo
+      byte[] downloadedBytes = Files.readAllBytes(downloadedArtifact);
+      byte[] expectedBytes = Files.readAllBytes(expectedArtifact);
+      String downloadedSha =
+          com.google.common.hash.Hashing.sha256().hashBytes(downloadedBytes).toString();
+      String expectedSha =
+          com.google.common.hash.Hashing.sha256().hashBytes(expectedBytes).toString();
+
+      assertEquals(
+          "Downloaded artifact SHA should match the forced version's artifact, not the higher version",
+          expectedSha,
+          downloadedSha);
+    }
+  }
+
+  @Test
+  public void shouldIncludeRuntimeScopedDependencies() throws IOException {
+    // Dependencies with runtime scope should be included in the resolution graph.
+    // This tests that the resolver uses runtime classpath, not just compile/api classpath.
+    Coordinates main = new Coordinates("com.example:main:1.0");
+    Coordinates runtimeDep = new Coordinates("com.example:runtime-only:1.0");
+
+    // Create a POM where main depends on runtime-only with runtime scope
+    Model mainModel = createModel(main);
+    Dependency dep = new Dependency();
+    dep.setGroupId(runtimeDep.getGroupId());
+    dep.setArtifactId(runtimeDep.getArtifactId());
+    dep.setVersion(runtimeDep.getVersion());
+    dep.setScope("runtime");
+    mainModel.addDependency(dep);
+
+    Path repo = MavenRepo.create().add(runtimeDep).add(mainModel, main).getPath();
+
+    Graph<Coordinates> resolved =
+        resolver.resolve(prepareRequestFor(repo.toUri(), main)).getResolution();
+
+    assertTrue(
+        "Runtime-scoped dependency should be included in resolution",
+        resolved.nodes().contains(runtimeDep));
+    assertTrue("Main artifact should be in resolution", resolved.nodes().contains(main));
   }
 
   protected ResolutionRequest prepareRequestFor(URI repo, Coordinates... coordinates) {
