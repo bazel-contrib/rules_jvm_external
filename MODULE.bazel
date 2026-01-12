@@ -350,6 +350,9 @@ dev_maven.install(
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
+    targets_compatible_with = [
+        "@platforms//os:android",
+    ],
 )
 dev_maven.install(
     name = "m2local_testing",

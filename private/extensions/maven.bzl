@@ -68,6 +68,11 @@ install = tag_class(
         ),
         "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
 
+        "targets_compatible_with": attr.label_list(
+            doc = "Platform constraints to add to the repository's targets.",
+            default = [],
+        ),
+
         # Android support
         "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
         "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
@@ -471,6 +476,13 @@ def _process_module_tags(mctx, mod, target_repos, repo_name_2_module_name):
             [None, []],
         )
 
+        repo["targets_compatible_with"] = _fail_if_different(
+            "targets_compatible_with",
+            repo.get("targets_compatible_with"),
+            install.targets_compatible_with,
+            [None, []],
+        )
+
         additional_netrc_lines = repo.get("additional_netrc_lines", []) + getattr(install, "additional_netrc_lines", [])
         repo["additional_netrc_lines"] = additional_netrc_lines
 
@@ -714,6 +726,7 @@ def maven_impl(mctx):
                 override_target_visibilities = override_visibilities.get(name, {}),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
+                targets_compatible_with = repo.get("targets_compatible_with"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
                 maven_install_json = repo.get("lock_file"),
                 dependency_index = repo.get("dependency_index"),
@@ -778,6 +791,7 @@ def maven_impl(mctx):
                 override_target_visibilities = override_visibilities.get(name, {}),
                 strict_visibility = repo.get("strict_visibility"),
                 strict_visibility_value = repo.get("strict_visibility_value"),
+                targets_compatible_with = repo.get("targets_compatible_with"),
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
                 fail_if_repin_required = repo.get("fail_if_repin_required"),

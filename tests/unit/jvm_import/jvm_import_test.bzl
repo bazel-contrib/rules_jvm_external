@@ -140,6 +140,16 @@ does_jvm_import_export_a_package_provider_test = analysistest.make(
     },
 )
 
+def _does_jvm_import_enforce_platform_constraints_impl(ctx):
+    env = analysistest.begin(ctx)
+    asserts.expect_failure(env, expected_failure_msg = "didn't satisfy constraint")
+    return analysistest.end(env)
+
+does_jvm_import_enforce_platform_constraints_test = analysistest.make(
+    _does_jvm_import_enforce_platform_constraints_impl,
+    expect_failure = True,
+)
+
 def _does_non_jvm_import_target_carry_metadata(ctx):
     env = analysistest.begin(ctx)
 
@@ -177,6 +187,10 @@ def jvm_import_test_suite(name):
         name = "does_jvm_import_export_a_package_provider",
         target_under_test = "@jvm_import_test//:com_google_code_findbugs_jsr305",
         src = "@jvm_import_test//:com_google_code_findbugs_jsr305",
+    )
+    does_jvm_import_enforce_platform_constraints_test(
+        name = "does_jvm_import_enforce_platform_constraints_test",
+        target_under_test = ":findbugs_for_linux",
     )
 
     # TODO: restore once https://github.com/bazelbuild/rules_license/issues/154 is resolved
