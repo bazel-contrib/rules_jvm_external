@@ -215,7 +215,7 @@ public class V3LockFileTest {
     assertNotNull(rendered.get("dependencies"));
     assertNotNull(rendered.get("services"));
     assertNotNull(rendered.get("repositories"));
-    assertEquals("2", rendered.get("version"));
+    assertEquals("3", rendered.get("version"));
   }
 
   @Test
