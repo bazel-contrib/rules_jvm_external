@@ -95,7 +95,7 @@ def _compute_final_hash(all_infos):
     # in case of circular dependencies, we take a normal hash of the original info as a starting point
     backup_hashes = {k: hash(repr(v)) for k, v in all_infos.items()}
 
-    # sets are balzel 8 only, we use a dict instead
+    # sets are bazel 8 only, we use a dict instead
     remaining = {k: 0 for k in all_infos.keys()}
 
     # bazel does not support recursion, we have to emulate it manually
