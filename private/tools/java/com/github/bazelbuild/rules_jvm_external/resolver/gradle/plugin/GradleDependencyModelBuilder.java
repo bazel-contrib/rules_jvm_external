@@ -581,8 +581,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
         GradleResolvedDependency resolvedDependency =
             coordinatesGradleResolvedDependencyMap.get(coordinates);
-        synchronized (resolvedDependency) {
-          resolvedDependency.addArtifact(resolvedArtifact);
+        if (resolvedDependency != null) {
+          synchronized (resolvedDependency) {
+            resolvedDependency.addArtifact(resolvedArtifact);
+          }
         }
       }
     }
