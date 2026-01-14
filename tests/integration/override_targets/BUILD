@@ -84,3 +84,16 @@ diff_test(
     # This test only makes sense if we're running with `bzlmod` enabled
     tags = [] if is_bzlmod_enabled() else ["manual"],
 )
+
+genquery(
+    name = "verify_visibility_query",
+    expression = "@root_module_can_override//:com_squareup_okio_okio",
+    scope = ["@root_module_can_override//:com_squareup_okio_okio"],
+)
+
+sh_test(
+    name = "verify_visibility_test",
+    srcs = ["verify_visibility.sh"],
+    args = ["$(location :verify_visibility_query)"],
+    data = [":verify_visibility_query"],
+)

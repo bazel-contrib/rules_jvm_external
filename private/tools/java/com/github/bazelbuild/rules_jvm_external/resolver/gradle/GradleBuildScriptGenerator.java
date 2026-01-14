@@ -187,7 +187,7 @@ public class GradleBuildScriptGenerator {
                   }
 
                   if (dep.getExclusions() != null && !dep.getExclusions().isEmpty()) {
-                    contextMap.put(
+                    map.put(
                         "exclusions",
                         dep.getExclusions().stream()
                             .map(

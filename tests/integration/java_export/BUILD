@@ -1,6 +1,6 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
-load("@rules_java//java:defs.bzl", "java_library")
-load("//:defs.bzl", "artifact", "java_export")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("//:defs.bzl", "artifact", "java_export", "maven_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
 java_test(
@@ -232,4 +232,22 @@ diff_test(
     name = "check-manifest-lines-added",
     file1 = "check-manifest-lines-added-MANIFEST.MF.golden",
     file2 = ":extract-extra-manifest-lines",
+)
+
+java_binary(
+    name = "some-java-binary",
+    srcs = [
+        "Dependency.java",
+        "Main.java",
+    ],
+    main_class = "com.jvm.external.jvm_export.Main",
+    deps = [
+        artifact("com.google.guava:guava"),
+    ],
+)
+
+maven_export(
+    name = "some-java-binary-export",
+    maven_coordinates = "com.example_binary:exe:1.0.0",
+    target = "some-java-binary_deploy.jar",
 )

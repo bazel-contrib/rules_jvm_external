@@ -183,6 +183,18 @@ function test_m2local_testing_found_local_artifact_after_build_copy() {
   expect_log "Assuming maven local for artifact: com.example:kt:1.0.0"
 }
 
+function test_publish_java_binary_jar_with_maven_export {
+  m2local_dir="${HOME}/.m2/repository"
+  jar_dir="${m2local_dir}/com/example_binary/exe/1.0.0"
+  rm -rf ${jar_dir}
+  mkdir -p ${m2local_dir}
+
+  # should run successfully
+  bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/java_export:some-java-binary-export.publish >> "$TEST_LOG" 2>&1
+
+  rm -rf ${jar_dir}
+}
+
 function test_found_artifact_with_plus_through_pin_and_build() {
   bazel clean --expunge >> "$TEST_LOG" 2>&1 # for https://github.com/bazelbuild/rules_jvm_external/issues/800
   bazel run @artifact_with_plus//:pin >> "$TEST_LOG" 2>&1
@@ -367,6 +379,7 @@ TESTS=(
   "test_transitive_dependency_with_type_of_pom"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
+  "test_publish_java_binary_jar_with_maven_export"
   # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
   "test_gradle_versions_catalog"

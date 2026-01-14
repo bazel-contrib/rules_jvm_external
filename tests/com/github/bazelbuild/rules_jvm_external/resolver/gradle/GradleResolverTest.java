@@ -15,11 +15,13 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
@@ -32,7 +34,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
 
@@ -181,5 +185,109 @@ public class GradleResolverTest extends ResolverTestBase {
               + "  - com.example:does-not-exist-too:1.0 (NOT_FOUND)",
           e.getCause().getMessage());
     }
+  }
+
+  @Test
+  public void resolvesAggregatingDependencyWithOnlyClassifiedArtifacts()
+      throws IOException, XMLStreamException {
+    // This test validates that dependencies with only platform-specific classified artifacts
+    // (e.g., native libraries like netty-transport-native-kqueue with -osx-aarch_64.jar)
+    // are correctly marked as aggregating and resolution completes successfully
+    // without trying to download a non-existent base JAR.
+    Coordinates rootCoordinates = new Coordinates("com.example:app:1.0");
+    Coordinates nativeLibCoordinates = new Coordinates("com.example:native-lib:1.0");
+    MavenRepo mavenRepo = MavenRepo.create();
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+
+    // Add root artifact with dependency on native-lib
+    Path rootMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/aggregatingDependency/app-1.0.module"));
+    String rootMetadata = Files.readString(rootMetadataPath);
+    moduleMetadataHelper.addToMavenRepo(rootCoordinates, rootMetadata);
+
+    // Add native-lib with only classified artifacts (no base JAR)
+    // Use POM extension to avoid creating a base JAR file
+    Path nativeLibMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/aggregatingDependency/native-lib-1.0.module"));
+    String nativeLibMetadata = Files.readString(nativeLibMetadataPath);
+    Coordinates nativeLibPomCoordinates = nativeLibCoordinates.setExtension("pom");
+    moduleMetadataHelper.addToMavenRepo(nativeLibPomCoordinates, nativeLibMetadata);
+
+    // Add classified artifacts for native-lib
+    Coordinates osxAarch64 = new Coordinates("com.example:native-lib:jar:osx-aarch_64:1.0");
+    Coordinates osxX8664 = new Coordinates("com.example:native-lib:jar:osx-x86_64:1.0");
+    mavenRepo.add(osxAarch64);
+    mavenRepo.add(osxX8664);
+
+    // This should complete successfully without trying to download the base JAR
+    // (com.example:native-lib:1.0 without classifier)
+    var result = resolver.resolve(prepareRequestFor(mavenRepo.getPath().toUri(), rootCoordinates));
+    Graph<Coordinates> resolved = result.getResolution();
+
+    // Verify the graph contains the root coordinate
+    assertTrue(resolved.nodes().contains(rootCoordinates));
+
+    // The base coordinate for native-lib should NOT be in the graph
+    // because it only has a POM (it's an aggregating dependency with no base artifact)
+    assertEquals(
+        "Expected aggregating native-lib coordinate to be removed from graph",
+        false,
+        resolved.nodes().contains(nativeLibCoordinates));
+
+    // The classified artifacts should be in the graph
+    assertTrue(
+        "Expected osx-aarch_64 classified artifact in graph",
+        resolved.nodes().contains(osxAarch64));
+    assertTrue(
+        "Expected osx-x86_64 classified artifact in graph", resolved.nodes().contains(osxX8664));
+
+    // The graph should contain: app + 2 classified native-lib artifacts
+    assertEquals("Expected 3 coordinates in graph", 3, resolved.nodes().size());
+  }
+
+  @Test
+  public void shouldRecordCorrectShaForResolvedVersionNotConflictingVersion() {
+    // When there's a version conflict, the paths map should contain only the resolved version,
+    // not the conflicting lower version. This ensures we record the correct SHA for the artifact.
+    Coordinates lowerVersion = new Coordinates("com.example:conflicted:2.8");
+    Coordinates higherVersion = new Coordinates("com.example:conflicted:3.0.0");
+    Coordinates dependsOnLower = new Coordinates("com.example:uses-lower:1.0");
+    Coordinates dependsOnHigher = new Coordinates("com.example:uses-higher:1.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(lowerVersion)
+            .add(higherVersion)
+            .add(dependsOnLower, lowerVersion)
+            .add(dependsOnHigher, higherVersion)
+            .getPath();
+
+    ResolutionResult result =
+        resolver.resolve(prepareRequestFor(repo.toUri(), dependsOnLower, dependsOnHigher));
+
+    // Verify there's a conflict
+    assertFalse("Expected a conflict to be recorded", result.getConflicts().isEmpty());
+
+    // Verify the resolution graph contains only the higher version
+    Graph<Coordinates> graph = result.getResolution();
+    Set<Coordinates> conflictedNodes =
+        graph.nodes().stream()
+            .filter(c -> "conflicted".equals(c.getArtifactId()))
+            .collect(Collectors.toSet());
+    assertEquals("Should resolve to exactly one version", 1, conflictedNodes.size());
+    assertTrue("Should resolve to higher version", conflictedNodes.contains(higherVersion));
+
+    // Verify paths map contains only the resolved (higher) version, not the lower version
+    Map<Coordinates, Path> paths = result.getPaths();
+    assertTrue("Paths should contain resolved version", paths.containsKey(higherVersion));
+    assertFalse(
+        "Paths should not contain conflicting lower version", paths.containsKey(lowerVersion));
   }
 }

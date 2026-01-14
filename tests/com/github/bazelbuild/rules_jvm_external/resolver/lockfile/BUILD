@@ -1,4 +1,22 @@
+load("@rules_java//java:defs.bzl", "java_test")
 load("//:defs.bzl", "artifact")
+
+java_test(
+    name = "DependencyIndexTest",
+    srcs = ["DependencyIndexTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.lockfile.DependencyIndexTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+        artifact("org.hamcrest:hamcrest"),
+        artifact("org.hamcrest:hamcrest_core"),
+    ],
+)
 
 java_test(
     name = "V3LockFileTest",

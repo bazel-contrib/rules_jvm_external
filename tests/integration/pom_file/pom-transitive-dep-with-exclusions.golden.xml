@@ -4,22 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>bom</artifactId>
-    <version>0.0.0-dev</version>
-    <packaging>pom</packaging>
+    <artifactId>app</artifactId>
+    <version>1.0.0</version>
 
-    <dependencyManagement>
-        <dependencies>
+    <dependencies>
         <dependency>
             <groupId>com.example</groupId>
-            <artifactId>one-dep</artifactId>
+            <artifactId>intermediate</artifactId>
             <version>1.0.0</version>
+            <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>two-deps</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        </dependencies>
-    </dependencyManagement>
+    </dependencies>
 </project>

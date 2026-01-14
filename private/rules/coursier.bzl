@@ -30,6 +30,7 @@ load(
     "COURSIER_CLI_GITHUB_ASSET_URL",
     "COURSIER_CLI_SHA256",
 )
+load("//private/lib:coordinates.bzl", "to_key", "unpack_coordinates")
 load("//private/lib:urls.bzl", "remove_auth_from_url")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
@@ -83,6 +84,14 @@ sh_binary(
 )
 """
 
+_BUILD_DIRECT_DEPS = """
+sh_binary(
+    name = "direct_deps",
+    srcs = ["direct_deps.sh"],
+    visibility = ["//visibility:public"],
+)
+"""
+
 _BUILD_OUTDATED = """
 sh_binary(
     name = "outdated",
@@ -115,6 +124,7 @@ pin_dependencies(
     fetch_sources = {fetch_sources},
     fetch_javadocs = {fetch_javadocs},
     lock_file = {lock_file},
+    dependency_index = {dependency_index},
     jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
     resolver = {resolver},
@@ -442,6 +452,73 @@ def _add_outdated_files(repository_ctx, artifacts, boms, repositories):
         executable = True,
     )
 
+def get_direct_dependencies(all_artifacts, input_artifacts):
+    """Returns the resolved coordinates for the given input (direct) artifacts.
+
+    Args:
+        all_artifacts: The list of all resolved artifacts from importer.get_artifacts(),
+                      each with a "coordinates" field in Gradle External format.
+        input_artifacts: A list of dicts with "group", "artifact", and optionally
+                        "classifier" and "packaging" keys representing the direct
+                        dependencies the user requested.
+
+    Returns:
+        A sorted list of resolved coordinates in Gradle External format.
+    """
+
+    # Build a lookup from versionless key to full coordinates.
+    # We store both the full key and a simplified group:artifact key
+    # to handle cases where input doesn't specify packaging but the
+    # resolved artifact has non-jar packaging (e.g., pom, aar).
+    resolved_lookup = {}
+    simple_lookup = {}
+    for artifact in all_artifacts:
+        coords = artifact.get("coordinates", "")
+        if coords:
+            full_key = to_key(coords)
+            resolved_lookup[full_key] = coords
+
+            # Also store by simple group:artifact for fallback matching
+            unpacked = unpack_coordinates(coords)
+            simple_key = "%s:%s" % (unpacked.group, unpacked.artifact)
+
+            # Only use simple key if no classifier (classifiers are intentional)
+            classifier = getattr(unpacked, "classifier", None)
+            if not classifier:
+                simple_lookup[simple_key] = coords
+
+    direct_deps = {}
+    for input_artifact in input_artifacts:
+        key = to_key(input_artifact)
+        resolved = resolved_lookup.get(key)
+        if not resolved:
+            # Fallback: try simple group:artifact lookup for artifacts where
+            # user didn't specify packaging but resolution found non-jar packaging
+            unpacked = unpack_coordinates(input_artifact)
+            simple_key = "%s:%s" % (unpacked.group, unpacked.artifact)
+            resolved = simple_lookup.get(simple_key)
+        if resolved:
+            direct_deps[resolved] = True
+
+    return sorted(direct_deps.keys())
+
+def _add_direct_deps_files(repository_ctx, direct_deps):
+    """Creates the direct_deps.sh script file.
+
+    Args:
+        repository_ctx: The repository context.
+        direct_deps: A list of resolved coordinates in Gradle External format.
+    """
+    script_content = "#!/bin/bash\n"
+    for dep in direct_deps:
+        script_content += "echo '%s'\n" % dep
+
+    repository_ctx.file(
+        "direct_deps.sh",
+        script_content,
+        executable = True,
+    )
+
 def is_repin_required(repository_ctx):
     env_var_names = repository_ctx.os.environ.keys()
     return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
@@ -696,6 +773,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             for a in artifacts
         },
         override_targets = repository_ctx.attr.override_targets,
+        override_target_visibilities = repository_ctx.attr.override_target_visibilities,
         skip_maven_local_dependencies = False,
     )
 
@@ -708,9 +786,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     pin_target = generate_pin_target(repository_ctx, unpinned_pin_target)
 
+    all_artifacts = importer.get_artifacts(maven_install_json_content)
+    direct_deps = get_direct_dependencies(all_artifacts, artifacts)
+    _add_direct_deps_files(repository_ctx, direct_deps)
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_OUTDATED).format(
+        (_BUILD + _BUILD_OUTDATED + _BUILD_DIRECT_DEPS).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
@@ -757,6 +839,15 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
         else:
             fail("Unknown resolver")
 
+        dependency_index_location = None
+        if repository_ctx.attr.dependency_index:
+            dep_index_package_path = repository_ctx.attr.dependency_index.package
+            dep_index_file_name = repository_ctx.attr.dependency_index.name
+            if dep_index_package_path == "":
+                dependency_index_location = dep_index_file_name
+            else:
+                dependency_index_location = "/".join([dep_index_package_path, dep_index_file_name])
+
         return _IN_REPO_PIN.format(
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
@@ -766,6 +857,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
+            dependency_index = repr(dependency_index_location),
             resolver = repr(str(resolver_target)),
         )
 
@@ -1040,7 +1132,7 @@ def filter_dependencies_if_necessary(repository_ctx, dep_tree):
                 if _is_verbose(repository_ctx):
                     print("Removing source artifact with no file: %s" % dep["coord"])
             else:
-              amended_deps.append(dep)
+                amended_deps.append(dep)
             continue
 
         # You'd think we could use skylib here to do the heavy lifting, but
@@ -1381,6 +1473,7 @@ def _coursier_fetch_impl(repository_ctx):
             for a in artifacts
         },
         override_targets = repository_ctx.attr.override_targets,
+        override_target_visibilities = repository_ctx.attr.override_target_visibilities,
         # Skip maven local dependencies if generating the unpinned repository
         skip_maven_local_dependencies = _is_unpinned(repository_ctx),
     )
@@ -1397,9 +1490,13 @@ def _coursier_fetch_impl(repository_ctx):
         outdated_build_file_content = _BUILD_OUTDATED
         _add_outdated_files(repository_ctx, artifacts, boms, repositories)
 
+    all_artifacts = v2_lock_file.get_artifacts(lock_file_contents)
+    direct_deps = get_direct_dependencies(all_artifacts, artifacts)
+    _add_direct_deps_files(repository_ctx, direct_deps)
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_PIN + outdated_build_file_content).format(
+        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_name,
             imports = generated_imports,
@@ -1493,7 +1590,9 @@ pinned_coursier_fetch = repository_rule(
         "fetch_javadoc": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
+        "dependency_index": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies.
 
@@ -1563,7 +1662,9 @@ coursier_fetch = repository_rule(
             ],
         ),
         "maven_install_json": attr.label(allow_single_file = True),
+        "dependency_index": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),
+        "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies
 

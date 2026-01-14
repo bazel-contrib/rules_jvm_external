@@ -252,7 +252,12 @@ public abstract class ResolverTestBase {
 
     DownloadResult parentDownload =
         new Downloader(
-                Netrc.fromUserHome(), localRepo, Set.of(repo.toUri()), new NullListener(), false)
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                false,
+                Map.of())
             .download(parentCoords);
 
     assertTrue(parentDownload.getPath().isEmpty());
@@ -703,6 +708,85 @@ public abstract class ResolverTestBase {
         resolved.nodes());
   }
 
+  @Test
+  public void shouldContractRelocatedPomButKeepAggregatorPom() {
+    // Relocated artifact: old:relocated -> new:target
+    Coordinates relocated = new Coordinates("com.example:relocated:1.0.0");
+    Coordinates target = new Coordinates("com.example:target:1.0.0");
+
+    // Aggregator POM with two children should remain in the graph
+    Coordinates aggregator = new Coordinates("com.example:aggregator:9.9.9");
+    Model aggregatorModel = createModel(aggregator);
+    aggregatorModel.setPackaging("pom");
+
+    Coordinates childA = new Coordinates("com.example:childA:1.2.3");
+    Coordinates childB = new Coordinates("com.example:childB:4.5.6");
+
+    Path repo =
+        MavenRepo.create()
+            // target and its jar
+            .add(target)
+            // relocated POM that points to target
+            .addRelocation(relocated, target)
+            // aggregator POM and its children
+            .add(childA)
+            .add(childB)
+            .add(aggregatorModel, childA, childB)
+            .getPath();
+
+    // Ask to resolve both the relocated coordinate and the aggregator coordinate
+    Graph<Coordinates> graph =
+        resolver.resolve(prepareRequestFor(repo.toUri(), relocated, aggregator)).getResolution();
+
+    // The relocated coordinate should be contracted to the target, so the graph should contain
+    // the target instead of the relocated origin.
+    assertTrue(graph.nodes().contains(target));
+    assertFalse(graph.nodes().contains(relocated));
+
+    // The aggregator POM should stay as a node with edges to both children
+    assertTrue(graph.nodes().contains(aggregator));
+    assertEquals(Set.of(childA, childB), graph.successors(aggregator));
+  }
+
+  @Test
+  public void shouldHandleRelocationWithVersionConflict() {
+    // This test reproduces the mysql-connector-java issue where:
+    // - mysql:mysql-connector-java:8.0.33 is a relocation POM pointing to
+    // com.mysql:mysql-connector-j
+    // - When both the old coordinate (8.0.33) and new coordinate (8.4.0) are requested,
+    // - The resolver should handle the version conflict and pick the higher version
+
+    // The old artifact that has been relocated
+    Coordinates oldCoord = new Coordinates("mysql:mysql-connector-java:8.0.33");
+    // The new artifact at the same version as the relocation
+    Coordinates newCoordSameVersion = new Coordinates("com.mysql:mysql-connector-j:8.0.33");
+    // The new artifact at a higher version
+    Coordinates newCoordHigherVersion = new Coordinates("com.mysql:mysql-connector-j:8.4.0");
+
+    Path repo =
+        MavenRepo.create()
+            // Add the new coordinate at both versions
+            .add(newCoordSameVersion)
+            .add(newCoordHigherVersion)
+            // Add the relocation POM: old -> new (at same version)
+            .addRelocation(oldCoord, newCoordSameVersion)
+            .getPath();
+
+    // Request both the old coordinate and the new coordinate at different version
+    Graph<Coordinates> graph =
+        resolver
+            .resolve(prepareRequestFor(repo.toUri(), oldCoord, newCoordHigherVersion))
+            .getResolution();
+
+    // The resolver should:
+    // 1. Follow the relocation from mysql:mysql-connector-java:8.0.33 to
+    // com.mysql:mysql-connector-j:8.0.33
+    // 2. Resolve the version conflict between 8.0.33 and 8.4.0
+    // 3. Pick the higher version (8.4.0)
+    // The graph should only contain the higher version of the new coordinate
+    assertEquals(Set.of(newCoordHigherVersion), graph.nodes());
+  }
+
   protected Model createModel(Coordinates coords) {
     Model model = new Model();
     model.setModelVersion("4.0.0");
@@ -744,6 +828,47 @@ public abstract class ResolverTestBase {
 
     assertEquals(1, resolved.nodes().size());
     assertEquals(coords, resolved.nodes().iterator().next());
+  }
+
+  @Test
+  public void shouldRespectForceVersionWhenResolvingConflicts() {
+    // When force_version is set on a lower version, it should win over the higher version
+    // that would normally be selected during version conflict resolution.
+    Coordinates lowerVersion = new Coordinates("com.example:forced:1.0");
+    Coordinates higherVersion = new Coordinates("com.example:forced:2.0");
+    Coordinates dependsOnLower = new Coordinates("com.example:uses-lower:1.0");
+    Coordinates dependsOnHigher = new Coordinates("com.example:uses-higher:1.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(lowerVersion)
+            .add(higherVersion)
+            .add(dependsOnLower, lowerVersion)
+            .add(dependsOnHigher, higherVersion)
+            .getPath();
+
+    // Create a request that forces the lower version using the new forceVersion capability
+    ResolutionRequest request = new ResolutionRequest().addRepository(repo.toUri());
+    request.addArtifact(dependsOnLower.toString());
+    // Force the lower version by creating an Artifact with forceVersion=true
+    Artifact forcedArtifact = new Artifact(lowerVersion, Set.of(), true);
+    request.addArtifact(forcedArtifact);
+    request.addArtifact(dependsOnHigher.toString());
+
+    // Without force_version implementation, this test will fail for Gradle resolver
+    // because it will resolve to the higher version (2.0) instead of the forced lower version (1.0)
+    Graph<Coordinates> graph = resolver.resolve(request).getResolution();
+
+    Set<Coordinates> forcedNodes =
+        graph.nodes().stream()
+            .filter(c -> "forced".equals(c.getArtifactId()))
+            .collect(Collectors.toSet());
+
+    assertEquals("Should resolve to exactly one version", 1, forcedNodes.size());
+
+    assertTrue(
+        "Should resolve to forced lower version when force_version is set",
+        forcedNodes.contains(lowerVersion));
   }
 
   protected ResolutionRequest prepareRequestFor(URI repo, Coordinates... coordinates) {

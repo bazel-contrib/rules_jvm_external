@@ -41,6 +41,7 @@ public class ResolverConfig {
   private final boolean fetchJavadoc;
   private final Netrc netrc;
   private final Path output;
+  private final Path dependencyIndexOutput;
   private final Map<String, Integer> inputHash;
   private final int maxThreads;
 
@@ -53,6 +54,7 @@ public class ResolverConfig {
     boolean fetchJavadoc = false;
     int maxThreads = DEFAULT_MAX_THREADS;
     Path output = null;
+    Path dependencyIndexOutput = null;
     Path inputHashPath = null;
 
     if (System.getenv("RJE_MAX_THREADS") != null) {
@@ -94,6 +96,16 @@ public class ResolverConfig {
             output = Paths.get(args[i]);
           } else {
             output = Paths.get(bazelWorkspaceDir).resolve(args[i]);
+          }
+          break;
+
+        case "--dependency-index-output":
+          i++;
+          String workspaceDir = System.getenv("BUILD_WORKSPACE_DIRECTORY");
+          if (workspaceDir == null) {
+            dependencyIndexOutput = Paths.get(args[i]);
+          } else {
+            dependencyIndexOutput = Paths.get(workspaceDir).resolve(args[i]);
           }
           break;
 
@@ -168,11 +180,10 @@ public class ResolverConfig {
                         art.getExtension(),
                         art.getClassifier(),
                         art.getVersion());
-                request.addArtifact(
-                    coords.toString(),
-                    art.getExclusions().stream()
-                        .map(c -> c.getGroupId() + ":" + c.getArtifactId())
-                        .toArray(String[]::new));
+                com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact =
+                    new com.github.bazelbuild.rules_jvm_external.resolver.Artifact(
+                        coords, art.getExclusions(), art.isForceVersion());
+                request.addArtifact(artifact);
               });
     }
 
@@ -193,6 +204,7 @@ public class ResolverConfig {
     this.fetchJavadoc = fetchJavadoc;
     this.maxThreads = maxThreads;
     this.output = output;
+    this.dependencyIndexOutput = dependencyIndexOutput;
   }
 
   public ResolutionRequest getResolutionRequest() {
@@ -221,5 +233,9 @@ public class ResolverConfig {
 
   public Path getOutput() {
     return output;
+  }
+
+  public Path getDependencyIndexOutput() {
+    return dependencyIndexOutput;
   }
 }
