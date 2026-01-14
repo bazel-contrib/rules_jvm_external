@@ -602,13 +602,13 @@ def maven_impl(mctx):
             merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
                 repo_name,
                 root_boms,
-                bazel_dep_to_non_root_artifacts,
+                non_root_bazel_dep_to_boms,
                 repin_env_var,
                 rje_verbose_env_var,
             )
         else:
             merged_repo["artifacts"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True)
-            merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True)
+            merged_repo["boms"] = _deduplicate_non_root_artifacts(non_root_bazel_dep_to_boms, True)
 
         # For list attributes, concatenate but avoid duplicates (root items first)
         for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:
