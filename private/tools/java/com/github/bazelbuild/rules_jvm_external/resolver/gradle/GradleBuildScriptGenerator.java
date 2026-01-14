@@ -178,10 +178,10 @@ public class GradleBuildScriptGenerator {
                     version = version.substring(0, version.length() - 2);
                     map.put("forceVersion", true);
                     map.put("versionOnly", version); // Version without : prefix for strictly()
-                  }
-
-                  if (version != null && !version.isEmpty()) {
-                    map.put("version", ":" + version);
+                  } else {
+                      if (version != null && !version.isEmpty()) {
+                          map.put("version", ":" + version);
+                      }
                   }
                   if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
                     map.put("classifier", ":" + dep.getClassifier());

@@ -584,9 +584,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         synchronized (resolvedDependency) {
           resolvedDependency.addArtifact(resolvedArtifact);
         }
-        if (isVerbose()) {
-          System.err.println("  FOUND ARTIFACT: " + coordinates + " -> " + artifact.getFile());
-        }
       }
     }
   }
