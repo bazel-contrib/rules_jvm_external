@@ -188,11 +188,12 @@ dev_maven.install(
     artifacts = [
         "com.google.guava:guava:31.1-jre",
         "org.apache.commons:commons-lang3:3.12.0",
-        "commons-io:commons-io:2.11.0",
         "org.slf4j:slf4j-api:1.7.32",
     ],
     lock_file = "//tests/custom_maven_install:amend_artifacts_install.json",
 )
+
+# Toggle the `testonly` flag on guava
 dev_maven.amend_artifact(
     name = "amend_artifacts",
     testonly = "on",
@@ -207,12 +208,6 @@ dev_maven.amend_artifact(
     name = "amend_artifacts",
     testonly = "true",
     coordinates = "org.apache.commons:commons-lang3",
-)
-dev_maven.amend_artifact(
-    name = "amend_artifacts",
-    # valid values are on, off, true, false
-    testonly = "on",
-    coordinates = "commons-io:commons-io",
 )
 dev_maven.amend_artifact(
     name = "amend_artifacts",
