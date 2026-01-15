@@ -184,6 +184,42 @@ dev_maven.install(
     resolver = "coursier",
 )
 dev_maven.install(
+    name = "amend_artifacts",
+    artifacts = [
+        "com.google.guava:guava:31.1-jre",
+        "org.apache.commons:commons-lang3:3.12.0",
+        "commons-io:commons-io:2.11.0",
+        "org.slf4j:slf4j-api:1.7.32",
+    ],
+    lock_file = "//tests/custom_maven_install:amend_artifacts_install.json",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    testonly = "on",
+    coordinates = "com.google.guava:guava",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    testonly = "off",
+    coordinates = "com.google.guava:guava",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    testonly = "true",
+    coordinates = "org.apache.commons:commons-lang3",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    # valid values are on, off, true, false
+    testonly = "on",
+    coordinates = "commons-io:commons-io",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    coordinates = "org.slf4j:slf4j-api",
+    neverlink = "on",
+)
+dev_maven.install(
     name = "duplicate_version_warning",
     artifacts = [
         "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
@@ -965,6 +1001,7 @@ dev_maven.override(
 # want it to
 use_repo(
     dev_maven,
+    "amend_artifacts",
     "duplicate_version_warning",
     "duplicate_version_warning_same_version",
     "exclusion_testing",
