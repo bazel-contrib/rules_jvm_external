@@ -593,8 +593,9 @@ public class GradleResolver implements Resolver {
                   && successor.getArtifactId().equals(node.getArtifactId())
                   && successor.getVersion().equals(node.getVersion())
                   && successor.getClassifier() != null
-                  && !successor.getClassifier().isEmpty();
-
+                  && !successor.getClassifier().isEmpty()
+                  && !"javadoc".equals(successor.getClassifier())
+                  && !"sources".equals(successor.getClassifier());
           if (!isClassifiedVariant) {
             allSuccessorsAreClassifiedVariants = false;
             break;
@@ -609,7 +610,9 @@ public class GradleResolver implements Resolver {
               && other.getArtifactId().equals(node.getArtifactId())
               && other.getVersion().equals(node.getVersion())
               && other.getClassifier() != null
-              && !other.getClassifier().isEmpty()) {
+              && !other.getClassifier().isEmpty()
+              && !"javadoc".equals(other.getClassifier())
+              && !"sources".equals(other.getClassifier())) {
             isAggregating = true;
             break;
           }
