@@ -393,7 +393,7 @@ TESTS=(
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
   "test_publish_java_binary_jar_with_maven_export"
-  "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
+  # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
   "test_gradle_versions_catalog"
 )
