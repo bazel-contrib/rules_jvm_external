@@ -263,7 +263,14 @@ function test_coursier_resolution_with_boms() {
     fi
 
     # should run successfully
-    bazel run @coursier_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
+    REPIN=1 bazel run @coursier_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
+
+    expect_log "Successfully pinned resolved artifacts"
+
+    expect_file_is_not_empty "tests/custom_maven_install/coursier_resolved_install.json"
+
+    # TODO: Add back in once coursier supports index files
+    # expect_file_is_not_empty "tests/custom_maven_install/coursier_resolved_index.json"
 }
 
 function test_v1_lock_file_format() {
@@ -293,6 +300,9 @@ function test_maven_resolution() {
 
     # should run successfully
     bazel run @maven_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
+
+    expect_file_is_not_empty "tests/custom_maven_install/maven_resolved_install.json"
+    expect_file_is_not_empty "tests/custom_maven_install/maven_resolved_index.json"
 }
 
 function test_transitive_dependency_with_type_of_pom {
@@ -327,6 +337,9 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
     bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
 
     expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
+
+    expect_file_is_not_empty "tests/custom_maven_install/regression_testing_gradle_install.json"
+    expect_file_is_not_empty "tests/custom_maven_install/regression_testing_gradle_index.json"
  }
 
 function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
@@ -380,7 +393,7 @@ TESTS=(
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
   "test_publish_java_binary_jar_with_maven_export"
-  # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
+  "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
   "test_gradle_versions_catalog"
 )
@@ -413,6 +426,18 @@ function expect_not_in_file() {
   cat $file
   printf "FAILURE: $message\n"
   return 1
+}
+
+function expect_file_is_not_empty() {
+  local file=$1
+  if [ ! -f $file ]; then
+    printf "NOT FOUND: $file (most probably wrong test configuration)\n"
+    return 1
+  fi
+  if [ ! -s $file ]; then
+    printf "FAILED: $file is empty\n"
+    return 1
+  fi
 }
 
 function expect_log() {
