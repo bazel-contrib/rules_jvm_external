@@ -585,11 +585,35 @@ def maven_impl(mctx):
         root_artifacts = root_repo.get("artifacts", [])
         bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {})
         root_boms = root_repo.get("boms", [])
-        non_root_bazel_dep_to_boms = non_root_repo.get("bazel_dep_to_boms", [])
+        bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", [])
 
         if repo_name in root_module_repos.keys():
-            # Warn users if multiple modules contribute to the same maven `name`
-            _warn_if_multiple_contributing_modules(root_repo, repo_name, bazel_dep_to_non_root_artifacts)
+            known_contributing_modules = root_repo.get("known_contributing_modules", sets.make())
+            if sets.length(known_contributing_modules) == 0:
+                # Warn users if multiple modules contribute to the same maven `name`
+                _warn_if_multiple_contributing_modules(root_repo, repo_name, bazel_dep_to_non_root_artifacts)
+            else:
+                # Filter results so only modules in the known_contributing_modules add artifacts or boms
+                all_non_root_artifact_modules = bazel_dep_to_non_root_artifacts.keys()
+                bazel_dep_to_non_root_artifacts = {
+                    k: bazel_dep_to_non_root_artifacts[k]
+                    for k in sets.to_list(known_contributing_modules)
+                    if k in bazel_dep_to_non_root_artifacts
+                }
+                if rje_verbose_env_var:
+                    for k in all_non_root_artifact_modules:
+                        if k not in bazel_dep_to_non_root_artifacts.keys():
+                            print("\nINFO: The @%s repo is not using deps from %s because it is not in the known_contributing_modules" % (repo_name, k))
+                all_non_root_bom_modules = bazel_dep_to_non_root_boms.keys()
+                bazel_dep_to_non_root_boms = {
+                    k: bazel_dep_to_non_root_boms[k]
+                    for k in sets.to_list(known_contributing_modules)
+                    if k in bazel_dep_to_non_root_boms
+                }
+                if rje_verbose_env_var:
+                    for k in all_non_root_bom_modules:
+                        if k not in bazel_dep_to_non_root_boms.keys():
+                            print("\nINFO: The @%s repo is not using boms from %s because it is not in the known_contributing_modules" % (repo_name, k))
 
             merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
                 repo_name,
@@ -602,13 +626,13 @@ def maven_impl(mctx):
             merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
                 repo_name,
                 root_boms,
-                non_root_bazel_dep_to_boms,
+                bazel_dep_to_non_root_boms,
                 repin_env_var,
                 rje_verbose_env_var,
             )
         else:
             merged_repo["artifacts"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True)
-            merged_repo["boms"] = _deduplicate_non_root_artifacts(non_root_bazel_dep_to_boms, True)
+            merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_boms, True)
 
         # For list attributes, concatenate but avoid duplicates (root items first)
         for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:
