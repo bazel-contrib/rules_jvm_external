@@ -241,6 +241,15 @@ public class GradleResolver implements Resolver {
       }
     }
 
+    // Capture the set of successfully resolved group:artifact pairs BEFORE adding unresolved
+    // dependencies to the graph. This allows us to determine if an "unresolved" dependency
+    // was actually resolved at a different version (e.g., due to BOM constraints or version
+    // conflict resolution).
+    Set<String> resolvedGroupArtifacts =
+        graph.nodes().stream()
+            .map(c -> c.getGroupId() + ":" + c.getArtifactId())
+            .collect(Collectors.toSet());
+
     for (GradleUnresolvedDependency dependency : unresolvedDependencies) {
       Coordinates coordinates =
           new Coordinates(
@@ -262,14 +271,10 @@ public class GradleResolver implements Resolver {
 
     // If any of the deps we requested failed to resolve, we should throw an exception.
     // For missing transitive deps, we only appear to log a warning in the maven, so keep that
-    // behavior here as well
+    // behavior here as well.
     List<GradleUnresolvedDependency> unresolvedRequestedDeps =
-        unresolvedDependencies.stream()
-            .filter(
-                dep ->
-                    requestedDepKeys.contains(
-                        makeDepKey(dep.getGroup(), dep.getName(), dep.getVersion())))
-            .collect(Collectors.toList());
+        filterUnresolvedRequestedDeps(
+            unresolvedDependencies, requestedDepKeys, resolvedGroupArtifacts);
     if (!unresolvedRequestedDeps.isEmpty()) {
       throw new GradleDependencyResolutionException(unresolvedRequestedDeps);
     }
@@ -850,5 +855,39 @@ public class GradleResolver implements Resolver {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Filters unresolved dependencies to find those that should cause resolution to fail.
+   *
+   * <p>A dependency should cause failure only if:
+   *
+   * <ol>
+   *   <li>It was directly requested by the user (in requestedDepKeys)
+   *   <li>No version of the same group:artifact was successfully resolved
+   * </ol>
+   *
+   * <p>This handles the case where a BOM or version conflict resolution upgrades a dependency to a
+   * different version. The originally-requested version may appear as "unresolved" in Gradle's
+   * internal resolution, but as long as some version of the artifact was resolved, we should not
+   * fail.
+   *
+   * @param unresolvedDependencies List of all unresolved dependencies from Gradle
+   * @param requestedDepKeys Set of "group:artifact:version" strings for user-requested deps
+   * @param resolvedGroupArtifacts Set of "group:artifact" strings for successfully resolved deps
+   * @return List of unresolved dependencies that should cause resolution to fail
+   */
+  // Visible for testing
+  static List<GradleUnresolvedDependency> filterUnresolvedRequestedDeps(
+      List<GradleUnresolvedDependency> unresolvedDependencies,
+      Set<String> requestedDepKeys,
+      Set<String> resolvedGroupArtifacts) {
+    return unresolvedDependencies.stream()
+        .filter(
+            dep ->
+                requestedDepKeys.contains(
+                    dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion()))
+        .filter(dep -> !resolvedGroupArtifacts.contains(dep.getGroup() + ":" + dep.getName()))
+        .collect(Collectors.toList());
   }
 }
