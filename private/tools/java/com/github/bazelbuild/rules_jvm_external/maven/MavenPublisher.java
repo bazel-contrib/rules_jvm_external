@@ -124,7 +124,7 @@ public class MavenPublisher {
     SigningMetadata signingMetadata =
         new SigningMetadata(gpgSign, useInMemoryPgpKeys, signingKey, signingPassword);
 
-    final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    final ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     try {
       run(
