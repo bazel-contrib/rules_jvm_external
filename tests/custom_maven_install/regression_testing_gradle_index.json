@@ -8,11 +8,11 @@
       "androidx.arch.core.internal",
       "androidx.arch.core.util"
     ],
-    "androidx.collection:collection": [
-      "androidx.collection"
-    ],
     "androidx.concurrent:concurrent-futures": [
       "androidx.concurrent.futures"
+    ],
+    "androidx.lifecycle:lifecycle-common": [
+      "androidx.lifecycle"
     ],
     "ch.qos.reload4j:reload4j": [
       "org.apache.log4j",
@@ -33,6 +33,9 @@
     "com.almworks.sqlite4java:sqlite4java": [
       "com.almworks.sqlite4java",
       "javolution.util.stripped"
+    ],
+    "com.google.guava:listenablefuture": [
+      "com.google.common.util.concurrent"
     ],
     "com.squareup.okhttp3:okhttp": [
       "okhttp3",
@@ -132,6 +135,30 @@
       "org.slf4j.reload4j"
     ]
   },
-  "split_package_classes": {},
+  "split_package_classes": {
+    "androidx.collection:collection": {
+      "androidx.collection": [
+        "ArrayMap",
+        "ArraySet",
+        "CircularArray",
+        "CircularIntArray",
+        "ContainerHelpers",
+        "LongSparseArray",
+        "LruCache",
+        "MapCollections",
+        "SimpleArrayMap",
+        "SparseArrayCompat"
+      ]
+    },
+    "androidx.collection:collection-ktx": {
+      "androidx.collection": [
+        "ArrayMapKt",
+        "ArraySetKt",
+        "LongSparseArrayKt",
+        "LruCacheKt",
+        "SparseArrayKt"
+      ]
+    }
+  },
   "version": 1
 }

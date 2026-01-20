@@ -170,8 +170,18 @@ public class GradleBuildScriptGenerator {
                   Map<String, Object> map = new HashMap<>();
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
-                  if (dep.getVersion() != null && !dep.getVersion().isEmpty()) {
-                    map.put("version", ":" + dep.getVersion());
+
+                  String version = dep.getVersion();
+                  boolean isForceVersion = version != null && version.endsWith("!!");
+                  if (isForceVersion) {
+                    // Strip the !! suffix, we'll use version { strictly() } in template
+                    version = version.substring(0, version.length() - 2);
+                    map.put("forceVersion", true);
+                    map.put("versionOnly", version); // Version without : prefix for strictly()
+                  } else {
+                    if (version != null && !version.isEmpty()) {
+                      map.put("version", ":" + version);
+                    }
                   }
                   if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
                     map.put("classifier", ":" + dep.getClassifier());
