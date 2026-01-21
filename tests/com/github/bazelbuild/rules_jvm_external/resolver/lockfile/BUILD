@@ -19,12 +19,14 @@ java_test(
 )
 
 java_test(
-    name = "V2LockFileTest",
-    srcs = ["V2LockFileTest.java"],
-    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFileTest",
+    name = "V3LockFileTest",
+    srcs = ["V3LockFileTest.java"],
+    resources = ["//:maven_install.json"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFileTest",
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile",
         artifact(
             "com.google.code.gson:gson",

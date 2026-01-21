@@ -6,6 +6,7 @@ exports_files([
     "defs.bzl",
     "extensions.bzl",
     "specs.bzl",
+    "maven_install.json",
 ])
 
 licenses(["notice"])  # Apache 2.0
