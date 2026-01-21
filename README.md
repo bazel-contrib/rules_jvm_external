@@ -1058,6 +1058,19 @@ build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=<path-to-cacerts>
 ```
 can be added to your .bazelrc file if you need to specify custom cacerts for artifact resolution.
 
+If you are using Bzlmod, you can also set truststore-related JVM options directly on `maven.install`:
+
+```python
+maven.install(
+    # ...
+    truststore = "//path/to:cacerts",
+    truststore_password = "//path/to:truststore_password",  # file contains the password
+    truststore_type = "PKCS12",
+)
+```
+
+If `JDK_JAVA_OPTIONS` is set, it takes precedence over the `truststore*` settings.
+
 ### Provide JVM options for Coursier with `COURSIER_OPTS`
 
 You can set up `COURSIER_OPTS` environment variable to provide some additional JVM options for Coursier.
