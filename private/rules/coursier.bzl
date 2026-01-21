@@ -889,6 +889,9 @@ def _check_artifacts_are_unique(artifacts, duplicate_version_warning):
         else:
             print("\n".join(msg_parts))
 
+def get_coursier_sha256(environ, default_sha256):
+    return environ.get("COURSIER_SHA256", default_sha256)
+
 # Get the path to the cache directory containing Coursier-downloaded artifacts.
 #
 # This method is public for testing.
@@ -1160,7 +1163,8 @@ def _coursier_fetch_impl(repository_ctx):
     if coursier_url_from_env != None:
         coursier_download_urls.insert(0, coursier_url_from_env)
 
-    repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
+    coursier_sha256 = get_coursier_sha256(repository_ctx.os.environ, COURSIER_CLI_SHA256)
+    repository_ctx.download(coursier_download_urls, "coursier", sha256 = coursier_sha256, executable = True)
 
     # Try running coursier once
     cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
@@ -1683,6 +1687,7 @@ coursier_fetch = repository_rule(
         "NO_PROXY",
         "COURSIER_CACHE",
         "COURSIER_OPTS",
+        "COURSIER_SHA256",
         "COURSIER_URL",
         "RJE_VERBOSE",
         "XDG_CACHE_HOME",

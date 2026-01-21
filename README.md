@@ -476,6 +476,17 @@ $ bazel build @maven_with_unsafe_shared_cache//... --repo_env=COURSIER_URL='http
 
 Please note it still requires the SHA to match.
 
+To use a different Coursier version entirely, you can override both the URL and SHA256:
+
+```shell
+$ bazel build @maven//... \
+  --repo_env=COURSIER_URL='https://github.com/coursier/coursier/releases/download/v2.1.25-M23/coursier.jar' \
+  --repo_env=COURSIER_SHA256='<sha256-of-the-jar>'
+```
+
+Note: rules_jvm_external is tested against a specific Coursier version. Using a
+different version is not officially supported and compatibility is not guaranteed.
+
 ### `artifact` helper macro
 
 The `artifact` macro translates the artifact's `group:artifact` coordinates to
