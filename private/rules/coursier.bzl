@@ -295,7 +295,7 @@ def _java_path(repository_ctx):
 
 # Generate the base `coursier` command depending on the OS, JAVA_HOME or the
 # location of `java`.
-def _generate_java_jar_command(repository_ctx, jar_path):
+def _generate_java_jar_command_for_coursier(repository_ctx, jar_path):
     coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
     coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
 
@@ -311,6 +311,16 @@ def _generate_java_jar_command(repository_ctx, jar_path):
     else:
         # Try to execute coursier directly
         cmd = [jar_path] + coursier_opts + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
+
+    return cmd
+
+def _generate_java_jar_command(repository_ctx, jar_path):
+    java_path = _java_path(repository_ctx)
+
+    if java_path != None:
+        cmd = [java_path, "-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
+    else:
+        cmd = [jar_path] + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
 
     return cmd
 
@@ -999,7 +1009,7 @@ def make_coursier_dep_tree(
                                        "--" +
                                        ":".join([e["group"], e["artifact"]]))
 
-    cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
+    cmd = _generate_java_jar_command_for_coursier(repository_ctx, repository_ctx.path("coursier"))
     cmd.extend(["fetch"])
 
     cmd.extend(artifact_coordinates)
@@ -1191,7 +1201,7 @@ def _coursier_fetch_impl(repository_ctx):
     repository_ctx.download(coursier_download_urls, "coursier", sha256 = COURSIER_CLI_SHA256, executable = True)
 
     # Try running coursier once
-    cmd = _generate_java_jar_command(repository_ctx, repository_ctx.path("coursier"))
+    cmd = _generate_java_jar_command_for_coursier(repository_ctx, repository_ctx.path("coursier"))
 
     # Add --help because calling the default coursier command on Windows will
     # hang waiting for input
