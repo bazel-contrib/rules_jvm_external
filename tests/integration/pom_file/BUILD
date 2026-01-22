@@ -1,5 +1,5 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("//:defs.bzl", "artifact", "java_export")
 
 java_export(

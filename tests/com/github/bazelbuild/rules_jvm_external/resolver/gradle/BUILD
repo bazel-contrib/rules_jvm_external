@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "java_test")
+load("@rules_java//java:java_test.bzl", "java_test")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_test(

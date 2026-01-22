@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("//:specs.bzl", "parse", _json = "json")
 load(":javadoc.bzl", "javadoc")
 load(":maven_bom_fragment.bzl", "maven_bom_fragment")

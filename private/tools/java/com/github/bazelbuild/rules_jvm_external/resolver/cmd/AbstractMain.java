@@ -288,7 +288,7 @@ public abstract class AbstractMain {
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(toReturn) + "\n";
 
     try (OutputStream os = output == null ? System.out : Files.newOutputStream(output);
-         BufferedOutputStream bos = new BufferedOutputStream(os)) {
+        BufferedOutputStream bos = new BufferedOutputStream(os)) {
       bos.write(converted.getBytes(UTF_8));
     }
   }
@@ -311,12 +311,12 @@ public abstract class AbstractMain {
     }
   }
 
-
   @SuppressWarnings("unchecked")
   public static Map<String, Integer> calculateArtifactHash(Map<String, Object> rendered) {
     Map<String, Map<String, Object>> allInfos = new LinkedHashMap<>();
 
-    Map<String, Map<String, Object>> artifacts = sortMapRecursively((Map<?, ?>) rendered.get("artifacts"));
+    Map<String, Map<String, Object>> artifacts =
+        sortMapRecursively((Map<?, ?>) rendered.get("artifacts"));
     for (Map.Entry<String, Map<String, Object>> dep : artifacts.entrySet()) {
       Map<String, Object> depInfo = dep.getValue();
       Map<String, String> shasums = (Map<String, String>) depInfo.get("shasums");
@@ -340,7 +340,8 @@ public abstract class AbstractMain {
       }
     }
 
-    Map<String, Iterable<String>> repositories = sortMapRecursively((Map<?, ?>) rendered.get("repositories"));
+    Map<String, Iterable<String>> repositories =
+        sortMapRecursively((Map<?, ?>) rendered.get("repositories"));
     for (Map.Entry<String, Iterable<String>> repo : repositories.entrySet()) {
       Iterable<String> repoArtifacts = repo.getValue();
       for (String art : repoArtifacts) {
@@ -348,7 +349,8 @@ public abstract class AbstractMain {
       }
     }
 
-    Map<String, Set<String>> dependencies = sortMapRecursively((Map<?, ?>) rendered.get("dependencies"));
+    Map<String, Set<String>> dependencies =
+        sortMapRecursively((Map<?, ?>) rendered.get("dependencies"));
     for (Map.Entry<String, Set<String>> dep : dependencies.entrySet()) {
       allInfos.get(dep.getKey()).put("dependencies", dep.getValue());
     }
@@ -360,7 +362,8 @@ public abstract class AbstractMain {
   }
 
   @SuppressWarnings("unchecked")
-  private static int calculateFinalHash(String curr, Map<String, Map<String, Object>> allInfos, Map<String, Integer> finalHash) {
+  private static int calculateFinalHash(
+      String curr, Map<String, Map<String, Object>> allInfos, Map<String, Integer> finalHash) {
     StarlarkRepr repr = new StarlarkRepr();
 
     if (finalHash.containsKey(curr)) {
@@ -372,8 +375,8 @@ public abstract class AbstractMain {
 
     finalHash.put(curr, repr.repr(allInfos.get(curr)).hashCode());
 
-
-    Set<String> deps = (Set<String>) allInfos.get(curr).getOrDefault("dependencies", Collections.emptySet());
+    Set<String> deps =
+        (Set<String>) allInfos.get(curr).getOrDefault("dependencies", Collections.emptySet());
     Map<String, Integer> hashedDeps = new TreeMap<>();
     for (String dep : deps) {
       hashedDeps.put(dep, calculateFinalHash(dep, allInfos, finalHash));

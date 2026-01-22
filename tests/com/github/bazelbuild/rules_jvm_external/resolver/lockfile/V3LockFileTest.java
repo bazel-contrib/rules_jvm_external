@@ -25,7 +25,6 @@ import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.AbstractMain;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
@@ -34,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import org.junit.Test;
 
 public class V3LockFileTest {
@@ -221,12 +219,14 @@ public class V3LockFileTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testCalculateArtifactHashMatchesStoredHash() throws IOException {
-    String lockFileContent = new String(
-        getClass().getClassLoader().getResourceAsStream("maven_install.json").readAllBytes());
+    String lockFileContent =
+        new String(
+            getClass().getClassLoader().getResourceAsStream("maven_install.json").readAllBytes());
 
     Gson gson = new GsonBuilder().create();
     Map<String, Object> lockFileData = gson.fromJson(lockFileContent, Map.class);
-    Map<String, Double> storedHash = (Map<String, Double>) lockFileData.get("__RESOLVED_ARTIFACTS_HASH");
+    Map<String, Double> storedHash =
+        (Map<String, Double>) lockFileData.get("__RESOLVED_ARTIFACTS_HASH");
 
     Map<String, Object> dependencies = (Map<String, Object>) lockFileData.remove("dependencies");
     Map<String, Set<String>> convertedDeps = new TreeMap<>();
@@ -238,7 +238,10 @@ public class V3LockFileTest {
 
     Map<String, Integer> calculatedHash = AbstractMain.calculateArtifactHash(lockFileData);
 
-    assertEquals("Hash mismatch: calculated hash does not match stored hash", storedHash.size(), calculatedHash.size());
+    assertEquals(
+        "Hash mismatch: calculated hash does not match stored hash",
+        storedHash.size(),
+        calculatedHash.size());
 
     for (Map.Entry<String, Double> entry : storedHash.entrySet()) {
       String key = entry.getKey();
