@@ -125,7 +125,7 @@ public class MavenPublisher {
         new SigningMetadata(gpgSign, useInMemoryPgpKeys, signingKey, signingPassword);
 
     final ExecutorService executorService = Executors.newFixedThreadPool(
-      Optional.of(System.getenv("RJE_MAX_THREADS")).map(Integer::parseInt).orElse(8)
+      Optional.ofNullable(System.getenv("RJE_MAX_THREADS")).map(Integer::parseInt).orElse(8)
     );
 
     try {
