@@ -172,7 +172,7 @@ def to_purl(coords, repository):
     to_return = "pkg:maven/"
 
     unpacked = unpack_coordinates(coords)
-    to_return += "{group}:{artifact}@{version}".format(
+    to_return += "{group}/{artifact}@{version}".format(
         artifact = unpacked.artifact,
         group = unpacked.group,
         version = unpacked.version,
