@@ -598,10 +598,12 @@ public abstract class ResolverTestBase {
         resolver.resolve(prepareRequestFor(repo.toUri(), present)).getResolution();
     assertEquals(Set.of(present, missing), resolution.nodes());
 
-    logEvents.stream()
+    if (!logEvents.stream()
         .filter(e -> e.toString().contains("The POM for " + missing.setExtension("pom")))
         .findFirst()
-        .orElseThrow(() -> new AssertionError("Cannot find expected log message"));
+        .isPresent()) {
+      throw new AssertionError("Cannot find expected log message");
+    }
   }
 
   @Test

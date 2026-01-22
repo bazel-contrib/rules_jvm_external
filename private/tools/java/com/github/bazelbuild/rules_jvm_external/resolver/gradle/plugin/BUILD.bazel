@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("@rules_java//java:java_single_jar.bzl", "java_single_jar")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 

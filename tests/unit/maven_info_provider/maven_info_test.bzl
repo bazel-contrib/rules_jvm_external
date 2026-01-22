@@ -1,7 +1,7 @@
 """Unit tests for java_export MavenInfo behavior."""
 
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("//private/rules:has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 
 def _maven_info_test_impl(ctx):

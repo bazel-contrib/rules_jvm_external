@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 load(":maven_utils.bzl", "process_label_keyed_exclusions")
 
