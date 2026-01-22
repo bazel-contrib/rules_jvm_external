@@ -75,6 +75,9 @@ install = tag_class(
 
         # Configuration "stuff"
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
+        "truststore": attr.label(allow_single_file = True, doc = "Optional Java truststore file to use for Maven resolution."),
+        "truststore_password": attr.label(allow_single_file = True, doc = "Optional Java truststore password file for Maven resolution."),
+        "truststore_type": attr.string(doc = "Optional Java truststore type (for example, JKS or PKCS12) for Maven resolution."),
         "use_credentials_from_home_netrc_file": attr.bool(doc = "Whether to pass machine login credentials from the ~/.netrc file to coursier.", default = False),
         "duplicate_version_warning": attr.string(
             doc = """What to do if there are duplicate artifacts
@@ -471,6 +474,25 @@ def _process_module_tags(mctx):
                 [None, "warn"],
             )
 
+            repo["truststore"] = _fail_if_different(
+                "truststore",
+                repo.get("truststore"),
+                install.truststore,
+                [None],
+            )
+            repo["truststore_password"] = _fail_if_different(
+                "truststore_password",
+                repo.get("truststore_password"),
+                install.truststore_password,
+                [None],
+            )
+            repo["truststore_type"] = _fail_if_different(
+                "truststore_type",
+                repo.get("truststore_type"),
+                install.truststore_type,
+                [None, ""],
+            )
+
             # Get the longest timeout
             timeout = repo.get("resolve_timeout", install.resolve_timeout)
             if install.resolve_timeout > timeout:
@@ -666,6 +688,9 @@ def maven_impl(mctx):
                 repo["fetch_javadoc"] = install.fetch_javadoc
                 repo["fetch_sources"] = install.fetch_sources
                 repo["resolver"] = install.resolver
+                repo["truststore"] = install.truststore
+                repo["truststore_password"] = install.truststore_password
+                repo["truststore_type"] = install.truststore_type
                 repo["strict_visibility"] = install.strict_visibility
                 if len(install.repositories):
                     mapped_repos = []
@@ -727,6 +752,9 @@ def maven_impl(mctx):
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
                 maven_install_json = repo.get("lock_file"),
                 dependency_index = repo.get("dependency_index"),
+                truststore = repo.get("truststore"),
+                truststore_password = repo.get("truststore_password"),
+                truststore_type = repo.get("truststore_type"),
                 resolve_timeout = repo.get("resolve_timeout"),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
@@ -787,6 +815,9 @@ def maven_impl(mctx):
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
                 dependency_index = repo.get("dependency_index"),
+                truststore = repo.get("truststore"),
+                truststore_password = repo.get("truststore_password"),
+                truststore_type = repo.get("truststore_type"),
                 override_targets = overrides.get(name),
                 override_target_visibilities = override_visibilities.get(name, {}),
                 strict_visibility = repo.get("strict_visibility"),
