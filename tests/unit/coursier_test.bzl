@@ -4,6 +4,7 @@ load(
     "//private/rules:coursier.bzl",
     "compute_dependency_inputs_signature",
     "get_coursier_cache_or_default",
+    "get_coursier_sha256",
     "get_direct_dependencies",
     "get_netrc_lines_from_entries",
     infer = "infer_artifact_path_from_primary_and_repos",
@@ -445,6 +446,28 @@ def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     return unittest.end(env)
 
 get_coursier_cache_or_default_enabled_with_custom_location_test = add_test(_get_coursier_cache_or_default_enabled_with_custom_location_test)
+
+def _get_coursier_sha256_default_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "default_sha256_value",
+        get_coursier_sha256({}, "default_sha256_value"),
+    )
+    return unittest.end(env)
+
+get_coursier_sha256_default_test = add_test(_get_coursier_sha256_default_test_impl)
+
+def _get_coursier_sha256_from_env_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "custom_sha256_from_env",
+        get_coursier_sha256({"COURSIER_SHA256": "custom_sha256_from_env"}, "default_sha256_value"),
+    )
+    return unittest.end(env)
+
+get_coursier_sha256_from_env_test = add_test(_get_coursier_sha256_from_env_test_impl)
 
 def _mock_which_true(path):
     return True
