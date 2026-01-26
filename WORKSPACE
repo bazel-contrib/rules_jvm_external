@@ -132,7 +132,7 @@ maven_install(
         "org.hamcrest:hamcrest-core:2.1",
         "io.netty:netty-tcnative-boringssl-static:2.0.61.Final",
     ],
-    maven_install_json = "@rules_jvm_external//:maven_install.json",
+    maven_install_json = "@rules_jvm_external//:maven_coursier_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
@@ -1173,4 +1173,31 @@ maven_install(
         "https://repo1.maven.org/maven2",
     ],
     resolver = "gradle",
+)
+
+maven_install(
+    name = "amend_artifacts",
+    artifacts = [
+        maven.artifact(
+            testonly = False,
+            artifact = "guava",
+            group = "com.google.guava",
+            version = "31.1-jre",
+        ),
+        maven.artifact(
+            testonly = True,
+            artifact = "commons-lang3",
+            group = "org.apache.commons",
+            version = "3.12.0",
+        ),
+        maven.artifact(
+            artifact = "slf4j-api",
+            group = "org.slf4j",
+            neverlink = True,
+            version = "1.7.32",
+        ),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
 )

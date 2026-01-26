@@ -148,9 +148,9 @@ amend_artifact = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
-        "force_version": attr.bool(default = False),
-        "neverlink": attr.bool(),
-        "testonly": attr.bool(),
+        "force_version": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
+        "neverlink": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
+        "testonly": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
         "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
     },
 )
@@ -277,6 +277,13 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to
 
     return root_artifacts + filtered_non_root_artifacts
 
+def _get_tri_state_bool(amend_val, original_val):
+    if amend_val in ["true", "on"]:
+        return True
+    if amend_val in ["false", "off"]:
+        return False
+    return original_val
+
 def _amend_artifact(original_artifact, amend):
     """Apply amendments to an artifact struct, returning a new amended struct."""
 
@@ -288,15 +295,16 @@ def _amend_artifact(original_artifact, amend):
         final_exclusions = existing_exclusions + new_exclusions
 
     # Create new struct with amendments applied
+
     return struct(
         group = original_artifact.group,
         artifact = original_artifact.artifact,
         version = getattr(original_artifact, "version", None),
         packaging = getattr(original_artifact, "packaging", None),
         classifier = getattr(original_artifact, "classifier", None),
-        force_version = amend.force_version if amend.force_version else getattr(original_artifact, "force_version", None),
-        neverlink = amend.neverlink if amend.neverlink else getattr(original_artifact, "neverlink", None),
-        testonly = amend.testonly if amend.testonly else getattr(original_artifact, "testonly", None),
+        force_version = _get_tri_state_bool(amend.force_version, getattr(original_artifact, "force_version", None)),
+        neverlink = _get_tri_state_bool(amend.neverlink, getattr(original_artifact, "neverlink", None)),
+        testonly = _get_tri_state_bool(amend.testonly, getattr(original_artifact, "testonly", None)),
         exclusions = final_exclusions if final_exclusions else None,
     )
 

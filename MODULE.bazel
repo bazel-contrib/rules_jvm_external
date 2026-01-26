@@ -185,6 +185,37 @@ dev_maven.install(
     resolver = "coursier",
 )
 dev_maven.install(
+    name = "amend_artifacts",
+    artifacts = [
+        "com.google.guava:guava:31.1-jre",
+        "org.apache.commons:commons-lang3:3.12.0",
+        "org.slf4j:slf4j-api:1.7.32",
+    ],
+    lock_file = "//tests/custom_maven_install:amend_artifacts_install.json",
+)
+
+# Toggle the `testonly` flag on guava
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    testonly = "on",
+    coordinates = "com.google.guava:guava",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    testonly = "off",
+    coordinates = "com.google.guava:guava",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    testonly = "true",
+    coordinates = "org.apache.commons:commons-lang3",
+)
+dev_maven.amend_artifact(
+    name = "amend_artifacts",
+    coordinates = "org.slf4j:slf4j-api",
+    neverlink = "on",
+)
+dev_maven.install(
     name = "duplicate_version_warning",
     artifacts = [
         "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
@@ -285,7 +316,7 @@ dev_maven.from_toml(
 )
 dev_maven.amend_artifact(
     name = "from_files",
-    testonly = True,
+    testonly = "true",
     coordinates = "org.junit.jupiter:junit-jupiter-api",
 )
 dev_maven.install(
@@ -930,7 +961,7 @@ dev_maven.install(
 dev_maven.amend_artifact(
     name = "root_wins",
     coordinates = "io.netty:netty-buffer",
-    force_version = True,
+    force_version = "true",
 )
 
 bazel_dep(name = "root_wins_layer", version = "0.0.0", dev_dependency = True)
@@ -971,6 +1002,7 @@ dev_maven.override(
 # want it to
 use_repo(
     dev_maven,
+    "amend_artifacts",
     "duplicate_version_warning",
     "duplicate_version_warning_same_version",
     "exclusion_testing",
