@@ -37,6 +37,10 @@ def unpack_coordinates(coords):
             classifier = coords.get("classifier", None),
         )
 
+    if type(coords) != "string":
+        # Already a struct, return as-is
+        return coords
+
     pieces = coords.split(":")
     if len(pieces) < 2:
         fail("Could not parse maven coordinate: %s" % coords)
@@ -101,6 +105,34 @@ def unpack_coordinates(coords):
 
     fail("Could not parse maven coordinate: %s" % coords)
 
+def to_key(coords):
+    """Converts coordinates to a versionless key for lookups.
+
+    The key format is `group:artifact[:packaging[:classifier]]` where packaging
+    and classifier are only included if they differ from "jar".
+
+    Args:
+        coords: Either a string in Gradle External format, a dict with "group",
+               "artifact", and optional "packaging"/"classifier" keys, or a
+               struct from unpack_coordinates.
+
+    Returns:
+        A string key suitable for artifact lookups.
+    """
+    unpacked = unpack_coordinates(coords)
+
+    key = "%s:%s" % (unpacked.group, unpacked.artifact)
+
+    packaging = getattr(unpacked, "packaging", None) or "jar"
+    classifier = getattr(unpacked, "classifier", None) or "jar"
+
+    if classifier != "jar":
+        key += ":%s:%s" % (packaging, classifier)
+    elif packaging != "jar":
+        key += ":%s" % packaging
+
+    return key
+
 def to_external_form(coords):
     """Formats `coords` as a string suitable for use by tools such as Gradle.
 
@@ -140,7 +172,7 @@ def to_purl(coords, repository):
     to_return = "pkg:maven/"
 
     unpacked = unpack_coordinates(coords)
-    to_return += "{group}:{artifact}@{version}".format(
+    to_return += "{group}/{artifact}@{version}".format(
         artifact = unpacked.artifact,
         group = unpacked.group,
         version = unpacked.version,

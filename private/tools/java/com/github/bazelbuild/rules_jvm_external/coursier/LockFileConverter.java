@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
-import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V2LockFile;
+import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -100,7 +100,7 @@ public class LockFileConverter {
     Set<DependencyInfo> infos = converter.getDependencies();
     Set<Conflict> conflicts = converter.getConflicts();
 
-    Map<String, Object> rendered = new V2LockFile(repositories, infos, conflicts).render();
+    Map<String, Object> rendered = new V3LockFile(repositories, infos, conflicts, true).render();
 
     String converted =
         new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
@@ -213,6 +213,7 @@ public class LockFileConverter {
               Optional.ofNullable((String) coursierDep.get("sha256")),
               directDeps,
               packages,
+              Set.of(),
               services));
     }
 

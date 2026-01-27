@@ -163,7 +163,7 @@ you which modules are contributing to which namespace:
 
 In the root module, if this is expected and known, you can disable this warning by adding
 the list of modules to the `known_contributing_modules` attribute of the `install` tag. The entry
-to add will be printed for you as part of the warning.
+to add will be printed for you as part of the warning. Once you set a value for `known_contributing_modules` then only those modules will be allowed to contribute dependencies.
 
 The default name used is `maven`. Modules that are expected to be included via a `bazel_dep` should
 avoid using the default name, and should always set their own (eg. `rules_jvm_external` uses
@@ -184,8 +184,13 @@ When dependencies are layered in this way, you may see a warning similar to:
     com.google.guava:guava (31.1-jre, 33.2.1-jre)
 ```
 
-To resolve this issue, ensure that the artifact is listed in the root module. That will be the
-version used in the dependency resolution.
+The resolver will use the highest version artifact from the root and sub-modules. If the root version is not the highest you will see a warning during repinning similar to:
+
+```
+WARNING: For dependency 'com.google.protobuf:protobuf-java' the root @maven repo wants version 3.25.5, but got 4.27.2 from the bazel_worker_java bazel dep. Please update the version in your MODULE.bazel or set `force_version = True`.
+```
+
+You can either update the version in the root module to the highest version or set `force_version = True` in the root module to ensure that version will be the one used in the dependency resolution.
 
 ## Known issues
 

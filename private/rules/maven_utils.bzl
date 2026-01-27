@@ -5,6 +5,72 @@ def unpack_coordinates(coords):
     print("Please load `unpack_coordinates` from `@rules_jvm_external//private/lib:coordinates.bzl`.")
     return _unpack_coordinates(coords)
 
+def parse_exclusions_from_json(json_exclusions):
+    """Convert a JSON-encoded exclusion list to group:artifact strings."""
+    exclusion_list = json.decode(json_exclusions)
+    return ["%s:%s" % (e["group"], e["artifact"]) for e in exclusion_list]
+
+def collect_exclusions_from_maven_infos(maven_infos, ctx):
+    """Collect exclusions from MavenInfo objects into a coordinates-keyed dict.
+
+    Args:
+        maven_infos: Iterable of MavenInfo objects (typically from all_infos.to_list())
+        ctx: Rule context for make variable expansion on coordinates
+
+    Returns:
+        Dict mapping maven coordinates to lists of exclusions (group:artifact strings)
+    """
+    exclusions = {}
+    for maven_info in maven_infos:
+        if maven_info.coordinates and maven_info.exclusions:
+            coords = ctx.expand_make_variables("exclusions", maven_info.coordinates, ctx.var)
+            if coords not in exclusions:
+                exclusions[coords] = []
+            for exclusion in maven_info.exclusions:
+                if exclusion not in exclusions[coords]:
+                    exclusions[coords].append(exclusion)
+    return exclusions
+
+def expand_dict_keys(ctx, d):
+    """Expand make variables in dict keys."""
+    return {ctx.expand_make_variables("key", k, ctx.var): v for k, v in d.items()}
+
+def merge_and_sort_exclusions(*exclusion_dicts):
+    """Merge multiple exclusion dicts, deduplicate entries, and sort."""
+    merged = {}
+    for d in exclusion_dicts:
+        for coords, exclusion_list in d.items():
+            if coords not in merged:
+                merged[coords] = []
+            for e in exclusion_list:
+                if e not in merged[coords]:
+                    merged[coords].append(e)
+    return {k: sorted(v) for k, v in merged.items()}
+
+def process_label_keyed_exclusions(ctx, label_keyed_exclusions, maven_info_provider, label_to_javainfo = None):
+    """Process a label-keyed exclusion dict into a coordinates-keyed dict.
+
+    Args:
+        ctx: Rule context for make variable expansion
+        label_keyed_exclusions: Dict mapping labels to JSON-encoded exclusion lists
+        maven_info_provider: The MavenInfo provider to check for coordinates
+        label_to_javainfo: Optional dict to validate labels exist in dependencies
+
+    Returns:
+        Dict mapping maven coordinates to exclusion lists (group:artifact strings)
+    """
+    exclusions = {}
+    for target, target_exclusions in label_keyed_exclusions.items():
+        if label_to_javainfo and not label_to_javainfo.get(target.label):
+            print("Warning: exclusions key %s not found in dependencies" % target)
+            continue
+        if maven_info_provider in target and target[maven_info_provider].coordinates:
+            coords = ctx.expand_make_variables("exclusions", target[maven_info_provider].coordinates, ctx.var)
+            exclusions[coords] = parse_exclusions_from_json(target_exclusions)
+        else:
+            print("Warning: exclusions key %s has no maven coordinates" % target.label)
+    return exclusions
+
 def _whitespace(indent):
     whitespace = ""
     for i in range(indent):
@@ -100,10 +166,6 @@ def generate_pom(
         "{type}": unpacked_coordinates.packaging or "jar",
         "{classifier}": unpacked_coordinates.classifier or "jar",
     }
-
-    for key in exclusions:
-        if key not in versioned_dep_coordinates and key not in unversioned_dep_coordinates:
-            fail("Key %s in exclusions does not occur in versioned_dep_coordinates or unversioned_dep_coordinates" % key)
 
     if parent:
         # We only want the groupId, artifactID, and version

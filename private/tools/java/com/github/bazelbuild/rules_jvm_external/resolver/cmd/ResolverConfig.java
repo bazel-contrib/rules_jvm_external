@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ResolverConfig {
 
@@ -38,7 +40,8 @@ public class ResolverConfig {
   private final boolean fetchJavadoc;
   private final Netrc netrc;
   private final Path output;
-  private final String inputHash;
+  private final Path dependencyIndexOutput;
+  private final Map<String, Integer> inputHash;
   private final int maxThreads;
 
   public ResolverConfig(EventListener listener, String... args) throws IOException {
@@ -50,7 +53,8 @@ public class ResolverConfig {
     boolean fetchJavadoc = false;
     int maxThreads = DEFAULT_MAX_THREADS;
     Path output = null;
-    String inputHash = null;
+    Path dependencyIndexOutput = null;
+    Path inputHashPath = null;
 
     if (System.getenv("RJE_MAX_THREADS") != null) {
       maxThreads = Integer.parseInt(System.getenv("RJE_MAX_THREADS"));
@@ -64,6 +68,7 @@ public class ResolverConfig {
     }
 
     for (int i = 0; i < args.length; i++) {
+      String bazelWorkspaceDir = System.getenv("BUILD_WORKSPACE_DIRECTORY");
       switch (args[i]) {
         case "--argsfile":
           i++;
@@ -75,9 +80,9 @@ public class ResolverConfig {
           request.addBom(args[i]);
           break;
 
-        case "--input_hash":
+        case "--input-hash-path":
           i++;
-          inputHash = args[i];
+          inputHashPath = Paths.get(args[i]);
           break;
 
         case "--javadocs":
@@ -86,11 +91,20 @@ public class ResolverConfig {
 
         case "--output":
           i++;
-          String bazelWorkspaceDir = System.getenv("BUILD_WORKSPACE_DIRECTORY");
           if (bazelWorkspaceDir == null) {
             output = Paths.get(args[i]);
           } else {
             output = Paths.get(bazelWorkspaceDir).resolve(args[i]);
+          }
+          break;
+
+        case "--dependency-index-output":
+          i++;
+          String workspaceDir = System.getenv("BUILD_WORKSPACE_DIRECTORY");
+          if (workspaceDir == null) {
+            dependencyIndexOutput = Paths.get(args[i]);
+          } else {
+            dependencyIndexOutput = Paths.get(workspaceDir).resolve(args[i]);
           }
           break;
 
@@ -165,12 +179,20 @@ public class ResolverConfig {
                         art.getExtension(),
                         art.getClassifier(),
                         art.getVersion());
-                request.addArtifact(
-                    coords.toString(),
-                    art.getExclusions().stream()
-                        .map(c -> c.getGroupId() + ":" + c.getArtifactId())
-                        .toArray(String[]::new));
+                com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact =
+                    new com.github.bazelbuild.rules_jvm_external.resolver.Artifact(
+                        coords, art.getExclusions(), art.isForceVersion());
+                request.addArtifact(artifact);
               });
+    }
+
+    if (inputHashPath != null) {
+      String rawJson = Files.readString(inputHashPath);
+      Map<String, Integer> json =
+          new Gson().fromJson(rawJson, new TypeToken<Map<String, Integer>>() {}.getType());
+      this.inputHash = new TreeMap<>(json);
+    } else {
+      this.inputHash = null;
     }
 
     if (request.getRepositories().isEmpty()) {
@@ -180,9 +202,9 @@ public class ResolverConfig {
     this.request = request;
     this.fetchSources = fetchSources;
     this.fetchJavadoc = fetchJavadoc;
-    this.inputHash = inputHash;
     this.maxThreads = maxThreads;
     this.output = output;
+    this.dependencyIndexOutput = dependencyIndexOutput;
   }
 
   public ResolutionRequest getResolutionRequest() {
@@ -205,11 +227,15 @@ public class ResolverConfig {
     return maxThreads;
   }
 
-  public String getInputHash() {
+  public Map<String, Integer> getInputHash() {
     return inputHash;
   }
 
   public Path getOutput() {
     return output;
+  }
+
+  public Path getDependencyIndexOutput() {
+    return dependencyIndexOutput;
   }
 }

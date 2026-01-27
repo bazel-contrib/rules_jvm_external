@@ -4,6 +4,7 @@ load(
     "//private/rules:coursier.bzl",
     "compute_dependency_inputs_signature",
     "get_coursier_cache_or_default",
+    "get_direct_dependencies",
     "get_netrc_lines_from_entries",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
@@ -614,10 +615,48 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
 
     asserts.false(env, hash1 == hash2)
     asserts.true(env, old_hashes1[0] == old_hashes2[0])
+    asserts.false(env, old_hashes1[1] == old_hashes2[1])
 
     return unittest.end(env)
 
 calculate_inputs_hash_uses_excluded_artifacts_test = add_test(_calculate_inputs_hash_uses_excluded_artifacts_test)
+
+def _get_direct_dependencies_test_impl(ctx):
+    env = unittest.begin(ctx)
+
+    all_artifacts = [
+        {"coordinates": "com.google.guava:guava:31.0-jre"},
+        {"coordinates": "com.google.code.gson:gson:2.10.1"},
+        {"coordinates": "junit:junit:4.13.2"},
+        {"coordinates": "io.netty:netty-tcnative:2.0.61.Final"},
+        {"coordinates": "io.netty:netty-tcnative:2.0.61.Final:linux-x86_64"},
+        {"coordinates": "com.example:lib:1.0@aar"},
+    ]
+
+    input_artifacts = [
+        # Basic: should resolve to 31.0-jre even though 30.0-jre was requested
+        {"group": "com.google.guava", "artifact": "guava", "version": "30.0-jre"},
+        # Duplicate: same artifact requested again, should be deduplicated
+        {"group": "com.google.guava", "artifact": "guava", "version": "29.0-jre"},
+        # With classifier: should match the linux-x86_64 variant
+        {"group": "io.netty", "artifact": "netty-tcnative", "version": "2.0.60.Final", "classifier": "linux-x86_64"},
+        # With packaging: should match the aar
+        {"group": "com.example", "artifact": "lib", "version": "1.0", "packaging": "aar"},
+        # Missing: should be skipped
+        {"group": "com.example", "artifact": "not-present", "version": "1.0"},
+    ]
+
+    result = get_direct_dependencies(all_artifacts, input_artifacts)
+
+    # Should have 3 results: guava (deduplicated), netty with classifier, and aar
+    asserts.equals(env, 3, len(result))
+    asserts.true(env, "com.google.guava:guava:31.0-jre" in result)
+    asserts.true(env, "io.netty:netty-tcnative:2.0.61.Final:linux-x86_64" in result)
+    asserts.true(env, "com.example:lib:1.0@aar" in result)
+
+    return unittest.end(env)
+
+get_direct_dependencies_test = add_test(_get_direct_dependencies_test_impl)
 
 def coursier_test_suite():
     unittest.suite(

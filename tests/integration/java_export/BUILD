@@ -1,6 +1,11 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
-load("@rules_java//java:defs.bzl", "java_library")
-load("//:defs.bzl", "artifact", "java_export")
+load("@protobuf//bazel:java_proto_library.bzl", "java_proto_library")
+load("@protobuf//bazel:proto_library.bzl", "proto_library")
+load("@rules_java//java:java_binary.bzl", "java_binary")
+load("@rules_java//java:java_library.bzl", "java_library")
+load("@rules_java//java:java_test.bzl", "java_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+load("//:defs.bzl", "artifact", "java_export", "maven_export")
 load("//private/rules:maven_project_jar.bzl", "maven_project_jar")
 
 java_test(
@@ -164,7 +169,7 @@ proto_library(
     name = "example_proto",
     srcs = ["example.proto"],
     deps = [
-        # It's important that we pull our dep from `@com_google_protobuf`
+        # It's important that we pull our dep from `@protobuf`
         "@protobuf//:wrappers_proto",
     ],
 )
@@ -232,4 +237,22 @@ diff_test(
     name = "check-manifest-lines-added",
     file1 = "check-manifest-lines-added-MANIFEST.MF.golden",
     file2 = ":extract-extra-manifest-lines",
+)
+
+java_binary(
+    name = "some-java-binary",
+    srcs = [
+        "Dependency.java",
+        "Main.java",
+    ],
+    main_class = "com.jvm.external.jvm_export.Main",
+    deps = [
+        artifact("com.google.guava:guava"),
+    ],
+)
+
+maven_export(
+    name = "some-java-binary-export",
+    maven_coordinates = "com.example_binary:exe:1.0.0",
+    target = "some-java-binary_deploy.jar",
 )

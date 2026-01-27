@@ -1,5 +1,5 @@
-load("@rules_java//java:defs.bzl", "java_library")
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("//:defs.bzl", "artifact", "java_export")
 
 java_export(
@@ -235,6 +235,50 @@ diff_test(
     file2 = "pom-with-maven-defined-exclusions.golden.xml",
 )
 
+####
+# Test for transitive dependency with maven.artifact() exclusions
+####
+
+# Scenario 1: java_export -> java_export -> guava (with exclusions)
+# The intermediate java_export should have guava with exclusions in ITS pom.
+# The top-level java_export should only have the intermediate library in its pom.
+
+java_export(
+    name = "intermediate-library-export",
+    srcs = ["OtherLibrary.java"],
+    maven_coordinates = "com.example:intermediate:1.0.0",
+    deps = [
+        "@pom_exclusion_testing_coursier//:com_google_guava_guava",
+    ],
+)
+
+# Verify that the intermediate library's POM has guava WITH exclusions
+diff_test(
+    name = "validate-intermediate-library-pom",
+    file1 = ":intermediate-library-export-pom",
+    file2 = "pom-intermediate-library.golden.xml",
+)
+
+java_export(
+    name = "pom-transitive-dep-with-exclusions",
+    srcs = ["PomExample.java"],
+    maven_coordinates = "com.example:app:1.0.0",
+    deps = [
+        ":intermediate-library-export",
+    ],
+)
+
+# Verify that the top-level POM only has the intermediate library (not guava)
+diff_test(
+    name = "validate-pom-transitive-dep-with-exclusions",
+    file1 = ":pom-transitive-dep-with-exclusions-pom",
+    file2 = "pom-transitive-dep-with-exclusions.golden.xml",
+)
+
+# Scenario 2: java_export -> java_library (no maven_coordinates) -> guava
+# The java_library is bundled into the java_export, so guava becomes a
+# direct dependency of the java_export's POM (with exclusions).
+
 java_library(
     name = "other-library",
     srcs = ["OtherLibrary.java"],
@@ -243,13 +287,18 @@ java_library(
     ],
 )
 
-# This is to ensure that the guava dependency appears in the pom.xml with the correct exclusions,
-# even though it is not directly on the java_export, it is on the java_library dep.
 java_export(
-    name = "pom-transitive-exclusion",
+    name = "pom-bundled-dep-with-exclusions",
     srcs = ["PomExample.java"],
     maven_coordinates = "com.example:app:1.0.0",
     deps = [
         ":other-library",
     ],
+)
+
+# Verify that guava (with exclusions) appears in the POM since the helper is bundled
+diff_test(
+    name = "validate-pom-bundled-dep-with-exclusions",
+    file1 = ":pom-bundled-dep-with-exclusions-pom",
+    file2 = "pom-with-maven-defined-exclusions.golden.xml",
 )

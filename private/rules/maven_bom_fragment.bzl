@@ -1,5 +1,6 @@
-load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
+load(":maven_utils.bzl", "process_label_keyed_exclusions")
 
 MavenBomFragmentInfo = provider(
     fields = {
@@ -9,6 +10,7 @@ MavenBomFragmentInfo = provider(
         "javadocs": "The javadocs of the artifact. May be `None`",
         "pom": "The `pom.xml` template file",
         "maven_info": "The `MavenInfo` of `artifact`",
+        "exclusions": "Dict mapping maven coordinates to lists of exclusions (group:artifact format)",
     },
 )
 
@@ -31,6 +33,9 @@ def _maven_bom_fragment_impl(ctx):
     else:
         artifact_jar = None
 
+    # Process exclusions: convert label-keyed dict to coordinates-keyed dict
+    exclusions = process_label_keyed_exclusions(ctx, ctx.attr.exclusions, MavenInfo)
+
     return [
         MavenBomFragmentInfo(
             coordinates = coordinates,
@@ -39,6 +44,7 @@ def _maven_bom_fragment_impl(ctx):
             javadocs = ctx.file.javadoc_artifact,
             pom = ctx.file.pom,
             maven_info = ctx.attr.artifact[MavenInfo],
+            exclusions = exclusions,
         ),
     ]
 
@@ -71,6 +77,13 @@ maven_bom_fragment = rule(
         "pom": attr.label(
             doc = "The pom file of the generated `artifact`",
             allow_single_file = True,
+        ),
+        "exclusions": attr.label_keyed_string_dict(
+            doc = """Mapping of dependency labels to exclusions (as JSON-encoded list of {group, artifact} dicts)""",
+            allow_empty = True,
+            aspects = [
+                has_maven_deps,
+            ],
         ),
     },
     provides = [

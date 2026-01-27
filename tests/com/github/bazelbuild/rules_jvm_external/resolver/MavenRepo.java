@@ -25,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Relocation;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 
 public class MavenRepo {
@@ -124,10 +126,38 @@ public class MavenRepo {
     writePomFile(model);
   }
 
+  /**
+   * Add a POM that declares a relocation from the 'from' coordinates to the 'to' coordinates. This
+   * writes only the POM (no artifact file), which mirrors real-world relocation stubs.
+   */
+  public MavenRepo addRelocation(Coordinates from, Coordinates to) {
+    try {
+      Model model = new Model();
+      model.setModelVersion("4.0.0");
+      model.setGroupId(from.getGroupId());
+      model.setArtifactId(from.getArtifactId());
+      model.setVersion(from.getVersion());
+      // packaging defaults to jar; relocation is specified under distributionManagement
+      DistributionManagement dm = new DistributionManagement();
+      Relocation relocation = new Relocation();
+      relocation.setGroupId(to.getGroupId());
+      relocation.setArtifactId(to.getArtifactId());
+      relocation.setVersion(to.getVersion());
+      dm.setRelocation(relocation);
+      model.setDistributionManagement(dm);
+
+      writePomFile(model);
+      return this;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
   private void writeFile(Coordinates coords) throws IOException {
     Path output = root.resolve(coords.toRepoPath());
-    // We don't read the contents, it just needs to exist
-    Files.write(output, "Hello, World!".getBytes(UTF_8));
+    // Write unique content based on coordinates so different versions have different SHA256 hashes
+    String content = "Artifact: " + coords.toString() + "\n";
+    Files.write(output, content.getBytes(UTF_8));
 
     writeSha1File(output);
   }

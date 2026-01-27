@@ -1,5 +1,19 @@
-load("@rules_java//java:defs.bzl", "java_test")
+load("@rules_java//java:java_test.bzl", "java_test")
 load("@rules_jvm_external//:defs.bzl", "artifact")
+
+java_test(
+    name = "UnresolvedDepsTest",
+    srcs = ["UnresolvedDepsTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.UnresolvedDepsTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+    ],
+)
 
 java_test(
     name = "GradleResolverTest",
