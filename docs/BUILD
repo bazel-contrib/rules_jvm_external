@@ -11,7 +11,7 @@ exports_files(
 stardoc(
     name = "defs",
     out = "defs.md",
-    input = "//:defs.bzl",
+    input = ":defs_docs.bzl",
     symbol_names = [
         "javadoc",
         "java_export",
@@ -24,6 +24,7 @@ stardoc(
         "@bazel_skylib//lib:structs",
         "@bazel_skylib//rules:run_binary",
         "@rules_java//java/private:proto_support",
+        "@rules_pkg//pkg:zip.bzl",
     ],
 )
 
