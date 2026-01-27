@@ -49,4 +49,29 @@ public class ZipUtils {
 
     return builder.build();
   }
+
+  public static Map<String, String> readDirectory(Path dir) throws IOException {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+
+    Files.walk(dir).forEach(path -> {
+      if (Files.isRegularFile(path)) {
+        try {
+          String relativePath = dir.relativize(path).toString().replace('\\', '/');
+          // Try to read as UTF-8, fall back to empty string for binary files
+          String content;
+          try {
+            content = Files.readString(path, UTF_8);
+          } catch (java.nio.charset.MalformedInputException e) {
+            // Binary file, just store an empty string as we mostly care about file existence
+            content = "";
+          }
+          builder.put(relativePath, content);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    return builder.build();
+  }
 }

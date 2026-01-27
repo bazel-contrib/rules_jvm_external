@@ -15,7 +15,7 @@ load("//private/rules:coursier.bzl", "compute_dependency_inputs_signature")
 
 _TEMPLATE = """#!/usr/bin/env bash
 
-{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --input_hash '{input_hash}' --output {output}
+{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --input-hash-path '{input_hash_path}' --output {output}{dependency_index_output}
 """
 
 def _stringify_exclusions(exclusions):
@@ -63,21 +63,32 @@ def _pin_dependencies_impl(ctx):
         content = json.encode_indent(config, indent = "  "),
     )
 
-    input_hash = compute_dependency_inputs_signature(
+    input_hash, _ = compute_dependency_inputs_signature(
         boms = ctx.attr.boms,
         artifacts = ctx.attr.artifacts,
         repositories = ctx.attr.repositories,
         excluded_artifacts = ctx.attr.excluded_artifacts,
     )
 
+    hash_file = ctx.actions.declare_file("%s-input-hash.json" % ctx.label.name)
+    ctx.actions.write(
+        hash_file,
+        content = json.encode_indent(input_hash, indent = "  "),
+    )
+
+    dependency_index_output = ""
+    if ctx.attr.dependency_index:
+        dependency_index_output = " --dependency-index-output $BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.dependency_index
+
     script = ctx.actions.declare_file(ctx.label.name)
     ctx.actions.write(
         script,
         _TEMPLATE.format(
             config = config_file.short_path,
-            input_hash = input_hash[0],
+            input_hash_path = hash_file.short_path,
             resolver_cmd = ctx.executable.resolver.short_path,
             output = "$BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.lock_file,
+            dependency_index_output = dependency_index_output,
             jvm_flags = ctx.attr.jvm_flags,
         ),
         is_executable = True,
@@ -87,7 +98,7 @@ def _pin_dependencies_impl(ctx):
         DefaultInfo(
             executable = script,
             files = depset([script, config_file]),
-            runfiles = ctx.runfiles(files = [script, config_file]).merge(ctx.attr.resolver[DefaultInfo].default_runfiles),
+            runfiles = ctx.runfiles(files = [script, config_file, hash_file]).merge(ctx.attr.resolver[DefaultInfo].default_runfiles),
         ),
     ]
 
@@ -112,6 +123,9 @@ pin_dependencies = rule(
         "lock_file": attr.string(
             doc = "Location of the generated lock file",
             mandatory = True,
+        ),
+        "dependency_index": attr.string(
+            doc = "Location of the generated dependency index file",
         ),
         "jvm_flags": attr.string(
             doc = "JVM flags to pass to resolver",

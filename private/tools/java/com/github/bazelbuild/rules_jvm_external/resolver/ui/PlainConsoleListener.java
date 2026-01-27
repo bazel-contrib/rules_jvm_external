@@ -29,7 +29,9 @@ public class PlainConsoleListener implements EventListener {
     if (event instanceof DownloadEvent) {
       DownloadEvent de = (DownloadEvent) event;
       if (de.getStage() == STARTING) {
-        System.err.println("Downloading: " + de.getTarget());
+        String method = de.getMethod();
+        String prefix = method != null ? method + " " : "";
+        System.err.println(prefix + de.getTarget());
       }
     }
 

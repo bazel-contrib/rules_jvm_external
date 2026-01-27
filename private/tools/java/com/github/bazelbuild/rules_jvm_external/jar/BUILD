@@ -1,4 +1,5 @@
-load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_java//java:java_binary.bzl", "java_binary")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_binary(
@@ -60,27 +61,3 @@ java_binary(
     ],
 )
 
-java_library(
-    name = "create_jar_lib",
-    srcs = ["CreateJar.java"],
-    visibility = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:__pkg__",
-        "//tests/com/github/bazelbuild/rules_jvm_external/jar:__pkg__",
-        "//tests/com/github/bazelbuild/rules_jvm_external/javadoc:__pkg__",
-    ],
-    deps = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
-    ],
-)
-
-java_binary(
-    name = "CreateJar",
-    main_class = "com.github.bazelbuild.rules_jvm_external.jar.CreateJar",
-    visibility = [
-        "//visibility:public",
-    ],
-    runtime_deps = [
-        ":create_jar_lib",
-    ],
-)

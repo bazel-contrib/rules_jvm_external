@@ -2,7 +2,7 @@ load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_android//android:rules.bzl", "aar_import")
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//tests/integration:is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 
@@ -84,4 +84,17 @@ diff_test(
     file2 = ":root_module_can_override_sorted.txt",
     # This test only makes sense if we're running with `bzlmod` enabled
     tags = [] if is_bzlmod_enabled() else ["manual"],
+)
+
+genquery(
+    name = "verify_visibility_query",
+    expression = "@root_module_can_override//:com_squareup_okio_okio",
+    scope = ["@root_module_can_override//:com_squareup_okio_okio"],
+)
+
+sh_test(
+    name = "verify_visibility_test",
+    srcs = ["verify_visibility.sh"],
+    args = ["$(location :verify_visibility_query)"],
+    data = [":verify_visibility_query"],
 )

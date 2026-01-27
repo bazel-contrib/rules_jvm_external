@@ -31,7 +31,6 @@ import com.google.common.collect.Streams;
 import com.google.common.io.Files;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +47,10 @@ import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentSelector;
+import org.gradle.api.artifacts.query.ArtifactResolutionQuery;
+import org.gradle.api.artifacts.result.ArtifactResolutionResult;
+import org.gradle.api.artifacts.result.ArtifactResult;
+import org.gradle.api.artifacts.result.ComponentArtifactsResult;
 import org.gradle.api.artifacts.result.ComponentSelectionReason;
 import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolutionResult;
@@ -58,6 +61,8 @@ import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.maven.MavenModule;
+import org.gradle.maven.MavenPomArtifact;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
 
 /**
@@ -106,10 +111,26 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     // Create a configuration to resolve android dependencies (it can be used for other platforms
     // in the future as well like Kotlin multiplatform).
+    List<Dependency> detachedDeps = new ArrayList<>(unresolvedDependencies);
+
+    // Add all declared dependencies to the detached configuration to ensure we have
+    // all necessary BOMs/platforms and constraints available for resolution.
+    // This is critical for dependencies that rely on BOMs for versioning.
+    detachedDeps.addAll(cfg.getAllDependencies());
+
     Configuration detachedCfg =
-        project
-            .getConfigurations()
-            .detachedConfiguration(unresolvedDependencies.toArray(new Dependency[0]));
+        project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
+    // Ensure the detached configuration respects the same exclude rules as the original
+    // configuration
+    if (!cfg.getExcludeRules().isEmpty()) {
+      // Ensure excludes are applied to the detached config
+      for (org.gradle.api.artifacts.ExcludeRule rule : cfg.getExcludeRules()) {
+        detachedCfg.exclude(
+            java.util.Map.of(
+                "group", rule.getGroup(),
+                "module", rule.getModule()));
+      }
+    }
 
     // build the updated dependency graph with the detached configuration for all the
     // dependencies that we couldn't resolve with the default configuration
@@ -145,16 +166,27 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     for (Dependency dependency : cfg.getAllDependencies()) {
       if (dependency instanceof ModuleDependency) {
         ModuleDependency externalDependency = (ModuleDependency) dependency;
-        for (DependencyArtifact artifact : externalDependency.getArtifacts()) {
-          GradleDependency dep =
+        if (externalDependency.getArtifacts().isEmpty()) {
+          dependencies.add(
               new GradleDependencyImpl(
                   externalDependency.getGroup(),
                   externalDependency.getName(),
                   externalDependency.getVersion(),
                   null,
-                  artifact.getClassifier(),
-                  artifact.getExtension());
-          dependencies.add(dep);
+                  null,
+                  null));
+        } else {
+          for (DependencyArtifact artifact : externalDependency.getArtifacts()) {
+            GradleDependency dep =
+                new GradleDependencyImpl(
+                    externalDependency.getGroup(),
+                    externalDependency.getName(),
+                    externalDependency.getVersion(),
+                    null,
+                    artifact.getClassifier(),
+                    artifact.getExtension());
+            dependencies.add(dep);
+          }
         }
       }
     }
@@ -186,6 +218,14 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     for (DependencyResult dep : root.getDependencies()) {
       if (dep instanceof ResolvedDependencyResult) {
         ResolvedDependencyResult rdep = (ResolvedDependencyResult) dep;
+        if (isVerbose()) {
+          System.err.println(
+              "  RESOLVED ROOT: "
+                  + rdep.getSelected().getId()
+                  + " (from "
+                  + rdep.getRequested()
+                  + ")");
+        }
         ResolvedComponentResult selected = rdep.getSelected();
         // we don't want to recurse through a BOM's artifacts
         // as they wil be explicitly specified
@@ -218,6 +258,20 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         UnresolvedDependencyResult rdep = (UnresolvedDependencyResult) dep;
         ModuleComponentSelector selector = (ModuleComponentSelector) rdep.getAttempted();
         Throwable failure = rdep.getFailure();
+
+        if (isVerbose()) {
+          System.err.println(
+              "UNRESOLVED in "
+                  + cfg.getName()
+                  + ": "
+                  + selector.getGroup()
+                  + ":"
+                  + selector.getModule()
+                  + ":"
+                  + selector.getVersion()
+                  + " Reason: "
+                  + failure);
+        }
 
         GradleUnresolvedDependency.FailureReason reason =
             GradleUnresolvedDependency.FailureReason.INTERNAL;
@@ -327,8 +381,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
   }
 
   // The ArtifactView api doesn't provide a way to obtain the classifier (the legacy API does but it
-  // doesn't provide a way to obtain additional artifacts
-  // like javadoc/sources from what I can tell
+  // doesn't provide a way to obtain additional artifacts like javadoc/sources from what I can tell
   // so we interpolate the classifier based on the artifact file
   private String extractClassifier(File file, ComponentIdentifier id) {
     if (!(id instanceof ModuleComponentIdentifier)) {
@@ -366,7 +419,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Map<Coordinates, GradleResolvedDependency> coordinatesMap,
       List<GradleDependency> declaredDeps) {
 
-    ArtifactView jars =
+    // Collect JAR artifacts - we need to check both JAVA_API and JAVA_RUNTIME because some
+    // libraries (like resilience4j) only publish runtime variants, while others might only
+    // have API variants. We'll collect from both and merge them.
+    ArtifactView apiJars =
         runtimeClassPathCfg
             .getIncoming()
             .artifactView(
@@ -379,8 +435,22 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                               project.getObjects().named(Usage.class, Usage.JAVA_API)));
                 });
 
-    // collect JAR artifacts
-    collectArtifactsFromArtifactView(jars, coordinatesMap);
+    ArtifactView runtimeJars =
+        runtimeClassPathCfg
+            .getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true);
+                  spec.attributes(
+                      attrs ->
+                          attrs.attribute(
+                              Usage.USAGE_ATTRIBUTE,
+                              project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)));
+                });
+
+    // collect JAR artifacts from both views
+    collectArtifactsFromArtifactView(apiJars, coordinatesMap);
+    collectArtifactsFromArtifactView(runtimeJars, coordinatesMap);
 
     ArtifactView aarView =
         detachedCfg
@@ -403,10 +473,41 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // Collect Android artifacts  (AARs)
     collectArtifactsFromArtifactView(aarView, coordinatesMap);
 
+    // Also collect JARs from the detached configuration, as it contains resolved versions
+    // of dependencies that failed in the main runtimeClasspath (e.g. due to missing versions
+    // provided by BOMs)
+    ArtifactView detachedApiJars =
+        detachedCfg
+            .getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true);
+                  spec.attributes(
+                      attrs ->
+                          attrs.attribute(
+                              Usage.USAGE_ATTRIBUTE,
+                              project.getObjects().named(Usage.class, Usage.JAVA_API)));
+                });
+    ArtifactView detachedRuntimeJars =
+        detachedCfg
+            .getIncoming()
+            .artifactView(
+                spec -> {
+                  spec.setLenient(true);
+                  spec.attributes(
+                      attrs ->
+                          attrs.attribute(
+                              Usage.USAGE_ATTRIBUTE,
+                              project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)));
+                });
+    collectArtifactsFromArtifactView(detachedApiJars, coordinatesMap);
+    collectArtifactsFromArtifactView(detachedRuntimeJars, coordinatesMap);
+
     // Collect POM files explicitly as gradle doesn't fetch them unless requested
     collectPOMsForAllComponents(project, resolvedRoots, coordinatesMap, declaredDeps);
-    // Request artifacts which have conflicts so asto record them in the graph
-    collectConflictingVersionArtifacts(project, coordinatesMap);
+    // Don't collect conflicting version artifacts - we only need artifacts for the resolved graph
+    // The conflicts are tracked for reporting purposes only, we don't need to download rejected
+    // versions
   }
 
   private void collectConflictingVersionArtifacts(
@@ -415,7 +516,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     for (Map.Entry<Coordinates, GradleResolvedDependency> entry :
         coordinatesGradleResolvedDependencyMap.entrySet()) {
       GradleResolvedDependency dependency = entry.getValue();
-      if (dependency.getRequestedVersions().size() > 1) {
+      // Skip if no conflicts, or if dependency already has artifacts from main resolution
+      // (collecting via detached config would bypass resolutionStrategy and override force_version)
+      if (dependency.getRequestedVersions().size() <= 1) {
+        continue;
+      }
+      if (!dependency.getArtifacts().isEmpty()) {
+        continue; // Already has artifacts, don't re-resolve in detached config
+      }
+      {
         dependency
             .getRequestedVersions()
             .forEach(
@@ -472,8 +581,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
         GradleResolvedDependency resolvedDependency =
             coordinatesGradleResolvedDependencyMap.get(coordinates);
-        synchronized (resolvedDependency) {
-          resolvedDependency.addArtifact(resolvedArtifact);
+        if (resolvedDependency != null) {
+          synchronized (resolvedDependency) {
+            resolvedDependency.addArtifact(resolvedArtifact);
+          }
         }
       }
     }
@@ -485,22 +596,20 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Map<Coordinates, GradleResolvedDependency> coordinatesResolvedDependencyMap,
       List<GradleDependency> declaredDeps) {
 
-    List<Dependency> pomDependencies = new ArrayList<>();
-    Map<Coordinates, Coordinates> moduleToRequestedCoordinates = new HashMap<>();
+    ArtifactResolutionQuery query = project.getDependencies().createArtifactResolutionQuery();
+    query.withArtifacts(MavenModule.class, MavenPomArtifact.class);
 
-    // We need to request POMs for all deps including transitive deps when we request
-    // a coordinate with explicit extension, as transitive poms aren't fetched by default
+    boolean hasItems = false;
     for (GradleResolvedDependency dependency : coordinatesResolvedDependencyMap.values()) {
-      Coordinates coordinates =
-          new Coordinates(
-              dependency.getGroup() + ":" + dependency.getName() + ":" + dependency.getVersion());
-
       boolean isDeclaredWithExplicitExtension =
           declaredDeps.stream()
               .anyMatch(
                   declaredDep ->
-                      declaredDep.getGroup().equals(dependency.getGroup())
+                      declaredDep.getGroup() != null
+                          && declaredDep.getGroup().equals(dependency.getGroup())
+                          && declaredDep.getArtifact() != null
                           && declaredDep.getArtifact().equals(dependency.getName())
+                          && declaredDep.getVersion() != null
                           && declaredDep.getVersion().equals(dependency.getVersion())
                           && declaredDep.getExtension() != null);
 
@@ -508,56 +617,43 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         continue;
       }
 
-      Dependency dep = project.getDependencies().create(coordinates + "@pom");
-      pomDependencies.add(dep);
-      moduleToRequestedCoordinates.put(coordinates, coordinates);
+      query.forModule(dependency.getGroup(), dependency.getName(), dependency.getVersion());
+      hasItems = true;
     }
 
-    if (pomDependencies.isEmpty()) {
+    if (!hasItems) {
       return;
     }
 
-    Configuration batchedPomCfg =
-        project
-            .getConfigurations()
-            .detachedConfiguration(pomDependencies.toArray(new Dependency[0]));
+    ArtifactResolutionResult result = query.execute();
 
-    ArtifactView view =
-        batchedPomCfg
-            .getIncoming()
-            .artifactView(
-                spec -> {
-                  spec.setLenient(true); // tolerate missing POMs
-                });
-
-    for (ResolvedArtifactResult artifact : view.getArtifacts().getArtifacts()) {
-      ComponentIdentifier id = artifact.getId().getComponentIdentifier();
+    for (ComponentArtifactsResult component : result.getResolvedComponents()) {
+      ComponentIdentifier id = component.getId();
       if (!(id instanceof ModuleComponentIdentifier)) {
         continue;
       }
-
       ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
-      Coordinates moduleCoordinates =
+      Coordinates coordinates =
           new Coordinates(module.getGroup() + ":" + module.getModule() + ":" + module.getVersion());
 
-      Coordinates requestedKey = moduleToRequestedCoordinates.get(moduleCoordinates);
-      if (requestedKey == null) {
-        continue;
-      }
-
       GradleResolvedDependency resolvedDependency =
-          coordinatesResolvedDependencyMap.get(requestedKey);
+          coordinatesResolvedDependencyMap.get(coordinates);
       if (resolvedDependency == null) {
         continue;
       }
 
-      GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
-      resolvedArtifact.setFile(artifact.getFile());
-      if (artifact.getFile() != null) {
-        String packaging = PomUtil.extractPackagingFromPom(artifact.getFile());
-        resolvedArtifact.setExtension(mapPackagingToExtension(packaging));
+      for (ArtifactResult artifact : component.getArtifacts(MavenPomArtifact.class)) {
+        if (artifact instanceof ResolvedArtifactResult) {
+          ResolvedArtifactResult resolvedArtifactResult = (ResolvedArtifactResult) artifact;
+          if (resolvedArtifactResult.getFile() != null) {
+            GradleResolvedArtifact resolvedArtifact = new GradleResolvedArtifactImpl();
+            resolvedArtifact.setFile(resolvedArtifactResult.getFile());
+            String packaging = PomUtil.extractPackagingFromPom(resolvedArtifactResult.getFile());
+            resolvedArtifact.setExtension(mapPackagingToExtension(packaging));
+            resolvedDependency.addArtifact(resolvedArtifact);
+          }
+        }
       }
-      resolvedDependency.addArtifact(resolvedArtifact);
     }
   }
 

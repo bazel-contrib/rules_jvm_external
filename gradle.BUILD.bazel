@@ -1,4 +1,5 @@
-load("@rules_java//java:defs.bzl", "java_import", "java_library")
+load("@rules_java//java:java_import.bzl", "java_import")
+load("@rules_java//java:java_library.bzl", "java_library")
 
 java_library(
     name = "gradle",
@@ -14,7 +15,7 @@ java_import(
     name = "gradle-runtime-jars",
     # gradle distribution brings in a incompatible version of jansi (1.x) while we use 2.x
     # so exclude it
-    jars = glob(["gradle-bin/lib/*.jar"], exclude = ["gradle-bin/lib/jansi-1.18.jar"]),
+    jars = glob(["gradle-bin/lib/*.jar", "gradle-bin/lib/plugins/*.jar"], exclude = ["gradle-bin/lib/jansi-1.18.jar"]),
     visibility = ["//visibility:public"],
 )
 

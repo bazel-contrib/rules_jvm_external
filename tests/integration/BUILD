@@ -1,5 +1,5 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("//:defs.bzl", "artifact")
 load(":is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 
@@ -27,6 +27,7 @@ genquery(
         "@testonly_testing//:com_google_auto_value_auto_value_annotations_1_6_3",
         "@testonly_testing//:com_google_auto_value_auto_value_annotations",
         "@testonly_testing//:defs",
+        "@testonly_testing//:direct_deps",
         "@testonly_testing//:outdated",
         "@testonly_testing//:pin",
     ],

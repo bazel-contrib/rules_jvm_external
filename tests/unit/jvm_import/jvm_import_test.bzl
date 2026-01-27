@@ -119,7 +119,7 @@ def _does_jvm_import_export_a_package_provider_impl(ctx):
 
     asserts.true(env, PackageInfo in ctx.attr.src)
     package_info = ctx.attr.src[PackageInfo]
-    asserts.equals(env, "pkg:maven/com.google.code.findbugs:jsr305@3.0.2", package_info.purl)
+    asserts.equals(env, "pkg:maven/com.google.code.findbugs/jsr305@3.0.2", package_info.purl)
 
     # The metadata is applied directly to the target in this case, so there should
     # not be any transitive metadata. Apparently.

@@ -13,12 +13,13 @@ maven.artifact(<a href="#maven.artifact-name">name</a>, <a href="#maven.artifact
                <a href="#maven.artifact-testonly">testonly</a>, <a href="#maven.artifact-version">version</a>)
 maven.from_toml(<a href="#maven.from_toml-name">name</a>, <a href="#maven.from_toml-bom_modules">bom_modules</a>, <a href="#maven.from_toml-libs_versions_toml">libs_versions_toml</a>)
 maven.install(<a href="#maven.install-name">name</a>, <a href="#maven.install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven.install-additional_coursier_options">additional_coursier_options</a>, <a href="#maven.install-additional_netrc_lines">additional_netrc_lines</a>,
-              <a href="#maven.install-artifacts">artifacts</a>, <a href="#maven.install-boms">boms</a>, <a href="#maven.install-duplicate_version_warning">duplicate_version_warning</a>, <a href="#maven.install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven.install-exclusions">exclusions</a>,
-              <a href="#maven.install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven.install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven.install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven.install-fetch_sources">fetch_sources</a>,
-              <a href="#maven.install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven.install-ignore_empty_files">ignore_empty_files</a>, <a href="#maven.install-known_contributing_modules">known_contributing_modules</a>, <a href="#maven.install-lock_file">lock_file</a>,
-              <a href="#maven.install-repin_instructions">repin_instructions</a>, <a href="#maven.install-repositories">repositories</a>, <a href="#maven.install-resolve_timeout">resolve_timeout</a>, <a href="#maven.install-resolver">resolver</a>, <a href="#maven.install-strict_visibility">strict_visibility</a>,
-              <a href="#maven.install-strict_visibility_value">strict_visibility_value</a>, <a href="#maven.install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>,
-              <a href="#maven.install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven.install-version_conflict_policy">version_conflict_policy</a>)
+              <a href="#maven.install-artifacts">artifacts</a>, <a href="#maven.install-boms">boms</a>, <a href="#maven.install-dependency_index">dependency_index</a>, <a href="#maven.install-duplicate_version_warning">duplicate_version_warning</a>, <a href="#maven.install-excluded_artifacts">excluded_artifacts</a>,
+              <a href="#maven.install-exclusions">exclusions</a>, <a href="#maven.install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven.install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven.install-fetch_javadoc">fetch_javadoc</a>,
+              <a href="#maven.install-fetch_sources">fetch_sources</a>, <a href="#maven.install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven.install-ignore_empty_files">ignore_empty_files</a>,
+              <a href="#maven.install-known_contributing_modules">known_contributing_modules</a>, <a href="#maven.install-lock_file">lock_file</a>, <a href="#maven.install-repin_instructions">repin_instructions</a>, <a href="#maven.install-repositories">repositories</a>,
+              <a href="#maven.install-resolve_timeout">resolve_timeout</a>, <a href="#maven.install-resolver">resolver</a>, <a href="#maven.install-strict_visibility">strict_visibility</a>, <a href="#maven.install-strict_visibility_value">strict_visibility_value</a>,
+              <a href="#maven.install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>, <a href="#maven.install-use_starlark_android_rules">use_starlark_android_rules</a>,
+              <a href="#maven.install-version_conflict_policy">version_conflict_policy</a>)
 maven.override(<a href="#maven.override-name">name</a>, <a href="#maven.override-coordinates">coordinates</a>, <a href="#maven.override-target">target</a>)
 </pre>
 
@@ -88,11 +89,12 @@ Combines artifact and bom declarations with setting the location of lock files t
 | Name  | Description | Type | Mandatory | Default |
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="maven.install-name"></a>name |  -   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | optional |  `"maven"`  |
-| <a id="maven.install-aar_import_bzl_label"></a>aar_import_bzl_label |  The label (as a string) to use to import aar_import from   | String | optional |  `"@build_bazel_rules_android//android:rules.bzl"`  |
+| <a id="maven.install-aar_import_bzl_label"></a>aar_import_bzl_label |  The label (as a string) to use to import aar_import from   | String | optional |  `"@rules_android//rules:rules.bzl"`  |
 | <a id="maven.install-additional_coursier_options"></a>additional_coursier_options |  Additional options that will be passed to coursier.   | List of strings | optional |  `[]`  |
 | <a id="maven.install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).   | List of strings | optional |  `[]`  |
 | <a id="maven.install-artifacts"></a>artifacts |  Maven artifact tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
 | <a id="maven.install-boms"></a>boms |  Maven BOM tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
+| <a id="maven.install-dependency_index"></a>dependency_index |  If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`.   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 | <a id="maven.install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if there are duplicate artifacts<br><br>If "error", then print a message and fail the build. If "warn", then print a warning and continue. If "none", then do nothing.   | String | optional |  `"warn"`  |
 | <a id="maven.install-excluded_artifacts"></a>excluded_artifacts |  Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs   | List of strings | optional |  `[]`  |
 | <a id="maven.install-exclusions"></a>exclusions |  Maven artifact tuples, in `artifactId:groupId` format   | List of strings | optional |  `[]`  |

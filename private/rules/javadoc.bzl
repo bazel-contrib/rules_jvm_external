@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
 
 _JavadocInfo = provider(
@@ -20,6 +20,7 @@ _DEFAULT_JAVADOCOPTS = [
 def generate_javadoc(
         ctx,
         javadoc,
+        zipper,
         source_jars,
         classpath,
         javadocopts,
@@ -32,7 +33,10 @@ def generate_javadoc(
     transitive_inputs = []
     args = ctx.actions.args()
 
-    args.add("--out", output)
+    # Declare a tree artifact (directory) for javadoc output
+    javadoc_dir = ctx.actions.declare_directory("%s_javadoc_files" % ctx.attr.name)
+
+    args.add("--out", javadoc_dir.path)
     args.add("--element-list", element_list)
 
     args.add_all(source_jars, before_each = "--in")
@@ -60,12 +64,35 @@ def generate_javadoc(
     ]
     args.add_all(javadocopts)
 
+    # Run JavadocJarMaker to generate documentation to a directory
     ctx.actions.run(
         executable = javadoc,
-        outputs = [output, element_list],
+        outputs = [javadoc_dir, element_list],
         inputs = depset(inputs, transitive = transitive_inputs),
         arguments = [args],
     )
+
+    # Use zipper to create a JAR from the directory.
+    # We need to use a param file approach since tree artifacts don't provide
+    # a file listing directly.
+    zipper_args = ctx.actions.args()
+    zipper_args.add("c")
+    zipper_args.add(output)
+    zipper_args.add_all([javadoc_dir], map_each = _zipper_tree_artifact_args, expand_directories = True)
+
+    ctx.actions.run(
+        executable = zipper,
+        outputs = [output],
+        inputs = [javadoc_dir],
+        arguments = [zipper_args],
+        mnemonic = "Javadoc",
+        progress_message = "Creating javadoc jar %s" % output.short_path,
+    )
+
+def _zipper_tree_artifact_args(f):
+    # Format: zip_path=file_path
+    # We need to strip the tree artifact prefix to get the relative path
+    return "{}={}".format(f.tree_relative_path, f.path)
 
 def _javadoc_impl(ctx):
     sources = []
@@ -93,6 +120,7 @@ def _javadoc_impl(ctx):
     generate_javadoc(
         ctx,
         ctx.executable._javadoc,
+        ctx.executable._zipper,
         sources,
         classpath,
         ctx.attr.javadocopts,
@@ -190,6 +218,11 @@ javadoc = rule(
         ),
         "_javadoc": attr.label(
             default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:javadoc",
+            cfg = "exec",
+            executable = True,
+        ),
+        "_zipper": attr.label(
+            default = "@bazel_tools//tools/zip:zipper",
             cfg = "exec",
             executable = True,
         ),

@@ -39,6 +39,9 @@ import com.google.common.graph.MutableGraph;
 import com.google.common.hash.Hashing;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -55,6 +58,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Relocation;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /** The implementation for the Gradle resolver */
 @AutoBazelRepository
@@ -154,11 +162,21 @@ public class GradleResolver implements Resolver {
       throws GradleDependencyResolutionException {
     MutableGraph<Coordinates> graph = GraphBuilder.directed().allowsSelfLoops(true).build();
 
+    // Create lookup cache for requested dependencies
+    Set<String> requestedDepKeys =
+        requestedDeps.stream()
+            .map(dep -> makeDepKey(dep.getGroup(), dep.getArtifact(), dep.getVersion()))
+            .collect(Collectors.toSet());
+
     Set<Conflict> conflicts = new HashSet<>();
+    Map<Coordinates, String> coordinateHashes = new HashMap<>();
+    // Track artifacts per node so we can inspect POM files for relocation later
+    Map<Coordinates, List<GradleResolvedArtifact>> artifactsByNode = new HashMap<>();
+    Map<Coordinates, Path> paths = new HashMap<>();
     List<GradleResolvedDependency> implementationDependencies = resolved.getResolvedDependencies();
     List<GradleUnresolvedDependency> unresolvedDependencies = resolved.getUnresolvedDependencies();
     if (implementationDependencies == null) {
-      return new ResolutionResult(graph, null);
+      return new ResolutionResult(graph, Set.of(), Map.of());
     }
 
     for (GradleResolvedDependency dependency : implementationDependencies) {
@@ -172,10 +190,11 @@ public class GradleResolver implements Resolver {
                 artifact.getClassifier(),
                 artifact.getExtension());
         String extension = gradleCoordinates.getExtension();
-        if (extension != null && extension.equals("pom")) {
-          extension = null;
-        }
         String classifier = gradleCoordinates.getClassifier();
+        // POM artifacts should not generate their own node; coerce to JAR for node identity
+        if ("pom".equals(extension)) {
+          extension = null; // Coordinates() will default to jar
+        }
         Coordinates coordinates =
             new Coordinates(
                 gradleCoordinates.getGroupId(),
@@ -183,10 +202,21 @@ public class GradleResolver implements Resolver {
                 extension,
                 classifier,
                 gradleCoordinates.getVersion());
-        addDependency(graph, coordinates, dependency, conflicts, requestedDeps, visited);
+        // Track artifact for this node
+        artifactsByNode.computeIfAbsent(coordinates, k -> new ArrayList<>()).add(artifact);
+
+        File artifactFile = artifact.getFile();
+        if (artifactFile != null && artifactFile.exists()) {
+          paths.put(coordinates, artifactFile.toPath());
+        }
+
+        addDependency(
+            graph, coordinates, dependency, conflicts, requestedDepKeys, visited, artifactsByNode);
         // if there's a conflict and the conflicting version isn't one that's actually requested
         // then it's an actual conflict we want to report
-        if (dependency.isConflict() && !isRequestedDep(requestedDeps, dependency)) {
+        if (dependency.isConflict()
+            && !requestedDepKeys.contains(
+                makeDepKey(dependency.getGroup(), dependency.getName(), dependency.getVersion()))) {
           String conflictingVersion =
               dependency.getRequestedVersions().stream()
                   .filter(x -> !x.equals(coordinates.getVersion()))
@@ -211,6 +241,15 @@ public class GradleResolver implements Resolver {
       }
     }
 
+    // Capture the set of successfully resolved group:artifact pairs BEFORE adding unresolved
+    // dependencies to the graph. This allows us to determine if an "unresolved" dependency
+    // was actually resolved at a different version (e.g., due to BOM constraints or version
+    // conflict resolution).
+    Set<String> resolvedGroupArtifacts =
+        graph.nodes().stream()
+            .map(c -> c.getGroupId() + ":" + c.getArtifactId())
+            .collect(Collectors.toSet());
+
     for (GradleUnresolvedDependency dependency : unresolvedDependencies) {
       Coordinates coordinates =
           new Coordinates(
@@ -232,35 +271,64 @@ public class GradleResolver implements Resolver {
 
     // If any of the deps we requested failed to resolve, we should throw an exception.
     // For missing transitive deps, we only appear to log a warning in the maven, so keep that
-    // behavior here as well
+    // behavior here as well.
     List<GradleUnresolvedDependency> unresolvedRequestedDeps =
-        unresolvedDependencies.stream()
-            .filter(dep -> isRequestedDep(requestedDeps, dep))
-            .collect(Collectors.toList());
+        filterUnresolvedRequestedDeps(
+            unresolvedDependencies, requestedDepKeys, resolvedGroupArtifacts);
     if (!unresolvedRequestedDeps.isEmpty()) {
       throw new GradleDependencyResolutionException(unresolvedRequestedDeps);
     }
-    return new ResolutionResult(graph, conflicts);
+
+    // After building the graph, contract relocation stubs (keep aggregating POMs)
+    collapseRelocations(graph, coordinateHashes, conflicts, paths, artifactsByNode);
+
+    // Collapse aggregating dependencies (dependencies with only classified artifacts)
+    collapseAggregatingDependencies(graph, paths, artifactsByNode);
+
+    // Populate paths for all nodes in the final graph from collected artifacts
+    for (Map.Entry<Coordinates, List<GradleResolvedArtifact>> entry : artifactsByNode.entrySet()) {
+      Coordinates coords = entry.getKey();
+      if (!graph.nodes().contains(coords)) {
+        continue; // Only process nodes in the final graph
+      }
+
+      File bestFile = null;
+      // Prefer jar/aar with name matching artifactId-version to avoid picking wrong version
+      for (GradleResolvedArtifact artifact : entry.getValue()) {
+        File file = artifact.getFile();
+        if (file == null || !file.exists()) {
+          continue;
+        }
+        String name = file.getName();
+        boolean isJarOrAar = name.endsWith(".jar") || name.endsWith(".aar");
+        if (isJarOrAar && name.contains(coords.getArtifactId() + "-" + coords.getVersion())) {
+          bestFile = file;
+          break;
+        }
+      }
+      // Fallback: any existing file (including pom)
+      if (bestFile == null) {
+        for (GradleResolvedArtifact artifact : entry.getValue()) {
+          File file = artifact.getFile();
+          if (file != null && file.exists()) {
+            bestFile = file;
+            break;
+          }
+        }
+      }
+      if (bestFile != null) {
+        paths.put(coords, bestFile.toPath());
+      }
+    }
+
+    // Only include paths for coordinates that are actually in the final resolved graph
+    paths.keySet().retainAll(graph.nodes());
+
+    return new ResolutionResult(graph, conflicts, paths);
   }
 
-  private boolean isRequestedDep(
-      List<GradleDependency> requestedDeps, GradleResolvedDependency resolved) {
-    return requestedDeps.stream()
-        .anyMatch(
-            dep ->
-                dep.getArtifact().equals(resolved.getName())
-                    && dep.getGroup().equals(resolved.getGroup())
-                    && dep.getVersion().equals(resolved.getVersion()));
-  }
-
-  private boolean isRequestedDep(
-      List<GradleDependency> requestedDeps, GradleUnresolvedDependency unresolved) {
-    return requestedDeps.stream()
-        .anyMatch(
-            dep ->
-                dep.getArtifact().equals(unresolved.getName())
-                    && dep.getGroup().equals(unresolved.getGroup())
-                    && dep.getVersion().equals(unresolved.getVersion()));
+  private String makeDepKey(String group, String artifact, String version) {
+    return group + ":" + artifact + ":" + version;
   }
 
   private void addDependency(
@@ -268,8 +336,9 @@ public class GradleResolver implements Resolver {
       Coordinates parent,
       GradleResolvedDependency parentInfo,
       Set<Conflict> conflicts,
-      List<GradleDependency> requestedDeps,
-      Set<Coordinates> visited) {
+      Set<String> requestedDepKeys,
+      Set<Coordinates> visited,
+      Map<Coordinates, List<GradleResolvedArtifact>> artifactsByNode) {
     if (visited.contains(parent)) {
       return;
     }
@@ -287,8 +356,9 @@ public class GradleResolver implements Resolver {
                   childArtifact.getClassifier(),
                   childArtifact.getExtension());
           String extension = childArtifact.getExtension();
-          if (extension != null && extension.equals("pom")) {
-            extension = null;
+          // POM artifacts should not generate their own node; coerce to JAR for node identity
+          if ("pom".equals(extension)) {
+            extension = null; // Coordinates() will default to jar
           }
           Coordinates child =
               new Coordinates(
@@ -297,11 +367,15 @@ public class GradleResolver implements Resolver {
                   extension,
                   childCoordinates.getClassifier(),
                   childCoordinates.getVersion());
+          // Track artifact for child node
+          artifactsByNode.computeIfAbsent(child, k -> new ArrayList<>()).add(childArtifact);
           graph.addNode(child);
           graph.putEdge(parent, child);
           // if there's a conflict and the conflicting version isn't one that's actually requested
           // then it's an actual conflict we want to report
-          if (childInfo.isConflict() && !isRequestedDep(requestedDeps, childInfo)) {
+          if (childInfo.isConflict()
+              && !requestedDepKeys.contains(
+                  makeDepKey(childInfo.getGroup(), childInfo.getName(), childInfo.getVersion()))) {
             String conflictingVersion =
                 childInfo.getRequestedVersions().stream()
                     .filter(x -> !x.equals(child.getVersion()))
@@ -328,10 +402,238 @@ public class GradleResolver implements Resolver {
               child,
               childInfo,
               conflicts,
-              requestedDeps,
-              visited); // recursively traverse the graph
+              requestedDepKeys,
+              visited,
+              artifactsByNode); // recursively traverse the graph
         }
       }
+    }
+  }
+
+  private void collapseRelocations(
+      MutableGraph<Coordinates> graph,
+      Map<Coordinates, String> coordinateHashes,
+      Set<Conflict> conflicts,
+      Map<Coordinates, Path> paths,
+      Map<Coordinates, List<GradleResolvedArtifact>> artifactsByNode) {
+    List<Coordinates> toRemove = new ArrayList<>();
+
+    for (Coordinates node : graph.nodes()) {
+      List<GradleResolvedArtifact> artifacts = artifactsByNode.get(node);
+      if (artifacts == null || artifacts.isEmpty()) {
+        continue;
+      }
+
+      File pomFile = null;
+      for (GradleResolvedArtifact a : artifacts) {
+        File f = a.getFile();
+        if (f != null && f.getName().endsWith(".pom")) {
+          pomFile = f;
+          break;
+        }
+      }
+      if (pomFile == null) {
+        continue; // no POM attached => cannot determine relocation
+      }
+
+      // Check for relocation in the POM
+      Coordinates target = readRelocationTarget(pomFile, node);
+      if (target == null) {
+        continue; // aggregator or normal module, keep as-is
+      }
+
+      // Find the target node in the graph by matching G:A:V (ignore classifier/extension)
+      // If the exact version isn't found, look for any version of the same artifact
+      // since relocation means the artifact has moved regardless of version
+      Coordinates targetNode = null;
+      Coordinates targetNodeAnyVersion = null;
+
+      for (Coordinates candidate : graph.nodes()) {
+        if (candidate.getGroupId().equals(target.getGroupId())
+            && candidate.getArtifactId().equals(target.getArtifactId())) {
+
+          if (candidate.getVersion().equals(target.getVersion())) {
+            // Exact version match - prefer non-POM node if possible
+            if (targetNode == null) {
+              targetNode = candidate;
+            } else if (!"pom".equals(candidate.getExtension())
+                && "pom".equals(targetNode.getExtension())) {
+              targetNode = candidate;
+            }
+          } else {
+            // Different version - keep track in case we need it
+            if (targetNodeAnyVersion == null) {
+              targetNodeAnyVersion = candidate;
+            } else if (!"pom".equals(candidate.getExtension())
+                && "pom".equals(targetNodeAnyVersion.getExtension())) {
+              targetNodeAnyVersion = candidate;
+            }
+          }
+        }
+      }
+
+      // If exact version not found, use any version of the target artifact
+      if (targetNode == null) {
+        targetNode = targetNodeAnyVersion;
+      }
+
+      if (targetNode == null) {
+        // Could not find the relocation target in the graph; be conservative and skip
+        continue;
+      }
+
+      // Rewire all predecessors of node to point to targetNode
+      for (Coordinates pred : new HashSet<>(graph.predecessors(node))) {
+        if (!pred.equals(targetNode)) {
+          graph.putEdge(pred, targetNode);
+        }
+      }
+
+      // Update conflicts that reference this node
+      Set<Conflict> toAdd = new HashSet<>();
+      Set<Conflict> toDrop = new HashSet<>();
+      for (Conflict c : conflicts) {
+        if (c.getResolved().equals(node)) {
+          toDrop.add(c);
+          toAdd.add(new Conflict(targetNode, c.getRequested()));
+        } else if (c.getRequested().equals(node)) {
+          toDrop.add(c);
+          toAdd.add(new Conflict(c.getResolved(), targetNode));
+        }
+      }
+      conflicts.removeAll(toDrop);
+      conflicts.addAll(toAdd);
+
+      // Remove any hash for the POM node
+      coordinateHashes.remove(node);
+
+      toRemove.add(node);
+    }
+
+    // Remove after iteration to avoid concurrent modification
+    for (Coordinates n : toRemove) {
+      graph.removeNode(n);
+      paths.remove(n);
+    }
+  }
+
+  private Coordinates readRelocationTarget(File pomFile, Coordinates fallback) {
+    try (FileInputStream fis = new FileInputStream(pomFile);
+        BufferedInputStream bis = new BufferedInputStream(fis)) {
+      MavenXpp3Reader reader = new MavenXpp3Reader();
+      Model model = reader.read(ReaderFactory.newXmlReader(bis));
+      if (model.getDistributionManagement() != null) {
+        Relocation relocation = model.getDistributionManagement().getRelocation();
+        if (relocation != null) {
+          String g =
+              relocation.getGroupId() != null ? relocation.getGroupId() : fallback.getGroupId();
+          String a =
+              relocation.getArtifactId() != null
+                  ? relocation.getArtifactId()
+                  : fallback.getArtifactId();
+          String v =
+              relocation.getVersion() != null ? relocation.getVersion() : fallback.getVersion();
+          return new Coordinates(g, a, fallback.getExtension(), fallback.getClassifier(), v);
+        }
+      }
+    } catch (IOException | XmlPullParserException e) {
+      // If parsing fails, treat as no relocation
+      if (isVerbose()) {
+        eventListener.onEvent(
+            new LogEvent(
+                "gradle", "Failed to parse POM for relocation: " + pomFile, e.getMessage()));
+      }
+    }
+    return null;
+  }
+
+  private void collapseAggregatingDependencies(
+      MutableGraph<Coordinates> graph,
+      Map<Coordinates, Path> paths,
+      Map<Coordinates, List<GradleResolvedArtifact>> artifactsByNode) {
+    List<Coordinates> toRemove = new ArrayList<>();
+
+    for (Coordinates node : graph.nodes()) {
+      List<GradleResolvedArtifact> artifacts = artifactsByNode.get(node);
+      if (artifacts == null || artifacts.isEmpty()) {
+        continue;
+      }
+
+      // Check if this is an aggregating dependency:
+      // A dependency is aggregating if it has only POM files (no JAR/AAR artifacts)
+      // We check the actual filename since the extension field may not be reliable
+      boolean hasNonPomArtifact = false;
+
+      for (GradleResolvedArtifact artifact : artifacts) {
+        File file = artifact.getFile();
+        // Check the actual file name to see if it's a POM
+        if (file != null && !file.getName().endsWith(".pom")) {
+          hasNonPomArtifact = true;
+          break;
+        }
+      }
+
+      // If there are non-POM artifacts, this is not an aggregating dependency
+      if (hasNonPomArtifact) {
+        continue;
+      }
+
+      // This node only has POM artifacts. Check if it's an aggregating dependency.
+      // An aggregating dependency is one where:
+      // 1. It only has a POM file (checked above)
+      // 2. Either:
+      //    a) Its successors are all classified variants of the SAME artifact, OR
+      //    b) There exist other nodes in the graph with the same G:A:V but with classifiers
+      //       (indicating this is a base coordinate for classified variants)
+      boolean isAggregating = false;
+      Set<Coordinates> successors = graph.successors(node);
+
+      if (!successors.isEmpty()) {
+        // Check if all successors are classified variants of this node
+        // (same group:artifact:version, but with classifiers)
+        boolean allSuccessorsAreClassifiedVariants = true;
+        for (Coordinates successor : successors) {
+          boolean isClassifiedVariant =
+              successor.getGroupId().equals(node.getGroupId())
+                  && successor.getArtifactId().equals(node.getArtifactId())
+                  && successor.getVersion().equals(node.getVersion())
+                  && successor.getClassifier() != null
+                  && !successor.getClassifier().isEmpty()
+                  && !"javadoc".equals(successor.getClassifier())
+                  && !"sources".equals(successor.getClassifier());
+          if (!isClassifiedVariant) {
+            allSuccessorsAreClassifiedVariants = false;
+            break;
+          }
+        }
+
+        isAggregating = allSuccessorsAreClassifiedVariants;
+      } else {
+        // No successors - check if there are classified variants in the graph
+        for (Coordinates other : graph.nodes()) {
+          if (other.getGroupId().equals(node.getGroupId())
+              && other.getArtifactId().equals(node.getArtifactId())
+              && other.getVersion().equals(node.getVersion())
+              && other.getClassifier() != null
+              && !other.getClassifier().isEmpty()
+              && !"javadoc".equals(other.getClassifier())
+              && !"sources".equals(other.getClassifier())) {
+            isAggregating = true;
+            break;
+          }
+        }
+      }
+
+      // Only remove if this is truly an aggregating dependency
+      if (isAggregating) {
+        toRemove.add(node);
+      }
+    }
+
+    // Remove aggregating base coordinates after iteration
+    for (Coordinates n : toRemove) {
+      graph.removeNode(n);
+      paths.remove(n);
     }
   }
 
@@ -352,10 +654,18 @@ public class GradleResolver implements Resolver {
             exclusion -> {
               exclusions.add(new ExclusionImpl(exclusion.getGroupId(), exclusion.getArtifactId()));
             });
+
+    // When force_version is true, use Gradle's !! shorthand which is equivalent to strictly()
+    // This forces the exact version and prevents transitive dependencies from overriding it
+    String version = coordinates.getVersion();
+    if (artifact.isForceVersion() && version != null && !version.isEmpty()) {
+      version = version + "!!";
+    }
+
     return new GradleDependencyImpl(
         coordinates.getGroupId(),
         coordinates.getArtifactId(),
-        coordinates.getVersion(),
+        version,
         exclusions,
         coordinates.getClassifier(),
         coordinates.getExtension());
@@ -545,5 +855,39 @@ public class GradleResolver implements Resolver {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Filters unresolved dependencies to find those that should cause resolution to fail.
+   *
+   * <p>A dependency should cause failure only if:
+   *
+   * <ol>
+   *   <li>It was directly requested by the user (in requestedDepKeys)
+   *   <li>No version of the same group:artifact was successfully resolved
+   * </ol>
+   *
+   * <p>This handles the case where a BOM or version conflict resolution upgrades a dependency to a
+   * different version. The originally-requested version may appear as "unresolved" in Gradle's
+   * internal resolution, but as long as some version of the artifact was resolved, we should not
+   * fail.
+   *
+   * @param unresolvedDependencies List of all unresolved dependencies from Gradle
+   * @param requestedDepKeys Set of "group:artifact:version" strings for user-requested deps
+   * @param resolvedGroupArtifacts Set of "group:artifact" strings for successfully resolved deps
+   * @return List of unresolved dependencies that should cause resolution to fail
+   */
+  // Visible for testing
+  static List<GradleUnresolvedDependency> filterUnresolvedRequestedDeps(
+      List<GradleUnresolvedDependency> unresolvedDependencies,
+      Set<String> requestedDepKeys,
+      Set<String> resolvedGroupArtifacts) {
+    return unresolvedDependencies.stream()
+        .filter(
+            dep ->
+                requestedDepKeys.contains(
+                    dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion()))
+        .filter(dep -> !resolvedGroupArtifacts.contains(dep.getGroup() + ":" + dep.getName()))
+        .collect(Collectors.toList());
   }
 }

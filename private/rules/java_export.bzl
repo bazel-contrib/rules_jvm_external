@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_java//java:java_library.bzl", "java_library")
 load("//:specs.bzl", "parse", _json = "json")
 load(":javadoc.bzl", "javadoc")
 load(":maven_bom_fragment.bzl", "maven_bom_fragment")
@@ -370,6 +370,7 @@ def maven_export(
             src_artifact = ":%s-maven-source" % name,
             javadoc_artifact = None if "no-javadocs" in tags else ":%s-docs" % name,
             pom = ":%s-pom" % name,
+            exclusions = exclusions_dict_json_strings,
             testonly = testonly,
             tags = tags,
             visibility = visibility,
