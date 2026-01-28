@@ -9,6 +9,38 @@ exports_files([
     "maven_install.json",
 ])
 
+# Filegroup for integration tests - includes all files needed when examples
+# use local_path_override(path = "../../") to reference this repository
+filegroup(
+    name = "local_repository_files",
+    srcs = glob(
+        [
+            # Core module files
+            "BUILD",
+            "MODULE.bazel",
+            "MODULE.bazel.lock",
+            "REPO.bazel",
+            "WORKSPACE",
+            "WORKSPACE.bzlmod",
+            # Configuration
+            ".bazelrc",
+            ".bazelversion",
+            ".bazelignore",
+            # Bzl extension files
+            "*.bzl",
+            "*.BUILD.bazel",
+            # Lock files
+            "*.json",
+        ],
+        allow_empty = True,
+    ) + [
+        # Source directories needed by rules_jvm_external (recursive filegroups)
+        "//private:all_files",
+        "//settings:all_files",
+    ],
+    visibility = ["//examples:__pkg__"],
+)
+
 licenses(["notice"])  # Apache 2.0
 
 package_metadata(

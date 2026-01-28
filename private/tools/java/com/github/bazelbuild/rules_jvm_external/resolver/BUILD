@@ -28,3 +28,18 @@ java_library(
         ),
     ],
 )
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]) + [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui:all_files",
+    ],
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external:__pkg__"],
+)

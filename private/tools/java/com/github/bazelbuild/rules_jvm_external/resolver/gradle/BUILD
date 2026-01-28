@@ -77,3 +77,13 @@ java_binary(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
     ],
 )
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]) + [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin:all_files",
+    ],
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:__pkg__"],
+)

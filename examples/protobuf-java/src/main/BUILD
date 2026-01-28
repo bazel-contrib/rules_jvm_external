@@ -1,3 +1,5 @@
+load("@com_google_protobuf//bazel:java_proto_library.bzl", "java_proto_library")
+load("@rules_java//java:java_binary.bzl", "java_binary")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 java_binary(

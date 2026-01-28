@@ -24,6 +24,7 @@ import com.github.bazelbuild.rules_jvm_external.ByteStreams;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.NoSuchFileException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -158,6 +159,7 @@ public class JavadocJarMaker {
         // We need to create the element list file so that the bazel rule calling us has the file
         // be created.
         if (elementList != null) {
+          Files.createDirectories(elementList.getParent());
           Files.write(
               elementList,
               "".getBytes(UTF_8),
@@ -233,15 +235,22 @@ public class JavadocJarMaker {
       if (result == null || !result) {
         System.err.println("javadoc " + String.join(" ", options));
         System.err.println(writer);
+        // Still need to create the element-list file so that the bazel rule has its expected output
+        if (elementList != null) {
+          Files.createDirectories(elementList.getParent());
+          Files.createFile(elementList);
+        }
         return;
       }
 
       Path generatedElementList = outputTo.resolve("element-list");
       try {
+        Files.createDirectories(elementList.getParent());
         Files.copy(generatedElementList, elementList);
-      } catch (FileNotFoundException e) {
+      } catch (NoSuchFileException | FileNotFoundException e) {
         // Do not fail the action if the generated element-list couldn't be found.
-        Files.createFile(generatedElementList);
+        Files.createDirectories(elementList.getParent());
+        Files.createFile(elementList);
       }
 
       // Copy all generated files to the output directory

@@ -1,8 +1,9 @@
 module(name = "rules_jvm_external_example_java_export")
 
-protobuf_version = "31.1"
+protobuf_version = "33.4"
 
 bazel_dep(name = "protobuf", version = protobuf_version, repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_java", version = "8.13.0")
 bazel_dep(name = "rules_jvm_external", version = "ignored")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 

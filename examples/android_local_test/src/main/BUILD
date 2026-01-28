@@ -1,3 +1,4 @@
+load("@rules_android//android:rules.bzl", "android_library")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 android_library(

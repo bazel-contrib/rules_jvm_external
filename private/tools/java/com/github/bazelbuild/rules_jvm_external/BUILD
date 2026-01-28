@@ -29,3 +29,16 @@ java_binary(
         ":hasher",
     ],
 )
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]) + [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/javadoc:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver:all_files",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip:all_files",
+    ],
+    visibility = ["//private/tools:__pkg__"],
+)

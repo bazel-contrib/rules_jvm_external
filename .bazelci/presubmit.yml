@@ -1,91 +1,74 @@
 ---
+# Common platform configurations
+.ubuntu2204: &ubuntu2204
+  platform: ubuntu2204
+
+.macos_arm64: &macos_arm64
+  platform: macos_arm64
+
+.windows: &windows
+  platform: windows
+
+# Common environment
+.common_env: &common_env
+  environment:
+    # This tests custom cache locations.
+    # https://github.com/bazelbuild/rules_jvm_external/pull/316
+    COURSIER_CACHE: /tmp/custom_coursier_cache
+    REPIN: 1
+
+# Common task configurations
+.main_test: &main_test
+  <<: *common_env
+  bazel: ${{ bazel_version }}
+  shell_commands:
+    - bazel run @regression_testing_coursier//:pin
+    - bazel run @regression_testing_gradle//:pin
+    - bazel run @regression_testing_maven//:pin
+    - bazel run @maven_install_in_custom_location//:pin
+    - bazel run @same_override_target//:pin
+    - tests/bazel_run_tests.sh
+  test_targets:
+    - "--"
+    - "//..."
+
+.examples_test: &examples_test
+  test_flags: ${{ shard_flags }}
+  test_targets:
+    - "//examples/..."
+
+# Matrix for test expansion
+matrix:
+  bazel_version:
+    - latest
+    - 8.x
+    - 9.x
+  shard_flags:
+    - ["--test_tag_filters=shard_0"]
+    - ["--test_tag_filters=shard_1"]
+    - ["--test_tag_filters=shard_2"]
+
 tasks:
-  ubuntu2204:
-    environment:
-      # This tests custom cache locations.
-      # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
-      REPIN: 1
-    build_targets:
-      - "//..."
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_gradle//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - bazel run @same_override_target//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "--"
-      - "//..."
-  ubuntu2204_7_x:
-    platform: ubuntu2204
-    bazel: 7.x
-    environment:
-      REPIN: 1
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_gradle//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - bazel run @same_override_target//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "--"
-      - "//..."
-  ubuntu2204_8_x:
-    platform: ubuntu2204
-    bazel: 8.x
-    environment:
-      # This tests custom cache locations.
-      # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
-      REPIN: 1
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_gradle//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - bazel run @same_override_target//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "--"
-      - "//..."
-  macos_arm64:
-    environment:
-      # This tests custom cache locations.
-      # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
-      REPIN: 1
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_gradle//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - bazel run @same_override_target//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "//..."
-      # manual tests
-  windows:
-    environment:
-      # This tests custom cache locations.
-      # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
-      REPIN: 1
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_gradle//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - bazel run @same_override_target//:pin
-      - tests/bazel_run_tests.sh
+  # Main tests (3 platforms × 3 bazel versions = 9 tasks)
+  ubuntu2204_main:
+    <<: [*ubuntu2204, *main_test]
+  macos_arm64_main:
+    <<: [*macos_arm64, *main_test]
+  windows_main:
+    <<: [*windows, *main_test]
     test_targets:
       - "--"
       - "//..."
       # rules_kotlin is not tested / does not work on Windows.
       # https://github.com/bazelbuild/rules_kotlin/issues/179
-      # https://github.com/bazelbuild/rules_kotlin/blob/master/.bazelci/presubmit.yml
       - "-//tests/unit/kotlin/..."
       # https://github.com/bazelbuild/rules_jvm_external/issues/586
       - "-//tests/unit/manifest_stamp:diff_signed_manifest_test"
+
+  # Example integration tests (3 platforms × 3 shards = 9 tasks)
+  ubuntu2204_examples:
+    <<: [*ubuntu2204, *examples_test]
+  macos_arm64_examples:
+    <<: [*macos_arm64, *examples_test]
+  windows_examples:
+    <<: [*windows, *examples_test]

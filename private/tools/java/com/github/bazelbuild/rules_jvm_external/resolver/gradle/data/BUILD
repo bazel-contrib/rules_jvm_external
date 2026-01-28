@@ -8,3 +8,9 @@ filegroup(
         "//tests:__subpackages__",
     ],
 )
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]),
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__pkg__"],
+)

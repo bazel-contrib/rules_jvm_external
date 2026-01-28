@@ -1,6 +1,33 @@
-###############################################################################
-# Bazel now uses Bzlmod by default to manage external dependencies.
-# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
+module(name = "rules_jvm_external_example_android_local_test")
+
+bazel_dep(name = "rules_android", version = "0.7.1")
+bazel_dep(name = "rules_jvm_external", version = "ignored")
+bazel_dep(name = "rules_robolectric", version = "4.16", repo_name = "robolectric")
+
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../../",
+)
+
+# # Android SDK setup for bzlmod
+# android_sdk_repository_extension = use_extension("@rules_android//rules/android_sdk_repository:rule.bzl", "android_sdk_repository_extension")
+# use_repo(android_sdk_repository_extension, "androidsdk")
 #
-# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
-###############################################################################
+# register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "androidx.appcompat:appcompat:1.0.2",
+        "androidx.test.ext:junit:1.3.0",
+        "junit:junit:4.13.2",
+        "org.robolectric:robolectric:4.16",
+        "org.assertj:assertj-core:3.12.1",
+    ],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")
