@@ -15,3 +15,9 @@ stamp_manifest(
     name = "stamp_manifest",
     build_setting_default = True,
 )
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]),
+    visibility = ["//:__pkg__"],
+)

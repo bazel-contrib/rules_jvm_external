@@ -1,7 +1,7 @@
 package com.github.bazelbuild.rules_jvm_external.javadoc;
 
 import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
-import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readDirectory;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -17,7 +17,7 @@ import org.junit.rules.TemporaryFolder;
 public class ExclusionTest {
 
   private Path inputJar;
-  private Path outputJar;
+  private Path outputDir;
   private Path elementList;
 
   @Rule public TemporaryFolder temp = new TemporaryFolder();
@@ -25,7 +25,7 @@ public class ExclusionTest {
   @Before
   public void setUp() throws IOException {
     this.inputJar = temp.newFile("in.jar").toPath();
-    this.outputJar = temp.newFile("out.jar").toPath();
+    this.outputDir = temp.newFolder("out").toPath();
     this.elementList = temp.newFile("element-list").toPath();
     // deleting the file since JavadocJarMaker fails on existing files, we just need to supply the
     // path.
@@ -57,7 +57,7 @@ public class ExclusionTest {
           "--in",
           inputJar.toAbsolutePath().toString(),
           "--out",
-          outputJar.toAbsolutePath().toString(),
+          outputDir.toAbsolutePath().toString(),
           "--exclude-packages",
           "com.example.processor.internal",
           "--exclude-packages",
@@ -68,7 +68,7 @@ public class ExclusionTest {
           elementList.toAbsolutePath().toString()
         });
 
-    Map<String, String> contents = readJar(outputJar);
+    Map<String, String> contents = readDirectory(outputDir);
 
     assertTrue(contents.containsKey("com/example/Main.html"));
 
@@ -101,14 +101,14 @@ public class ExclusionTest {
           "--in",
           inputJar.toAbsolutePath().toString(),
           "--out",
-          outputJar.toAbsolutePath().toString(),
+          outputDir.toAbsolutePath().toString(),
           "--exclude-packages",
           "com.example.processor.internal.*",
           "--element-list",
           elementList.toAbsolutePath().toString()
         });
 
-    Map<String, String> contents = readJar(outputJar);
+    Map<String, String> contents = readDirectory(outputDir);
 
     // With asterisk, the "other" subpackage should be excluded as well.
     assertTrue(contents.containsKey("com/example/Main.html"));
@@ -133,14 +133,14 @@ public class ExclusionTest {
           "--in",
           inputJar.toAbsolutePath().toString(),
           "--out",
-          outputJar.toAbsolutePath().toString(),
+          outputDir.toAbsolutePath().toString(),
           "--exclude-packages",
           "io.example.*",
           "--element-list",
           elementList.toAbsolutePath().toString()
         });
 
-    Map<String, String> contents = readJar(outputJar);
+    Map<String, String> contents = readDirectory(outputDir);
 
     // Checking that the toplevel package "io" is excluded. If it wasn't, the javadoc command
     // would throw an error for -subpackage containing a package that doesn't exist.
@@ -165,7 +165,7 @@ public class ExclusionTest {
           "--in",
           inputJar.toAbsolutePath().toString(),
           "--out",
-          outputJar.toAbsolutePath().toString(),
+          outputDir.toAbsolutePath().toString(),
           "--exclude-packages",
           "com.example.internal",
           "--include-packages",
@@ -174,7 +174,7 @@ public class ExclusionTest {
           elementList.toAbsolutePath().toString()
         });
 
-    Map<String, String> contents = readJar(outputJar);
+    Map<String, String> contents = readDirectory(outputDir);
 
     // The include gets applied before the exclude.
     // io.example is not explicitely excluded, but its not in the include list, so it should not

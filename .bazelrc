@@ -45,5 +45,13 @@ build:windows --legacy_external_runfiles
 
 build --sandbox_tmpfs_path=/tmp
 
+common --incompatible_enable_proto_toolchain_resolution
+common --@protobuf//bazel/toolchains:prefer_prebuilt_protoc=true
+
+# Exclude example workspaces from main build (they have their own MODULE.bazel)
+# Run `bazel run @rules_bazel_integration_test//tools:update_deleted_packages` to update
+build --deleted_packages=examples/android_kotlin_app,examples/android_kotlin_app/src,examples/android_local_test,examples/android_local_test/src/main,examples/android_local_test/src/test,examples/bzlmod,examples/bzlmod/java/src/com/github/rules_jvm_external/examples/bzlmod,examples/java-export,examples/java-export/src/main/java/com/github/bazelbuild/rulesjvmexternal/example/export,examples/java-export/src/main/java/com/github/bazelbuild/rulesjvmexternal/example/io,examples/java-export/src/main/proto,examples/kt_android_local_test,examples/kt_android_local_test/src/main,examples/kt_android_local_test/src/test,examples/kt_jvm_export,examples/kt_jvm_export/src/main/kotlin/com/github/bazelbuild/rulesjvmexternal/example/export,examples/pom_file_generation,examples/protobuf-java/src/main,examples/protobuf-java/src/test,examples/scala_akka,examples/simple,examples/spring_boot,examples/spring_boot/src/main/java/hello,examples/spring_boot/src/test/java/hello,tests/integration/bzlmod_lock_files,tests/integration/override_targets/module
+query --deleted_packages=examples/android_kotlin_app,examples/android_kotlin_app/src,examples/android_local_test,examples/android_local_test/src/main,examples/android_local_test/src/test,examples/bzlmod,examples/bzlmod/java/src/com/github/rules_jvm_external/examples/bzlmod,examples/java-export,examples/java-export/src/main/java/com/github/bazelbuild/rulesjvmexternal/example/export,examples/java-export/src/main/java/com/github/bazelbuild/rulesjvmexternal/example/io,examples/java-export/src/main/proto,examples/kt_android_local_test,examples/kt_android_local_test/src/main,examples/kt_android_local_test/src/test,examples/kt_jvm_export,examples/kt_jvm_export/src/main/kotlin/com/github/bazelbuild/rulesjvmexternal/example/export,examples/pom_file_generation,examples/protobuf-java/src/main,examples/protobuf-java/src/test,examples/scala_akka,examples/simple,examples/spring_boot,examples/spring_boot/src/main/java/hello,examples/spring_boot/src/test/java/hello,tests/integration/bzlmod_lock_files,tests/integration/override_targets/module
+
 # Allows the examples to extend the default bazelrc
 try-import %workspace%/.bazelrc.example

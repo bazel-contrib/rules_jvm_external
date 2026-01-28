@@ -1,0 +1,22 @@
+module(name = "rules_jvm_external_example_pom_file_generation")
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "rules_java", version = "8.13.0")
+bazel_dep(name = "rules_jvm_external", version = "ignored")
+
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../../",
+)
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "com.google.inject:guice:4.0",
+        "com.google.guava:guava:27.1-jre",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")

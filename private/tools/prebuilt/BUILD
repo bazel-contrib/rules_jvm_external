@@ -7,3 +7,9 @@ exports_files([
     "lock_file_converter_deploy.jar",  # built from //private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:LockFileConverter_deploy.jar
     "outdated_deploy.jar",  # built from //private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated_deploy.jar
 ])
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]),
+    visibility = ["//private/tools:__pkg__"],
+)

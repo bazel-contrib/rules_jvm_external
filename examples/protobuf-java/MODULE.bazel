@@ -1,9 +1,10 @@
 module(name = "rules_jvm_external_example_protobuf_java")
 
-protobuf_version = "31.1"
+protobuf_version = "33.4"
 
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
 bazel_dep(name = "protobuf", version = protobuf_version, repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_java", version = "8.13.0")
 bazel_dep(name = "rules_jvm_external", version = "ignored")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 
@@ -22,6 +23,7 @@ maven.install(
         "bazel_worker_java",
         "rules_jvm_external_example_protobuf_java",
     ],
+    lock_file = "//:maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],

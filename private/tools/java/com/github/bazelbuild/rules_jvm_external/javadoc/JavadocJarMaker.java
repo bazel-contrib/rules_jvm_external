@@ -21,10 +21,10 @@ import static java.lang.Runtime.Version;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
-import com.github.bazelbuild.rules_jvm_external.jar.CreateJar;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.NoSuchFileException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -47,7 +47,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 import javax.tools.DocumentationTool;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -121,8 +120,11 @@ public class JavadocJarMaker {
 
     if (out == null) {
       throw new IllegalArgumentException(
-          "The output jar location must be specified via the --out flag");
+          "The output directory location must be specified via the --out flag");
     }
+
+    // Ensure output directory exists
+    Files.createDirectories(out);
 
     Path dir = Files.createTempDirectory("javadocs");
     Set<Path> tempDirs = new HashSet<>();
@@ -149,14 +151,15 @@ public class JavadocJarMaker {
 
       // True if we're just exporting a set of modules
       if (sources.isEmpty()) {
-        try (OutputStream os = Files.newOutputStream(out);
-            ZipOutputStream zos = new ZipOutputStream(os)) {
-          // It's enough to just create the thing
-        }
+        // Create a placeholder file so zipper has something to package.
+        // An empty jar is valid and expected in this case.
+        Path placeholder = out.resolve(".empty");
+        Files.write(placeholder, "".getBytes(UTF_8));
 
         // We need to create the element list file so that the bazel rule calling us has the file
         // be created.
         if (elementList != null) {
+          Files.createDirectories(elementList.getParent());
           Files.write(
               elementList,
               "".getBytes(UTF_8),
@@ -232,20 +235,44 @@ public class JavadocJarMaker {
       if (result == null || !result) {
         System.err.println("javadoc " + String.join(" ", options));
         System.err.println(writer);
+        // Still need to create the element-list file so that the bazel rule has its expected output
+        if (elementList != null) {
+          Files.createDirectories(elementList.getParent());
+          Files.createFile(elementList);
+        }
         return;
       }
 
       Path generatedElementList = outputTo.resolve("element-list");
       try {
+        Files.createDirectories(elementList.getParent());
         Files.copy(generatedElementList, elementList);
-      } catch (FileNotFoundException e) {
+      } catch (NoSuchFileException | FileNotFoundException e) {
         // Do not fail the action if the generated element-list couldn't be found.
-        Files.createFile(generatedElementList);
+        Files.createDirectories(elementList.getParent());
+        Files.createFile(elementList);
       }
 
-      CreateJar.createJar(out, outputTo);
+      // Copy all generated files to the output directory
+      copyDirectory(outputTo, out);
     }
     tempDirs.forEach(JavadocJarMaker::delete);
+  }
+
+  private static void copyDirectory(Path source, Path target) throws IOException {
+    Files.walk(source).forEach(sourcePath -> {
+      try {
+        Path targetPath = target.resolve(source.relativize(sourcePath));
+        if (Files.isDirectory(sourcePath)) {
+          Files.createDirectories(targetPath);
+        } else {
+          Files.createDirectories(targetPath.getParent());
+          Files.copy(sourcePath, targetPath);
+        }
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    });
   }
 
   private static void delete(Path toDelete) {

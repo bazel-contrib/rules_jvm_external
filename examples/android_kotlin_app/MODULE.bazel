@@ -1,8 +1,29 @@
-###############################################################################
-# Bazel now uses Bzlmod by default to manage external dependencies.
-# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
-#
-# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
-###############################################################################
+module(name = "rules_jvm_external_example_android_kotlin_app")
 
-bazel_dep(name = "rules_kotlin", version = "1.9.0")
+bazel_dep(name = "rules_android", version = "0.7.1")
+bazel_dep(name = "rules_jvm_external", version = "ignored")
+bazel_dep(name = "rules_kotlin", version = "2.2.2")
+
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../../",
+)
+
+# Android SDK setup for bzlmod
+android_sdk_repository_extension = use_extension("@rules_android//rules/android_sdk_repository:rule.bzl", "android_sdk_repository_extension")
+use_repo(android_sdk_repository_extension, "androidsdk")
+
+register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "androidx.appcompat:appcompat:1.0.2",
+        "androidx.core:core-ktx:1.0.1",
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")

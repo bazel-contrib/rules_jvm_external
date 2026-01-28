@@ -1,3 +1,5 @@
+load("@rules_android//android:rules.bzl", "android_local_test")
+
 android_local_test(
     name = "main_activity_test",
     srcs = ["java/com/example/bazel/MainActivityTest.java"],

@@ -82,3 +82,9 @@ java_binary(
         ),
     ],
 )
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]),
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external:__pkg__"],
+)

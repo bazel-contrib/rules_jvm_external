@@ -9,8 +9,6 @@ java_library(
     ],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:create_jar_lib",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip",
     ],
 )
 
@@ -23,4 +21,10 @@ java_binary(
     runtime_deps = [
         ":javadoc_lib",
     ],
+)
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["**"]),
+    visibility = ["//private/tools/java/com/github/bazelbuild/rules_jvm_external:__pkg__"],
 )

@@ -1,7 +1,7 @@
 package com.github.bazelbuild.rules_jvm_external.javadoc;
 
 import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
-import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
+import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readDirectory;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +20,7 @@ public class ResourceTest {
   @Test
   public void shouldIncludeResourceFiles() throws Exception {
     Path inputJar = temp.newFile("in.jar").toPath();
-    Path outputJar = temp.newFile("out.jar").toPath();
+    Path outputDir = temp.newFolder("out").toPath();
     Path elementList = temp.newFile("element-list").toPath();
     // deleting the file since JavadocJarMaker fails on existing files, we just need to supply the
     // path.
@@ -42,12 +42,12 @@ public class ResourceTest {
           "--in",
           inputJar.toAbsolutePath().toString(),
           "--out",
-          outputJar.toAbsolutePath().toString(),
+          outputDir.toAbsolutePath().toString(),
           "--element-list",
           elementList.toAbsolutePath().toString()
         });
 
-    Map<String, String> contents = readJar(outputJar);
+    Map<String, String> contents = readDirectory(outputDir);
     assertEquals("Apache License 2.0".strip(), contents.get("LICENSE").strip());
   }
 }
