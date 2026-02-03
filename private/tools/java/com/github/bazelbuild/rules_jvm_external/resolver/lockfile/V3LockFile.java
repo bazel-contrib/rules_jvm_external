@@ -36,19 +36,24 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /** Format resolution results into the v2 lock file format. */
-public class V2LockFile {
+public class V3LockFile {
 
   public static final URI M2_LOCAL_URI =
       Paths.get(USER_HOME.value()).resolve(".m2/repository").toUri();
   private final Collection<URI> allRepos;
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
+  private final boolean renderPackages;
 
-  public V2LockFile(
-      Collection<URI> repositories, Set<DependencyInfo> infos, Set<Conflict> conflicts) {
+  public V3LockFile(
+      Collection<URI> repositories,
+      Set<DependencyInfo> infos,
+      Set<Conflict> conflicts,
+      boolean renderPackages) {
     this.allRepos = repositories;
     this.infos = infos;
     this.conflicts = conflicts;
+    this.renderPackages = renderPackages;
   }
 
   public Collection<URI> getRepositories() {
@@ -64,7 +69,7 @@ public class V2LockFile {
   }
 
   @SuppressWarnings("unchecked")
-  public static V2LockFile create(String from) {
+  public static V3LockFile create(String from) {
     Map<?, ?> raw = new Gson().fromJson(from, Map.class);
 
     Set<URI> repos = new LinkedHashSet<>();
@@ -156,6 +161,7 @@ public class V2LockFile {
               Optional.of(entry.getValue()),
               dependencies.getOrDefault(coords, Set.of()),
               Set.of(),
+              Set.of(),
               new TreeMap<>()));
     }
 
@@ -171,10 +177,9 @@ public class V2LockFile {
       conflicts.add(new Conflict(resolved, requested));
     }
 
-    return new V2LockFile(repos, infos, conflicts);
+    return new V3LockFile(repos, infos, conflicts, true);
   }
 
-  /** "Render" the resolution result to a `Map` suitable for printing as JSON. */
   public Map<String, Object> render() {
     Set<URI> repositories = new LinkedHashSet<>(allRepos);
 
@@ -242,7 +247,9 @@ public class V2LockFile {
                   .map(Coordinates::asKey)
                   .map(Object::toString)
                   .collect(Collectors.toCollection(TreeSet::new)));
-          packages.put(key, info.getPackages());
+          if (renderPackages) {
+            packages.put(key, info.getPackages());
+          }
           services.put(key, info.getServices());
 
           if (info.getPath().isPresent()) {
@@ -254,7 +261,9 @@ public class V2LockFile {
     Map<String, Object> lock = new LinkedHashMap<>();
     lock.put("artifacts", ensureArtifactsAllHaveAtLeastOneShaSum(artifacts));
     lock.put("dependencies", removeEmptyItems(deps));
-    lock.put("packages", removeEmptyItems(packages));
+    if (renderPackages) {
+      lock.put("packages", removeEmptyItems(packages));
+    }
     lock.put("services", removeEmptyItemsMap(services));
     if (isUsingM2Local) {
       lock.put("m2local", true);
@@ -275,7 +284,7 @@ public class V2LockFile {
     }
     lock.put("files", files);
 
-    lock.put("version", "2");
+    lock.put("version", "3");
 
     return lock;
   }

@@ -1,4 +1,4 @@
-load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
 
 _JavadocInfo = provider(

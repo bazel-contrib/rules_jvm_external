@@ -7,7 +7,7 @@
 # [0]: https://github.com/square/bazel_maven_repository/pull/48
 # [1]: https://github.com/bazelbuild/bazel/issues/4549
 
-load("@rules_java//java:defs.bzl", "JavaInfo")
+load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 load("@rules_license//rules:providers.bzl", "PackageInfo")
 load("//private/lib:coordinates.bzl", "to_external_form", "to_purl", "unpack_coordinates")
 load("//private/lib:urls.bzl", "scheme_and_host")

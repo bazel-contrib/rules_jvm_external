@@ -27,6 +27,11 @@ common:windows --host_cxxopt=/std:c++17
 # Enable protobuf MSVC support on Windows
 build:windows --define=protobuf_allow_msvc=true
 
+# rules_kotlin 2.x has a bug where the Kotlin compiler worker fails to
+# resolve runfiles on Windows without this flag.
+# https://github.com/bazelbuild/rules_kotlin/issues/1309
+build:windows --legacy_external_runfiles
+
 # Every JVM creates a temporary performance instrumentation file in
 # /tmp/hsperfdata_$USERNAME/$PID. When we use sandboxing, we use PID
 # namespaces, which means that the PIDs are virtualized and all

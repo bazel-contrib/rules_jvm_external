@@ -159,7 +159,7 @@ public class HttpDownloader implements AutoCloseable {
 
   private <X> HttpResponse<X> doRequest(
       int attemptCount, HttpRequest request, HttpResponse.BodyHandler<X> handler) {
-    listener.onEvent(new DownloadEvent(STARTING, request.uri().toString()));
+    listener.onEvent(new DownloadEvent(STARTING, request.method(), request.uri().toString()));
     LOG.fine(String.format("Downloading (attempt %d): %s", attemptCount, request.uri()));
 
     // Slight pause, in case a previous attempt overwhelmed a server. We may be about to do it
@@ -209,7 +209,7 @@ public class HttpDownloader implements AutoCloseable {
       // Don't panic. Just have another go.
 
       if (attemptCount < MAX_RETRY_COUNT) {
-        listener.onEvent(new DownloadEvent(COMPLETE, request.uri().toString()));
+        listener.onEvent(new DownloadEvent(COMPLETE, request.method(), request.uri().toString()));
         return doRequest(++attemptCount, request, handler);
       }
 
@@ -221,7 +221,7 @@ public class HttpDownloader implements AutoCloseable {
       throw new RuntimeException(e);
     } finally {
       LOG.fine(String.format("Downloaded (attempt %d): %s", attemptCount, request.uri()));
-      listener.onEvent(new DownloadEvent(COMPLETE, request.uri().toString()));
+      listener.onEvent(new DownloadEvent(COMPLETE, request.method(), request.uri().toString()));
     }
   }
 

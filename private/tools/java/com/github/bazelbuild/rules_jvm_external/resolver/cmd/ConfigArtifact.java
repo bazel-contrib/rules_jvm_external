@@ -28,6 +28,7 @@ public class ConfigArtifact {
   private String packaging;
   private String version;
   private Set<String> exclusions;
+  private boolean force_version;
 
   public String getGroupId() {
     return group;
@@ -55,5 +56,9 @@ public class ConfigArtifact {
     }
 
     return exclusions.stream().map(Coordinates::new).collect(ImmutableSet.toImmutableSet());
+  }
+
+  public boolean isForceVersion() {
+    return force_version;
   }
 }

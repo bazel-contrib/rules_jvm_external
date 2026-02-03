@@ -1,3 +1,4 @@
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//:kt_defs.bzl", "kt_jvm_export")
 
 kt_jvm_export(
