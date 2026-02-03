@@ -1,5 +1,3 @@
-load("@bazel_skylib//rules:build_test.bzl", "build_test")
-
 # This test checks if the testonly attribute was correctly applied.
 # If testonly=True applied, this target should have testonly=1.
 # But build_test doesn't check attribute values directly.
