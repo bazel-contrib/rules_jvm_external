@@ -593,7 +593,7 @@ def maven_impl(mctx):
         root_artifacts = root_repo.get("artifacts", [])
         bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {})
         root_boms = root_repo.get("boms", [])
-        bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", [])
+        bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", {})
 
         if repo_name in root_module_repos.keys():
             known_contributing_modules = root_repo.get("known_contributing_modules", sets.make())
