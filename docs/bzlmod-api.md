@@ -13,14 +13,14 @@ maven.artifact(<a href="#maven.artifact-name">name</a>, <a href="#maven.artifact
                <a href="#maven.artifact-testonly">testonly</a>, <a href="#maven.artifact-version">version</a>)
 maven.from_toml(<a href="#maven.from_toml-name">name</a>, <a href="#maven.from_toml-bom_modules">bom_modules</a>, <a href="#maven.from_toml-libs_versions_toml">libs_versions_toml</a>)
 maven.install(<a href="#maven.install-name">name</a>, <a href="#maven.install-aar_import_bzl_label">aar_import_bzl_label</a>, <a href="#maven.install-additional_coursier_options">additional_coursier_options</a>, <a href="#maven.install-additional_netrc_lines">additional_netrc_lines</a>,
-              <a href="#maven.install-artifacts">artifacts</a>, <a href="#maven.install-boms">boms</a>, <a href="#maven.install-dependency_index">dependency_index</a>, <a href="#maven.install-duplicate_version_warning">duplicate_version_warning</a>, <a href="#maven.install-excluded_artifacts">excluded_artifacts</a>,
-              <a href="#maven.install-exclusions">exclusions</a>, <a href="#maven.install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven.install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven.install-fetch_javadoc">fetch_javadoc</a>,
-              <a href="#maven.install-fetch_sources">fetch_sources</a>, <a href="#maven.install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven.install-ignore_empty_files">ignore_empty_files</a>,
+              <a href="#maven.install-artifacts">artifacts</a>, <a href="#maven.install-boms">boms</a>, <a href="#maven.install-duplicate_version_warning">duplicate_version_warning</a>, <a href="#maven.install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven.install-exclusions">exclusions</a>,
+              <a href="#maven.install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven.install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven.install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven.install-fetch_sources">fetch_sources</a>,
+              <a href="#maven.install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven.install-ignore_empty_files">ignore_empty_files</a>, <a href="#maven.install-index_file">index_file</a>,
               <a href="#maven.install-known_contributing_modules">known_contributing_modules</a>, <a href="#maven.install-lock_file">lock_file</a>, <a href="#maven.install-repin_instructions">repin_instructions</a>, <a href="#maven.install-repositories">repositories</a>,
               <a href="#maven.install-resolve_timeout">resolve_timeout</a>, <a href="#maven.install-resolver">resolver</a>, <a href="#maven.install-strict_visibility">strict_visibility</a>, <a href="#maven.install-strict_visibility_value">strict_visibility_value</a>,
               <a href="#maven.install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>, <a href="#maven.install-use_starlark_android_rules">use_starlark_android_rules</a>,
               <a href="#maven.install-version_conflict_policy">version_conflict_policy</a>)
-maven.override(<a href="#maven.override-name">name</a>, <a href="#maven.override-coordinates">coordinates</a>, <a href="#maven.override-target">target</a>)
+maven.override(<a href="#maven.override-name">name</a>, <a href="#maven.override-coordinates">coordinates</a>, <a href="#maven.override-target">target</a>, <a href="#maven.override-visibility">visibility</a>)
 </pre>
 
 
@@ -39,9 +39,9 @@ Modifies an artifact with `coordinates` defined in other tags with additional pr
 | <a id="maven.amend_artifact-name"></a>name |  -   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | optional |  `"maven"`  |
 | <a id="maven.amend_artifact-coordinates"></a>coordinates |  Coordinates of the artifact to amend. Only `group:artifact` are used for matching.   | String | required |  |
 | <a id="maven.amend_artifact-exclusions"></a>exclusions |  Maven artifact tuples, in `artifactId:groupId` format   | List of strings | optional |  `[]`  |
-| <a id="maven.amend_artifact-force_version"></a>force_version |  -   | Boolean | optional |  `False`  |
-| <a id="maven.amend_artifact-neverlink"></a>neverlink |  -   | Boolean | optional |  `False`  |
-| <a id="maven.amend_artifact-testonly"></a>testonly |  -   | Boolean | optional |  `False`  |
+| <a id="maven.amend_artifact-force_version"></a>force_version |  -   | String | optional |  `""`  |
+| <a id="maven.amend_artifact-neverlink"></a>neverlink |  -   | String | optional |  `""`  |
+| <a id="maven.amend_artifact-testonly"></a>testonly |  -   | String | optional |  `""`  |
 
 <a id="maven.artifact"></a>
 
@@ -94,7 +94,6 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).   | List of strings | optional |  `[]`  |
 | <a id="maven.install-artifacts"></a>artifacts |  Maven artifact tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
 | <a id="maven.install-boms"></a>boms |  Maven BOM tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
-| <a id="maven.install-dependency_index"></a>dependency_index |  If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`.   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 | <a id="maven.install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if there are duplicate artifacts<br><br>If "error", then print a message and fail the build. If "warn", then print a warning and continue. If "none", then do nothing.   | String | optional |  `"warn"`  |
 | <a id="maven.install-excluded_artifacts"></a>excluded_artifacts |  Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs   | List of strings | optional |  `[]`  |
 | <a id="maven.install-exclusions"></a>exclusions |  Maven artifact tuples, in `artifactId:groupId` format   | List of strings | optional |  `[]`  |
@@ -104,6 +103,7 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-fetch_sources"></a>fetch_sources |  -   | Boolean | optional |  `False`  |
 | <a id="maven.install-generate_compat_repositories"></a>generate_compat_repositories |  Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.   | Boolean | optional |  `False`  |
 | <a id="maven.install-ignore_empty_files"></a>ignore_empty_files |  Treat jars that are empty as if they were not found.   | Boolean | optional |  `False`  |
+| <a id="maven.install-index_file"></a>index_file |  If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`.   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 | <a id="maven.install-known_contributing_modules"></a>known_contributing_modules |  List of Bzlmod modules that are known to be contributing to this repository. Only honoured for the root module.   | List of strings | optional |  `[]`  |
 | <a id="maven.install-lock_file"></a>lock_file |  -   | <a href="https://bazel.build/concepts/labels">Label</a> | optional |  `None`  |
 | <a id="maven.install-repin_instructions"></a>repin_instructions |  Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module.   | String | optional |  `""`  |
@@ -129,5 +129,6 @@ Allows specific maven coordinates to be redirected elsewhere. Commonly used to r
 | <a id="maven.override-name"></a>name |  -   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | optional |  `"maven"`  |
 | <a id="maven.override-coordinates"></a>coordinates |  Maven artifact tuple in `artifactId:groupId` format   | String | required |  |
 | <a id="maven.override-target"></a>target |  Target to use in place of maven coordinates   | <a href="https://bazel.build/concepts/labels">Label</a> | required |  |
+| <a id="maven.override-visibility"></a>visibility |  Visibility of the generated alias target   | List of strings | optional |  `[]`  |
 
 
