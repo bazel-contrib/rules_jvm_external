@@ -712,7 +712,7 @@ public class GradleResolver implements Resolver {
           runfiles
               .withSourceRepository(AutoBazelRepository_GradleResolver.NAME)
               .rlocation(
-                  "rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin-single-jar.jar");
+                  "rules_jvm_external/private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin/plugin_deploy_jar_deploy.jar");
       if (!Files.exists(Paths.get(pluginJarPath))) {
         throw new IOException("Gradle Plugin jar not found at " + pluginJarPath);
       }

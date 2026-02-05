@@ -1,5 +1,5 @@
+load("@rules_java//java:java_binary.bzl", "java_binary")
 load("@rules_java//java:java_library.bzl", "java_library")
-load("@rules_java//java:java_single_jar.bzl", "java_single_jar")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_library(
@@ -21,13 +21,15 @@ java_library(
     ],
 )
 
-java_single_jar(
-    name = "plugin-single-jar",
+# Use java_binary to create a deploy jar with all transitive deps.
+# This avoids java_single_jar which uses Bazel private APIs that are
+# restricted in Bazel 7.
+java_binary(
+    name = "plugin_deploy_jar",
+    main_class = "does.not.Exist",
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__subpackages__",
         "//tests:__subpackages__",
     ],
-    deps = [
-        ":plugin",
-    ],
+    runtime_deps = [":plugin"],
 )
