@@ -6,29 +6,13 @@ tasks:
     shell_commands:
       - bazel run //scripts:refresh-prebuilts
       - git diff --exit-code
-  ubuntu2204:
-    environment:
-      # This tests custom cache locations.
-      # https://github.com/bazelbuild/rules_jvm_external/pull/316
-      COURSIER_CACHE: /tmp/custom_coursier_cache
-      REPIN: 1
-    build_targets:
-      - "//..."
-    shell_commands:
-      - bazel run @regression_testing_coursier//:pin
-      - bazel run @regression_testing_gradle//:pin
-      - bazel run @regression_testing_maven//:pin
-      - bazel run @maven_install_in_custom_location//:pin
-      - bazel run @same_override_target//:pin
-      - tests/bazel_run_tests.sh
-    test_targets:
-      - "--"
-      - "//..."
   ubuntu2204_7_x:
     platform: ubuntu2204
     bazel: 7.x
     environment:
       REPIN: 1
+    build_targets:
+      - "//..."
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_gradle//:pin
@@ -47,6 +31,8 @@ tasks:
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
       COURSIER_CACHE: /tmp/custom_coursier_cache
       REPIN: 1
+    build_targets:
+      - "//..."
     shell_commands:
       - bazel run @regression_testing_coursier//:pin
       - bazel run @regression_testing_gradle//:pin
@@ -57,7 +43,29 @@ tasks:
     test_targets:
       - "--"
       - "//..."
-  macos:
+  ubuntu2204_9_x:
+    platform: ubuntu2204
+    bazel: 9.x
+    environment:
+      # This tests custom cache locations.
+      # https://github.com/bazelbuild/rules_jvm_external/pull/316
+      COURSIER_CACHE: /tmp/custom_coursier_cache
+      REPIN: 1
+    build_targets:
+      - "//..."
+    shell_commands:
+      - bazel run @regression_testing_coursier//:pin
+      - bazel run @regression_testing_gradle//:pin
+      - bazel run @regression_testing_maven//:pin
+      - bazel run @maven_install_in_custom_location//:pin
+      - bazel run @same_override_target//:pin
+      - tests/bazel_run_tests.sh
+    test_targets:
+      - "--"
+      - "//..."
+  macos_9_x:
+    platform: macos
+    bazel: 9.x
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316
@@ -72,8 +80,9 @@ tasks:
       - tests/bazel_run_tests.sh
     test_targets:
       - "//..."
-      # manual tests
-  windows:
+  windows_9_x:
+    platform: windows
+    bazel: 9.x
     environment:
       # This tests custom cache locations.
       # https://github.com/bazelbuild/rules_jvm_external/pull/316

@@ -2,7 +2,7 @@
 tasks:
   android-kotlin-linux:
     name: "Android Kotlin example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/android_kotlin_app
     build_targets:
       - "//:app"
@@ -20,7 +20,7 @@ tasks:
       - "//:app"
   android-local-test-linux:
     name: "Android Robolectric test example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
@@ -36,27 +36,9 @@ tasks:
     working_directory: examples/android_local_test
     build_targets:
       - "//..."
-  bzlmod-linux:
-    name: "bzlmod example"
-    platform: ubuntu1804
-    working_directory: examples/bzlmod
-    build_targets:
-      - "//..."
-  bzlmod-macos:
-    name: "bzlmod example"
-    platform: macos
-    working_directory: examples/bzlmod
-    build_targets:
-      - "//..."
-  bzlmod-windows:
-    name: "bzlmod example"
-    platform: windows
-    working_directory: examples/bzlmod
-    build_targets:
-      - "//..."
   java-export-linux:
     name: "java-export example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/java-export
     build_targets:
       - "//..."
@@ -74,7 +56,7 @@ tasks:
       - "//..."
   kotlin-android-local-test-linux:
     name: "Kotlin Android Robolectric test example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/kt_android_local_test
     test_targets:
       - "//..."
@@ -92,7 +74,7 @@ tasks:
       - "//..."
   kotlin-jvm-export-linux:
     name: "kt_jvm_export example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/kt_jvm_export
     build_targets:
       - "//..."
@@ -112,7 +94,7 @@ tasks:
   #      - "//..."
   pom-file-generation-linux:
     name: "POM file generation example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/pom_file_generation
     build_targets:
       - "//..."
@@ -130,7 +112,7 @@ tasks:
       - "//..."
   protobuf-java-linux:
     name: "Protobuf Java example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/protobuf-java
     test_targets:
       - "//..."
@@ -150,7 +132,7 @@ tasks:
       - "//..."
   scala-akka-linux:
     name: "Scala example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/scala_akka
     build_targets:
       - "//..."
@@ -175,7 +157,7 @@ tasks:
     # - "//..."
   simple-linux:
     name: "Simple example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/simple
     shell_command:
       - "bazel run @maven//:pin"
@@ -197,7 +179,7 @@ tasks:
       - "//..."
   spring-boot-linux:
     name: "Spring boot example"
-    platform: ubuntu1804
+    platform: ubuntu2204
     working_directory: examples/spring_boot
     build_targets:
       - "//..."
