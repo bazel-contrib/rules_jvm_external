@@ -27,6 +27,8 @@ maven.install(
         "androidx.appcompat:appcompat:1.0.2",
         "androidx.core:core-ktx:1.0.1",
     ],
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
     repositories = [
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",

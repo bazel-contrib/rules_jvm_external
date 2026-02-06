@@ -29,6 +29,8 @@ maven.install(
         "androidx.test.espresso:espresso-web:3.1.1",
         "com.android.support:design:27.0.2",
     ],
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
     repositories = [
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
