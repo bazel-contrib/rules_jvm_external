@@ -11,6 +11,6 @@ kt_android_local_test(
         "@maven//:org_assertj_assertj_core",
         "@maven//:org_robolectric_robolectric",
         "@maven//:org_robolectric_shadows_framework",
-        "@robolectric//bazel:android-all",
+        "@rules_robolectric//bazel:android-all",
     ],
 )
