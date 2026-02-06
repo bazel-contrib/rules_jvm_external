@@ -1,19 +1,20 @@
-local_repository(
-    name = "rules_jvm_external",
-    path = "../../",
+module(
+    name = "spring_boot_example",
+    version = "0.0.0",
 )
 
-load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+bazel_dep(name = "rules_java", version = "9.3.0")
+bazel_dep(name = "rules_jvm_external", version = "0.0.0")
 
-rules_jvm_external_deps()
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../..",
+)
 
-load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
-
-rules_jvm_external_setup()
-
-load("@rules_jvm_external//:defs.bzl", "maven_install")
-
-maven_install(
+# Maven dependencies
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    known_contributing_modules = ["protobuf"],
     artifacts = [
         # log4j deps are added only for https://github.com/bazelbuild/rules_jvm_external/issues/630
         "org.apache.logging.log4j:log4j-api:2.16.0",
@@ -30,13 +31,10 @@ maven_install(
         "org.springframework:spring-web:5.1.5.RELEASE",
     ],
     fetch_sources = True,
-    maven_install_json = "//:maven_install.json",
+    lock_file = "//:maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
     version_conflict_policy = "pinned",
 )
-
-load("@maven//:defs.bzl", "pinned_maven_install")
-
-pinned_maven_install()
+use_repo(maven, "maven")

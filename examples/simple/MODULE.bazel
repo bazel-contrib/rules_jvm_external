@@ -1,9 +1,8 @@
 module(
-    name = "android_kotlin_app_example",
+    name = "simple_example",
     version = "0.0.0",
 )
 
-bazel_dep(name = "rules_kotlin", version = "2.2.2")
 bazel_dep(name = "rules_android", version = "0.7.1")
 bazel_dep(name = "rules_jvm_external", version = "0.0.0")
 
@@ -24,8 +23,11 @@ register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     artifacts = [
-        "androidx.appcompat:appcompat:1.0.2",
-        "androidx.core:core-ktx:1.0.1",
+        "junit:junit:4.12",
+        "android.arch.lifecycle:common:1.1.1",
+        "android.arch.lifecycle:viewmodel:1.1.1",
+        "androidx.test.espresso:espresso-web:3.1.1",
+        "com.android.support:design:27.0.2",
     ],
     repositories = [
         "https://maven.google.com",

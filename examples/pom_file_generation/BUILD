@@ -1,8 +1,9 @@
-load("@bazel_common//tools/maven:pom_file.bzl", "pom_file")
+load("@rules_jvm_external//:defs.bzl", "pom_file")
 
 java_library(
     name = "my_library",
     srcs = ["java/com/example/bazel/Main.java"],
+    tags = ["maven_coordinates=com.example:my-library:1.0.0"],
     deps = [
         "@maven//:com_google_guava_guava",
         "@maven//:com_google_inject_guice",
@@ -11,8 +12,6 @@ java_library(
 
 pom_file(
     name = "my_library_pom",
-    targets = [
-        "//:my_library",
-    ],
-    template_file = "pom_template.xml",
+    target = "//:my_library",
+    pom_template = "pom_template.xml",
 )

@@ -1,7 +1,9 @@
+load("@rules_android//android:rules.bzl", "android_binary", "android_library")
+
 android_library(
     name = "my_lib",
     exports = [
-        "@junit_junit//jar",  # alias to @maven//:junit_junit
+        "@maven//:junit_junit",
         "@maven//:android_arch_lifecycle_common",
         "@maven//:android_arch_lifecycle_viewmodel",
         "@maven//:androidx_test_espresso_espresso_web",

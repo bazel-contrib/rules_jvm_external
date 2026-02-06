@@ -5,4 +5,8 @@
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27" />
 
+    <application android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity" />
+    </application>
+
 </manifest>
