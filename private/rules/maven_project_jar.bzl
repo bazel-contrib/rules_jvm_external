@@ -1,6 +1,5 @@
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
-load("@rules_java//java/common:java_common.bzl", "java_common")
-load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("@compatibility_proxy//:proxy.bzl", "JavaInfo", "java_common")
 load("@rules_license//rules:providers.bzl", "PackageInfo")
 load("//private/lib:bzlmod.bzl", "get_module_name_of_owner_of_repo")
 load("//private/lib:coordinates.bzl", "to_external_form", "to_purl", "unpack_coordinates")

@@ -1,4 +1,4 @@
-load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("@compatibility_proxy//:proxy.bzl", "JavaInfo")
 
 MavenInfo = provider(
     fields = {

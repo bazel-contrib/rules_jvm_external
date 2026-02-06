@@ -1,4 +1,4 @@
-load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("@compatibility_proxy//:proxy.bzl", "JavaInfo")
 load(":has_maven_deps.bzl", "MavenInfo", "has_maven_deps")
 load(":maven_utils.bzl", "process_label_keyed_exclusions")
 

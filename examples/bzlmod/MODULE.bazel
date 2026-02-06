@@ -1,11 +1,12 @@
 module(
     name = "rules_jvm_external_examples_bzlmod",
     version = "6.0",
+    bazel_compatibility = [">=7.0.0"],
 )
 
 # Required because `protobuf` contributes to the default namespace
-bazel_dep(name = "protobuf", version = "29.0", repo_name = None)
-bazel_dep(name = "rules_java", version = "8.13.0")
+bazel_dep(name = "protobuf", version = "33.4", repo_name = None)
+bazel_dep(name = "rules_java", version = "9.3.0")
 bazel_dep(name = "rules_jvm_external", version = "0.0")
 local_path_override(
     module_name = "rules_jvm_external",  # matches the name of the `bazel_dep`
@@ -24,11 +25,8 @@ maven.install(
     artifacts = [
         "org.seleniumhq.selenium:selenium-java:4.4.0",
     ],
+    known_contributing_modules = ["protobuf"],
     fetch_sources = True,
-    known_contributing_modules = [
-        "bazel_worker_java",
-        "rules_jvm_external_examples_bzlmod",
-    ],
     lock_file = "//:maven_install.json",
 )
 

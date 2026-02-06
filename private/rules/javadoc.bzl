@@ -1,4 +1,4 @@
-load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("@compatibility_proxy//:proxy.bzl", "JavaInfo")
 load(":maven_project_jar.bzl", "DEFAULT_EXCLUDED_WORKSPACES")
 
 _JavadocInfo = provider(
