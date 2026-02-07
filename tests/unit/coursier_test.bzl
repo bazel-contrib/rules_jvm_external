@@ -7,6 +7,7 @@ load(
     "get_coursier_sha256",
     "get_direct_dependencies",
     "get_netrc_lines_from_entries",
+    "strip_credentials_from_cache_path",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
 load("//private/rules:v1_lock_file.bzl", "add_netrc_entries_from_mirror_urls")
@@ -680,6 +681,39 @@ def _get_direct_dependencies_test_impl(ctx):
     return unittest.end(env)
 
 get_direct_dependencies_test = add_test(_get_direct_dependencies_test_impl)
+
+def _strip_credentials_no_credentials_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "/https/c1/group/artifact/version/foo.jar",
+        strip_credentials_from_cache_path("/https/c1/group/artifact/version/foo.jar"),
+    )
+    return unittest.end(env)
+
+strip_credentials_no_credentials_test = add_test(_strip_credentials_no_credentials_test_impl)
+
+def _strip_credentials_simple_username_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "/https/c1/group/artifact/version/foo.jar",
+        strip_credentials_from_cache_path("/https/a%40c1/group/artifact/version/foo.jar"),
+    )
+    return unittest.end(env)
+
+strip_credentials_simple_username_test = add_test(_strip_credentials_simple_username_test_impl)
+
+def _strip_credentials_email_username_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "/https/c1/group/artifact/version/foo.jar",
+        strip_credentials_from_cache_path("/https/a%40b%40c1/group/artifact/version/foo.jar"),
+    )
+    return unittest.end(env)
+
+strip_credentials_email_username_test = add_test(_strip_credentials_email_username_test_impl)
 
 def coursier_test_suite():
     unittest.suite(

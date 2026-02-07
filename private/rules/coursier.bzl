@@ -225,6 +225,22 @@ def _execute_with_argsfile(
 def _normalize_to_unix_path(path):
     return path.replace("\\", "/")
 
+# Strip credential prefixes from a Coursier cache relative path.
+#
+# Coursier prefixes private repository paths with the URL-encoded username
+# (e.g., "user%40host" for "user@host"). This obfuscates changes to the
+# pinned json, so we remove the prefix.
+#
+# Uses rfind to locate the *last* %40, which is always the user@host separator.
+# This correctly handles email-style usernames (e.g., "user%40domain.com%40host")
+# where the email's @ also becomes %40 in the path.
+def strip_credentials_from_cache_path(relative_path):
+    credential_marker = relative_path.rfind("%40")
+    if credential_marker > -1:
+        user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
+        relative_path = relative_path.replace(user_prefix, "")
+    return relative_path
+
 # Relativize an absolute path to an artifact in coursier's default cache location.
 # After relativizing, also symlink the path into the workspace's output base.
 # Then return the relative path for further processing
@@ -238,14 +254,7 @@ def _relativize_and_symlink_file_in_coursier_cache(repository_ctx, absolute_path
     if len(absolute_path_parts) != 2:
         fail("Error while trying to parse the path of file in the coursier cache: " + absolute_path)
     else:
-        relative_path = absolute_path_parts[1]
-
-        # Coursier prefixes private repositories with the username, which obfuscates
-        # changes to the pinned json so we remove it from the relative path.
-        credential_marker = relative_path.find("%40")
-        if credential_marker > -1:
-            user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
-            relative_path = relative_path.replace(user_prefix, "")
+        relative_path = strip_credentials_from_cache_path(absolute_path_parts[1])
 
         # Make a symlink from the absolute path of the artifact to the relative
         # path within the output_base/external.
