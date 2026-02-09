@@ -5,7 +5,6 @@ module(
 
 bazel_dep(name = "rules_java", version = "9.3.0")
 bazel_dep(name = "rules_jvm_external", version = "0.0.0")
-
 local_path_override(
     module_name = "rules_jvm_external",
     path = "../..",
@@ -14,7 +13,6 @@ local_path_override(
 # Maven dependencies
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
-    known_contributing_modules = ["protobuf"],
     artifacts = [
         # log4j deps are added only for https://github.com/bazelbuild/rules_jvm_external/issues/630
         "org.apache.logging.log4j:log4j-api:2.16.0",
@@ -31,6 +29,7 @@ maven.install(
         "org.springframework:spring-web:5.1.5.RELEASE",
     ],
     fetch_sources = True,
+    known_contributing_modules = ["protobuf"],
     lock_file = "//:maven_install.json",
     repositories = [
         "https://repo1.maven.org/maven2",

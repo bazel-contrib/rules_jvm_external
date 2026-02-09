@@ -12,6 +12,6 @@ java_library(
 
 pom_file(
     name = "my_library_pom",
-    target = "//:my_library",
     pom_template = "pom_template.xml",
+    target = "//:my_library",
 )

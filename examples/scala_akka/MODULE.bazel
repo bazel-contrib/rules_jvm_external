@@ -5,7 +5,6 @@ module(
 
 bazel_dep(name = "rules_scala", version = "7.2.1")
 bazel_dep(name = "rules_jvm_external", version = "0.0.0")
-
 local_path_override(
     module_name = "rules_jvm_external",
     path = "../..",

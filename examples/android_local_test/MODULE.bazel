@@ -6,7 +6,6 @@ module(
 bazel_dep(name = "rules_android", version = "0.7.1")
 bazel_dep(name = "rules_robolectric", version = "4.16.1")
 bazel_dep(name = "rules_jvm_external", version = "0.0.0")
-
 local_path_override(
     module_name = "rules_jvm_external",
     path = "../..",
@@ -18,6 +17,7 @@ use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
 
 android_sdk_repository_extension = use_extension("@rules_android//rules/android_sdk_repository:rule.bzl", "android_sdk_repository_extension")
 use_repo(android_sdk_repository_extension, "androidsdk")
+
 register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
 
 # Maven dependencies
