@@ -743,7 +743,7 @@ def maven_impl(mctx):
                 additional_coursier_options = repo.get("additional_coursier_options"),
             )
         else:
-            workspace_prefix = "@@" if bazel_features.external_deps.is_bzlmod_enabled else "@"
+            workspace_prefix = "@@"
 
             # Only the coursier resolver allows the lock file to be omitted.
             unpinned_maven_pin_command_alias(

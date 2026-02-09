@@ -36,8 +36,6 @@ _MAVEN_RESOLVER_VERSION = "1.9.23"
 
 _GRADLE_VERSION = "8.13"
 
-# NOTE: Please keep any changes to this maven.install in sync with the
-# definition in repositories.bzl
 maven.install(
     name = "rules_jvm_external_deps",
     artifacts = [
@@ -87,11 +85,7 @@ maven.install(
     ],
     strict_visibility = True,
 )
-use_repo(
-    maven,
-    "rules_jvm_external_deps",
-    "unpinned_rules_jvm_external_deps",
-)
+use_repo(maven, "rules_jvm_external_deps")
 
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 

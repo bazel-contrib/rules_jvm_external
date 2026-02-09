@@ -15,9 +15,6 @@
 # For example, some jars have the type "eclipse-plugin", and Coursier would not
 # download them if it's not asked to to resolve "eclipse-plugin".
 
-# Do not load from external dependencies since this is called from the `repositories.bzl` file
-# TODO: lift this restriction once we drop workspace-based build support
-
 load("//private/lib:coordinates.bzl", "unpack_coordinates", _SUPPORTED_PACKAGING_TYPES = "SUPPORTED_PACKAGING_TYPES")
 
 SUPPORTED_PACKAGING_TYPES = _SUPPORTED_PACKAGING_TYPES

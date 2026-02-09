@@ -6,67 +6,9 @@ Transitive Maven artifact resolution and publishing rules for Bazel.
 Status](https://badge.buildkite.com/26d895f5525652e57915a607d0ecd3fc945c8280a0bdff83d9.svg?branch=master)](https://buildkite.com/bazel/rules-jvm-external)
 * Examples build: [![Build status](https://badge.buildkite.com/d1e93c6c5321c9f7d24c71d849f00542f4ac5c9eed763eca2d.svg)](https://buildkite.com/bazel/rules-jvm-external-examples)
 
-
-Table of Contents
-=================
-
-- [Features](#features)
-- [Examples](#examples)
-    - [Projects using rules_jvm_external](#projects-using-rules_jvm_external)
-- [Prerequisites](#prerequisites)
-- [Usage](#usage)
-    - [With bzlmod (Bazel 7 and above)](#with-bzlmod-bazel-7-and-above)
-    - [With WORKSPACE file (legacy)](#with-workspace-file-legacy)
-- [API Reference](#api-reference)
-- [Pinning artifacts and integration with Bazel's downloader](#pinning-artifacts-and-integration-with-bazels-downloader)
-    - [Updating `maven_install.json`](#updating-maven_installjson)
-    - [Requiring lock file repinning when the list of artifacts changes](#requiring-lock-file-repinning-when-the-list-of-artifacts-changes)
-    - [Custom location for `maven_install.json`](#custom-location-for-maven_installjson)
-    - [Multiple `maven_install.json` files](#multiple-maven_installjson-files)
-- [(Experimental) Support for Maven BOM files](#experimental-support-for-maven-bom-files)
-- [Generated targets](#generated-targets)
-- [Outdated artifacts](#outdated-artifacts)
-- [Advanced usage](#advanced-usage)
-    - [Fetch source JARs](#fetch-source-jars)
-    - [Checksum verification](#checksum-verification)
-    - [Using a custom Coursier download url](#using-a-custom-coursier-download-url)
-    - [`artifact` helper macro](#artifact-helper-macro)
-    - [`java_plugin_artifact` helper macro](#java_plugin_artifact-helper-macro)
-    - [Multiple `maven_install` declarations for isolated artifact version trees](#multiple-maven_install-declarations-for-isolated-artifact-version-trees)
-    - [Detailed dependency information specifications](#detailed-dependency-information-specifications)
-    - [Artifact exclusion](#artifact-exclusion)
-    - [Compile-only dependencies](#compile-only-dependencies)
-    - [Test-only dependencies](#test-only-dependencies)
-    - [Resolving user-specified and transitive dependency version conflicts](#resolving-user-specified-and-transitive-dependency-version-conflicts)
-    - [Overriding generated targets](#overriding-generated-targets)
-    - [Proxies](#proxies)
-    - [Repository aliases](#repository-aliases)
-    - [Repository remapping](#repository-remapping)
-    - [Hiding transitive dependencies](#hiding-transitive-dependencies)
-    - [Accessing transitive dependencies list](#accessing-transitive-dependencies-list)
-    - [Fetch and resolve timeout](#fetch-and-resolve-timeout)
-    - [Ignoring empty jars](#ignoring-empty-jars)
-    - [Duplicate artifact warning](#duplicate-artifact-warning)
-    - [Provide JVM options for artifact resolution](#provide-jvm-options-for-artifact-resolution)
-    - [Provide JVM options for Coursier with `COURSIER_OPTS`](#provide-jvm-options-for-coursier-with-coursier_opts)
-    - [Resolving issues with nonstandard system default JDKs](#resolving-issues-with-nonstandard-system-default-jdks)
-    - [Exporting and consuming artifacts from external repositories](#exporting-and-consuming-artifacts-from-external-repositories)
-    - [Publishing to External Repositories](#publishing-to-external-repositories)
-- [Configuring the dependency resolver](#configuring-the-dependency-resolver)
-    - [Common options](#common-options)
-    - [Configuring Coursier](#configuring-coursier)
-    - [Configuring Maven](#configuring-maven)
-- [IPv6 support](#ipv6-support)
-- [Developing this project](#developing-this-project)
-    - [Verbose / debug mode](#verbose--debug-mode)
-    - [Tests](#tests)
-    - [Installing the Android SDK on macOS](#installing-the-android-sdk-on-macos)
-    - [Generating documentation](#generating-documentation)
-
 ## Features
 
-* MODULE.bazel bzlmod configuration (Bazel 7 and above) 
-* WORKSPACE configuration
+* MODULE.bazel bzlmod configuration
 * Artifact version resolution with Coursier, Maven or Gradle
 * Import downloaded JAR, AAR, source JARs
 * Export built JARs to Maven repositories
@@ -88,64 +30,40 @@ You can find examples in the [`examples/`](./examples/) directory.
 ### Projects using rules_jvm_external
 
 Find other GitHub projects using `rules_jvm_external`
-[with this search query](https://github.com/search?p=1&q=rules_jvm_external+filename%3A%2FWORKSPACE+filename%3A%5C.bzl&type=Code).
-
+[with this search query](https://github.com/search?q=rules_jvm_external+filename%3AMODULE.bazel&type=Code).
 
 ## Prerequisites
 
-* Bazel 6.4.0, up to the current LTS version.
-* Support for Bazel versions between `5.4` and `7.x` is only available on releases `6.x`.
+**Compatibility guideline:** This project aims to be backwards compatible with
+the (current LTS - 2) version. If the current LTS version is 9, then we aim to
+support versions 7, 8 and 9. 
+
+The project will only support the last release of non-LTS releases. That is, if
+the current LTS version is 9, then only Bazel 7.7.1 would be supported of the 7.x
+versions.
+
+* Support for Bazel versions between `7.x` and `9.x` is only available on releases `7.x`
+* Support for Bazel versions between `5.x` and `7.x` is only available on releases `6.x`.
 * Support for Bazel versions between `4.x` and `5.4` is only available on releases `5.x`.
 * Support for Bazel versions before `4.0.0` is only available on releases `4.2` or earlier.
 
-**Compatibility guideline:** This project aims to be backwards compatible with
-the (current LTS - 2) version. If the current LTS version is 8, then we aim to
-support versions 6, 7 and 8.
+## API Reference
+
+You can find the complete API reference for rules at [docs/api.md](docs/api.md) and for the
+bzlmod tag classes in [docs/bzlmod.md]
 
 ## Usage
 
-### With bzlmod (Bazel 7 and above)
+See [bzlmod.md](./docs/bzlmod.md) for complete usage instructions.
 
-If you are starting a new project, or your project is already using Bazel 7 and
-above, we recommend using [`bzlmod`](https://bazel.build/external/overview) to
-manage your external dependencies, including Maven dependencies with
-`rules_jvm_external`. It address several shortcomings of the `WORKSPACE`
-mechanism. If you are unable to use `bzlmod`, `rules_jvm_external` also supports
-the `WORKSPACE` mechanism (see below).
+```starlark
+# MODULE.bazel
 
-See [bzlmod.md](./docs/bzlmod.md) for the usage instructions. bzlmod is
-on-by-default in Bazel 7.0.
+bazel_dep(name = "rules_jvm_external", version = "7.0.0")
 
-### With WORKSPACE file (legacy)
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 
-NOTE: WORKSPACE support is disabled by default in Bazel 8.0, and will be removed in Bazel 9.0.
-
-List the top-level Maven artifacts and servers in the WORKSPACE:
-
-```python
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-RULES_JVM_EXTERNAL_TAG = "4.5"
-RULES_JVM_EXTERNAL_SHA = "b17d7388feb9bfa7f2fa09031b32707df529f26c91ab9e5d909eb1676badd9a6"
-
-http_archive(
-    name = "rules_jvm_external",
-    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
-    sha256 = RULES_JVM_EXTERNAL_SHA,
-    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
-)
-
-load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
-
-rules_jvm_external_deps()
-
-load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
-
-rules_jvm_external_setup()
-
-load("@rules_jvm_external//:defs.bzl", "maven_install")
-
-maven_install(
+maven.install(
     artifacts = [
         "junit:junit:4.12",
         "androidx.test.espresso:espresso-core:3.1.1",
@@ -157,40 +75,33 @@ maven_install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
+    lock_file = "//:maven_install.json",
 )
 ```
 
 Credentials for private repositories can also be specified using a property file
 or environment variables. See the [Coursier
 documentation](https://get-coursier.io/docs/other-credentials.html#property-file)
-for more information.
+for more information. You may also use a `.netrc` file.
 
-`rules_jvm_external_deps` uses a default list of maven repositories to download
- `rules_jvm_external`'s own dependencies from. Should you wish to change this,
- use the `repositories` parameter, and also set the path to the lock file:
+### Pinning and lock files
 
- ```python
-rules_jvm_external_deps(
-    repositories = ["https://mycorp.com/artifacts"],
-    deps_lock_file = "@//:rules_jvm_external_deps_install.json")
-rules_jvm_external_setup()
-```
+In order to support repeatable builds, and to avoid projects needing to perform
+their own dependency resolution at build time, it is strongly recommend that
+projects "pin" their dependencies. This is a three step process:
 
-If you are using `bzlmod`, define an `install` tag in your root
-`MODULE.bazel` which overrides the values:
+1. Add a `lock_file` attribute to the `install` tag. The lock file is traditionally
+   called `maven_install.json`.
+2. `touch maven_install.json BUILD.bazel` The lock file must exist before pinning
+   but may be empty. It must also be a valid target. This command creates both of
+   the required files.
+3. `REPIN=1 bazel run @maven//:pin` This will generate the lock file.
 
-```python
-maven.install(
-    name = "rules_jvm_external_deps",
-    repositories = ["https://mycorp.com/artifacts"],
-    lock_file = "//:rules_jvm_external_deps_install.json",
-)
-```
+You may now add the build and lock file to source control.
 
-Once these changes have been made, repin using `REPIN=1 bazel run
-@rules_jvm_external_deps//:pin` and commit the file to your version
-control system (note that at this point you will need to maintain your
-customized `rules_jvm_external_deps_install.json`):
+Subsequent repins are required every time you modify the artifacts or BOMs in
+used in the dependency resolution. `rules_jvm_external` will fail the build and
+notify you if a repin is ever required.
 
 Next, reference the artifacts in the BUILD file with their versionless label:
 
@@ -217,10 +128,6 @@ The default label syntax for an artifact `foo.bar:baz-qux:1.2.3` is `@maven//:fo
 * All non-alphanumeric characters are substituted with underscores.
 * Only the group and artifact IDs are required.
 * The target is located in the `@maven` top level package (`@maven//`).
-
-## API Reference
-
-You can find the complete API reference at [docs/api.md](docs/api.md).
 
 ## Pinning artifacts and integration with Bazel's downloader
 
@@ -256,28 +163,14 @@ initial `maven_install.json` at the root of your Bazel workspace:
 $ bazel run @maven//:pin
 ```
 
-Then, specify `maven_install_json` in `maven_install` and load
-`pinned_maven_install` from `@maven//:defs.bzl`:
+Then, specify `lock_file` in your `maven.install` in `MODULE.bazel`:
 
-```python
-maven_install(
+```starlark
+maven.install(
     # artifacts, repositories, ...
-    maven_install_json = "//:maven_install.json",
+    lock_file = "//:maven_install.json",
 )
-
-load("@maven//:defs.bzl", "pinned_maven_install")
-pinned_maven_install()
 ```
-
-**Note:** The `//:maven_install.json` label assumes you have a BUILD file in
-your project's root directory. If you do not have one, create an empty BUILD
-file to fix issues you may see. See
-[#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
-
-**Note:** If you're using an older version of `rules_jvm_external` and
-haven't repinned your dependencies, you may see a warning that you lock
-file "does not contain a signature of the required artifacts" then don't
-worry: either ignore the warning or repin the dependencies.
 
 ### Updating `maven_install.json`
 
@@ -289,14 +182,14 @@ repository:
 $ REPIN=1 bazel run @maven//:pin
 ```
 
-Without re-pinning, `maven_install` will not pick up the changes made to the
-WORKSPACE, as `maven_install.json` is now the source of truth.
+Without re-pinning, `maven_install` will not pick up the changes made to
+`MODULE.bazel`, as `maven_install.json` is now the source of truth.
 
 ### Requiring lock file repinning when the list of artifacts changes
 
 It can be easy to forget to update the `maven_install.json` lock file
 when updating artifacts in a `maven_install`. Normally,
-rules_jvm_external will print a warning to the console and continue
+`rules_jvm_external` will print a warning to the console and continue
 the build when this happens, but by setting the
 `fail_if_repin_required` attribute to `True`, this will be treated as
 a build error, causing the build to fail. When this attribute is set,
@@ -311,26 +204,33 @@ RULES_JVM_EXTERNAL_REPIN=1 bazel run @maven//:pin
 ```
 
 Alternatively, it is also possible to modify the
-`fail_if_repin_required` attribute in your `WORKSPACE` file, run
+`fail_if_repin_required` attribute in your `MODULE.bazel` file, run
 `bazel run @maven//:pin` and then reset the
 `fail_if_repin_required` attribute.
 
 ### Custom location for `maven_install.json`
 
 You can specify a custom location for `maven_install.json` by changing the
-`maven_install_json` attribute value to point to the new file label. For example:
+`lock_file` attribute value to point to the new file label. For example:
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "maven_install_in_custom_location",
     artifacts = ["com.google.guava:guava:27.0-jre"],
     repositories = ["https://repo1.maven.org/maven2"],
-    maven_install_json = "@rules_jvm_external//tests/custom_maven_install:maven_install.json",
+    lock_file = "//tests/custom_maven_install:maven_install.json",
 )
-
-load("@maven_install_in_custom_location//:defs.bzl", "pinned_maven_install")
-pinned_maven_install()
 ```
+
+**Note:** The `//:maven_install.json` label assumes you have a BUILD file in
+your project's root directory. If you do not have one, create an empty BUILD
+file to fix issues you may see. See
+[#242](https://github.com/bazelbuild/rules_jvm_external/issues/242)
+
+**Note:** If you're using an older version of `rules_jvm_external` and
+haven't repinned your dependencies, you may see a warning that you lock
+file "does not contain a signature of the required artifacts" then don't
+worry: either ignore the warning or repin the dependencies.
 
 Future artifact pinning updates to `maven_install.json` will overwrite the file
 at the specified path instead of creating a new one at the default root
@@ -338,30 +238,24 @@ directory location.
 
 ### Multiple `maven_install.json` files
 
-If you have multiple `maven_install` declarations, you have to alias
-`pinned_maven_install` to another name to prevent redefinitions:
+If you have multiple `maven.install` declarations, each should have a unique
+`name` and its own `lock_file`:
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "foo",
-    maven_install_json = "//:foo_maven_install.json",
+    lock_file = "//:foo_maven_install.json",
     # ...
 )
 
-load("@foo//:defs.bzl", foo_pinned_maven_install = "pinned_maven_install")
-foo_pinned_maven_install()
-
-maven_install(
+maven.install(
     name = "bar",
-    maven_install_json = "//:bar_maven_install.json",
+    lock_file = "//:bar_maven_install.json",
     # ...
 )
-
-load("@bar//:defs.bzl", bar_pinned_maven_install = "pinned_maven_install")
-bar_pinned_maven_install()
 ```
 
-## (Experimental) Support for Maven BOM files
+## Support for Maven BOM files
 
 Maven BOMs can be used by using the `boms` attribute, for example:
 
@@ -411,7 +305,8 @@ These targets can be referenced by:
 
 **Transitive classes**: To use a class from `hamcrest-core` in your test, it's not sufficient to just
 depend on `@maven//:junit_junit` even though JUnit depends on Hamcrest. The compile classes are not exported
-transitively, so your test should also depend on `@maven//:org_hamcrest_hamcrest_core`.
+transitively, so your test should also depend on `@maven//:org_hamcrest_hamcrest_core`. However
+it is recommended that you add first-order dependencies directly to your build files.
 
 **Original coordinates**: The generated `tags` attribute value also contains the original coordinates of
 the artifact, which integrates with rules like [bazel-common's
@@ -426,6 +321,8 @@ To check for updates of artifacts, run the following command at the root of your
 ```
 $ bazel run @maven//:outdated
 ```
+
+This will list the coordinates of every dependency that might need to be updated in your repo.
 
 ## Advanced usage
 
@@ -532,32 +429,26 @@ java_library(
 
 ### Multiple `maven_install` declarations for isolated artifact version trees
 
-If your WORKSPACE contains several projects that use different versions of the
-same artifact, you can specify multiple `maven_install` declarations in the
-WORKSPACE, with a unique repository name for each of them.
+If your project has several components that use different versions of the
+same artifact, you can specify multiple `maven.install` declarations in
+`MODULE.bazel`, with a unique repository name for each of them.
 
 For example, if you want to use the JRE version of Guava for a server app, and
-the Android version for an Android app, you can specify two `maven_install`
+the Android version for an Android app, you can specify two `maven.install`
 declarations:
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "server_app",
     artifacts = [
         "com.google.guava:guava:27.0-jre",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
 )
 
-maven_install(
+maven.install(
     name = "android_app",
     artifacts = [
         "com.google.guava:guava:27.0-android",
-    ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
     ],
 )
 ```
@@ -599,41 +490,32 @@ This situation is provided for by allowing the artifact to be specified as a map
 containing all of the required information. This map can express more
 information than the coordinate strings can, so internally the coordinate
 strings are parsed into the artifact map with default values for the additional
-items. To assist in generating the maps, you can pull in the file `specs.bzl`
-alongside `defs.bzl` and import the `maven` struct, which provides several
-helper functions to assist in creating these maps. An example:
+items. To assist in generating the maps, you can use either the `artifact` or
+`amend_artifact` tags. An example:
 
 ```python
-load("@rules_jvm_external//:defs.bzl", "artifact")
-load("@rules_jvm_external//:specs.bzl", "maven")
-
-maven_install(
+maven.install(
     artifacts = [
-        maven.artifact(
-            group = "com.google.guava",
-            artifact = "guava",
-            version = "27.0-android",
-            exclusions = [
-                ...
-            ]
-        ),
         "junit:junit:4.12",
-        ...
     ],
-    repositories = [
-        maven.repository(
-            "https://some.private.maven.re/po",
-            user = "johndoe",
-            password = "example-password"
-        ),
-        "https://repo1.maven.org/maven2",
+)
+
+maven.artifact(
+    group = "com.google.guava",
+    artifact = "guava",
+    version = "27.0-android",
+    exclusions = [
         ...
-    ],
+    ]
+)
+
+maven.amend_artifact(
+    coordinates = "junit:junit",
+    testonly = "true",
 )
 ```
 
-Note [when using `bzlmod`](docs/bzlmod.md) the syntax in `MODULE.bazel` is
-different than shown above.
+See [bzlmod.md](docs/bzlmod.md) for more details.
 
 ### Artifact exclusion
 
@@ -641,44 +523,25 @@ If you want to exclude an artifact from the transitive closure of a top level
 artifact, specify its `group-id:artifact-id` in the `exclusions` attribute of
 the `maven.artifact` helper:
 
-```python
-load("@rules_jvm_external//:specs.bzl", "maven")
-
-maven_install(
-    artifacts = [
-        maven.artifact(
-            group = "com.google.guava",
-            artifact = "guava",
-            version = "27.0-jre",
-            exclusions = [
-                maven.exclusion(
-                    group = "org.codehaus.mojo",
-                    artifact = "animal-sniffer-annotations"
-                ),
-                "com.google.j2objc:j2objc-annotations",
-            ]
-        ),
-        # ...
-    ],
-    repositories = [
-        # ...
+```starlark
+maven.artifact(
+    group = "com.google.guava",
+    artifact = "guava",
+    version = "27.0-jre",
+    exclusions = [
+        "org.codehaus.mojo:animal-sniffer-annotations",
+        "com.google.j2objc:j2objc-annotations",
     ],
 )
 ```
 
-You can specify the exclusion using either the `maven.exclusion` helper or the
-`group-id:artifact-id` string directly.
-
 You can also exclude artifacts globally using the `excluded_artifacts`
-attribute in `maven_install`:
+attribute in the `install` tag:
 
 
 ```python
-maven_install(
+maven.install(
     artifacts = [
-        # ...
-    ],
-    repositories = [
         # ...
     ],
     excluded_artifacts = [
@@ -690,17 +553,13 @@ maven_install(
 ### Compile-only dependencies
 
 If you want to mark certain artifacts as compile-only dependencies, use the
-`neverlink` attribute in the `maven.artifact` helper:
+`neverlink` attribute in the `artifact` or `amend_artifact` tag:
 
-```python
-load("@rules_jvm_external//:specs.bzl", "maven")
-
-maven_install(
-    artifacts = [
-        maven.artifact("com.squareup", "javapoet", "1.11.0", neverlink = True),
-    ],
-    # ...
-)
+```starlark
+maven.amend_artifact(
+    coordinates = "com.squareup:javapoet",
+    neverlink = "true",
+)    
 ```
 
 This instructs `rules_jvm_external` to mark the generated target for
@@ -710,21 +569,17 @@ artifact available only for compilation and not at runtime.
 ### Test-only dependencies
 
 If you want to mark certain artifacts as test-only dependencies, use the
-`testonly` attribute in the `maven.artifact` helper:
+`testonly` attribute in the `artifact` or `amend_artifact` tag:
 
-```python
-load("@rules_jvm_external//:specs.bzl", "maven")
-
-maven_install(
-    artifacts = [
-        maven.artifact("junit", "junit", "4.13", testonly = True),
-    ],
-    # ...
+```starlark
+maven.amend_artifact(
+    coordinates = "junit:junit",
+    testonly = "true",
 )
 ```
 
 This instructs `rules_jvm_external` to mark the generated target for
-`junit:Junit` with the `testonly = True` attribute, making the
+`junit:junit` with the `testonly = True` attribute, making the
 artifact available only for tests (e.g. `java_test`), or targets specifically
 marked as `testonly = True`.
 
@@ -744,15 +599,12 @@ for version handling.
 For example, pulling in guava transitively via google-cloud-storage resolves to
 guava-26.0-android.
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "pinning",
     artifacts = [
         "com.google.cloud:google-cloud-storage:1.66.0",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ]
 )
 ```
 
@@ -764,16 +616,13 @@ $ bazel query @pinning//:all | grep guava_guava
 
 Pulling in guava-27.0-android directly works as expected.
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "pinning",
     artifacts = [
         "com.google.cloud:google-cloud-storage:1.66.0",
         "com.google.guava:guava:27.0-android",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ]
 )
 ```
 
@@ -785,16 +634,13 @@ $ bazel query @pinning//:all | grep guava_guava
 
 Pulling in guava-25.0-android (a lower version), resolves to guava-26.0-android. This is the default version conflict policy in action, where artifacts are resolved to the highest version.
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "pinning",
     artifacts = [
         "com.google.cloud:google-cloud-storage:1.66.0",
         "com.google.guava:guava:25.0-android",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ]
 )
 ```
 
@@ -806,16 +652,13 @@ $ bazel query @pinning//:all | grep guava_guava
 
 Now, if we add `version_conflict_policy = "pinned"`, we should see guava-25.0-android getting pulled instead. The rest of non-specified artifacts still resolve to the highest version in the case of version conflicts.
 
-```python
-maven_install(
+```starlark
+maven.install(
     name = "pinning",
     artifacts = [
         "com.google.cloud:google-cloud-storage:1.66.0",
         "com.google.guava:guava:25.0-android",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ]
     version_conflict_policy = "pinned",
 )
 ```
@@ -829,26 +672,24 @@ $ bazel query @pinning//:all | grep guava_guava
 There may be cases where you want the `default` pinning strategy, but
 want one specific dependency to be pinned, no matter what. In these
 cases, you can use the `force_version` attribute on the
-`maven.artifact` helper to ensure this happens.
+`artifact` or `amend_artifact` helper to ensure this happens.
 
 ```starlark
-maven_install(
+maven.install(
     name = "forcing_versions",
     artifacts = [
-        # Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,
-        # the resolution will fail when using `coursier`
-        maven.artifact(
-            artifact = "guava",
-            force_version = True,
-            group = "com.google.guava",
-            version = "23.3-jre",
-        ),
         # And something that depends on a more recent version of guava
         "xyz.rogfam:littleproxy:2.1.0",
     ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
+)
+
+# Specify an ancient version of guava, and force its use. If we try to use `[23.3-jre]` as the version,
+# the resolution will fail when using `coursier`
+maven.artifact(
+    artifact = "guava",
+    force_version = "true",
+    group = "com.google.guava",
+    version = "23.3-jre",
 )
 ```
 
@@ -856,33 +697,15 @@ In this case, once pinning is complete, guava `23.3-jre` will be selected.
 
 ### Overriding generated targets
 
-When are using a WORKSPACE file you can override the generated targets for
-artifacts with a target label of your choice. For instance, if you want to
-provide your own definition of `@maven//:com_google_guava_guava` at
-`//third_party/guava:guava`, specify the mapping in the `override_targets`
-attribute:
+You can override the generated targets for artifacts with a target label of your
+choice. For instance, if you want to provide your own definition of
+`@maven//:com_google_guava_guava` at `//third_party/guava:guava`, use the
+`maven.override` tag:
 
-```python
-maven_install(
-    name = "pinning",
-    artifacts = [
-        "com.google.guava:guava:27.0-jre",
-    ],
-    repositories = [
-        "https://repo1.maven.org/maven2",
-    ],
-    override_targets = {
-        "com.google.guava:guava": "@//third_party/guava:guava",
-    },
-)
-```
-
-When you are using bzlmod you can override the generated target with
-```
+```starlark
 maven.override(
-    name = "maven",
     coordinates = "com.google.guava:guava",
-    target = "//third_party/guava:guava",
+    target = "@//third_party/guava:guava",
 )
 ```
 
@@ -910,7 +733,7 @@ labels in the form of `@group_artifact//jar`, like `@com_google_guava_guava//jar
 is different from the `@maven//:group_artifact` naming style used in this project.
 
 As some Bazel projects depend on the `@group_artifact//jar` style labels, we
-provide a `generate_compat_repositories` attribute in `maven_install`. If
+provide a `generate_compat_repositories` attribute in `maven.install`. If
 enabled, JAR artifacts can also be referenced using the `@group_artifact//jar`
 target label. For example, `@maven//:com_google_guava_guava` can also be
 referenced using `@com_google_guava_guava//jar`.
@@ -919,44 +742,17 @@ The artifacts can also be referenced using the style used by
 `java_import_external` as `@group_artifact//:group_artifact` or
 `@group_artifact` for short.
 
-```python
-maven_install(
+```starlark
+maven.install(
     artifacts = [
         # ...
     ],
     repositories = [
         # ...
     ],
-    generate_compat_repositories = True
-)
-
-load("@maven//:compat.bzl", "compat_repositories")
-compat_repositories()
-```
-
-#### Repository remapping
-
-If the `maven_jar` or `jvm_import_external` is not named according to `rules_jvm_external`'s
-conventions, you can apply
-[repository remapping](https://docs.bazel.build/versions/master/external.html#shadowing-dependencies)
-from the expected name to the new name for compatibility.
-
-For example, if an external dependency uses `@guava//jar`, and `rules_jvm_external`
-generates `@com_google_guava_guava//jar`, apply the `repo_mapping` attribute to the external
-repository WORKSPACE rule, like `http_archive` in this example:
-
-```python
-http_archive(
-    name = "my_dep",
-    repo_mapping = {
-        "@guava": "@com_google_guava_guava",
-    }
-    # ...
+    generate_compat_repositories = True,
 )
 ```
-
-With `repo_mapping`, all references to `@guava//jar` in `@my_dep`'s BUILD files will be mapped
-to `@com_google_guava_guava//jar` instead.
 
 ### Hiding transitive dependencies
 
@@ -966,8 +762,8 @@ list, since doing so may eliminate transitive dependencies from the build
 graph.  To force rule authors to explicitly declare all directly referenced
 artifacts, use the `strict_visibility` attribute in `maven_install`:
 
-```python
-maven_install(
+```starlark
+maven.install(
     artifacts = [
         # ...
     ],
@@ -988,7 +784,7 @@ transitive, source, javadoc and other artifacts. `maven_artifacts` list contains
 versioned maven coordinate strings of all dependencies.
 
 For example:
-```python
+```starlark
 load("@maven//:defs.bzl", "maven_artifacts")
 
 load("@rules_jvm_external//:defs.bzl", "artifact")
@@ -1009,8 +805,8 @@ The default timeout to fetch and resolve artifacts is 600 seconds.  If you need
 to change this to resolve a large number of artifacts you can set the
 `resolve_timeout` attribute in `maven_install`:
 
-```python
-maven_install(
+```starlark
+maven.install(
     artifacts = [
         # ...
     ],
@@ -1028,8 +824,8 @@ If you would like to avoid such artifacts, and treat jars that are empty (i.e. t
 empty file) as if they were not found, you can set the `ignore_empty_files` attribute in `maven_install` to remove such
 artifacts from coursier's output:
 
-```python
-maven_install(
+```starlark
+maven.install(
     artifacts = [
         # ...
     ],
@@ -1048,12 +844,9 @@ This option may be useful if you see empty source jars when `fetch_sources` is e
 
 By default you will be warned if there are duplicate artifacts in your artifact list. The `duplicate_version_warning` setting can be used to change this behavior. Use "none" to disable the warning and "error" to fail the build instead of warn.
 
-```python
-maven_install(
+```starlark
+maven.install(
     artifacts = [
-        # ...
-    ],
-    repositories = [
         # ...
     ],
     duplicate_version_warning = "error"
@@ -1064,7 +857,7 @@ maven_install(
 
 You can set the `JDK_JAVA_OPTIONS` environment variable to provide additional JVM options to the artifact resolver.
 
-```python
+```bash
 build --repo_env=JDK_JAVA_OPTIONS=-Djavax.net.ssl.trustStore=<path-to-cacerts>
 ```
 can be added to your .bazelrc file if you need to specify custom cacerts for artifact resolution.
@@ -1123,59 +916,15 @@ java.lang.UnsatisfiedLinkError: libstdc++.so.6: cannot open shared object file: 
   ...
 ```
 
-## Exporting and consuming artifacts from external repositories
+## Exporting and consuming artifacts from non-root modules
 
-If you're writing a library that has dependencies, you should define a constant that
-lists all of the artifacts that your library requires. For example:
+With bzlmod, dependencies from `bazel_dep` modules can be automatically
+merged. This allows non-root modules to contribute to the dependency
+resolution of the root module. The project calls this "module dependency
+layering".
 
-```python
-# my_library/BUILD
-# Public interface of the library
-java_library(
-  name = "my_interface",
-  deps = [
-    "@maven//:junit_junit",
-    "@maven//:com_google_inject_guice",
-  ],
-)
-```
-
-```python
-# my_library/library_deps.bzl
-# All artifacts required by the library
-MY_LIBRARY_ARTIFACTS = [
-  "junit:junit:4.12",
-  "com.google.inject:guice:4.0",
-]
-```
-
-Users of your library can then load the constant in their `WORKSPACE` and add the
-artifacts to their `maven_install`. For example:
-
-```python
-# user_project/WORKSPACE
-load("@my_library//:library_deps.bzl", "MY_LIBRARY_ARTIFACTS")
-
-maven_install(
-  artifacts = [
-        "junit:junit:4.11",
-        "com.google.guava:guava:26.0-jre",
-  ] + MY_LIBRARY_ARTIFACTS,
-)
-```
-
-```python
-# user_project/BUILD
-java_library(
-  name = "user_lib",
-  deps = [
-    "@my_library//:my_interface",
-    "@maven//:junit_junit",
-  ],
-)
-```
-
-Any version conflicts or duplicate artifacts will resolved automatically.
+See [bzlmod.md](./docs/bzlmod.md) for details on module dependency
+layering.
 
 ## Publishing to External Repositories
 
@@ -1217,7 +966,9 @@ kt_jvm_export(
 
 In order to publish the artifact, use `bazel run`:
 
-`bazel run --define "maven_repo=file://$HOME/.m2/repository" //user_project:exported_lib.publish`
+```bash
+bazel run --define "maven_repo=file://$HOME/.m2/repository" //user_project:exported_lib.publish
+```
 
 Or, to publish to (eg) Sonatype's OSS repo:
 
@@ -1256,6 +1007,7 @@ All resolvers understand the following environment variables:
 | Environment variable | Meaning                                                           |
 |----------------------|-------------------------------------------------------------------|
 | `RJE_VERBOSE`        | When set to `1` extra diagnostic logging will be sent to `stderr` |
+| `RJE_MAX_THREADS`    | Integer giving the maximum number of threads to use <br/>for downloads. The default value is whichever is lower: the number of processors on the machine, or 5 |
 
 ### Configuring Coursier
 
@@ -1272,7 +1024,7 @@ environment variables are honoured:
 ### Configuring Maven
 
 A Maven-backed resolver can be used by using setting the `resolver`
-attribute of `maven_install` to `maven`. This resolver requires the use of a
+attribute of the `install` tag to `maven`. This resolver requires the use of a
 lock file. For bootstrapping purposes, this file may simply be an empty
 file. When using the maven-backed resolver, the following environment
 variables are honoured:
@@ -1280,7 +1032,6 @@ variables are honoured:
 | Environment variable | Meaning                                                                                                                                                        |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote repositories to see if a dependency is present, and just assumes it is                                              |
-| `RJE_MAX_THREADS`    | Integer giving the maximum number of threads to use <br/>for downloads. The default value is whichever is lower: the number of processors on the machine, or 5 |
 | `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.m2/repository` directory to speed up dependency resolution                                                               |
 
 Using the unsafe cache option will use your local `$HOME/.m2/repository` as
@@ -1298,6 +1049,11 @@ A Gradle-backed resolver can be used by setting the `resolver`
 attribute of `maven_install` to `gradle`. This resolver requires the
 use of a lock file. For bootstrapping purposes, this file may simply
 be an empty file.
+
+| Environment variable | Meaning                                                                                                          |
+|----------------------|------------------------------------------------------------------------------------------------------------------|
+| `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote repositories to see if a dependency is present, and just assumes it is |
+| `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.gradle` directory to speed up dependency resolution              |
 
 ## IPv6 support
 

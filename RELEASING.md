@@ -14,22 +14,17 @@ coordinate the work that we need to complete for the next release.
 
 ## Make sure all dependencies are up to date
 
-Open up `repositories.bzl` and make sure that our dependencies are the
-most recent versions. If they're not, create a PR to update them, and
-land the change.
+Check the `bazel_dep` entries and the `maven.install` (named
+`rules_jvm_external_deps`) in `MODULE.bazel` and make sure that our
+dependencies are the most recent versions. If they're not, create a
+PR to update them, and land the change.
 
 ## Update the `MODULE.bazel` file to reflect the latest changes
 
-There are three things you need to check
+Check that the `version` parameter in the `module` declaration is the
+same as the version number of the release you're about to push.
 
-1. The `version` parameter in the `module` declaration must be the
-   same as the version number of the release you're about to push.
-2. The `bazel_dep` entries must match the entries in
-   `repositories.bzl`
-3. The deps in the `maven.install` (named `rules_jvm_external_deps`)
-   must match the same deps from `repositories.bzl`
-
-You may well need to create a PR to update these too.
+You may well need to create a PR to update this too.
 
 ## Tag the release in `git` and push the tag
 
