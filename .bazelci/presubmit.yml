@@ -7,6 +7,7 @@ tasks:
       - bazel run //scripts:refresh-prebuilts
       - git diff --exit-code
   ubuntu2204_7_x:
+    name: Bazel 7.x tests
     platform: ubuntu2204
     bazel: 7.x
     environment:
@@ -24,6 +25,7 @@ tasks:
       - "--"
       - "//..."
   ubuntu2204_8_x:
+    name: Bazel 8.x tests
     platform: ubuntu2204
     bazel: 8.x
     environment:
@@ -44,6 +46,7 @@ tasks:
       - "--"
       - "//..."
   ubuntu2204_9_x:
+    name: Bazel 9.x tests
     platform: ubuntu2204
     bazel: 9.x
     environment:
@@ -64,6 +67,7 @@ tasks:
       - "--"
       - "//..."
   macos_9_x:
+    name: Bazel 9.x on macOS
     platform: macos
     bazel: 9.x
     environment:
@@ -81,6 +85,7 @@ tasks:
     test_targets:
       - "//..."
   windows_9_x:
+    name: Bazel 9.x on Windows
     platform: windows
     bazel: 9.x
     environment:
