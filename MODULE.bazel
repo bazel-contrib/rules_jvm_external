@@ -11,7 +11,7 @@ bazel_dep(name = "package_metadata", version = "0.0.7")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_license", version = "1.0.0")
 bazel_dep(name = "rules_java", version = "9.3.0")
-bazel_dep(name = "rules_kotlin", version = "2.1.3")
+bazel_dep(name = "rules_kotlin", version = "2.2.2")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 
 # Use compatibility_proxy for Bazel 7 compatibility with rules_java 9.x
