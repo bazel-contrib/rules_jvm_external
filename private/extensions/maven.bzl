@@ -362,7 +362,21 @@ def process_gradle_versions_file(parsed, bom_modules):
         if module_id in bom_modules:
             boms.append(unpack_coordinates(coords))
         else:
-            artifacts.append(unpack_coordinates(coords))
+            artifact = unpack_coordinates(coords)
+            if type(value) == "dict":
+                artifact_dict = {
+                    "group": artifact.group,
+                    "artifact": artifact.artifact,
+                    "version": getattr(artifact, "version", None),
+                    "packaging": getattr(artifact, "packaging", None),
+                    "classifier": getattr(artifact, "classifier", None),
+                }
+                if "classifier" in value.keys():
+                    artifact_dict["classifier"] = value["classifier"]
+                if "exclusions" in value.keys():
+                    artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace('\'', '"')))
+                artifact = struct(**artifact_dict)
+            artifacts.append(artifact)
 
     return artifacts, boms
 
