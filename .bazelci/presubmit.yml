@@ -68,7 +68,7 @@ tasks:
       - "//..."
   macos_9_x:
     name: Bazel 9.x on macOS
-    platform: macos
+    platform: macos_arm64
     bazel: 9.x
     environment:
       # This tests custom cache locations.
