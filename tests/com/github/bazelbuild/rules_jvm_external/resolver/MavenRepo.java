@@ -24,6 +24,10 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.model.Model;
@@ -73,6 +77,30 @@ public class MavenRepo {
         writeFile(coords);
       }
 
+      return this;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public MavenRepo writeMavenMetadata(
+      String groupId, String artifactId, String releaseVersion, List<String> versions) {
+    try {
+      Metadata metadata = new Metadata();
+      metadata.setGroupId(groupId);
+      metadata.setArtifactId(artifactId);
+
+      Versioning versioning = new Versioning();
+      versioning.setRelease(releaseVersion);
+      versioning.setVersions(versions);
+      metadata.setVersioning(versioning);
+
+      Path dir = root.resolve(groupId.replace('.', '/') + "/" + artifactId);
+      Files.createDirectories(dir);
+
+      try (BufferedWriter writer = Files.newBufferedWriter(dir.resolve("maven-metadata.xml"))) {
+        new MetadataXpp3Writer().write(writer, metadata);
+      }
       return this;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
