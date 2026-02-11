@@ -1,0 +1,25 @@
+module(
+    name = "pom_file_generation_example",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_jvm_external", version = "0.0.0")
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../..",
+)
+
+# Maven dependencies
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "com.google.inject:guice:4.0",
+        "com.google.guava:guava:27.1-jre",
+    ],
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")

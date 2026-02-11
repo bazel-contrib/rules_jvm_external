@@ -13,6 +13,7 @@ java_test(
     test_class = "com.github.bazelbuild.rules_jvm_external.maven.OutdatedTest",
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated",
+        "//tests/com/github/bazelbuild/rules_jvm_external/resolver",
         artifact("com.google.guava:guava"),
         artifact(
             "junit:junit",

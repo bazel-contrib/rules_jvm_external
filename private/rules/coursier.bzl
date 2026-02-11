@@ -42,9 +42,7 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@package_metadata//rules:package_metadata.bzl", "package_metadata")
 load("@rules_license//rules:package_info.bzl", "package_info")
-load("@rules_java//java:java_binary.bzl", "java_binary")
-load("@rules_java//java:java_library.bzl", "java_library")
-load("@rules_java//java:java_plugin.bzl", "java_plugin")
+load("@compatibility_proxy//:proxy.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
@@ -707,10 +705,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             )
 
     # Create the list of http_file repositories for each of the artifacts
-    # in maven_install.json. This will be loaded additionally like so:
-    #
-    # load("@maven//:defs.bzl", "pinned_maven_install")
-    # pinned_maven_install()
+    # in maven_install.json.
     http_files = [
         "load(\"@bazel_tools//tools/build_defs/repo:http.bzl\", \"http_file\")",
         "load(\"@bazel_tools//tools/build_defs/repo:utils.bzl\", \"maybe\")",
@@ -1159,13 +1154,8 @@ def filter_dependencies_if_necessary(repository_ctx, dep_tree):
                 amended_deps.append(dep)
             continue
 
-        # You'd think we could use skylib here to do the heavy lifting, but
-        # this is a dependency of `maven_install`, which is loaded in the
-        # `repositories.bzl` file. That means we can't rely on anything that
-        # comes from skylib yet, since the repo isn't loaded. If we could
-        # call `maven_install` from `setup.bzl`, we'd be fine, but we can't
-        # do that because then there'd be nowhere to call the
-        # `pinned_maven_install`. Oh well, let's just do this the manual way.
+        # We avoid loading skylib here to keep this file's dependency
+        # footprint minimal.
         if dep["file"].endswith(".pom"):
             jar_path = dep["file"].removesuffix(".pom") + ".jar"
 
@@ -1531,8 +1521,8 @@ def _coursier_fetch_impl(repository_ctx):
     )
 
     # If maven_install.json has already been used in maven_install,
-    # we don't need to instruct user to update WORKSPACE and load pinned_maven_install.
-    # If maven_install.json is not used yet, provide complete instructions.
+    # we already know the lock file location. If it's not used yet,
+    # provide the default location.
     #
     # Also support custom locations for maven_install.json and update the pin.sh script
     # accordingly.

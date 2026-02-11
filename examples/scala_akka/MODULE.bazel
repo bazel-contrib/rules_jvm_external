@@ -1,0 +1,54 @@
+module(
+    name = "scala_akka_example",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_scala", version = "7.2.1")
+bazel_dep(name = "rules_jvm_external", version = "0.0.0")
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../..",
+)
+
+# Scala configuration
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(scala_version = "2.12.20")
+
+# Scala dependencies (toolchains)
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scala()
+scala_deps.scalatest()
+
+# Maven dependencies
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "com.github.pureconfig:pureconfig_2.12:0.10.2",
+        "com.typesafe.akka:akka-actor_2.12:2.5.22",
+        "com.typesafe.akka:akka-http_2.12:10.1.8",
+        "com.typesafe.akka:akka-http-testkit_2.12:10.1.8",
+        "com.typesafe.akka:akka-stream_2.12:2.5.22",
+        "com.typesafe.akka:akka-stream-testkit_2.12:2.5.22",
+        "com.typesafe.akka:akka-testkit_2.12:2.5.22",
+        "com.typesafe.scala-logging:scala-logging_2.12:3.9.2",
+        "org.mockito:mockito-core:2.26.0",
+        "org.scalaz:scalaz-core_2.12:7.2.27",
+        "org.scalaz:scalaz-concurrent_2.12:7.2.27",
+        "org.slf4j:slf4j-api:1.7.26",
+        "org.slf4j:slf4j-simple:1.7.26",
+        "org.scalatest:scalatest-wordspec_2.12:3.2.9",
+    ],
+    fetch_sources = True,
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")

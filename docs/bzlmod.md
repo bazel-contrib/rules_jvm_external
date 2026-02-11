@@ -1,12 +1,6 @@
 # Using rules_jvm_external with bzlmod
 
-Bzlmod is the new package manager for Bazel modules, included in Bazel 6.0.
-It allows a significantly shorter setup than the `WORKSPACE` file used prior to bzlmod.
-
-Note: this support is new as of early 2023, so expect some brokenness and missing features.
-Please do file issues for missing bzlmod support.
-
-See the `/examples/bzlmod` folder in this repository for a complete, tested example.
+Bzlmod is the package manager for Bazel modules and is required starting with Bazel 7.
 
 ## Installation
 
@@ -66,7 +60,7 @@ maven.install(
 ```
 
 Now you'll be able to use the same `REPIN=1 bazel run @maven//:pin` operation described in the
-[workspace instructions](/README.md#updating-maven_installjson) to update the dependencies.
+[README](/README.md#updating-maven_installjson) to update the dependencies.
 
 ## Extension and tag documentation
 

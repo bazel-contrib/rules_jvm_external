@@ -1,0 +1,39 @@
+module(
+    name = "simple_example",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_android", version = "0.7.1")
+bazel_dep(name = "rules_jvm_external", version = "0.0.0")
+local_path_override(
+    module_name = "rules_jvm_external",
+    path = "../..",
+)
+
+# Android SDK and tools
+remote_android_extensions = use_extension("@bazel_tools//tools/android:android_extensions.bzl", "remote_android_tools_extensions")
+use_repo(remote_android_extensions, "android_gmaven_r8", "android_tools")
+
+android_sdk_repository_extension = use_extension("@rules_android//rules/android_sdk_repository:rule.bzl", "android_sdk_repository_extension")
+use_repo(android_sdk_repository_extension, "androidsdk")
+
+register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
+
+# Maven dependencies
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "junit:junit:4.12",
+        "android.arch.lifecycle:common:1.1.1",
+        "android.arch.lifecycle:viewmodel:1.1.1",
+        "androidx.test.espresso:espresso-web:3.1.1",
+        "com.android.support:design:27.0.2",
+    ],
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")

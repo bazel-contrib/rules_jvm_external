@@ -32,5 +32,9 @@ java_library(
             "org.apache.maven:maven-model",
             repository_name = "rules_jvm_external_deps",
         ),
+        artifact(
+            "org.apache.maven:maven-repository-metadata",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )

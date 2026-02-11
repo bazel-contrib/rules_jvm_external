@@ -25,6 +25,6 @@ proto_library(
         ":example.proto",
     ],
     deps = [
-        "@com_google_protobuf//:duration_proto",
+        "@protobuf//:duration_proto",
     ],
 )

@@ -1,4 +1,3 @@
-load("@bazel_features//:features.bzl", "bazel_features")
 load("//private/lib:coordinates.bzl", "unpack_coordinates")
 load(":maven_bom_fragment.bzl", "MavenBomFragmentInfo")
 load(":maven_publish.bzl", "maven_publish")
@@ -14,7 +13,7 @@ def _label(label_or_string):
     if type(label_or_string) == "Label":
         return label_or_string
 
-    workspace_prefix = "@@" if bazel_features.external_deps.is_bzlmod_enabled else "@"
+    workspace_prefix = "@@"
 
     if type(label_or_string) == "string":
         # We may have a target of the form: `@bar//foo`, `//foo`, `//foo:foo`, `:foo`, `foo`
@@ -200,15 +199,7 @@ def maven_bom(
     fragments = []
     labels = [_label(je) for je in java_exports]
 
-    # `same_package_label` doesn't exist in Bazel 5, but we still support it
-    # so we check the version here to call a non-deprecated API in recent
-    # Bazel versions, or the older (deprecated) API in Bazel 5.
-    feature_check_label = Label("//:doesnotexistinrulesjvmexternal")
-    if hasattr(feature_check_label, "same_package_label"):
-        fragments = [l.same_package_label("%s.bom-fragment" % l.name) for l in labels]
-    else:
-        # TODO: Drop this branch once we drop Bazel 5 support
-        fragments = [l.relative(":%s.bom-fragment" % l.name) for l in labels]
+    fragments = [l.same_package_label("%s.bom-fragment" % l.name) for l in labels]
 
     _maven_bom(
         name = name,

@@ -10,7 +10,7 @@ java_library(
     ),
     data = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin:plugin-single-jar",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/plugin:plugin_deploy_jar_deploy.jar",
         "@bazel_tools//tools/jdk:host_jdk",
         "@gradle//:distribution",
         "@gradle//:gradle-bin/README",
