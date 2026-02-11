@@ -290,6 +290,13 @@ dev_maven.install(
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
     ],
+    # The TOML file includes AAR artifacts (e.g. play-services-tasks) which
+    # pull in transitive AAR deps like androidx.fragment:fragment. On Bazel 8+
+    # the native aar_import no longer exists so the Starlark version from
+    # rules_android is used automatically. On Bazel 7 we must opt in
+    # explicitly, otherwise the native aar_import requires an Android SDK
+    # toolchain that is not registered in this module.
+    use_starlark_android_rules = True,
 )
 dev_maven.from_toml(
     name = "from_files",
