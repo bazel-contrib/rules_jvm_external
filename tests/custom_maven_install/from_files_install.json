@@ -5,6 +5,7 @@
     "com.google.guava:guava": 616303286,
     "com.google.guava:guava-bom": -327361527,
     "org.junit.jupiter:junit-jupiter-api": -1634990719,
+    "org.junit:junit-bom": 809197349,
     "repositories": 1670674627
   },
   "__RESOLVED_ARTIFACTS_HASH": {

@@ -9,6 +9,8 @@ comGoogleAndroidGmsPlayServicesTasks = { module = "com.google.android.gms:play-s
 guava = { module = "com.google.guava:guava" }
 # This needs to be listed as a `bom_module` for resolution to succeed
 guavaBom = { module = "com.google.guava:guava-bom", version = "33.4.8-jre" }
+# This demonstrates the `is_bom` field in the TOML file
+junitBom = { module = "org.junit:junit-bom", version.ref = "junitJupiter", is_bom = "true" }
 # This demonstrates we can read from the `versions` table
 junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 

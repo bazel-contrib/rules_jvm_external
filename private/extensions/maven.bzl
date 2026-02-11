@@ -369,7 +369,9 @@ def process_gradle_versions_file(parsed, bom_modules):
         # Extract just group:artifact for comparison with bom_modules
         module_id = coords.split(":")[0] + ":" + coords.split(":")[1] if ":" in coords else coords
 
-        if module_id in bom_modules:
+        is_bom = type(value) == "dict" and value.get("is_bom", "false").lower() == "true"
+
+        if is_bom or module_id in bom_modules:
             boms.append(unpack_coordinates(coords))
         else:
             artifact = unpack_coordinates(coords)

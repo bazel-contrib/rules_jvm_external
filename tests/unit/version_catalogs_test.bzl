@@ -298,6 +298,43 @@ com_yammer_metrics_metrics_servlet = { module = "com.yammer.metrics:metrics-serv
 
 extra_fields_test = unittest.make(_extra_fields_impl)
 
+def _is_bom_field_impl(ctx):
+    env = unittest.begin(ctx)
+
+    toml_content = """\
+[libraries]
+guava-bom = { module = "com.google.guava:guava-bom", version = "32.1.0-jre", is_bom = "true" }
+guava = { module = "com.google.guava:guava", version = "32.1.0-jre" }
+another-bom = { group = "org.example", name = "example-bom", version = "1.0.0", is_bom = "True" }
+not-a-bom = { module = "org.example:example-lib", version = "1.0.0", is_bom = "false" }
+"""
+
+    parsed = toml.decode(toml_content)
+
+    # No bom_modules passed — is_bom field alone should route to boms
+    artifacts, boms = process_gradle_versions_file(parsed, [])
+
+    asserts.equals(env, 2, len(boms))
+    asserts.equals(env, 2, len(artifacts))
+
+    asserts.equals(env, "com.google.guava", boms[0].group)
+    asserts.equals(env, "guava-bom", boms[0].artifact)
+    asserts.equals(env, "32.1.0-jre", boms[0].version)
+
+    asserts.equals(env, "org.example", boms[1].group)
+    asserts.equals(env, "example-bom", boms[1].artifact)
+    asserts.equals(env, "1.0.0", boms[1].version)
+
+    asserts.equals(env, "com.google.guava", artifacts[0].group)
+    asserts.equals(env, "guava", artifacts[0].artifact)
+
+    asserts.equals(env, "org.example", artifacts[1].group)
+    asserts.equals(env, "example-lib", artifacts[1].artifact)
+
+    return unittest.end(env)
+
+is_bom_field_test = unittest.make(_is_bom_field_impl)
+
 def version_catalogs_test_suite():
     unittest.suite(
         "version_catalogs_tests",
@@ -313,4 +350,5 @@ def version_catalogs_test_suite():
         bom_handling_test,
         multiple_libraries_test,
         extra_fields_test,
+        is_bom_field_test,
     )
