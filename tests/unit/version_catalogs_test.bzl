@@ -264,8 +264,8 @@ def _extra_fields_impl(ctx):
 misk = "1.0.0"
 
 [libraries]
-com_clickhouse_clickhouse_jdbc_all = { module = "com.clickhouse:clickhouse-jdbc", version = "0.9.2", classifier = "all" }
-com_squareup_misk_misk_audit_client_test_fixtures = { module = "com.squareup.misk:misk-audit-client", version.ref = "misk", classifier = "test-fixtures", exclusions = "['*:*']" }
+com_clickhouse_clickhouse_jdbc_all = { module = "com.clickhouse:clickhouse-jdbc", version = "0.9.2", classifier = "all", force_version = "True" }
+com_squareup_misk_misk_audit_client_test_fixtures = { module = "com.squareup.misk:misk-audit-client", version.ref = "misk", classifier = "test-fixtures", exclusions = "['*:*']", force_version = "false" }
 com_yammer_metrics_metrics_servlet = { module = "com.yammer.metrics:metrics-servlet", version = "2.2.0", exclusions = "['com.fasterxml.jackson.core:jackson-databind']" }
 """
 
@@ -279,17 +279,20 @@ com_yammer_metrics_metrics_servlet = { module = "com.yammer.metrics:metrics-serv
     asserts.equals(env, "clickhouse-jdbc", artifacts[0].artifact)
     asserts.equals(env, "0.9.2", artifacts[0].version)
     asserts.equals(env, "all", artifacts[0].classifier)
+    asserts.equals(env, True, artifacts[0].force_version)
 
     asserts.equals(env, "com.squareup.misk", artifacts[1].group)
     asserts.equals(env, "misk-audit-client", artifacts[1].artifact)
     asserts.equals(env, "1.0.0", artifacts[1].version)
     asserts.equals(env, "test-fixtures", artifacts[1].classifier)
     asserts.equals(env, [{"group": "*", "artifact": "*"}], artifacts[1].exclusions)
+    asserts.equals(env, False, artifacts[1].force_version)
 
     asserts.equals(env, "com.yammer.metrics", artifacts[2].group)
     asserts.equals(env, "metrics-servlet", artifacts[2].artifact)
     asserts.equals(env, "2.2.0", artifacts[2].version)
     asserts.equals(env, [{"group": "com.fasterxml.jackson.core", "artifact": "jackson-databind"}], artifacts[2].exclusions)
+    asserts.equals(env, False, getattr(artifacts[2], "force_version", False))
 
     return unittest.end(env)
 
