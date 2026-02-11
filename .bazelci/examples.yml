@@ -30,12 +30,15 @@ tasks:
     working_directory: examples/android_local_test
     test_targets:
       - "//..."
-  android-local-test-windows:
-    name: "Android Robolectric test example"
-    platform: windows
-    working_directory: examples/android_local_test
-    build_targets:
-      - "//..."
+  # The AddToZip action in rules_android's android_local_test uses a
+  # bash script that fails to resolve zip.exe through runfiles on
+  # Windows. Re-enable once rules_android fixes this.
+  #  android-local-test-windows:
+  #    name: "Android Robolectric test example"
+  #    platform: windows
+  #    working_directory: examples/android_local_test
+  #    build_targets:
+  #      - "//..."
   java-export-linux:
     name: "java-export example"
     platform: ubuntu2204
@@ -60,12 +63,15 @@ tasks:
     working_directory: examples/kt_android_local_test
     test_targets:
       - "//..."
-  kotlin-android-local-test-windows:
-    name: "Kotlin Android Robolectric test example"
-    platform: windows
-    working_directory: examples/kt_android_local_test
-    build_targets:
-      - "//..."
+  # The AddToZip action in rules_android's android_local_test uses a
+  # bash script that fails to resolve zip.exe through runfiles on
+  # Windows. Re-enable once rules_android fixes this.
+  #  kotlin-android-local-test-windows:
+  #    name: "Kotlin Android Robolectric test example"
+  #    platform: windows
+  #    working_directory: examples/kt_android_local_test
+  #    build_targets:
+  #      - "//..."
   kotlin-jvm-export-linux:
     name: "kt_jvm_export example"
     platform: ubuntu2404
