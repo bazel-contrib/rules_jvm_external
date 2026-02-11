@@ -16,7 +16,8 @@ genrule(
         ":test-project",
     ],
     outs = ["classes.txt"],
-    cmd = "for SRC in $(SRCS); do jar tf $$SRC >> $@; done",
+    cmd = "for SRC in $(SRCS); do $(location @bazel_tools//tools/zip:zipper) v $$SRC >> $@; done",
+    tools = ["@bazel_tools//tools/zip:zipper"],
 )
 
 sh_test(
