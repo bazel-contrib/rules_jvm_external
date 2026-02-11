@@ -375,6 +375,8 @@ def process_gradle_versions_file(parsed, bom_modules):
                     artifact_dict["classifier"] = value["classifier"]
                 if "exclusions" in value.keys():
                     artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace('\'', '"')))
+                if "force_version" in value.keys():
+                    artifact_dict["force_version"] = (value["force_version"].lower() == "true")
                 artifact = struct(**artifact_dict)
             artifacts.append(artifact)
 
