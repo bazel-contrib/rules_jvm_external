@@ -1,5 +1,6 @@
 load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
+load("@toml.bzl", "toml")
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:compat_repository.bzl", "compat_repository")
 load(
@@ -9,7 +10,6 @@ load(
     "strip_packaging_and_classifier_and_version",
 )
 load("//private/lib:coordinates.bzl", "to_external_form", "to_key", "unpack_coordinates")
-load("//private/lib:toml_parser.bzl", "parse_toml")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:maven_version.bzl", "compare_maven_versions")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
@@ -345,7 +345,17 @@ def process_gradle_versions_file(parsed, bom_modules):
                     fail("Unable to resolve version.ref %s" % value["version.ref"])
                 coords += ":%s" % version
             elif "version" in value.keys():
-                coords += ":%s" % value["version"]
+                raw_version = value["version"]
+                if type(raw_version) == "string":
+                    coords += ":%s" % value["version"]
+                elif type(raw_version) == "dict":
+                    version_ref = raw_version.get("ref", None)
+                    if not version_ref:
+                        fail("Unable to find version ref in", value)
+                    version = parsed.get("versions", {}).get(version_ref)
+                    if not version:
+                        fail("Unable to resolve version ref", value)
+                    coords += ":%s" % version
 
             # Handle packaging (e.g., "aar" for Android libraries)
             # Note: Gradle uses "package" but we'll check common variants
@@ -363,6 +373,7 @@ def process_gradle_versions_file(parsed, bom_modules):
             boms.append(unpack_coordinates(coords))
         else:
             artifact = unpack_coordinates(coords)
+
             if type(value) == "dict":
                 artifact_dict = {
                     "group": artifact.group,
@@ -374,10 +385,11 @@ def process_gradle_versions_file(parsed, bom_modules):
                 if "classifier" in value.keys():
                     artifact_dict["classifier"] = value["classifier"]
                 if "exclusions" in value.keys():
-                    artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace('\'', '"')))
+                    artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace("'", '"')))
                 if "force_version" in value.keys():
                     artifact_dict["force_version"] = (value["force_version"].lower() == "true")
                 artifact = struct(**artifact_dict)
+
             artifacts.append(artifact)
 
     return artifacts, boms
@@ -415,7 +427,7 @@ def _process_module_tags(mctx):
             repo = target_repos.get(from_toml_tag.name, {})
 
             content = mctx.read(mctx.path(from_toml_tag.libs_versions_toml))
-            parsed = parse_toml(content)
+            parsed = toml.decode(content)
 
             (new_artifacts, new_boms) = process_gradle_versions_file(parsed, from_toml_tag.bom_modules)
 

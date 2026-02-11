@@ -1,6 +1,6 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
+load("@toml.bzl", "toml")
 load("//private/extensions:maven.bzl", "process_gradle_versions_file")
-load("//private/lib:toml_parser.bzl", "parse_toml")
 
 def _simple_string_notation_impl(ctx):
     env = unittest.begin(ctx)
@@ -10,7 +10,7 @@ def _simple_string_notation_impl(ctx):
 commons-lang = "org.apache.commons:commons-lang3:3.12.0"
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -31,7 +31,7 @@ def _map_with_module_and_inline_version_impl(ctx):
 guava = { module = "com.google.guava:guava", version = "32.1.0-jre" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -55,7 +55,7 @@ junit = "5.10.0"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -76,7 +76,7 @@ def _map_with_module_no_version_impl(ctx):
 guava-from-bom = { module = "com.google.guava:guava" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -97,7 +97,7 @@ def _map_with_group_name_and_inline_version_impl(ctx):
 androidx-core = { group = "androidx.core", name = "core-ktx", version = "1.12.0" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -121,7 +121,7 @@ kotlin = "1.9.0"
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -145,7 +145,7 @@ compose = "1.5.0"
 compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -166,7 +166,7 @@ def _map_with_module_and_packaging_impl(ctx):
 play-services = { module = "com.google.android.gms:play-services-tasks", package = "aar", version = "18.1.0" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -188,7 +188,7 @@ def _map_with_group_name_and_packaging_impl(ctx):
 android-material = { group = "com.google.android.material", name = "material", version = "1.10.0", package = "aar" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 1, len(artifacts))
@@ -211,7 +211,7 @@ guava-bom = { module = "com.google.guava:guava-bom", version = "32.1.0-jre" }
 guava = { module = "com.google.guava:guava", version = "32.1.0-jre" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, ["com.google.guava:guava-bom"])
 
     asserts.equals(env, 1, len(artifacts))
@@ -246,7 +246,7 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 4, len(artifacts))
@@ -269,7 +269,7 @@ com_squareup_misk_misk_audit_client_test_fixtures = { module = "com.squareup.mis
 com_yammer_metrics_metrics_servlet = { module = "com.yammer.metrics:metrics-servlet", version = "2.2.0", exclusions = "['com.fasterxml.jackson.core:jackson-databind']" }
 """
 
-    parsed = parse_toml(toml_content)
+    parsed = toml.decode(toml_content)
     artifacts, boms = process_gradle_versions_file(parsed, [])
 
     asserts.equals(env, 3, len(artifacts))

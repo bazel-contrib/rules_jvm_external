@@ -4,4 +4,7 @@ bzl_library(
     name = "implementation",
     srcs = glob(["*.bzl"]),
     visibility = ["//:__subpackages__"],
+    deps = [
+        "@toml.bzl//:toml",
+    ],
 )
