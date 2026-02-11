@@ -38,10 +38,7 @@ public class OutdatedTest {
     Path repo =
         MavenRepo.create()
             .writeMavenMetadata(
-                "com.google.guava",
-                "guava",
-                "33.0-jre",
-                List.of("27.0-jre", "33.0-jre"))
+                "com.google.guava", "guava", "33.0-jre", List.of("27.0-jre", "33.0-jre"))
             .getPath();
     String repoUrl = repo.toUri().toString();
 
@@ -69,8 +66,7 @@ public class OutdatedTest {
         containsString("Checking for updates of 1 artifacts against the following repositories"));
     assertThat(outdatedOutput.toString(), containsString(repoUrl));
     assertThat(
-        outdatedOutput.toString(),
-        containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
+        outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
     assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
     assertThat(outdatedOutput.toString(), not(containsString("BOMs")));
   }
@@ -108,18 +104,14 @@ public class OutdatedTest {
     Path repo1 =
         MavenRepo.create()
             .writeMavenMetadata(
-                "com.google.guava",
-                "guava",
-                "33.0-jre",
-                List.of("27.0-jre", "33.0-jre"))
+                "com.google.guava", "guava", "33.0-jre", List.of("27.0-jre", "33.0-jre"))
             .writeMavenMetadata("junit", "junit", "4.13.2", List.of("4.12", "4.13.2"))
             .getPath();
     String repo1Url = repo1.toUri().toString();
 
     Path repo2 =
         MavenRepo.create()
-            .writeMavenMetadata(
-                "com.squareup", "javapoet", "1.13.0", List.of("1.11.1", "1.13.0"))
+            .writeMavenMetadata("com.squareup", "javapoet", "1.13.0", List.of("1.11.1", "1.13.0"))
             .getPath();
     String repo2Url = repo2.toUri().toString();
 
@@ -131,8 +123,7 @@ public class OutdatedTest {
         StandardCharsets.UTF_8);
 
     Path repositoriesFile = temp.newFile("outdated.repositories").toPath();
-    Files.write(
-        repositoriesFile, Arrays.asList(repo1Url, repo2Url), StandardCharsets.UTF_8);
+    Files.write(repositoriesFile, Arrays.asList(repo1Url, repo2Url), StandardCharsets.UTF_8);
 
     ByteArrayOutputStream outdatedOutput = new ByteArrayOutputStream();
     try {
@@ -152,8 +143,7 @@ public class OutdatedTest {
     assertThat(outdatedOutput.toString(), containsString(repo1Url));
     assertThat(outdatedOutput.toString(), containsString(repo2Url));
     assertThat(
-        outdatedOutput.toString(),
-        containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
+        outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
     assertThat(outdatedOutput.toString(), containsString("junit:junit [4.12 -> 4.13.2]"));
     assertThat(
         outdatedOutput.toString(), containsString("com.squareup:javapoet [1.11.1 -> 1.13.0]"));
@@ -474,15 +464,9 @@ public class OutdatedTest {
     Path repo =
         MavenRepo.create()
             .writeMavenMetadata(
-                "com.google.guava",
-                "guava",
-                "33.0-jre",
-                List.of("27.0-jre", "33.0-jre"))
+                "com.google.guava", "guava", "33.0-jre", List.of("27.0-jre", "33.0-jre"))
             .writeMavenMetadata(
-                "com.google.cloud",
-                "libraries-bom",
-                "26.50.0",
-                List.of("26.0.0", "26.50.0"))
+                "com.google.cloud", "libraries-bom", "26.50.0", List.of("26.0.0", "26.50.0"))
             .getPath();
     String repoUrl = repo.toUri().toString();
 
@@ -520,8 +504,7 @@ public class OutdatedTest {
         outdatedOutput.toString(),
         containsString("com.google.cloud:libraries-bom [26.0.0 -> 26.50.0]"));
     assertThat(
-        outdatedOutput.toString(),
-        containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
+        outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
     assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
   }
 
@@ -530,10 +513,7 @@ public class OutdatedTest {
     Path repo =
         MavenRepo.create()
             .writeMavenMetadata(
-                "com.google.guava",
-                "guava",
-                "33.0-jre",
-                List.of("27.0-jre", "33.0-jre"))
+                "com.google.guava", "guava", "33.0-jre", List.of("27.0-jre", "33.0-jre"))
             .getPath();
     String repoUrl = repo.toUri().toString();
 
@@ -566,8 +546,7 @@ public class OutdatedTest {
     assertThat(outdatedOutput.toString(), containsString(repoUrl));
     assertThat(outdatedOutput.toString(), not(containsString("BOMs")));
     assertThat(
-        outdatedOutput.toString(),
-        containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
+        outdatedOutput.toString(), containsString("com.google.guava:guava [27.0-jre -> 33.0-jre]"));
     assertThat(outdatedOutput.toString(), not(containsString("No updates found")));
   }
 }
