@@ -333,24 +333,33 @@ public class MavenPublisher {
             coords.version);
 
     byte[] toHash = Files.readAllBytes(item);
-    Path md5 = Files.createTempFile(item.getFileName().toString(), ".md5");
-    Files.write(md5, toMd5(toHash).getBytes(UTF_8));
 
-    Path sha1 = Files.createTempFile(item.getFileName().toString(), ".sha1");
-    Files.write(sha1, toSha1(toHash).getBytes(UTF_8));
-
-    Path sha256 = Files.createTempFile(item.getFileName().toString(), ".sha256");
-    Files.write(sha256, toSha256(toHash).getBytes(UTF_8));
-
-    Path sha512 = Files.createTempFile(item.getFileName().toString(), ".sha512");
-    Files.write(sha512, toSha512(toHash).getBytes(UTF_8));
+    // For SNAPSHOT versions, skip uploading separate checksum files
+    // Artifactory renames SNAPSHOT files with timestamps, causing checksum uploads to fail
+    // Most Maven repositories (Artifactory, Nexus, etc.) automatically calculate checksums
+    boolean isSnapshot = coords.version.contains("SNAPSHOT");
 
     List<CompletableFuture<?>> uploads = new ArrayList<>();
     uploads.add(upload(String.format("%s%s", base, append), credentials, item, executor));
-    uploads.add(upload(String.format("%s%s.md5", base, append), credentials, md5, executor));
-    uploads.add(upload(String.format("%s%s.sha1", base, append), credentials, sha1, executor));
-    uploads.add(upload(String.format("%s%s.sha256", base, append), credentials, sha256, executor));
-    uploads.add(upload(String.format("%s%s.sha512", base, append), credentials, sha512, executor));
+
+    if (!isSnapshot) {
+      Path md5 = Files.createTempFile(item.getFileName().toString(), ".md5");
+      Files.write(md5, toMd5(toHash).getBytes(UTF_8));
+
+      Path sha1 = Files.createTempFile(item.getFileName().toString(), ".sha1");
+      Files.write(sha1, toSha1(toHash).getBytes(UTF_8));
+
+      Path sha256 = Files.createTempFile(item.getFileName().toString(), ".sha256");
+      Files.write(sha256, toSha256(toHash).getBytes(UTF_8));
+
+      Path sha512 = Files.createTempFile(item.getFileName().toString(), ".sha512");
+      Files.write(sha512, toSha512(toHash).getBytes(UTF_8));
+
+      uploads.add(upload(String.format("%s%s.md5", base, append), credentials, md5, executor));
+      uploads.add(upload(String.format("%s%s.sha1", base, append), credentials, sha1, executor));
+      uploads.add(upload(String.format("%s%s.sha256", base, append), credentials, sha256, executor));
+      uploads.add(upload(String.format("%s%s.sha512", base, append), credentials, sha512, executor));
+    }
 
     MavenSigning.SigningMethod signingMethod = signingMetadata.signingMethod;
     if (signingMethod.equals(MavenSigning.SigningMethod.GPG)) {
