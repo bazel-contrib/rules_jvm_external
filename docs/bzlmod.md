@@ -91,6 +91,30 @@ guavaBom = { module = "com.google.guava:guava-bom", version = "33.4.8-jre" }
 junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 ```
 
+#### Extensions to the Gradle version catalog format
+
+`rules_jvm_external` supports several additional fields on library entries beyond the
+standard Gradle version catalog format. These must be specified as quoted strings within
+the inline table:
+
+| Field | Example | Description |
+|-------|---------|-------------|
+| `classifier` | `classifier = "all"` | Maven classifier for the artifact |
+| `exclusions` | `exclusions = "['com.example:unwanted']"` | JSON-encoded list of `group:artifact` exclusions |
+| `force_version` | `force_version = "true"` | Pins this version, ignoring higher versions from transitive deps |
+| `is_bom` | `is_bom = "true"` | Treats this entry as a BOM instead of a regular artifact |
+| `package` | `package = "aar"` | Packaging type (default is `jar`) |
+
+For example:
+
+```toml
+[libraries]
+guavaBom = { module = "com.google.guava:guava-bom", version = "33.4.8-jre", is_bom = "true" }
+guava = { module = "com.google.guava:guava" }
+clickhouse = { module = "com.clickhouse:clickhouse-jdbc", version = "0.9.2", classifier = "all", force_version = "true" }
+misk = { module = "com.squareup.misk:misk-core", version = "1.0.0", exclusions = "['*:*']" }
+```
+
 ### Declaring BOMs from external files
 
 This can be done by using the `bom_modules` attribute of the `from_toml` tag. This is
