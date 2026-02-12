@@ -239,6 +239,11 @@ def _get_artifacts(lock_file_contents):
             root_unpacked["packaging"] = "jar"
 
         for (classifier, shasum) in data.get("shasums", {}).items():
+            # Skip artifacts with null shasum that can't be downloaded
+            # e.g., AAR-only dependencies with no sources
+            if shasum == None:
+                continue
+                
             root_unpacked["classifier"] = classifier
             coordinates = to_external_form(root_unpacked)
             key = to_key(root_unpacked)
