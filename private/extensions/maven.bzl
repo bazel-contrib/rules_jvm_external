@@ -215,11 +215,11 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 
     return seen
 
-def _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, return_only_artifacts = False):
+def _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, return_only_artifacts = False, include_testonly = False):
     coordinate_to_artifact = {}
     for bazel_dep_name in bazel_dep_to_non_root_artifacts:
         for artifact in bazel_dep_to_non_root_artifacts.get(bazel_dep_name, []):
-            if not getattr(artifact, "testonly", False):
+            if include_testonly or not getattr(artifact, "testonly", False):
                 artifact_key = to_key(artifact)
 
                 # prioritize highest version
@@ -667,8 +667,8 @@ def maven_impl(mctx):
                 rje_verbose_env_var,
             )
         else:
-            merged_repo["artifacts"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True)
-            merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_boms, True)
+            merged_repo["artifacts"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True, include_testonly = True)
+            merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_boms, True, include_testonly = True)
 
         # For list attributes, concatenate but avoid duplicates (root items first)
         for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:
