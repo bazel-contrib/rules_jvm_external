@@ -204,9 +204,13 @@ def _execute_with_argsfile(
         tool_name,
         progress_message,
         error_description,
-        files_to_inspect):
+        files_to_inspect,
+        empty_output = ""):
     # Currently each tool can only be used once per repository.
     # This could be avoided by adding a disambiguator to the argsfile name.
+
+    if len(files_to_inspect) == 0:
+        return empty_output
 
     # Avoid argument limits by putting list of files to inspect into a file
     repository_ctx.file(
@@ -1361,6 +1365,7 @@ def _coursier_fetch_impl(repository_ctx):
         "Indexing jars",
         "indexing jars",
         files_to_inspect,
+        empty_output = "{}",
     )
 
     jars_to_index_results = json.decode(index_jars_stdout)
