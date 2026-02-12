@@ -28,8 +28,11 @@ genquery(
         "@testonly_testing//:com_google_auto_value_auto_value_annotations",
         "@testonly_testing//:defs",
         "@testonly_testing//:direct_deps",
+        "@testonly_testing//:direct_deps_deployjars_internal_rule",
         "@testonly_testing//:outdated",
+        "@testonly_testing//:outdated_deployjars_internal_rule",
         "@testonly_testing//:pin",
+        "@testonly_testing//:pin_deployjars_internal_rule",
     ],
 )
 

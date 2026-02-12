@@ -1,5 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.maven;
 
+import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -8,8 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -280,6 +283,59 @@ public class Outdated {
     }
   }
 
+  private static Set<String> runfileCandidates(String path) {
+    Set<String> candidates = new LinkedHashSet<>();
+    candidates.add(path);
+
+    String normalized = path;
+    while (normalized.startsWith("./")) {
+      normalized = normalized.substring(2);
+    }
+    candidates.add(normalized);
+
+    if (normalized.startsWith("external/")) {
+      normalized = normalized.substring("external/".length());
+      candidates.add(normalized);
+    }
+
+    while (normalized.startsWith("../")) {
+      normalized = normalized.substring(3);
+      candidates.add(normalized);
+    }
+
+    return candidates;
+  }
+
+  private static Path resolvePath(String path) throws IOException {
+    Path directPath = Paths.get(path);
+    if (Files.exists(directPath)) {
+      return directPath;
+    }
+
+    Runfiles.Preloaded runfiles = Runfiles.preload();
+    for (String runfilePath : runfileCandidates(path)) {
+      if (runfilePath == null || runfilePath.isEmpty()) {
+        continue;
+      }
+
+      String resolvedPathString;
+      try {
+        resolvedPathString = runfiles.unmapped().rlocation(runfilePath);
+      } catch (IllegalArgumentException e) {
+        continue;
+      }
+
+      if (resolvedPathString != null) {
+        Path resolvedPath = Paths.get(resolvedPathString);
+        if (Files.exists(resolvedPath)) {
+          return resolvedPath;
+        }
+      }
+    }
+
+    return directPath;
+  }
+
   public static void main(String[] args) throws IOException {
     verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
 
@@ -291,15 +347,15 @@ public class Outdated {
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
         case "--artifacts-file":
-          artifactsFilePath = Paths.get(args[++i]);
+          artifactsFilePath = resolvePath(args[++i]);
           break;
 
         case "--boms-file":
-          bomsFilePath = Paths.get(args[++i]);
+          bomsFilePath = resolvePath(args[++i]);
           break;
 
         case "--repositories-file":
-          repositoriesFilePath = Paths.get(args[++i]);
+          repositoriesFilePath = resolvePath(args[++i]);
           break;
 
         case "--legacy-output":

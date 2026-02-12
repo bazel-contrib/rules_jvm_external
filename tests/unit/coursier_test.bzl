@@ -365,8 +365,8 @@ def _mock_repo_path(path):
     else:
         return "/mockroot/" + path
 
-def _mock_which(path):
-    return False
+def _mock_path_never_exists(path):
+    return struct(exists = False)
 
 def _get_coursier_cache_or_default_disabled_test(ctx):
     env = unittest.begin(ctx)
@@ -377,7 +377,7 @@ def _get_coursier_cache_or_default_disabled_test(ctx):
             },
             name = "linux",
         ),
-        which = _mock_which,
+        path = _mock_path_never_exists,
     )
     asserts.equals(
         env,
@@ -397,7 +397,7 @@ def _get_coursier_cache_or_default_enabled_with_default_location_linux_test(ctx)
             },
             name = "linux",
         ),
-        which = _mock_which,
+        path = _mock_path_never_exists,
     )
     asserts.equals(
         env,
@@ -417,7 +417,7 @@ def _get_coursier_cache_or_default_enabled_with_default_location_mac_test(ctx):
             },
             name = "mac",
         ),
-        which = _mock_which,
+        path = _mock_path_never_exists,
     )
     asserts.equals(
         env,
@@ -437,7 +437,7 @@ def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
             },
             name = "linux",
         ),
-        which = _mock_which,
+        path = _mock_path_never_exists,
     )
     asserts.equals(
         env,
@@ -470,14 +470,8 @@ def _get_coursier_sha256_from_env_test_impl(ctx):
 
 get_coursier_sha256_from_env_test = add_test(_get_coursier_sha256_from_env_test_impl)
 
-def _mock_which_true(path):
-    return True
-
-def _mock_execute(args):
-    if args[-1] == "/Users/testuser/Library/Caches/Coursier/v1":
-        return struct(return_code = 1)
-    else:
-        return struct(return_code = 0)
+def _mock_path_with_home_dot_coursier(path):
+    return struct(exists = path == "/Users/testuser/.coursier")
 
 def _get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test(ctx):
     env = unittest.begin(ctx)
@@ -488,8 +482,7 @@ def _get_coursier_cache_or_default_enabled_with_home_dot_coursier_directory_test
             },
             name = "mac",
         ),
-        which = _mock_which_true,
-        execute = _mock_execute,
+        path = _mock_path_with_home_dot_coursier,
     )
     asserts.equals(
         env,
