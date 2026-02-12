@@ -158,6 +158,31 @@ def _is_file(repository_ctx, path):
 def _is_directory(repository_ctx, path):
     return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
 
+def _jdk_java_options(repository_ctx):
+    jdk_java_options = repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")
+    if jdk_java_options:
+        return jdk_java_options
+    truststore = repository_ctx.attr.truststore
+    if not truststore:
+        return None
+    truststore_path = repository_ctx.path(truststore)
+    if not _is_file(repository_ctx, str(truststore_path)):
+        return None
+    jvm_flags = [
+        "-Djavax.net.ssl.trustStore=" + str(truststore_path),
+    ]
+    truststore_password = repository_ctx.attr.truststore_password
+    if truststore_password:
+        truststore_password_path = repository_ctx.path(truststore_password)
+        if _is_file(repository_ctx, str(truststore_password_path)):
+            truststore_password_value = repository_ctx.read(str(truststore_password_path)).strip()
+            if truststore_password_value:
+                jvm_flags.append("-Djavax.net.ssl.trustStorePassword=" + truststore_password_value)
+    truststore_type = repository_ctx.attr.truststore_type
+    if truststore_type:
+        jvm_flags.append("-Djavax.net.ssl.trustStoreType=" + truststore_type)
+    return " ".join(jvm_flags)
+
 def _is_unpinned(repository_ctx):
     return repository_ctx.attr.pinned_repo_name != ""
 
@@ -868,7 +893,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
-            jvm_flags = repr(repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")),
+            jvm_flags = repr(_jdk_java_options(repository_ctx)),
             repos = repr(repository_ctx.attr.repositories),
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
@@ -1083,6 +1108,10 @@ def make_coursier_dep_tree(
         # https://github.com/bazelbuild/rules_jvm_external/issues/301
         # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
         environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+
+    jdk_java_options = _jdk_java_options(repository_ctx)
+    if jdk_java_options:
+        environment["JDK_JAVA_OPTIONS"] = jdk_java_options
 
     cmd.extend(additional_coursier_options)
 
@@ -1606,6 +1635,9 @@ pinned_coursier_fetch = repository_rule(
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "dependency_index": attr.label(allow_single_file = True),
+        "truststore": attr.label(allow_single_file = True),
+        "truststore_password": attr.label(allow_single_file = True),
+        "truststore_type": attr.string(),
         "override_targets": attr.string_dict(default = {}),
         "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
@@ -1678,6 +1710,9 @@ coursier_fetch = repository_rule(
         ),
         "maven_install_json": attr.label(allow_single_file = True),
         "dependency_index": attr.label(allow_single_file = True),
+        "truststore": attr.label(allow_single_file = True),
+        "truststore_password": attr.label(allow_single_file = True),
+        "truststore_type": attr.string(),
         "override_targets": attr.string_dict(default = {}),
         "override_target_visibilities": attr.string_list_dict(default = {}),
         "strict_visibility": attr.bool(
