@@ -587,4 +587,28 @@ public class OutdatedTest {
   public void shouldNotApplyIpv4FallbackWhenIpv6PreferenceIsNotPresent() {
     assertThat(Outdated.shouldApplyIpv4Fallback("-Dfoo=bar", "-Dbaz=qux"), is(false));
   }
+
+  @Test
+  public void shouldRelaunchWithIpv4FallbackWhenEnvRequiresItAndPropertiesAreUnset() {
+    assertThat(
+        Outdated.shouldRelaunchWithIpv4Fallback(
+            "-Djava.net.preferIPv6Addresses=true", "", null, null),
+        is(true));
+  }
+
+  @Test
+  public void shouldNotRelaunchWhenIpv4StackIsAlreadyEnabled() {
+    assertThat(
+        Outdated.shouldRelaunchWithIpv4Fallback(
+            "-Djava.net.preferIPv6Addresses=true", "", "true", null),
+        is(false));
+  }
+
+  @Test
+  public void shouldNotRelaunchWhenIpv6IsAlreadyDisabled() {
+    assertThat(
+        Outdated.shouldRelaunchWithIpv4Fallback(
+            "-Djava.net.preferIPv6Addresses=true", "", null, "false"),
+        is(false));
+  }
 }

@@ -245,17 +245,31 @@ public class Outdated {
         && !allOptions.contains(PREFER_IPV4_STACK_TRUE);
   }
 
-  private static void maybeApplyIpv4Fallback() {
-    if (!shouldApplyIpv4Fallback(
-        System.getenv("JAVA_TOOL_OPTIONS"), System.getenv("JDK_JAVA_OPTIONS"))) {
-      return;
+  static boolean shouldRelaunchWithIpv4Fallback(
+      String javaToolOptions,
+      String jdkJavaOptions,
+      String preferIpv4StackProperty,
+      String preferIpv6AddressesProperty) {
+    if (!shouldApplyIpv4Fallback(javaToolOptions, jdkJavaOptions)) {
+      return false;
     }
 
-    // Some CI runners inject IPv6 preference globally, but do not have working IPv6 egress to
-    // Maven repositories. Apply fallback preferences for this process before the first network
-    // call.
-    System.setProperty("java.net.preferIPv6Addresses", "false");
-    System.setProperty("java.net.preferIPv4Stack", "true");
+    return !"true".equalsIgnoreCase(preferIpv4StackProperty)
+        && !"false".equalsIgnoreCase(preferIpv6AddressesProperty);
+  }
+
+  private static int relaunchWithIpv4Fallback(String[] args) throws IOException, InterruptedException {
+    List<String> command = new ArrayList<>();
+    command.add(Paths.get(System.getProperty("java.home"), "bin", "java").toString());
+    command.add(PREFER_IPV6_ADDRESSES_FALSE);
+    command.add(PREFER_IPV4_STACK_TRUE);
+    command.add("-cp");
+    command.add(System.getProperty("java.class.path"));
+    command.add(Outdated.class.getName());
+    command.addAll(Arrays.asList(args));
+
+    Process process = new ProcessBuilder(command).inheritIO().start();
+    return process.waitFor();
   }
 
   public static void printUpdatesFor(
@@ -409,8 +423,20 @@ public class Outdated {
   }
 
   public static void main(String[] args) throws IOException {
+    if (shouldRelaunchWithIpv4Fallback(
+        System.getenv("JAVA_TOOL_OPTIONS"),
+        System.getenv("JDK_JAVA_OPTIONS"),
+        System.getProperty("java.net.preferIPv4Stack"),
+        System.getProperty("java.net.preferIPv6Addresses"))) {
+      try {
+        System.exit(relaunchWithIpv4Fallback(args));
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new IOException("Interrupted while relaunching outdated with IPv4 fallback", e);
+      }
+      return;
+    }
     verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
-    maybeApplyIpv4Fallback();
 
     Path artifactsFilePath = null;
     Path bomsFilePath = null;
