@@ -341,16 +341,7 @@ def _get_java_proxy_args(repository_ctx):
     return get_java_proxy_args(http_proxy, https_proxy, no_proxy)
 
 def _get_outdated_jvm_flags(repository_ctx):
-    flags = _get_java_proxy_args(repository_ctx)
-    java_tool_options = repository_ctx.os.environ.get("JAVA_TOOL_OPTIONS", "")
-    jdk_java_options = repository_ctx.os.environ.get("JDK_JAVA_OPTIONS", "")
-    java_options = java_tool_options + " " + jdk_java_options
-
-    # Avoid known CI failures where the host injects IPv6 preference and Java
-    # metadata fetches hit "Network is unreachable".
-    if "-Djava.net.preferIPv6Addresses=true" in java_options and "-Djava.net.preferIPv4Stack=true" not in java_options:
-        return flags + ["-Djava.net.preferIPv4Stack=true"]
-    return flags
+    return _get_java_proxy_args(repository_ctx)
 
 def _stable_artifact(artifact):
     parsed = json.decode(artifact)

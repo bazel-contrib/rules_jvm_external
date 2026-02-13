@@ -2,11 +2,14 @@ package com.github.bazelbuild.rules_jvm_external.maven;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -30,6 +33,13 @@ public class Outdated {
   // and unfortunately ComparableVerison does not expose this in any public methods.
   private static final List<String> MAVEN_PRE_RELEASE_QUALIFIERS =
       Arrays.asList("alpha", "beta", "milestone", "cr", "rc", "snapshot");
+  private static final String MAVEN_CENTRAL_ALIAS_HOST = "repo1.maven.org";
+  private static final String MAVEN_CENTRAL_CANONICAL_HOST = "repo.maven.apache.org";
+  private static final String PREFER_IPV6_ADDRESSES_TRUE =
+      "-Djava.net.preferIPv6Addresses=true";
+  private static final String PREFER_IPV6_ADDRESSES_FALSE =
+      "-Djava.net.preferIPv6Addresses=false";
+  private static final String PREFER_IPV4_STACK_TRUE = "-Djava.net.preferIPv4Stack=true";
 
   public static class ArtifactReleaseInfo {
     public String releaseVersion;
@@ -191,6 +201,63 @@ public class Outdated {
     return null;
   }
 
+  static List<String> repositoryCandidates(String repository) {
+    List<String> candidates = new ArrayList<>();
+    candidates.add(repository);
+
+    URI repositoryUri;
+    try {
+      repositoryUri = new URI(repository);
+    } catch (URISyntaxException e) {
+      return candidates;
+    }
+
+    if (!MAVEN_CENTRAL_ALIAS_HOST.equalsIgnoreCase(repositoryUri.getHost())) {
+      return candidates;
+    }
+
+    try {
+      URI canonicalUri =
+          new URI(
+              repositoryUri.getScheme(),
+              repositoryUri.getUserInfo(),
+              MAVEN_CENTRAL_CANONICAL_HOST,
+              repositoryUri.getPort(),
+              repositoryUri.getPath(),
+              repositoryUri.getQuery(),
+              repositoryUri.getFragment());
+      candidates.add(canonicalUri.toString());
+    } catch (URISyntaxException e) {
+      // Keep the original repository only if canonical URI construction fails.
+    }
+
+    return candidates;
+  }
+
+  static boolean shouldApplyIpv4Fallback(String javaToolOptions, String jdkJavaOptions) {
+    String allOptions =
+        (javaToolOptions == null ? "" : javaToolOptions)
+            + " "
+            + (jdkJavaOptions == null ? "" : jdkJavaOptions);
+
+    return allOptions.contains(PREFER_IPV6_ADDRESSES_TRUE)
+        && !allOptions.contains(PREFER_IPV6_ADDRESSES_FALSE)
+        && !allOptions.contains(PREFER_IPV4_STACK_TRUE);
+  }
+
+  private static void maybeApplyIpv4Fallback() {
+    if (!shouldApplyIpv4Fallback(
+        System.getenv("JAVA_TOOL_OPTIONS"), System.getenv("JDK_JAVA_OPTIONS"))) {
+      return;
+    }
+
+    // Some CI runners inject IPv6 preference globally, but do not have working IPv6 egress to
+    // Maven repositories. Apply fallback preferences for this process before the first network
+    // call.
+    System.setProperty("java.net.preferIPv6Addresses", "false");
+    System.setProperty("java.net.preferIPv4Stack", "true");
+  }
+
   public static void printUpdatesFor(
       List<String> artifacts, List<String> repositories, boolean useLegacyOutputFormat) {
     boolean foundUpdates = false;
@@ -216,19 +283,24 @@ public class Outdated {
 
       ArtifactReleaseInfo artifactReleaseInfo = null;
       for (String repository : repositories) {
-        artifactReleaseInfo = getReleaseVersion(repository, groupId, artifactId);
+        for (String repositoryCandidate : repositoryCandidates(repository)) {
+          artifactReleaseInfo = getReleaseVersion(repositoryCandidate, groupId, artifactId);
 
+          if (artifactReleaseInfo != null) {
+            // We return the result from the first repository instead of searching all repositories
+            // for the artifact
+            verboseLog(
+                String.format(
+                    "Found release version [%s] and pre-release version [%s] for %s:%s in %s",
+                    artifactReleaseInfo.releaseVersion,
+                    artifactReleaseInfo.preReleaseVersion,
+                    groupId,
+                    artifactId,
+                    repositoryCandidate));
+            break;
+          }
+        }
         if (artifactReleaseInfo != null) {
-          // We return the result from the first repository instead of searching all repositories
-          // for the artifact
-          verboseLog(
-              String.format(
-                  "Found release version [%s] and pre-release version [%s] for %s:%s in %s",
-                  artifactReleaseInfo.releaseVersion,
-                  artifactReleaseInfo.preReleaseVersion,
-                  groupId,
-                  artifactId,
-                  repository));
           break;
         }
       }
@@ -338,6 +410,7 @@ public class Outdated {
 
   public static void main(String[] args) throws IOException {
     verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
+    maybeApplyIpv4Fallback();
 
     Path artifactsFilePath = null;
     Path bomsFilePath = null;
