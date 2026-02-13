@@ -15,7 +15,7 @@ load("//private/rules:coursier.bzl", "compute_dependency_inputs_signature")
 
 _TEMPLATE = """#!/usr/bin/env bash
 
-{resolver_cmd} --jvm_flags={jvm_flags} --argsfile {config} --input-hash-path '{input_hash_path}' --output {output}{dependency_index_output}
+{resolver_cmd} --jvm_flags='{jvm_flags}' --argsfile {config} --input-hash-path '{input_hash_path}' --output {output}{dependency_index_output}
 """
 
 def _stringify_exclusions(exclusions):
@@ -89,7 +89,8 @@ def _pin_dependencies_impl(ctx):
             resolver_cmd = ctx.executable.resolver.short_path,
             output = "$BUILD_WORKSPACE_DIRECTORY/" + ctx.attr.lock_file,
             dependency_index_output = dependency_index_output,
-            jvm_flags = ctx.attr.jvm_flags,
+            # Shell-escape single quotes in jvm_flags because the template wraps this value in single quotes.
+            jvm_flags = ctx.attr.jvm_flags.replace("'", "'\"'\"'"),
         ),
         is_executable = True,
     )

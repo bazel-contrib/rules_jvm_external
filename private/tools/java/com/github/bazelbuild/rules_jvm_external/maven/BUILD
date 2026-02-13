@@ -72,13 +72,22 @@ java_library(
 
 java_binary(
     name = "outdated",
-    srcs = ["Outdated.java"],
     main_class = "com.github.bazelbuild.rules_jvm_external.maven.Outdated",
+    visibility = ["//visibility:public"],
+    runtime_deps = [
+        ":outdated_lib",
+    ],
+)
+
+java_library(
+    name = "outdated_lib",
+    srcs = ["Outdated.java"],
     visibility = ["//visibility:public"],
     deps = [
         artifact(
             "org.apache.maven:maven-artifact",
             repository_name = "rules_jvm_external_deps",
         ),
+        "@bazel_tools//tools/java/runfiles",
     ],
 )

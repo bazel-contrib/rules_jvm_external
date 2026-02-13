@@ -45,7 +45,6 @@ load("@rules_license//rules:package_info.bzl", "package_info")
 load("@compatibility_proxy//:proxy.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
-load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 {aar_import_statement}
 
 {imports}
@@ -68,45 +67,66 @@ load("%s", "aar_import")
 """
 
 _BUILD_PIN = """
-sh_binary(
+java_binary(
     name = "pin",
-    srcs = ["pin.sh"],
+    main_class = "com.github.bazelbuild.rules_jvm_external.coursier.Pin",
     args = [
+        "--unsorted-deps-file",
         "$(rlocationpath :unsorted_deps.json)",
+        "--maven-install-location",
+        "{maven_install_location}",
+        "--predefined-maven-install",
+        "{predefined_maven_install}",
+        "--repository-name",
+        "{repository_name}",
     ],
     data = [
         ":unsorted_deps.json",
     ],
-    deps = [
-        "@bazel_tools//tools/bash/runfiles",
+    runtime_deps = [
+        "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:coursier_cli_tools",
     ],
     visibility = ["//visibility:public"],
 )
 """
 
 _BUILD_DIRECT_DEPS = """
-sh_binary(
+java_binary(
     name = "direct_deps",
-    srcs = ["direct_deps.sh"],
+    main_class = "com.github.bazelbuild.rules_jvm_external.coursier.PrintFile",
+    args = [
+        "$(rlocationpath :direct_deps.txt)",
+    ],
+    data = [
+        ":direct_deps.txt",
+    ],
+    runtime_deps = [
+        "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:coursier_cli_tools",
+    ],
     visibility = ["//visibility:public"],
 )
 """
 
 _BUILD_OUTDATED = """
-sh_binary(
+java_binary(
     name = "outdated",
-    srcs = ["outdated.sh"],
+    main_class = "com.github.bazelbuild.rules_jvm_external.maven.Outdated",
     data = [
-        "@rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar",
         "outdated.artifacts",
         "outdated.boms",
         "outdated.repositories",
     ],
     args = [
-        "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
-        "$(location outdated.artifacts)",
-        "$(location outdated.boms)",
-        "$(location outdated.repositories)",
+        "--artifacts-file",
+        "$(rlocationpath :outdated.artifacts)",
+        "--boms-file",
+        "$(rlocationpath :outdated.boms)",
+        "--repositories-file",
+        "$(rlocationpath :outdated.repositories)",
+    ],
+    jvm_flags = {outdated_jvm_flags},
+    runtime_deps = [
+        "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated_lib",
     ],
     visibility = ["//visibility:public"],
 )
@@ -146,27 +166,19 @@ def _is_verbose(repository_ctx):
 def _is_windows(repository_ctx):
     return repository_ctx.os.name.find("windows") != -1
 
-def _is_linux(repository_ctx):
-    return repository_ctx.os.name.find("linux") != -1
-
 def _is_macos(repository_ctx):
     return repository_ctx.os.name.find("mac") != -1
 
-def _is_file(repository_ctx, path):
-    return repository_ctx.which("test") and repository_ctx.execute(["test", "-f", path]).return_code == 0
+def _home_dir(repository_ctx):
+    if _is_windows(repository_ctx):
+        return _normalize_to_unix_path(repository_ctx.os.environ.get("USERPROFILE", repository_ctx.os.environ.get("HOME", "")))
+    return repository_ctx.os.environ.get("HOME", "")
 
-def _is_directory(repository_ctx, path):
-    return repository_ctx.which("test") and repository_ctx.execute(["test", "-d", path]).return_code == 0
+def _path_exists(repository_ctx, path):
+    return repository_ctx.path(path).exists
 
 def _is_unpinned(repository_ctx):
     return repository_ctx.attr.pinned_repo_name != ""
-
-def _shell_quote(s):
-    # Lifted from
-    #   https://github.com/bazelbuild/bazel-skylib/blob/6a17363a3c27dde70ab5002ad9f2e29aff1e1f4b/lib/shell.bzl#L49
-    # because this file cannot load symbols from bazel_skylib since commit
-    # 47505f644299aa2483d0df06c2bb2c7aa10d26d4.
-    return "'" + s.replace("'", "'\\''") + "'"
 
 def _execute(repository_ctx, cmd, timeout = 600, environment = {}, progress_message = None):
     if progress_message:
@@ -192,9 +204,13 @@ def _execute_with_argsfile(
         tool_name,
         progress_message,
         error_description,
-        files_to_inspect):
+        files_to_inspect,
+        empty_output = ""):
     # Currently each tool can only be used once per repository.
     # This could be avoided by adding a disambiguator to the argsfile name.
+
+    if len(files_to_inspect) == 0:
+        return empty_output
 
     # Avoid argument limits by putting list of files to inspect into a file
     repository_ctx.file(
@@ -285,23 +301,18 @@ def _get_aar_import_statement_or_empty_str(repository_ctx):
         return ""
 
 def _java_path(repository_ctx):
-    # Allow setting an env var to keep legacy JAVA_HOME behavior
-    use_java_home = repository_ctx.os.environ.get("RJE_COURSIER_USE_JAVA_HOME")
+    java_candidates = ["../bazel_tools/jdk/bin/java"]
+    if _is_windows(repository_ctx):
+        java_candidates = ["../bazel_tools/jdk/bin/java.exe"] + java_candidates
 
-    if use_java_home == None:
-        embedded_java = "../bazel_tools/jdk/bin/java"
-        if _is_file(repository_ctx, embedded_java):
-            return repository_ctx.path(embedded_java)
+    for java_candidate in java_candidates:
+        java_path = repository_ctx.path(java_candidate)
+        if java_path.exists:
+            return java_path
 
-    java_home = repository_ctx.os.environ.get("JAVA_HOME")
-    if java_home != None:
-        return repository_ctx.path(java_home + "/bin/java")
-    elif repository_ctx.which("java") != None:
-        return repository_ctx.which("java")
-    return None
+    fail("Unable to find embedded Java executable. Expected one of: %s" % ", ".join(java_candidates))
 
-# Generate the base `coursier` command depending on the OS, JAVA_HOME or the
-# location of `java`.
+# Generate the base `coursier` command using the embedded Java runtime.
 def _generate_java_jar_command_for_coursier(repository_ctx, jar_path):
     coursier_opts = repository_ctx.os.environ.get("COURSIER_OPTS", "")
     coursier_opts = coursier_opts.split(" ") if len(coursier_opts) > 0 else []
@@ -310,26 +321,15 @@ def _generate_java_jar_command_for_coursier(repository_ctx, jar_path):
     coursier_opts.append("-XX:+ExitOnOutOfMemoryError")
     java_path = _java_path(repository_ctx)
 
-    if java_path != None:
-        # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
-        # The -noverify option seems to be required after the proguarding step
-        # of the main JAR of coursier.
-        cmd = [java_path, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
-    else:
-        # Try to execute coursier directly
-        cmd = [jar_path] + coursier_opts + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
-
-    return cmd
+    # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
+    # The -noverify option seems to be required after the proguarding step
+    # of the main JAR of coursier.
+    return [java_path] + _get_java_network_preference_args(repository_ctx) + ["-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
 
 def _generate_java_jar_command(repository_ctx, jar_path):
     java_path = _java_path(repository_ctx)
 
-    if java_path != None:
-        cmd = [java_path, "-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
-    else:
-        cmd = [jar_path] + ["-J%s" % arg for arg in _get_java_proxy_args(repository_ctx)]
-
-    return cmd
+    return [java_path] + _get_java_network_preference_args(repository_ctx) + ["-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
 
 # Extract the well-known environment variables http_proxy, https_proxy and
 # no_proxy and convert them to java.net-compatible property arguments.
@@ -340,18 +340,28 @@ def _get_java_proxy_args(repository_ctx):
     no_proxy = repository_ctx.os.environ.get("no_proxy", repository_ctx.os.environ.get("NO_PROXY"))
     return get_java_proxy_args(http_proxy, https_proxy, no_proxy)
 
-def _windows_check(repository_ctx):
-    # TODO(jin): Remove BAZEL_SH usage ASAP. Bazel is going bashless, so BAZEL_SH
-    # will not be around for long.
-    #
-    # On Windows, run msys once to bootstrap it
-    # https://github.com/bazelbuild/rules_jvm_external/issues/53
-    if (_is_windows(repository_ctx)):
-        bash = repository_ctx.os.environ.get("BAZEL_SH")
-        if (bash == None):
-            fail("Please set the BAZEL_SH environment variable to the path of MSYS2 bash. " +
-                 "This is typically `c:\\msys64\\usr\\bin\\bash.exe`. For more information, read " +
-                 "https://docs.bazel.build/versions/master/install-windows.html#getting-bazel")
+def _get_java_network_preference_args(repository_ctx):
+    java_tool_options = repository_ctx.os.environ.get("JAVA_TOOL_OPTIONS", "")
+    jdk_java_options = repository_ctx.os.environ.get("JDK_JAVA_OPTIONS", "")
+    java_options = java_tool_options + " " + jdk_java_options
+
+    # Some CI environments inject IPv6 preference globally but don't have working IPv6 egress.
+    # Apply explicit JVM startup flags for repository-rule Java tooling only in that case.
+    if "-Djava.net.preferIPv6Addresses=true" not in java_options:
+        return []
+
+    flags = []
+    if "-Djava.net.preferIPv6Addresses=false" not in java_options:
+        flags.append("-Djava.net.preferIPv6Addresses=false")
+    if "-Djava.net.preferIPv4Stack=true" not in java_options:
+        flags.append("-Djava.net.preferIPv4Stack=true")
+    return flags
+
+def _get_outdated_jvm_flags(repository_ctx):
+    return _get_java_proxy_args(repository_ctx) + _get_java_network_preference_args(repository_ctx)
+
+def _get_pin_jvm_flags(repository_ctx):
+    return repository_ctx.os.environ.get("JDK_JAVA_OPTIONS", "")
 
 def _stable_artifact(artifact):
     parsed = json.decode(artifact)
@@ -428,16 +438,13 @@ def get_netrc_lines_from_entries(netrc_entries):
     return netrc_lines
 
 def get_home_netrc_contents(repository_ctx):
-    if repository_ctx.os.name.startswith("windows"):
-        home_dir = repository_ctx.os.environ.get("USERPROFILE", "")
-    else:
-        home_dir = repository_ctx.os.environ.get("HOME", "")
+    home_dir = _home_dir(repository_ctx)
 
     if not home_dir:
         return ""
 
     netrcfile = "{}/.netrc".format(home_dir)
-    if not repository_ctx.path(netrcfile).exists:
+    if not _path_exists(repository_ctx, netrcfile):
         return ""
 
     return repository_ctx.read(netrcfile)
@@ -459,16 +466,6 @@ def _add_outdated_files(repository_ctx, artifacts, boms, repositories):
         "outdated.repositories",
         "\n".join([repo["repo_url"] for repo in repositories]) + "\n",
         executable = False,
-    )
-
-    repository_ctx.template(
-        "outdated.sh",
-        repository_ctx.attr._outdated,
-        {
-            "{repository_name}": repository_ctx.name,
-            "{proxy_opts}": " ".join([_shell_quote(arg) for arg in _get_java_proxy_args(repository_ctx)]),
-        },
-        executable = True,
     )
 
 def get_direct_dependencies(all_artifacts, input_artifacts):
@@ -522,20 +519,16 @@ def get_direct_dependencies(all_artifacts, input_artifacts):
     return sorted(direct_deps.keys())
 
 def _add_direct_deps_files(repository_ctx, direct_deps):
-    """Creates the direct_deps.sh script file.
+    """Creates the direct_deps.txt file.
 
     Args:
         repository_ctx: The repository context.
         direct_deps: A list of resolved coordinates in Gradle External format.
     """
-    script_content = "#!/bin/bash\n"
-    for dep in direct_deps:
-        script_content += "echo '%s'\n" % dep
-
     repository_ctx.file(
-        "direct_deps.sh",
-        script_content,
-        executable = True,
+        "direct_deps.txt",
+        "\n".join(direct_deps) + "\n",
+        executable = False,
     )
 
 def is_repin_required(repository_ctx):
@@ -557,8 +550,6 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     if not repository_ctx.attr.maven_install_json:
         fail("Please specify the file label to maven_install.json (e.g." +
              "//:maven_install.json).")
-
-    _windows_check(repository_ctx)
 
     repositories = [json.decode(repository) for repository in repository_ctx.attr.repositories]
 
@@ -729,13 +720,13 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 "        netrc = \"../%s/netrc\"," % (repository_ctx.name),
             ])
             if len(artifact["urls"]) == 0 and importer.has_m2local(maven_install_json_content) and artifact.get("file") != None:
-                if _is_windows(repository_ctx):
-                    user_home = repository_ctx.os.environ.get("USERPROFILE").replace("\\", "/")
+                user_home = _home_dir(repository_ctx)
+                if user_home:
+                    m2local_urls = [
+                        "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
+                    ]
                 else:
-                    user_home = repository_ctx.os.environ.get("HOME")
-                m2local_urls = [
-                    "file://%s/.m2/repository/%s" % (user_home, artifact["file"]),
-                ]
+                    m2local_urls = []
             else:
                 m2local_urls = []
             http_files.append("        urls = %s," % repr(
@@ -814,6 +805,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
             unpinned_pin_target = unpinned_pin_target,
+            outdated_jvm_flags = repr(_get_outdated_jvm_flags(repository_ctx)),
         ) + pin_target,
         executable = False,
     )
@@ -868,7 +860,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
-            jvm_flags = repr(repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")),
+            jvm_flags = repr(_get_pin_jvm_flags(repository_ctx)),
             repos = repr(repository_ctx.attr.repositories),
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
@@ -950,12 +942,17 @@ def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
         return coursier_cache_env_var
 
     # cache locations from https://get-coursier.io/docs/2.0.0-RC5-3/cache.html#default-location
-    # Use linux as the default cache directory
-    default_cache_dir = "%s/.cache/coursier/v1" % os_env.get("HOME")
+    # Use the XDG-style cache location as the cross-platform default.
+    home_dir = _home_dir(repository_ctx)
+    default_cache_dir = "%s/.cache/coursier/v1" % home_dir
     if _is_windows(repository_ctx):
-        default_cache_dir = "%s/Coursier/cache/v1" % os_env.get("LOCALAPPDATA").replace("\\", "/")
+        local_app_data = os_env.get("LOCALAPPDATA")
+        if local_app_data:
+            default_cache_dir = "%s/Coursier/cache/v1" % _normalize_to_unix_path(local_app_data)
+        elif home_dir:
+            default_cache_dir = "%s/AppData/Local/Coursier/cache/v1" % home_dir
     elif _is_macos(repository_ctx):
-        default_cache_dir = "%s/Library/Caches/Coursier/v1" % os_env.get("HOME")
+        default_cache_dir = "%s/Library/Caches/Coursier/v1" % home_dir
     else:
         # Coursier respects $XDG_CACHE_HOME as a replacement for $HOME/.cache
         # outside of Windows and macOS.
@@ -968,10 +965,12 @@ def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
             return "%s/coursier/v1" % xdg_cache_home
 
     # Logic based on # https://github.com/coursier/coursier/blob/f48c1c6b01ac5b720e66e06cf93587b21d030e8c/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L60
-    if _is_directory(repository_ctx, default_cache_dir):
+    if _path_exists(repository_ctx, default_cache_dir):
         return default_cache_dir
-    elif _is_directory(repository_ctx, "%s/.coursier" % os_env.get("HOME")):
-        return "%s/.coursier/cache/v1" % os_env.get("HOME")
+
+    legacy_cache_dir = "%s/.coursier" % home_dir
+    if _path_exists(repository_ctx, legacy_cache_dir):
+        return "%s/cache/v1" % legacy_cache_dir
 
     return default_cache_dir
 
@@ -1216,8 +1215,6 @@ def _coursier_fetch_impl(repository_ctx):
     if hasher_exec_result.return_code != 0:
         fail("Unable to run coursier: " + hasher_exec_result.stderr)
 
-    _windows_check(repository_ctx)
-
     # Deserialize the spec blobs
     repositories = []
     for repository in repository_ctx.attr.repositories:
@@ -1391,6 +1388,7 @@ def _coursier_fetch_impl(repository_ctx):
         "Indexing jars",
         "indexing jars",
         files_to_inspect,
+        empty_output = "{}",
     )
 
     jars_to_index_results = json.decode(index_jars_stdout)
@@ -1509,23 +1507,11 @@ def _coursier_fetch_impl(repository_ctx):
     direct_deps = get_direct_dependencies(all_artifacts, artifacts)
     _add_direct_deps_files(repository_ctx, direct_deps)
 
-    repository_ctx.file(
-        "BUILD",
-        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
-            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
-            repository_name = repository_name,
-            imports = generated_imports,
-            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
-        ),
-        executable = False,
-    )
-
     # If maven_install.json has already been used in maven_install,
     # we already know the lock file location. If it's not used yet,
     # provide the default location.
     #
-    # Also support custom locations for maven_install.json and update the pin.sh script
-    # accordingly.
+    # Also support custom locations for maven_install.json.
     predefined_maven_install = bool(repository_ctx.attr.maven_install_json)
     if predefined_maven_install:
         package_path = repository_ctx.attr.maven_install_json.package
@@ -1536,23 +1522,20 @@ def _coursier_fetch_impl(repository_ctx):
             maven_install_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
     else:
         # Default maven_install.json file name.
-        maven_install_location = "{repository_name}_install.json"
+        maven_install_location = "{}_install.json".format(repository_name)
 
-    # Expose the script to let users pin the state of the fetch in
-    # `<workspace_root>/maven_install.json`.
-    #
-    # $ bazel run @unpinned_maven//:pin
-    #
-    # Create the maven_install.json export script for unpinned repositories.
-    repository_ctx.template(
-        "pin.sh",
-        repository_ctx.attr._pin,
-        {
-            "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
-            "{predefined_maven_install}": str(predefined_maven_install),
-            "{repository_name}": repository_name,
-        },
-        executable = True,
+    repository_ctx.file(
+        "BUILD",
+        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
+            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
+            repository_name = repository_name,
+            imports = generated_imports,
+            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            maven_install_location = maven_install_location,
+            predefined_maven_install = str(predefined_maven_install),
+            outdated_jvm_flags = repr(_get_outdated_jvm_flags(repository_ctx)),
+        ),
+        executable = False,
     )
 
     # Generate 'defs.bzl' with just the dependencies for ':pin'.
@@ -1595,7 +1578,6 @@ def _coursier_fetch_impl(repository_ctx):
 pinned_coursier_fetch = repository_rule(
     attrs = {
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
-        "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),
         "resolver": attr.string(doc = "The resolver to use", values = ["coursier", "gradle", "maven"], default = "coursier"),
         "repositories": attr.string_list(),  # list of repository objects, each as json
@@ -1643,6 +1625,16 @@ pinned_coursier_fetch = repository_rule(
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },
+    environ = [
+        "JAVA_TOOL_OPTIONS",
+        "JDK_JAVA_OPTIONS",
+        "http_proxy",
+        "HTTP_PROXY",
+        "https_proxy",
+        "HTTPS_PROXY",
+        "no_proxy",
+        "NO_PROXY",
+    ],
     implementation = _pinned_coursier_fetch_impl,
 )
 
@@ -1651,9 +1643,7 @@ coursier_fetch = repository_rule(
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
         "_index_jar": attr.label(default = "//private/tools/prebuilt:index_jar_deploy.jar"),
         "_lock_file_converter": attr.label(default = "//private/tools/prebuilt:lock_file_converter_deploy.jar"),
-        "_pin": attr.label(default = "//private:pin.sh"),
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
-        "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),
         "repositories": attr.string_list(),  # list of repository objects, each as json
         "artifacts": attr.string_list(),  # list of artifact objects, each as json
@@ -1714,7 +1704,7 @@ coursier_fetch = repository_rule(
         ),
     },
     environ = [
-        "JAVA_HOME",
+        "JAVA_TOOL_OPTIONS",
         "JDK_JAVA_OPTIONS",
         "http_proxy",
         "HTTP_PROXY",

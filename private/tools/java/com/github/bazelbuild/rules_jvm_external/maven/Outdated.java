@@ -1,15 +1,21 @@
 package com.github.bazelbuild.rules_jvm_external.maven;
 
+import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,6 +33,13 @@ public class Outdated {
   // and unfortunately ComparableVerison does not expose this in any public methods.
   private static final List<String> MAVEN_PRE_RELEASE_QUALIFIERS =
       Arrays.asList("alpha", "beta", "milestone", "cr", "rc", "snapshot");
+  private static final String MAVEN_CENTRAL_ALIAS_HOST = "repo1.maven.org";
+  private static final String MAVEN_CENTRAL_CANONICAL_HOST = "repo.maven.apache.org";
+  private static final String PREFER_IPV6_ADDRESSES_TRUE =
+      "-Djava.net.preferIPv6Addresses=true";
+  private static final String PREFER_IPV6_ADDRESSES_FALSE =
+      "-Djava.net.preferIPv6Addresses=false";
+  private static final String PREFER_IPV4_STACK_TRUE = "-Djava.net.preferIPv4Stack=true";
 
   public static class ArtifactReleaseInfo {
     public String releaseVersion;
@@ -188,6 +201,77 @@ public class Outdated {
     return null;
   }
 
+  static List<String> repositoryCandidates(String repository) {
+    List<String> candidates = new ArrayList<>();
+    candidates.add(repository);
+
+    URI repositoryUri;
+    try {
+      repositoryUri = new URI(repository);
+    } catch (URISyntaxException e) {
+      return candidates;
+    }
+
+    if (!MAVEN_CENTRAL_ALIAS_HOST.equalsIgnoreCase(repositoryUri.getHost())) {
+      return candidates;
+    }
+
+    try {
+      URI canonicalUri =
+          new URI(
+              repositoryUri.getScheme(),
+              repositoryUri.getUserInfo(),
+              MAVEN_CENTRAL_CANONICAL_HOST,
+              repositoryUri.getPort(),
+              repositoryUri.getPath(),
+              repositoryUri.getQuery(),
+              repositoryUri.getFragment());
+      candidates.add(canonicalUri.toString());
+    } catch (URISyntaxException e) {
+      // Keep the original repository only if canonical URI construction fails.
+    }
+
+    return candidates;
+  }
+
+  static boolean shouldApplyIpv4Fallback(String javaToolOptions, String jdkJavaOptions) {
+    String allOptions =
+        (javaToolOptions == null ? "" : javaToolOptions)
+            + " "
+            + (jdkJavaOptions == null ? "" : jdkJavaOptions);
+
+    return allOptions.contains(PREFER_IPV6_ADDRESSES_TRUE)
+        && !allOptions.contains(PREFER_IPV6_ADDRESSES_FALSE)
+        && !allOptions.contains(PREFER_IPV4_STACK_TRUE);
+  }
+
+  static boolean shouldRelaunchWithIpv4Fallback(
+      String javaToolOptions,
+      String jdkJavaOptions,
+      String preferIpv4StackProperty,
+      String preferIpv6AddressesProperty) {
+    if (!shouldApplyIpv4Fallback(javaToolOptions, jdkJavaOptions)) {
+      return false;
+    }
+
+    return !"true".equalsIgnoreCase(preferIpv4StackProperty)
+        && !"false".equalsIgnoreCase(preferIpv6AddressesProperty);
+  }
+
+  private static int relaunchWithIpv4Fallback(String[] args) throws IOException, InterruptedException {
+    List<String> command = new ArrayList<>();
+    command.add(Paths.get(System.getProperty("java.home"), "bin", "java").toString());
+    command.add(PREFER_IPV6_ADDRESSES_FALSE);
+    command.add(PREFER_IPV4_STACK_TRUE);
+    command.add("-cp");
+    command.add(System.getProperty("java.class.path"));
+    command.add(Outdated.class.getName());
+    command.addAll(Arrays.asList(args));
+
+    Process process = new ProcessBuilder(command).inheritIO().start();
+    return process.waitFor();
+  }
+
   public static void printUpdatesFor(
       List<String> artifacts, List<String> repositories, boolean useLegacyOutputFormat) {
     boolean foundUpdates = false;
@@ -213,19 +297,24 @@ public class Outdated {
 
       ArtifactReleaseInfo artifactReleaseInfo = null;
       for (String repository : repositories) {
-        artifactReleaseInfo = getReleaseVersion(repository, groupId, artifactId);
+        for (String repositoryCandidate : repositoryCandidates(repository)) {
+          artifactReleaseInfo = getReleaseVersion(repositoryCandidate, groupId, artifactId);
 
+          if (artifactReleaseInfo != null) {
+            // We return the result from the first repository instead of searching all repositories
+            // for the artifact
+            verboseLog(
+                String.format(
+                    "Found release version [%s] and pre-release version [%s] for %s:%s in %s",
+                    artifactReleaseInfo.releaseVersion,
+                    artifactReleaseInfo.preReleaseVersion,
+                    groupId,
+                    artifactId,
+                    repositoryCandidate));
+            break;
+          }
+        }
         if (artifactReleaseInfo != null) {
-          // We return the result from the first repository instead of searching all repositories
-          // for the artifact
-          verboseLog(
-              String.format(
-                  "Found release version [%s] and pre-release version [%s] for %s:%s in %s",
-                  artifactReleaseInfo.releaseVersion,
-                  artifactReleaseInfo.preReleaseVersion,
-                  groupId,
-                  artifactId,
-                  repository));
           break;
         }
       }
@@ -280,7 +369,73 @@ public class Outdated {
     }
   }
 
+  private static Set<String> runfileCandidates(String path) {
+    Set<String> candidates = new LinkedHashSet<>();
+    candidates.add(path);
+
+    String normalized = path;
+    while (normalized.startsWith("./")) {
+      normalized = normalized.substring(2);
+    }
+    candidates.add(normalized);
+
+    if (normalized.startsWith("external/")) {
+      normalized = normalized.substring("external/".length());
+      candidates.add(normalized);
+    }
+
+    while (normalized.startsWith("../")) {
+      normalized = normalized.substring(3);
+      candidates.add(normalized);
+    }
+
+    return candidates;
+  }
+
+  private static Path resolvePath(String path) throws IOException {
+    Path directPath = Paths.get(path);
+    if (Files.exists(directPath)) {
+      return directPath;
+    }
+
+    Runfiles.Preloaded runfiles = Runfiles.preload();
+    for (String runfilePath : runfileCandidates(path)) {
+      if (runfilePath == null || runfilePath.isEmpty()) {
+        continue;
+      }
+
+      String resolvedPathString;
+      try {
+        resolvedPathString = runfiles.unmapped().rlocation(runfilePath);
+      } catch (IllegalArgumentException e) {
+        continue;
+      }
+
+      if (resolvedPathString != null) {
+        Path resolvedPath = Paths.get(resolvedPathString);
+        if (Files.exists(resolvedPath)) {
+          return resolvedPath;
+        }
+      }
+    }
+
+    return directPath;
+  }
+
   public static void main(String[] args) throws IOException {
+    if (shouldRelaunchWithIpv4Fallback(
+        System.getenv("JAVA_TOOL_OPTIONS"),
+        System.getenv("JDK_JAVA_OPTIONS"),
+        System.getProperty("java.net.preferIPv4Stack"),
+        System.getProperty("java.net.preferIPv6Addresses"))) {
+      try {
+        System.exit(relaunchWithIpv4Fallback(args));
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new IOException("Interrupted while relaunching outdated with IPv4 fallback", e);
+      }
+      return;
+    }
     verboseLog(String.format("Running outdated with args %s", Arrays.toString(args)));
 
     Path artifactsFilePath = null;
@@ -291,15 +446,15 @@ public class Outdated {
     for (int i = 0; i < args.length; i++) {
       switch (args[i]) {
         case "--artifacts-file":
-          artifactsFilePath = Paths.get(args[++i]);
+          artifactsFilePath = resolvePath(args[++i]);
           break;
 
         case "--boms-file":
-          bomsFilePath = Paths.get(args[++i]);
+          bomsFilePath = resolvePath(args[++i]);
           break;
 
         case "--repositories-file":
-          repositoriesFilePath = Paths.get(args[++i]);
+          repositoriesFilePath = resolvePath(args[++i]);
           break;
 
         case "--legacy-output":
