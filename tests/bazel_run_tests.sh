@@ -221,28 +221,40 @@ function test_unpinned_found_artifact_with_plus_through_pin_and_build() {
 }
 
 function test_outdated() {
-  bazel run @regression_testing_coursier//:outdated >> "$TEST_LOG" 2>&1
+  (
+    unset JAVA_TOOL_OPTIONS
+    bazel run @regression_testing_coursier//:outdated >> "$TEST_LOG" 2>&1
+  )
 
   expect_log "Checking for updates of .* artifacts against the following repositories"
   expect_log "junit:junit \[4.12"
 }
 
 function test_outdated_no_external_runfiles() {
-  bazel run @regression_testing_coursier//:outdated --nolegacy_external_runfiles >> "$TEST_LOG" 2>&1
+  (
+    unset JAVA_TOOL_OPTIONS
+    bazel run @regression_testing_coursier//:outdated --nolegacy_external_runfiles >> "$TEST_LOG" 2>&1
+  )
 
   expect_log "Checking for updates of .* artifacts against the following repositories"
   expect_log "junit:junit \[4.12"
 }
 
 function test_outdated_with_boms() {
-  bazel run @regression_testing_maven//:outdated >> "$TEST_LOG" 2>&1
+  (
+    unset JAVA_TOOL_OPTIONS
+    bazel run @regression_testing_maven//:outdated >> "$TEST_LOG" 2>&1
+  )
 
   expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
   expect_log "io.opentelemetry:opentelemetry-bom \[1.31.0"
 }
 
 function test_outdated_with_boms_does_not_include_artifacts_without_a_version() {
-  bazel run @coursier_resolved_with_boms//:outdated >> "$TEST_LOG" 2>&1
+  (
+    unset JAVA_TOOL_OPTIONS
+    bazel run @coursier_resolved_with_boms//:outdated >> "$TEST_LOG" 2>&1
+  )
 
   expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
   expect_log "com.google.cloud:libraries-bom \[26.59.0"

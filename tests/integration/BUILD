@@ -6,6 +6,9 @@ load(":is_bzlmod_enabled.bzl", "is_bzlmod_enabled")
 genquery(
     name = "testonly-deps",
     testonly = True,
+    # Bazel 9 no longer guarantees the implicit *_deployjars_internal_rule targets
+    # from java_binary. Keep this query resilient across Bazel versions.
+    strict = False,
     expression = "attr(testonly, 1, deps(@testonly_testing//:all, 0))",
     scope = [
         "@testonly_testing//:org_codehaus_mojo_animal_sniffer_annotations_1_17",
@@ -28,11 +31,8 @@ genquery(
         "@testonly_testing//:com_google_auto_value_auto_value_annotations",
         "@testonly_testing//:defs",
         "@testonly_testing//:direct_deps",
-        "@testonly_testing//:direct_deps_deployjars_internal_rule",
         "@testonly_testing//:outdated",
-        "@testonly_testing//:outdated_deployjars_internal_rule",
         "@testonly_testing//:pin",
-        "@testonly_testing//:pin_deployjars_internal_rule",
     ],
 )
 
