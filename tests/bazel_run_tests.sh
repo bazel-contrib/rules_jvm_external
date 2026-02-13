@@ -258,7 +258,10 @@ function test_outdated_with_boms_does_not_include_artifacts_without_a_version() 
 
   expect_log "Checking for updates of .* boms and .* artifacts against the following repositories"
   expect_outdated_log "com.google.cloud:libraries-bom \[26.59.0"
-  expect_not_log "com.google.cloud:google-cloud-bigquery"
+  # Only fail if these show up as update result lines; verbose "Checking artifact [...]"
+  # logs are expected when RJE_VERBOSE=1.
+  expect_not_log "^com.google.cloud:google-cloud-bigquery \\["
+  expect_not_log "^com.google.auth:google-auth-library-oauth2-http \\["
   expect_not_log "\[None"
 }
 
