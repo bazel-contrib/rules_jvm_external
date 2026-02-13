@@ -124,7 +124,7 @@ java_binary(
         "--repositories-file",
         "$(rlocationpath :outdated.repositories)",
     ],
-    jvm_flags = {proxy_jvm_flags},
+    jvm_flags = {outdated_jvm_flags},
     runtime_deps = [
         "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/maven:outdated_lib",
     ],
@@ -339,6 +339,18 @@ def _get_java_proxy_args(repository_ctx):
     https_proxy = repository_ctx.os.environ.get("https_proxy", repository_ctx.os.environ.get("HTTPS_PROXY"))
     no_proxy = repository_ctx.os.environ.get("no_proxy", repository_ctx.os.environ.get("NO_PROXY"))
     return get_java_proxy_args(http_proxy, https_proxy, no_proxy)
+
+def _get_outdated_jvm_flags(repository_ctx):
+    flags = _get_java_proxy_args(repository_ctx)
+    java_tool_options = repository_ctx.os.environ.get("JAVA_TOOL_OPTIONS", "")
+    jdk_java_options = repository_ctx.os.environ.get("JDK_JAVA_OPTIONS", "")
+    java_options = java_tool_options + " " + jdk_java_options
+
+    # Avoid known CI failures where the host injects IPv6 preference and Java
+    # metadata fetches hit "Network is unreachable".
+    if "-Djava.net.preferIPv6Addresses=true" in java_options and "-Djava.net.preferIPv4Stack=true" not in java_options:
+        return flags + ["-Djava.net.preferIPv4Stack=true"]
+    return flags
 
 def _stable_artifact(artifact):
     parsed = json.decode(artifact)
@@ -782,7 +794,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
             unpinned_pin_target = unpinned_pin_target,
-            proxy_jvm_flags = repr(_get_java_proxy_args(repository_ctx)),
+            outdated_jvm_flags = repr(_get_outdated_jvm_flags(repository_ctx)),
         ) + pin_target,
         executable = False,
     )
@@ -1510,7 +1522,7 @@ def _coursier_fetch_impl(repository_ctx):
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
             maven_install_location = maven_install_location,
             predefined_maven_install = str(predefined_maven_install),
-            proxy_jvm_flags = repr(_get_java_proxy_args(repository_ctx)),
+            outdated_jvm_flags = repr(_get_outdated_jvm_flags(repository_ctx)),
         ),
         executable = False,
     )
