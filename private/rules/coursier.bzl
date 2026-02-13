@@ -324,12 +324,12 @@ def _generate_java_jar_command_for_coursier(repository_ctx, jar_path):
     # https://github.com/coursier/coursier/blob/master/doc/FORMER-README.md#how-can-the-launcher-be-run-on-windows-or-manually-with-the-java-program
     # The -noverify option seems to be required after the proguarding step
     # of the main JAR of coursier.
-    return [java_path, "-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
+    return [java_path] + _get_java_network_preference_args(repository_ctx) + ["-noverify", "-jar"] + coursier_opts + _get_java_proxy_args(repository_ctx) + [jar_path]
 
 def _generate_java_jar_command(repository_ctx, jar_path):
     java_path = _java_path(repository_ctx)
 
-    return [java_path, "-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
+    return [java_path] + _get_java_network_preference_args(repository_ctx) + ["-jar"] + _get_java_proxy_args(repository_ctx) + [jar_path]
 
 # Extract the well-known environment variables http_proxy, https_proxy and
 # no_proxy and convert them to java.net-compatible property arguments.
@@ -340,8 +340,28 @@ def _get_java_proxy_args(repository_ctx):
     no_proxy = repository_ctx.os.environ.get("no_proxy", repository_ctx.os.environ.get("NO_PROXY"))
     return get_java_proxy_args(http_proxy, https_proxy, no_proxy)
 
+def _get_java_network_preference_args(repository_ctx):
+    java_tool_options = repository_ctx.os.environ.get("JAVA_TOOL_OPTIONS", "")
+    jdk_java_options = repository_ctx.os.environ.get("JDK_JAVA_OPTIONS", "")
+    java_options = java_tool_options + " " + jdk_java_options
+
+    # Some CI environments inject IPv6 preference globally but don't have working IPv6 egress.
+    # Apply explicit JVM startup flags for repository-rule Java tooling only in that case.
+    if "-Djava.net.preferIPv6Addresses=true" not in java_options:
+        return []
+
+    flags = []
+    if "-Djava.net.preferIPv6Addresses=false" not in java_options:
+        flags.append("-Djava.net.preferIPv6Addresses=false")
+    if "-Djava.net.preferIPv4Stack=true" not in java_options:
+        flags.append("-Djava.net.preferIPv4Stack=true")
+    return flags
+
 def _get_outdated_jvm_flags(repository_ctx):
-    return _get_java_proxy_args(repository_ctx)
+    return _get_java_proxy_args(repository_ctx) + _get_java_network_preference_args(repository_ctx)
+
+def _get_pin_jvm_flags(repository_ctx):
+    return repository_ctx.os.environ.get("JDK_JAVA_OPTIONS", "")
 
 def _stable_artifact(artifact):
     parsed = json.decode(artifact)
@@ -840,7 +860,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
-            jvm_flags = repr(repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")),
+            jvm_flags = repr(_get_pin_jvm_flags(repository_ctx)),
             repos = repr(repository_ctx.attr.repositories),
             fetch_sources = repr(repository_ctx.attr.fetch_sources),
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
@@ -1605,6 +1625,16 @@ pinned_coursier_fetch = repository_rule(
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },
+    environ = [
+        "JAVA_TOOL_OPTIONS",
+        "JDK_JAVA_OPTIONS",
+        "http_proxy",
+        "HTTP_PROXY",
+        "https_proxy",
+        "HTTPS_PROXY",
+        "no_proxy",
+        "NO_PROXY",
+    ],
     implementation = _pinned_coursier_fetch_impl,
 )
 
@@ -1674,6 +1704,7 @@ coursier_fetch = repository_rule(
         ),
     },
     environ = [
+        "JAVA_TOOL_OPTIONS",
         "JDK_JAVA_OPTIONS",
         "http_proxy",
         "HTTP_PROXY",
