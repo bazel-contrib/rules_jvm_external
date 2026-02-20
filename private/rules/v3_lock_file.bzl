@@ -151,10 +151,12 @@ def _compute_lock_file_hash_v3(lock_file_contents):
 
     for repo, artifacts in lock_file_contents["repositories"].items():
         for artifact in artifacts:
-            all_infos[artifact]["repository"] = repo
+            if artifact in all_infos:
+                all_infos[artifact]["repository"] = repo
 
     for dep, dep_info in lock_file_contents["dependencies"].items():
-        all_infos[dep]["dependencies"] = sorted(dep_info)
+        if dep in all_infos:
+            all_infos[dep]["dependencies"] = sorted(dep_info)
 
     return _compute_final_hash(all_infos)
 
