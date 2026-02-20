@@ -41,6 +41,24 @@ java_test(
 )
 
 java_test(
+    name = "ErrorReportingListenerTest",
+    size = "small",
+    srcs = ["ErrorReportingListenerTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.maven.ErrorReportingListenerTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+        artifact(
+            "org.apache.maven.resolver:maven-resolver-api",
+            repository_name = "rules_jvm_external_deps",
+        ),
+    ],
+)
+
+java_test(
     name = "MavenResolverTest",
     size = "medium",
     srcs = ["MavenResolverTest.java"],

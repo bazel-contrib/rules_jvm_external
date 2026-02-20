@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.eclipse.aether.AbstractRepositoryListener;
@@ -22,30 +23,33 @@ import org.eclipse.aether.RepositoryEvent;
 
 class ErrorReportingListener extends AbstractRepositoryListener {
 
-  private final List<Exception> exceptions = new LinkedList<>();
+  private final List<Exception> exceptions = Collections.synchronizedList(new LinkedList<>());
 
   @Override
   public void artifactDescriptorInvalid(RepositoryEvent event) {
-    if (event.getException() != null) {
-      exceptions.add(event.getException());
-    }
+    addExceptionIfPresent(event);
   }
 
   @Override
   public void artifactDescriptorMissing(RepositoryEvent event) {
-    if (event.getException() != null) {
-      exceptions.add(event.getException());
-    }
+    addExceptionIfPresent(event);
   }
 
   @Override
   public void metadataInvalid(RepositoryEvent event) {
-    if (event.getException() != null) {
+    addExceptionIfPresent(event);
+  }
+
+  private void addExceptionIfPresent(RepositoryEvent event) {
+    if (event != null && event.getException() != null) {
       exceptions.add(event.getException());
     }
   }
 
   public List<Exception> getExceptions() {
-    return ImmutableList.copyOf(exceptions);
+    // https://www.baeldung.com/java-synchronized-collections#the-synchronizedList-method
+    synchronized (exceptions) {
+      return ImmutableList.copyOf(exceptions);
+    }
   }
 }
