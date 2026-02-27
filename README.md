@@ -30,7 +30,7 @@ You can find examples in the [`examples/`](./examples/) directory.
 ### Projects using rules_jvm_external
 
 Find other GitHub projects using `rules_jvm_external`
-[with this search query](https://github.com/search?q=rules_jvm_external+filename%3AMODULE.bazel&type=Code).
+[with this search query](https://github.com/search?q=rules_jvm_external+path%3A**%2FMODULE.bazel&type=code).
 
 ## Prerequisites
 
