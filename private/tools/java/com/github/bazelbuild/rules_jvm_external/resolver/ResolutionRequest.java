@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ResolutionRequest {
+public class ResolutionRequest implements AutoCloseable {
 
   private final List<URI> repos = new ArrayList<>();
   private final List<Artifact> dependencies = new ArrayList<>();
@@ -41,6 +42,7 @@ public class ResolutionRequest {
   private final Set<Coordinates> globalExclusions = new HashSet<>();
   private boolean useUnsafeSharedCache;
   private Path userHome;
+  private boolean usingTemporaryUserHome;
   private boolean isUsingM2Local;
 
   public ResolutionRequest addRepository(String uri) {
@@ -132,6 +134,7 @@ public class ResolutionRequest {
     getGlobalExclusions().forEach(toReturn::exclude);
     toReturn.useUnsafeSharedCache = isUseUnsafeSharedCache();
     toReturn.userHome = userHome;
+    toReturn.usingTemporaryUserHome = usingTemporaryUserHome;
     toReturn.isUsingM2Local = isUsingM2Local();
 
     return toReturn;
@@ -168,9 +171,11 @@ public class ResolutionRequest {
 
     if (isUseUnsafeSharedCache()) {
       userHome = Paths.get(USER_HOME.value());
+      usingTemporaryUserHome = false;
     } else {
       try {
         userHome = Files.createTempDirectory("resolver-home");
+        usingTemporaryUserHome = true;
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -207,9 +212,32 @@ public class ResolutionRequest {
     return localRepo;
   }
 
+  @Override
+  public void close() {
+    if (!usingTemporaryUserHome || userHome == null || !Files.exists(userHome)) {
+      return;
+    }
+
+    try (Stream<Path> files = Files.walk(userHome)) {
+      files.sorted(Comparator.reverseOrder()).forEach(this::deleteIfExists);
+      userHome = null;
+      usingTemporaryUserHome = false;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
   private void createDirectories(Path path) {
     try {
       Files.createDirectories(path);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private void deleteIfExists(Path path) {
+    try {
+      Files.deleteIfExists(path);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
