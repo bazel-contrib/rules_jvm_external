@@ -345,14 +345,20 @@ public abstract class AbstractMain {
     for (Map.Entry<String, Iterable<String>> repo : repositories.entrySet()) {
       Iterable<String> repoArtifacts = repo.getValue();
       for (String art : repoArtifacts) {
-        allInfos.get(art).put("repository", repo.getKey());
+        Map<String, Object> info = allInfos.get(art);
+        if (info != null) {
+          info.put("repository", repo.getKey());
+        }
       }
     }
 
     Map<String, Set<String>> dependencies =
         sortMapRecursively((Map<?, ?>) rendered.get("dependencies"));
     for (Map.Entry<String, Set<String>> dep : dependencies.entrySet()) {
-      allInfos.get(dep.getKey()).put("dependencies", dep.getValue());
+      Map<String, Object> info = allInfos.get(dep.getKey());
+      if (info != null) {
+        info.put("dependencies", dep.getValue());
+      }
     }
 
     Map<String, Integer> finalHash = new TreeMap<>();

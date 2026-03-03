@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
@@ -250,6 +251,68 @@ public class V3LockFileTest {
 
       assertEquals(String.format("Hash mismatch for artifact '%s'", key), expectedHash, actualHash);
     }
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void calculateArtifactHashShouldHandleSkippedArtifacts() {
+    Coordinates mainCoords = new Coordinates("com.example:item:1.0.0");
+    Coordinates depCoords = new Coordinates("com.example:dep:1.0.0");
+    Coordinates sourcesCoords = mainCoords.setClassifier("sources");
+    String sourcesKey = sourcesCoords.asKey();
+
+    DependencyInfo dep =
+        new DependencyInfo(
+            depCoords,
+            repos,
+            Optional.empty(),
+            Optional.of("deadbeef"),
+            Set.of(),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+
+    DependencyInfo mainJar =
+        new DependencyInfo(
+            mainCoords,
+            repos,
+            Optional.empty(),
+            Optional.of("cafebabe"),
+            Set.of(depCoords),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+
+    DependencyInfo skippedSources =
+        new DependencyInfo(
+            sourcesCoords,
+            repos,
+            Optional.empty(),
+            Optional.empty(),
+            Set.of(depCoords),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Object> rendered =
+        new V3LockFile(repos, Set.of(mainJar, dep, skippedSources), Set.of(), true).render();
+
+    Set<String> skipped = (Set<String>) rendered.get("skipped");
+    assertTrue("sources artifact should be skipped", skipped.contains(sourcesKey));
+
+    Map<String, Set<String>> renderedRepos =
+        (Map<String, Set<String>>) rendered.get("repositories");
+    boolean foundInRepos =
+        renderedRepos.values().stream().anyMatch(arts -> arts.contains(sourcesKey));
+    assertTrue("skipped artifact should still appear in repositories", foundInRepos);
+
+    Map<String, Set<String>> renderedDeps =
+        (Map<String, Set<String>>) rendered.get("dependencies");
+    assertTrue(
+        "skipped artifact should still appear in dependencies",
+        renderedDeps.containsKey(sourcesKey));
+
+    AbstractMain.calculateArtifactHash(rendered);
   }
 
   private V3LockFile roundTrip(V3LockFile lockFile) {
