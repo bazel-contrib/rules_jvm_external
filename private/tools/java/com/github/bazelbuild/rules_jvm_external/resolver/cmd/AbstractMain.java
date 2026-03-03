@@ -64,18 +64,16 @@ public abstract class AbstractMain {
     Set<DependencyInfo> infos;
     try (EventListener listener = HttpDownloader.defaultEventListener()) {
       ResolverConfig config = new ResolverConfig(listener, args);
+      try (ResolutionRequest request = config.getResolutionRequest()) {
+        Resolver resolver = getResolver(config.getNetrc(), config.getMaxThreads(), listener);
 
-      ResolutionRequest request = config.getResolutionRequest();
+        ResolutionResult resolutionResult = resolver.resolve(request);
 
-      Resolver resolver = getResolver(config.getNetrc(), config.getMaxThreads(), listener);
+        infos = fulfillDependencyInfos(resolver, listener, config, resolutionResult);
 
-      ResolutionResult resolutionResult = resolver.resolve(request);
-
-      infos = fulfillDependencyInfos(resolver, listener, config, resolutionResult);
-
-      writeLockFile(listener, config, request, infos, resolutionResult.getConflicts());
-      writeDependencyIndex(config, infos);
-
+        writeLockFile(listener, config, request, infos, resolutionResult.getConflicts());
+        writeDependencyIndex(config, infos);
+      }
       System.exit(0);
     } catch (Exception e) {
       e.printStackTrace();
