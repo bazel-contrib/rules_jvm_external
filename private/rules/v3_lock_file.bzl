@@ -131,7 +131,7 @@ def _compute_final_hash(all_infos):
 
     return final_hashes
 
-def _compute_lock_file_hash_v3(lock_file_contents):
+def _compute_lock_file_hash_v3_impl(lock_file_contents, repo_keys):
     all_infos = dict()
 
     for dep, dep_info in lock_file_contents["artifacts"].items():
@@ -149,14 +149,34 @@ def _compute_lock_file_hash_v3(lock_file_contents):
             type_info["sha"] = sha
             all_infos[dep + suffix] = type_info
 
-    for repo, artifacts in lock_file_contents["repositories"].items():
-        for artifact in artifacts:
+    for repo in repo_keys:
+        for artifact in lock_file_contents["repositories"][repo]:
             all_infos[artifact]["repository"] = repo
 
     for dep, dep_info in lock_file_contents["dependencies"].items():
         all_infos[dep]["dependencies"] = sorted(dep_info)
 
     return _compute_final_hash(all_infos)
+
+def _compute_lock_file_hash_v3(lock_file_contents):
+    # Sort repositories to match the order used by the Java resolver binary (AbstractMain.calculateArtifactHash
+    # uses sortMapRecursively which sorts alphabetically). Without sorting, artifacts present in
+    # multiple repositories get different "repository" values depending on iteration order, causing
+    # hash mismatches between the stored value (written by Java) and the value computed here.
+    return _compute_lock_file_hash_v3_impl(
+        lock_file_contents,
+        sorted(lock_file_contents["repositories"].keys()),
+    )
+
+def _compute_lock_file_hash_v3_legacy(lock_file_contents):
+    # Computes the hash using repository insertion order. Used to detect lock
+    # files written by older versions of rules_jvm_external (before the fix
+    # that aligned Starlark hash order with the Java resolver). If the current
+    # hash does not match but this one does, the file needs to be repinned.
+    return _compute_lock_file_hash_v3_impl(
+        lock_file_contents,
+        lock_file_contents["repositories"].keys(),
+    )
 
 def _to_m2_path(unpacked):
     path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
@@ -329,6 +349,7 @@ v3_lock_file = struct(
     get_lock_file_hash = _get_lock_file_hash,
     print_friendly_hash_difference = _print_friendly_hash_difference_v3,
     compute_lock_file_hash = _compute_lock_file_hash_v3,
+    compute_lock_file_hash_legacy = _compute_lock_file_hash_v3_legacy,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
     render_lock_file = _render_lock_file,

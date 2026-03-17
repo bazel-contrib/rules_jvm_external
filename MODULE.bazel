@@ -478,6 +478,27 @@ dev_maven.install(
     lock_file = "//tests/custom_maven_install:maven_install.json",
 )
 dev_maven.install(
+    name = "multi_repo_hash",
+    artifacts = ["junit:junit:4.13.2"],
+    fail_if_repin_required = True,
+    lock_file = "//tests/custom_maven_install:multi_repo_hash_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2/",
+        "https://repo.maven.apache.org/maven2/",
+    ],
+    resolver = "maven",
+)
+dev_maven.install(
+    name = "legacy_multi_repo_hash",
+    artifacts = ["junit:junit:4.13.2"],
+    fail_if_repin_required = True,
+    lock_file = "//tests/custom_maven_install:legacy_multi_repo_hash_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2/",
+        "https://repo.maven.apache.org/maven2/",
+    ],
+)
+dev_maven.install(
     # This name matches the one in `tests/integration/bzlmod_lock_files`
     name = "multiple_lock_files",
     artifacts = ["org.zeromq:jeromq:0.5.4"],
@@ -1098,6 +1119,10 @@ use_repo(
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",
+    "multi_repo_hash",
+    "unpinned_multi_repo_hash",
+    "legacy_multi_repo_hash",
+    "unpinned_legacy_multi_repo_hash",
 )
 
 http_file(
