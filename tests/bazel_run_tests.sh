@@ -5,6 +5,9 @@
 #
 # Add a new test to the TESTS array and send all output to TEST_LOG
 
+# Set this
+RJE_TEST_FILTER="${RJE_TEST_FILTER:-.*}"
+
 function force_bzlmod_lock_file_to_be_regenerated() {
   # The newly deployed jar won't be in the bazel module lock file, so force
   # that to be regenerated in a way that works with pre-bzlmod versions of
@@ -416,6 +419,7 @@ TESTS=(
 function run_tests() {
   printf "Running bazel run tests:\n"
   for test in ${TESTS[@]}; do
+    [[ "$test" =~ ${RJE_TEST_FILTER} ]] || continue
     printf "  ${test} "
     TEST_LOG=/tmp/${test}_test.log
     rm -f "$TEST_LOG"
