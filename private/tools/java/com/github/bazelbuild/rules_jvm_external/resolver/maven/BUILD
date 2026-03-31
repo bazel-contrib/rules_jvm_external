@@ -90,6 +90,10 @@ java_library(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
+            "org.codehaus.plexus:plexus-xml",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "org.slf4j:slf4j-simple",
             repository_name = "rules_jvm_external_deps",
         ),

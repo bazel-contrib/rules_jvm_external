@@ -29,7 +29,7 @@ maven = use_extension(":extensions.bzl", "maven")
 
 _MAVEN_VERSION = "3.9.10"
 
-_MAVEN_RESOLVER_VERSION = "1.9.23"
+_MAVEN_RESOLVER_VERSION = "1.9.27"
 
 _GRADLE_VERSION = "8.13"
 
@@ -38,14 +38,14 @@ maven.install(
     artifacts = [
         "ch.qos.logback:logback-classic:1.5.23",
         "com.github.jknack:handlebars:4.3.1",
-        "com.google.auth:google-auth-library-credentials:1.23.0",
-        "com.google.auth:google-auth-library-oauth2-http:1.23.0",
-        "com.google.cloud:google-cloud-core:2.40.0",
-        "com.google.cloud:google-cloud-storage:2.40.1",
+        "com.google.auth:google-auth-library-credentials:1.35.0",
+        "com.google.auth:google-auth-library-oauth2-http:1.35.0",
+        "com.google.cloud:google-cloud-core:2.57.0",
+        "com.google.cloud:google-cloud-storage:2.53.0",
         "com.google.code.findbugs:jsr305:3.0.2",
-        "com.google.code.gson:gson:2.11.0",
-        "com.google.googlejavaformat:google-java-format:1.22.0",
-        "com.google.guava:guava:33.2.1-jre",
+        "com.google.code.gson:gson:2.13.1",
+        "com.google.googlejavaformat:google-java-format:1.27.0",
+        "com.google.guava:guava:33.4.8-jre",
         "org.apache.maven:maven-artifact:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-core:%s" % _MAVEN_VERSION,
         "org.apache.maven:maven-model:%s" % _MAVEN_VERSION,
@@ -61,18 +61,19 @@ maven.install(
         "org.apache.maven.resolver:maven-resolver-transport-file:%s" % _MAVEN_RESOLVER_VERSION,
         "org.apache.maven.resolver:maven-resolver-transport-http:%s" % _MAVEN_RESOLVER_VERSION,
         "org.apache.maven.resolver:maven-resolver-util:%s" % _MAVEN_RESOLVER_VERSION,
-        "org.bouncycastle:bcprov-jdk15on:1.68",
-        "org.bouncycastle:bcpg-jdk15on:1.68",
+        "org.bouncycastle:bcprov-jdk15on:1.70",
+        "org.bouncycastle:bcpg-jdk15on:1.70",
         "org.codehaus.plexus:plexus-cipher:2.1.0",
         "org.codehaus.plexus:plexus-sec-dispatcher:2.0",
-        "org.codehaus.plexus:plexus-utils:3.5.1",
-        "org.fusesource.jansi:jansi:2.4.1",
+        "org.codehaus.plexus:plexus-utils:4.0.2",
+        "org.codehaus.plexus:plexus-xml:3.0.1",
+        "org.fusesource.jansi:jansi:2.4.2",
         "org.gradle:gradle-tooling-api:%s" % _GRADLE_VERSION,
         "org.slf4j:jul-to-slf4j:2.0.17",
         "org.slf4j:log4j-over-slf4j:2.0.17",
         "org.slf4j:slf4j-simple:2.0.17",
-        "software.amazon.awssdk:s3:2.26.12",
-        "software.amazon.awssdk:sdk-core:2.26.12",
+        "software.amazon.awssdk:s3:2.34.0",
+        "software.amazon.awssdk:sdk-core:2.34.0",
     ],
     fetch_sources = True,
     lock_file = "//:rules_jvm_external_deps_install.json",

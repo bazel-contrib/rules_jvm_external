@@ -38,6 +38,10 @@ java_library(
             repository_name = "rules_jvm_external_deps",
         ),
         artifact(
+            "org.codehaus.plexus:plexus-xml",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
             "com.github.jknack:handlebars",
             repository_name = "rules_jvm_external_deps",
         ),
