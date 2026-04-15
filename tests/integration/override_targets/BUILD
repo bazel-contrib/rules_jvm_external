@@ -1,6 +1,5 @@
 load("@aspect_bazel_lib//lib:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
-load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_android//android:rules.bzl", "aar_import")
 load("@rules_java//java:java_library.bzl", "java_library")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
