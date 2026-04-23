@@ -539,8 +539,9 @@ def _add_direct_deps_files(repository_ctx, direct_deps):
     )
 
 def is_repin_required(repository_ctx):
-    env_var_names = repository_ctx.os.environ.keys()
-    return "RULES_JVM_EXTERNAL_REPIN" not in env_var_names and "REPIN" not in env_var_names
+    repin_env_var = repository_ctx.getenv("REPIN")
+    rules_jvm_external_repin_env_var = repository_ctx.getenv("RULES_JVM_EXTERNAL_REPIN")
+    return rules_jvm_external_repin_env_var == None and repin_env_var == None
 
 def _get_fail_if_repin_required(repository_ctx):
     if not repository_ctx.attr.fail_if_repin_required:

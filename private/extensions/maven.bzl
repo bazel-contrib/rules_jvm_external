@@ -604,9 +604,8 @@ def maven_impl(mctx):
     # Second pass: merge and deduplicate repositories
     all_repo_names = {name: True for name in root_module_repos.keys() + non_root_module_repos.keys()}.keys()
 
-    os_env = mctx.os.environ
-    repin_env_var = os_env.get("REPIN")
-    rje_verbose_env_var = os_env.get("RJE_VERBOSE")
+    repin_env_var = mctx.getenv("REPIN")
+    rje_verbose_env_var = mctx.getenv("RJE_VERBOSE")
 
     for repo_name in all_repo_names:
         root_repo = root_module_repos.get(repo_name, {})
