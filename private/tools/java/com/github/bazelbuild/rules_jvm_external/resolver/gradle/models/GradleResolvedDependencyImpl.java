@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /** Represents a single dependency resolved by gradle */
@@ -25,6 +26,7 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
   private String group;
   private String name;
   private String version;
+  private List<String> variantCapabilities = new ArrayList<>();
   private Set<String> requestedVersions;
   private boolean conflict;
   private List<GradleResolvedDependency> children;
@@ -59,6 +61,22 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
 
   public void setVersion(String version) {
     this.version = version;
+  }
+
+  @Override
+  public List<String> getVariantCapabilities() {
+    return variantCapabilities;
+  }
+
+  @Override
+  public void setVariantCapabilities(List<String> variantCapabilities) {
+    this.variantCapabilities =
+        variantCapabilities == null ? new ArrayList<>() : new ArrayList<>(variantCapabilities);
+  }
+
+  @Override
+  public boolean isFeatureVariant() {
+    return !variantCapabilities.isEmpty() && !variantCapabilities.contains(group + ":" + name);
   }
 
   public Set<String> getRequestedVersions() {
@@ -105,6 +123,18 @@ public class GradleResolvedDependencyImpl implements Serializable, GradleResolve
 
   @Override
   public void addArtifact(GradleResolvedArtifact artifact) {
+    if (artifact.getFile() != null) {
+      for (GradleResolvedArtifact existing : artifacts) {
+        if (existing.getFile() != null
+            && existing.getFile().equals(artifact.getFile())
+            && Objects.equals(existing.getClassifier(), artifact.getClassifier())
+            && Objects.equals(existing.getExtension(), artifact.getExtension())
+            && Objects.equals(
+                existing.getVariantCapabilities(), artifact.getVariantCapabilities())) {
+          return;
+        }
+      }
+    }
     this.artifacts.add(artifact);
   }
 }

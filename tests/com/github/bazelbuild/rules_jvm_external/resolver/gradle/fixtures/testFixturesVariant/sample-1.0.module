@@ -1,0 +1,141 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.example",
+    "module": "sample",
+    "version": "1.0",
+    "attributes": { "org.gradle.status": "release" }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "main-dep",
+          "version": { "requires": "1.0" }
+        }
+      ],
+      "files": [
+        {
+          "name": "sample-1.0.jar",
+          "url": "sample-1.0.jar",
+          "size": 100,
+          "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "main-dep",
+          "version": { "requires": "1.0" }
+        }
+      ],
+      "files": [
+        {
+          "name": "sample-1.0.jar",
+          "url": "sample-1.0.jar",
+          "size": 100,
+          "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      ]
+    },
+    {
+      "name": "testFixturesApiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "sample",
+          "version": { "requires": "1.0" }
+        },
+        {
+          "group": "com.example",
+          "module": "tf-dep",
+          "version": { "requires": "1.0" }
+        }
+      ],
+      "files": [
+        {
+          "name": "sample-1.0-test-fixtures.jar",
+          "url": "sample-1.0-test-fixtures.jar",
+          "size": 100,
+          "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      ],
+      "capabilities": [
+        {
+          "group": "com.example",
+          "name": "sample-test-fixtures",
+          "version": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "testFixturesRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "sample",
+          "version": { "requires": "1.0" }
+        },
+        {
+          "group": "com.example",
+          "module": "tf-dep",
+          "version": { "requires": "1.0" }
+        }
+      ],
+      "files": [
+        {
+          "name": "sample-1.0-test-fixtures.jar",
+          "url": "sample-1.0-test-fixtures.jar",
+          "size": 100,
+          "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      ],
+      "capabilities": [
+        {
+          "group": "com.example",
+          "name": "sample-test-fixtures",
+          "version": "1.0"
+        }
+      ]
+    }
+  ]
+}

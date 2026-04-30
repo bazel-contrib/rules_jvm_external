@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /** Represents a Maven artifact fetched by Gradle using the ArtifactView API */
@@ -24,6 +25,9 @@ public interface GradleResolvedArtifact {
   String getExtension();
 
   File getFile();
+
+  /** The capabilities of the variant this artifact belongs to, as "group:name" strings. */
+  List<String> getVariantCapabilities();
 
   // Currently unused, but can be used in the future to model gradle variants associated with
   // artifacts
@@ -35,6 +39,8 @@ public interface GradleResolvedArtifact {
   void setExtension(String extension);
 
   void setFile(File file);
+
+  void setVariantCapabilities(List<String> variantCapabilities);
 
   void setVariantAttributes(Map<String, String> variantAttributes);
 }

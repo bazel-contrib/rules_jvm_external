@@ -16,6 +16,37 @@ java_test(
 )
 
 java_test(
+    name = "GradleResolvedDependencyImplTest",
+    srcs = ["GradleResolvedDependencyImplTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleResolvedDependencyImplTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+    ],
+)
+
+java_test(
+    name = "GradleBuildScriptGeneratorTestFixturesTest",
+    srcs = ["GradleBuildScriptGeneratorTestFixturesTest.java"],
+    data = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
+    ],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleBuildScriptGeneratorTestFixturesTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+        "@bazel_tools//tools/java/runfiles",
+    ],
+)
+
+java_test(
     name = "GradleResolverTest",
     timeout = "eternal",
     srcs = [

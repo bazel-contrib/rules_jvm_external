@@ -83,6 +83,18 @@ public class MavenRepo {
     }
   }
 
+  public MavenRepo addArtifactOnly(Coordinates coords) {
+    try {
+      if (!"pom".equals(coords.getExtension())) {
+        writeFile(coords);
+      }
+
+      return this;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
   public MavenRepo writeMavenMetadata(
       String groupId, String artifactId, String releaseVersion, List<String> versions) {
     try {
