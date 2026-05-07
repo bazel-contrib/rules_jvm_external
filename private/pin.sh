@@ -23,6 +23,51 @@ readonly maven_install_json_loc={maven_install_location}
 
 cp "$maven_unsorted_file" "$maven_install_json_loc"
 
+# When store_bom_resolution=True, the unpinned repo's pin sh_binary passes
+# two extra positional args: $2 = rlocationpath of BomResolverMain, $3 =
+# rlocationpath of the args file containing --boms / --repositories /
+# --artifacts entries. Invoke BomResolverMain to add a `bom_resolution`
+# section to the lock file in place. If $2 is absent, this is a noop.
+if [[ -n "${2:-}" ]]; then
+    bom_resolver_runfile=$(rlocation "${2#external\/}")
+    if [[ ! -e "$bom_resolver_runfile" ]]; then
+        bom_resolver_runfile="${2#..\/}"
+    fi
+    if [[ ! -e "$bom_resolver_runfile" ]]; then
+        echo >&2 "Failed to locate the BomResolverMain runfile: $2"
+        exit 1
+    fi
+
+    bom_args_file=$(rlocation "${3#external\/}")
+    if [[ ! -e "$bom_args_file" ]]; then
+        bom_args_file="${3#..\/}"
+    fi
+    if [[ ! -e "$bom_args_file" ]]; then
+        echo >&2 "Failed to locate the BOM resolver args file: $3"
+        exit 1
+    fi
+
+    # The BomResolverMain wrapper is a generated java_binary launcher. When
+    # invoked directly from disk it tries to locate "$0.runfiles/" next to
+    # itself, but $bom_resolver_runfile resolves to the canonical bazel-bin
+    # location which has no sibling runfiles tree. Instead, point it at our
+    # parent script's merged runfiles tree, which is where Bazel staged the
+    # java_binary's data deps and classpath jars.
+    if [[ -n "${RUNFILES_DIR:-}" ]]; then
+        runfiles_root="$RUNFILES_DIR"
+    elif [[ -n "${RUNFILES_MANIFEST_FILE:-}" ]]; then
+        # Strip the _manifest suffix to get the runfiles directory.
+        runfiles_root="${RUNFILES_MANIFEST_FILE%_manifest}"
+    else
+        runfiles_root="$0.runfiles"
+    fi
+    JAVA_RUNFILES="$runfiles_root" \
+    RUNFILES_DIR="$runfiles_root" \
+        "$bom_resolver_runfile" \
+        --lock-file="$maven_install_json_loc" \
+        "@$bom_args_file"
+fi
+
 if [ "{predefined_maven_install}" = "True" ]; then
     echo "Successfully pinned resolved artifacts for @{repository_name}, $maven_install_json_loc is now up-to-date."
 else

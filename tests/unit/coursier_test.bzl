@@ -644,6 +644,79 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
 
 calculate_inputs_hash_uses_excluded_artifacts_test = add_test(_calculate_inputs_hash_uses_excluded_artifacts_test)
 
+# ---- store_bom_resolution input-hash tests ------------------------------------------------
+#
+# These cover the "asymmetric encoding" rule from the BOM resolution spec:
+#   - When store_bom_resolution=True, __INPUT_ARTIFACTS_HASH gains a stable
+#     "bom_resolution_enabled": True entry.
+#   - When store_bom_resolution=False (default), the entry is ABSENT (not
+#     False), preserving byte-for-byte hash compatibility for non-adopters.
+#
+# Anti-faking guardrail: assertions use exact `in dict` membership checks and
+# `asserts.false(env, hash_off == hash_on)` so a stub returning the same dict
+# regardless of input cannot pass.
+
+_BOM_HASH_BOMS = ["""{"group": "com.example", "artifact": "bom", "version": "1.0"}"""]
+_BOM_HASH_ARTIFACTS = ["""{"group": "com.example", "artifact": "lib", "version": ""}"""]
+_BOM_HASH_REPOSITORIES = ["https://repo1.maven.org/maven2"]
+
+def _bom_resolution_flag_changes_input_hash_test_impl(ctx):
+    env = unittest.begin(ctx)
+    hash_off, _ = compute_dependency_inputs_signature(
+        boms = _BOM_HASH_BOMS,
+        artifacts = _BOM_HASH_ARTIFACTS,
+        repositories = _BOM_HASH_REPOSITORIES,
+        excluded_artifacts = [],
+        store_bom_resolution = False,
+    )
+    hash_on, _ = compute_dependency_inputs_signature(
+        boms = _BOM_HASH_BOMS,
+        artifacts = _BOM_HASH_ARTIFACTS,
+        repositories = _BOM_HASH_REPOSITORIES,
+        excluded_artifacts = [],
+        store_bom_resolution = True,
+    )
+    asserts.false(env, hash_off == hash_on, "Toggling store_bom_resolution must change the input hash")
+    return unittest.end(env)
+
+bom_resolution_flag_changes_input_hash_test = add_test(_bom_resolution_flag_changes_input_hash_test_impl)
+
+def _bom_resolution_flag_marker_present_when_enabled_test_impl(ctx):
+    env = unittest.begin(ctx)
+    hash_on, _ = compute_dependency_inputs_signature(
+        boms = _BOM_HASH_BOMS,
+        artifacts = _BOM_HASH_ARTIFACTS,
+        repositories = _BOM_HASH_REPOSITORIES,
+        excluded_artifacts = [],
+        store_bom_resolution = True,
+    )
+    asserts.true(env, "bom_resolution_enabled" in hash_on, "marker must be present when enabled")
+    # Marker is an integer so the value type of __INPUT_ARTIFACTS_HASH stays
+    # Map<String, Integer> on the Java side. The specific integer is the
+    # stable salted hash of the marker key name.
+    asserts.equals(env, hash("bom_resolution_enabled"), hash_on["bom_resolution_enabled"])
+    return unittest.end(env)
+
+bom_resolution_flag_marker_present_when_enabled_test = add_test(_bom_resolution_flag_marker_present_when_enabled_test_impl)
+
+def _bom_resolution_flag_marker_absent_when_disabled_test_impl(ctx):
+    env = unittest.begin(ctx)
+    hash_off, _ = compute_dependency_inputs_signature(
+        boms = _BOM_HASH_BOMS,
+        artifacts = _BOM_HASH_ARTIFACTS,
+        repositories = _BOM_HASH_REPOSITORIES,
+        excluded_artifacts = [],
+        store_bom_resolution = False,
+    )
+    asserts.false(
+        env,
+        "bom_resolution_enabled" in hash_off,
+        "marker must be ABSENT when disabled (asymmetric encoding preserves hash compat)",
+    )
+    return unittest.end(env)
+
+bom_resolution_flag_marker_absent_when_disabled_test = add_test(_bom_resolution_flag_marker_absent_when_disabled_test_impl)
+
 def _get_direct_dependencies_test_impl(ctx):
     env = unittest.begin(ctx)
 

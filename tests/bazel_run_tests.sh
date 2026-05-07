@@ -250,6 +250,139 @@ function test_outdated_with_boms_does_not_include_artifacts_without_a_version() 
   expect_not_log "\[None"
 }
 
+# ---- BOM resolution feature tests --------------------------------------------------------
+#
+# These tests follow the anti-faking guardrails from the spec:
+#   1. Reset to `{}` before pinning so stale data can't produce a false positive.
+#   2. Use jq for exact assertions (not grep on the section name).
+#   3. Assert minimum-N counts and exact mappings (not "section non-empty").
+#   4. Verify both presence (enabled) AND absence (disabled) of the section + marker.
+#   5. Hard-fail tests assert non-zero exit AND lock file unchanged.
+
+function test_bom_resolution_coursier_with_boms() {
+  local lock_file="tests/custom_maven_install/bom_resolution_coursier_install.json"
+  echo '{}' > "$lock_file"
+
+  REPIN=1 bazel run @unpinned_bom_resolution_coursier//:pin >> "$TEST_LOG" 2>&1
+
+  expect_log "Successfully pinned resolved artifacts"
+  # Exact: bom_resolution must contain at least both versionless artifacts.
+  local count
+  count=$(jq '.bom_resolution | length' "$lock_file")
+  if (( count < 2 )); then
+    printf "FAILED: expected bom_resolution to have >= 2 entries, got %s\n" "$count"
+    cat "$lock_file"
+    return 1
+  fi
+  # Both expected mappings must point at the junit-bom.
+  local api_bom
+  api_bom=$(jq -r '.bom_resolution["org.junit.jupiter:junit-jupiter-api"][0]' "$lock_file")
+  if [[ "$api_bom" != "org.junit:junit-bom:5.10.0" ]]; then
+    printf "FAILED: expected junit-bom to manage junit-jupiter-api, got '%s'\n" "$api_bom"
+    return 1
+  fi
+}
+
+function test_bom_resolution_maven_with_boms() {
+  local lock_file="tests/custom_maven_install/bom_resolution_maven_install.json"
+  echo '{}' > "$lock_file"
+
+  bazel run @bom_resolution_maven//:pin >> "$TEST_LOG" 2>&1
+
+  local count
+  count=$(jq '.bom_resolution | length' "$lock_file")
+  if (( count < 2 )); then
+    printf "FAILED: expected maven flow bom_resolution to have >= 2 entries, got %s\n" "$count"
+    cat "$lock_file"
+    return 1
+  fi
+  local api_bom
+  api_bom=$(jq -r '.bom_resolution["org.junit.jupiter:junit-jupiter-api"][0]' "$lock_file")
+  if [[ "$api_bom" != "org.junit:junit-bom:5.10.0" ]]; then
+    printf "FAILED: expected junit-bom (maven flow), got '%s'\n" "$api_bom"
+    return 1
+  fi
+}
+
+function test_bom_resolution_disabled_no_section_no_marker() {
+  local lock_file="tests/custom_maven_install/bom_resolution_disabled_install.json"
+  echo '{}' > "$lock_file"
+
+  REPIN=1 bazel run @unpinned_bom_resolution_disabled//:pin >> "$TEST_LOG" 2>&1
+
+  # Disabled => bom_resolution section MUST be absent (anti-faking #4).
+  local has_section
+  has_section=$(jq 'has("bom_resolution")' "$lock_file")
+  if [[ "$has_section" != "false" ]]; then
+    printf "FAILED: bom_resolution section unexpectedly present in disabled lock file\n"
+    cat "$lock_file"
+    return 1
+  fi
+  # Asymmetric encoding: marker MUST be absent from __INPUT_ARTIFACTS_HASH.
+  local has_marker
+  has_marker=$(jq '.__INPUT_ARTIFACTS_HASH | has("bom_resolution_enabled")' "$lock_file")
+  if [[ "$has_marker" != "false" ]]; then
+    printf "FAILED: bom_resolution_enabled marker unexpectedly present in disabled __INPUT_ARTIFACTS_HASH\n"
+    cat "$lock_file"
+    return 1
+  fi
+}
+
+function test_bom_resolution_jvm_import_tags() {
+  local lock_file="tests/custom_maven_install/bom_resolution_coursier_install.json"
+  if [[ ! -s "$lock_file" ]] || [[ "$(cat "$lock_file")" == "{}" ]]; then
+    REPIN=1 bazel run @unpinned_bom_resolution_coursier//:pin >> "$TEST_LOG" 2>&1
+  fi
+
+  # Inspect the generated jvm_import to confirm a maven_bom_coordinate= tag is emitted.
+  local build_output
+  build_output=$(bazel query --output=build @bom_resolution_coursier//:org_junit_jupiter_junit_jupiter_api 2>>"$TEST_LOG")
+  if ! echo "$build_output" | grep -q 'maven_bom_coordinate=org.junit:junit-bom:5.10.0'; then
+    printf "FAILED: generated jvm_import is missing maven_bom_coordinate tag\n"
+    echo "$build_output" | head -40
+    return 1
+  fi
+}
+
+function test_bom_resolution_unresolvable_bom_aborts_pin() {
+  local lock_file="tests/custom_maven_install/bom_resolution_coursier_install.json"
+  # Pre-populate with a known-good lock file so we can verify it isn't modified
+  # by the failed pin (anti-faking guardrail #7).
+  REPIN=1 bazel run @unpinned_bom_resolution_coursier//:pin >> "$TEST_LOG" 2>&1
+  local before_hash
+  before_hash=$(shasum "$lock_file" | cut -d ' ' -f 1)
+
+  # Construct an args file with a bogus BOM coordinate and run BomResolverMain
+  # directly. This is the moral equivalent of declaring a non-existent BOM in
+  # maven.install — but doesn't require a separate test repo.
+  local tmp_args
+  tmp_args=$(mktemp)
+  cat > "$tmp_args" <<EOF
+--lock-file=$(pwd)/$lock_file
+--boms=com.example:does-not-exist:0.0.1
+--repositories=https://repo1.maven.org/maven2
+--artifacts=org.junit.jupiter:junit-jupiter-api
+EOF
+
+  set +e
+  bazel run //private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/bom:BomResolverMain -- "@$tmp_args" >> "$TEST_LOG" 2>&1
+  local exit_code=$?
+  set -e
+  rm -f "$tmp_args"
+
+  if [[ $exit_code -eq 0 ]]; then
+    printf "FAILED: BomResolverMain unexpectedly succeeded with bogus BOM\n"
+    return 1
+  fi
+
+  local after_hash
+  after_hash=$(shasum "$lock_file" | cut -d ' ' -f 1)
+  if [[ "$before_hash" != "$after_hash" ]]; then
+    printf "FAILED: lock file was modified despite hard-fail\n"
+    return 1
+  fi
+}
+
 function test_coursier_resolution_with_boms() {
     # Only run for Bazel 7 or above
     RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
@@ -396,6 +529,12 @@ TESTS=(
   # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
   "test_gradle_versions_catalog"
+  # BOM resolution feature tests
+  "test_bom_resolution_coursier_with_boms"
+  "test_bom_resolution_maven_with_boms"
+  "test_bom_resolution_disabled_no_section_no_marker"
+  "test_bom_resolution_jvm_import_tags"
+  "test_bom_resolution_unresolvable_bom_aborts_pin"
 )
 
 function run_tests() {

@@ -86,6 +86,33 @@ sh_binary(
 )
 """
 
+# Variant of _BUILD_PIN used when store_bom_resolution=True. Adds the
+# BomResolverMain java_binary as a runtime dep (built from source) and an
+# argsfile listing the BOMs / repositories / versionless artifacts.
+# pin.sh detects the extra positional args ($2 = path to BomResolverMain
+# runfile, $3 = path to argsfile) and invokes BomResolverMain to add a
+# bom_resolution section to the lock file.
+_BUILD_PIN_WITH_BOM = """
+sh_binary(
+    name = "pin",
+    srcs = ["pin.sh"],
+    args = [
+        "$(rlocationpath :unsorted_deps.json)",
+        "$(rlocationpath @rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/bom:BomResolverMain)",
+        "$(rlocationpath :bom_resolver_args.txt)",
+    ],
+    data = [
+        ":unsorted_deps.json",
+        ":bom_resolver_args.txt",
+        "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/bom:BomResolverMain",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+    visibility = ["//visibility:public"],
+)
+"""
+
 _BUILD_DIRECT_DEPS = """
 sh_binary(
     name = "direct_deps",
@@ -93,6 +120,66 @@ sh_binary(
     visibility = ["//visibility:public"],
 )
 """
+
+def _format_versionless_artifact_for_bom(artifact):
+    """Format a versionless artifact dict as a coordinate string for BomResolverMain.
+
+    Per spec, the key format is `g:a` for default packaging+no classifier, and
+    `g:a:packaging[:classifier]` otherwise. We produce the same format here so
+    that BomResolverMain's `Coordinates` parser yields a key matching the lock
+    file's `bom_resolution` map keys.
+    """
+    coord = "%s:%s" % (artifact["group"], artifact["artifact"])
+    packaging = artifact.get("packaging", "jar") or "jar"
+    classifier = artifact.get("classifier", "") or ""
+    if packaging != "jar" or classifier != "":
+        coord += ":%s" % packaging
+        if classifier != "":
+            coord += ":%s" % classifier
+    return coord
+
+def _filter_versionless_artifacts_for_bom(artifacts, excluded_artifacts, override_targets):
+    """Filter the list of requested artifacts down to those eligible for BOM resolution.
+
+    Per spec Constraint #7, the following are excluded:
+      - artifacts with an explicit version (covered by Constraint #3)
+      - artifacts in `excluded_artifacts`
+      - artifacts whose generated import is replaced by `override_targets`
+    """
+    excluded_keys = {}
+    for excluded in excluded_artifacts:
+        excluded_keys["%s:%s" % (excluded["group"], excluded["artifact"])] = True
+    override_keys = {}
+    for k in override_targets.keys():
+        override_keys[k] = True
+
+    versionless = []
+    for artifact in artifacts:
+        version = artifact.get("version", "")
+        if version != None and version != "":
+            continue
+        ga_key = "%s:%s" % (artifact["group"], artifact["artifact"])
+        if ga_key in excluded_keys:
+            continue
+        if ga_key in override_keys:
+            continue
+        versionless.append(artifact)
+    return versionless
+
+def _bom_resolver_args_lines(boms, repositories, versionless_artifacts):
+    """Build the contents of bom_resolver_args.txt (one --foo=value per line).
+
+    Skips repository credentials (the netrc file already carries them).
+    """
+    lines = []
+    for bom in boms:
+        coord = "%s:%s:%s" % (bom["group"], bom["artifact"], bom.get("version", ""))
+        lines.append("--boms=%s" % coord)
+    for repo in repositories:
+        lines.append("--repositories=%s" % repo["repo_url"])
+    for artifact in versionless_artifacts:
+        lines.append("--artifacts=%s" % _format_versionless_artifact_for_bom(artifact))
+    return "\n".join(lines) + "\n"
 
 _BUILD_OUTDATED = """
 sh_binary(
@@ -130,6 +217,7 @@ pin_dependencies(
     jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
     resolver = {resolver},
+    store_bom_resolution = {store_bom_resolution},
 )
 """
 
@@ -368,7 +456,7 @@ def _add_to_hash_dictionary(dictionary, artifact, salt):
 # upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = []):
+def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = [], store_bom_resolution = False):
     if len(repositories) == 0:
         fail("Repositories must be set to calculate input signature")
 
@@ -407,6 +495,18 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
             all_hashes[k] = hash(repr(sorted(v)))
 
     all_hashes["repositories"] = hash(repr(sorted(repositories)))
+
+    # Asymmetric encoding: only add the marker when the feature is enabled.
+    # This preserves the exact __INPUT_ARTIFACTS_HASH that existing users have
+    # today (no churn for non-adopters). Toggling between True and False
+    # therefore changes the hash and triggers a repin.
+    #
+    # The marker is encoded as an integer (not a boolean) so the value type
+    # of __INPUT_ARTIFACTS_HASH stays uniform — `Map<String, Integer>` on the
+    # Java side. The exact integer is arbitrary; any stable, salt-like value
+    # works.
+    if store_bom_resolution:
+        all_hashes["bom_resolution_enabled"] = hash("bom_resolution_enabled")
 
     return (all_hashes, [v1_sig, v2_sig])
 
@@ -567,7 +667,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         repository_ctx.path("imported_maven_install.json"),
     )
     lock_file_content = repository_ctx.read(repository_ctx.attr.maven_install_json)
-    if not len(lock_file_content) or contains_git_conflict_markers(repository_ctx.attr.maven_install_json, lock_file_content):
+    # Treat an empty file or `{}` as "no data; please regenerate" per
+    # Constraint #13 of the BOM resolution spec. This makes
+    # `echo '{}' > <lock-file>` a valid reset mechanism for tests and users.
+    if not len(lock_file_content) or lock_file_content.strip() == "{}" or contains_git_conflict_markers(repository_ctx.attr.maven_install_json, lock_file_content):
         maven_install_json_content = {
             "artifacts": {},
             "dependencies": {},
@@ -588,6 +691,21 @@ def _pinned_coursier_fetch_impl(repository_ctx):
 
     # Check if using the most recent lock file format.
     if importer != v3_lock_file:
+        # Enforce v3 for store_bom_resolution=True only when (a) the user has
+        # supplied a real lock file (not the synthetic empty placeholder) and
+        # (b) they're not in the middle of repinning (which is precisely what
+        # would fix the problem).
+        if (
+            repository_ctx.attr.store_bom_resolution
+            and importer != None
+            and len(lock_file_content) > 2
+            and is_repin_required(repository_ctx)
+        ):
+            fail(
+                ("store_bom_resolution=True requires the v3 lock file format, but %s is " % repository_ctx.attr.maven_install_json) +
+                "using an older format. Please regenerate the lock file as v3 by running " +
+                "`REPIN=1 bazel run @unpinned_%s//:pin`." % repository_ctx.name,
+            )
         print_if_not_repinning(
             repository_ctx,
             "Lock file should be updated. Please run `REPIN=1 bazel run @unpinned_%s//:pin`" % repository_ctx.name,
@@ -600,6 +718,37 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         fail("Failed to parse %s. " % repository_ctx.path(repository_ctx.attr.maven_install_json) +
              "It is not a valid maven_install.json file. Has this " +
              "file been modified manually?")
+
+    # store_bom_resolution / lock-file consistency check.
+    #
+    # Skip the strict check in two cases so we don't paint users into a corner:
+    #   1. The lock file is empty / `{}` (synthetic placeholder content has no
+    #      real artifacts) — they need to be able to run pin to populate it.
+    #   2. The user has `REPIN`/`RULES_JVM_EXTERNAL_REPIN` set — they're
+    #      explicitly asking to regenerate, and `:pin` is an alias to the
+    #      unpinned repo's pin target which goes through this same fetch impl.
+    #      Failing here would prevent the very repin that fixes the problem.
+    has_bom_resolution_section = "bom_resolution" in maven_install_json_content
+    is_empty_placeholder = not maven_install_json_content.get("artifacts")
+    repinning = not is_repin_required(repository_ctx)
+    if repository_ctx.attr.store_bom_resolution and not has_bom_resolution_section and not is_empty_placeholder:
+        if repinning:
+            print(
+                ("NOTE: %s is missing the 'bom_resolution' section but store_bom_resolution=True. " % repository_ctx.attr.maven_install_json) +
+                "Repinning will populate it.",
+            )
+        else:
+            fail(
+                ("%s is missing the 'bom_resolution' section, but store_bom_resolution=True. " % repository_ctx.attr.maven_install_json) +
+                "This usually means the lock file is stale. Please regenerate it with `REPIN=1 bazel run @unpinned_%s//:pin`." % repository_ctx.name,
+            )
+    elif not repository_ctx.attr.store_bom_resolution and has_bom_resolution_section:
+        # Tolerable but worth flagging: the section is harmless when ignored,
+        # but indicates a stale store_bom_resolution=False on a previously-True repo.
+        print(
+            ("WARNING: %s contains a 'bom_resolution' section but store_bom_resolution=False. " % repository_ctx.attr.maven_install_json) +
+            "The section is being ignored; consider repinning to remove it.",
+        )
 
     input_artifacts_hash = importer.get_input_artifacts_hash(maven_install_json_content)
 
@@ -640,6 +789,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             artifacts = repository_ctx.attr.artifacts,
             repositories = repository_ctx.attr.repositories,
             excluded_artifacts = repository_ctx.attr.excluded_artifacts,
+            store_bom_resolution = repository_ctx.attr.store_bom_resolution,
         )
         if input_artifacts_hash in old_hashes:
             print_if_not_repinning(
@@ -871,6 +1021,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             lock_file = repr(lock_file_location),
             dependency_index = repr(dependency_index_location),
             resolver = repr(str(resolver_target)),
+            store_bom_resolution = repr(repository_ctx.attr.store_bom_resolution),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
@@ -1453,6 +1604,7 @@ def _coursier_fetch_impl(repository_ctx):
         artifacts = repository_ctx.attr.artifacts,
         repositories = repository_ctx.attr.repositories,
         excluded_artifacts = repository_ctx.attr.excluded_artifacts,
+        store_bom_resolution = repository_ctx.attr.store_bom_resolution,
     )
 
     repository_ctx.file(
@@ -1510,9 +1662,28 @@ def _coursier_fetch_impl(repository_ctx):
     direct_deps = get_direct_dependencies(all_artifacts, artifacts)
     _add_direct_deps_files(repository_ctx, direct_deps)
 
+    # When BOM resolution is enabled, write the args file consumed by
+    # BomResolverMain (invoked from pin.sh) and switch the pin sh_binary to
+    # the variant that depends on the BomResolverMain java_binary.
+    if repository_ctx.attr.store_bom_resolution:
+        excluded_artifact_dicts = [json.decode(a) for a in repository_ctx.attr.excluded_artifacts]
+        versionless = _filter_versionless_artifacts_for_bom(
+            artifacts,
+            excluded_artifact_dicts,
+            repository_ctx.attr.override_targets,
+        )
+        repository_ctx.file(
+            "bom_resolver_args.txt",
+            _bom_resolver_args_lines(boms, repositories, versionless),
+            executable = False,
+        )
+        pin_build_template = _BUILD_PIN_WITH_BOM
+    else:
+        pin_build_template = _BUILD_PIN
+
     repository_ctx.file(
         "BUILD",
-        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
+        (_BUILD + pin_build_template + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_name,
             imports = generated_imports,
@@ -1641,6 +1812,10 @@ pinned_coursier_fetch = repository_rule(
             doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default.",
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
+        "store_bom_resolution": attr.bool(
+            default = False,
+            doc = "Whether the lock file should contain a bom_resolution section recording which directly-declared BOM(s) manage each versionless artifact. Must match the corresponding attribute on coursier_fetch.",
+        ),
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },
@@ -1709,6 +1884,10 @@ coursier_fetch = repository_rule(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "store_bom_resolution": attr.bool(
+            default = False,
+            doc = "Whether to compute and store a bom_resolution section in the v3 lock file recording which directly-declared BOM(s) manage each versionless artifact. Requires the v3 lock file format.",
+        ),
         "pinned_repo_name": attr.string(
             doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
             mandatory = False,

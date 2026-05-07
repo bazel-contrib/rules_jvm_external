@@ -4,40 +4,39 @@ overview: Add an opt-in `store_bom_resolution` feature to `maven.install()` that
 todos:
   - id: java-bom-resolver
     content: Create BomResolver and BomResolverMain Java classes under private/tools/java/.../resolver/bom/ with Aether-based managed-deps extraction, CLI parsing, and in-place lock-file edit
-    status: pending
+    status: completed
   - id: build-targets
     content: Add java_library and java_binary BUILD targets for BomResolver/BomResolverMain under private/tools/java/.../resolver/bom/BUILD with Aether deps; no prebuilt jar
-    status: pending
+    status: completed
   - id: coursier-bzl
     content: Add store_bom_resolution attr to coursier_fetch and pinned_coursier_fetch, add asymmetric hash marker, wire pin.sh template substitutions and BUILD_PIN data deps, and add pinned-fetch validation (error/warn)
-    status: pending
+    status: completed
   - id: pin-sh
     content: Extend private/pin.sh with optional BomResolverMain invocation block; ensure same hook fires from pin_dependencies.bzl _TEMPLATE for the maven/gradle resolver flow
-    status: pending
+    status: completed
   - id: maven-bzl-merge
     content: Add store_bom_resolution to install tag with logical-OR multi-module merge override, and forward to both fetch rules
-    status: pending
+    status: completed
   - id: v3-lock-file
     content: Add bom_resolution section parsing/rendering in V3LockFile.java and v3_lock_file.bzl; ensure empty/{} tolerance across all v3 parsers
-    status: pending
+    status: completed
   - id: tree-parser-tags
     content: Emit maven_bom_coordinate= tags in dependency_tree_parser.bzl by attaching bom_coordinates to each artifact via v3_lock_file._get_artifacts
-    status: pending
+    status: completed
   - id: java-tests
     content: Add BomResolverTest as java_test with the 10 cases from spec section Testing > Java Tests
-    status: pending
+    status: completed
   - id: starlark-tests
     content: Add three hash-marker tests in tests/unit/coursier_test.bzl using the add_test pattern
-    status: pending
+    status: completed
   - id: integration-tests
     content: Add 9 new test_xxx() functions to tests/bazel_run_tests.sh covering enabled/disabled/v2-rejection/hard-fail/pinned-validation/tag-emission cases, plus the corresponding maven.install repos in MODULE.bazel
-    status: pending
+    status: completed
   - id: break-and-revert
     content: Run the break-and-revert sanity check on BomResolver.buildBomResolutionMapping to confirm tests fail loudly when resolver is stubbed
-    status: pending
+    status: completed
 isProject: false
 ---
-
 
 ## Architecture at a glance
 

@@ -121,6 +121,10 @@ install = tag_class(
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "repin_instructions": attr.string(doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "store_bom_resolution": attr.bool(
+            default = False,
+            doc = "If True, the v3 lock file will include a `bom_resolution` section recording which directly-declared BOM(s) manage each versionless artifact. When merged across modules this flag is combined with logical-OR: if any module sets it to True, the merged install gets True.",
+        ),
     },
 )
 
@@ -448,6 +452,11 @@ def _process_module_tags(mctx):
             _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
             _logical_or(repo, "use_credentials_from_home_netrc_file", False, install.use_credentials_from_home_netrc_file)
 
+            # store_bom_resolution is purely additive (it only writes more data
+            # into the lock file). Per spec, if ANY module sets it True the
+            # merged install gets True — overriding the usual root-wins rule.
+            _logical_or(repo, "store_bom_resolution", False, install.store_bom_resolution)
+
             repo["version_conflict_policy"] = _fail_if_different(
                 "version_conflict_policy",
                 repo.get("version_conflict_policy"),
@@ -741,6 +750,7 @@ def maven_impl(mctx):
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 ignore_empty_files = repo.get("ignore_empty_files"),
                 additional_coursier_options = repo.get("additional_coursier_options"),
+                store_bom_resolution = repo.get("store_bom_resolution", False),
             )
         else:
             workspace_prefix = "@@" if bazel_features.external_deps.is_bzlmod_enabled else "@"
@@ -758,7 +768,8 @@ def maven_impl(mctx):
         if repo.get("lock_file"):
             lock_file_content = mctx.read(mctx.path(repo.get("lock_file")))
 
-            if not len(lock_file_content) or contains_git_conflict_markers(repo["lock_file"], lock_file_content):
+            # Treat empty or `{}` as "no data" per Constraint #13.
+            if not len(lock_file_content) or lock_file_content.strip() == "{}" or contains_git_conflict_markers(repo["lock_file"], lock_file_content):
                 lock_file = {
                     "artifacts": {},
                     "dependencies": {},
@@ -807,6 +818,7 @@ def maven_impl(mctx):
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
                 excluded_artifacts = excluded_artifacts_json,
                 repin_instructions = repo.get("repin_instructions"),
+                store_bom_resolution = repo.get("store_bom_resolution", False),
             )
 
             if repo.get("generate_compat_repositories"):

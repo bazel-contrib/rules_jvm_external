@@ -44,16 +44,30 @@ public class V3LockFile {
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
   private final boolean renderPackages;
+  // Optional: maps versionless artifact key -> ordered list of declaring BOM coords.
+  // Empty when the feature is not in use.
+  private final Map<String, java.util.List<String>> bomResolution;
 
   public V3LockFile(
       Collection<URI> repositories,
       Set<DependencyInfo> infos,
       Set<Conflict> conflicts,
       boolean renderPackages) {
+    this(repositories, infos, conflicts, renderPackages, new LinkedHashMap<>());
+  }
+
+  public V3LockFile(
+      Collection<URI> repositories,
+      Set<DependencyInfo> infos,
+      Set<Conflict> conflicts,
+      boolean renderPackages,
+      Map<String, java.util.List<String>> bomResolution) {
     this.allRepos = repositories;
     this.infos = infos;
     this.conflicts = conflicts;
     this.renderPackages = renderPackages;
+    this.bomResolution =
+        bomResolution == null ? new LinkedHashMap<>() : new LinkedHashMap<>(bomResolution);
   }
 
   public Collection<URI> getRepositories() {
@@ -68,9 +82,19 @@ public class V3LockFile {
     return conflicts;
   }
 
+  public Map<String, java.util.List<String>> getBomResolution() {
+    return bomResolution;
+  }
+
   @SuppressWarnings("unchecked")
   public static V3LockFile create(String from) {
     Map<?, ?> raw = new Gson().fromJson(from, Map.class);
+    if (raw == null) {
+      // Tolerate empty / `{}` lock files per Constraint #13: treat as "no data;
+      // regenerate". Returning an empty V3LockFile lets callers proceed and
+      // the regular hash mismatch will trigger a repin.
+      raw = Map.of();
+    }
 
     Set<URI> repos = new LinkedHashSet<>();
     Map<String, Collection<String>> allRepos =
@@ -177,7 +201,18 @@ public class V3LockFile {
       conflicts.add(new Conflict(resolved, requested));
     }
 
-    return new V3LockFile(repos, infos, conflicts, true);
+    // Optional bom_resolution section. Preserve insertion order so the round
+    // trip is stable.
+    Map<String, java.util.List<String>> bomResolution = new LinkedHashMap<>();
+    Map<String, java.util.List<String>> rawBoms =
+        (Map<String, java.util.List<String>>) raw.get("bom_resolution");
+    if (rawBoms != null) {
+      for (Map.Entry<String, java.util.List<String>> entry : rawBoms.entrySet()) {
+        bomResolution.put(entry.getKey(), java.util.List.copyOf(entry.getValue()));
+      }
+    }
+
+    return new V3LockFile(repos, infos, conflicts, true, bomResolution);
   }
 
   public Map<String, Object> render() {
@@ -281,6 +316,10 @@ public class V3LockFile {
       }
 
       lock.put("conflict_resolution", renderedConflicts);
+    }
+    if (bomResolution != null && !bomResolution.isEmpty()) {
+      // Preserve declaration order — values are already declaration-ordered lists.
+      lock.put("bom_resolution", new LinkedHashMap<>(bomResolution));
     }
     lock.put("files", files);
 

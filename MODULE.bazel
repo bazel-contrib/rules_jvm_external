@@ -561,6 +561,49 @@ dev_maven.artifact(
     ],
     group = "com.google.cloud",
 )
+
+# ---- BOM resolution feature integration test repos ----
+#
+# These three repos exist solely to drive the integration tests in
+# tests/bazel_run_tests.sh that validate `store_bom_resolution`. They use
+# small, stable BOMs (junit-bom 5.10.0) so the tests run quickly and
+# deterministically against Maven Central.
+dev_maven.install(
+    name = "bom_resolution_coursier",
+    artifacts = [
+        "org.junit.jupiter:junit-jupiter-api",
+        "org.junit.jupiter:junit-jupiter-engine",
+    ],
+    boms = [
+        "org.junit:junit-bom:5.10.0",
+    ],
+    lock_file = "@rules_jvm_external//tests/custom_maven_install:bom_resolution_coursier_install.json",
+    store_bom_resolution = True,
+)
+dev_maven.install(
+    name = "bom_resolution_disabled",
+    artifacts = [
+        "org.junit.jupiter:junit-jupiter-api",
+    ],
+    boms = [
+        "org.junit:junit-bom:5.10.0",
+    ],
+    lock_file = "@rules_jvm_external//tests/custom_maven_install:bom_resolution_disabled_install.json",
+    store_bom_resolution = False,
+)
+dev_maven.install(
+    name = "bom_resolution_maven",
+    artifacts = [
+        "org.junit.jupiter:junit-jupiter-api",
+        "org.junit.jupiter:junit-jupiter-engine",
+    ],
+    boms = [
+        "org.junit:junit-bom:5.10.0",
+    ],
+    lock_file = "@rules_jvm_external//tests/custom_maven_install:bom_resolution_maven_install.json",
+    resolver = "maven",
+    store_bom_resolution = True,
+)
 dev_maven.install(
     name = "override_target_in_deps",
     artifacts = [
@@ -1055,6 +1098,13 @@ use_repo(
     # Pinned repo
     "coursier_resolved_with_boms",
     "maven_resolved_with_boms",
+
+    # BOM resolution feature integration test repos
+    "bom_resolution_coursier",
+    "bom_resolution_disabled",
+    "bom_resolution_maven",
+    "unpinned_bom_resolution_coursier",
+    "unpinned_bom_resolution_disabled",
 
     # Pinned repo
     "override_target_in_deps",

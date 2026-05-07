@@ -22,6 +22,13 @@ def _is_valid_lock_file_v3(lock_file_contents):
     return _is_valid_lock_file(lock_file_contents, "3")
 
 def _is_valid_lock_file(lock_file_contents, desired_version):
+    # Empty / `{}` lock files are tolerated per Constraint #13: callers treat
+    # them as "no data; please regenerate". They are NOT valid lock files
+    # though, so this returns False and lets the upstream "looks unfamiliar"
+    # path handle it.
+    if not lock_file_contents:
+        return False
+
     version = lock_file_contents.get("version")
     if desired_version != version:
         return False
@@ -211,6 +218,23 @@ def _from_key(key, spoofed_version):
 
     return to_return
 
+def _bom_resolution_key_for_artifact(unpacked):
+    """Compute the bom_resolution map key for an artifact dict.
+
+    Per spec: `g:a` for default packaging+no classifier, otherwise
+    `g:a:packaging[:classifier]`. Must match BomResolver.artifactKey() in
+    Java so the lookup hits.
+    """
+    coord = "%s:%s" % (unpacked["group"], unpacked["artifact"])
+    packaging = unpacked.get("packaging", "jar") or "jar"
+    classifier = unpacked.get("classifier", "") or ""
+    if packaging == "jar" and (classifier == "" or classifier == "jar"):
+        return coord
+    coord += ":%s" % packaging
+    if classifier != "" and classifier != "jar":
+        coord += ":%s" % classifier
+    return coord
+
 def _get_artifacts(lock_file_contents):
     raw_artifacts = lock_file_contents.get("artifacts", {})
     dependencies = lock_file_contents.get("dependencies", {})
@@ -218,6 +242,7 @@ def _get_artifacts(lock_file_contents):
     files = lock_file_contents.get("files", {})
     skipped = lock_file_contents.get("skipped", [])
     services = lock_file_contents.get("services", {})
+    bom_resolution = lock_file_contents.get("bom_resolution", {})
 
     artifacts = []
 
@@ -261,6 +286,9 @@ def _get_artifacts(lock_file_contents):
             # expect those deps to matter, fake it.
             deps = [_from_key(dep, "spoofed-version") for dep in dependencies.get(key, [])]
 
+            bom_key = _bom_resolution_key_for_artifact(root_unpacked)
+            bom_coordinates = bom_resolution.get(bom_key, [])
+
             artifacts.append({
                 "coordinates": coordinates,
                 "sha256": shasum,
@@ -268,12 +296,16 @@ def _get_artifacts(lock_file_contents):
                 "deps": deps,
                 "annotation_processors": services.get(root, {}).get("javax.annotation.processing.Processor", []),
                 "urls": urls,
+                "bom_coordinates": bom_coordinates,
             })
 
     return artifacts
 
 def _get_netrc_entries(lock_file_contents):
     return {}
+
+def _get_bom_resolution(lock_file_contents):
+    return lock_file_contents.get("bom_resolution", {})
 
 def _render_lock_file(lock_file_contents, input_hash):
     # We would like to use `json.encode_indent` but that sorts dictionaries, and
@@ -285,6 +317,8 @@ def _render_lock_file(lock_file_contents, input_hash):
         "  \"__INPUT_ARTIFACTS_HASH\": %s," % json.encode_indent(input_hash, prefix = "  ", indent = "  "),
         "  \"__RESOLVED_ARTIFACTS_HASH\": %s," % json.encode_indent(_compute_lock_file_hash_v3(lock_file_contents), prefix = "  ", indent = "  "),
     ]
+    if lock_file_contents.get("bom_resolution"):
+        contents.append("  \"bom_resolution\": %s," % json.encode_indent(lock_file_contents["bom_resolution"], prefix = "  ", indent = "  "))
     if lock_file_contents.get("conflict_resolution"):
         contents.append("  \"conflict_resolution\": %s," % json.encode_indent(lock_file_contents["conflict_resolution"], prefix = "  ", indent = "  "))
     contents.append("  \"artifacts\": %s," % json.encode_indent(lock_file_contents["artifacts"], prefix = "  ", indent = "  "))
@@ -331,6 +365,7 @@ v3_lock_file = struct(
     compute_lock_file_hash = _compute_lock_file_hash_v3,
     get_artifacts = _get_artifacts,
     get_netrc_entries = _get_netrc_entries,
+    get_bom_resolution = _get_bom_resolution,
     render_lock_file = _render_lock_file,
     has_m2local = _has_m2local,
 )

@@ -1,5 +1,8 @@
 exports_files([
     "artifact_with_plus_repin_install.json",
+    "bom_resolution_coursier_install.json",
+    "bom_resolution_disabled_install.json",
+    "bom_resolution_maven_install.json",
     "m2local_testing_with_pinned_file_install.json",
     "manifest_stamp_testing_install.json",
     "maven_install.json",
