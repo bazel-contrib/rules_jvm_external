@@ -1737,6 +1737,8 @@ coursier_fetch = repository_rule(
         "COURSIER_OPTS",
         "COURSIER_SHA256",
         "COURSIER_URL",
+        "REPIN",
+        "RULES_JVM_EXTERNAL_REPIN",
         "RJE_VERBOSE",
         "XDG_CACHE_HOME",
     ],
