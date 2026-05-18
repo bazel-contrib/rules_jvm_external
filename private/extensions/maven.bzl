@@ -604,7 +604,7 @@ def maven_impl(mctx):
     # Second pass: merge and deduplicate repositories
     all_repo_names = {name: True for name in root_module_repos.keys() + non_root_module_repos.keys()}.keys()
 
-    repin_env_var = mctx.getenv("REPIN")
+    repin_env_var = mctx.getenv("REPIN") or mctx.getenv("RULES_JVM_EXTERNAL_REPIN")
     rje_verbose_env_var = mctx.getenv("RJE_VERBOSE")
 
     for repo_name in all_repo_names:
@@ -861,4 +861,5 @@ maven = module_extension(
         "install": install,
         "override": override,
     },
+    environ = ["REPIN", "RULES_JVM_EXTERNAL_REPIN", "RJE_VERBOSE"],
 )
