@@ -46,6 +46,30 @@ public class MavenPublisherTest {
   }
 
   @Test
+  public void testPublishLocalPomOnly() throws Exception {
+    File pom = File.createTempFile("pom", ".xml");
+    final Path root = Paths.get(System.getenv("TEST_TMPDIR"));
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    MavenPublisher.run(
+        "com.example:example-bom:1.0.0",
+        pom.getAbsolutePath(),
+        "",
+        true,
+        null,
+        root.toUri().toString(),
+        null,
+        SigningMetadata.noSigner(),
+        executor);
+    executor.shutdown();
+
+    Path repoRoot = root.resolve("com/example/example-bom/1.0.0");
+    assertTrue(Files.exists(repoRoot.resolve("example-bom-1.0.0.pom")));
+    assertTrue(Files.exists(repoRoot.resolve("example-bom-1.0.0.pom.md5")));
+    assertTrue(Files.exists(repoRoot.resolve("example-bom-1.0.0.pom.sha1")));
+  }
+
+  @Test
   public void testPublishHttp() throws Exception {
     final Path root = Paths.get(System.getenv("TEST_TMPDIR"));
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
