@@ -277,6 +277,30 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to
 
     return root_artifacts + filtered_non_root_artifacts
 
+def _force_version_true_for_all(artifacts):
+    """Return a copy of artifacts where force_version is set to True for all entries.
+
+    Used to make root module versions take precedence when using layered installs
+    with version_conflict_policy = "pinned".
+    """
+    forced = []
+    for a in artifacts:
+        if getattr(a, "force_version", False):
+            forced.append(a)
+            continue
+        forced.append(struct(
+            group = a.group,
+            artifact = a.artifact,
+            version = getattr(a, "version", None),
+            packaging = getattr(a, "packaging", None),
+            classifier = getattr(a, "classifier", None),
+            force_version = True,
+            neverlink = getattr(a, "neverlink", False),
+            testonly = getattr(a, "testonly", False),
+            exclusions = getattr(a, "exclusions", []) or None,
+        ))
+    return forced
+
 def _get_tri_state_bool(amend_val, original_val):
     if amend_val in ["true", "on"]:
         return True
@@ -621,6 +645,15 @@ def maven_impl(mctx):
         bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {})
         root_boms = root_repo.get("boms", [])
         bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", {})
+
+        # When the root module uses pinned conflict policy, it expects its declared
+        # versions to win unconditionally. In layered installs, duplicates can
+        # otherwise survive into the combined artifact list and fail early in
+        # duplicate version checks. Treat all root artifacts/BOMs as force_version=True
+        # so root precedence is applied globally without requiring per-artifact
+        # maven.amend_artifact(force_version=...).
+        if root_repo.get("version_conflict_policy") == "pinned":
+            root_artifacts = _force_version_true_for_all(root_artifacts)
 
         if repo_name in root_module_repos.keys():
             known_contributing_modules = root_repo.get("known_contributing_modules", sets.make())
