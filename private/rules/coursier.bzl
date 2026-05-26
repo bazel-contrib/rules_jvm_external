@@ -1739,6 +1739,7 @@ coursier_fetch = repository_rule(
         "COURSIER_URL",
         "REPIN",
         "RULES_JVM_EXTERNAL_REPIN",
+        "RJE_MAX_THREADS",
         "RJE_VERBOSE",
         "XDG_CACHE_HOME",
     ],

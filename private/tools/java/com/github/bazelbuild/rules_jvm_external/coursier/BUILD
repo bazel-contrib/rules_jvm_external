@@ -13,6 +13,7 @@ java_library(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         artifact(
             "com.google.code.gson:gson",
             repository_name = "rules_jvm_external_deps",
