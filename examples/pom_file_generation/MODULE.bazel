@@ -13,8 +13,11 @@ local_path_override(
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     artifacts = [
-        "com.google.inject:guice:4.0",
-        "com.google.guava:guava:27.1-jre",
+        "com.google.code.gson:gson:2.14.0",
+        "com.google.errorprone:error_prone_annotations:2.49.0",
+        "com.google.inject:guice:7.0.0",
+        "com.google.guava:guava:33.6.0-jre",
+        "com.google.j2objc:j2objc-annotations:3.1",
     ],
     known_contributing_modules = ["protobuf"],
     lock_file = "//:maven_install.json",

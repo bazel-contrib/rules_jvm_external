@@ -15,7 +15,7 @@ object Server {
       system: ActorSystem): Future[String \/ Http.ServerBinding] =
     Http()
       .bindAndHandle(services, host, port)
-      .map(b => \/-(b))
+      .map[String \/ Http.ServerBinding](b => \/-(b))
       .recover {
         case NonFatal(t) =>
           -\/(s"Failed to initialize server due to: ${t.getMessage}")
