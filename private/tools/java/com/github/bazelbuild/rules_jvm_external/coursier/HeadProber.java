@@ -71,10 +71,9 @@ final class HeadProber implements Predicate<URI> {
       conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
       conn.setReadTimeout(READ_TIMEOUT_MS);
       conn.setInstanceFollowRedirects(true);
-      // Some upstreams reject unknown clients with 403; the probe should look identical to
-      // what the actual download will look like, so this UA string is kept in sync with
-      // HttpDownloader's. If the two ever drift, a private mirror could pass the probe and
-      // fail the download (or vice versa).
+      // Some upstreams reject unknown clients with 403; the probe must look identical to
+      // what the actual download sends. If you change this string, change it everywhere it
+      // is used in this package.
       conn.setRequestProperty("User-Agent", "rules_jvm_external resolver");
       addBasicAuthIfKnown(conn, uri);
       int code = conn.getResponseCode();
@@ -84,8 +83,9 @@ final class HeadProber implements Predicate<URI> {
         // on the same socket when they see a mid-stream RST; 4xx bodies are small so the drain
         // is cheap.
         //
-        // Disconnect rather than letting the JDK pool the socket: probes are interleaved
-        // across hosts, so a pooled socket would rarely be reused before keep-alive timeout.
+        // 4xx is the rare path; disconnect rather than returning the socket to the keep-alive
+        // pool. Reuse savings on the error path don't justify the risk of a connection in an
+        // ambiguous state after a partially-read error response.
         drainAndClose(conn.getErrorStream());
         conn.disconnect();
         String host = dedupKey(uri);
@@ -137,10 +137,11 @@ final class HeadProber implements Predicate<URI> {
       // Catch is narrow on purpose: IOException covers timeouts, DNS failures, TLS faults,
       // and MalformedURLException (an IOException subclass) from uri.toURL();
       // ClassCastException covers non-HTTP schemes returning a non-HttpURLConnection from
-      // openConnection(); IllegalArgumentException covers Paths.get(uri) on opaque file URIs.
-      // Broader RuntimeExceptions (NPE, ArrayIndexOutOfBoundsException, etc.) are programmer
-      // bugs and are deliberately allowed to propagate so CI catches them rather than
-      // silently shipping a thinned lockfile.
+      // openConnection(); IllegalArgumentException covers Paths.get(uri) on opaque file URIs
+      // and uri.toURL() on non-absolute URIs. Broader RuntimeExceptions (NPE,
+      // ArrayIndexOutOfBoundsException, etc.) are programmer bugs and are deliberately
+      // allowed to propagate so CI catches them rather than silently shipping a thinned
+      // lockfile.
       if (conn != null) {
         conn.disconnect();
       }
@@ -186,9 +187,8 @@ final class HeadProber implements Predicate<URI> {
   }
 
   private void addBasicAuthIfKnown(HttpURLConnection conn, URI uri) {
-    // Note: Netrc.getCredential falls back to the netrc default credential when there is no
-    // per-host entry, so when this prober is constructed from Netrc.fromUserHome(), a
-    // `default` entry in ~/.netrc will be sent on every probe regardless of host.
+    // Falls back to the netrc "default" entry if no per-host match exists, so a default
+    // credential will be attached to every probe regardless of host.
     Netrc.Credential credential = netrc.getCredential(uri.getHost());
     if (credential == null) {
       return;

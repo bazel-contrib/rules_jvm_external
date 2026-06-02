@@ -255,6 +255,10 @@ public class LockFileConverter {
     @SuppressWarnings("unchecked")
     Collection<Map<String, Object>> coursierDeps =
         (Collection<Map<String, Object>>) depTree.get("dependencies");
+    if (coursierDeps == null) {
+      throw new IllegalArgumentException(
+          "Coursier lockfile " + unsortedJson + " is missing the 'dependencies' field.");
+    }
 
     // HEAD-probing each non-primary configured repo against every artifact is the slow part.
     // Per-artifact work is independent, so run it on a fixed pool sized by maxThreads.
@@ -292,9 +296,11 @@ public class LockFileConverter {
           if (cause instanceof RuntimeException) {
             throw (RuntimeException) cause;
           }
-          // Rethrow Error directly so JVM-level signals (OutOfMemoryError, StackOverflowError)
-          // keep their type and any -XX:+CrashOnOutOfMemoryError-style handlers still fire.
-          // Only checked Throwables fall through to the RuntimeException wrap.
+          // Rethrow Error directly so OutOfMemoryError, StackOverflowError, etc. keep their
+          // type for the uncaught-exception handler and for any caller that catches Error
+          // specifically. Wrapping them in RuntimeException would hide them from
+          // try/catch(Error) patterns. Only checked Throwables fall through to the
+          // RuntimeException wrap.
           if (cause instanceof Error) {
             throw (Error) cause;
           }
@@ -367,21 +373,24 @@ public class LockFileConverter {
       // The lockfile will record this artifact with an empty repository list. http_file will
       // then fail at fetch time with no breadcrumb back to here. Most common cause: a --repo
       // entry has a trailing-slash or path drift versus what Coursier actually resolved.
-      String primaryHost;
+      String primaryHost = null;
       try {
         primaryHost = URI.create(primaryUrl).getHost();
-      } catch (IllegalArgumentException e) {
-        primaryHost = primaryUrl;
+      } catch (IllegalArgumentException ignored) {
+        // primaryUrl is not a valid URI; fall through to using it directly as the dedup key.
       }
-      if (primaryHost != null && warnedUnmatchedPrimaryHosts.add(primaryHost)) {
+      // Fall back to the raw URL when getHost() returns null (file: and opaque URIs), so the
+      // warning still fires and dedups instead of being silently dropped.
+      String dedupKey = primaryHost != null ? primaryHost : primaryUrl;
+      if (warnedUnmatchedPrimaryHosts.add(dedupKey)) {
         System.err.println(
             "WARNING: Coursier-resolved url "
                 + primaryUrl
                 + " does not prefix-match any configured --repo. This artifact will be"
                 + " recorded with an empty repository list and the build will fail at fetch"
                 + " time. Check --repo entries for trailing-slash or path drift. Further"
-                + " warnings for host "
-                + primaryHost
+                + " warnings for "
+                + dedupKey
                 + " are suppressed.");
       }
     }
@@ -473,6 +482,10 @@ public class LockFileConverter {
     @SuppressWarnings("unchecked")
     Collection<Map<String, Object>> coursierDeps =
         (Collection<Map<String, Object>>) depTree.get("dependencies");
+    if (coursierDeps == null) {
+      throw new IllegalArgumentException(
+          "Coursier lockfile " + unsortedJson + " is missing the 'dependencies' field.");
+    }
     for (Map<String, Object> coursierDep : coursierDeps) {
       Coordinates coord = new Coordinates((String) coursierDep.get("coord"));
       String expectedPath = coord.toRepoPath();

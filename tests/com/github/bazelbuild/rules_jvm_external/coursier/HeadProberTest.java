@@ -32,6 +32,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
@@ -98,6 +102,51 @@ public class HeadProberTest {
   }
 
   @Test
+  public void forbidden403LogsAsAuthFailure() {
+    // 403 is the common shape from misconfigured CodeArtifact / JFrog / Nexus -- often
+    // returned in place of 401 when scope is missing rather than credentials. A regression
+    // that dropped 403 from the auth predicate would silently bucket it as the routine
+    // "not present" 404, thinning the lockfile of authenticated mirrors with no diagnostic.
+    serve("/forbidden", 403);
+    HeadProber prober = emptyNetrcProber();
+    assertFalse(prober.test(baseUri.resolve("forbidden")));
+    String stderr = capturedErr.toString(StandardCharsets.UTF_8);
+    assertTrue("403 must be logged as auth failure; stderr=\n" + stderr,
+        stderr.contains("HeadProber")
+            && stderr.contains("403")
+            && stderr.contains(".netrc"));
+  }
+
+  @Test
+  public void proxyAuthRequired407LogsAsAuthFailure() {
+    // 407 from an HTTP proxy in front of the mirror. Same operator action as 401/403; if a
+    // refactor only checks 401||403, proxied mirrors thin silently.
+    serve("/proxyauth", 407);
+    HeadProber prober = emptyNetrcProber();
+    assertFalse(prober.test(baseUri.resolve("proxyauth")));
+    String stderr = capturedErr.toString(StandardCharsets.UTF_8);
+    assertTrue("407 must be logged as auth failure; stderr=\n" + stderr,
+        stderr.contains("HeadProber")
+            && stderr.contains("407")
+            && stderr.contains(".netrc"));
+  }
+
+  @Test
+  public void requestTimeout408LogsAsTransientFailure() {
+    // 408 is the boundary case below 429 in the transient bucket. The docstring on
+    // HeadProber.test lists 408 explicitly; a refactor that narrowed the transient range to
+    // 429||5xx would drop coverage with no test failure.
+    serve("/slow", 408);
+    HeadProber prober = emptyNetrcProber();
+    assertFalse(prober.test(baseUri.resolve("slow")));
+    String stderr = capturedErr.toString(StandardCharsets.UTF_8);
+    assertTrue("408 must be logged as transient; stderr=\n" + stderr,
+        stderr.contains("HeadProber")
+            && stderr.contains("408")
+            && stderr.contains("upstream"));
+  }
+
+  @Test
   public void transportFailureLogsOncePerHost() {
     // Connect to a port nothing is listening on -- TCP refused, IOException.
     URI deadHost = URI.create("http://127.0.0.1:1/dead");
@@ -144,6 +193,45 @@ public class HeadProberTest {
     assertEquals("redirect-followed 200 must not log; stderr=\n"
             + capturedErr.toString(StandardCharsets.UTF_8),
         "", capturedErr.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void concurrentProbesOfSameHostDedupToOneLogLine() throws Exception {
+    // Pins the thread-safety claim of ConcurrentHashMap.newKeySet() for the dedup sets. If
+    // a future refactor swapped to a plain HashSet, two threads racing on the same `add`
+    // could both succeed, producing duplicate log lines. N latched workers all probing the
+    // same 401 URL must produce exactly one log line.
+    serve("/contended", 401);
+    HeadProber prober = emptyNetrcProber();
+    int threadCount = 16;
+    CountDownLatch start = new CountDownLatch(1);
+    CountDownLatch done = new CountDownLatch(threadCount);
+    ExecutorService pool = Executors.newFixedThreadPool(threadCount);
+    try {
+      for (int i = 0; i < threadCount; i++) {
+        pool.submit(
+            () -> {
+              try {
+                start.await();
+                prober.test(baseUri.resolve("contended"));
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              } finally {
+                done.countDown();
+              }
+            });
+      }
+      start.countDown();
+      assertTrue("worker threads should finish within 10s",
+          done.await(10, TimeUnit.SECONDS));
+    } finally {
+      pool.shutdownNow();
+    }
+    String stderr = capturedErr.toString(StandardCharsets.UTF_8);
+    long lineCount = stderr.lines().filter(l -> l.contains("HeadProber")).count();
+    assertEquals(
+        "N concurrent probes of the same host must produce one log line; stderr=\n" + stderr,
+        1, lineCount);
   }
 
   @Test

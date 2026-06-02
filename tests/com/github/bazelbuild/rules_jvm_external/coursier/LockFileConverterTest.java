@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -142,7 +143,7 @@ public class LockFileConverterTest {
     // Recording prober: mirror.example has the artifact, empty.example does not. Captures
     // probe URIs so the test can assert the exact path the converter derived from the
     // primary URL (catches off-by-one regressions in substring path derivation).
-    List<URI> probedUris = new ArrayList<>();
+    List<URI> probedUris = Collections.synchronizedList(new ArrayList<>());
     Predicate<URI> prober =
         uri -> {
           probedUris.add(uri);
@@ -285,6 +286,65 @@ public class LockFileConverterTest {
   }
 
   /**
+   * The orphan-URL warning must dedup per host. Two orphans sharing a host produce one log
+   * line; an orphan from a distinct host produces a second. Symmetric to HeadProberTest's
+   * authFailureLogsOncePerDistinctHost; the production code uses a per-instance
+   * ConcurrentHashMap.newKeySet() and a regression that switched to a plain HashSet or
+   * dropped the host key would surface here.
+   */
+  @Test
+  public void orphanUrlWarningDedupsPerHost() throws IOException {
+    URI internalRepo = URI.create("https://internal.example.com/maven/");
+    Set<URI> configuredRepos = new LinkedHashSet<>();
+    configuredRepos.add(internalRepo);
+
+    // Two orphans on orphan.example.com + one on other.example.com. Expect 2 warnings.
+    String coursierJson =
+        "{\"dependencies\": ["
+            + "  {\"coord\": \"com.example:orphan1:1.0.0\","
+            + "   \"directDependencies\": [], \"dependencies\": [],"
+            + "   \"url\": \"https://orphan.example.com/maven/com/example/orphan1/1.0.0/orphan1-1.0.0.jar\","
+            + "   \"packages\": []},"
+            + "  {\"coord\": \"com.example:orphan2:1.0.0\","
+            + "   \"directDependencies\": [], \"dependencies\": [],"
+            + "   \"url\": \"https://orphan.example.com/maven/com/example/orphan2/1.0.0/orphan2-1.0.0.jar\","
+            + "   \"packages\": []},"
+            + "  {\"coord\": \"com.example:orphan3:1.0.0\","
+            + "   \"directDependencies\": [], \"dependencies\": [],"
+            + "   \"url\": \"https://other.example.com/maven/com/example/orphan3/1.0.0/orphan3-1.0.0.jar\","
+            + "   \"packages\": []}"
+            + "]}";
+
+    Path json = tempFolder.newFile("coursier_install.json").toPath();
+    Files.write(json, coursierJson.getBytes(UTF_8));
+
+    ByteArrayOutputStream capturedErr = new ByteArrayOutputStream();
+    PrintStream originalErr = System.err;
+    System.setErr(new PrintStream(capturedErr, true, UTF_8));
+    try {
+      new LockFileConverter(configuredRepos, json, uri -> false).getDependencies();
+    } finally {
+      System.setErr(originalErr);
+    }
+
+    String stderr = capturedErr.toString(UTF_8);
+    long warningLines =
+        stderr.lines().filter(l -> l.contains("does not prefix-match")).count();
+    assertEquals(
+        "two orphans from orphan.example.com + one from other.example.com should produce two"
+            + " warnings; stderr=\n"
+            + stderr,
+        2,
+        warningLines);
+    assertTrue(
+        "warning should mention orphan.example.com; stderr=\n" + stderr,
+        stderr.contains("orphan.example.com"));
+    assertTrue(
+        "warning should mention other.example.com; stderr=\n" + stderr,
+        stderr.contains("other.example.com"));
+  }
+
+  /**
    * If Coursier downloaded the artifact from m2local (the local Maven cache), the primary loop
    * must still skip m2local rather than recording it as a repo. The lockfile is a description
    * of remote sources; a local cache is not a remote source. The probe loop also must not call
@@ -322,7 +382,7 @@ public class LockFileConverterTest {
 
     // Lying prober that says yes to everything; pairs with the primary-under-m2local setup so
     // the only thing that can keep m2local out of the recorded repos is the explicit skip.
-    List<URI> probedUris = new ArrayList<>();
+    List<URI> probedUris = Collections.synchronizedList(new ArrayList<>());
     Predicate<URI> recordingProber =
         uri -> {
           probedUris.add(uri);
@@ -418,7 +478,7 @@ public class LockFileConverterTest {
     Path json = tempFolder.newFile("coursier_install.json").toPath();
     Files.write(json, coursierJson.getBytes(UTF_8));
 
-    List<URI> probedUris = new ArrayList<>();
+    List<URI> probedUris = Collections.synchronizedList(new ArrayList<>());
     Predicate<URI> recordingProber =
         uri -> {
           probedUris.add(uri);
