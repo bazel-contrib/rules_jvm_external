@@ -24,8 +24,11 @@ register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     artifacts = [
-        "androidx.appcompat:appcompat:1.0.2",
-        "androidx.core:core-ktx:1.0.1",
+        "androidx.activity:activity:1.13.0",
+        "com.google.code.gson:gson:2.14.0",
+        "com.google.errorprone:error_prone_annotations:2.49.0",
+        "com.google.guava:guava:33.6.0-jre",
+        "com.google.j2objc:j2objc-annotations:3.1",
     ],
     known_contributing_modules = ["protobuf"],
     lock_file = "//:maven_install.json",

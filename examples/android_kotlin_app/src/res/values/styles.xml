@@ -2,8 +2,6 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
-    </style>
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar" />
 
 </resources>
