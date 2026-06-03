@@ -6,9 +6,11 @@ java_test(
     test_class = "hello.HelloControllerTest",
     deps = [
         "//src/main/java/hello:lib",
+        "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_library",
         "@maven//:org_springframework_boot_spring_boot_test",
         "@maven//:org_springframework_boot_spring_boot_test_autoconfigure",
+        "@maven//:org_springframework_boot_spring_boot_webmvc_test",
         "@maven//:org_springframework_spring_beans",
         "@maven//:org_springframework_spring_test",
         "@maven//:org_springframework_spring_web",
@@ -21,8 +23,11 @@ java_test(
     test_class = "hello.HelloControllerIT",
     deps = [
         "//src/main/java/hello:lib",
+        "@maven//:org_hamcrest_hamcrest",
         "@maven//:org_hamcrest_hamcrest_library",
         "@maven//:org_springframework_boot_spring_boot",
+        "@maven//:org_springframework_boot_spring_boot_restclient",
+        "@maven//:org_springframework_boot_spring_boot_resttestclient",
         "@maven//:org_springframework_boot_spring_boot_test",
         "@maven//:org_springframework_spring_beans",
         "@maven//:org_springframework_spring_test",
