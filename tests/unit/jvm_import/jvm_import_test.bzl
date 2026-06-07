@@ -140,6 +140,30 @@ does_jvm_import_export_a_package_provider_test = analysistest.make(
     },
 )
 
+def _jvm_import_uses_execution_platform_java_runtime_impl(ctx):
+    env = analysistest.begin(ctx)
+
+    actions = analysistest.target_actions(env)
+    for mnemonic in ["StampJarManifest", "CreateCompileJar"]:
+        matching_actions = [action for action in actions if action.mnemonic == mnemonic]
+        asserts.equals(env, 1, len(matching_actions))
+
+        argv = matching_actions[0].argv
+        asserts.true(env, "remotejdk11_" in argv[0], "Expected %s to use the execution-platform Java runtime, got %s" % (mnemonic, argv[0]))
+        asserts.true(env, "-jar" in argv)
+        deploy_jar_args = [arg for arg in argv if arg.endswith("AddJarManifestEntry_deploy.jar")]
+        asserts.equals(env, 1, len(deploy_jar_args))
+
+    return analysistest.end(env)
+
+jvm_import_uses_execution_platform_java_runtime_test = analysistest.make(
+    _jvm_import_uses_execution_platform_java_runtime_impl,
+    config_settings = {
+        "//command_line_option:platforms": "@@//tests/unit/jvm_import:android_s390x_target_platform",
+        "//command_line_option:tool_java_runtime_version": "remotejdk_11",
+    },
+)
+
 def _does_non_jvm_import_target_carry_metadata(ctx):
     env = analysistest.begin(ctx)
 
@@ -178,6 +202,10 @@ def jvm_import_test_suite(name):
         target_under_test = "@jvm_import_test//:com_google_code_findbugs_jsr305",
         src = "@jvm_import_test//:com_google_code_findbugs_jsr305",
     )
+    jvm_import_uses_execution_platform_java_runtime_test(
+        name = "jvm_import_uses_execution_platform_java_runtime_test",
+        target_under_test = "@jvm_import_test//:com_google_code_findbugs_jsr305_3_0_2",
+    )
 
     # TODO: restore once https://github.com/bazelbuild/rules_license/issues/154 is resolved
     #    does_non_jvm_import_target_carry_metadata_test(
@@ -189,5 +217,6 @@ def jvm_import_test_suite(name):
         name = name,
         tests = [
             ":does_jvm_import_have_tags_test",
+            ":jvm_import_uses_execution_platform_java_runtime_test",
         ],
     )

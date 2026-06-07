@@ -16,6 +16,14 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_java//java:java_import.bzl", "java_import")
 load(":jvm_import_test.bzl", "jvm_import_test_suite")
 
+platform(
+    name = "android_s390x_target_platform",
+    constraint_values = [
+        "@platforms//cpu:s390x",
+        "@platforms//os:android",
+    ],
+)
+
 java_import(
     name = "java_import_that_consumes_the_downloaded_file_directly",
     # Will produce an error if the downloaded file does not have the `.jar` file extension
