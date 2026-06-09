@@ -94,9 +94,10 @@ public abstract class AbstractMain {
 
     ResolutionRequest request = config.getResolutionRequest();
     String rjeUnsafeCache = System.getenv("RJE_UNSAFE_CACHE");
-    boolean cacheResults = false;
-    if (rjeUnsafeCache != null) {
-      cacheResults = "1".equals(rjeUnsafeCache) || Boolean.parseBoolean(rjeUnsafeCache);
+    boolean cacheResults = true;
+    if (rjeUnsafeCache != null
+        && ("0".equals(rjeUnsafeCache) || !Boolean.parseBoolean(rjeUnsafeCache))) {
+      cacheResults = false;
     }
 
     Downloader downloader =
