@@ -55,6 +55,7 @@ public class Downloader {
   private final boolean cacheDownloads;
   private final HttpDownloader httpDownloader;
   private final Map<Coordinates, Path> knownPaths;
+  private final Set<Coordinates> aggregatingCoordinates;
 
   public Downloader(
       Netrc netrc,
@@ -63,11 +64,24 @@ public class Downloader {
       EventListener listener,
       boolean cacheDownloads,
       Map<Coordinates, Path> knownPaths) {
+    this(netrc, localRepository, repositories, listener, cacheDownloads, knownPaths, Set.of());
+  }
+
+  public Downloader(
+      Netrc netrc,
+      Path localRepository,
+      Collection<URI> repositories,
+      EventListener listener,
+      boolean cacheDownloads,
+      Map<Coordinates, Path> knownPaths,
+      Set<Coordinates> aggregatingCoordinates) {
     this.localRepository = localRepository;
     this.repos = Set.copyOf(repositories);
     this.cacheDownloads = cacheDownloads;
     this.httpDownloader = new HttpDownloader(netrc, listener);
     this.knownPaths = knownPaths != null ? Map.copyOf(knownPaths) : Map.of();
+    this.aggregatingCoordinates =
+        aggregatingCoordinates != null ? Set.copyOf(aggregatingCoordinates) : Set.of();
   }
 
   public DownloadResult download(Coordinates coords) {
@@ -114,6 +128,14 @@ public class Downloader {
       } catch (IOException | XmlPullParserException e) {
         throw new RuntimeException(e);
       }
+    }
+
+    if (aggregatingCoordinates.contains(coords)) {
+      // The resolver positively determined this coordinate has no binary of its own (for example
+      // a Gradle module-metadata umbrella that redirects to a platform sibling), even though its
+      // POM does not declare `<packaging>pom</packaging>`. Render it as a binary-less aggregating
+      // result, capturing the repositories that hold its POM so the lock file can still locate it.
+      return new DownloadResult(coords, pomResult.getRepositories(), null, null);
     }
 
     throw new UriNotFoundException("Unable to download from any repo: " + coords);

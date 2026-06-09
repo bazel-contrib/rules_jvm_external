@@ -28,6 +28,9 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.google.common.graph.Graph;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
@@ -135,6 +138,83 @@ public class GradleResolverTest extends ResolverTestBase {
     // Once we support resolving android variant, this test should be updated to ensure
     // sample-android is also resolved
     assertEquals(Set.of(baseCoordinates, jvmCoordinates), resolved.nodes());
+  }
+
+  @Test
+  public void gmmUmbrellaWithoutBinaryResolvesAsAggregator()
+      throws IOException, XMLStreamException {
+    // A real Gradle Module Metadata "umbrella" publishes a POM and `.module` metadata but no
+    // binary for the umbrella coordinate itself: it redirects to a sibling (here, the JVM
+    // variant). The resolver must record the umbrella as an aggregator with no binary, rather
+    // than smuggling its POM in as though it were the module JAR.
+    Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
+    Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
+    MavenRepo mavenRepo = MavenRepo.create();
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    Path baseMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-1.0.module"));
+    moduleMetadataHelper.addToMavenRepo(baseCoordinates, Files.readString(baseMetadataPath));
+
+    Path jvmMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-jvm-1.0.module"));
+    moduleMetadataHelper.addToMavenRepo(jvmCoordinates, Files.readString(jvmMetadataPath));
+
+    // Remove the umbrella JAR so the umbrella coordinate has only a POM (+ module metadata),
+    // matching the real-world shape.
+    Files.delete(mavenRepo.getPath().resolve(baseCoordinates.toRepoPath()));
+
+    ResolutionResult result =
+        resolver.resolve(prepareRequestFor(mavenRepo.getPath().toUri(), baseCoordinates));
+    assertEquals(Set.of(baseCoordinates, jvmCoordinates), result.getResolution().nodes());
+
+    // The umbrella is an aggregator with no binary; the JVM sibling carries the real JAR.
+    ResolvedArtifact base = result.getArtifacts().get(baseCoordinates);
+    assertTrue("Umbrella should be an aggregator", base.isAggregator());
+    assertTrue("Umbrella should have no binary path", base.getPath().isEmpty());
+
+    ResolvedArtifact jvm = result.getArtifacts().get(jvmCoordinates);
+    assertFalse("JVM sibling should not be an aggregator", jvm.isAggregator());
+    assertTrue("JVM sibling should have a binary path", jvm.getPath().isPresent());
+
+    // Feed the resolver's findings to a Downloader the way AbstractMain does, and confirm the
+    // umbrella downloads to a binary-less result while the sibling downloads its real JAR.
+    Map<Coordinates, Path> knownPaths =
+        result.getArtifacts().values().stream()
+            .filter(artifact -> artifact.getPath().isPresent())
+            .collect(
+                Collectors.toMap(
+                    ResolvedArtifact::getCoordinates, artifact -> artifact.getPath().get()));
+    Set<Coordinates> aggregatingCoordinates =
+        result.getArtifacts().values().stream()
+            .filter(ResolvedArtifact::isAggregator)
+            .map(ResolvedArtifact::getCoordinates)
+            .collect(Collectors.toSet());
+
+    Path localRepo = Files.createTempDirectory("local");
+    Downloader downloader =
+        new Downloader(
+            Netrc.fromUserHome(),
+            localRepo,
+            Set.of(mavenRepo.getPath().toUri()),
+            new NullListener(),
+            false,
+            knownPaths,
+            aggregatingCoordinates);
+
+    DownloadResult baseDownload = downloader.download(baseCoordinates);
+    assertTrue(baseDownload.getPath().isEmpty());
+    assertTrue(baseDownload.getSha256().isEmpty());
+
+    DownloadResult jvmDownload = downloader.download(jvmCoordinates);
+    assertTrue(jvmDownload.getPath().isPresent());
+    assertTrue(jvmDownload.getSha256().isPresent());
   }
 
   @Test

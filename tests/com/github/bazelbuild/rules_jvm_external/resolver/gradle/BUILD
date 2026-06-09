@@ -38,6 +38,8 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",
         "//tests/com/github/bazelbuild/rules_jvm_external/resolver",
         artifact(
             "junit:junit",
