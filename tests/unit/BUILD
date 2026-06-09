@@ -1,3 +1,4 @@
+load(":amend_artifact_test.bzl", "amend_artifact_test_suite")
 load(":artifact_utilities_test.bzl", "artifact_utilities_test_suite")
 load(":coordinates_test.bzl", "coordinates_test_suite")
 load(":coursier_test.bzl", "coursier_test_suite")
@@ -7,6 +8,8 @@ load(":maven_version_test.bzl", "maven_version_test_suite")
 load(":proxy_test.bzl", "proxy_test_suite")
 load(":specs_test.bzl", "artifact_specs_test_suite")
 load(":version_catalogs_test.bzl", "version_catalogs_test_suite")
+
+amend_artifact_test_suite()
 
 artifact_specs_test_suite()
 
