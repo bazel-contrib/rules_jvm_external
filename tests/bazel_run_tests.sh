@@ -116,6 +116,12 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
 }
 
 function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build() {
+  # Isolate HOME so this test's m2local scan doesn't see JARs left in ~/.m2 by
+  # earlier Maven-resolver pin steps (which don't write .sha1/.md5 sidecars and
+  # so trip up Coursier's m2local checksum check).
+  local original_home="$HOME"
+  export HOME=$(mktemp -d)
+
   m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
   rm -rf ${jar_dir}
@@ -131,7 +137,8 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   force_bzlmod_lock_file_to_be_regenerated
 
   bazel build @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
-  rm -rf ${jar_dir}
+  rm -rf "$HOME"
+  export HOME="$original_home"
 
   expect_log "Assuming maven local for artifact: com.example:no-docs:1.0.0"
   expect_log "Successfully pinned resolved artifacts"
