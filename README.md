@@ -50,7 +50,7 @@ versions.
 ## API Reference
 
 You can find the complete API reference for rules at [docs/api.md](docs/api.md) and for the
-bzlmod tag classes in [docs/bzlmod.md]
+bzlmod tag classes in [docs/bzlmod.md](docs/bzlmod.md)
 
 ## Usage
 
