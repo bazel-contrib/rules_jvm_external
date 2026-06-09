@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
@@ -284,10 +285,11 @@ public class GradleResolverTest extends ResolverTestBase {
     assertEquals("Should resolve to exactly one version", 1, conflictedNodes.size());
     assertTrue("Should resolve to higher version", conflictedNodes.contains(higherVersion));
 
-    // Verify paths map contains only the resolved (higher) version, not the lower version
-    Map<Coordinates, Path> paths = result.getPaths();
-    assertTrue("Paths should contain resolved version", paths.containsKey(higherVersion));
+    // Verify the resolved artifacts contain only the resolved (higher) version, not the lower one
+    Map<Coordinates, ResolvedArtifact> artifacts = result.getArtifacts();
+    assertTrue("Artifacts should contain resolved version", artifacts.containsKey(higherVersion));
     assertFalse(
-        "Paths should not contain conflicting lower version", paths.containsKey(lowerVersion));
+        "Artifacts should not contain conflicting lower version",
+        artifacts.containsKey(lowerVersion));
   }
 }

@@ -19,6 +19,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
@@ -324,7 +325,12 @@ public class GradleResolver implements Resolver {
     // Only include paths for coordinates that are actually in the final resolved graph
     paths.keySet().retainAll(graph.nodes());
 
-    return new ResolutionResult(graph, conflicts, paths);
+    Map<Coordinates, ResolvedArtifact> artifacts = new HashMap<>();
+    for (Coordinates node : graph.nodes()) {
+      artifacts.put(node, new ResolvedArtifact(node, paths.get(node)));
+    }
+
+    return new ResolutionResult(graph, conflicts, artifacts);
   }
 
   private String makeDepKey(String group, String artifact, String version) {
