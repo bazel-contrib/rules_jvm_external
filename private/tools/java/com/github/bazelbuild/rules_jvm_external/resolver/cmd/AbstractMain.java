@@ -46,6 +46,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +100,18 @@ public abstract class AbstractMain {
       cacheResults = "1".equals(rjeUnsafeCache) || Boolean.parseBoolean(rjeUnsafeCache);
     }
 
+    Map<Coordinates, Path> knownPaths = new LinkedHashMap<>();
+    Set<Coordinates> aggregatingCoordinates = new LinkedHashSet<>();
+    resolutionResult
+        .getArtifacts()
+        .forEach(
+            (coords, artifact) -> {
+              artifact.getPath().ifPresent(p -> knownPaths.put(coords, p));
+              if (artifact.isAggregator()) {
+                aggregatingCoordinates.add(coords);
+              }
+            });
+
     Downloader downloader =
         new Downloader(
             config.getNetrc(),
@@ -106,7 +119,8 @@ public abstract class AbstractMain {
             request.getRepositories(),
             listener,
             cacheResults,
-            resolutionResult.getPaths());
+            knownPaths,
+            aggregatingCoordinates);
 
     List<CompletableFuture<Set<DependencyInfo>>> futures = new LinkedList<>();
 

@@ -19,6 +19,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
@@ -285,7 +286,11 @@ public class GradleResolver implements Resolver {
     // Collapse aggregating dependencies (dependencies with only classified artifacts)
     collapseAggregatingDependencies(graph, paths, artifactsByNode);
 
-    // Populate paths for all nodes in the final graph from collected artifacts
+    // Populate paths for all nodes in the final graph from collected artifacts. Nodes that
+    // resolved but have no binary of their own (only a POM) are recorded as aggregators so the
+    // downloader and lock file render them as exports-only wrappers instead of treating the POM
+    // as the module's binary.
+    Set<Coordinates> aggregatorNodes = new HashSet<>();
     for (Map.Entry<Coordinates, List<GradleResolvedArtifact>> entry : artifactsByNode.entrySet()) {
       Coordinates coords = entry.getKey();
       if (!graph.nodes().contains(coords)) {
@@ -306,11 +311,12 @@ public class GradleResolver implements Resolver {
           break;
         }
       }
-      // Fallback: any existing file (including pom)
+      // Fallback: any existing real binary. Never a POM: a node whose only file is a POM is an
+      // umbrella/redirect coordinate with no binary of its own, not a module whose binary is a POM.
       if (bestFile == null) {
         for (GradleResolvedArtifact artifact : entry.getValue()) {
           File file = artifact.getFile();
-          if (file != null && file.exists()) {
+          if (file != null && file.exists() && !file.getName().endsWith(".pom")) {
             bestFile = file;
             break;
           }
@@ -318,13 +324,24 @@ public class GradleResolver implements Resolver {
       }
       if (bestFile != null) {
         paths.put(coords, bestFile.toPath());
+      } else {
+        // No real binary for this node. Drop any POM path an earlier pass associated with it so
+        // we never hand a POM to the downloader as though it were the module's binary.
+        paths.remove(coords);
+        aggregatorNodes.add(coords);
       }
     }
 
     // Only include paths for coordinates that are actually in the final resolved graph
     paths.keySet().retainAll(graph.nodes());
 
-    return new ResolutionResult(graph, conflicts, paths);
+    Map<Coordinates, ResolvedArtifact> artifacts = new HashMap<>();
+    for (Coordinates node : graph.nodes()) {
+      artifacts.put(
+          node, new ResolvedArtifact(node, paths.get(node), aggregatorNodes.contains(node)));
+    }
+
+    return new ResolutionResult(graph, conflicts, artifacts);
   }
 
   private String makeDepKey(String group, String artifact, String version) {

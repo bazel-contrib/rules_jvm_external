@@ -877,9 +877,10 @@ public abstract class ResolverTestBase {
     // Validate that the downloaded artifact has the correct SHA for the forced version.
     // This catches bugs where the resolver fetches artifacts via detached configurations
     // that bypass force_version, resulting in the wrong file being downloaded.
-    Map<Coordinates, Path> paths = result.getPaths();
-    if (paths.containsKey(lowerVersion)) {
-      Path downloadedArtifact = paths.get(lowerVersion);
+    Map<Coordinates, ResolvedArtifact> artifacts = result.getArtifacts();
+    ResolvedArtifact lower = artifacts.get(lowerVersion);
+    if (lower != null && lower.getPath().isPresent()) {
+      Path downloadedArtifact = lower.getPath().get();
       Path expectedArtifact = repo.resolve(lowerVersion.toRepoPath());
 
       // Compare SHA256 of downloaded file vs expected file in repo
