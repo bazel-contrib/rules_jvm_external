@@ -7,10 +7,11 @@ local_path_override(
 )
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
-maven.install(
+maven.artifact(
     name = "root_wins",
-    artifacts = [
-        "io.netty:netty-buffer:4.1.110.Final",
-    ],
+    artifact = "netty-buffer",
+    force_version = True,
+    group = "io.netty",
+    version = "4.1.110.Final",
 )
 use_repo(maven, "root_wins")

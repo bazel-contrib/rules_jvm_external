@@ -665,6 +665,44 @@ public abstract class ResolverTestBase {
   }
 
   @Test
+  public void shouldPrioritizeForcedVersionWhenDuplicateBomVersionsAreRequested() {
+    Coordinates managedCoords = new Coordinates("com.example:managed");
+
+    Coordinates managed1 = new Coordinates("com.example:managed:1.0.0");
+    Coordinates bom1 = new Coordinates("com.example:example-bom:1.0.0");
+    Dependency dependency1 = new Dependency();
+    dependency1.setGroupId(managedCoords.getGroupId());
+    dependency1.setArtifactId(managedCoords.getArtifactId());
+    dependency1.setVersion(managed1.getVersion());
+    DependencyManagement managedDeps1 = new DependencyManagement();
+    managedDeps1.addDependency(dependency1);
+    Model model1 = createModel(bom1);
+    model1.setPackaging("pom");
+    model1.setDependencyManagement(managedDeps1);
+
+    Coordinates managed2 = new Coordinates("com.example:managed:2.0.0");
+    Coordinates bom2 = new Coordinates("com.example:example-bom:2.0.0");
+    Dependency dependency2 = new Dependency();
+    dependency2.setGroupId(managedCoords.getGroupId());
+    dependency2.setArtifactId(managedCoords.getArtifactId());
+    dependency2.setVersion(managed2.getVersion());
+    DependencyManagement managedDeps2 = new DependencyManagement();
+    managedDeps2.addDependency(dependency2);
+    Model model2 = createModel(bom2);
+    model2.setPackaging("pom");
+    model2.setDependencyManagement(managedDeps2);
+
+    Path repo = MavenRepo.create().add(managed1).add(managed2).add(model1).add(model2).getPath();
+
+    ResolutionRequest request = prepareRequestFor(repo.toUri(), managedCoords);
+    request.addBom(bom1);
+    request.addBom(bom2, true);
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+    assertEquals(Set.of(managed2), resolved.nodes());
+  }
+
+  @Test
   public void shouldConsolidateDifferentClassifierVersionsForADependency() {
     Coordinates nettyCoords = new Coordinates("io.netty:netty-tcnative-boringssl-static");
 

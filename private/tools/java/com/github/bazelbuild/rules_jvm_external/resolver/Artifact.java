@@ -56,9 +56,11 @@ public class Artifact {
   @Override
   public String toString() {
     if (exclusions.isEmpty()) {
-      return "{" + coordinates + "}";
+      return forceVersion ? "{" + coordinates + ", forceVersion=true}" : "{" + coordinates + "}";
     }
-    return "{" + coordinates + ", exclusions=" + exclusions + "}";
+    return forceVersion
+        ? "{" + coordinates + ", exclusions=" + exclusions + ", forceVersion=true}"
+        : "{" + coordinates + ", exclusions=" + exclusions + "}";
   }
 
   @Override
@@ -70,12 +72,13 @@ public class Artifact {
       return false;
     }
     Artifact that = (Artifact) o;
-    return Objects.equals(this.getCoordinates(), that.getCoordinates())
+    return this.isForceVersion() == that.isForceVersion()
+        && Objects.equals(this.getCoordinates(), that.getCoordinates())
         && Objects.equals(this.getExclusions(), that.getExclusions());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getCoordinates(), getExclusions());
+    return Objects.hash(getCoordinates(), getExclusions(), isForceVersion());
   }
 }

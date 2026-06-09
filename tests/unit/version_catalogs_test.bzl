@@ -303,7 +303,7 @@ def _is_bom_field_impl(ctx):
 
     toml_content = """\
 [libraries]
-guava-bom = { module = "com.google.guava:guava-bom", version = "32.1.0-jre", is_bom = "true" }
+guava-bom = { module = "com.google.guava:guava-bom", version = "32.1.0-jre", is_bom = "true", force_version = "true" }
 guava = { module = "com.google.guava:guava", version = "32.1.0-jre" }
 another-bom = { group = "org.example", name = "example-bom", version = "1.0.0", is_bom = "True" }
 not-a-bom = { module = "org.example:example-lib", version = "1.0.0", is_bom = "false" }
@@ -320,6 +320,7 @@ not-a-bom = { module = "org.example:example-lib", version = "1.0.0", is_bom = "f
     asserts.equals(env, "com.google.guava", boms[0].group)
     asserts.equals(env, "guava-bom", boms[0].artifact)
     asserts.equals(env, "32.1.0-jre", boms[0].version)
+    asserts.equals(env, True, boms[0].force_version)
 
     asserts.equals(env, "org.example", boms[1].group)
     asserts.equals(env, "example-bom", boms[1].artifact)

@@ -25,6 +25,11 @@ DEFAULT_NAME = "maven"
 
 _DEFAULT_RESOLVER = "coursier"
 
+_DEPENDENCY_BUCKETS = [
+    ("artifacts", "bazel_dep_to_artifacts", "artifacts"),
+    ("boms", "bazel_dep_to_boms", "BOMs"),
+]
+
 artifact = tag_class(
     doc = "Used to define a single artifact where the simple coordinates are insufficient. Will be added to the other artifacts declared by tags with the same `name` attribute.",
     attrs = {
@@ -144,10 +149,10 @@ from_toml = tag_class(
 )
 
 amend_artifact = tag_class(
-    doc = "Modifies an artifact with `coordinates` defined in other tags with additional properties.",
+    doc = "Modifies an artifact or BOM with `coordinates` defined in other tags with additional properties.",
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
-        "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
+        "coordinates": attr.string(doc = "Coordinates of the artifact or BOM to amend. Only `group:artifact` are used for matching.", mandatory = True),
         "force_version": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
         "neverlink": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
         "testonly": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
@@ -179,9 +184,12 @@ def _add_exclusions(exclusions):
             to_return.append(exclusion)
     return to_return
 
-def _warn_if_multiple_contributing_modules(repo, repo_name, non_root_bazel_dep_to_artifacts):
+def _contributing_module_names(bazel_dep_to_non_root_artifacts, bazel_dep_to_non_root_boms):
+    return {name: True for name in bazel_dep_to_non_root_artifacts.keys() + bazel_dep_to_non_root_boms.keys()}.keys()
+
+def _warn_if_multiple_contributing_modules(repo, repo_name, non_root_bazel_dep_to_artifacts, non_root_bazel_dep_to_boms):
     known_contributing_modules = repo.get("known_contributing_modules", sets.make())
-    contributing_module_names = non_root_bazel_dep_to_artifacts.keys()
+    contributing_module_names = _contributing_module_names(non_root_bazel_dep_to_artifacts, non_root_bazel_dep_to_boms)
     new_contributing_modules = sets.difference(sets.make(contributing_module_names), known_contributing_modules)
     if sets.length(new_contributing_modules) > 0:
         print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s." % (
@@ -215,67 +223,168 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
 
     return seen
 
-def _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, return_only_artifacts = False):
-    coordinate_to_artifact = {}
-    for bazel_dep_name in bazel_dep_to_non_root_artifacts:
-        for artifact in bazel_dep_to_non_root_artifacts.get(bazel_dep_name, []):
-            if not getattr(artifact, "testonly", False):
-                artifact_key = to_key(artifact)
+def _dependency_label(dependency):
+    return "%s:%s" % (dependency.group, dependency.artifact)
 
-                # prioritize highest version
-                if artifact_key in coordinate_to_artifact:
-                    _bazel_dep_name, current_artifact = coordinate_to_artifact[artifact_key]
-                    if compare_maven_versions(current_artifact.version, artifact.version) == -1:
-                        coordinate_to_artifact[artifact_key] = (bazel_dep_name, artifact)
+def _fail_forced_version_conflict(current_dependency, next_dependency, current_source, next_source, dependency_kind):
+    if current_dependency.version == next_dependency.version:
+        return
+
+    fail("Conflicting forced versions for %s '%s': %s from %s and %s from %s" % (
+        dependency_kind,
+        _dependency_label(current_dependency),
+        current_dependency.version,
+        current_source,
+        next_dependency.version,
+        next_source,
+    ))
+
+def _is_forced_dependency(dependency, pinned_policy = False):
+    # Keep pinned policy as merge-time behavior so existing lock input hashes
+    # do not change by synthesizing force_version fields.
+    return pinned_policy or getattr(dependency, "force_version", False)
+
+def _should_replace_dependency(
+        current_dependency,
+        next_dependency,
+        current_source,
+        next_source,
+        dependency_kind,
+        current_pinned_policy = False,
+        next_pinned_policy = False):
+    current_forced = _is_forced_dependency(current_dependency, current_pinned_policy)
+    next_forced = _is_forced_dependency(next_dependency, next_pinned_policy)
+
+    if current_forced and next_forced:
+        _fail_forced_version_conflict(current_dependency, next_dependency, current_source, next_source, dependency_kind)
+        return False
+
+    if current_forced != next_forced:
+        return next_forced
+
+    return compare_maven_versions(current_dependency.version, next_dependency.version) == -1
+
+def _deduplicate_non_root_dependencies(
+        bazel_dep_to_non_root_dependencies,
+        dependency_kind,
+        return_only_dependencies = False,
+        root_forced_dependency_keys = None,
+        pinned_policy = False):
+    root_forced_dependency_keys = root_forced_dependency_keys or {}
+    coordinate_to_dependency = {}
+    for bazel_dep_name in bazel_dep_to_non_root_dependencies:
+        for dependency in bazel_dep_to_non_root_dependencies.get(bazel_dep_name, []):
+            if not getattr(dependency, "testonly", False):
+                dependency_key = to_key(dependency)
+
+                # Prioritize forced versions, then the highest version.
+                if dependency_key in coordinate_to_dependency:
+                    current_bazel_dep_name, current_dependency = coordinate_to_dependency[dependency_key]
+                    if dependency_key in root_forced_dependency_keys:
+                        # The root module's forced version wins, so conflicting
+                        # non-root forced versions for this coordinate are ignored.
+                        continue
+                    elif _should_replace_dependency(
+                        current_dependency,
+                        dependency,
+                        current_bazel_dep_name,
+                        bazel_dep_name,
+                        dependency_kind,
+                        current_pinned_policy = pinned_policy,
+                        next_pinned_policy = pinned_policy,
+                    ):
+                        coordinate_to_dependency[dependency_key] = (bazel_dep_name, dependency)
                 else:
-                    coordinate_to_artifact[artifact_key] = (bazel_dep_name, artifact)
+                    coordinate_to_dependency[dependency_key] = (bazel_dep_name, dependency)
 
-    if return_only_artifacts:
-        return [v[1] for v in coordinate_to_artifact.values()]
+    if return_only_dependencies:
+        return [v[1] for v in coordinate_to_dependency.values()]
     else:
-        return coordinate_to_artifact
+        return coordinate_to_dependency
+
+def _forced_dependency_keys(dependencies, pinned_policy = False):
+    return {
+        to_key(dependency): True
+        for dependency in dependencies
+        if _is_forced_dependency(dependency, pinned_policy)
+    }
+
+def _fail_if_root_has_conflicting_forced_dependencies(root_dependencies, dependency_kind, pinned_policy = False):
+    forced_dependencies = {}
+    for dependency in root_dependencies:
+        if not _is_forced_dependency(dependency, pinned_policy):
+            continue
+
+        dependency_key = to_key(dependency)
+        if dependency_key in forced_dependencies:
+            _fail_forced_version_conflict(forced_dependencies[dependency_key], dependency, "the root module", "the root module", dependency_kind)
+        else:
+            forced_dependencies[dependency_key] = dependency
 
 # Each bzlmod module may contribute jars to different rules_jvm_external maven repo namespaces.
 # We emit a warning to the user if a module overrides an artifact version in the root maven repo.
 #
 # This can be typical for the default @maven namespace, if a bzlmod dependency
 # wishes to contribute to the users' jars.
-def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to_non_root_artifacts, repin_env_var, rje_verbose_env_var):
-    """Deduplicate artifacts, giving priority to root module artifacts with force_version set."""
-    non_root_coordinate_to_artifact = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts)
+def _deduplicate_dependencies_with_root_priority(
+        name,
+        root_dependencies,
+        bazel_dep_to_non_root_dependencies,
+        repin_env_var,
+        rje_verbose_env_var,
+        dependency_kind,
+        root_pinned_policy = False,
+        non_root_pinned_policy = False):
+    """Deduplicate dependencies, giving priority to forced root module dependencies."""
+    _fail_if_root_has_conflicting_forced_dependencies(root_dependencies, dependency_kind, pinned_policy = root_pinned_policy)
+    root_forced_dependency_keys = _forced_dependency_keys(root_dependencies, pinned_policy = root_pinned_policy)
 
-    duplicate_artifact_warning = ""
-    filtered_non_root_artifacts = []
-    for root_artifact in root_artifacts:
-        artifact_key = to_key(root_artifact)
-        if artifact_key in non_root_coordinate_to_artifact:
-            bazel_dep_name, non_root_artifact = non_root_coordinate_to_artifact.pop(artifact_key)
-            if not getattr(root_artifact, "force_version", False):
-                # prioritize highest version
-                if compare_maven_versions(root_artifact.version, non_root_artifact.version) == -1:
-                    filtered_non_root_artifacts.append(non_root_artifact)
-                    duplicate_artifact_warning = duplicate_artifact_warning + (
-                        "\nWARNING: For dependency '%s:%s' the root @%s repo wants version %s, " % (root_artifact.group, root_artifact.artifact, name, root_artifact.version) +
-                        "but got %s from the %s bazel dep. " % (non_root_artifact.version, bazel_dep_name) +
+    non_root_coordinate_to_dependency = _deduplicate_non_root_dependencies(
+        bazel_dep_to_non_root_dependencies,
+        dependency_kind,
+        root_forced_dependency_keys = root_forced_dependency_keys,
+        pinned_policy = non_root_pinned_policy,
+    )
+
+    duplicate_dependency_warning = ""
+    filtered_non_root_dependencies = []
+    for root_dependency in root_dependencies:
+        dependency_key = to_key(root_dependency)
+        if dependency_key in non_root_coordinate_to_dependency:
+            bazel_dep_name, non_root_dependency = non_root_coordinate_to_dependency.pop(dependency_key)
+            if not _is_forced_dependency(root_dependency, root_pinned_policy):
+                if _should_replace_dependency(
+                    root_dependency,
+                    non_root_dependency,
+                    "the root module",
+                    bazel_dep_name,
+                    dependency_kind,
+                    current_pinned_policy = root_pinned_policy,
+                    next_pinned_policy = non_root_pinned_policy,
+                ):
+                    filtered_non_root_dependencies.append(non_root_dependency)
+                    duplicate_dependency_warning = duplicate_dependency_warning + (
+                        "\nWARNING: For %s '%s:%s' the root @%s repo wants version %s, " % (dependency_kind, root_dependency.group, root_dependency.artifact, name, root_dependency.version) +
+                        "but got %s from the %s bazel dep. " % (non_root_dependency.version, bazel_dep_name) +
                         "Please update the version in your MODULE.bazel or set `force_version = True`."
                     )
 
-    # Add any remaining non root artifacts that weren't found in the root artifact list
-    addtional_artifact_message = ""
-    for bazel_dep_name, non_root_artifact in non_root_coordinate_to_artifact.values():
-        addtional_artifact_message = addtional_artifact_message + (
-            "\nINFO: The @%s repo is getting the additional artifact %s:%s:%s from the %s bazel dep." % (name, non_root_artifact.group, non_root_artifact.artifact, non_root_artifact.version, bazel_dep_name)
+    # Add any remaining non-root dependencies that weren't found in the root dependency list.
+    additional_dependency_message = ""
+    for bazel_dep_name, non_root_dependency in non_root_coordinate_to_dependency.values():
+        additional_dependency_message = additional_dependency_message + (
+            "\nINFO: The @%s repo is getting the additional %s %s:%s:%s from the %s bazel dep." % (name, dependency_kind, non_root_dependency.group, non_root_dependency.artifact, non_root_dependency.version, bazel_dep_name)
         )
-        filtered_non_root_artifacts.append(non_root_artifact)
+        filtered_non_root_dependencies.append(non_root_dependency)
 
     if repin_env_var:
-        if duplicate_artifact_warning != "":
-            print(duplicate_artifact_warning)
+        if duplicate_dependency_warning != "":
+            print(duplicate_dependency_warning)
         if rje_verbose_env_var:
-            if addtional_artifact_message != "":
-                print(addtional_artifact_message)
+            if additional_dependency_message != "":
+                print(additional_dependency_message)
 
-    return root_artifacts + filtered_non_root_artifacts
+    return root_dependencies + filtered_non_root_dependencies
 
 def _get_tri_state_bool(amend_val, original_val):
     if amend_val in ["true", "on"]:
@@ -314,6 +423,15 @@ def _coordinates_match(artifact, coordinates):
     return (artifact.group == coords.group and
             artifact.artifact == coords.artifact)
 
+def _apply_amendment_to_dependencies(amend, dependency_collections):
+    amended = False
+    for dependencies in dependency_collections:
+        for i, dependency in enumerate(dependencies):
+            if _coordinates_match(dependency, amend.coordinates):
+                dependencies[i] = _amend_artifact(dependency, amend)
+                amended = True
+    return amended
+
 def apply_amendment(amend, artifacts, boms):
     """Applies an `amend_artifact` to matching entries in `artifacts` and `boms`.
 
@@ -330,13 +448,29 @@ def apply_amendment(amend, artifacts, boms):
     Returns:
         `True` if at least one artifact or BOM matched the amendment.
     """
-    amended = False
-    for collection in (artifacts, boms):
-        for i, entry in enumerate(collection):
-            if _coordinates_match(entry, amend.coordinates):
-                collection[i] = _amend_artifact(entry, amend)
-                amended = True
-    return amended
+    return _apply_amendment_to_dependencies(amend, [artifacts, boms])
+
+def _dependency_from_gradle_version_entry(coords, value):
+    dependency = unpack_coordinates(coords)
+
+    if type(value) != "dict":
+        return dependency
+
+    dependency_dict = {
+        "group": dependency.group,
+        "artifact": dependency.artifact,
+        "version": getattr(dependency, "version", None),
+        "packaging": getattr(dependency, "packaging", None),
+        "classifier": getattr(dependency, "classifier", None),
+    }
+    if "classifier" in value.keys():
+        dependency_dict["classifier"] = value["classifier"]
+    if "exclusions" in value.keys():
+        dependency_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace("'", '"')))
+    if "force_version" in value.keys():
+        dependency_dict["force_version"] = (value["force_version"].lower() == "true")
+
+    return struct(**dependency_dict)
 
 def process_gradle_versions_file(parsed, bom_modules):
     artifacts = []
@@ -394,29 +528,12 @@ def process_gradle_versions_file(parsed, bom_modules):
         module_id = coords.split(":")[0] + ":" + coords.split(":")[1] if ":" in coords else coords
 
         is_bom = type(value) == "dict" and value.get("is_bom", "false").lower() == "true"
+        dependency = _dependency_from_gradle_version_entry(coords, value)
 
         if is_bom or module_id in bom_modules:
-            boms.append(unpack_coordinates(coords))
+            boms.append(dependency)
         else:
-            artifact = unpack_coordinates(coords)
-
-            if type(value) == "dict":
-                artifact_dict = {
-                    "group": artifact.group,
-                    "artifact": artifact.artifact,
-                    "version": getattr(artifact, "version", None),
-                    "packaging": getattr(artifact, "packaging", None),
-                    "classifier": getattr(artifact, "classifier", None),
-                }
-                if "classifier" in value.keys():
-                    artifact_dict["classifier"] = value["classifier"]
-                if "exclusions" in value.keys():
-                    artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace("'", '"')))
-                if "force_version" in value.keys():
-                    artifact_dict["force_version"] = (value["force_version"].lower() == "true")
-                artifact = struct(**artifact_dict)
-
-            artifacts.append(artifact)
+            artifacts.append(dependency)
 
     return artifacts, boms
 
@@ -439,6 +556,27 @@ def _add_boms_to_repo(repo, mod, new_boms):
             repo["bazel_dep_to_boms"] = {}
         boms = repo["bazel_dep_to_boms"].get(mod.name, [])
         repo["bazel_dep_to_boms"][mod.name] = boms + new_boms
+
+def _get_dependencies_for_module(repo, mod, root_key, non_root_key):
+    if mod.is_root:
+        return repo.get(root_key, [])
+
+    return repo.get(non_root_key, {}).get(mod.name, [])
+
+def _filter_known_contributing_modules(repo_name, dependency_kind, bazel_dep_to_non_root_dependencies, known_contributing_modules, rje_verbose_env_var):
+    all_non_root_modules = bazel_dep_to_non_root_dependencies.keys()
+    filtered = {
+        k: bazel_dep_to_non_root_dependencies[k]
+        for k in sets.to_list(known_contributing_modules)
+        if k in bazel_dep_to_non_root_dependencies
+    }
+
+    if rje_verbose_env_var:
+        for k in all_non_root_modules:
+            if k not in filtered.keys():
+                print("\nINFO: The @%s repo is not using %s from %s because it is not in the known_contributing_modules" % (repo_name, dependency_kind, k))
+
+    return filtered
 
 def _process_module_tags(mctx):
     """Process artifact and install tags for a single module."""
@@ -550,21 +688,12 @@ def _process_module_tags(mctx):
         # Process amend_artifact tags
         for amend in mod.tags.amend_artifact:
             repo = target_repos.get(amend.name, {})
-            if mod.is_root:
-                artifacts = repo.get("artifacts", [])
-                boms = repo.get("boms", [])
-            else:
-                if not "bazel_dep_to_artifacts" in repo:
-                    repo["bazel_dep_to_artifacts"] = {}
-                artifacts = repo["bazel_dep_to_artifacts"].get(mod.name, [])
-                if not "bazel_dep_to_boms" in repo:
-                    repo["bazel_dep_to_boms"] = {}
-                boms = repo["bazel_dep_to_boms"].get(mod.name, [])
-
-            # Amend matching artifacts and BOMs.
-            if not apply_amendment(amend, artifacts, boms):
-                # If no matching artifact found, this might be an error or we could create a placeholder
-                fail("No artifact found matching coordinates '%s' for amendment" % amend.coordinates)
+            dependency_collections = [
+                _get_dependencies_for_module(repo, mod, root_key, non_root_key)
+                for root_key, non_root_key, _dependency_kind in _DEPENDENCY_BUCKETS
+            ]
+            if not _apply_amendment_to_dependencies(amend, dependency_collections):
+                fail("No artifact or BOM found matching coordinates '%s' for amendment" % amend.coordinates)
 
     return root_module_repos, non_root_module_repos
 
@@ -640,58 +769,71 @@ def maven_impl(mctx):
         merged_repo.update(non_root_repo)
         merged_repo.update(root_repo)
 
-        # Special handling for artifacts and boms - deduplicate with root priority
+        # Artifacts and BOMs are kept in separate buckets because they are passed
+        # separately to the resolvers, but their module-merging rules are the same.
         root_artifacts = root_repo.get("artifacts", [])
         bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {})
         root_boms = root_repo.get("boms", [])
         bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", {})
+        root_pinned_policy = root_repo.get("version_conflict_policy") == "pinned"
+        non_root_pinned_policy = non_root_repo.get("version_conflict_policy") == "pinned"
 
         if repo_name in root_module_repos.keys():
             known_contributing_modules = root_repo.get("known_contributing_modules", sets.make())
             if sets.length(known_contributing_modules) == 0:
                 # Warn users if multiple modules contribute to the same maven `name`
-                _warn_if_multiple_contributing_modules(root_repo, repo_name, bazel_dep_to_non_root_artifacts)
+                _warn_if_multiple_contributing_modules(root_repo, repo_name, bazel_dep_to_non_root_artifacts, bazel_dep_to_non_root_boms)
             else:
-                # Filter results so only modules in the known_contributing_modules add artifacts or boms
-                all_non_root_artifact_modules = bazel_dep_to_non_root_artifacts.keys()
-                bazel_dep_to_non_root_artifacts = {
-                    k: bazel_dep_to_non_root_artifacts[k]
-                    for k in sets.to_list(known_contributing_modules)
-                    if k in bazel_dep_to_non_root_artifacts
-                }
-                if rje_verbose_env_var:
-                    for k in all_non_root_artifact_modules:
-                        if k not in bazel_dep_to_non_root_artifacts.keys():
-                            print("\nINFO: The @%s repo is not using deps from %s because it is not in the known_contributing_modules" % (repo_name, k))
-                all_non_root_bom_modules = bazel_dep_to_non_root_boms.keys()
-                bazel_dep_to_non_root_boms = {
-                    k: bazel_dep_to_non_root_boms[k]
-                    for k in sets.to_list(known_contributing_modules)
-                    if k in bazel_dep_to_non_root_boms
-                }
-                if rje_verbose_env_var:
-                    for k in all_non_root_bom_modules:
-                        if k not in bazel_dep_to_non_root_boms.keys():
-                            print("\nINFO: The @%s repo is not using boms from %s because it is not in the known_contributing_modules" % (repo_name, k))
+                # Filter results so only modules in the known_contributing_modules add dependencies.
+                bazel_dep_to_non_root_artifacts = _filter_known_contributing_modules(
+                    repo_name,
+                    "artifacts",
+                    bazel_dep_to_non_root_artifacts,
+                    known_contributing_modules,
+                    rje_verbose_env_var,
+                )
+                bazel_dep_to_non_root_boms = _filter_known_contributing_modules(
+                    repo_name,
+                    "BOMs",
+                    bazel_dep_to_non_root_boms,
+                    known_contributing_modules,
+                    rje_verbose_env_var,
+                )
 
-            merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
+            merged_repo["artifacts"] = _deduplicate_dependencies_with_root_priority(
                 repo_name,
                 root_artifacts,
                 bazel_dep_to_non_root_artifacts,
                 repin_env_var,
                 rje_verbose_env_var,
+                "artifact",
+                root_pinned_policy = root_pinned_policy,
+                non_root_pinned_policy = non_root_pinned_policy,
             )
 
-            merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
+            merged_repo["boms"] = _deduplicate_dependencies_with_root_priority(
                 repo_name,
                 root_boms,
                 bazel_dep_to_non_root_boms,
                 repin_env_var,
                 rje_verbose_env_var,
+                "BOM",
+                root_pinned_policy = root_pinned_policy,
+                non_root_pinned_policy = non_root_pinned_policy,
             )
         else:
-            merged_repo["artifacts"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True)
-            merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_boms, True)
+            merged_repo["artifacts"] = _deduplicate_non_root_dependencies(
+                bazel_dep_to_non_root_artifacts,
+                "artifact",
+                True,
+                pinned_policy = non_root_pinned_policy,
+            )
+            merged_repo["boms"] = _deduplicate_non_root_dependencies(
+                bazel_dep_to_non_root_boms,
+                "BOM",
+                True,
+                pinned_policy = non_root_pinned_policy,
+            )
 
         # For list attributes, concatenate but avoid duplicates (root items first)
         for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:

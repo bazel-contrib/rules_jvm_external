@@ -61,10 +61,15 @@ public class ResolutionRequest {
 
   public ResolutionRequest addBom(String coordinates, String... exclusions) {
     Objects.requireNonNull(coordinates, "BOM coordinates");
-    return addBom(new Coordinates(coordinates), exclusions);
+    return addBom(new Coordinates(coordinates), false, exclusions);
   }
 
   public ResolutionRequest addBom(Coordinates coordinates, String... exclusions) {
+    return addBom(coordinates, false, exclusions);
+  }
+
+  public ResolutionRequest addBom(
+      Coordinates coordinates, boolean forceVersion, String... exclusions) {
     Objects.requireNonNull(coordinates, "BOM coordinates");
 
     Coordinates bom =
@@ -75,7 +80,10 @@ public class ResolutionRequest {
             "",
             coordinates.getVersion());
     Artifact artifact =
-        new Artifact(bom, Stream.of(exclusions).map(Coordinates::new).collect(Collectors.toSet()));
+        new Artifact(
+            bom,
+            Stream.of(exclusions).map(Coordinates::new).collect(Collectors.toSet()),
+            forceVersion);
 
     return addBom(artifact);
   }
@@ -128,7 +136,7 @@ public class ResolutionRequest {
 
     getRepositories().forEach(toReturn::addRepository);
     amended.forEach(toReturn::addArtifact);
-    getBoms().stream().map(Objects::toString).forEach(toReturn::addBom);
+    getBoms().forEach(toReturn::addBom);
     getGlobalExclusions().forEach(toReturn::exclude);
     toReturn.useUnsafeSharedCache = isUseUnsafeSharedCache();
     toReturn.userHome = userHome;
