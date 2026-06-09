@@ -116,35 +116,22 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
 }
 
 function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build() {
-  # Isolate HOME so this test's m2local scan doesn't see JARs left in ~/.m2 by
-  # earlier Maven-resolver pin steps (which don't write .sha1/.md5 sidecars and
-  # so trip up Coursier's m2local checksum check). The temp dir lives under the
-  # real HOME so Bazel's output_base isn't under /tmp (which CI mounts as tmpfs
-  # and the linux-sandbox refuses).
-  #
-  # We also forward HOME into repo-rule subprocesses via --repo_env=HOME, since
-  # coursier.bzl invokes Coursier with environment={} which otherwise clears
-  # the shell env (and Java's user.home falls back to /etc/passwd).
-  local original_home="$HOME"
-  export HOME=$(mktemp -d "${original_home}/rje_test_home.XXXXXX")
-
   m2local_dir="${HOME}/.m2/repository"
-  jar_dir="${m2local_dir}/com/example/kt/1.0.0"
+  jar_dir="${m2local_dir}/com/example/no-docs/1.0.0"
   rm -rf ${jar_dir}
   mkdir -p ${m2local_dir}
-  # Publish a maven artifact locally - com.example.kt:1.0.0
+  # Publish a maven artifact locally - com.example:no-docs:1.0.0
   bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/java_export:without-docs.publish >> "$TEST_LOG" 2>&1
 
   # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
   bazel clean --expunge >/dev/null 2>&1
 
-  bazel run --repo_env=HOME @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
+  bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
 
   force_bzlmod_lock_file_to_be_regenerated
 
-  bazel build --repo_env=HOME @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
-  rm -rf "$HOME"
-  export HOME="$original_home"
+  bazel build @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
+  rm -rf ${jar_dir}
 
   expect_log "Assuming maven local for artifact: com.example:no-docs:1.0.0"
   expect_log "Successfully pinned resolved artifacts"
