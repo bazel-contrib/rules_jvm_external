@@ -121,6 +121,10 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   # so trip up Coursier's m2local checksum check). The temp dir lives under the
   # real HOME so Bazel's output_base isn't under /tmp (which CI mounts as tmpfs
   # and the linux-sandbox refuses).
+  #
+  # We also forward HOME into repo-rule subprocesses via --repo_env=HOME, since
+  # coursier.bzl invokes Coursier with environment={} which otherwise clears
+  # the shell env (and Java's user.home falls back to /etc/passwd).
   local original_home="$HOME"
   export HOME=$(mktemp -d "${original_home}/rje_test_home.XXXXXX")
 
@@ -134,11 +138,11 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
   # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
   bazel clean --expunge >/dev/null 2>&1
 
-  bazel run @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
+  bazel run --repo_env=HOME @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
 
   force_bzlmod_lock_file_to_be_regenerated
 
-  bazel build @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
+  bazel build --repo_env=HOME @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
   rm -rf "$HOME"
   export HOME="$original_home"
 
