@@ -118,9 +118,11 @@ function test_m2local_testing_found_local_artifact_through_pin_and_build() {
 function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_build() {
   # Isolate HOME so this test's m2local scan doesn't see JARs left in ~/.m2 by
   # earlier Maven-resolver pin steps (which don't write .sha1/.md5 sidecars and
-  # so trip up Coursier's m2local checksum check).
+  # so trip up Coursier's m2local checksum check). The temp dir lives under the
+  # real HOME so Bazel's output_base isn't under /tmp (which CI mounts as tmpfs
+  # and the linux-sandbox refuses).
   local original_home="$HOME"
-  export HOME=$(mktemp -d)
+  export HOME=$(mktemp -d "${original_home}/rje_test_home.XXXXXX")
 
   m2local_dir="${HOME}/.m2/repository"
   jar_dir="${m2local_dir}/com/example/kt/1.0.0"
