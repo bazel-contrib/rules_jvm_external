@@ -31,7 +31,7 @@ _MAVEN_VERSION = "3.9.10"
 
 _MAVEN_RESOLVER_VERSION = "1.9.27"
 
-_GRADLE_VERSION = "8.13"
+_GRADLE_VERSION = "9.5.0"
 
 maven.install(
     name = "rules_jvm_external_deps",
@@ -91,7 +91,7 @@ http_archive(
     name = "gradle",
     add_prefix = "gradle-bin",
     build_file = "//:gradle.BUILD.bazel",
-    integrity = "sha256-IPGxF2I3JUpvwgTYQ0GW+hGkz7OHVnUZxhVW6HEK7Xg=",
+    integrity = "sha256-VTx49Q2vzVTWW5pERkkFeFdGnt+DZDE4lpVghTbWt0Y=",
     strip_prefix = "gradle-{}".format(_GRADLE_VERSION),
     url = "https://services.gradle.org/distributions/gradle-{}-bin.zip".format(_GRADLE_VERSION),
 )
