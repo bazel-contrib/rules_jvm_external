@@ -99,6 +99,12 @@ public abstract class AbstractMain {
       cacheResults = "1".equals(rjeUnsafeCache) || Boolean.parseBoolean(rjeUnsafeCache);
     }
 
+    Map<Coordinates, Path> knownPaths = new LinkedHashMap<>();
+    resolutionResult
+        .getArtifacts()
+        .forEach(
+            (coords, artifact) -> artifact.getPath().ifPresent(p -> knownPaths.put(coords, p)));
+
     Downloader downloader =
         new Downloader(
             config.getNetrc(),
@@ -106,7 +112,7 @@ public abstract class AbstractMain {
             request.getRepositories(),
             listener,
             cacheResults,
-            resolutionResult.getPaths());
+            knownPaths);
 
     List<CompletableFuture<Set<DependencyInfo>>> futures = new LinkedList<>();
 

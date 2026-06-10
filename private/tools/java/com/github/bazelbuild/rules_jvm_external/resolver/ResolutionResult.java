@@ -16,7 +16,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.google.common.graph.Graph;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,15 +27,15 @@ public class ResolutionResult {
 
   private final Graph<Coordinates> resolution;
   private final Set<Conflict> conflicts;
-  private final Map<Coordinates, Path> paths;
+  private final Map<Coordinates, ResolvedArtifact> artifacts;
 
   public ResolutionResult(
       Graph<Coordinates> resolution,
       Set<Conflict> conflicts,
-      Map<Coordinates, Path> artifactPaths) {
+      Map<Coordinates, ResolvedArtifact> artifacts) {
     this.resolution = resolution;
     this.conflicts = Set.copyOf(conflicts);
-    this.paths = artifactPaths != null ? Map.copyOf(artifactPaths) : Map.of();
+    this.artifacts = artifacts != null ? Map.copyOf(artifacts) : Map.of();
   }
 
   public Graph<Coordinates> getResolution() {
@@ -47,7 +46,7 @@ public class ResolutionResult {
     return conflicts;
   }
 
-  public Map<Coordinates, Path> getPaths() {
-    return paths;
+  public Map<Coordinates, ResolvedArtifact> getArtifacts() {
+    return artifacts;
   }
 }

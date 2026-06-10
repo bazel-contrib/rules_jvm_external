@@ -18,6 +18,7 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
@@ -274,7 +275,13 @@ public class MavenResolver implements Resolver {
             getConflicts(request.getDependencies(), resolvedDependencies),
             graphNormalizationResult.getConflicts());
 
-    return new ResolutionResult(graphNormalizationResult.getNormalizedGraph(), conflicts, Map.of());
+    Graph<Coordinates> normalizedGraph = graphNormalizationResult.getNormalizedGraph();
+    Map<Coordinates, ResolvedArtifact> artifacts = new HashMap<>();
+    for (Coordinates node : normalizedGraph.nodes()) {
+      artifacts.put(node, new ResolvedArtifact(node, null));
+    }
+
+    return new ResolutionResult(normalizedGraph, conflicts, artifacts);
   }
 
   private GraphNormalizationResult makeVersionsConsistent(Graph<Coordinates> dependencyGraph) {
