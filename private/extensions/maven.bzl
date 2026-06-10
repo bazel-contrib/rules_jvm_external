@@ -314,6 +314,30 @@ def _coordinates_match(artifact, coordinates):
     return (artifact.group == coords.group and
             artifact.artifact == coords.artifact)
 
+def apply_amendment(amend, artifacts, boms):
+    """Applies an `amend_artifact` to matching entries in `artifacts` and `boms`.
+
+    Matching is by `group:artifact`, and matched entries are amended in place.
+    Both lists are searched: a BOM declared via `install(boms = ...)` or
+    `from_toml` can be amended through the same mechanism as a regular
+    artifact.
+
+    Args:
+        amend: The `amend_artifact` tag whose values should be applied.
+        artifacts: List of artifact structs to amend in place.
+        boms: List of BOM structs to amend in place.
+
+    Returns:
+        `True` if at least one artifact or BOM matched the amendment.
+    """
+    amended = False
+    for collection in (artifacts, boms):
+        for i, entry in enumerate(collection):
+            if _coordinates_match(entry, amend.coordinates):
+                collection[i] = _amend_artifact(entry, amend)
+                amended = True
+    return amended
+
 def process_gradle_versions_file(parsed, bom_modules):
     artifacts = []
     boms = []
@@ -526,19 +550,17 @@ def _process_module_tags(mctx):
             repo = target_repos.get(amend.name, {})
             if mod.is_root:
                 artifacts = repo.get("artifacts", [])
+                boms = repo.get("boms", [])
             else:
                 if not "bazel_dep_to_artifacts" in repo:
                     repo["bazel_dep_to_artifacts"] = {}
                 artifacts = repo["bazel_dep_to_artifacts"].get(mod.name, [])
+                if not "bazel_dep_to_boms" in repo:
+                    repo["bazel_dep_to_boms"] = {}
+                boms = repo["bazel_dep_to_boms"].get(mod.name, [])
 
-            # Find matching artifacts and amend them
-            amended = False
-            for i, artifact in enumerate(artifacts):
-                if _coordinates_match(artifact, amend.coordinates):
-                    artifacts[i] = _amend_artifact(artifact, amend)
-                    amended = True
-
-            if not amended:
+            # Amend matching artifacts and BOMs.
+            if not apply_amendment(amend, artifacts, boms):
                 # If no matching artifact found, this might be an error or we could create a placeholder
                 fail("No artifact found matching coordinates '%s' for amendment" % amend.coordinates)
 
