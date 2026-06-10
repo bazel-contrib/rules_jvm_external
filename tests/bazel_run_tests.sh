@@ -127,12 +127,14 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
       rm -rf "${test_home}"
     }
     trap cleanup_test_home EXIT
-    export HOME="${test_home}"
-    export COURSIER_OPTS="-Duser.home=${HOME}${COURSIER_OPTS:+ ${COURSIER_OPTS}}"
+    repo_env=(
+      "--repo_env=HOME=${test_home}"
+      "--repo_env=COURSIER_OPTS=-Duser.home=${test_home}${COURSIER_OPTS:+ ${COURSIER_OPTS}}"
+    )
 
     bazel shutdown >> "$TEST_LOG" 2>&1 || true
 
-    m2local_dir="${HOME}/.m2/repository"
+    m2local_dir="${test_home}/.m2/repository"
     jar_dir="${m2local_dir}/com/example/no-docs/1.0.0"
     rm -rf "${jar_dir}"
     mkdir -p "${m2local_dir}"
@@ -140,13 +142,13 @@ function test_unpinned_m2local_testing_found_local_artifact_through_pin_and_buil
     bazel run --define maven_repo="file://${m2local_dir}" //tests/integration/java_export:without-docs.publish >> "$TEST_LOG" 2>&1
 
     # Force the repo rule to be evaluated again. Without this, the "assuming maven local..." message will not be printed
-    bazel shutdown
+    bazel shutdown >> "$TEST_LOG" 2>&1 || true
 
-    bazel run --repo_env=HOME --repo_env=COURSIER_OPTS @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
+    bazel run "${repo_env[@]}" @unpinned_m2local_testing_repin//:pin >> "$TEST_LOG" 2>&1
 
     force_bzlmod_lock_file_to_be_regenerated
 
-    bazel build --repo_env=HOME --repo_env=COURSIER_OPTS @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
+    bazel build "${repo_env[@]}" @m2local_testing_repin//:com_example_no_docs >> "$TEST_LOG" 2>&1
 
     expect_log "Assuming maven local for artifact: com.example:no-docs:1.0.0"
     expect_log "Successfully pinned resolved artifacts"
