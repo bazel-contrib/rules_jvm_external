@@ -1654,6 +1654,12 @@ pinned_coursier_fetch = repository_rule(
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },
+    environ = [
+        "HOME",
+        "JDK_JAVA_OPTIONS",
+        "RJE_VERBOSE",
+        "USERPROFILE",
+    ],
     implementation = _pinned_coursier_fetch_impl,
 )
 
@@ -1725,6 +1731,7 @@ coursier_fetch = repository_rule(
         ),
     },
     environ = [
+        "HOME",
         "JAVA_HOME",
         "JDK_JAVA_OPTIONS",
         "http_proxy",
@@ -1740,6 +1747,7 @@ coursier_fetch = repository_rule(
         "REPIN",
         "RULES_JVM_EXTERNAL_REPIN",
         "RJE_VERBOSE",
+        "USERPROFILE",
         "XDG_CACHE_HOME",
     ],
     implementation = _coursier_fetch_impl,

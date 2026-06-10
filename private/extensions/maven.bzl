@@ -861,5 +861,11 @@ maven = module_extension(
         "install": install,
         "override": override,
     },
-    environ = ["REPIN", "RULES_JVM_EXTERNAL_REPIN", "RJE_VERBOSE"],
+    environ = [
+        "HOME",
+        "REPIN",
+        "RULES_JVM_EXTERNAL_REPIN",
+        "RJE_VERBOSE",
+        "USERPROFILE",
+    ],
 )
