@@ -5,11 +5,11 @@
     "repositories": -896170563
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "com.example:no-docs": 326625745,
+    "com.example:no-docs": -1087287837,
     "com.google.errorprone:error_prone_annotations": 1527418394,
     "com.google.guava:failureaccess": 1715931538,
-    "com.google.guava:guava": 1755968516,
-    "com.google.guava:listenablefuture": 667768693,
+    "com.google.guava:guava": -1587873388,
+    "com.google.guava:listenablefuture": 1079558157,
     "com.google.j2objc:j2objc-annotations": -1008747351,
     "org.jspecify:jspecify": 117231129
   },
@@ -113,6 +113,7 @@
       "com.google.errorprone:error_prone_annotations",
       "com.google.guava:failureaccess",
       "com.google.guava:guava",
+      "com.google.guava:listenablefuture",
       "com.google.j2objc:j2objc-annotations",
       "org.jspecify:jspecify"
     ]
