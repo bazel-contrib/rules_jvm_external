@@ -346,19 +346,31 @@ public abstract class AbstractMain {
       }
     }
 
+    // A binary-less aggregator (e.g. a Gradle module-metadata umbrella) contributes no hashable
+    // artifact, so it has no entry in `allInfos`. This also happens when such a coordinate shares
+    // its `group:artifact` key with a classified sibling that owns the only shasum: no `jar`
+    // placeholder is added, so only the classified key is reconstructed above. Such a coordinate
+    // can still be listed in the `repositories` and `dependencies` sections, so skip absent entries
+    // rather than dereferencing null.
     Map<String, Iterable<String>> repositories =
         sortMapRecursively((Map<?, ?>) rendered.get("repositories"));
     for (Map.Entry<String, Iterable<String>> repo : repositories.entrySet()) {
       Iterable<String> repoArtifacts = repo.getValue();
       for (String art : repoArtifacts) {
-        allInfos.get(art).put("repository", repo.getKey());
+        Map<String, Object> info = allInfos.get(art);
+        if (info != null) {
+          info.put("repository", repo.getKey());
+        }
       }
     }
 
     Map<String, Set<String>> dependencies =
         sortMapRecursively((Map<?, ?>) rendered.get("dependencies"));
     for (Map.Entry<String, Set<String>> dep : dependencies.entrySet()) {
-      allInfos.get(dep.getKey()).put("dependencies", dep.getValue());
+      Map<String, Object> info = allInfos.get(dep.getKey());
+      if (info != null) {
+        info.put("dependencies", dep.getValue());
+      }
     }
 
     Map<String, Integer> finalHash = new TreeMap<>();

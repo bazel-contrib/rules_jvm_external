@@ -149,12 +149,18 @@ def _compute_lock_file_hash_v3_impl(lock_file_contents, repo_keys):
             type_info["sha"] = sha
             all_infos[dep + suffix] = type_info
 
+    # Mirror the guard in AbstractMain.calculateArtifactHash. A binary-less aggregator can be listed
+    # in `repositories`/`dependencies` under its plain `group:artifact` key while `all_infos` only
+    # holds the classifier-suffixed key of a sibling that owns the shasum, so it has no entry here.
+    # Skip absent entries rather than failing; they contribute no hashable artifact.
     for repo in repo_keys:
         for artifact in lock_file_contents["repositories"][repo]:
-            all_infos[artifact]["repository"] = repo
+            if artifact in all_infos:
+                all_infos[artifact]["repository"] = repo
 
     for dep, dep_info in lock_file_contents["dependencies"].items():
-        all_infos[dep]["dependencies"] = sorted(dep_info)
+        if dep in all_infos:
+            all_infos[dep]["dependencies"] = sorted(dep_info)
 
     return _compute_final_hash(all_infos)
 
@@ -231,9 +237,42 @@ def _from_key(key, spoofed_version):
 
     return to_return
 
+def _artifact_keys(raw_artifacts):
+    # The set of keys `_get_artifacts` will actually generate a target for: one per classifier
+    # shasum of each artifact root. A binary-less aggregator that shares its `group:artifact` root
+    # with a classified sibling produces only the sibling's suffixed key, never its own plain key.
+    keys = {}
+    for (root, data) in raw_artifacts.items():
+        parts = root.split(":")
+        root_unpacked = {
+            "group": parts[0],
+            "artifact": parts[1],
+            "version": data["version"],
+        }
+        if len(parts) > 2:
+            root_unpacked["packaging"] = parts[2]
+        else:
+            root_unpacked["packaging"] = "jar"
+
+        for classifier in data.get("shasums", {}).keys():
+            root_unpacked["classifier"] = classifier
+            keys[to_key(root_unpacked)] = True
+    return keys
+
+def _filter_dependency_targets(raw_dependencies, valid_keys):
+    # Drop dependency edges that point at a coordinate with no generated target (e.g. the plain key
+    # of a binary-less aggregator), which would otherwise produce a dangling target reference.
+    filtered_dependencies = {}
+    for (dep, dependencies) in raw_dependencies.items():
+        filtered_dependencies[dep] = [target for target in dependencies if target in valid_keys]
+    return filtered_dependencies
+
 def _get_artifacts(lock_file_contents):
     raw_artifacts = lock_file_contents.get("artifacts", {})
-    dependencies = lock_file_contents.get("dependencies", {})
+    dependencies = _filter_dependency_targets(
+        lock_file_contents.get("dependencies", {}),
+        _artifact_keys(raw_artifacts),
+    )
     repositories = lock_file_contents.get("repositories", {})
     files = lock_file_contents.get("files", {})
     skipped = lock_file_contents.get("skipped", [])

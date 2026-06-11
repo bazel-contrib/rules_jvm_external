@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
@@ -27,6 +28,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +65,56 @@ public class V3LockFileTest {
     HashMap<Object, Object> expected = new HashMap<>();
     expected.put("jar", null);
     assertEquals(expected, shasums);
+  }
+
+  @Test
+  public void calculateArtifactHashToleratesAggregatorSharingShortKeyWithClassifiedSibling() {
+    // Regression test for a real-world crash. A binary-less aggregator (a Gradle module-metadata
+    // umbrella) shares its `group:artifact` short key with a classified sibling. The sibling owns
+    // the only shasum, so `ensureArtifactsAllHaveAtLeastOneShaSum` adds no `jar` placeholder and no
+    // entry is reconstructed for the umbrella in the hash's intermediate map. The umbrella still
+    // appears in the `repositories` and `dependencies` sections, so hashing must not deref null.
+    DependencyInfo umbrella =
+        new DependencyInfo(
+            new Coordinates("com.example:umbrella:1.0.0"),
+            repos,
+            Optional.empty(),
+            Optional.empty(),
+            Set.of(new Coordinates("com.example:dep:1.0.0")),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+    DependencyInfo unshadedSibling =
+        new DependencyInfo(
+            new Coordinates("com.example", "umbrella", "jar", "unshaded", "1.0.0"),
+            repos,
+            Optional.of(Paths.get("umbrella-1.0.0-unshaded.jar")),
+            Optional.of("52b70baa4650255f6c06b4401f9f5ab74038c4d0f50357077033c6bfd504f2aa"),
+            Set.of(),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+    DependencyInfo dep =
+        new DependencyInfo(
+            new Coordinates("com.example:dep:1.0.0"),
+            repos,
+            Optional.of(Paths.get("dep-1.0.0.jar")),
+            Optional.of("77e7c2db478e09882e42a74fb2bc821646cbd4e91c20c616fbd5a8c7b7f350b0"),
+            Set.of(),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Object> rendered =
+        new V3LockFile(repos, Set.of(umbrella, unshadedSibling, dep), Set.of(), true).render();
+
+    // Before the fix this threw NullPointerException at the repositories/dependencies loops.
+    Map<String, Integer> hash = AbstractMain.calculateArtifactHash(rendered);
+
+    // The sha-bearing artifacts are hashed; the binary-less umbrella contributes no hashable entry.
+    assertTrue(hash.containsKey("com.example:umbrella:jar:unshaded"));
+    assertTrue(hash.containsKey("com.example:dep"));
+    assertFalse(hash.containsKey("com.example:umbrella"));
   }
 
   @Test
