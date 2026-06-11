@@ -258,9 +258,13 @@ public class V3LockFile {
           }
         });
 
+    Map<String, Map<String, Object>> finalizedArtifacts =
+        ensureArtifactsAllHaveAtLeastOneShaSum(artifacts);
+    Set<String> artifactKeys = artifactKeys(finalizedArtifacts);
+
     Map<String, Object> lock = new LinkedHashMap<>();
-    lock.put("artifacts", ensureArtifactsAllHaveAtLeastOneShaSum(artifacts));
-    lock.put("dependencies", removeEmptyItems(deps));
+    lock.put("artifacts", finalizedArtifacts);
+    lock.put("dependencies", removeEmptyItems(filterDependencyKeys(deps, artifactKeys)));
     if (renderPackages) {
       lock.put("packages", removeEmptyItems(packages));
     }
@@ -270,7 +274,7 @@ public class V3LockFile {
     }
     // repos is a LinkedHashSet which is iterated in insertion order.
     // Meaning the order from the Starlark repositories array will be preserved.
-    lock.put("repositories", repos);
+    lock.put("repositories", filterRepositoryKeys(repos, artifactKeys));
 
     lock.put("skipped", skipped);
     if (conflicts != null && !conflicts.isEmpty()) {
@@ -287,6 +291,55 @@ public class V3LockFile {
     lock.put("version", "3");
 
     return lock;
+  }
+
+  private Set<String> artifactKeys(Map<String, Map<String, Object>> artifacts) {
+    Set<String> keys = new TreeSet<>();
+    for (Map.Entry<String, Map<String, Object>> entry : artifacts.entrySet()) {
+      String root = entry.getKey();
+      @SuppressWarnings("unchecked")
+      Map<String, Object> shasums = (Map<String, Object>) entry.getValue().get("shasums");
+      if (shasums == null) {
+        continue;
+      }
+
+      boolean isJarType = root.chars().filter(ch -> ch == ':').count() == 1;
+      for (String type : shasums.keySet()) {
+        String suffix = "jar".equals(type) ? "" : (isJarType ? ":jar" : "") + ":" + type;
+        keys.add(root + suffix);
+      }
+    }
+    return keys;
+  }
+
+  private Map<String, Set<String>> filterRepositoryKeys(
+      Map<String, Set<String>> repos, Set<String> artifactKeys) {
+    Map<String, Set<String>> filtered = new LinkedHashMap<>();
+    repos.forEach(
+        (repo, artifacts) ->
+            filtered.put(
+                repo,
+                artifacts.stream()
+                    .filter(artifactKeys::contains)
+                    .collect(Collectors.toCollection(TreeSet::new))));
+    return filtered;
+  }
+
+  private Map<String, Set<String>> filterDependencyKeys(
+      Map<String, Set<String>> deps, Set<String> artifactKeys) {
+    Map<String, Set<String>> filtered = new TreeMap<>();
+    deps.forEach(
+        (dep, dependencies) -> {
+          if (!artifactKeys.contains(dep)) {
+            return;
+          }
+          filtered.put(
+              dep,
+              dependencies.stream()
+                  .filter(artifactKeys::contains)
+                  .collect(Collectors.toCollection(TreeSet::new)));
+        });
+    return filtered;
   }
 
   private Map<String, Map<String, Object>> ensureArtifactsAllHaveAtLeastOneShaSum(

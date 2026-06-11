@@ -68,29 +68,78 @@ public class V3LockFileTest {
   }
 
   @Test
-  public void calculateArtifactHashToleratesAggregatorSharingShortKeyWithClassifiedSibling() {
-    // Regression test for a real-world crash. A binary-less aggregator (a Gradle module-metadata
-    // umbrella) shares its `group:artifact` short key with a classified sibling. The sibling owns
-    // the only shasum, so `ensureArtifactsAllHaveAtLeastOneShaSum` adds no `jar` placeholder and no
-    // entry is reconstructed for the umbrella in the hash's intermediate map. The umbrella still
-    // appears in the `repositories` and `dependencies` sections, so hashing must not deref null.
-    DependencyInfo umbrella =
+  public void shouldKeepStandaloneAggregatingJarReferences() {
+    Coordinates depCoordinates = new Coordinates("com.example:dep:1.0.0");
+    DependencyInfo aggregator =
         new DependencyInfo(
-            new Coordinates("com.example:umbrella:1.0.0"),
+            new Coordinates("com.example:aggregator:1.0.0"),
             repos,
             Optional.empty(),
             Optional.empty(),
-            Set.of(new Coordinates("com.example:dep:1.0.0")),
+            Set.of(depCoordinates),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+    DependencyInfo dep =
+        new DependencyInfo(
+            depCoordinates,
+            repos,
+            Optional.of(Paths.get("dep-1.0.0.jar")),
+            Optional.of("77e7c2db478e09882e42a74fb2bc821646cbd4e91c20c616fbd5a8c7b7f350b0"),
+            Set.of(),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+
+    Map<String, Object> rendered =
+        new V3LockFile(repos, Set.of(aggregator, dep), Set.of(), true).render();
+
+    Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
+    Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");
+    Map<?, ?> shasums = (Map<?, ?>) data.get("shasums");
+
+    HashMap<Object, Object> expected = new HashMap<>();
+    expected.put("jar", null);
+    assertEquals(expected, shasums);
+
+    Map<?, ?> dependencies = (Map<?, ?>) rendered.get("dependencies");
+    assertEquals(Set.of("com.example:dep"), dependencies.get("com.example:aggregator"));
+
+    Map<?, ?> repositories = (Map<?, ?>) rendered.get("repositories");
+    assertTrue(
+        ((Set<?>) repositories.get(defaultRepo.toString())).contains("com.example:aggregator"));
+
+    assertLockReferencesOnlyArtifactKeys(rendered);
+    assertTrue(AbstractMain.calculateArtifactHash(rendered).containsKey("com.example:aggregator"));
+  }
+
+  @Test
+  public void shouldRemoveNonEmittedAggregatorKeysWhenClassifiedSiblingOwnsShasum() {
+    // A binary-less aggregator can share its `group:artifact` short key with a classified sibling.
+    // The sibling owns the only shasum, so the plain key is not emitted as an artifact target.
+    Coordinates umbrellaCoordinates = new Coordinates("com.example:umbrella:1.0.0");
+    Coordinates unshadedCoordinates =
+        new Coordinates("com.example", "umbrella", "jar", "unshaded", "1.0.0");
+    Coordinates depCoordinates = new Coordinates("com.example:dep:1.0.0");
+    Coordinates rootCoordinates = new Coordinates("com.example:root:1.0.0");
+
+    DependencyInfo umbrella =
+        new DependencyInfo(
+            umbrellaCoordinates,
+            repos,
+            Optional.empty(),
+            Optional.empty(),
+            Set.of(depCoordinates),
             Set.of(),
             Set.of(),
             new TreeMap<>());
     DependencyInfo unshadedSibling =
         new DependencyInfo(
-            new Coordinates("com.example", "umbrella", "jar", "unshaded", "1.0.0"),
+            unshadedCoordinates,
             repos,
             Optional.of(Paths.get("umbrella-1.0.0-unshaded.jar")),
             Optional.of("52b70baa4650255f6c06b4401f9f5ab74038c4d0f50357077033c6bfd504f2aa"),
-            Set.of(),
+            Set.of(depCoordinates),
             Set.of(),
             Set.of(),
             new TreeMap<>());
@@ -104,17 +153,86 @@ public class V3LockFileTest {
             Set.of(),
             Set.of(),
             new TreeMap<>());
+    DependencyInfo root =
+        new DependencyInfo(
+            rootCoordinates,
+            repos,
+            Optional.of(Paths.get("root-1.0.0.jar")),
+            Optional.of("55eb963f66c63e0513f8f0898f24a5d9933b7634b1ac50811f305ec19c926bb8"),
+            Set.of(umbrellaCoordinates, unshadedCoordinates, depCoordinates),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
 
     Map<String, Object> rendered =
-        new V3LockFile(repos, Set.of(umbrella, unshadedSibling, dep), Set.of(), true).render();
+        new V3LockFile(repos, Set.of(umbrella, unshadedSibling, dep, root), Set.of(), true)
+            .render();
 
-    // Before the fix this threw NullPointerException at the repositories/dependencies loops.
+    Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
+    Map<?, ?> umbrellaData = (Map<?, ?>) artifacts.get("com.example:umbrella");
+    Map<?, ?> shasums = (Map<?, ?>) umbrellaData.get("shasums");
+    assertEquals(Set.of("unshaded"), shasums.keySet());
+
+    Map<?, ?> repositories = (Map<?, ?>) rendered.get("repositories");
+    Set<?> repoArtifacts = (Set<?>) repositories.get(defaultRepo.toString());
+    assertFalse(repoArtifacts.contains("com.example:umbrella"));
+    assertTrue(repoArtifacts.contains("com.example:umbrella:jar:unshaded"));
+
+    Map<?, ?> dependencies = (Map<?, ?>) rendered.get("dependencies");
+    assertFalse(dependencies.containsKey("com.example:umbrella"));
+    Set<?> rootDependencies = (Set<?>) dependencies.get("com.example:root");
+    assertFalse(rootDependencies.contains("com.example:umbrella"));
+    assertTrue(rootDependencies.contains("com.example:umbrella:jar:unshaded"));
+
+    assertLockReferencesOnlyArtifactKeys(rendered);
     Map<String, Integer> hash = AbstractMain.calculateArtifactHash(rendered);
 
-    // The sha-bearing artifacts are hashed; the binary-less umbrella contributes no hashable entry.
     assertTrue(hash.containsKey("com.example:umbrella:jar:unshaded"));
     assertTrue(hash.containsKey("com.example:dep"));
+    assertTrue(hash.containsKey("com.example:root"));
     assertFalse(hash.containsKey("com.example:umbrella"));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void assertLockReferencesOnlyArtifactKeys(Map<String, Object> rendered) {
+    Set<String> artifactKeys = artifactKeys(rendered);
+
+    Map<String, Set<String>> repositories = (Map<String, Set<String>>) rendered.get("repositories");
+    for (Map.Entry<String, Set<String>> repo : repositories.entrySet()) {
+      for (String artifact : repo.getValue()) {
+        assertTrue(
+            "Repository references non-emitted artifact: " + artifact,
+            artifactKeys.contains(artifact));
+      }
+    }
+
+    Map<String, Set<String>> dependencies = (Map<String, Set<String>>) rendered.get("dependencies");
+    for (Map.Entry<String, Set<String>> dep : dependencies.entrySet()) {
+      assertTrue(
+          "Dependency key is not an emitted artifact: " + dep.getKey(),
+          artifactKeys.contains(dep.getKey()));
+      for (String target : dep.getValue()) {
+        assertTrue(
+            "Dependency references non-emitted artifact: " + target, artifactKeys.contains(target));
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Set<String> artifactKeys(Map<String, Object> rendered) {
+    Map<String, Map<String, Object>> artifacts =
+        (Map<String, Map<String, Object>>) rendered.get("artifacts");
+    Set<String> keys = new TreeSet<>();
+    for (Map.Entry<String, Map<String, Object>> entry : artifacts.entrySet()) {
+      String root = entry.getKey();
+      Map<String, Object> shasums = (Map<String, Object>) entry.getValue().get("shasums");
+      boolean isJarType = root.chars().filter(ch -> ch == ':').count() == 1;
+      for (String type : shasums.keySet()) {
+        String suffix = "jar".equals(type) ? "" : (isJarType ? ":jar" : "") + ":" + type;
+        keys.add(root + suffix);
+      }
+    }
+    return keys;
   }
 
   @Test
