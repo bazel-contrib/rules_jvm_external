@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -25,6 +26,8 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
@@ -68,5 +71,37 @@ public class DownloaderTest {
             .download(coords);
 
     assertTrue(downloadResult.getPath().isEmpty());
+  }
+
+  @Test
+  public void downloaderIgnoresKnownPathWithDifferentFilename() throws Exception {
+    Coordinates coords = new Coordinates("com.example:cached-path:1.0");
+    Path repo = MavenRepo.create().add(coords).getPath();
+    Path expectedJar = repo.resolve(coords.toRepoPath());
+    Path pomPath =
+        expectedJar.resolveSibling(coords.getArtifactId() + "-" + coords.getVersion() + ".pom");
+    Path localRepo = Files.createTempDirectory("local");
+
+    DownloadResult downloadResult =
+        new Downloader(
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                false,
+                Map.of(coords, pomPath))
+            .download(coords);
+
+    assertEquals(expectedJar, downloadResult.getPath().get());
+    assertEquals(sha256(expectedJar), downloadResult.getSha256().get());
+  }
+
+  private String sha256(Path path) throws IOException, NoSuchAlgorithmException {
+    byte[] digest = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path));
+    StringBuilder hex = new StringBuilder();
+    for (byte b : digest) {
+      hex.append(String.format("%02x", b));
+    }
+    return hex.toString();
   }
 }

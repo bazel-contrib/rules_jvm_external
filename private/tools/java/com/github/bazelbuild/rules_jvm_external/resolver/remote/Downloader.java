@@ -125,7 +125,7 @@ public class Downloader {
     Path pathInRepo = null;
     Path knownPath = knownPaths.get(coordsToUse);
 
-    if (knownPath != null && Files.exists(knownPath)) {
+    if (knownPath != null && knownPathMatchesRequest(knownPath, path)) {
       pathInRepo = knownPath;
     } else {
       // Check the local cache for the path first
@@ -177,6 +177,13 @@ public class Downloader {
     String sha256 = calculateSha256(pathInRepo);
 
     return new DownloadResult(coordsToUse, Set.copyOf(repos), pathInRepo, sha256);
+  }
+
+  private boolean knownPathMatchesRequest(Path knownPath, String path) {
+    Path requestedFileName = Paths.get(path).getFileName();
+    return requestedFileName != null
+        && requestedFileName.equals(knownPath.getFileName())
+        && Files.exists(knownPath);
   }
 
   private URI buildUri(URI baseUri, String pathInRepo) {

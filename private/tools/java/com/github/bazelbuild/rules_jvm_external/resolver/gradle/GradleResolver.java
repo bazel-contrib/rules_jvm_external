@@ -207,7 +207,7 @@ public class GradleResolver implements Resolver {
         artifactsByNode.computeIfAbsent(coordinates, k -> new ArrayList<>()).add(artifact);
 
         File artifactFile = artifact.getFile();
-        if (artifactFile != null && artifactFile.exists()) {
+        if (artifactFileMatchesCoordinates(coordinates, artifactFile)) {
           paths.put(coordinates, artifactFile.toPath());
         }
 
@@ -294,27 +294,13 @@ public class GradleResolver implements Resolver {
       }
 
       File bestFile = null;
-      // Prefer jar/aar with name matching artifactId-version to avoid picking wrong version
+      // Prefer the artifact file matching the resolved coordinates to avoid picking wrong versions
+      // or metadata files such as POMs.
       for (GradleResolvedArtifact artifact : entry.getValue()) {
         File file = artifact.getFile();
-        if (file == null || !file.exists()) {
-          continue;
-        }
-        String name = file.getName();
-        boolean isJarOrAar = name.endsWith(".jar") || name.endsWith(".aar");
-        if (isJarOrAar && name.contains(coords.getArtifactId() + "-" + coords.getVersion())) {
+        if (artifactFileMatchesCoordinates(coords, file)) {
           bestFile = file;
           break;
-        }
-      }
-      // Fallback: any existing file (including pom)
-      if (bestFile == null) {
-        for (GradleResolvedArtifact artifact : entry.getValue()) {
-          File file = artifact.getFile();
-          if (file != null && file.exists()) {
-            bestFile = file;
-            break;
-          }
         }
       }
       if (bestFile != null) {
@@ -335,6 +321,15 @@ public class GradleResolver implements Resolver {
 
   private String makeDepKey(String group, String artifact, String version) {
     return group + ":" + artifact + ":" + version;
+  }
+
+  private boolean artifactFileMatchesCoordinates(Coordinates coordinates, File file) {
+    if (file == null || !file.exists()) {
+      return false;
+    }
+
+    Path expectedFileName = Paths.get(coordinates.toRepoPath()).getFileName();
+    return expectedFileName != null && expectedFileName.toString().equals(file.getName());
   }
 
   private void addDependency(

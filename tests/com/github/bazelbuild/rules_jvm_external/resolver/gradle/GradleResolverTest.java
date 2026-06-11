@@ -87,6 +87,40 @@ public class GradleResolverTest extends ResolverTestBase {
   }
 
   @Test
+  public void doesNotUsePomAsArtifactPathForAvailableAtModule()
+      throws IOException, XMLStreamException {
+    Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
+    Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
+    MavenRepo mavenRepo = MavenRepo.create();
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    Path baseMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-1.0.module"));
+    String baseMetadata = Files.readString(baseMetadataPath);
+    moduleMetadataHelper.addToMavenRepo(baseCoordinates.setExtension("pom"), baseMetadata);
+
+    Path jvmMetadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/simpleJvmVariant/sample-jvm-1.0.module"));
+    String jvmMetadata = Files.readString(jvmMetadataPath);
+    moduleMetadataHelper.addToMavenRepo(jvmCoordinates, jvmMetadata);
+
+    ResolutionResult result =
+        resolver.resolve(prepareRequestFor(mavenRepo.getPath().toUri(), baseCoordinates));
+
+    assertEquals(Set.of(baseCoordinates, jvmCoordinates), result.getResolution().nodes());
+    assertTrue(result.getArtifacts().get(baseCoordinates).getPath().isEmpty());
+    assertEquals(
+        "sample-jvm-1.0.jar",
+        result.getArtifacts().get(jvmCoordinates).getPath().get().getFileName().toString());
+  }
+
+  @Test
   public void resolvesJvmButNotAndroidVariant() throws IOException, XMLStreamException {
     // This test validates a scenario similar to
     // https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp/5.1.0/okhttp-5.1.0.module
