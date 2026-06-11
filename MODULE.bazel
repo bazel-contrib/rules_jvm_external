@@ -488,6 +488,9 @@ dev_maven.install(
         "https://repo.maven.apache.org/maven2/",
     ],
     resolver = "maven",
+    resolver_extra_dependencies = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote:remote",
+    ],
 )
 dev_maven.install(
     name = "legacy_multi_repo_hash",

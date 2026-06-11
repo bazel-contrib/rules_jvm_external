@@ -97,7 +97,7 @@ def _pin_dependencies_impl(ctx):
     return [
         DefaultInfo(
             executable = script,
-            files = depset([script, config_file]),
+            files = depset([script, config_file, hash_file]),
             runfiles = ctx.runfiles(files = [script, config_file, hash_file]).merge(ctx.attr.resolver[DefaultInfo].default_runfiles),
         ),
     ]
@@ -137,3 +137,4 @@ pin_dependencies = rule(
         ),
     },
 )
+

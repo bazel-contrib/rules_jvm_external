@@ -17,6 +17,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.remote;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.DownloadService;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.google.common.hash.Hashing;
@@ -53,7 +54,7 @@ public class Downloader {
   private final Path localRepository;
   private final Set<URI> repos;
   private final boolean cacheDownloads;
-  private final HttpDownloader httpDownloader;
+  private final DownloadService downloadService;
   private final Map<Coordinates, Path> knownPaths;
 
   public Downloader(
@@ -66,7 +67,7 @@ public class Downloader {
     this.localRepository = localRepository;
     this.repos = Set.copyOf(repositories);
     this.cacheDownloads = cacheDownloads;
-    this.httpDownloader = new HttpDownloader(netrc, listener);
+    this.downloadService = HttpDownloader.resolve(netrc, listener);
     this.knownPaths = knownPaths != null ? Map.copyOf(knownPaths) : Map.of();
   }
 
@@ -148,7 +149,7 @@ public class Downloader {
     for (URI repo : this.repos) {
       if (pathInRepo == null) {
         LOG.fine(String.format("Downloading %s%n", coordsToUse));
-        pathInRepo = httpDownloader.get(buildUri(repo, path));
+        pathInRepo = downloadService.get(buildUri(repo, path));
         if (pathInRepo != null) {
           repos.add(repo);
           downloaded = true;
@@ -166,7 +167,7 @@ public class Downloader {
       } else if (assumedDownloaded) {
         LOG.fine(String.format("Assuming %s is cached%n", coordsToUse));
         downloaded = true;
-      } else if (httpDownloader.head(buildUri(repo, path))) {
+      } else if (downloadService.head(buildUri(repo, path))) {
         LOG.fine(String.format("Checking head of %s%n", coordsToUse));
         repos.add(repo);
         downloaded = true;

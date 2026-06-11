@@ -19,6 +19,8 @@ import static com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadE
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.http.HttpClient.Redirect.ALWAYS;
 
+import com.github.bazelbuild.rules_jvm_external.resolver.DownloadService;
+import com.github.bazelbuild.rules_jvm_external.resolver.SpiLoader;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.DownloadEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
@@ -46,7 +48,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
-public class HttpDownloader implements AutoCloseable {
+public class HttpDownloader implements AutoCloseable, DownloadService {
 
   private static final int MAX_RETRY_COUNT = 3;
   private static final Set<Integer> RETRY_RESPONSE_CODES = Set.of(500, 502, 503, 504);
@@ -105,6 +107,7 @@ public class HttpDownloader implements AutoCloseable {
     return new NullListener();
   }
 
+  @Override
   public Path get(URI uriToGet) {
     if ("file".equals(uriToGet.getScheme())) {
       Path path = Paths.get(uriToGet);
@@ -131,6 +134,7 @@ public class HttpDownloader implements AutoCloseable {
     }
   }
 
+  @Override
   public boolean head(URI uri) {
     if ("file".equals(uri.getScheme())) {
       Path path = Paths.get(uri);
@@ -171,7 +175,6 @@ public class HttpDownloader implements AutoCloseable {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
-
     try {
       HttpResponse<X> response = client.send(request, handler);
       LOG.fine(String.format("%s -> Got response %d%n", request.uri(), response.statusCode()));
@@ -245,5 +248,15 @@ public class HttpDownloader implements AutoCloseable {
   @Override
   public void close() throws Exception {
     listener.close();
+  }
+
+
+
+  public static DownloadService resolve(Netrc netrc, EventListener listener) {
+    HttpDownloader defaultDownloader = new HttpDownloader(netrc, listener);
+    return SpiLoader.load(
+        DownloadService.class,
+        defaultDownloader,
+        service -> service.initialize(defaultDownloader));
   }
 }

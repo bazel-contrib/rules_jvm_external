@@ -34,3 +34,4 @@ proxy_test_suite()
 v3_lock_file_test_suite()
 
 version_catalogs_test_suite()
+

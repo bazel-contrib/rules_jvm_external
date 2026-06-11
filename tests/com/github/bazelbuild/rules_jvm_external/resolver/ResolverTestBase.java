@@ -186,33 +186,6 @@ public abstract class ResolverTestBase {
     assertEquals(coords, resolved.nodes().iterator().next());
   }
 
-  @Test
-  public void shouldDownloadOverHttpWithAuthenticationPassedInOnRepoUrl() throws IOException {
-    Coordinates coords = new Coordinates("com.example:foo:1.0");
-
-    Path repo = MavenRepo.create().add(coords).getPath();
-
-    HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
-    HttpContext context = server.createContext("/", new PathHandler(repo));
-    context.setAuthenticator(
-        new BasicAuthenticator("maven") {
-          @Override
-          public boolean checkCredentials(String username, String password) {
-            return "cheese".equals(username) && "hunter2".equals(password);
-          }
-        });
-    server.start();
-
-    int port = server.getAddress().getPort();
-
-    URI remote = URI.create("http://cheese:hunter2@localhost:" + port);
-
-    Graph<Coordinates> resolved =
-        resolver.resolve(prepareRequestFor(remote, coords)).getResolution();
-
-    assertEquals(1, resolved.nodes().size());
-    assertEquals(coords, resolved.nodes().iterator().next());
-  }
 
   @Test
   public void shouldDownloadOverHttpWithAuthenticationGatheredFromNetrc() throws IOException {

@@ -26,6 +26,7 @@ java_library(
     ],
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd:__pkg__",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote:__pkg__",
         "//tests/com/github/bazelbuild/rules_jvm_external/jar:__pkg__",
     ],
     deps = [
