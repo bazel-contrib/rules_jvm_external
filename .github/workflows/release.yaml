@@ -1,0 +1,12 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-to-bcr:
+    uses: ./.github/workflows/publish.yaml
+    with:
+      tag_name: ${{ github.event.release.tag_name }}
+    secrets: inherit

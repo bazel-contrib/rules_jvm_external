@@ -56,60 +56,42 @@ GitHub periodically break how archives are created. To avoid this,
 package the current release, and upload it as an asset to your draft
 release.
 
+This asset must be uploaded before publishing the release because the
+BCR publishing workflow downloads it when the release is published.
+
 You can use
 `git archive --format=tar --prefix=rules_jvm_external-${TAG}/ ${TAG} | gzip > rules_jvm_external-{TAG}.tar.gz`
 to generate the archive.
 
-## Publish the release
-
-Press the magic buttons in the GitHub UI.
-
 ## Prepare the upload to the BCR
 
-Clone the [BCR repo][bcr], and prepare an update PR. How do you do
-this? I'm glad you asked!
+This step is now automated by the `.github/workflows/publish.yaml`
+workflow, which delegates to
+[`bazel-contrib/publish-to-bcr`](https://github.com/bazel-contrib/publish-to-bcr).
 
-```shell
-bazel run //tools:add_module
-```
+When the GitHub release is published, a workflow run will:
 
-If you've bumped the major version number, you may want to update the
-"compatibility level", but only if the change isn't backwards
-compatible.
+1. Download the release tarball you uploaded in the previous step.
+2. Compute its `sha256` integrity hash.
+3. Substitute the templated values in `.bcr/*.template.json` into
+   `modules/rules_jvm_external/<VERSION>/{MODULE.bazel,source.json,presubmit.yml}`.
+4. Append the new version to `modules/rules_jvm_external/metadata.json`.
+5. Open a PR against [bazelbuild/bazel-central-registry][bcr] from the
+   `bazel-contrib/bazel-central-registry` fork.
 
-Below is an example run, where the source for this repo is at
-`/Volumes/Dev/src/github.com/bazelbuild/rules_jvm_external`
+A maintainer listed in `metadata.json` should then approve the BCR PR,
+and a BCR maintainer will merge it.
 
-```shell
-% bazel run tools:add_module                                                                                                                                       main*
-INFO: Invocation ID: aa3e5952-e546-4ba5-a30a-7333c05a47e3
-INFO: Analyzed target //tools:add_module (0 packages loaded, 0 targets configured).
-INFO: Found 1 target...
-Target //tools:add_module up-to-date:
-  bazel-bin/tools/add_module
-INFO: Elapsed time: 0.076s, Critical Path: 0.00s
-INFO: 1 process: 1 internal.
-INFO: Build completed successfully, 1 total action
-INFO: Running command line: bazel-bin/tools/add_module
-INFO: Getting module information from user input...
-ACTION: Please enter the module name: rules_jvm_external
-ACTION: Please enter the module version: 5.1
-ACTION: Please enter the compatibility level [default is 1]: 
-ACTION: Please enter the URL of the source archive: https://github.com/bazelbuild/rules_jvm_external/releases/download/5.0/rules_jvm_external-5.1.tar.gz
-ACTION: Please enter the strip_prefix value of the archive [default None]: rules_jvm_external-5.1
-ACTION: Do you want to add patch files? [y/N]: n
-ACTION: Do you want to add a BUILD file? [y/N]: n
-ACTION: Do you want to specify a MODULE.bazel file? [y/N]: y
-ACTION: Please enter the MODULE.bazel file path: /Volumes/Dev/src/github.com/bazelbuild/rules_jvm_external/MODULE.bazel
-ACTION: Do you want to specify an existing presubmit.yml file? (See https://github.com/bazelbuild/bazel-central-registry/tree/main#presubmityml) [y/N]: 
-ACTION: Please enter a list of build targets you want to expose to downstream users, separated by `,`: @rules_jvm_external//:implementation,@rules_jvm_external//private/tools/java/...
-ACTION: Do you have a test module in your source archive? [Y/n]: y
-ACTION: Please enter the test module path in your source archive: examples/bzlmod
-ACTION: Please enter a list of build targets for the test module, separated by `,`: //java/src/com/github/rules_jvm_external/examples/bzlmod:bzlmod_example
-ACTION: Please enter a list of test targets for the test module, separated by `,`: 
-```
+If the workflow fails, retry it manually from GitHub Actions >
+"Publish to BCR" > "Run workflow", entering the tag name.
 
-Once this is done, the script will generate a PR for you to upload the
-to BCR. Once that PR is merged, you're done.
+If `.bcr/presubmit.yml` needs to change for a release, such as for a
+new Bazel version matrix, edit it on `master` before tagging. The
+workflow uses whatever is committed at the tag.
+
+## Publish the release
+
+Press the magic buttons in the GitHub UI. This starts the BCR workflow
+described above.
 
 [bcr]: https://github.com/bazelbuild/bazel-central-registry
