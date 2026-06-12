@@ -264,11 +264,12 @@ def _get_artifacts(lock_file_contents):
             key = to_key(root_unpacked)
 
             urls = []
-            for (repo, artifacts_within_repo) in repositories.items():
-                if key in artifacts_within_repo:
-                    urls.append("%s%s" % (repo, _to_m2_path(root_unpacked)))
+            if shasum != None and key not in skipped:
+                for (repo, artifacts_within_repo) in repositories.items():
+                    if key in artifacts_within_repo:
+                        urls.append("%s%s" % (repo, _to_m2_path(root_unpacked)))
 
-            if key in skipped:
+            if shasum == None or key in skipped:
                 file = None
             elif files.get(key):
                 file = files[key]
