@@ -64,6 +64,16 @@ def _deduplicate_list(items):
             unique_items.append(item)
     return unique_items
 
+def _is_excluded_dependency(dep, exclusions):
+    dep_coordinates = unpack_coordinates(dep)
+    for exclusion in exclusions:
+        exclusion_coordinates = unpack_coordinates(exclusion)
+        group_matches = exclusion_coordinates.group == "*" or exclusion_coordinates.group == dep_coordinates.group
+        artifact_matches = exclusion_coordinates.artifact == "*" or exclusion_coordinates.artifact == dep_coordinates.artifact
+        if group_matches and artifact_matches:
+            return True
+    return False
+
 def _find_repository_url(artifact_url, repositories):
     longest_match = None
     for repository in repositories:
@@ -183,9 +193,12 @@ copy_file(
 
     # Dedupe dependencies here. Sometimes coursier will return "x.y:z:aar:version" and "x.y:z:version" in the
     # same list of dependencies.
+    artifact_exclusions = exclusions.get(simple_coord, [])
     target_import_labels = []
     for dep in artifact["deps"]:
         if get_packaging(dep) == "json":
+            continue
+        if _is_excluded_dependency(dep, artifact_exclusions):
             continue
         stripped_dep = strip_packaging_and_classifier_and_version(dep)
         dep_target_label = escape(stripped_dep)
@@ -576,7 +589,10 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             target_import_string.append("\texports = [")
 
             target_import_labels = []
+            artifact_exclusions = exclusions.get(simple_coord, [])
             for dep in artifact.get("deps", []):
+                if _is_excluded_dependency(dep, artifact_exclusions):
+                    continue
                 dep_target_label = escape(strip_packaging_and_classifier_and_version(dep))
 
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
