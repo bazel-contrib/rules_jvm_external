@@ -1,5 +1,6 @@
 package com.github.bazelbuild.rules_jvm_external.maven;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.maven.MavenSigning.SigningMetadata;
@@ -67,6 +68,36 @@ public class MavenPublisherTest {
     assertTrue(Files.exists(repoRoot.resolve("example-bom-1.0.0.pom")));
     assertTrue(Files.exists(repoRoot.resolve("example-bom-1.0.0.pom.md5")));
     assertTrue(Files.exists(repoRoot.resolve("example-bom-1.0.0.pom.sha1")));
+  }
+
+  @Test
+  public void testPublishLocalPreservesCompoundArchiveExtensions() throws Exception {
+    File pom = File.createTempFile("pom", ".xml");
+    File tarGz = File.createTempFile("example-project", ".tar.gz");
+    File tarBz2 = File.createTempFile("example-project-sources", ".tar.bz2");
+    File tarXz = File.createTempFile("example-project-docs", ".tar.xz");
+    final Path root = Files.createTempDirectory(Paths.get(System.getenv("TEST_TMPDIR")), "repo");
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    MavenPublisher.run(
+        "com.example:example-archives:1.0.0",
+        pom.getAbsolutePath(),
+        tarGz.getAbsolutePath(),
+        true,
+        "sources=" + tarBz2.getAbsolutePath() + ",docs=" + tarXz.getAbsolutePath(),
+        root.toUri().toString(),
+        null,
+        SigningMetadata.noSigner(),
+        executor);
+    executor.shutdown();
+
+    Path repoRoot = root.resolve("com/example/example-archives/1.0.0");
+    assertTrue(Files.exists(repoRoot.resolve("example-archives-1.0.0.tar.gz")));
+    assertTrue(Files.exists(repoRoot.resolve("example-archives-1.0.0-sources.tar.bz2")));
+    assertTrue(Files.exists(repoRoot.resolve("example-archives-1.0.0-docs.tar.xz")));
+    assertFalse(Files.exists(repoRoot.resolve("example-archives-1.0.0.gz")));
+    assertFalse(Files.exists(repoRoot.resolve("example-archives-1.0.0-sources.bz2")));
+    assertFalse(Files.exists(repoRoot.resolve("example-archives-1.0.0-docs.xz")));
   }
 
   @Test
