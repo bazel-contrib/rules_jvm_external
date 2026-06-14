@@ -8,6 +8,7 @@ load(":java_utilities_test.bzl", "java_utilities_test_suite")
 load(":maven_version_test.bzl", "maven_version_test_suite")
 load(":proxy_test.bzl", "proxy_test_suite")
 load(":specs_test.bzl", "artifact_specs_test_suite")
+load(":v3_lock_file_test.bzl", "v3_lock_file_test_suite")
 load(":version_catalogs_test.bzl", "version_catalogs_test_suite")
 
 amend_artifact_test_suite()
@@ -29,5 +30,7 @@ java_utilities_test_suite()
 maven_version_test_suite()
 
 proxy_test_suite()
+
+v3_lock_file_test_suite()
 
 version_catalogs_test_suite()
