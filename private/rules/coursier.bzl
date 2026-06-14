@@ -197,9 +197,12 @@ def _execute_with_argsfile(
     # This could be avoided by adding a disambiguator to the argsfile name.
 
     # Avoid argument limits by putting list of files to inspect into a file
+    argsfile_content = "\n".join([str(f) for f in files_to_inspect])
+    if argsfile_content:
+        argsfile_content += "\n"
     repository_ctx.file(
         "{}_argsfile".format(tool_name),
-        "\n".join([str(f) for f in files_to_inspect]) + "\n",
+        argsfile_content,
         executable = False,
     )
 
@@ -1162,6 +1165,7 @@ def filter_dependencies_if_necessary(repository_ctx, dep_tree):
                 if _is_verbose(repository_ctx):
                     print("Removing source artifact with no file: %s" % dep["coord"])
             else:
+                dep["file"] = None
                 amended_deps.append(dep)
             continue
 
@@ -1279,8 +1283,8 @@ def _coursier_fetch_impl(repository_ctx):
 
     for artifact in dep_tree["dependencies"]:
         # Some artifacts don't contain files; they are just parent artifacts
-        # to other artifacts.
-        if artifact["file"] == None:
+        # to other artifacts. Coursier may represent these as null or "".
+        if not artifact.get("file", None):
             continue
 
         coord_split = artifact["coord"].split(":")
@@ -1412,7 +1416,7 @@ def _coursier_fetch_impl(repository_ctx):
 
     for artifact in dep_tree["dependencies"]:
         file = artifact["file"]
-        if file == None:
+        if not file:
             continue
         path = str(repository_ctx.path(file))
 

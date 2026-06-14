@@ -576,6 +576,15 @@ dev_maven.artifact(
     group = "com.google.cloud",
 )
 dev_maven.install(
+    name = "bom_only_pinning",
+    boms = [
+        "io.servicetalk:servicetalk-bom:0.42.62",
+    ],
+    fetch_sources = True,
+    lock_file = "//tests/custom_maven_install:bom_only_pinning_install.json",
+    strict_visibility = True,
+)
+dev_maven.install(
     name = "override_target_in_deps",
     artifacts = [
         "io.opentelemetry:opentelemetry-sdk:1.28.0",
@@ -1017,6 +1026,7 @@ dev_maven.override(
 use_repo(
     dev_maven,
     "amend_artifacts",
+    "bom_only_pinning",
     "duplicate_version_warning",
     "duplicate_version_warning_same_version",
     "exclusion_testing",

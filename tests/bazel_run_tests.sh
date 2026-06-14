@@ -253,6 +253,13 @@ function test_outdated_with_boms_does_not_include_artifacts_without_a_version() 
   expect_not_log "\[None"
 }
 
+function test_bom_only_pinning() {
+  REPIN=1 bazel run @bom_only_pinning//:pin >> "$TEST_LOG" 2>&1
+
+  expect_log "Successfully pinned resolved artifacts"
+  expect_file_is_not_empty "tests/custom_maven_install/bom_only_pinning_install.json"
+}
+
 function test_coursier_resolution_with_boms() {
     # Only run for Bazel 7 or above
     RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
@@ -386,6 +393,7 @@ function test_legacy_multi_repo_hash_accepted_by_fallback() {
 }
 
 TESTS=(
+  "test_bom_only_pinning"
   "test_coursier_resolution_with_boms"
   "test_maven_resolution"
   "test_dependency_aggregation"
