@@ -62,6 +62,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -93,6 +94,11 @@ public class MavenPublisher {
   private static final String[] SUPPORTED_UPLOAD_SCHEMES = {
     "file:/", "http://", "https://", "s3://"
   };
+  // Compound archive extensions derived from Apache Commons Compress's GzipUtils, BZip2Utils,
+  // and XZUtils filename suffix mappings. Single-part compressed extensions are handled by
+  // getFileExtension.
+  private static final List<String> COMPOUND_ARCHIVE_EXTENSIONS =
+      Arrays.asList("tar.gz", "tar.bz2", "tar.xz");
 
   public static void main(String[] args) throws Exception {
 
@@ -182,7 +188,7 @@ public class MavenPublisher {
               repo,
               credentials,
               coords,
-              "." + getFileExtension(mainArtifactPath),
+              "." + getMavenArtifactExtension(mainArtifactPath),
               Paths.get(mainArtifactPath),
               signingMetadata,
               executor));
@@ -194,7 +200,7 @@ public class MavenPublisher {
         String[] splits = artifactTuple.split("=");
         String classifier = splits[0];
         Path artifact = Paths.get(splits[1]);
-        String ext = getFileExtension(splits[1]);
+        String ext = getMavenArtifactExtension(splits[1]);
         futures.add(
             upload(
                 repo,
@@ -219,6 +225,17 @@ public class MavenPublisher {
     }
 
     all.get(30, MINUTES);
+  }
+
+  private static String getMavenArtifactExtension(String artifactPath) {
+    String fileName = Paths.get(artifactPath).getFileName().toString();
+    String lowerCaseFileName = fileName.toLowerCase(Locale.ROOT);
+    for (String extension : COMPOUND_ARCHIVE_EXTENSIONS) {
+      if (lowerCaseFileName.endsWith("." + extension)) {
+        return fileName.substring(fileName.length() - extension.length());
+      }
+    }
+    return getFileExtension(artifactPath);
   }
 
   private static boolean isSchemeSupported(String repo) {
