@@ -6,6 +6,7 @@ java_library(
     srcs = glob(["*.java"]),
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external:__subpackages__",
+        "//tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle:__pkg__",
         "//tests/com/github/bazelbuild/rules_jvm_external/resolver/lockfile:__pkg__",
     ],
     deps = [

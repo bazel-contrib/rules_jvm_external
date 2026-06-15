@@ -16,27 +16,37 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolverTestBase;
+import com.github.bazelbuild.rules_jvm_external.resolver.cmd.AbstractMain;
 import com.github.bazelbuild.rules_jvm_external.resolver.cmd.ResolverConfig;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFile;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.google.common.graph.Graph;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.xml.stream.XMLStreamException;
 import org.junit.Test;
@@ -251,6 +261,82 @@ public class GradleResolverTest extends ResolverTestBase {
 
     // The graph should contain: app + 2 classified native-lib artifacts
     assertEquals("Expected 3 coordinates in graph", 3, resolved.nodes().size());
+  }
+
+  @Test
+  public void lockFileHashIncludesNoBinaryBaseArtifactWithClassifiedArtifact() throws IOException {
+    Coordinates baseCoordinates = new Coordinates("com.example:native-lib:1.0");
+    Coordinates classifiedCoordinates =
+        new Coordinates("com.example:native-lib:jar:osx-aarch_64:1.0");
+    URI repo = URI.create("https://example.com/repo/");
+    Path classifiedArtifact = Files.createTempFile("native-lib", ".jar");
+    String classifiedSha = "sha-for-classified-artifact";
+
+    Map<String, Object> rendered =
+        new V3LockFile(
+                Set.of(repo),
+                Set.of(
+                    new DependencyInfo(
+                        baseCoordinates,
+                        Set.of(),
+                        Optional.empty(),
+                        Optional.empty(),
+                        Set.of(classifiedCoordinates),
+                        Set.of(),
+                        Set.of(),
+                        new TreeMap<>()),
+                    new DependencyInfo(
+                        classifiedCoordinates,
+                        Set.of(repo),
+                        Optional.of(classifiedArtifact),
+                        Optional.of(classifiedSha),
+                        Set.of(),
+                        Set.of(),
+                        Set.of(),
+                        new TreeMap<>())),
+                Set.of(),
+                false)
+            .render();
+
+    Map<String, Integer> hashes = AbstractMain.calculateArtifactHash(rendered);
+    assertTrue(hashes.containsKey(baseCoordinates.asKey()));
+    assertTrue(hashes.containsKey(classifiedCoordinates.asKey()));
+
+    @SuppressWarnings("unchecked")
+    Map<String, Map<String, Object>> artifacts =
+        (Map<String, Map<String, Object>>) rendered.get("artifacts");
+    @SuppressWarnings("unchecked")
+    Map<String, String> shasums =
+        (Map<String, String>) artifacts.get("com.example:native-lib").get("shasums");
+    assertTrue(shasums.containsKey("jar"));
+    assertNull(shasums.get("jar"));
+    assertEquals(classifiedSha, shasums.get("osx-aarch_64"));
+  }
+
+  @Test
+  public void downloaderDoesNotUsePomKnownPathAsBinaryForNonPomCoordinate() throws IOException {
+    Coordinates coordinates = new Coordinates("com.example:pom-backed:1.0");
+    MavenRepo mavenRepo = MavenRepo.create().add(coordinates);
+    Path pomPath =
+        mavenRepo
+            .getPath()
+            .resolve(coordinates.toRepoPath())
+            .getParent()
+            .resolve("pom-backed-1.0.pom");
+    Files.delete(mavenRepo.getPath().resolve(coordinates.toRepoPath()));
+
+    DownloadResult download =
+        new Downloader(
+                Netrc.fromUserHome(),
+                Files.createTempDirectory("local-repo"),
+                Set.of(mavenRepo.getPath().toUri()),
+                new NullListener(),
+                false,
+                Map.of(coordinates, pomPath))
+            .download(coordinates);
+
+    assertTrue(download.getPath().isEmpty());
+    assertTrue(download.getSha256().isEmpty());
   }
 
   @Test
