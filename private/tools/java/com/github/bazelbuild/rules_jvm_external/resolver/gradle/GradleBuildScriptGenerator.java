@@ -36,6 +36,11 @@ public class GradleBuildScriptGenerator {
 
   private static final Handlebars handlebars = new Handlebars();
 
+  private static boolean isForceVersion(GradleDependency dependency) {
+    String version = dependency.getVersion();
+    return version != null && version.endsWith("!!");
+  }
+
   static {
     handlebars.registerHelper(
         "notEmpty",
@@ -125,29 +130,22 @@ public class GradleBuildScriptGenerator {
                 })
             .collect(Collectors.toList()));
 
-    // If multiple versions of a BOM exists, we want to enforce the first one like maven
-    // Unlike maven, gradle seems to choose the highest versions, so this emulates the maven
-    // behavior by picking the first BOM version in the order we see.
-    Map<String, String> enforcedBomVersions = new LinkedHashMap<>();
+    // If multiple versions of a BOM exist, pick one version to keep Gradle from selecting a
+    // different version during conflict resolution. A forced BOM wins over an unforced BOM, and
+    // later forced BOMs match the Maven resolver's last-forced-wins behavior.
+    Map<String, GradleDependency> selectedBoms = new LinkedHashMap<>();
     boms.forEach(
         bom -> {
           String artifactKey = bom.getGroup() + ":" + bom.getArtifact();
-          if (!enforcedBomVersions.containsKey(artifactKey)) {
-            enforcedBomVersions.put(artifactKey, bom.getVersion());
+          GradleDependency selectedBom = selectedBoms.get(artifactKey);
+          if (selectedBom == null || isForceVersion(bom)) {
+            selectedBoms.put(artifactKey, bom);
           }
         });
 
     // Now get the boms filtered to include the "winning" boms if there are multiple versions of a
     // given one
-    List<GradleDependency> actualBoms =
-        boms.stream()
-            .filter(
-                bom -> {
-                  String artifactKey = bom.getGroup() + ":" + bom.getArtifact();
-                  return enforcedBomVersions.containsKey(artifactKey)
-                      && enforcedBomVersions.get(artifactKey).equals(bom.getVersion());
-                })
-            .collect(Collectors.toList());
+    List<GradleDependency> actualBoms = selectedBoms.values().stream().collect(Collectors.toList());
 
     contextMap.put(
         "boms",
@@ -157,7 +155,16 @@ public class GradleBuildScriptGenerator {
                   Map<String, Object> map = new HashMap<>();
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
-                  map.put("version", dep.getVersion());
+                  String version = dep.getVersion();
+                  boolean isForceVersion = isForceVersion(dep);
+                  if (isForceVersion) {
+                    version = version.substring(0, version.length() - 2);
+                    map.put("forceVersion", true);
+                    map.put("versionOnly", version);
+                  } else {
+                    map.put("forceVersion", false);
+                  }
+                  map.put("version", version);
                   return map;
                 })
             .collect(Collectors.toList()));
@@ -172,7 +179,7 @@ public class GradleBuildScriptGenerator {
                   map.put("artifact", dep.getArtifact());
 
                   String version = dep.getVersion();
-                  boolean isForceVersion = version != null && version.endsWith("!!");
+                  boolean isForceVersion = isForceVersion(dep);
                   if (isForceVersion) {
                     // Strip the !! suffix, we'll use version { strictly() } in template
                     version = version.substring(0, version.length() - 2);

@@ -976,6 +976,7 @@ dev_maven.install(
     ],
     known_contributing_modules = [
         "root_wins_layer",
+        "root_wins_layer_two",
         "rules_jvm_external",
     ],
     lock_file = "//tests/custom_maven_install:root_wins_install.json",
@@ -988,9 +989,16 @@ dev_maven.amend_artifact(
 )
 
 bazel_dep(name = "root_wins_layer", version = "0.0.0", dev_dependency = True)
+bazel_dep(name = "root_wins_layer_two", version = "0.0.0", dev_dependency = True)
+
 local_path_override(
     module_name = "root_wins_layer",
     path = "tests/integration/root_wins_layer",
+)
+
+local_path_override(
+    module_name = "root_wins_layer_two",
+    path = "tests/integration/root_wins_layer_two",
 )
 
 dev_maven.install(
@@ -1125,15 +1133,15 @@ use_repo(
 
     # Final entries
     "com_google_http_client_google_http_client",
+    "legacy_multi_repo_hash",
+    "multi_repo_hash",
     "root_wins",
     "testonly_testing",
+    "unpinned_legacy_multi_repo_hash",
+    "unpinned_multi_repo_hash",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",
-    "multi_repo_hash",
-    "unpinned_multi_repo_hash",
-    "legacy_multi_repo_hash",
-    "unpinned_legacy_multi_repo_hash",
 )
 
 http_file(

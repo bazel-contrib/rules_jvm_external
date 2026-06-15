@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -178,7 +179,8 @@ public class MavenResolver implements Resolver {
     List<Dependency> bomsWithGlobalExclusions = addGlobalExclusions(globalExclusions, boms);
     consoleLogListener.setPhase("Resolving " + bomsWithGlobalExclusions.size() + " BOM artifacts");
     List<Dependency> bomDependencies =
-        resolveArtifactsFromBoms(system, session, repositories, bomsWithGlobalExclusions);
+        resolveArtifactsFromBoms(
+            system, session, repositories, bomsWithGlobalExclusions, request.getBoms());
 
     List<Dependency> managedDependencies = createManagedDependencies(bomDependencies, dependencies);
 
@@ -489,24 +491,34 @@ public class MavenResolver implements Resolver {
       RepositorySystem system,
       RepositorySystemSession session,
       List<RemoteRepository> repositories,
-      List<Dependency> boms) {
-    // Use LinkedHashSet to maintain order of how BOMS were declared
-    Set<Dependency> managedDependencies = new LinkedHashSet<>();
+      List<Dependency> boms,
+      List<com.github.bazelbuild.rules_jvm_external.resolver.Artifact> originalBoms) {
+    Map<String, Dependency> managedDependencies = new LinkedHashMap<>();
 
-    for (Dependency bom : boms) {
+    for (int i = 0; i < boms.size(); i++) {
+      Dependency bom = boms.get(i);
+      boolean forceVersion = originalBoms.get(i).isForceVersion();
       ArtifactDescriptorRequest request =
           new ArtifactDescriptorRequest(bom.getArtifact(), repositories, JavaScopes.COMPILE);
       try {
         ArtifactDescriptorResult result = system.readArtifactDescriptor(session, request);
-        // NOTE: BOM dependencies are added in order so dependencies from eariler BOMs will
-        // take precedence over dependencies from later BOMs
-        managedDependencies.addAll(result.getManagedDependencies());
+        result
+            .getManagedDependencies()
+            .forEach(
+                dep -> {
+                  String artifactKey = getArtifactKey(dep.getArtifact());
+                  if (forceVersion) {
+                    managedDependencies.put(artifactKey, dep);
+                  } else {
+                    managedDependencies.putIfAbsent(artifactKey, dep);
+                  }
+                });
       } catch (ArtifactDescriptorException e) {
         throw new RuntimeException(e);
       }
     }
 
-    return ImmutableList.copyOf(managedDependencies);
+    return ImmutableList.copyOf(managedDependencies.values());
   }
 
   private List<Dependency> addGlobalExclusions(

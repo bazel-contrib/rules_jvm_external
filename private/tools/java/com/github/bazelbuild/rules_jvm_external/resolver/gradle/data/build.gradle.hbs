@@ -24,7 +24,13 @@ repositories {
 
 dependencies {
 {{~#each boms}}
+{{~#if forceVersion}}
+    implementation(platform("{{group}}:{{artifact}}")) {
+        version { strictly("{{versionOnly}}") }
+    }
+{{~else}}
     implementation platform("{{group}}:{{artifact}}:{{version}}")
+{{~/if}}
 {{~/each}}
 {{~#each dependencies}}
     implementation("{{group}}:{{artifact}}{{version}}{{~#if classifier}}{{classifier}}{{~/if}}{{~#if extension}}{{extension}}{{~/if}}"){{~#if exclusions}}{{~#if forceVersion}} {
@@ -50,6 +56,11 @@ configurations.all {
 {{~/if}}
     resolutionStrategy {
 {{~#each dependencies}}
+{{~#if forceVersion}}
+        force("{{group}}:{{artifact}}:{{versionOnly}}")
+{{~/if}}
+{{~/each}}
+{{~#each boms}}
 {{~#if forceVersion}}
         force("{{group}}:{{artifact}}:{{versionOnly}}")
 {{~/if}}

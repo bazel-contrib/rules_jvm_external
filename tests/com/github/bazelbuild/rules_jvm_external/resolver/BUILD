@@ -1,5 +1,20 @@
 load("@rules_java//java:java_library.bzl", "java_library")
+load("@rules_java//java:java_test.bzl", "java_test")
 load("//:defs.bzl", "artifact")
+
+java_test(
+    name = "ResolutionRequestTest",
+    srcs = ["ResolutionRequestTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequestTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+    ],
+)
 
 java_library(
     name = "resolver",

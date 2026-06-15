@@ -162,7 +162,8 @@ public class ResolverConfig {
                         .append(":")
                         .append(art.getVersion());
                 request.addBom(
-                    coords.toString(),
+                    new Coordinates(coords.toString()),
+                    art.isForceVersion(),
                     art.getExclusions().stream()
                         .map(c -> c.getGroupId() + ":" + c.getArtifactId())
                         .toArray(String[]::new));

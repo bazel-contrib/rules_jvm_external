@@ -2,6 +2,24 @@ load("@rules_java//java:java_test.bzl", "java_test")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 java_test(
+    name = "GradleBuildScriptGeneratorTest",
+    srcs = ["GradleBuildScriptGeneratorTest.java"],
+    data = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/data:gradle_build_templates",
+    ],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleBuildScriptGeneratorTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+        "@bazel_tools//tools/java/runfiles",
+    ],
+)
+
+java_test(
     name = "UnresolvedDepsTest",
     srcs = ["UnresolvedDepsTest.java"],
     test_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.UnresolvedDepsTest",
