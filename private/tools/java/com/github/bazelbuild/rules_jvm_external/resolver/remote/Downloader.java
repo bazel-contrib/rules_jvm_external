@@ -126,6 +126,9 @@ public class Downloader {
     Path knownPath = knownPaths.get(coordsToUse);
 
     if (knownPath != null && Files.exists(knownPath)) {
+      if (isPomPathForNonPomCoordinates(coordsToUse, knownPath)) {
+        return new DownloadResult(coordsToUse, Set.of(), null, null);
+      }
       pathInRepo = knownPath;
     } else {
       // Check the local cache for the path first
@@ -219,6 +222,10 @@ public class Downloader {
     }
 
     return !JAR_PACKAGINGS.contains(extension);
+  }
+
+  private boolean isPomPathForNonPomCoordinates(Coordinates coords, Path path) {
+    return path.getFileName().toString().endsWith(".pom") && !"pom".equals(coords.getExtension());
   }
 
   private String calculateSha256(Path path) {

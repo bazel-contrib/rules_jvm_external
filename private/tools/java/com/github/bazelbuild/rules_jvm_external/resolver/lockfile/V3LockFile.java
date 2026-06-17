@@ -231,7 +231,11 @@ public class V3LockFile {
           @SuppressWarnings("unchecked")
           Map<String, String> shasums =
               (Map<String, String>) artifactValue.computeIfAbsent("shasums", k -> new TreeMap<>());
-          info.getSha256().ifPresent(sha -> shasums.put(classifier, sha));
+          if (info.getSha256().isPresent()) {
+            shasums.put(classifier, info.getSha256().get());
+          } else {
+            shasums.putIfAbsent(classifier, null);
+          }
 
           info.getRepositories()
               .forEach(
