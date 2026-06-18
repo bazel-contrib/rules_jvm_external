@@ -83,38 +83,88 @@ public class IndexJar {
   }
 
   public PerJarIndexResults index(Path path) throws IOException {
+    if (path.toString().toLowerCase().endsWith(".aar")) {
+      return indexAar(path);
+    }
+    return indexJar(path);
+  }
+
+  private PerJarIndexResults indexJar(Path path) throws IOException {
     SortedSet<String> packages = new TreeSet<>();
     SortedSet<String> classes = new TreeSet<>();
     SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
     try (InputStream fis = new BufferedInputStream(Files.newInputStream(path));
         ZipInputStream zis = new ZipInputStream(fis)) {
       try {
-        ZipEntry entry;
-        while ((entry = zis.getNextEntry()) != null) {
-          if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX)
-              && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
-            String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
-            SortedSet<String> implementingClasses = parseServiceImplementations(zis);
-            serviceImplementations.put(serviceInterface, implementingClasses);
-          }
-          if (!entry.getName().endsWith(".class")) {
-            continue;
-          }
-          if ("module-info.class".equals(entry.getName())
-              || entry.getName().endsWith("/module-info.class")) {
-            continue;
-          }
-          // Skip inner classes, anonymous classes, and local classes (contain $)
-          if (isInnerClass(entry.getName())) {
-            continue;
-          }
-          packages.add(extractPackageName(entry.getName()));
-          classes.add(extractClassName(entry.getName()));
-        }
+        processZipEntries(zis, packages, classes, serviceImplementations);
       } catch (ZipException e) {
         System.err.printf("Caught ZipException: %s%n", e);
       }
       return new PerJarIndexResults(packages, classes, serviceImplementations);
+    }
+  }
+
+  private PerJarIndexResults indexAar(Path aarPath) throws IOException {
+    SortedSet<String> packages = new TreeSet<>();
+    SortedSet<String> classes = new TreeSet<>();
+    SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
+
+    try (InputStream fis = new BufferedInputStream(Files.newInputStream(aarPath));
+        ZipInputStream aarZis = new ZipInputStream(fis)) {
+      try {
+        ZipEntry aarEntry;
+        while ((aarEntry = aarZis.getNextEntry()) != null) {
+          if ("classes.jar".equals(aarEntry.getName())) {
+            processJarStream(aarZis, packages, classes, serviceImplementations);
+          } else if (aarEntry.getName().startsWith("libs/")
+                     && aarEntry.getName().endsWith(".jar")) {
+            processJarStream(aarZis, packages, classes, serviceImplementations);
+          }
+        }
+      } catch (ZipException e) {
+        System.err.printf("Caught ZipException while processing AAR: %s%n", e);
+      }
+    }
+
+    return new PerJarIndexResults(packages, classes, serviceImplementations);
+  }
+
+  private void processJarStream(
+      InputStream jarStream,
+      SortedSet<String> packages,
+      SortedSet<String> classes,
+      SortedMap<String, SortedSet<String>> serviceImplementations) throws IOException {
+      // Don't use try-with-resources here as we don't want to close the underlying stream
+      ZipInputStream jarZis = new ZipInputStream(jarStream);
+      processZipEntries(jarZis, packages, classes, serviceImplementations);
+  }
+
+  private void processZipEntries(
+      ZipInputStream zis,
+      SortedSet<String> packages,
+      SortedSet<String> classes,
+      SortedMap<String, SortedSet<String>> serviceImplementations) throws IOException {
+
+    ZipEntry entry;
+    while ((entry = zis.getNextEntry()) != null) {
+      if (entry.getName().startsWith(SERVICES_DIRECTORY_PREFIX)
+          && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
+        String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
+        SortedSet<String> implementingClasses = parseServiceImplementations(zis);
+        serviceImplementations.put(serviceInterface, implementingClasses);
+      }
+      if (!entry.getName().endsWith(".class")) {
+        continue;
+      }
+      if ("module-info.class".equals(entry.getName())
+          || entry.getName().endsWith("/module-info.class")) {
+        continue;
+      }
+      if (isInnerClass(entry.getName())) {
+        continue;
+      }
+      packages.add(extractPackageName(entry.getName()));
+      classes.add(extractClassName(entry.getName()));
     }
   }
 
