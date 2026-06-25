@@ -578,6 +578,16 @@ def _merge_repo_lists(root_list, non_root_list):
             seen.append(item)
     return merged_list
 
+def concat_coursier_options(root_list, non_root_list):
+    """Concatenate coursier options (root first), never deduplicating.
+
+    Unlike the other repo list attributes, `additional_coursier_options` is an
+    ordered argument vector passed verbatim to coursier, not a set. It can
+    legitimately contain repeated identical tokens (e.g. coursier's repeatable
+    `--variant` flag), so deduplicating it would corrupt the argument list.
+    """
+    return root_list + non_root_list
+
 def remove_fields(s):
     """Used for reducing an artifact struct down to only those fields that have values"""
     return {
@@ -694,10 +704,15 @@ def maven_impl(mctx):
             merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_boms, True)
 
         # For list attributes, concatenate but avoid duplicates (root items first)
-        for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines", "additional_coursier_options"]:
+        for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines"]:
             root_list = root_repo.get(list_attr, [])
             non_root_list = non_root_repo.get(list_attr, [])
             merged_repo[list_attr] = _merge_repo_lists(root_list, non_root_list)
+
+        merged_repo["additional_coursier_options"] = concat_coursier_options(
+            root_repo.get("additional_coursier_options", []),
+            non_root_repo.get("additional_coursier_options", []),
+        )
 
         repos[repo_name] = merged_repo
 
