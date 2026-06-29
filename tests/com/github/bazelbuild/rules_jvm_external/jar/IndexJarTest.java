@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,6 +30,8 @@ import java.nio.file.Paths;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.Test;
 
 public class IndexJarTest {
@@ -123,6 +126,29 @@ public class IndexJarTest {
 
   private InputStream streamOf(String string) {
     return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void skipsPackageInfo() throws Exception {
+    Path jar = Files.createTempFile("index-jar-package-info", ".jar");
+    try {
+      try (OutputStream fos = Files.newOutputStream(jar);
+          ZipOutputStream zos = new ZipOutputStream(fos)) {
+        writeEmptyEntry(zos, "com/example/Foo.class");
+        writeEmptyEntry(zos, "com/example/package-info.class");
+        writeEmptyEntry(zos, "package-info.class");
+      }
+      PerJarIndexResults results = new IndexJar().index(jar);
+      assertEquals(sortedSet("com.example"), results.getPackages());
+      assertEquals(sortedSet("com.example.Foo"), results.getClasses());
+    } finally {
+      Files.deleteIfExists(jar);
+    }
+  }
+
+  private void writeEmptyEntry(ZipOutputStream zos, String name) throws IOException {
+    zos.putNextEntry(new ZipEntry(name));
+    zos.closeEntry();
   }
 
   @Test
