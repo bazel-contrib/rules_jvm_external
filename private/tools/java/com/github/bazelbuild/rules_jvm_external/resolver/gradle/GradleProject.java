@@ -39,6 +39,7 @@ public class GradleProject implements AutoCloseable {
   private final EventListener eventListener;
   private final Path initScript;
 
+  private GradleConnector connector;
   private ProjectConnection connection;
 
   public GradleProject(
@@ -68,12 +69,12 @@ public class GradleProject implements AutoCloseable {
     // Use gradleCacheDir as gradle.user.home for complete isolation.
     // When RJE_UNSAFE_CACHE is set, the user's caches are symlinked into this directory.
     System.setProperty("org.gradle.parallel", "true");
-    connection =
+    connector =
         GradleConnector.newConnector()
             .forProjectDirectory(projectDir.toFile())
             .useInstallation(gradlePath.toFile())
-            .useGradleUserHomeDir(gradleCacheDir.toFile())
-            .connect();
+            .useGradleUserHomeDir(gradleCacheDir.toFile());
+    connection = connector.connect();
   }
 
   /** Triggers dependency resolution by running the custom task to resolve gradle dependencies */
@@ -102,9 +103,17 @@ public class GradleProject implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-    if (connection != null) {
-      connection.close();
-      connection = null;
+    try {
+      if (connection != null) {
+        connection.close();
+        connection = null;
+      }
+    } finally {
+      // Stops any Gradle daemons started by this connector so we don't leave them running.
+      if (connector != null) {
+        connector.disconnect();
+        connector = null;
+      }
     }
   }
 
