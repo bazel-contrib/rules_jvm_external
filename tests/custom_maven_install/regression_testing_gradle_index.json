@@ -156,7 +156,21 @@
         "ArraySetKt",
         "LongSparseArrayKt",
         "LruCacheKt",
-        "SparseArrayKt"
+        "SparseArrayKt",
+        "arrayMapOf",
+        "arraySetOf",
+        "contains",
+        "forEach",
+        "getOrDefault",
+        "getOrElse",
+        "isNotEmpty",
+        "keyIterator",
+        "lruCache",
+        "plus",
+        "remove",
+        "set",
+        "size",
+        "valueIterator"
       ]
     }
   },
