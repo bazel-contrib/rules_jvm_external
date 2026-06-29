@@ -3,28 +3,28 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("//private:dependency_tree_parser.bzl", "parser")
 
-def _repo_ctx():
+def _repo_ctx(maven_install_json = False):
     return struct(
         attr = struct(
             fetch_javadoc = False,
             fetch_sources = False,
             generate_compat_repositories = False,
-            maven_install_json = False,
+            maven_install_json = maven_install_json,
             repositories = ["{ \"repo_url\": \"https://repo1.maven.org/maven2/\" }"],
             strict_visibility = False,
             strict_visibility_value = ["//visibility:public"],
         ),
     )
 
-def _generate_imports(dependencies, exclusions):
+def _generate_imports(dependencies, exclusions, override_targets = {}, maven_install_json = False):
     result = parser.generate_imports(
-        repository_ctx = _repo_ctx(),
+        repository_ctx = _repo_ctx(maven_install_json = maven_install_json),
         dependencies = dependencies,
         explicit_artifacts = {},
         neverlink_artifacts = {},
         testonly_artifacts = {},
         exclusions = exclusions,
-        override_targets = {},
+        override_targets = override_targets,
         override_target_visibilities = {},
         skip_maven_local_dependencies = False,
     )
@@ -144,10 +144,40 @@ def _pom_only_exclusion_removes_generated_export_impl(ctx):
 
 pom_only_exclusion_removes_generated_export_test = unittest.make(_pom_only_exclusion_removes_generated_export_impl)
 
+def _overridden_aar_original_artifact_uses_real_http_file_repo_impl(ctx):
+    env = unittest.begin(ctx)
+
+    generated_imports = _generate_imports(
+        dependencies = [
+            {
+                "coordinates": "com.google.android.gms:play-services-tasks:18.1.0@aar",
+                "deps": [],
+                "file": "v1/https/maven.google.com/com/google/android/gms/play-services-tasks/18.1.0/play-services-tasks-18.1.0.aar",
+                "urls": [
+                    "https://maven.google.com/com/google/android/gms/play-services-tasks/18.1.0/play-services-tasks-18.1.0.aar",
+                ],
+            },
+        ],
+        exclusions = {},
+        override_targets = {
+            "com.google.android.gms:play-services-tasks": "//third_party:play_services_tasks",
+        },
+        maven_install_json = True,
+    )
+
+    asserts.true(env, "name = \"original_com_google_android_gms_play_services_tasks_aar_18_1_0_extension\"," in generated_imports)
+    asserts.true(env, "src = \"@com_google_android_gms_play_services_tasks_aar_18_1_0//file\"," in generated_imports)
+    asserts.false(env, "src = \"@original_com_google_android_gms_play_services_tasks_aar_18_1_0//file\"," in generated_imports)
+
+    return unittest.end(env)
+
+overridden_aar_original_artifact_uses_real_http_file_repo_test = unittest.make(_overridden_aar_original_artifact_uses_real_http_file_repo_impl)
+
 def dependency_tree_parser_test_suite():
     unittest.suite(
         "dependency_tree_parser_tests",
         exclusion_removes_generated_dep_test,
         wildcard_exclusion_removes_all_generated_deps_test,
         pom_only_exclusion_removes_generated_export_test,
+        overridden_aar_original_artifact_uses_real_http_file_repo_test,
     )

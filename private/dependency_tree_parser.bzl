@@ -33,13 +33,14 @@ load("//private/lib:coordinates.bzl", "to_purl", "unpack_coordinates")
 load("//private/lib:urls.bzl", "scheme_and_host")
 
 def _genrule_copy_artifact_from_http_file(artifact, visibilities):
-    http_file_repository = to_repository_name(artifact["coordinates"])
+    output_repository = to_repository_name(artifact["coordinates"])
+    http_file_repository = to_repository_name(artifact.get("repository_coordinates", artifact["coordinates"]))
 
     file = artifact.get("out", artifact["file"])
 
     genrule = [
         "copy_file(",
-        "     name = \"%s_extension\"," % http_file_repository,
+        "     name = \"%s_extension\"," % output_repository,
         "     src = \"@%s//file\"," % http_file_repository,
         "     out = \"%s\"," % file,
         # Windows doesn't care about the executable bit for executables, but copy_file
@@ -534,6 +535,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             raw_artifact = dict(artifact)
             raw_artifact["coordinates"] = "original_" + artifact["coordinates"]
             raw_artifact["maven_coordinates"] = artifact["coordinates"]
+            raw_artifact["repository_coordinates"] = artifact["coordinates"]
             raw_artifact["out"] = "original_" + artifact["file"]
 
             all_imports.extend(_generate_target(
