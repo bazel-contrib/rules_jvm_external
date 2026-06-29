@@ -307,6 +307,11 @@ dev_maven.from_toml(
     ],
     libs_versions_toml = "//tests/integration:libs.versions.toml",
 )
+dev_maven.override(
+    name = "from_files",
+    coordinates = "com.google.android.gms:play-services-tasks",
+    target = "@//tests/integration/override_targets:play_services_tasks_override",
+)
 dev_maven.amend_artifact(
     name = "from_files",
     testonly = "true",

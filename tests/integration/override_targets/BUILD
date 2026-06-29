@@ -27,6 +27,14 @@ build_test(
     ],
 )
 
+build_test(
+    name = "from_toml_aar_override_original_artifact_test",
+    tags = [] if is_bzlmod_enabled() else ["manual"],
+    targets = [
+        "@from_files//:original_com_google_android_gms_play_services_tasks_aar_18_1_0_extension",
+    ],
+)
+
 java_library(
     name = "additional_deps",
     visibility = ["//visibility:public"],
@@ -36,6 +44,11 @@ java_library(
     runtime_deps = [
         "@override_target_in_deps//:redis_clients_jedis",
     ],
+)
+
+java_library(
+    name = "play_services_tasks_override",
+    visibility = ["//visibility:public"],
 )
 
 genquery(
