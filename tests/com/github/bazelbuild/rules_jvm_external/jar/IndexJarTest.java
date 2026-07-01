@@ -15,6 +15,8 @@
 package com.github.bazelbuild.rules_jvm_external.jar;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import com.google.gson.Gson;
@@ -131,6 +133,31 @@ public class IndexJarTest {
         "google_api_services_compute_javadoc_for_test/file/google-api-services-compute-v1-rev235-1.25.0-javadoc.jar",
         sortedSet(),
         new TreeMap<>());
+  }
+
+  @Test
+  public void kotlinTopLevelDeclarations() throws Exception {
+    Path jar =
+        Paths.get(
+            Runfiles.create()
+                .rlocation(
+                    "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/jar/kotlin_top_level_fixture.jar"));
+    SortedSet<String> classes = new IndexJar().index(jar).getClasses();
+
+    // The file facade and the regular class are still indexed as classes.
+    assertTrue(classes.toString(), classes.contains("com.example.kotlin.TopLevelKt"));
+    assertTrue(classes.toString(), classes.contains("com.example.kotlin.RegularClass"));
+
+    // Public top-level declarations from the facade are folded in as package-qualified symbols,
+    // using their Kotlin source names.
+    assertTrue(classes.toString(), classes.contains("com.example.kotlin.topLevelFunction"));
+    assertTrue(classes.toString(), classes.contains("com.example.kotlin.topLevelProperty"));
+    assertTrue(classes.toString(), classes.contains("com.example.kotlin.TopLevelAlias"));
+
+    // Non-public top-level declarations cannot be imported from another artifact, so they're
+    // excluded.
+    assertFalse(classes.toString(), classes.contains("com.example.kotlin.internalFunction"));
+    assertFalse(classes.toString(), classes.contains("com.example.kotlin.privateFunction"));
   }
 
   private static class Lockfile {

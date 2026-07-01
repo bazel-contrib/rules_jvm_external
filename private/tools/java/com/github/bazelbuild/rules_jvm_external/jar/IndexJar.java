@@ -108,8 +108,18 @@ public class IndexJar {
           if (isInnerClass(entry.getName())) {
             continue;
           }
-          packages.add(extractPackageName(entry.getName()));
+          String packageName = extractPackageName(entry.getName());
+          packages.add(packageName);
           classes.add(extractClassName(entry.getName()));
+
+          // Kotlin top-level functions, properties, and type aliases are compiled into a synthetic
+          // file facade class and are otherwise invisible in the index. Fold their names in so they
+          // can be attributed to this artifact (notably for split packages).
+          if (isKotlinFileFacade(entry.getName())) {
+            for (String declaration : KotlinTopLevel.topLevelDeclarationNames(zis.readAllBytes())) {
+              classes.add(packageName.isEmpty() ? declaration : packageName + "." + declaration);
+            }
+          }
         }
       } catch (ZipException e) {
         System.err.printf("Caught ZipException: %s%n", e);
@@ -175,6 +185,14 @@ public class IndexJar {
 
   private boolean isNumericVersion(String part) {
     return IS_NUMERIC_VERSION.test(part);
+  }
+
+  private boolean isKotlinFileFacade(String zipEntryName) {
+    // Kotlin names the file facade for top-level declarations "<FileName>Kt.class" by default. We
+    // only inspect the bytecode of these candidates; KotlinTopLevel confirms the Kotlin metadata.
+    int lastSlash = zipEntryName.lastIndexOf('/');
+    String fileName = lastSlash == -1 ? zipEntryName : zipEntryName.substring(lastSlash + 1);
+    return fileName.endsWith("Kt.class");
   }
 
   private boolean isInnerClass(String zipEntryName) {
