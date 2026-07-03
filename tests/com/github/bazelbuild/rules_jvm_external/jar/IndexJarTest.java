@@ -17,6 +17,7 @@ package com.github.bazelbuild.rules_jvm_external.jar;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 import com.google.devtools.build.runfiles.Runfiles;
 import com.google.gson.Gson;
@@ -34,9 +35,18 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class IndexJarTest {
+
+  // rules_kotlin's kotlin_top_level_fixture output can't be opened via NIO on
+  // Windows CI. See the broader rules_kotlin-on-Windows caveat in .bazelrc.
+  @BeforeClass
+  public static void checkPlatform() {
+    assumeFalse(System.getProperty("os.name").toLowerCase().contains("win"));
+  }
+
   @Test
   public void simplePackages() throws Exception {
     doTest(
