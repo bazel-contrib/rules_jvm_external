@@ -1,5 +1,12 @@
 load("@rules_java//java:java_test.bzl", "java_test")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load("//:defs.bzl", "artifact")
+
+# Fixture jar exercising IndexJar's extraction of Kotlin top-level declarations.
+kt_jvm_library(
+    name = "kotlin_top_level_fixture",
+    srcs = ["testdata/TopLevel.kt"],
+)
 
 java_test(
     name = "AddJarManifestEntryTest",
@@ -21,6 +28,7 @@ java_test(
     name = "IndexJarTest",
     srcs = ["IndexJarTest.java"],
     data = [
+        ":kotlin_top_level_fixture",
         "//tests/custom_maven_install:service_indexing_testing.json",
         "@google_api_services_compute_javadoc_for_test//file",
         "@gson_for_test//file",

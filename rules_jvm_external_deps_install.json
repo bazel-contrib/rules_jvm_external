@@ -34,6 +34,9 @@
     "org.codehaus.plexus:plexus-xml": -877788702,
     "org.fusesource.jansi:jansi": -1410834038,
     "org.gradle:gradle-tooling-api": 313997634,
+    "org.jetbrains.kotlin:kotlin-metadata-jvm": -124260926,
+    "org.jetbrains.kotlin:kotlin-stdlib": -1504421277,
+    "org.ow2.asm:asm": 1585548667,
     "org.slf4j:jul-to-slf4j": -387828120,
     "org.slf4j:log4j-over-slf4j": -46153368,
     "org.slf4j:slf4j-simple": -487947767,
@@ -297,6 +300,12 @@
     "org.fusesource.jansi:jansi:jar:sources": 1953984195,
     "org.gradle:gradle-tooling-api": -1223301096,
     "org.gradle:gradle-tooling-api:jar:sources": 1645634195,
+    "org.jetbrains.kotlin:kotlin-metadata-jvm": 2067904078,
+    "org.jetbrains.kotlin:kotlin-metadata-jvm:jar:sources": -331016853,
+    "org.jetbrains.kotlin:kotlin-stdlib": -550485556,
+    "org.jetbrains.kotlin:kotlin-stdlib:jar:sources": -2122508904,
+    "org.jetbrains:annotations": 554168982,
+    "org.jetbrains:annotations:jar:sources": 1226441379,
     "org.jspecify:jspecify": 117231129,
     "org.jspecify:jspecify:jar:sources": -2134060298,
     "org.ow2.asm:asm": 611381606,
@@ -1279,6 +1288,27 @@
       },
       "version": "9.5.0"
     },
+    "org.jetbrains.kotlin:kotlin-metadata-jvm": {
+      "shasums": {
+        "jar": "501222ae7d63527e55f2e5e645f18d4eff2c19074c85b9bc055866e3ed2b17bf",
+        "sources": "2ab97ab16e203e715633593c480bcf0ac1cc151e54cd2adaaa7dca1085835ede"
+      },
+      "version": "2.2.0"
+    },
+    "org.jetbrains.kotlin:kotlin-stdlib": {
+      "shasums": {
+        "jar": "65d12d85a3b865c160db9147851712a64b10dadd68b22eea22a95bf8a8670dca",
+        "sources": "967ad9599254e3a60d96d6c789547cc35c22d770d9c8fb1e3f15fac3b4c3b65d"
+      },
+      "version": "2.2.0"
+    },
+    "org.jetbrains:annotations": {
+      "shasums": {
+        "jar": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
+        "sources": "42a5e144b8e81d50d6913d1007b695e62e614705268d8cf9f13dbdc478c2c68e"
+      },
+      "version": "13.0"
+    },
     "org.jspecify:jspecify": {
       "shasums": {
         "jar": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
@@ -1940,6 +1970,12 @@
     ],
     "org.gradle:gradle-tooling-api": [
       "org.slf4j:slf4j-api"
+    ],
+    "org.jetbrains.kotlin:kotlin-metadata-jvm": [
+      "org.jetbrains.kotlin:kotlin-stdlib"
+    ],
+    "org.jetbrains.kotlin:kotlin-stdlib": [
+      "org.jetbrains:annotations"
     ],
     "org.slf4j:jcl-over-slf4j": [
       "org.slf4j:slf4j-api"
@@ -3599,6 +3635,74 @@
       "org.gradle.util.internal",
       "org.gradle.wrapper"
     ],
+    "org.jetbrains.kotlin:kotlin-metadata-jvm": [
+      "kotlin.metadata",
+      "kotlin.metadata.internal",
+      "kotlin.metadata.internal.common",
+      "kotlin.metadata.internal.extensions",
+      "kotlin.metadata.internal.metadata",
+      "kotlin.metadata.internal.metadata.builtins",
+      "kotlin.metadata.internal.metadata.deserialization",
+      "kotlin.metadata.internal.metadata.jvm",
+      "kotlin.metadata.internal.metadata.jvm.deserialization",
+      "kotlin.metadata.internal.metadata.jvm.serialization",
+      "kotlin.metadata.internal.metadata.serialization",
+      "kotlin.metadata.internal.protobuf",
+      "kotlin.metadata.jvm",
+      "kotlin.metadata.jvm.internal"
+    ],
+    "org.jetbrains.kotlin:kotlin-stdlib": [
+      "kotlin",
+      "kotlin.annotation",
+      "kotlin.collections",
+      "kotlin.collections.builders",
+      "kotlin.collections.jdk8",
+      "kotlin.collections.unsigned",
+      "kotlin.comparisons",
+      "kotlin.concurrent",
+      "kotlin.concurrent.atomics",
+      "kotlin.concurrent.internal",
+      "kotlin.contracts",
+      "kotlin.coroutines",
+      "kotlin.coroutines.cancellation",
+      "kotlin.coroutines.intrinsics",
+      "kotlin.coroutines.jvm.internal",
+      "kotlin.enums",
+      "kotlin.experimental",
+      "kotlin.internal",
+      "kotlin.internal.jdk7",
+      "kotlin.internal.jdk8",
+      "kotlin.io",
+      "kotlin.io.encoding",
+      "kotlin.io.path",
+      "kotlin.jdk7",
+      "kotlin.js",
+      "kotlin.jvm",
+      "kotlin.jvm.functions",
+      "kotlin.jvm.internal",
+      "kotlin.jvm.internal.markers",
+      "kotlin.jvm.internal.unsafe",
+      "kotlin.jvm.jdk8",
+      "kotlin.jvm.optionals",
+      "kotlin.math",
+      "kotlin.properties",
+      "kotlin.random",
+      "kotlin.random.jdk8",
+      "kotlin.ranges",
+      "kotlin.reflect",
+      "kotlin.sequences",
+      "kotlin.streams.jdk8",
+      "kotlin.system",
+      "kotlin.text",
+      "kotlin.text.jdk8",
+      "kotlin.time",
+      "kotlin.time.jdk8",
+      "kotlin.uuid"
+    ],
+    "org.jetbrains:annotations": [
+      "org.intellij.lang.annotations",
+      "org.jetbrains.annotations"
+    ],
     "org.jspecify:jspecify": [
       "org.jspecify.annotations"
     ],
@@ -4189,6 +4293,12 @@
       "org.fusesource.jansi:jansi:jar:sources",
       "org.gradle:gradle-tooling-api",
       "org.gradle:gradle-tooling-api:jar:sources",
+      "org.jetbrains.kotlin:kotlin-metadata-jvm",
+      "org.jetbrains.kotlin:kotlin-metadata-jvm:jar:sources",
+      "org.jetbrains.kotlin:kotlin-stdlib",
+      "org.jetbrains.kotlin:kotlin-stdlib:jar:sources",
+      "org.jetbrains:annotations",
+      "org.jetbrains:annotations:jar:sources",
       "org.jspecify:jspecify",
       "org.jspecify:jspecify:jar:sources",
       "org.ow2.asm:asm",
@@ -4526,6 +4636,12 @@
       "org.fusesource.jansi:jansi:jar:sources",
       "org.gradle:gradle-tooling-api",
       "org.gradle:gradle-tooling-api:jar:sources",
+      "org.jetbrains.kotlin:kotlin-metadata-jvm",
+      "org.jetbrains.kotlin:kotlin-metadata-jvm:jar:sources",
+      "org.jetbrains.kotlin:kotlin-stdlib",
+      "org.jetbrains.kotlin:kotlin-stdlib:jar:sources",
+      "org.jetbrains:annotations",
+      "org.jetbrains:annotations:jar:sources",
       "org.jspecify:jspecify",
       "org.jspecify:jspecify:jar:sources",
       "org.ow2.asm:asm",
@@ -4816,6 +4932,16 @@
       ],
       "org.slf4j.spi.SLF4JServiceProvider": [
         "org.gradle.internal.logging.slf4j.StaticLoggerProvider"
+      ]
+    },
+    "org.jetbrains.kotlin:kotlin-metadata-jvm": {
+      "kotlin.metadata.internal.extensions.MetadataExtensions": [
+        "kotlin.metadata.jvm.internal.JvmMetadataExtensions"
+      ]
+    },
+    "org.jetbrains.kotlin:kotlin-metadata-jvm:jar:sources": {
+      "kotlin.metadata.internal.extensions.MetadataExtensions": [
+        "kotlin.metadata.jvm.internal.JvmMetadataExtensions"
       ]
     },
     "org.slf4j:jcl-over-slf4j": {
