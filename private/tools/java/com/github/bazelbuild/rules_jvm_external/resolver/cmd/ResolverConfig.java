@@ -123,7 +123,7 @@ public class ResolverConfig {
           maxThreads = Integer.parseInt(args[i]);
           break;
 
-        case "--use_unique_cache":
+        case "--use_isolated_cache":
           request.useUnsafeSharedCache(false);
           break;
 
