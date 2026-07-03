@@ -32,6 +32,12 @@ build:windows --define=protobuf_allow_msvc=true
 # https://github.com/bazelbuild/rules_kotlin/issues/1309
 build:windows --legacy_external_runfiles
 
+# The persistent Kotlin compiler worker keeps an exclusive handle on its
+# output jars on Windows, so downstream actions that read those jars
+# (e.g. runfiles-backed tests) fail with AccessDeniedException. Fall back
+# to non-worker execution on Windows only.
+build:windows --strategy=KotlinCompile=local
+
 # Every JVM creates a temporary performance instrumentation file in
 # /tmp/hsperfdata_$USERNAME/$PID. When we use sandboxing, we use PID
 # namespaces, which means that the PIDs are virtualized and all
