@@ -104,6 +104,12 @@ public class IndexJar {
               || entry.getName().endsWith("/module-info.class")) {
             continue;
           }
+          // package-info.class holds only package-level annotations and cannot
+          // be referenced from production code.
+          if ("package-info.class".equals(entry.getName())
+              || entry.getName().endsWith("/package-info.class")) {
+            continue;
+          }
           // Skip inner classes, anonymous classes, and local classes (contain $)
           if (isInnerClass(entry.getName())) {
             continue;
