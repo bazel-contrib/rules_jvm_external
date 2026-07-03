@@ -1,5 +1,6 @@
 load(":amend_artifact_test.bzl", "amend_artifact_test_suite")
 load(":artifact_utilities_test.bzl", "artifact_utilities_test_suite")
+load(":concat_coursier_options_test.bzl", "concat_coursier_options_test_suite")
 load(":coordinates_test.bzl", "coordinates_test_suite")
 load(":coursier_test.bzl", "coursier_test_suite")
 load(":coursier_utilities_test.bzl", "coursier_utilities_test_suite")
@@ -16,6 +17,8 @@ amend_artifact_test_suite()
 artifact_specs_test_suite()
 
 artifact_utilities_test_suite()
+
+concat_coursier_options_test_suite()
 
 coordinates_test_suite()
 
