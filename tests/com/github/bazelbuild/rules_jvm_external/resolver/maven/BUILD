@@ -62,6 +62,9 @@ java_test(
     name = "MavenResolverTest",
     size = "medium",
     srcs = ["MavenResolverTest.java"],
+    env = {
+        "RJE_UNSAFE_CACHE": "0",
+    },
     test_class = "com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenResolverTest",
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",

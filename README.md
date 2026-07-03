@@ -1032,11 +1032,11 @@ variables are honoured:
 | Environment variable | Meaning                                                                                                                                                        |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote repositories to see if a dependency is present, and just assumes it is                                              |
-| `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.m2/repository` directory to speed up dependency resolution                                                               |
+| `RJE_UNSAFE_CACHE`   | By default, the shared `$HOME/.m2/repository` directory is used to speed up dependency resolution. Set to `0` or `false` to use an isolated cache instead.     |
 
-Using the unsafe cache option will use your local `$HOME/.m2/repository` as
-a source for dependency resolutions, but will not include any local paths in
-the generated lock file unless the `repositories` attribute contains `m2local`.
+Although your local `$HOME/.m2/repository` is used as a source for
+dependency resolutions, no local paths are included in the generated
+lock file unless the `repositories` attribute contains `m2local`.
 
 The Maven-backed resolver will use credentials stored in a `$HOME/.netrc`
 file when performing dependency resolution
@@ -1053,7 +1053,7 @@ be an empty file.
 | Environment variable | Meaning                                                                                                          |
 |----------------------|------------------------------------------------------------------------------------------------------------------|
 | `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote repositories to see if a dependency is present, and just assumes it is |
-| `RJE_UNSAFE_CACHE`   | When set to `1` will use your `$HOME/.gradle` directory to speed up dependency resolution              |
+| `RJE_UNSAFE_CACHE`   | By default, your shared `$HOME/.gradle` caches are used to speed up dependency resolution. Set to `0` or `false` to use an isolated cache instead. |
 
 ## IPv6 support
 

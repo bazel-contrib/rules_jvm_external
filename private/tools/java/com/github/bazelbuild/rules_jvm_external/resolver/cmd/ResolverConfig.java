@@ -60,10 +60,11 @@ public class ResolverConfig {
       maxThreads = Integer.parseInt(System.getenv("RJE_MAX_THREADS"));
     }
 
+    request.useUnsafeSharedCache(true);
     String envUseUnsafeCache = System.getenv("RJE_UNSAFE_CACHE");
     if (envUseUnsafeCache != null) {
-      if ("1".equals(envUseUnsafeCache) || Boolean.parseBoolean(envUseUnsafeCache)) {
-        request.useUnsafeSharedCache(true);
+      if ("0".equals(envUseUnsafeCache) || "false".equalsIgnoreCase(envUseUnsafeCache)) {
+        request.useUnsafeSharedCache(false);
       }
     }
 
@@ -122,8 +123,8 @@ public class ResolverConfig {
           maxThreads = Integer.parseInt(args[i]);
           break;
 
-        case "--use_unsafe_shared_cache":
-          request.useUnsafeSharedCache(true);
+        case "--use_isolated_cache":
+          request.useUnsafeSharedCache(false);
           break;
 
         default:
