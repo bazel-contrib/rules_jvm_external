@@ -620,4 +620,25 @@ public class GradleResolverTest extends ResolverTestBase {
         "Artifacts should not contain conflicting lower version",
         artifacts.containsKey(lowerVersion));
   }
+
+  @Test
+  public void timestampedSnapshotDoesNotTriggerSpuriousConflict() {
+    Coordinates snapshot = new Coordinates("com.example:lib:1.0-SNAPSHOT");
+    Coordinates dep1 = new Coordinates("com.example:dep-a:1.0");
+    Coordinates dep2 = new Coordinates("com.example:dep-b:1.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(snapshot)
+            .add(dep1, snapshot)
+            .add(dep2, snapshot)
+            .getPath();
+
+    ResolutionResult result =
+        resolver.resolve(prepareRequestFor(repo.toUri(), dep1, dep2));
+
+    assertTrue(
+        "A timestamped snapshot requested by multiple deps should not be a conflict",
+        result.getConflicts().isEmpty());
+  }
 }

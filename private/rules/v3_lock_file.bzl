@@ -178,11 +178,46 @@ def _compute_lock_file_hash_v3_legacy(lock_file_contents):
         lock_file_contents["repositories"].keys(),
     )
 
+def _snapshot_timestamp_to_base_version(version):
+    """Convert a resolved (timestamped) snapshot version to its -SNAPSHOT base version.
+
+    A timestamped snapshot ends with a `-yyyyMMdd.HHmmss-buildNumber` revision, e.g.
+    "999.0.0-HEAD-jre-20250930.222312-91" -> "999.0.0-HEAD-jre-SNAPSHOT". Any other version is
+    returned unchanged, so it is safe to call unconditionally.
+
+    This must stay equivalent to Coordinates.toSnapshotBaseVersion on the Java side, whose
+    SNAPSHOT_TIMESTAMP_PATTERN is `-(\\d{8}\\.\\d{6}-\\d+)$` (no minimum-length assumption).
+    """
+    if not version:
+        return version
+
+    # Split off the trailing `-<date>.<time>-<buildNumber>` revision, if present.
+    parts = version.rsplit("-", 2)
+    if len(parts) != 3:
+        return version
+    base, timestamp, build_number = parts
+
+    # buildNumber is one or more digits; timestamp is 8 digits, ".", 6 digits.
+    if not build_number.isdigit():
+        return version
+    if len(timestamp) != 15 or timestamp[8] != ".":
+        return version
+    if not timestamp[:8].isdigit() or not timestamp[9:].isdigit():
+        return version
+
+    return base + "-SNAPSHOT"
+
 def _to_m2_path(unpacked):
-    path = "{group}/{artifact}/{version}/{artifact}-{version}".format(
+    version = unpacked["version"]
+
+    # For timestamped snapshots the directory uses the -SNAPSHOT base version while the file name
+    # uses the timestamped version, e.g.
+    # com/google/guava/guava/999.0.0-HEAD-jre-SNAPSHOT/guava-999.0.0-HEAD-jre-20250930.222312-91.jar
+    path = "{group}/{artifact}/{directory_version}/{artifact}-{version}".format(
         artifact = unpacked["artifact"],
         group = unpacked["group"].replace(".", "/"),
-        version = unpacked["version"],
+        directory_version = _snapshot_timestamp_to_base_version(version),
+        version = version,
     )
 
     classifier = unpacked.get("classifier", "jar")
@@ -264,12 +299,12 @@ def _get_artifacts(lock_file_contents):
             key = to_key(root_unpacked)
 
             urls = []
-            if shasum != None and key not in skipped:
+            if key not in skipped:
                 for (repo, artifacts_within_repo) in repositories.items():
                     if key in artifacts_within_repo:
                         urls.append("%s%s" % (repo, _to_m2_path(root_unpacked)))
 
-            if shasum == None or key in skipped:
+            if key in skipped:
                 file = None
             elif files.get(key):
                 file = files[key]

@@ -825,6 +825,8 @@ dev_maven.install(
         "androidx.fragment:fragment-ktx:1.6.1",
         # https://github.com/bazel-contrib/rules_jvm_external/issues/250
         "org.slf4j:slf4j-log4j12:2.0.0",
+        # Timestamped snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+        "com.google.guava:guava:999.0.0-HEAD-jre-SNAPSHOT",
     ],
     generate_compat_repositories = True,
     index_file = "//tests/custom_maven_install:regression_testing_gradle_index.json",
@@ -832,6 +834,20 @@ dev_maven.install(
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
+        "https://central.sonatype.com/repository/maven-snapshots",
+    ],
+    resolver = "gradle",
+)
+
+# Non-timestamped snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+dev_maven.install(
+    name = "non_timestamped_snapshot_testing_gradle",
+    artifacts = [
+        "com.example:snapshot:1.0-SNAPSHOT",
+    ],
+    lock_file = "//tests/custom_maven_install:non_timestamped_snapshot_testing_gradle_install.json",
+    repositories = [
+        "file:///tmp/rje_non_timestamped_snapshot_repo",
     ],
     resolver = "gradle",
 )
@@ -1128,9 +1144,11 @@ use_repo(
     "org_apache_flink_flink_test_utils_2_12",
     "org_eclipse_jetty_jetty_http_tests",
     "org_pantsbuild_jarjar",
+    "non_timestamped_snapshot_testing_gradle",
     "regression_testing_coursier",
     "regression_testing_gradle",
     "regression_testing_maven",
+    "unpinned_non_timestamped_snapshot_testing_gradle",
     "unpinned_regression_testing_coursier",
     "unpinned_regression_testing_gradle",
     "unpinned_regression_testing_maven",
