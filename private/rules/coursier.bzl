@@ -989,6 +989,34 @@ def get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache):
 
     return default_cache_dir
 
+# Compute the environment for the spawned coursier process, forcing the cache
+# location that get_coursier_cache_or_default computed.
+#
+# Coursier itself would otherwise derive its default cache location from the
+# JVM's `user.home` property, which on Linux comes from the passwd database and
+# ignores $HOME, while this file derives it from $HOME (or $XDG_CACHE_HOME). If
+# the two disagree (e.g. $HOME points at a network mount), coursier would
+# bypass the shared cache and report artifact paths that cannot be relativized
+# against it. Setting COURSIER_CACHE explicitly keeps both sides in agreement.
+# For repositories that do not use the shared cache, this also prevents
+# coursier from writing into home directories.
+# https://github.com/bazelbuild/rules_jvm_external/issues/301
+# https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
+#
+# This method is public for testing.
+def get_coursier_environment(repository_ctx, use_unsafe_shared_cache):
+    if use_unsafe_shared_cache and not _is_windows(repository_ctx):
+        # Every shared cache location on this platform is derived from one of
+        # these variables. If none of them is usable, forcing COURSIER_CACHE
+        # would point coursier at a nonsensical path; leave the environment
+        # alone and let coursier use its own default instead.
+        os_env = repository_ctx.os.environ
+        xdg_cache_home = "" if _is_macos(repository_ctx) else os_env.get("XDG_CACHE_HOME", "")
+        if not (os_env.get("COURSIER_CACHE", "") or xdg_cache_home or os_env.get("HOME", "")):
+            return {}
+    cache_location = get_coursier_cache_or_default(repository_ctx, use_unsafe_shared_cache)
+    return {"COURSIER_CACHE": str(repository_ctx.path(cache_location))}
+
 def make_coursier_dep_tree(
         repository_ctx,
         artifacts,
@@ -1084,19 +1112,14 @@ def make_coursier_dep_tree(
             cmd.append("--javadoc")
         cmd.append("--default=true")
 
-    environment = {}
-    if not _is_unpinned(repository_ctx):
+    is_unpinned = _is_unpinned(repository_ctx)
+    if not is_unpinned:
         coursier_cache_location = get_coursier_cache_or_default(
             repository_ctx,
             False,
         )
         cmd.extend(["--cache", coursier_cache_location])  # Download into $output_base/external/$maven_repo_name/v1
-
-        # If not using the shared cache and the user did not specify a COURSIER_CACHE, set the default
-        # value to prevent Coursier from writing into home directories.
-        # https://github.com/bazelbuild/rules_jvm_external/issues/301
-        # https://github.com/coursier/coursier/blob/1cbbf39b88ee88944a8d892789680cdb15be4714/modules/paths/src/main/java/coursier/paths/CoursierPaths.java#L29-L56
-        environment = {"COURSIER_CACHE": str(repository_ctx.path(coursier_cache_location))}
+    environment = get_coursier_environment(repository_ctx, is_unpinned)
 
     cmd.extend(additional_coursier_options)
 
