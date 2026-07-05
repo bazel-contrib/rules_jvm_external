@@ -5,71 +5,76 @@
     "androidx.compose.foundation:foundation-layout": 761286496,
     "androidx.fragment:fragment-ktx": 1580141833,
     "com.almworks.sqlite4java:libsqlite4java-linux-i386": -334365433,
+    "com.google.guava:guava": 1093996159,
     "com.squareup.okhttp3:okhttp": 916942239,
     "org.slf4j:slf4j-log4j12": 836539632,
-    "repositories": 1670674627
+    "repositories": -967535400
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "androidx.activity:activity-ktx:aar": -1854514307,
-    "androidx.activity:activity:aar": -187865709,
+    "androidx.activity:activity-ktx:aar": 2123763705,
+    "androidx.activity:activity:aar": 1163599781,
     "androidx.annotation:annotation": -809558039,
     "androidx.annotation:annotation-experimental:aar": -1941653327,
     "androidx.annotation:annotation-jvm": 1383664268,
     "androidx.arch.core:core-common": -415239964,
     "androidx.arch.core:core-runtime:aar": 721693460,
-    "androidx.autofill:autofill:aar": 911066991,
+    "androidx.autofill:autofill:aar": 79934006,
     "androidx.collection:collection": -355457990,
     "androidx.collection:collection-ktx": 1600282004,
-    "androidx.compose.animation:animation-core:aar": -242124552,
-    "androidx.compose.foundation:foundation-layout": 664050912,
-    "androidx.compose.foundation:foundation-layout-android:aar": 986301609,
+    "androidx.compose.animation:animation-core:aar": 963889427,
+    "androidx.compose.foundation:foundation-layout": 654657918,
+    "androidx.compose.foundation:foundation-layout-android:aar": -729590887,
     "androidx.compose.runtime:runtime": 203002610,
     "androidx.compose.runtime:runtime-android:aar": 718050107,
     "androidx.compose.runtime:runtime-saveable": -74234717,
     "androidx.compose.runtime:runtime-saveable-android:aar": -338907453,
-    "androidx.compose.ui:ui": -598058459,
-    "androidx.compose.ui:ui-android:aar": 875716847,
+    "androidx.compose.ui:ui": 1265429040,
+    "androidx.compose.ui:ui-android:aar": 1506050919,
     "androidx.compose.ui:ui-geometry": -1007025041,
     "androidx.compose.ui:ui-geometry-android:aar": 1977388959,
     "androidx.compose.ui:ui-graphics": 28331227,
     "androidx.compose.ui:ui-graphics-android:aar": 185657123,
-    "androidx.compose.ui:ui-text": -875434347,
-    "androidx.compose.ui:ui-text-android:aar": 79090180,
+    "androidx.compose.ui:ui-text": 1160544188,
+    "androidx.compose.ui:ui-text-android:aar": -863006515,
     "androidx.compose.ui:ui-unit": 1015121839,
     "androidx.compose.ui:ui-unit-android:aar": 1040566353,
     "androidx.compose.ui:ui-util": 1171438267,
     "androidx.compose.ui:ui-util-android:aar": 932111463,
-    "androidx.concurrent:concurrent-futures": -1007115512,
-    "androidx.core:core-ktx:aar": -114782500,
-    "androidx.core:core:aar": 570683327,
-    "androidx.customview:customview-poolingcontainer:aar": -890150248,
-    "androidx.customview:customview:aar": 1624906771,
-    "androidx.emoji2:emoji2:aar": -1292366570,
-    "androidx.fragment:fragment-ktx:aar": -2060683072,
-    "androidx.fragment:fragment:aar": -746632981,
+    "androidx.concurrent:concurrent-futures": -2080095795,
+    "androidx.core:core-ktx:aar": 879145197,
+    "androidx.core:core:aar": -725060360,
+    "androidx.customview:customview-poolingcontainer:aar": 856993454,
+    "androidx.customview:customview:aar": 734130706,
+    "androidx.emoji2:emoji2:aar": 654752706,
+    "androidx.fragment:fragment-ktx:aar": -1447829526,
+    "androidx.fragment:fragment:aar": 1931829674,
     "androidx.interpolator:interpolator:aar": 1955524384,
     "androidx.lifecycle:lifecycle-common": 1731189728,
     "androidx.lifecycle:lifecycle-livedata-core-ktx:aar": 1988089673,
     "androidx.lifecycle:lifecycle-livedata-core:aar": -1955786330,
     "androidx.lifecycle:lifecycle-livedata:aar": -551929247,
-    "androidx.lifecycle:lifecycle-process:aar": 1989499509,
-    "androidx.lifecycle:lifecycle-runtime-ktx:aar": -1014980151,
-    "androidx.lifecycle:lifecycle-runtime:aar": -1552116064,
+    "androidx.lifecycle:lifecycle-process:aar": 68601632,
+    "androidx.lifecycle:lifecycle-runtime-ktx:aar": -625744936,
+    "androidx.lifecycle:lifecycle-runtime:aar": 1654378708,
     "androidx.lifecycle:lifecycle-viewmodel-ktx:aar": 2067552228,
-    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": -265675815,
+    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": 1861514101,
     "androidx.lifecycle:lifecycle-viewmodel:aar": 878136930,
-    "androidx.loader:loader:aar": -1555360788,
-    "androidx.profileinstaller:profileinstaller:aar": -1012434662,
+    "androidx.loader:loader:aar": 1819001169,
+    "androidx.profileinstaller:profileinstaller:aar": -1507049935,
     "androidx.savedstate:savedstate-ktx:aar": -864170833,
     "androidx.savedstate:savedstate:aar": 1956896831,
     "androidx.startup:startup-runtime:aar": 827709981,
     "androidx.tracing:tracing:aar": 2008248276,
     "androidx.versionedparcelable:versionedparcelable:aar": 1214960800,
-    "androidx.viewpager:viewpager:aar": -289000030,
+    "androidx.viewpager:viewpager:aar": -282903375,
     "ch.qos.reload4j:reload4j": 1533684795,
     "com.almworks.sqlite4java:libsqlite4java-linux-i386:so": -691800296,
     "com.almworks.sqlite4java:sqlite4java": 1585971300,
-    "com.google.guava:listenablefuture": -1728764445,
+    "com.google.errorprone:error_prone_annotations": 652227016,
+    "com.google.guava:failureaccess": 1715931538,
+    "com.google.guava:guava": -810622749,
+    "com.google.guava:listenablefuture": 1079558157,
+    "com.google.j2objc:j2objc-annotations": -1008747351,
     "com.squareup.okhttp3:okhttp": 1262276211,
     "com.squareup.okio:okio": -993505667,
     "com.squareup.okio:okio-jvm": 2073967287,
@@ -82,6 +87,7 @@
     "org.jetbrains.kotlinx:kotlinx-coroutines-core": -584498769,
     "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": 1368106659,
     "org.jetbrains:annotations": 554168982,
+    "org.jspecify:jspecify": 117231129,
     "org.slf4j:slf4j-api": 160121336,
     "org.slf4j:slf4j-reload4j": 618181616
   },
@@ -440,11 +446,35 @@
       },
       "version": "1.0.392"
     },
+    "com.google.errorprone:error_prone_annotations": {
+      "shasums": {
+        "jar": "4667724877f1d37a689202da191e23efa7657c62eef93ccdac406eccfe5cdd0a"
+      },
+      "version": "2.50.0"
+    },
+    "com.google.guava:failureaccess": {
+      "shasums": {
+        "jar": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb"
+      },
+      "version": "1.0.3"
+    },
+    "com.google.guava:guava": {
+      "shasums": {
+        "jar": "9f71d9a756937d784cd175af7e3a1992f088321435b880af02488003da4c43b2"
+      },
+      "version": "999.0.0-HEAD-jre-20260701.164618-384"
+    },
     "com.google.guava:listenablefuture": {
       "shasums": {
-        "jar": "e4ad7607e5c0477c6f890ef26a49cb8d1bb4dffb650bab4502afee64644e3069"
+        "jar": "b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99"
       },
-      "version": "1.0"
+      "version": "9999.0-empty-to-avoid-conflict-with-guava"
+    },
+    "com.google.j2objc:j2objc-annotations": {
+      "shasums": {
+        "jar": "84d3a150518485f8140ea99b8a985656749629f6433c92b80c75b36aba3b099b"
+      },
+      "version": "3.1"
     },
     "com.squareup.okhttp3:okhttp": {
       "shasums": {
@@ -518,6 +548,12 @@
       },
       "version": "13.0"
     },
+    "org.jspecify:jspecify": {
+      "shasums": {
+        "jar": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab"
+      },
+      "version": "1.0.0"
+    },
     "org.slf4j:slf4j-api": {
       "shasums": {
         "jar": "a223e6df91b84f19d49c5ebc5f5f97c7f4438419f84a52fa05e1cfc6eed38aa9"
@@ -549,6 +585,7 @@
     "androidx.lifecycle:lifecycle-runtime:aar:2.3.1": "androidx.lifecycle:lifecycle-runtime:aar:2.6.1",
     "androidx.lifecycle:lifecycle-viewmodel:aar:2.0.0": "androidx.lifecycle:lifecycle-viewmodel:aar:2.6.1",
     "androidx.startup:startup-runtime:aar:1.0.0": "androidx.startup:startup-runtime:aar:1.1.1",
+    "com.google.guava:listenablefuture:1.0": "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
     "org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21": "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10",
     "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21": "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10",
     "org.jetbrains.kotlin:kotlin-stdlib:1.8.0": "org.jetbrains.kotlin:kotlin-stdlib:1.9.10",
@@ -881,6 +918,13 @@
     "com.almworks.sqlite4java:libsqlite4java-linux-i386:so": [
       "com.almworks.sqlite4java:sqlite4java"
     ],
+    "com.google.guava:guava": [
+      "com.google.errorprone:error_prone_annotations",
+      "com.google.guava:failureaccess",
+      "com.google.guava:listenablefuture",
+      "com.google.j2objc:j2objc-annotations",
+      "org.jspecify:jspecify"
+    ],
     "com.squareup.okhttp3:okhttp": [
       "com.squareup.okio:okio",
       "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -925,7 +969,10 @@
       "ch.qos.reload4j:reload4j",
       "com.almworks.sqlite4java:libsqlite4java-linux-i386:so",
       "com.almworks.sqlite4java:sqlite4java",
+      "com.google.errorprone:error_prone_annotations",
+      "com.google.guava:failureaccess",
       "com.google.guava:listenablefuture",
+      "com.google.j2objc:j2objc-annotations",
       "com.squareup.okhttp3:okhttp",
       "com.squareup.okio:okio",
       "com.squareup.okio:okio-jvm",
@@ -937,6 +984,7 @@
       "org.jetbrains.kotlinx:kotlinx-coroutines-core",
       "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",
       "org.jetbrains:annotations",
+      "org.jspecify:jspecify",
       "org.slf4j:slf4j-api",
       "org.slf4j:slf4j-reload4j"
     ],
@@ -997,6 +1045,9 @@
       "androidx.tracing:tracing:aar",
       "androidx.versionedparcelable:versionedparcelable:aar",
       "androidx.viewpager:viewpager:aar"
+    ],
+    "https://central.sonatype.com/repository/maven-snapshots/": [
+      "com.google.guava:guava"
     ]
   },
   "services": {

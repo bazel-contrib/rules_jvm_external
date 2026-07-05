@@ -231,7 +231,16 @@ public class V3LockFile {
           @SuppressWarnings("unchecked")
           Map<String, String> shasums =
               (Map<String, String>) artifactValue.computeIfAbsent("shasums", k -> new TreeMap<>());
-          if (info.getSha256().isPresent()) {
+          // For non-timestamped snapshots, their content can change any moment, so we avoid
+          // storing the SHA256. Timestamped snapshots embed the resolved
+          // yyyyMMdd.HHmmss-buildNumber revision in the version (so they do not end with
+          // "-SNAPSHOT") and are immutable, so their SHA256 is kept.
+          boolean isNonTimestampedSnapshot = coords.getVersion().endsWith("-SNAPSHOT");
+          if (isNonTimestampedSnapshot) {
+            // Classifier indicates the files associated to the dependency: store it even if the
+            // sha is not present
+            shasums.put(classifier, null);
+          } else if (info.getSha256().isPresent()) {
             shasums.put(classifier, info.getSha256().get());
           } else {
             shasums.putIfAbsent(classifier, null);
