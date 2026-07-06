@@ -255,6 +255,13 @@ function test_outdated_no_external_runfiles() {
   expect_log "junit:junit \[4.12"
 }
 
+function test_outdated_noenable_runfiles() {
+  bazel run @regression_testing_coursier//:outdated --noenable_runfiles >> "$TEST_LOG" 2>&1
+
+  expect_log "Checking for updates of .* artifacts against the following repositories"
+  expect_log "junit:junit \[4.12"
+}
+
 function test_outdated_with_boms() {
   bazel run @regression_testing_maven//:outdated >> "$TEST_LOG" 2>&1
 
@@ -419,6 +426,7 @@ TESTS=(
   "test_duplicate_version_warning_same_version"
   "test_outdated"
   "test_outdated_no_external_runfiles"
+  "test_outdated_noenable_runfiles"
   "test_outdated_with_boms"
   "test_outdated_with_boms_does_not_include_artifacts_without_a_version"
   "test_m2local_testing_found_local_artifact_through_pin_and_build"

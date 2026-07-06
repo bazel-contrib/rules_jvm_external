@@ -103,10 +103,13 @@ sh_binary(
         "outdated.repositories",
     ],
     args = [
-        "$(location @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
-        "$(location outdated.artifacts)",
-        "$(location outdated.boms)",
-        "$(location outdated.repositories)",
+        "$(rlocationpath @rules_jvm_external//private/tools/prebuilt:outdated_deploy.jar)",
+        "$(rlocationpath outdated.artifacts)",
+        "$(rlocationpath outdated.boms)",
+        "$(rlocationpath outdated.repositories)",
+    ],
+    deps = [
+        "@bazel_tools//tools/bash/runfiles",
     ],
     visibility = ["//visibility:public"],
 )
