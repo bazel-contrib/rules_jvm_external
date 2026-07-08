@@ -16,12 +16,15 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle.models;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class GradleResolvedArtifactImpl implements Serializable, GradleResolvedArtifact {
   private String classifier;
   private String extension;
   private File file;
+  private List<String> variantCapabilities = new ArrayList<>();
   private Map<String, String> variantAttributes;
 
   public GradleResolvedArtifactImpl() {}
@@ -38,6 +41,10 @@ public class GradleResolvedArtifactImpl implements Serializable, GradleResolvedA
     return this.file;
   }
 
+  public List<String> getVariantCapabilities() {
+    return variantCapabilities;
+  }
+
   public Map<String, String> getVariantAttributes() {
     return variantAttributes;
   }
@@ -52,6 +59,11 @@ public class GradleResolvedArtifactImpl implements Serializable, GradleResolvedA
 
   public void setFile(File file) {
     this.file = file;
+  }
+
+  public void setVariantCapabilities(List<String> variantCapabilities) {
+    this.variantCapabilities =
+        variantCapabilities == null ? new ArrayList<>() : new ArrayList<>(variantCapabilities);
   }
 
   public void setVariantAttributes(Map<String, String> variantAttributes) {

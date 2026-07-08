@@ -179,22 +179,9 @@ public class GradleBuildScriptGenerator {
                     map.put("forceVersion", true);
                     map.put("versionOnly", version); // Version without : prefix for strictly()
                   } else {
-                    if (version != null && !version.isEmpty()) {
-                      map.put("version", ":" + version);
-                    }
+                    map.put("forceVersion", false);
                   }
-                  if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
-                    map.put("classifier", ":" + dep.getClassifier());
-                  } else {
-                    map.put("classifier", "");
-                  }
-                  if (dep.getExtension() != null
-                      && dep.getClassifier() != null
-                      && !dep.getClassifier().isEmpty()) {
-                    map.put("extension", "@" + dep.getExtension());
-                  } else {
-                    map.put("extension", "");
-                  }
+                  map.put("notation", renderDependencyNotation(dep, version));
 
                   if (dep.getExclusions() != null && !dep.getExclusions().isEmpty()) {
                     map.put(
@@ -231,5 +218,35 @@ public class GradleBuildScriptGenerator {
     // Render the template and write the actual build file
     String output = template.apply(Context.newContext(contextMap)).trim();
     Files.writeString(outputGradleBuildScript, output);
+  }
+
+  private static String renderDependencyNotation(GradleDependency dep, String version) {
+    String coordinate =
+        dep.getGroup()
+            + ":"
+            + dep.getArtifact()
+            + ((version != null && !version.isEmpty()) ? ":" + version : "");
+
+    if (isTestFixturesDependency(dep)) {
+      return "testFixtures(\"" + coordinate + "\")";
+    }
+
+    StringBuilder notation = new StringBuilder().append(coordinate);
+    if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
+      notation.append(":").append(dep.getClassifier());
+    }
+    if (dep.getExtension() != null
+        && dep.getClassifier() != null
+        && !dep.getClassifier().isEmpty()) {
+      notation.append("@").append(dep.getExtension());
+    }
+    return "\"" + notation + "\"";
+  }
+
+  private static boolean isTestFixturesDependency(GradleDependency dep) {
+    return "test-fixtures".equals(dep.getClassifier())
+        && (dep.getExtension() == null
+            || dep.getExtension().isEmpty()
+            || "jar".equals(dep.getExtension()));
   }
 }

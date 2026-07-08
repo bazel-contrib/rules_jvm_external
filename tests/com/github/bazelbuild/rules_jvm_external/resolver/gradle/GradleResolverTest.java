@@ -340,6 +340,54 @@ public class GradleResolverTest extends ResolverTestBase {
   }
 
   @Test
+  public void resolvesTestFixturesVariantWithDistinctDependenciesAndNoCycles()
+      throws IOException, XMLStreamException {
+    Coordinates sampleCoordinates = new Coordinates("com.example:sample:1.0");
+    Coordinates sampleTestFixturesCoordinates =
+        new Coordinates("com.example:sample:jar:test-fixtures:1.0");
+    Coordinates mainDepCoordinates = new Coordinates("com.example:main-dep:1.0");
+    Coordinates testFixturesDepCoordinates = new Coordinates("com.example:tf-dep:1.0");
+
+    MavenRepo mavenRepo =
+        MavenRepo.create().add(mainDepCoordinates).add(testFixturesDepCoordinates);
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    Path metadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/testFixturesVariant/sample-1.0.module"));
+    moduleMetadataHelper.addToMavenRepo(sampleCoordinates, Files.readString(metadataPath));
+
+    // The base helper only creates the main jar. Add just the classified artifact here; using
+    // add(...) would rewrite sample-1.0.pom and strip the Gradle metadata marker that makes
+    // variant-aware resolution work.
+    mavenRepo.addArtifactOnly(sampleTestFixturesCoordinates);
+
+    Graph<Coordinates> resolved =
+        resolver
+            .resolve(
+                prepareRequestFor(
+                    mavenRepo.getPath().toUri(), sampleCoordinates, sampleTestFixturesCoordinates))
+            .getResolution();
+
+    assertTrue(resolved.nodes().contains(sampleCoordinates));
+    assertTrue(resolved.nodes().contains(sampleTestFixturesCoordinates));
+    assertTrue(resolved.nodes().contains(mainDepCoordinates));
+    assertTrue(resolved.nodes().contains(testFixturesDepCoordinates));
+
+    assertEquals(Set.of(mainDepCoordinates), resolved.successors(sampleCoordinates));
+    assertEquals(
+        Set.of(sampleCoordinates, testFixturesDepCoordinates),
+        resolved.successors(sampleTestFixturesCoordinates));
+    assertFalse(resolved.successors(sampleCoordinates).contains(sampleCoordinates));
+    assertFalse(resolved.successors(sampleCoordinates).contains(sampleTestFixturesCoordinates));
+    assertFalse(
+        resolved.successors(sampleTestFixturesCoordinates).contains(sampleTestFixturesCoordinates));
+  }
+
+  @Test
   public void shouldRecordCorrectShaForResolvedVersionNotConflictingVersion() {
     // When there's a version conflict, the paths map should contain only the resolved version,
     // not the conflicting lower version. This ensures we record the correct SHA for the artifact.

@@ -34,6 +34,22 @@ public interface GradleResolvedDependency {
 
   void setVersion(String version);
 
+  /**
+   * The capabilities of the variant this dependency was resolved from, as "group:name" strings. A
+   * variant with no explicitly declared capabilities carries the module's implicit capability.
+   */
+  List<String> getVariantCapabilities();
+
+  void setVariantCapabilities(List<String> variantCapabilities);
+
+  /**
+   * A feature variant provides capabilities other than the module's own implicit "group:name"
+   * capability. Test fixtures are the most common example.
+   *
+   * @return whether this dependency was resolved from a feature variant
+   */
+  boolean isFeatureVariant();
+
   Set<String> getRequestedVersions();
 
   void addRequestedVersion(String requestedVersion);
