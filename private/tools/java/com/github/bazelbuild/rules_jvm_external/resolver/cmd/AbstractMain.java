@@ -26,20 +26,31 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
+import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.DependencyIndex;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFile;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
+import com.github.bazelbuild.rules_jvm_external.resolver.DependencyMetadata;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.HttpDownloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.LocalMetadataService;
+import com.github.bazelbuild.rules_jvm_external.resolver.MetadataService;
+import com.github.bazelbuild.rules_jvm_external.resolver.SpiLoader;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.UriNotFoundException;
+import java.util.ArrayList;
+import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.graph.Graph;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Collection;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -129,12 +140,14 @@ public abstract class AbstractMain {
               return thread;
             });
     try {
+      final MetadataService metadataService = resolveMetadataService(new LocalMetadataService(downloader), listener);
       for (Coordinates coords : resolved.nodes()) {
         Supplier<Set<DependencyInfo>> dependencyInfoSupplier =
             () -> {
               try {
                 return getDependencyInfos(
-                    downloader,
+                    metadataService,
+                    request.getRepositories(),
                     coords,
                     resolved.successors(coords),
                     config.isFetchSources(),
@@ -180,60 +193,70 @@ public abstract class AbstractMain {
     }
   }
 
-  private static DownloadResult optionallyDownload(Downloader downloader, Coordinates coords) {
-    try {
-      return downloader.download(coords);
-    } catch (UriNotFoundException e) {
-      return null;
-    }
+  private static MetadataService resolveMetadataService(
+      MetadataService localMetadataService, EventListener listener) {
+    return SpiLoader.load(
+        MetadataService.class,
+        localMetadataService,
+        service -> {
+          listener.onEvent(
+              new LogEvent(
+                  "AbstractMain",
+                  "Using metadata service loaded via SPI: " + service.getClass().getName(),
+                  null));
+          service.initialize(localMetadataService);
+        });
   }
 
   private static Set<DependencyInfo> getDependencyInfos(
-      Downloader downloader,
+      MetadataService metadataService,
+      Collection<URI> repositories,
       Coordinates coords,
       Set<Coordinates> dependencies,
       boolean fetchSources,
       boolean fetchJavadoc) {
     ImmutableSet.Builder<DependencyInfo> toReturn = ImmutableSet.builder();
 
-    DownloadResult result = downloader.download(coords);
+    DependencyMetadata dm = metadataService.getMetadata(coords, repositories);
 
-    if (result == null) {
-      return toReturn.build();
+    if (dm == null) {
+      throw new UriNotFoundException("Unable to download from any repo: " + coords);
     }
 
-    PerJarIndexResults indexResults;
-    if (result.getPath().isPresent()) {
-      try {
-        indexResults = new IndexJar().index(result.getPath().get());
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
+    Set<URI> resultRepos = ImmutableSet.copyOf(dm.getRepositories());
+    Optional<Path> resultPath = Optional.empty();
+    Optional<String> resultSha256 = Optional.ofNullable(dm.getSha256());
+    Set<String> packages = dm.getPackages();
+    Set<String> classes = dm.getClasses();
+
+    SortedMap<String, SortedSet<String>> serviceImplementations = new TreeMap<>();
+    if (dm.getServices() != null) {
+      for (Map.Entry<String, ? extends Set<String>> entry : dm.getServices().entrySet()) {
+        serviceImplementations.put(entry.getKey(), new TreeSet<>(entry.getValue()));
       }
-    } else {
-      indexResults = new PerJarIndexResults(new TreeSet<>(), new TreeSet<>(), new TreeMap<>());
     }
 
     toReturn.add(
         new DependencyInfo(
             coords,
-            result.getRepositories(),
-            result.getPath(),
-            result.getSha256(),
+            resultRepos,
+            resultPath,
+            resultSha256,
             dependencies,
-            indexResults.getPackages(),
-            indexResults.getClasses(),
-            indexResults.getServiceImplementations()));
+            packages,
+            classes,
+            serviceImplementations));
 
     if (fetchSources) {
       Coordinates sourceCoords = coords.setClassifier("sources").setExtension("jar");
-      DownloadResult source = optionallyDownload(downloader, sourceCoords);
-      if (source != null) {
+      DependencyMetadata sdm = metadataService.getMetadata(sourceCoords, repositories);
+      if (sdm != null) {
         toReturn.add(
             new DependencyInfo(
                 sourceCoords,
-                source.getRepositories(),
-                source.getPath(),
-                source.getSha256(),
+                sdm.getRepositories(),
+                Optional.empty(),
+                Optional.ofNullable(sdm.getSha256()),
                 ImmutableSet.of(),
                 ImmutableSet.of(),
                 ImmutableSet.of(),
@@ -243,14 +266,14 @@ public abstract class AbstractMain {
 
     if (fetchJavadoc) {
       Coordinates docCoords = coords.setClassifier("javadoc").setExtension("jar");
-      DownloadResult javadoc = optionallyDownload(downloader, docCoords);
-      if (javadoc != null) {
+      DependencyMetadata ddm = metadataService.getMetadata(docCoords, repositories);
+      if (ddm != null) {
         toReturn.add(
             new DependencyInfo(
                 docCoords,
-                javadoc.getRepositories(),
-                javadoc.getPath(),
-                javadoc.getSha256(),
+                ddm.getRepositories(),
+                Optional.empty(),
+                Optional.ofNullable(ddm.getSha256()),
                 ImmutableSet.of(),
                 ImmutableSet.of(),
                 ImmutableSet.of(),

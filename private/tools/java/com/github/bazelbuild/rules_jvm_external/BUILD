@@ -2,13 +2,30 @@ load("@rules_java//java:java_binary.bzl", "java_binary")
 load("@rules_java//java:java_library.bzl", "java_library")
 
 java_library(
+    name = "coordinates",
+    srcs = ["Coordinates.java"],
+    visibility = ["//visibility:public"],
+)
+
+java_library(
     name = "rules_jvm_external",
-    srcs = glob(["*.java"]),
+    srcs = [
+        "ByteStreams.java",
+        "Hasher.java",
+    ],
     visibility = [
         "//private/tools/java:__subpackages__",
+        "//resolver:__subpackages__",
         "//tests/com:__subpackages__",
     ],
+    exports = [
+        ":coordinates",
+    ],
+    deps = [
+        ":coordinates",
+    ],
 )
+
 
 java_library(
     name = "hasher",

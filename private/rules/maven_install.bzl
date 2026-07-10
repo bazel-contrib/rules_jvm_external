@@ -28,6 +28,7 @@ def maven_install(
         duplicate_version_warning = "warn",
         repin_instructions = None,
         ignore_empty_files = False,
+        resolver_extra_dependencies = [],
         additional_coursier_options = []):
     """Resolves and fetches artifacts transitively from Maven repositories.
 
@@ -80,6 +81,7 @@ def maven_install(
         is "warn".
       repin_instructions: Instructions to re-pin dependencies in your repository. Will be shown when re-pinning is required.
       ignore_empty_files: Treat jars that are empty as if they were not found.
+      resolver_extra_dependencies: Jars or libraries to add to the resolver classpath (such as custom MetadataService or DownloadService SPI implementations).
       additional_coursier_options: Additional options that will be passed to coursier.
     """
     if resolver != "coursier" and not maven_install_json:
@@ -160,6 +162,7 @@ def maven_install(
         pinned_coursier_fetch(
             name = name,
             resolver = resolver,
+            resolver_extra_dependencies = resolver_extra_dependencies,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
             boms = boms_json_strings,

@@ -10,7 +10,9 @@ java_library(
         "//tests/com/github/bazelbuild/rules_jvm_external/resolver:__subpackages__",
     ],
     deps = [
+        "//resolver:resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:IndexJar-lib",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",

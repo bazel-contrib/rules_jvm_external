@@ -118,6 +118,17 @@ sh_binary(
 EMPTY_FILE_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 _IN_REPO_PIN = """
+load("@rules_java//java:java_binary.bzl", "java_binary")
+
+java_binary(
+    name = "custom_resolver",
+    main_class = "{main_class}",
+    visibility = ["//visibility:public"],
+    runtime_deps = [
+        {resolver_lib},
+    ] + {resolver_extra_dependencies},
+)
+
 pin_dependencies(
     name = "pin",
     boms = {boms},
@@ -130,7 +141,7 @@ pin_dependencies(
     dependency_index = {dependency_index},
     jvm_flags = {jvm_flags},
     visibility = ["//visibility:public"],
-    resolver = {resolver},
+    resolver = ":custom_resolver",
 )
 """
 
@@ -866,9 +877,11 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             lock_file_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
 
         if repository_ctx.attr.resolver == "maven":
-            resolver_target = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven:MavenMain")
+            main_class = "com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenMain"
+            resolver_lib = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/maven:maven-resolver-lib")
         elif repository_ctx.attr.resolver == "gradle":
-            resolver_target = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:GradleMain")
+            main_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleMain"
+            resolver_lib = Label("//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:gradle-resolver-lib")
         else:
             fail("Unknown resolver")
 
@@ -882,6 +895,9 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
                 dependency_index_location = "/".join([dep_index_package_path, dep_index_file_name])
 
         return _IN_REPO_PIN.format(
+            main_class = main_class,
+            resolver_lib = repr(str(resolver_lib)),
+            resolver_extra_dependencies = repr([str(l) for l in repository_ctx.attr.resolver_extra_dependencies]),
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
@@ -891,7 +907,6 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
             dependency_index = repr(dependency_index_location),
-            resolver = repr(str(resolver_target)),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
@@ -1658,6 +1673,7 @@ pinned_coursier_fetch = repository_rule(
             doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default.",
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
+        "resolver_extra_dependencies": attr.label_list(default = []),
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },

@@ -1,14 +1,24 @@
 load("@rules_java//java:java_library.bzl", "java_library")
 load("//private/rules:artifact.bzl", "artifact")
 
+
 java_library(
     name = "resolver",
-    srcs = glob(["*.java"]),
+    srcs = [
+        "Conflict.java",
+        "DependencyInfo.java",
+        "PackagingMappings.java",
+        "ResolutionResult.java",
+        "ResolvedArtifact.java",
+        "Resolver.java",
+        "SpiLoader.java",
+    ],
     visibility = [
         "//private/tools/java:__subpackages__",
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
     ],
     deps = [
+        "//resolver:resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         artifact(
             "com.google.guava:guava",

@@ -13,10 +13,12 @@ java_library(
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
     ],
     deps = [
+        "//resolver:resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
         artifact(
             "com.google.guava:guava",
             repository_name = "rules_jvm_external_deps",
@@ -100,12 +102,11 @@ java_library(
     ],
 )
 
-java_binary(
-    name = "MavenMain",
+java_library(
+    name = "maven-resolver-lib",
     srcs = [
         "MavenMain.java",
     ],
-    main_class = "com.github.bazelbuild.rules_jvm_external.resolver.maven.MavenMain",
     visibility = ["//visibility:public"],
     deps = [
         ":maven",

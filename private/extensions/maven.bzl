@@ -121,6 +121,7 @@ install = tag_class(
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "repin_instructions": attr.string(doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "resolver_extra_dependencies": attr.label_list(default = [], doc = "Jars or libraries to add to the resolver classpath (such as custom MetadataService or DownloadService SPI implementations)."),
     },
 )
 
@@ -740,6 +741,7 @@ def maven_impl(mctx):
                 repo["fetch_javadoc"] = install.fetch_javadoc
                 repo["fetch_sources"] = install.fetch_sources
                 repo["resolver"] = install.resolver
+                repo["resolver_extra_dependencies"] = install.resolver_extra_dependencies
                 repo["strict_visibility"] = install.strict_visibility
                 if len(install.repositories):
                     mapped_repos = []
@@ -858,6 +860,7 @@ def maven_impl(mctx):
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
+                resolver_extra_dependencies = repo.get("resolver_extra_dependencies", []),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),
                 dependency_index = repo.get("dependency_index"),
