@@ -114,7 +114,7 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-strict_visibility_value"></a>strict_visibility_value |  -   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `["@rules_jvm_external//visibility:private"]`  |
 | <a id="maven.install-use_credentials_from_home_netrc_file"></a>use_credentials_from_home_netrc_file |  Whether to pass machine login credentials from the ~/.netrc file to coursier.   | Boolean | optional |  `False`  |
 | <a id="maven.install-use_starlark_android_rules"></a>use_starlark_android_rules |  Whether to use the native or Starlark version of the Android rules.   | Boolean | optional |  `False`  |
-| <a id="maven.install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts<br><br>If "pinned", choose the user-specified version in maven_install unconditionally. If "default", follow Coursier's default policy.   | String | optional |  `"default"`  |
+| <a id="maven.install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts<br><br>If "pinned", choose the user-specified version in maven_install unconditionally. With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module. If "default", follow the selected resolver's default policy.   | String | optional |  `"default"`  |
 
 <a id="maven.override"></a>
 

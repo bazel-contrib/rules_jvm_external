@@ -110,7 +110,8 @@ install = tag_class(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
 
             If "pinned", choose the user-specified version in maven_install unconditionally.
-            If "default", follow Coursier's default policy.
+            With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module.
+            If "default", follow the selected resolver's default policy.
             """,
             default = "default",
             values = [
@@ -597,6 +598,16 @@ def remove_fields(s):
         if k != "to_json" and k != "to_proto" and getattr(s, k, None)
     } | {"version": getattr(s, "version", "")}
 
+def apply_root_version_conflict_policy(artifacts, resolver, version_conflict_policy):
+    """Applies the install-level conflict policy to root module artifacts."""
+    if resolver not in ["gradle", "maven"] or version_conflict_policy != "pinned":
+        return artifacts
+
+    return [
+        struct(**(remove_fields(artifact) | {"force_version": True})) if getattr(artifact, "version", None) else artifact
+        for artifact in artifacts
+    ]
+
 def maven_impl(mctx):
     repos = {}
     overrides = {}
@@ -652,7 +663,11 @@ def maven_impl(mctx):
         merged_repo.update(root_repo)
 
         # Special handling for artifacts and boms - deduplicate with root priority
-        root_artifacts = root_repo.get("artifacts", [])
+        root_artifacts = apply_root_version_conflict_policy(
+            root_repo.get("artifacts", []),
+            root_repo.get("resolver", _DEFAULT_RESOLVER),
+            root_repo.get("version_conflict_policy", "default"),
+        )
         bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {})
         root_boms = root_repo.get("boms", [])
         bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", {})
