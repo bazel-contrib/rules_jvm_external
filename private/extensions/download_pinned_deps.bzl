@@ -16,6 +16,9 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
         if http_file_repository_name in http_files:
             continue
 
+        if not artifact.get("file"):
+            continue        
+
         urls = []
         artifact_urls = artifact["urls"]
 
