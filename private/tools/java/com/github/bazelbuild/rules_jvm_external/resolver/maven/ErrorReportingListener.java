@@ -41,7 +41,7 @@ class ErrorReportingListener extends AbstractRepositoryListener {
   }
 
   private void addExceptionIfPresent(RepositoryEvent event) {
-    if (event != null && event.getException() != null) {
+    if (null != event && null != event.getException()) {
       exceptions.add(event.getException());
     }
   }
