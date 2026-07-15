@@ -95,7 +95,7 @@ class HttpDownloaderTransporter implements Transporter {
       Files.copy(downloaded, dest, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    if (!"file".equals(uri.getScheme())) {
+    if (null != uri.getScheme() && !uri.getScheme().equals("file")) {
       Files.deleteIfExists(downloaded);
     }
   }
