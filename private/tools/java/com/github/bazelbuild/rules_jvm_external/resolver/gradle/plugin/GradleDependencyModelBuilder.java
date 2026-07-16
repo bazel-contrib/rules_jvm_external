@@ -121,6 +121,16 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     Configuration detachedCfg =
         project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
+    // Detached configurations are not covered by `configurations.all`, so the forced module
+    // versions from the generated build script do not apply to them automatically. Without
+    // them, pinned modules can resolve at a different version during the retry.
+    Set<String> forcedModules =
+        cfg.getResolutionStrategy().getForcedModules().stream()
+            .map(m -> m.getGroup() + ":" + m.getName() + ":" + m.getVersion())
+            .collect(Collectors.toSet());
+    if (!forcedModules.isEmpty()) {
+      detachedCfg.getResolutionStrategy().force(forcedModules.toArray());
+    }
     // Ensure the detached configuration respects the same exclude rules as the original
     // configuration
     if (!cfg.getExcludeRules().isEmpty()) {
@@ -134,9 +144,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     }
 
     // build the updated dependency graph with the detached configuration for all the
-    // dependencies that we couldn't resolve with the default configuration
+    // dependencies that we couldn't resolve with the default configuration. When everything
+    // resolved, skip the retry: the detached configuration resolves without the main
+    // configuration's attributes, so it can fail or pick different versions, and merging
+    // those results would corrupt an already-complete graph.
+    boolean retryUnresolved = !unresolvedDependenciesRuntimeClasspath.isEmpty();
     List<GradleResolvedDependency> resolvedDetachedRoots =
-        resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap);
+        retryUnresolved
+            ? resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap)
+            : List.of();
 
     List<GradleResolvedDependency> roots =
         Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream())
@@ -149,9 +165,11 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     gradleDependencyModel.getResolvedDependencies().addAll(roots);
 
     // if anything is still unresolved, then add it for reporting
-    gradleDependencyModel
-        .getUnresolvedDependencies()
-        .addAll(getUnresolvedDependencies(detachedCfg));
+    if (retryUnresolved) {
+      gradleDependencyModel
+          .getUnresolvedDependencies()
+          .addAll(getUnresolvedDependencies(detachedCfg));
+    }
     return gradleDependencyModel;
   }
 
