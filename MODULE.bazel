@@ -320,6 +320,21 @@ dev_maven.amend_artifact(
     testonly = "true",
     coordinates = "org.junit.jupiter:junit-jupiter-api",
 )
+
+# Requests the main jar and the test-fixtures jar of one module at different
+# versions. Gradle selects a single version per module, so the pinned policy
+# must only force one of them.
+# https://github.com/bazel-contrib/rules_jvm_external/pull/1608
+dev_maven.install(
+    name = "gradle_classifier_pinning",
+    artifacts = [
+        "com.squareup.misk:misk-feature:2026.07.11.061457-fa37275",
+        "com.squareup.misk:misk-feature:jar:test-fixtures:2026.06.30.120630-d342aab",
+    ],
+    lock_file = "//tests/custom_maven_install:gradle_classifier_pinning_install.json",
+    resolver = "gradle",
+    version_conflict_policy = "pinned",
+)
 dev_maven.install(
     name = "global_exclusion_testing",
     artifacts = [
@@ -1044,6 +1059,7 @@ use_repo(
     "forcing_versions",
     "from_files",
     "global_exclusion_testing",
+    "gradle_classifier_pinning",
     "m2local_testing",
     "m2local_testing_ignore_empty_files",
 

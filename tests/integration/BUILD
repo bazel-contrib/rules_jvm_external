@@ -98,6 +98,35 @@ diff_test(
     file2 = ":forced-versions-deps-sorted.txt",
 )
 
+# The main jar and the test-fixtures jar of misk-feature are requested at
+# different versions with the "pinned" policy. Gradle selects one version per
+# module, so both must land on the version of the unclassified root.
+genquery(
+    name = "gradle-classifier-pinning-deps",
+    expression = "deps(@gradle_classifier_pinning//:com_squareup_misk_misk_feature_test_fixtures)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@gradle_classifier_pinning//:com_squareup_misk_misk_feature_test_fixtures"],
+)
+
+genrule(
+    name = "gradle-classifier-pinning-deps-sorted",
+    testonly = 1,
+    srcs = [":gradle-classifier-pinning-deps"],
+    outs = ["gradle-classifier-pinning-deps-sorted.txt"],
+    cmd = "cat $< | grep misk-feature | sed -e 's|^@@|@|g; s|\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\r||g' | sort > $@",
+)
+
+# If a version is forced per artifact rather than per Gradle module, the main
+# jar is silently downgraded to the test-fixtures version `2026.06.30.120630-d342aab`
+diff_test(
+    name = "gradle-classifier-pinning-deps-test",
+    file1 = "gradle-classifier-pinning-deps.golden.unix",
+    file2 = ":gradle-classifier-pinning-deps-sorted.txt",
+)
+
 genquery(
     name = "root-wins-deps",
     expression = "deps(@root_wins//:io_netty_netty_buffer)",
