@@ -151,6 +151,7 @@ def _jvm_import_uses_execution_platform_java_runtime_impl(ctx):
         argv = matching_actions[0].argv
         asserts.true(env, "remotejdk11_" in argv[0], "Expected %s to use the execution-platform Java runtime, got %s" % (mnemonic, argv[0]))
         asserts.true(env, "-jar" in argv)
+        asserts.equals(env, "C.UTF-8", matching_actions[0].env.get("LC_CTYPE"))
         deploy_jar_args = [arg for arg in argv if arg.endswith("AddJarManifestEntry_deploy.jar")]
         asserts.equals(env, 1, len(deploy_jar_args))
 
