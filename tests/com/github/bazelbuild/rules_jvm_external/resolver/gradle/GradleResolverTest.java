@@ -21,8 +21,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
 import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
@@ -43,12 +45,16 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.xml.stream.XMLStreamException;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.model.Model;
 import org.junit.Test;
 
 @AutoBazelRepository
@@ -385,6 +391,169 @@ public class GradleResolverTest extends ResolverTestBase {
     assertFalse(resolved.successors(sampleCoordinates).contains(sampleTestFixturesCoordinates));
     assertFalse(
         resolved.successors(sampleTestFixturesCoordinates).contains(sampleTestFixturesCoordinates));
+  }
+
+  @Test
+  public void forcedModuleVersionSweepsUpTestFixturesRequestedAtOlderVersion()
+      throws IOException, XMLStreamException {
+    // With `version_conflict_policy = "pinned"` only the unclassified root is forced. Gradle
+    // selects a single version per module regardless of classifier, so the test-fixtures root
+    // requested at an older version must follow the forced module version.
+    Coordinates mainCoordinates = new Coordinates("com.example:sample:2.0");
+    Coordinates olderTestFixturesCoordinates =
+        new Coordinates("com.example:sample:jar:test-fixtures:1.0");
+    Coordinates selectedTestFixturesCoordinates =
+        new Coordinates("com.example:sample:jar:test-fixtures:2.0");
+    Coordinates mainDepCoordinates = new Coordinates("com.example:main-dep:1.0");
+    Coordinates testFixturesDepCoordinates = new Coordinates("com.example:tf-dep:1.0");
+
+    MavenRepo mavenRepo =
+        MavenRepo.create().add(mainDepCoordinates).add(testFixturesDepCoordinates);
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    for (String version : List.of("1.0", "2.0")) {
+      Path metadataPath =
+          Paths.get(
+              runfiles.rlocation(
+                  "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/testFixturesVariant/sample-"
+                      + version
+                      + ".module"));
+      moduleMetadataHelper.addToMavenRepo(
+          new Coordinates("com.example:sample:" + version), Files.readString(metadataPath));
+      mavenRepo.addArtifactOnly(new Coordinates("com.example:sample:jar:test-fixtures:" + version));
+    }
+
+    ResolutionRequest request =
+        new ResolutionRequest()
+            .addRepository(mavenRepo.getPath().toUri())
+            .addArtifact(new Artifact(mainCoordinates, Set.of(), true))
+            .addArtifact(new Artifact(olderTestFixturesCoordinates));
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+
+    assertTrue(resolved.nodes().contains(mainCoordinates));
+    assertTrue(resolved.nodes().contains(selectedTestFixturesCoordinates));
+    assertFalse(resolved.nodes().contains(olderTestFixturesCoordinates));
+    for (Coordinates node : resolved.nodes()) {
+      assertFalse(node.toString(), node.getVersion() == null || node.getVersion().isEmpty());
+    }
+
+    // The variants keep their distinct dependency sets at the selected version.
+    assertEquals(Set.of(mainDepCoordinates), resolved.successors(mainCoordinates));
+    assertEquals(
+        Set.of(mainCoordinates, testFixturesDepCoordinates),
+        resolved.successors(selectedTestFixturesCoordinates));
+  }
+
+  @Test
+  public void forcedVersionOverridesHigherTransitiveRequirementWithoutFailures() {
+    // A forced root version must silently win over transitive requests for a higher version.
+    // Expressing the pin as a strict constraint instead makes Gradle fail those selectors, and
+    // the failures cascade into spurious graph nodes.
+    Coordinates pinned = new Coordinates("com.example:lib:1.0");
+    Coordinates higher = new Coordinates("com.example:lib:2.0");
+    Coordinates app = new Coordinates("com.example:app:1.0");
+
+    Path repo = MavenRepo.create().add(pinned).add(higher).add(app, higher).getPath();
+
+    ResolutionRequest request =
+        new ResolutionRequest()
+            .addRepository(repo.toUri())
+            .addArtifact(new Artifact(app))
+            .addArtifact(new Artifact(pinned, Set.of(), true));
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+
+    assertTrue(resolved.nodes().contains(pinned));
+    assertFalse(resolved.nodes().contains(higher));
+    for (Coordinates node : resolved.nodes()) {
+      assertFalse(node.toString(), node.getVersion() == null || node.getVersion().isEmpty());
+    }
+  }
+
+  @Test
+  public void forcedVersionBelowBomConstraintKeepsBomManagedRootsResolvable() {
+    // Mirrors the Cash Loanstar shape: a BOM manages `lib` at 2.0 while the root pins it at
+    // 1.0 with force_version, and another root is versionless, relying on the BOM. The pin
+    // must win without poisoning the BOM-managed root's resolution.
+    Coordinates pinned = new Coordinates("com.example:lib:1.0");
+    Coordinates higher = new Coordinates("com.example:lib:2.0");
+    Coordinates managed = new Coordinates("com.example:managed:1.0");
+    Coordinates bom = new Coordinates("com.example:bom:1.0");
+
+    Model bomModel = createModel(bom);
+    bomModel.setPackaging("pom");
+    DependencyManagement managedDeps = new DependencyManagement();
+    Dependency libDep = new Dependency();
+    libDep.setGroupId(pinned.getGroupId());
+    libDep.setArtifactId(pinned.getArtifactId());
+    libDep.setVersion(higher.getVersion());
+    managedDeps.addDependency(libDep);
+    Dependency managedDep = new Dependency();
+    managedDep.setGroupId(managed.getGroupId());
+    managedDep.setArtifactId(managed.getArtifactId());
+    managedDep.setVersion(managed.getVersion());
+    managedDeps.addDependency(managedDep);
+    bomModel.setDependencyManagement(managedDeps);
+
+    Path repo =
+        MavenRepo.create().add(pinned).add(higher).add(managed).add(bomModel).getPath();
+
+    ResolutionRequest request =
+        new ResolutionRequest()
+            .addRepository(repo.toUri())
+            .addBom(bom)
+            .addArtifact(new Artifact(pinned, Set.of(), true))
+            .addArtifact(new Artifact(new Coordinates("com.example:managed")));
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+
+    assertTrue(resolved.nodes().contains(pinned));
+    assertTrue(resolved.nodes().contains(managed));
+    assertFalse(resolved.nodes().contains(higher));
+    for (Coordinates node : resolved.nodes()) {
+      assertFalse(node.toString(), node.getVersion() == null || node.getVersion().isEmpty());
+    }
+  }
+
+  @Test
+  public void forcedVersionSurvivesDetachedConfigurationRetries()
+      throws IOException, XMLStreamException {
+    // The plugin re-resolves all declared dependencies in a detached configuration, which does
+    // not inherit `configurations.all { resolutionStrategy.force(...) }`. Without the force, a
+    // transitive strict constraint deadlocks against the pinned version there, and the failed
+    // selectors leak into the graph.
+    Coordinates pinned = new Coordinates("com.example:lib:1.0");
+    Coordinates higher = new Coordinates("com.example:lib:2.0");
+    Coordinates appCoordinates = new Coordinates("com.example:app:1.0");
+
+    MavenRepo mavenRepo = MavenRepo.create().add(pinned).add(higher);
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    Path metadataPath =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/strictTransitiveConstraint/app-1.0.module"));
+    // app depends on lib with `strictly 2.0` in its Gradle module metadata.
+    moduleMetadataHelper.addToMavenRepo(appCoordinates, Files.readString(metadataPath));
+
+    ResolutionRequest request =
+        new ResolutionRequest()
+            .addRepository(mavenRepo.getPath().toUri())
+            .addArtifact(new Artifact(appCoordinates))
+            .addArtifact(new Artifact(pinned, Set.of(), true));
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+
+    assertTrue(resolved.nodes().contains(pinned));
+    assertFalse(resolved.nodes().contains(higher));
+    for (Coordinates node : resolved.nodes()) {
+      assertFalse(node.toString(), node.getVersion() == null || node.getVersion().isEmpty());
+    }
   }
 
   @Test

@@ -72,7 +72,9 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",
+        "//resolver",
         "//tests/com/github/bazelbuild/rules_jvm_external/resolver",
+        "@rules_jvm_external_deps//:org_apache_maven_maven_model",
         artifact(
             "junit:junit",
             repository_name = "regression_testing_coursier",

@@ -598,10 +598,49 @@ def remove_fields(s):
         if k != "to_json" and k != "to_proto" and getattr(s, k, None)
     } | {"version": getattr(s, "version", "")}
 
+def _defines_gradle_module_version(candidate, current):
+    """Whether candidate should force the Gradle module version instead of current."""
+    candidate_classified = bool(getattr(candidate, "classifier", None))
+    current_classified = bool(getattr(current, "classifier", None))
+    if candidate_classified != current_classified:
+        # An unclassified root defines the module version.
+        return current_classified
+    return compare_maven_versions(candidate.version, current.version) == 1
+
+def _select_gradle_forced_versions(artifacts):
+    """Selects the single version to force for each Gradle group:artifact module.
+
+    Gradle resolves one version per module regardless of classifier, so forcing
+    two versions of the same module (for example a main jar and its
+    test-fixtures jar) makes resolution unsatisfiable.
+    """
+    winners = {}
+    for artifact in artifacts:
+        if not getattr(artifact, "version", None):
+            continue
+        key = "%s:%s" % (artifact.group, artifact.artifact)
+        current = winners.get(key)
+        if current == None or _defines_gradle_module_version(artifact, current):
+            winners[key] = artifact
+    return {key: winner.version for key, winner in winners.items()}
+
+def _forces_gradle_module_version(artifact, forced_versions):
+    version = getattr(artifact, "version", None)
+    if not version:
+        return False
+    return version == forced_versions.get("%s:%s" % (artifact.group, artifact.artifact))
+
 def apply_root_version_conflict_policy(artifacts, resolver, version_conflict_policy):
     """Applies the install-level conflict policy to root module artifacts."""
     if resolver not in ["gradle", "maven"] or version_conflict_policy != "pinned":
         return artifacts
+
+    if resolver == "gradle":
+        forced_versions = _select_gradle_forced_versions(artifacts)
+        return [
+            struct(**(remove_fields(artifact) | {"force_version": True})) if _forces_gradle_module_version(artifact, forced_versions) else artifact
+            for artifact in artifacts
+        ]
 
     return [
         struct(**(remove_fields(artifact) | {"force_version": True})) if getattr(artifact, "version", None) else artifact
