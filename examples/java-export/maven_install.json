@@ -6,7 +6,7 @@
     "com.google.errorprone:error_prone_annotations": 1790047777,
     "com.google.guava:guava": -249069712,
     "com.google.j2objc:j2objc-annotations": -26400317,
-    "com.google.protobuf:protobuf-java": 1247529435,
+    "com.google.protobuf:protobuf-java": 1906581597,
     "repositories": -1949687017
   },
   "__RESOLVED_ARTIFACTS_HASH": {
@@ -23,8 +23,8 @@
     "com.google.guava:listenablefuture": 1079558157,
     "com.google.j2objc:j2objc-annotations": -1008747351,
     "com.google.j2objc:j2objc-annotations:jar:sources": -1518668002,
-    "com.google.protobuf:protobuf-java": 1331070778,
-    "com.google.protobuf:protobuf-java:jar:sources": 133270104,
+    "com.google.protobuf:protobuf-java": 1957269082,
+    "com.google.protobuf:protobuf-java:jar:sources": 1812626912,
     "org.jspecify:jspecify": 117231129,
     "org.jspecify:jspecify:jar:sources": -2134060298
   },
@@ -79,10 +79,10 @@
     },
     "com.google.protobuf:protobuf-java": {
       "shasums": {
-        "jar": "400621a8f0aac52fab7ec88f492edd356f5a4355caa8f92028f217a8b5e4ac3b",
-        "sources": "63798a62a5f62575c814b92b1b951252bfd379ebe8207610db41622e03b007dc"
+        "jar": "3ca892fd6ea8b37d01bb6917dbc0bf2637548b756753f65a28d4f1d4d982347f",
+        "sources": "ed30fe6a51c7c15a6f123448304c97185f2039f2aeca9d5e3b4f53de3a4c813c"
       },
-      "version": "4.35.0"
+      "version": "4.33.4"
     },
     "org.jspecify:jspecify": {
       "shasums": {
