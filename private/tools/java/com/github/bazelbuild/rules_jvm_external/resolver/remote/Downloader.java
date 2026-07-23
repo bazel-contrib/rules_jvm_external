@@ -125,14 +125,21 @@ public class Downloader {
 
     Path pathInRepo = null;
     Path knownPath = knownPaths.get(coordsToUse);
+    boolean hadPomOnlyKnownPath = false;
 
     if (knownPath != null && Files.exists(knownPath)) {
       if (isPomPathForNonPomCoordinates(coordsToUse, knownPath)) {
-        return new DownloadResult(coordsToUse, Set.of(), null, null);
+        // The only known path is a POM for a non-POM coordinate (e.g. a KMP
+        // module where Gradle's JVM variant has no jar). Skip it and try
+        // downloading the actual jar from the repos below.
+        hadPomOnlyKnownPath = true;
+      } else {
+        pathInRepo = knownPath;
       }
-      pathInRepo = knownPath;
-    } else {
-      // Check the local cache for the path first
+    }
+
+    // If no usable known path, check the local cache
+    if (pathInRepo == null) {
       Path cachedResult = localRepository.resolve(path);
       if (Files.exists(cachedResult)) {
         pathInRepo = cachedResult;
@@ -175,6 +182,11 @@ public class Downloader {
     }
 
     if (!downloaded) {
+      // If the only known path was a POM and the jar download failed, return a
+      // POM-only result rather than null so the caller can still use the POM.
+      if (hadPomOnlyKnownPath) {
+        return new DownloadResult(coordsToUse, Set.of(), null, null);
+      }
       return null;
     }
 

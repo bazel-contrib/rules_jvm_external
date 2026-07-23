@@ -350,7 +350,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       info = createResolvedVariant(component, variant);
     }
 
-    info.addRequestedVersion(info.getVersion()); // add a new version that may have been requested
+    info.addRequestedVersion(component.getModuleVersion().getVersion());
 
     List<GradleResolvedDependency> children = new ArrayList<>();
 
@@ -670,7 +670,12 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     GradleResolvedDependency info = new GradleResolvedDependencyImpl();
     info.setGroup(component.getModuleVersion().getGroup());
     info.setName(component.getModuleVersion().getName());
-    info.setVersion(component.getModuleVersion().getVersion());
+
+    // For timestamped snapshots, store the resolved timestamped version directly;
+    // otherwise store the declared version.
+    info.setVersion(
+        GradleSnapshotUtil.timestampedSnapshotVersion(component)
+            .orElseGet(() -> component.getModuleVersion().getVersion()));
     info.setVariantCapabilities(capabilityKeys(variant));
     return info;
   }

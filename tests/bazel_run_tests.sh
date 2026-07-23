@@ -369,9 +369,9 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
  function test_gradle_metadata_is_resolved_correctly_for_aar_artifact {
     # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right aar artifact
     # and make it available
-    bazel query @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
+    bazel query --output=label_kind @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android >> "$TEST_LOG" 2>&1
 
-    expect_log "@regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
+    expect_log "aar_import rule @regression_testing_gradle//:androidx_compose_foundation_foundation_layout_android"
 
     expect_file_is_not_empty "tests/custom_maven_install/regression_testing_gradle_install.json"
     expect_file_is_not_empty "tests/custom_maven_install/regression_testing_gradle_index.json"
@@ -380,23 +380,54 @@ function test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_pr
 function test_gradle_metadata_is_resolved_correctly_for_jvm_artifact {
   # This artifact in maven_install only has gradle metadata, but it should then automatically resolve to the right jvm artifact
   # and make it available
-  bazel query @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind @regression_testing_gradle//:androidx_annotation_annotation_jvm >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:androidx_annotation_annotation_jvm"
+  expect_log "jvm_import rule @regression_testing_gradle//:androidx_annotation_annotation_jvm"
 
   # This is KMP artifact which is a transitive dependency
   # and the JAR for this coordinate will just be a dummy jar/placeholder (in some cases a klib file)
   # as gradle will use metadata to resolve the right one.
   # Regardless we'll want to pull this in because the actual artifacts will be its children
   # in the resolved graph with gradle
-  bazel query @regression_testing_gradle//:com_squareup_okio_okio >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind @regression_testing_gradle//:com_squareup_okio_okio >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:com_squareup_okio_okio"
+  expect_log "jvm_import rule @regression_testing_gradle//:com_squareup_okio_okio"
 
   # This is the actual JVM artifact which will have the jar for the KMP artifact
-  bazel query @regression_testing_gradle//:com_squareup_okio_okio_jvm >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind @regression_testing_gradle//:com_squareup_okio_okio_jvm >> "$TEST_LOG" 2>&1
 
-  expect_log "@regression_testing_gradle//:com_squareup_okio_okio_jvm"
+  expect_log "jvm_import rule @regression_testing_gradle//:com_squareup_okio_okio_jvm"
+}
+
+function test_gradle_resolves_correctly_a_timestamped_snapshot {
+  bazel query --output=label_kind @regression_testing_gradle//:com_google_guava_guava >> "$TEST_LOG" 2>&1
+
+  expect_log "jvm_import rule @regression_testing_gradle//:com_google_guava_guava"
+}
+
+function test_gradle_resolves_correctly_a_non_timestamped_snapshot {
+  repo_dir="/tmp/rje_non_timestamped_snapshot_repo"
+  rm -rf "${repo_dir}"
+  mkdir -p "${repo_dir}"
+
+  bazel run --define maven_repo="file://${repo_dir}" //tests/integration/java_export:snapshot.publish >> "$TEST_LOG" 2>&1
+
+  force_bzlmod_lock_file_to_be_regenerated
+
+  REPIN=1 bazel run @non_timestamped_snapshot_testing_gradle//:pin >> "$TEST_LOG" 2>&1
+
+  # A non-timestamped snapshot can change in place, so it must be pinned without a checksum.
+  expect_in_file '"jar": null' tests/custom_maven_install/non_timestamped_snapshot_testing_gradle_install.json
+
+  bazel query --output=label_kind @non_timestamped_snapshot_testing_gradle//:com_example_snapshot >> "$TEST_LOG" 2>&1
+  expect_log "jvm_import rule @non_timestamped_snapshot_testing_gradle//:com_example_snapshot"
+
+  # The non-timestamped snapshot jar must be downloadable and usable,
+  # not just present as an empty java_library with no jar.
+  bazel build @non_timestamped_snapshot_testing_gradle//:com_example_snapshot >> "$TEST_LOG" 2>&1
+  expect_log "Build completed successfully"
+
+  rm -rf "${repo_dir}"
 }
 
 function test_gradle_versions_catalog {
@@ -445,6 +476,8 @@ TESTS=(
   "test_publish_java_binary_jar_with_maven_export"
   # "test_gradle_metadata_is_resolved_correctly_for_aar_artifact"
   "test_gradle_metadata_is_resolved_correctly_for_jvm_artifact"
+  "test_gradle_resolves_correctly_a_timestamped_snapshot"
+  "test_gradle_resolves_correctly_a_non_timestamped_snapshot"
   "test_gradle_versions_catalog"
   "test_hash_verification_stable_for_artifact_in_multiple_repos"
   "test_legacy_multi_repo_hash_accepted_by_fallback"
@@ -474,6 +507,23 @@ function expect_not_in_file() {
 
   local message=${3:-Expected not to find regexp \""$pattern"\", but it was found}
   grep -sq -- "$pattern" $file || return 0
+
+  printf "FAILED\n"
+  cat $file
+  printf "FAILURE: $message\n"
+  return 1
+}
+
+function expect_in_file() {
+  local pattern=$1
+  local file=$2
+  if [ ! -f $file ]; then
+    printf "NOT FOUND: $file (most probably wrong test configuration)\n"
+    return 1
+  fi
+
+  local message=${3:-Expected regexp \""$pattern"\" not found in $file}
+  grep -sq -- "$pattern" $file && return 0
 
   printf "FAILED\n"
   cat $file

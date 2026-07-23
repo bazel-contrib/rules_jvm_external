@@ -34,8 +34,35 @@
       "com.almworks.sqlite4java",
       "javolution.util.stripped"
     ],
-    "com.google.guava:listenablefuture": [
-      "com.google.common.util.concurrent"
+    "com.google.errorprone:error_prone_annotations": [
+      "com.google.errorprone.annotations",
+      "com.google.errorprone.annotations.concurrent"
+    ],
+    "com.google.guava:failureaccess": [
+      "com.google.common.util.concurrent.internal"
+    ],
+    "com.google.guava:guava": [
+      "com.google.common.annotations",
+      "com.google.common.base",
+      "com.google.common.base.internal",
+      "com.google.common.cache",
+      "com.google.common.collect",
+      "com.google.common.escape",
+      "com.google.common.eventbus",
+      "com.google.common.graph",
+      "com.google.common.hash",
+      "com.google.common.html",
+      "com.google.common.io",
+      "com.google.common.math",
+      "com.google.common.net",
+      "com.google.common.primitives",
+      "com.google.common.reflect",
+      "com.google.common.util.concurrent",
+      "com.google.common.xml",
+      "com.google.thirdparty.publicsuffix"
+    ],
+    "com.google.j2objc:j2objc-annotations": [
+      "com.google.j2objc.annotations"
     ],
     "com.squareup.okhttp3:okhttp": [
       "okhttp3",
@@ -124,6 +151,9 @@
     "org.jetbrains:annotations": [
       "org.intellij.lang.annotations",
       "org.jetbrains.annotations"
+    ],
+    "org.jspecify:jspecify": [
+      "org.jspecify.annotations"
     ],
     "org.slf4j:slf4j-api": [
       "org.slf4j",
