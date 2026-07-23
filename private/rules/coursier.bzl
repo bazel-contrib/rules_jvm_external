@@ -68,17 +68,24 @@ load("%s", "aar_import")
 """
 
 _BUILD_PIN = """
-sh_binary(
+java_binary(
     name = "pin",
-    srcs = ["pin.sh"],
+    main_class = "com.github.bazelbuild.rules_jvm_external.coursier.Pin",
     args = [
+        "--unsorted-deps-file",
         "$(rlocationpath :unsorted_deps.json)",
+        "--maven-install-location",
+        "{maven_install_location}",
+        "--predefined-maven-install",
+        "{predefined_maven_install}",
+        "--repository-name",
+        "{repository_name}",
     ],
     data = [
         ":unsorted_deps.json",
     ],
-    deps = [
-        "@bazel_tools//tools/bash/runfiles",
+    runtime_deps = [
+        "@rules_jvm_external//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier:Pin",
     ],
     visibility = ["//visibility:public"],
 )
@@ -1542,23 +1549,11 @@ def _coursier_fetch_impl(repository_ctx):
     direct_deps = get_direct_dependencies(all_artifacts, artifacts)
     _add_direct_deps_files(repository_ctx, direct_deps)
 
-    repository_ctx.file(
-        "BUILD",
-        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
-            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
-            repository_name = repository_name,
-            imports = generated_imports,
-            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
-        ),
-        executable = False,
-    )
-
     # If maven_install.json has already been used in maven_install,
     # we already know the lock file location. If it's not used yet,
     # provide the default location.
     #
-    # Also support custom locations for maven_install.json and update the pin.sh script
-    # accordingly.
+    # Also support custom locations for maven_install.json.
     predefined_maven_install = bool(repository_ctx.attr.maven_install_json)
     if predefined_maven_install:
         package_path = repository_ctx.attr.maven_install_json.package
@@ -1569,23 +1564,19 @@ def _coursier_fetch_impl(repository_ctx):
             maven_install_location = "/".join([package_path, file_name])  # e.g. path/to/some.json
     else:
         # Default maven_install.json file name.
-        maven_install_location = "{repository_name}_install.json"
+        maven_install_location = "{}_install.json".format(repository_name)
 
-    # Expose the script to let users pin the state of the fetch in
-    # `<workspace_root>/maven_install.json`.
-    #
-    # $ bazel run @unpinned_maven//:pin
-    #
-    # Create the maven_install.json export script for unpinned repositories.
-    repository_ctx.template(
-        "pin.sh",
-        repository_ctx.attr._pin,
-        {
-            "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
-            "{predefined_maven_install}": str(predefined_maven_install),
-            "{repository_name}": repository_name,
-        },
-        executable = True,
+    repository_ctx.file(
+        "BUILD",
+        (_BUILD + _BUILD_PIN + outdated_build_file_content + _BUILD_DIRECT_DEPS).format(
+            visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
+            repository_name = repository_name,
+            imports = generated_imports,
+            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            maven_install_location = maven_install_location,
+            predefined_maven_install = str(predefined_maven_install),
+        ),
+        executable = False,
     )
 
     # Generate 'defs.bzl' with just the dependencies for ':pin'.
@@ -1691,7 +1682,6 @@ coursier_fetch = repository_rule(
         "_sha256_hasher": attr.label(default = "//private/tools/prebuilt:hasher_deploy.jar"),
         "_index_jar": attr.label(default = "//private/tools/prebuilt:index_jar_deploy.jar"),
         "_lock_file_converter": attr.label(default = "//private/tools/prebuilt:lock_file_converter_deploy.jar"),
-        "_pin": attr.label(default = "//private:pin.sh"),
         "_compat_repository": attr.label(default = "//private:compat_repository.bzl"),
         "_outdated": attr.label(default = "//private:outdated.sh"),
         "user_provided_name": attr.string(),

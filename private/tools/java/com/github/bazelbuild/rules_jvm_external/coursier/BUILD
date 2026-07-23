@@ -4,7 +4,13 @@ load("//private/rules:artifact.bzl", "artifact")
 
 java_library(
     name = "coursier",
-    srcs = glob(["*.java"]),
+    srcs = glob(
+        ["*.java"],
+        exclude = [
+            "Pin.java",
+            "RunfilesPaths.java",
+        ],
+    ),
     visibility = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd:__pkg__",
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
@@ -24,11 +30,32 @@ java_library(
     ],
 )
 
+java_library(
+    name = "pin_tool_lib",
+    srcs = [
+        "Pin.java",
+        "RunfilesPaths.java",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@bazel_tools//tools/java/runfiles",
+    ],
+)
+
 java_binary(
     name = "LockFileConverter",
     main_class = "com.github.bazelbuild.rules_jvm_external.coursier.LockFileConverter",
     visibility = ["//visibility:public"],
     runtime_deps = [
         ":coursier",
+    ],
+)
+
+java_binary(
+    name = "Pin",
+    main_class = "com.github.bazelbuild.rules_jvm_external.coursier.Pin",
+    visibility = ["//visibility:public"],
+    runtime_deps = [
+        ":pin_tool_lib",
     ],
 )
