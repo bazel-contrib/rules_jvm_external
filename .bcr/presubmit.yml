@@ -31,6 +31,7 @@ bcr_test_module:
     - macos_arm64
     - windows
     bazel:
+    - 9.x
     - 8.x
     - 7.x
   tasks:
