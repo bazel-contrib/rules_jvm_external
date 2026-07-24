@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -68,5 +69,31 @@ public class DownloaderTest {
             .download(coords);
 
     assertTrue(downloadResult.getPath().isEmpty());
+  }
+
+  @Test
+  public void missingSourceJarReturnsNullRatherThanThrowing() throws IOException {
+    // Some artifacts (for example, the empty
+    // com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava jar pulled in by
+    // Guava) publish a main jar but no sources jar. Requesting the missing sources jar should
+    // signal absence by returning null, not fail the whole resolution.
+    Coordinates coords = new Coordinates("com.example:no-sources:1.0");
+
+    Path repo = MavenRepo.create().add(coords).getPath();
+    Path localRepo = Files.createTempDirectory("local");
+
+    Coordinates sourceCoords = coords.setClassifier("sources").setExtension("jar");
+
+    DownloadResult downloadResult =
+        new Downloader(
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                false,
+                Map.of())
+            .download(sourceCoords);
+
+    assertNull(downloadResult);
   }
 }

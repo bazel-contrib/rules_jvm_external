@@ -941,6 +941,41 @@ dev_maven.install(
     fetch_sources = True,
     lock_file = "//tests/custom_maven_install:transitive_dependency_with_type_of_pom.json",
 )
+
+# https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+dev_maven.install(
+    name = "maven_missing_source_jar",
+    artifacts = [
+        # Guava depends on the empty
+        # com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+        # jar, which publishes a main jar but no sources jar. With the Maven
+        # resolver and fetch_sources = True this used to fail resolution rather
+        # than treat the missing sources jar as absent.
+        "com.google.guava:guava:33.4.8-jre",
+    ],
+    fetch_sources = True,
+    lock_file = "//tests/custom_maven_install:maven_missing_source_jar_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "maven",
+)
+
+# https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+# Same missing-sources-jar case as maven_missing_source_jar, but exercised via
+# the Gradle resolver.
+dev_maven.install(
+    name = "gradle_missing_source_jar",
+    artifacts = [
+        "com.google.guava:guava:33.4.8-jre",
+    ],
+    fetch_sources = True,
+    lock_file = "//tests/custom_maven_install:gradle_missing_source_jar_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "gradle",
+)
 dev_maven.install(
     name = "pom_exclusion_testing_coursier",
     artifacts = [],
@@ -1120,6 +1155,14 @@ use_repo(
     # Pinned repo
     "transitive_dependency_with_type_of_pom",
     "unpinned_transitive_dependency_with_type_of_pom",
+
+    # Pinned repo
+    "maven_missing_source_jar",
+    "unpinned_maven_missing_source_jar",
+
+    # Pinned repo
+    "gradle_missing_source_jar",
+    "unpinned_gradle_missing_source_jar",
 
     # Regression testing and libraries exposed as compat repos
     "com_android_support_appcompat_v7_aar_28_0_0",
