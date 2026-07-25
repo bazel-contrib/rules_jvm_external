@@ -109,8 +109,10 @@ install = tag_class(
         "version_conflict_policy": attr.string(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
 
-            If "pinned", choose the user-specified version in maven_install unconditionally.
-            With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module.
+            If "pinned", choose root-declared versioned artifacts unconditionally. Under bzlmod
+            layered installs this applies before merging artifacts from contributing modules;
+            Gradle forces one version per module, while Maven and Coursier force each versioned
+            coordinate independently.
             If "default", follow the selected resolver's default policy.
             """,
             default = "default",
@@ -641,8 +643,17 @@ def _forces_gradle_module_version(artifact, forced_versions):
     return version == forced_versions.get("%s:%s" % (artifact.group, artifact.artifact))
 
 def apply_root_version_conflict_policy(artifacts, resolver, version_conflict_policy):
-    """Applies the install-level conflict policy to root module artifacts."""
-    if resolver not in ["gradle", "maven"] or version_conflict_policy != "pinned":
+    """Applies the install-level conflict policy to root module artifacts.
+
+    With version_conflict_policy = "pinned", root-declared versions are
+    chosen unconditionally, so every versioned root artifact is treated
+    as force_version = True during layered (bzlmod) dependency merging,
+    for every resolver. The coursier resolver already forces all
+    declared versions at resolution time under "pinned"; marking the
+    root artifacts here extends the same precedence to the merge with
+    contributing modules' artifacts.
+    """
+    if version_conflict_policy != "pinned":
         return artifacts
 
     if resolver == "gradle":
