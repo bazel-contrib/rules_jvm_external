@@ -242,11 +242,12 @@ def _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, return_only
 #
 # This can be typical for the default @maven namespace, if a bzlmod dependency
 # wishes to contribute to the users' jars.
-def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to_non_root_artifacts, repin_env_var, rje_verbose_env_var):
+def deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to_non_root_artifacts, repin_env_var, rje_verbose_env_var):
     """Deduplicate artifacts, giving priority to root module artifacts with force_version set."""
     non_root_coordinate_to_artifact = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts)
 
     duplicate_artifact_warning = ""
+    deduped_root_artifacts = []
     filtered_non_root_artifacts = []
     for root_artifact in root_artifacts:
         artifact_key = to_key(root_artifact)
@@ -261,6 +262,15 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to
                         "but got %s from the %s bazel dep. " % (non_root_artifact.version, bazel_dep_name) +
                         "Please update the version in your MODULE.bazel or set `force_version = True`."
                     )
+
+                    # The non-root artifact won the version comparison:
+                    # evict the losing root artifact so exactly one
+                    # version per coordinate reaches the resolver.
+                    # Otherwise both survive into the merged list and
+                    # installs with duplicate_version_warning = "error"
+                    # fail early in _check_artifacts_are_unique().
+                    continue
+        deduped_root_artifacts.append(root_artifact)
 
     # Add any remaining non root artifacts that weren't found in the root artifact list
     addtional_artifact_message = ""
@@ -277,7 +287,7 @@ def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to
             if addtional_artifact_message != "":
                 print(addtional_artifact_message)
 
-    return root_artifacts + filtered_non_root_artifacts
+    return deduped_root_artifacts + filtered_non_root_artifacts
 
 def _get_tri_state_bool(amend_val, original_val):
     if amend_val in ["true", "on"]:
@@ -739,7 +749,7 @@ def maven_impl(mctx):
                         if k not in bazel_dep_to_non_root_boms.keys():
                             print("\nINFO: The @%s repo is not using boms from %s because it is not in the known_contributing_modules" % (repo_name, k))
 
-            merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
+            merged_repo["artifacts"] = deduplicate_artifacts_with_root_priority(
                 repo_name,
                 root_artifacts,
                 bazel_dep_to_non_root_artifacts,
@@ -747,7 +757,7 @@ def maven_impl(mctx):
                 rje_verbose_env_var,
             )
 
-            merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
+            merged_repo["boms"] = deduplicate_artifacts_with_root_priority(
                 repo_name,
                 root_boms,
                 bazel_dep_to_non_root_boms,
