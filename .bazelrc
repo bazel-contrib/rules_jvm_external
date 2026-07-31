@@ -45,5 +45,10 @@ build:windows --legacy_external_runfiles
 
 build --sandbox_tmpfs_path=/tmp
 
+# Point tools such as coursier (used in rules_jvm_external) to Bazel's downloaded JDK
+# suggested in https://github.com/bazelbuild/rules_jvm_external/issues/445
+common --repo_env=JAVA_HOME=../bazel_tools/jdk
+common --action_env=JAVA_HOME=../bazel_tools/jdk
+
 # Allows the examples to extend the default bazelrc
 try-import %workspace%/.bazelrc.example

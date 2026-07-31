@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
+# Do not use #!/usr/bin/env bash — see https://github.com/bazel-contrib/rules_jvm_external/issues/1578
 
 # --- begin runfiles.bash initialization v3 ---
 # Copy-pasted from the Bazel Bash runfiles library v3.
