@@ -89,6 +89,13 @@ public class Downloader {
       return result;
     }
 
+    // Source and javadoc jars are optional: many artifacts publish a main jar but no sources jar
+    // (for example the empty com.google.guava:listenablefuture jar Guava depends on). Signal their
+    // absence with null so callers can skip them instead of failing the whole resolution.
+    if (NO_FALLBACK_CLASSIFIERS.contains(coords.getClassifier())) {
+      return null;
+    }
+
     // Are we dealing with a packaging dep? Download the `pom.xml` and check
     String originalTarget = coords.toRepoPath();
     String pomName = String.format("%s-%s.pom", coords.getArtifactId(), coords.getVersion());
