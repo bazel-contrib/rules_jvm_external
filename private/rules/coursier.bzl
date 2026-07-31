@@ -865,6 +865,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
                 executable = False,
             )
 
+    if hasattr(repository_ctx, "repo_metadata"):
+        return repository_ctx.repo_metadata(reproducible = False)
+    return None
+
 def generate_pin_target(repository_ctx, unpinned_pin_target):
     if repository_ctx.attr.resolver == "coursier":
         return _BUILD_PIN_ALIAS.format(unpinned_pin_target = unpinned_pin_target)
@@ -1624,6 +1628,10 @@ def _coursier_fetch_impl(repository_ctx):
             "\n".join(compat_repositories_bzl) + "\n",
             executable = False,
         )
+
+    if hasattr(repository_ctx, "repo_metadata"):
+        return repository_ctx.repo_metadata(reproducible = False)
+    return None
 
 pinned_coursier_fetch = repository_rule(
     attrs = {
