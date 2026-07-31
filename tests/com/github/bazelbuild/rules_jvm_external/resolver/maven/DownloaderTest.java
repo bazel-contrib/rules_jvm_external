@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -68,5 +69,35 @@ public class DownloaderTest {
             .download(coords);
 
     assertTrue(downloadResult.getPath().isEmpty());
+  }
+
+  @Test
+  public void cachingDownloadToleratesPreexistingDestination() throws IOException {
+    // When the local cache is a directory that other workers (or the Gradle daemon) also write to,
+    // a freshly-downloaded artifact's destination can already exist by the time we cache it. Since
+    // artifacts are content-addressed, that is success, not a FileAlreadyExistsException failure.
+    Coordinates coords = new Coordinates("com.example:already-cached:1.0");
+
+    Path repo = MavenRepo.create().add(coords).getPath();
+    Path localRepo = Files.createTempDirectory("local");
+
+    // Simulate a concurrent writer having already materialized the destination.
+    Path destination = localRepo.resolve(coords.toRepoPath());
+    Files.createDirectories(destination.getParent());
+    Files.createFile(destination);
+
+    DownloadResult downloadResult =
+        new Downloader(
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                true,
+                Map.of())
+            .download(coords);
+
+    assertNotNull(downloadResult);
+    assertTrue(downloadResult.getPath().isPresent());
+    assertTrue(Files.exists(destination));
   }
 }
