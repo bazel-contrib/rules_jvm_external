@@ -557,6 +557,31 @@ public class GradleResolverTest extends ResolverTestBase {
   }
 
   @Test
+  public void downloaderFetchesJarFromRepoWhenOnlyPomKnownPathIsAvailable() throws IOException {
+    Coordinates coordinates = new Coordinates("com.example:pom-backed:1.0");
+    MavenRepo mavenRepo = MavenRepo.create().add(coordinates);
+    Path pomPath =
+        mavenRepo
+            .getPath()
+            .resolve(coordinates.toRepoPath())
+            .getParent()
+            .resolve("pom-backed-1.0.pom");
+
+    DownloadResult download =
+        new Downloader(
+                Netrc.fromUserHome(),
+                Files.createTempDirectory("local-repo"),
+                Set.of(mavenRepo.getPath().toUri()),
+                new NullListener(),
+                false,
+                Map.of(coordinates, pomPath))
+            .download(coordinates);
+
+    assertTrue(download.getPath().isPresent());
+    assertTrue(download.getSha256().isPresent());
+  }
+
+  @Test
   public void shouldRecordCorrectShaForResolvedVersionNotConflictingVersion() {
     // When there's a version conflict, the paths map should contain only the resolved version,
     // not the conflicting lower version. This ensures we record the correct SHA for the artifact.
@@ -594,5 +619,26 @@ public class GradleResolverTest extends ResolverTestBase {
     assertFalse(
         "Artifacts should not contain conflicting lower version",
         artifacts.containsKey(lowerVersion));
+  }
+
+  @Test
+  public void timestampedSnapshotDoesNotTriggerSpuriousConflict() {
+    Coordinates snapshot = new Coordinates("com.example:lib:1.0-SNAPSHOT");
+    Coordinates dep1 = new Coordinates("com.example:dep-a:1.0");
+    Coordinates dep2 = new Coordinates("com.example:dep-b:1.0");
+
+    Path repo =
+        MavenRepo.create()
+            .add(snapshot)
+            .add(dep1, snapshot)
+            .add(dep2, snapshot)
+            .getPath();
+
+    ResolutionResult result =
+        resolver.resolve(prepareRequestFor(repo.toUri(), dep1, dep2));
+
+    assertTrue(
+        "A timestamped snapshot requested by multiple deps should not be a conflict",
+        result.getConflicts().isEmpty());
   }
 }
