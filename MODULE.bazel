@@ -36,7 +36,6 @@ _GRADLE_VERSION = "9.5.0"
 maven.install(
     name = "rules_jvm_external_deps",
     artifacts = [
-        "ch.qos.logback:logback-classic:1.5.23",
         "com.github.jknack:handlebars:4.3.1",
         "com.google.auth:google-auth-library-credentials:1.35.0",
         "com.google.auth:google-auth-library-oauth2-http:1.35.0",

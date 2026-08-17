@@ -95,14 +95,21 @@ public class AnsiConsoleListener implements EventListener {
     }
   }
 
-  private String elideLine(int maxWidth, String toShorten) {
+  static String elideLine(int maxWidth, String toShorten) {
+    if (maxWidth <= 0) {
+      return "";
+    }
+
     int length = toShorten.length();
-    if (length < maxWidth) {
+    if (length <= maxWidth) {
       return toShorten;
     }
 
-    int start = length - maxWidth - 3;
-    return "..." + toShorten.substring(start);
+    if (maxWidth <= 3) {
+      return toShorten.substring(length - maxWidth);
+    }
+
+    return "..." + toShorten.substring(length - maxWidth + 3);
   }
 
   private int getConsoleWidth() {

@@ -29,6 +29,21 @@ java_test(
 )
 
 java_test(
+    name = "GradleResolverLoggingTest",
+    size = "small",
+    srcs = ["GradleResolverLoggingTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.gradle.GradleResolverLoggingTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle:gradle-resolver-lib",
+        "@gradle",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+    ],
+)
+
+java_test(
     name = "GradleBuildScriptGeneratorTestFixturesTest",
     srcs = ["GradleBuildScriptGeneratorTestFixturesTest.java"],
     data = [
