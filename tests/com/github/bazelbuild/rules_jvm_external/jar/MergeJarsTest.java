@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -245,6 +246,38 @@ public class MergeJarsTest {
     // We expect the manifest and one file
     assertEquals(2, contents.size());
     assertEquals("I like cheese!", contents.get("com/example/B.class"));
+  }
+
+  @Test
+  public void shouldExcludeEntriesFromJarWithAShellPreamble() throws IOException {
+    Path includeFrom = temp.newFile("include.jar").toPath();
+    createJar(
+        includeFrom,
+        ImmutableMap.of(
+            "com/example/A.class", "include",
+            "com/example/B.class", "keep"));
+
+    Path regularExclude = temp.newFile("regular-exclude.jar").toPath();
+    createJar(regularExclude, ImmutableMap.of("com/example/A.class", "exclude"));
+
+    Path preambledExclude = temp.newFile("preambled-exclude.jar").toPath();
+    Files.write(preambledExclude, "#!/bin/sh\nexit 0\n".getBytes(UTF_8));
+    Files.write(
+        preambledExclude,
+        Files.readAllBytes(regularExclude),
+        StandardOpenOption.APPEND);
+
+    Path outputJar = temp.newFile("out.jar").toPath();
+    MergeJars.main(
+        new String[] {
+          "--output", outputJar.toAbsolutePath().toString(),
+          "--sources", includeFrom.toAbsolutePath().toString(),
+          "--exclude", preambledExclude.toAbsolutePath().toString(),
+        });
+
+    Map<String, String> contents = readJar(outputJar);
+    assertFalse(contents.containsKey("com/example/A.class"));
+    assertEquals("keep", contents.get("com/example/B.class"));
   }
 
   @Test

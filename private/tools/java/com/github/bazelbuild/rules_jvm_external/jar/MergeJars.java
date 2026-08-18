@@ -23,7 +23,6 @@ import static java.util.zip.ZipOutputStream.DEFLATED;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
 import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +34,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -314,23 +314,20 @@ public class MergeJars {
     Set<String> paths = new HashSet<>();
 
     for (Path exclude : excludes) {
-      try (InputStream is = Files.newInputStream(exclude);
-          BufferedInputStream bis = new BufferedInputStream(is);
-          ZipInputStream jis = new ZipInputStream(bis)) {
-        ZipEntry entry;
-        while ((entry = jis.getNextEntry()) != null) {
+      try (ZipFile zipFile = new ZipFile(exclude.toFile())) {
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+          ZipEntry entry = entries.nextElement();
           if (entry.isDirectory()) {
             continue;
           }
 
           // We hope that the duplicate allow list is nice and short
-          ZipEntry finalEntry = entry;
-          if (duplicateAllowList.stream().anyMatch(pred -> pred.test(finalEntry.getName()))) {
+          if (duplicateAllowList.stream().anyMatch(pred -> pred.test(entry.getName()))) {
             continue;
           }
 
-          String name = entry.getName();
-          paths.add(name);
+          paths.add(entry.getName());
         }
       }
     }
