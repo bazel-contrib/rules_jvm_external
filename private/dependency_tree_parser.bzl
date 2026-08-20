@@ -529,28 +529,28 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = %s,)" % (target_label, labels_to_override.get(target_label), visibility),
             )
-            if repository_ctx.attr.maven_install_json:
+            if repository_ctx.attr.maven_install_json and artifact_path != None:
                 # Provide the downloaded artifact as a file target.
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
-            raw_artifact = dict(artifact)
-            raw_artifact["coordinates"] = "original_" + artifact["coordinates"]
-            raw_artifact["maven_coordinates"] = artifact["coordinates"]
-            raw_artifact["repository_coordinates"] = artifact["coordinates"]
-            raw_artifact["out"] = "original_" + artifact["file"]
+                raw_artifact = dict(artifact)
+                raw_artifact["coordinates"] = "original_" + artifact["coordinates"]
+                raw_artifact["maven_coordinates"] = artifact["coordinates"]
+                raw_artifact["repository_coordinates"] = artifact["coordinates"]
+                raw_artifact["out"] = "original_" + artifact["file"]
 
-            all_imports.extend(_generate_target(
-                repository_ctx,
-                jar_versionless_target_labels,
-                explicit_artifacts,
-                srcjar_paths,
-                labels_to_override,
-                repository_urls,
-                neverlink_artifacts,
-                testonly_artifacts,
-                exclusions,
-                default_visibilities,
-                raw_artifact,
-            ))
+                all_imports.extend(_generate_target(
+                    repository_ctx,
+                    jar_versionless_target_labels,
+                    explicit_artifacts,
+                    srcjar_paths,
+                    labels_to_override,
+                    repository_urls,
+                    neverlink_artifacts,
+                    testonly_artifacts,
+                    exclusions,
+                    default_visibilities,
+                    raw_artifact,
+                ))
 
         elif artifact_path != None and packaging != "pom":
             seen_imports[target_label] = True
