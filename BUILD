@@ -7,6 +7,7 @@ exports_files([
     "extensions.bzl",
     "specs.bzl",
     "maven_install.json",
+    "kt_defs.bzl",
 ])
 
 licenses(["notice"])  # Apache 2.0
@@ -55,6 +56,19 @@ bzl_library(
         "@bazel_tools//tools:bzl_srcs",
         "@rules_java//java:rules",
     ],
+)
+
+bzl_library(                                                                                                            
+    name = "implementation-kotlin",                                                                                      
+    srcs = [                                                                                                             
+        ":kt_defs.bzl",                                                                                                  
+        "//private/rules:implementation",                                                                                
+    ],                                                                                                                   
+    visibility = [                                                                                                       
+        # Visible so downstream users can document their kt_jvm_export                                                   
+        # usage via stardoc (mirrors the java `implementation` target).                                                  
+        "//visibility:public",                                                                                           
+    ],  
 )
 
 alias(
