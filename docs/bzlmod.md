@@ -178,20 +178,24 @@ another namespace.
 
 The root module and its dependencies have different roles during layering. The root contributes
 the declarations that belong to the current Bazel project. Every other module is a non-root
-contributor. Coordinates are conceptually matched by `group:artifact:packaging:classifier`, meaning that a classified JAR layers independently of its unclassified JAR.
+contributor. Coordinates are conceptually matched by `group:artifact:packaging:classifier`,
+meaning that a classified JAR layers independently of its unclassified JAR.
 
-When performing [duplicate coordinate checks](#diagnostics), the keys declarations by `group:artifact:classifier`,
-but not packaging. Packaging-distinct declarations at different versions can therefore warn or fail
-even though the extension layers them independently. It also continues to check multiple root
-declarations. Ordinary cross-module conflicts with the same layering key no longer reach this check.
+When performing [duplicate coordinate checks](#diagnostics), the declarations are keyed by
+`group:artifact:classifier`, but not packaging. Packaging-distinct declarations at different
+versions can therefore warn or fail even though the extension layers them independently. It also
+continues to check multiple root declarations. Ordinary cross-module conflicts with the same
+layering key no longer reach this check.
 
 ### Version precedence
 
 For conflicts between modules, layering selects one complete declaration for each coordinate. The
 selected declaration supplies its exclusions, `neverlink`, `testonly`, `force_version`, packaging,
-classifier, and other fields. Fields from discarded declarations are not merged into it. Duplicate
-declarations made by the root module normally remain for the repository-level check. If any module
-sets `force_version` on the same coordinate at two different versions, layering will fail with an
+classifier, and other fields. Fields from discarded declarations are not merged into it. Layering
+does not deduplicate within the root module, so repeated root declarations for one coordinate reach
+the existing repository-level duplicate check, which warns or fails according to
+`duplicate_version_warning`. Forcing is the exception: if any module, the root included, sets
+`force_version` on the same coordinate at two different versions, layering will fail with an
 error message.
 
 The surviving declaration is chosen by these rules:
@@ -206,14 +210,15 @@ On ties and conflicts:
 - On a tie (equal versions, or the same forced version from more than one module) the first module's declaration is kept; the root counts as first.
 - A non-root artifact marked `testonly` is dropped.
 
-Be aware that non-default packaging and classifiers remain independent of each other and the plain versioned coordinate. This may lead to some surprises when resolution is complete.
+Be aware that non-default packaging and classifiers remain independent of each other and of the
+plain versioned coordinate. This may lead to some surprises when resolution is complete.
 
 "Highest" uses the Maven `ComparableVersion` ordering implemented by
 `private/rules/maven_version.bzl`, not lexical string ordering.
 
 `version_conflict_policy = "pinned"` changes this interaction. For the Gradle and Maven resolvers,
-root artifacts are marked as `force_version` before layering. The duplicate-force check applies to declared
-forces before this policy is applied. Maven then marks every versioned root declaration.
+root artifacts are marked as `force_version` before layering. The duplicate-force check applies to
+declared forces before this policy is applied. Maven then marks every versioned root declaration.
 Gradle first selects one version for each root `group:artifact`: an unclassified declaration takes
 precedence over classified declarations, and Maven `ComparableVersion` order selects among
 declarations with the same classification status. Every root declaration for that module at the
@@ -267,7 +272,8 @@ forced root, an unforced root with the highest version, an equal unforced tie, a
 forced non-root whose complete declaration survives. Coordinates that the root did not declare
 also have no version-selection diagnostic; the contribution warning covers their origin.
 
-As an example, the version-selection warning when layering selects a version different from the root version looks like:
+As an example, the version-selection warning when layering selects a version different from the
+root version looks like:
 
 ```
 WARNING: For dependency 'com.google.protobuf:protobuf-java' the root @maven repo wants version 3.25.5, but got 4.27.2 from the bazel_worker_java bazel dep. Please update the version in your MODULE.bazel or set `force_version = True`.
