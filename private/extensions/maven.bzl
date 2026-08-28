@@ -649,8 +649,8 @@ def maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
-        boms_json = [json.encode(remove_fields(b)) for b in repo.get("boms", [])]
-        artifacts_json = [json.encode(remove_fields(a)) for a in repo.get("artifacts", [])]
+        boms_json = [json.encode(remove_empty_fields(b)) for b in repo.get("boms", [])]
+        artifacts_json = [json.encode(remove_empty_fields(a)) for a in repo.get("artifacts", [])]
 
         excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
         excluded_artifacts_json = [_json.write_exclusion_spec(a) for a in excluded_artifacts]
