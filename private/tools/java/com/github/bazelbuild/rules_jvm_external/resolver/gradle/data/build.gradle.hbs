@@ -42,6 +42,16 @@ dependencies {
 {{~/each}}
 }
 
+{{~#if isAndroidConsumer}}
+configurations.named("runtimeClasspath") {
+    attributes {
+        attribute(org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+            objects.named(org.gradle.api.attributes.java.TargetJvmEnvironment, "android"))
+        attribute(org.gradle.api.attributes.Attribute.of("org.jetbrains.kotlin.platform.type", String), "androidJvm")
+    }
+}
+{{~/if}}
+
 configurations.all {
 {{~#if globalExclusions}}
 {{~#each globalExclusions}}

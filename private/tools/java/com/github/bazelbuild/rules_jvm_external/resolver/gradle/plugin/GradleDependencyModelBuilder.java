@@ -62,6 +62,7 @@ import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.attributes.java.TargetJvmEnvironment;
 import org.gradle.maven.MavenModule;
 import org.gradle.maven.MavenPomArtifact;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
@@ -72,6 +73,11 @@ import org.gradle.tooling.provider.model.ToolingModelBuilder;
  * any failures and the final tooling model back to the resolver
  */
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
+
+  private static final Attribute<TargetJvmEnvironment> JVM_ENVIRONMENT_ATTRIBUTE =
+      TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE;
+  private static final Attribute<String> KOTLIN_PLATFORM_ATTRIBUTE =
+      Attribute.of("org.jetbrains.kotlin.platform.type", String.class);
 
   @Override
   public boolean canBuild(String modelName) {
@@ -121,6 +127,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     Configuration detachedCfg =
         project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
+    if (isAndroidConsumer(cfg)) {
+      setAndroidConsumerAttributes(
+          detachedCfg, cfg.getAttributes().getAttribute(JVM_ENVIRONMENT_ATTRIBUTE));
+    }
     // Detached configurations are not covered by `configurations.all`, so the forced module
     // versions from the generated build script do not apply to them automatically. Without
     // them, pinned modules can resolve at a different version during the retry.
@@ -171,6 +181,20 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
           .addAll(getUnresolvedDependencies(detachedCfg));
     }
     return gradleDependencyModel;
+  }
+
+  private static boolean isAndroidConsumer(Configuration configuration) {
+    TargetJvmEnvironment environment =
+        configuration.getAttributes().getAttribute(JVM_ENVIRONMENT_ATTRIBUTE);
+    return environment != null && TargetJvmEnvironment.ANDROID.equals(environment.getName());
+  }
+
+  private static void setAndroidConsumerAttributes(
+      Configuration configuration, TargetJvmEnvironment environment) {
+    configuration
+        .getAttributes()
+        .attribute(JVM_ENVIRONMENT_ATTRIBUTE, environment)
+        .attribute(KOTLIN_PLATFORM_ATTRIBUTE, "androidJvm");
   }
 
   private List<GradleResolvedDependency> resolveDetachedGraph(

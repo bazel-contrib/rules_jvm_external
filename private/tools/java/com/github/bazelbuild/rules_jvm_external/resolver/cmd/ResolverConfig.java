@@ -144,6 +144,7 @@ public class ResolverConfig {
 
       request.useUnsafeSharedCache(
           request.isUseUnsafeSharedCache() || config.isUsingUnsafeSharedCache());
+      request.resolveFor(config.getResolveFor());
 
       config.getRepositories().forEach(request::addRepository);
 

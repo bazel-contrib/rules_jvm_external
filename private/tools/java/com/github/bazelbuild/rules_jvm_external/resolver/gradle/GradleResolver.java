@@ -104,7 +104,8 @@ public class GradleResolver implements Resolver {
             boms,
             request.getGlobalExclusions(),
             request.isUseUnsafeSharedCache(),
-            request.isUsingM2Local())) {
+            request.isUsingM2Local(),
+            request.getResolveFor())) {
       project.setupProject();
       eventListener.onEvent(new PhaseEvent("Gathering dependencies"));
       project.connect(gradlePath);
@@ -804,7 +805,8 @@ public class GradleResolver implements Resolver {
       List<GradleDependency> boms,
       Set<Coordinates> globalExclusions,
       boolean useUnsafeCache,
-      boolean isUsingM2Local) {
+      boolean isUsingM2Local,
+      String resolveFor) {
     try {
       Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
       Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
@@ -821,7 +823,8 @@ public class GradleResolver implements Resolver {
           dependencies,
           boms,
           exclusions,
-          isUsingM2Local);
+          isUsingM2Local,
+          resolveFor);
 
       Path initScriptTemplate = getGradleInitScriptTemplate();
       Path outputInitScript = fakeProjectDirectory.resolve("init.gradle");

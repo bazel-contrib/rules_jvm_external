@@ -55,6 +55,7 @@ def _pin_dependencies_impl(ctx):
         "globalExclusions": exclusions,
         "fetchSources": ctx.attr.fetch_sources,
         "fetchJavadoc": ctx.attr.fetch_javadocs,
+        "resolveFor": ctx.attr.resolve_for,
     }
 
     config_file = ctx.actions.declare_file("%s-config.json" % ctx.label.name)
@@ -68,6 +69,7 @@ def _pin_dependencies_impl(ctx):
         artifacts = ctx.attr.artifacts,
         repositories = ctx.attr.repositories,
         excluded_artifacts = ctx.attr.excluded_artifacts,
+        resolve_for = ctx.attr.resolve_for,
     )
 
     hash_file = ctx.actions.declare_file("%s-input-hash.json" % ctx.label.name)
@@ -130,6 +132,7 @@ pin_dependencies = rule(
         "jvm_flags": attr.string(
             doc = "JVM flags to pass to resolver",
         ),
+        "resolve_for": attr.string(default = "jvm", values = ["jvm", "android"]),
         "resolver": attr.label(
             executable = True,
             cfg = "exec",
@@ -137,4 +140,3 @@ pin_dependencies = rule(
         ),
     },
 )
-

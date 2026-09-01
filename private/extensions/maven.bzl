@@ -9,6 +9,7 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
+load("//private:resolve_for.bzl", "validate_resolve_for")
 load("//private/lib:coordinates.bzl", "to_external_form", "to_key", "unpack_coordinates")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:maven_version.bzl", "compare_maven_versions")
@@ -57,6 +58,7 @@ install = tag_class(
 
         # How do we do artifact resolution?
         "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "gradle", "maven"], default = _DEFAULT_RESOLVER),
+        "resolve_for": attr.string(doc = "The consumer platform for resolution. Android requires the Gradle resolver.", values = ["jvm", "android"], default = "jvm"),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
@@ -484,7 +486,9 @@ def _process_module_tags(mctx):
         for install in mod.tags.install:
             repo = target_repos.get(install.name, {})
 
+            validate_resolve_for(install.resolver, install.resolve_for)
             repo["resolver"] = install.resolver
+            repo["resolve_for"] = install.resolve_for
 
             _add_artifacts_to_repo(repo, mod, [unpack_coordinates(a) for a in install.artifacts])
             _add_boms_to_repo(repo, mod, [unpack_coordinates(b) for b in install.boms])
@@ -795,6 +799,7 @@ def maven_impl(mctx):
                 repo["fetch_javadoc"] = install.fetch_javadoc
                 repo["fetch_sources"] = install.fetch_sources
                 repo["resolver"] = install.resolver
+                repo["resolve_for"] = install.resolve_for
                 repo["resolver_extra_dependencies"] = install.resolver_extra_dependencies
                 repo["strict_visibility"] = install.strict_visibility
                 if len(install.repositories):
@@ -858,6 +863,7 @@ def maven_impl(mctx):
                 maven_install_json = repo.get("lock_file"),
                 dependency_index = repo.get("dependency_index"),
                 resolve_timeout = repo.get("resolve_timeout"),
+                resolve_for = repo.get("resolve_for", "jvm"),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
@@ -914,6 +920,7 @@ def maven_impl(mctx):
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
+                resolve_for = repo.get("resolve_for", "jvm"),
                 resolver_extra_dependencies = repo.get("resolver_extra_dependencies", []),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),

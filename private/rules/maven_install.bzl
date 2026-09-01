@@ -1,5 +1,6 @@
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
+load("//private:resolve_for.bzl", "validate_resolve_for")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:generate_pin_repository.bzl", "generate_pin_repository")
 
@@ -9,6 +10,7 @@ def maven_install(
         artifacts = [],
         boms = [],
         resolver = "coursier",
+        resolve_for = "jvm",
         fail_on_missing_checksum = True,
         fetch_sources = False,
         fetch_javadoc = False,
@@ -43,6 +45,8 @@ def maven_install(
       boms: A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.
       artifacts: A list of Maven artifact coordinates in the form of `group:artifact:version`.
       resolver: Which resolver to use. One of `coursier`, `gradle` or `maven`.
+      resolve_for: The consumer platform for resolution. One of `jvm` or `android`.
+        Android requires the Gradle resolver.
       fail_on_missing_checksum: fail the fetch if checksum attributes are not present.
       fetch_sources: Additionally fetch source JARs.
       fetch_javadoc: Additionally fetch javadoc JARs.
@@ -84,6 +88,8 @@ def maven_install(
       resolver_extra_dependencies: Jars or libraries to add to the resolver classpath (such as custom MetadataService or DownloadService SPI implementations).
       additional_coursier_options: Additional options that will be passed to coursier.
     """
+    validate_resolve_for(resolver, resolve_for)
+
     if resolver != "coursier" and not maven_install_json:
         fail("Only the coursier resolver supports build time resolution. Please set `maven_install_json`. An empty file will work.")
 
@@ -129,6 +135,7 @@ def maven_install(
             # invocation after this.
             name = name if maven_install_json == None else "unpinned_" + name,
             pinned_repo_name = None if maven_install_json == None else name,
+            resolve_for = resolve_for,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
             boms = boms_json_strings,
@@ -163,6 +170,7 @@ def maven_install(
             name = name,
             resolver = resolver,
             resolver_extra_dependencies = resolver_extra_dependencies,
+            resolve_for = resolve_for,
             repositories = repositories_json_strings,
             artifacts = artifacts_json_strings,
             boms = boms_json_strings,

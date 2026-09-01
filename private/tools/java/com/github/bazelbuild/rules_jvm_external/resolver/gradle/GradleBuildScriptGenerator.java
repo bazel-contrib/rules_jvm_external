@@ -91,7 +91,8 @@ public class GradleBuildScriptGenerator {
       List<GradleDependency> dependencies,
       List<GradleDependency> boms,
       List<ExclusionImpl> globalExclusions,
-      boolean isUsingM2Local)
+      boolean isUsingM2Local,
+      String resolveFor)
       throws IOException {
     String templateContent = Files.readString(gradleBuildScriptTemplate);
 
@@ -102,6 +103,7 @@ public class GradleBuildScriptGenerator {
     Map<String, Object> contextMap = new HashMap<>();
 
     contextMap.put("isUsingM2Local", isUsingM2Local);
+    contextMap.put("isAndroidConsumer", "android".equals(resolveFor));
     contextMap.put(
         "repositories",
         repositories.stream()

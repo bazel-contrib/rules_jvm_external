@@ -29,6 +29,7 @@ public class ExternalResolverConfig {
   private boolean fetchSources;
   private boolean fetchJavadoc;
   private boolean useUnsafeSharedCache;
+  private String resolveFor = "jvm";
 
   public Set<String> getRepositories() {
     return repositories == null ? ImmutableSet.of() : ImmutableSet.copyOf(repositories);
@@ -64,5 +65,9 @@ public class ExternalResolverConfig {
 
   public String getResolver() {
     return resolver;
+  }
+
+  public String getResolveFor() {
+    return resolveFor;
   }
 }

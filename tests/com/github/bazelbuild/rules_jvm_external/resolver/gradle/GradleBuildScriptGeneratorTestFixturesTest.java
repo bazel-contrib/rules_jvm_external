@@ -54,7 +54,29 @@ public class GradleBuildScriptGeneratorTestFixturesTest {
     assertTrue(script.contains("implementation(\"com.example:sample:1.0:sources@jar\")"));
   }
 
+  @Test
+  public void androidConsumerSetsRuntimeClasspathAttributes() throws Exception {
+    String script = renderBuildScript(List.of(), "android");
+
+    assertTrue(script, script.contains("TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE"));
+    assertTrue(script, script.contains("org.jetbrains.kotlin.platform.type"));
+    assertTrue(script, script.contains("androidJvm"));
+  }
+
+  @Test
+  public void jvmConsumerDoesNotSetAndroidAttributes() throws Exception {
+    String script = renderBuildScript(List.of(), "jvm");
+
+    assertFalse(script.contains("org.gradle.jvm.environment"));
+    assertFalse(script.contains("org.jetbrains.kotlin.platform.type"));
+  }
+
   private String renderBuildScript(List<GradleDependency> dependencies) throws Exception {
+    return renderBuildScript(dependencies, "jvm");
+  }
+
+  private String renderBuildScript(List<GradleDependency> dependencies, String resolveFor)
+      throws Exception {
     Runfiles runfiles =
         Runfiles.preload()
             .withSourceRepository(
@@ -72,7 +94,8 @@ public class GradleBuildScriptGeneratorTestFixturesTest {
         dependencies,
         List.of(),
         List.of(),
-        false);
+        false,
+        resolveFor);
 
     return Files.readString(output);
   }

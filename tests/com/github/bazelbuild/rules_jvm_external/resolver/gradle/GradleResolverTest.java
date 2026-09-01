@@ -103,14 +103,12 @@ public class GradleResolverTest extends ResolverTestBase {
   }
 
   @Test
-  public void resolvesJvmButNotAndroidVariant() throws IOException, XMLStreamException {
+  public void resolvesJvmVariantByDefault() throws IOException, XMLStreamException {
     // This test validates a scenario similar to
     // https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp/5.1.0/okhttp-5.1.0.module
     // which supports 2 different coordinates with one base coordinate - one for JVM and android
     // using variant selection.
-    // Right now, we only resolve the default runtime classpath configuration, so we'll only resolve
-    // the JVM variant
-    // and won't have the android variant
+    // The default runtime classpath configuration is a standard JVM consumer.
     Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
     Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
     Coordinates androidCoordinates = new Coordinates("com.example:sample-android:1.0");
@@ -145,12 +143,40 @@ public class GradleResolverTest extends ResolverTestBase {
             .resolve(prepareRequestFor(mavenRepo.getPath().toUri(), baseCoordinates))
             .getResolution();
 
-    // sample-jvm resolves indirectly through sample using the gradle module metadata redirect
-    // but not sample-android as we don't resolve multiple variants currently.
+    // sample-jvm resolves indirectly through sample using the gradle module metadata redirect.
     assertEquals(2, resolved.nodes().size());
-    // Once we support resolving android variant, this test should be updated to ensure
-    // sample-android is also resolved
     assertEquals(Set.of(baseCoordinates, jvmCoordinates), resolved.nodes());
+  }
+
+  @Test
+  public void resolvesAndroidVariantForAndroidConsumer() throws IOException, XMLStreamException {
+    Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
+    Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
+    Coordinates androidCoordinates = new Coordinates("com.example:sample-android:1.0");
+    MavenRepo mavenRepo = MavenRepo.create();
+    GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
+
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    for (String fixture :
+        List.of("sample-1.0.module", "sample-jvm-1.0.module", "sample-android-1.0.module")) {
+      Path metadataPath =
+          Paths.get(
+              runfiles.rlocation(
+                  "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/"
+                      + fixture));
+      Coordinates coordinates =
+          fixture.startsWith("sample-jvm")
+              ? jvmCoordinates
+              : fixture.startsWith("sample-android") ? androidCoordinates : baseCoordinates;
+      moduleMetadataHelper.addToMavenRepo(coordinates, Files.readString(metadataPath));
+    }
+
+    ResolutionRequest request = prepareRequestFor(mavenRepo.getPath().toUri(), baseCoordinates);
+    request.resolveFor("android");
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+
+    assertEquals(Set.of(baseCoordinates, androidCoordinates), resolved.nodes());
   }
 
   @Test
@@ -498,8 +524,7 @@ public class GradleResolverTest extends ResolverTestBase {
     managedDeps.addDependency(managedDep);
     bomModel.setDependencyManagement(managedDeps);
 
-    Path repo =
-        MavenRepo.create().add(pinned).add(higher).add(managed).add(bomModel).getPath();
+    Path repo = MavenRepo.create().add(pinned).add(higher).add(managed).add(bomModel).getPath();
 
     ResolutionRequest request =
         new ResolutionRequest()

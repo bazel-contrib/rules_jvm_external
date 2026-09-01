@@ -12,6 +12,7 @@
       "attributes": {
         "org.gradle.category": "library",
         "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
         "org.gradle.libraryelements": "aar",
         "org.gradle.dependency.bundling": "external",
         "org.jetbrains.kotlin.platform.type": "androidJvm"
