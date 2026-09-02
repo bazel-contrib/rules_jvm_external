@@ -127,10 +127,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     Configuration detachedCfg =
         project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
-    if (isAndroidConsumer(cfg)) {
-      setAndroidConsumerAttributes(
-          detachedCfg, cfg.getAttributes().getAttribute(JVM_ENVIRONMENT_ATTRIBUTE));
-    }
+    copyAttribute(cfg, detachedCfg, JVM_ENVIRONMENT_ATTRIBUTE);
+    copyAttribute(cfg, detachedCfg, KOTLIN_PLATFORM_ATTRIBUTE);
     // Detached configurations are not covered by `configurations.all`, so the forced module
     // versions from the generated build script do not apply to them automatically. Without
     // them, pinned modules can resolve at a different version during the retry.
@@ -153,20 +151,24 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       }
     }
 
-    // build the updated dependency graph with the detached configuration for all the
-    // dependencies that we couldn't resolve with the default configuration. When everything
-    // resolved, skip the retry: the detached configuration resolves without the main
-    // configuration's attributes, so it can fail or pick different versions, and merging
-    // those results would corrupt an already-complete graph.
-    boolean retryUnresolved = !unresolvedDependenciesRuntimeClasspath.isEmpty();
+    // Android resolution uses the detached configuration as the authoritative graph because
+    // runtimeClasspath requires JAR library elements. JVM resolution only uses it to retry
+    // unresolved dependencies, preserving the complete runtimeClasspath graph otherwise.
+    boolean androidConsumer = isAndroidConsumer(cfg);
+    boolean resolveDetached = androidConsumer || !unresolvedDependenciesRuntimeClasspath.isEmpty();
+    if (androidConsumer) {
+      variantGradleResolvedDependencyMap.clear();
+    }
     List<GradleResolvedDependency> resolvedDetachedRoots =
-        retryUnresolved
+        resolveDetached
             ? resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap)
             : List.of();
 
     List<GradleResolvedDependency> roots =
-        Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream())
-            .collect(Collectors.toList());
+        androidConsumer
+            ? resolvedDetachedRoots
+            : Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream())
+                .collect(Collectors.toList());
     // Use the ArtifactView API to get all the resolved artifacts (jars, aars)
     // The ArtifactView API doesn't download some of the classifiers by default, so we handle that
     // here
@@ -175,7 +177,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     gradleDependencyModel.getResolvedDependencies().addAll(roots);
 
     // if anything is still unresolved, then add it for reporting
-    if (retryUnresolved) {
+    if (resolveDetached) {
       gradleDependencyModel
           .getUnresolvedDependencies()
           .addAll(getUnresolvedDependencies(detachedCfg));
@@ -183,18 +185,18 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     return gradleDependencyModel;
   }
 
+  private static <T> void copyAttribute(
+      Configuration source, Configuration target, Attribute<T> attribute) {
+    T value = source.getAttributes().getAttribute(attribute);
+    if (value != null) {
+      target.getAttributes().attribute(attribute, value);
+    }
+  }
+
   private static boolean isAndroidConsumer(Configuration configuration) {
     TargetJvmEnvironment environment =
         configuration.getAttributes().getAttribute(JVM_ENVIRONMENT_ATTRIBUTE);
     return environment != null && TargetJvmEnvironment.ANDROID.equals(environment.getName());
-  }
-
-  private static void setAndroidConsumerAttributes(
-      Configuration configuration, TargetJvmEnvironment environment) {
-    configuration
-        .getAttributes()
-        .attribute(JVM_ENVIRONMENT_ATTRIBUTE, environment)
-        .attribute(KOTLIN_PLATFORM_ATTRIBUTE, "androidJvm");
   }
 
   private List<GradleResolvedDependency> resolveDetachedGraph(

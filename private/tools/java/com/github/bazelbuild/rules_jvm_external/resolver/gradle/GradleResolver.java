@@ -18,6 +18,7 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest.ResolveFor;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
@@ -104,8 +105,7 @@ public class GradleResolver implements Resolver {
             boms,
             request.getGlobalExclusions(),
             request.isUseUnsafeSharedCache(),
-            request.isUsingM2Local(),
-            request.getResolveFor())) {
+            request.isUsingM2Local())) {
       project.setupProject();
       eventListener.onEvent(new PhaseEvent("Gathering dependencies"));
       project.connect(gradlePath);
@@ -119,7 +119,8 @@ public class GradleResolver implements Resolver {
       Instant start = Instant.now();
       GradleDependencyModel resolved =
           project.resolveDependencies(
-              getGradleTaskProperties(repositories, project.getProjectDir()));
+              getGradleTaskProperties(
+                  repositories, project.getProjectDir(), request.getResolveFor()));
       Instant end = Instant.now();
       if (isVerbose()) {
         System.out.println(
@@ -144,7 +145,8 @@ public class GradleResolver implements Resolver {
   }
 
   private Map<String, String> getGradleTaskProperties(
-      List<Repository> repositories, Path projectDir) throws MalformedURLException {
+      List<Repository> repositories, Path projectDir, ResolveFor resolveFor)
+      throws MalformedURLException {
     Map<String, String> properties = new HashMap<>();
     for (Repository repository : repositories) {
       if (repository.requiresAuth) {
@@ -155,6 +157,9 @@ public class GradleResolver implements Resolver {
 
     if (isVerbose()) {
       properties.put("org.gradle.debug", "true");
+    }
+    if (resolveFor == ResolveFor.ANDROID) {
+      properties.put("rules_jvm_external.resolve_for", "android");
     }
     return properties;
   }
@@ -805,8 +810,7 @@ public class GradleResolver implements Resolver {
       List<GradleDependency> boms,
       Set<Coordinates> globalExclusions,
       boolean useUnsafeCache,
-      boolean isUsingM2Local,
-      String resolveFor) {
+      boolean isUsingM2Local) {
     try {
       Path fakeProjectDirectory = Files.createTempDirectory("rules_jvm_external");
       Path gradleBuildScriptTemplate = getGradleBuildScriptTemplate();
@@ -823,8 +827,7 @@ public class GradleResolver implements Resolver {
           dependencies,
           boms,
           exclusions,
-          isUsingM2Local,
-          resolveFor);
+          isUsingM2Local);
 
       Path initScriptTemplate = getGradleInitScriptTemplate();
       Path outputInitScript = fakeProjectDirectory.resolve("init.gradle");

@@ -35,6 +35,11 @@ import java.util.stream.Stream;
 
 public class ResolutionRequest {
 
+  public enum ResolveFor {
+    JVM,
+    ANDROID
+  }
+
   private final List<URI> repos = new ArrayList<>();
   private final List<Artifact> dependencies = new ArrayList<>();
   private final List<Artifact> boms = new ArrayList<>();
@@ -42,7 +47,7 @@ public class ResolutionRequest {
   private boolean useUnsafeSharedCache;
   private Path userHome;
   private boolean isUsingM2Local;
-  private String resolveFor = "jvm";
+  private ResolveFor resolveFor = ResolveFor.JVM;
 
   public ResolutionRequest addRepository(String uri) {
     if ("m2local".equals(uri) || "m2Local".equals(uri)) {
@@ -124,11 +129,8 @@ public class ResolutionRequest {
     return this;
   }
 
-  public ResolutionRequest resolveFor(String resolveFor) {
-    if (!"jvm".equals(resolveFor) && !"android".equals(resolveFor)) {
-      throw new IllegalArgumentException("resolveFor must be either \"jvm\" or \"android\"");
-    }
-    this.resolveFor = resolveFor;
+  public ResolutionRequest resolveFor(ResolveFor resolveFor) {
+    this.resolveFor = Objects.requireNonNull(resolveFor);
     return this;
   }
 
@@ -171,7 +173,7 @@ public class ResolutionRequest {
     return isUsingM2Local;
   }
 
-  public String getResolveFor() {
+  public ResolveFor getResolveFor() {
     return resolveFor;
   }
 

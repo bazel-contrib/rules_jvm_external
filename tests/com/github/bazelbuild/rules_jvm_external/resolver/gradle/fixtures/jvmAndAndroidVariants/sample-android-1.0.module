@@ -19,6 +19,13 @@
       },
       "files": [
         { "name": "sample-android-1.0.aar", "url": "sample-android-1.0.aar" }
+      ],
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "jvm-only",
+          "version": { "requires": "1.0" }
+        }
       ]
     }
   ]

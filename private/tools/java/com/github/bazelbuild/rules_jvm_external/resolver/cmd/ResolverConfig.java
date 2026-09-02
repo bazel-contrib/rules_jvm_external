@@ -16,6 +16,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.cmd;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
+import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest.ResolveFor;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
@@ -144,7 +145,7 @@ public class ResolverConfig {
 
       request.useUnsafeSharedCache(
           request.isUseUnsafeSharedCache() || config.isUsingUnsafeSharedCache());
-      request.resolveFor(config.getResolveFor());
+      request.resolveFor(parseResolveFor(config.getResolveFor()));
 
       config.getRepositories().forEach(request::addRepository);
 
@@ -239,5 +240,16 @@ public class ResolverConfig {
 
   public Path getDependencyIndexOutput() {
     return dependencyIndexOutput;
+  }
+
+  private static ResolveFor parseResolveFor(String resolveFor) {
+    switch (resolveFor) {
+      case "jvm":
+        return ResolveFor.JVM;
+      case "android":
+        return ResolveFor.ANDROID;
+      default:
+        throw new IllegalArgumentException("resolveFor must be either \"jvm\" or \"android\"");
+    }
   }
 }

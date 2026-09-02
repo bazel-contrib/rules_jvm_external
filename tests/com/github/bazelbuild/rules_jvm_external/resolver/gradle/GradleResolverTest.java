@@ -111,7 +111,7 @@ public class GradleResolverTest extends ResolverTestBase {
     // The default runtime classpath configuration is a standard JVM consumer.
     Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
     Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
-    Coordinates androidCoordinates = new Coordinates("com.example:sample-android:1.0");
+    Coordinates androidCoordinates = new Coordinates("com.example:sample-android:aar:1.0");
     MavenRepo mavenRepo = MavenRepo.create();
     GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
 
@@ -149,34 +149,59 @@ public class GradleResolverTest extends ResolverTestBase {
   }
 
   @Test
-  public void resolvesAndroidVariantForAndroidConsumer() throws IOException, XMLStreamException {
+  public void resolvesAndroidVariantAndJvmFallbackForAndroidConsumer()
+      throws IOException, XMLStreamException {
     Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
     Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
-    Coordinates androidCoordinates = new Coordinates("com.example:sample-android:1.0");
+    Coordinates androidCoordinates = new Coordinates("com.example:sample-android:aar:1.0");
+    Coordinates jvmOnlyCoordinates = new Coordinates("com.example:jvm-only:1.0");
     MavenRepo mavenRepo = MavenRepo.create();
     GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
 
     Runfiles runfiles =
         Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
-    for (String fixture :
-        List.of("sample-1.0.module", "sample-jvm-1.0.module", "sample-android-1.0.module")) {
+    Map<String, Coordinates> fixtures =
+        Map.of(
+            "sample-1.0.module", baseCoordinates,
+            "sample-jvm-1.0.module", jvmCoordinates,
+            "sample-android-1.0.module", androidCoordinates,
+            "jvm-only-1.0.module", jvmOnlyCoordinates);
+    for (Map.Entry<String, Coordinates> fixture : fixtures.entrySet()) {
       Path metadataPath =
           Paths.get(
               runfiles.rlocation(
                   "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/"
-                      + fixture));
-      Coordinates coordinates =
-          fixture.startsWith("sample-jvm")
-              ? jvmCoordinates
-              : fixture.startsWith("sample-android") ? androidCoordinates : baseCoordinates;
-      moduleMetadataHelper.addToMavenRepo(coordinates, Files.readString(metadataPath));
+                      + fixture.getKey()));
+      moduleMetadataHelper.addToMavenRepo(fixture.getValue(), Files.readString(metadataPath));
     }
 
-    ResolutionRequest request = prepareRequestFor(mavenRepo.getPath().toUri(), baseCoordinates);
-    request.resolveFor("android");
-    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+    Path configFile = tempFolder.newFile("android-config.json").toPath();
+    String configJson =
+        String.format(
+            "{\"repositories\":[\"%s\"],\"artifacts\":[{\"group\":\"%s\",\"artifact\":\"%s\",\"version\":\"%s\"}],\"resolveFor\":\"android\"}",
+            mavenRepo.getPath().toUri(),
+            baseCoordinates.getGroupId(),
+            baseCoordinates.getArtifactId(),
+            baseCoordinates.getVersion());
+    Files.writeString(configFile, configJson);
+    ResolutionRequest request =
+        new ResolverConfig(new NullListener(), "--argsfile", configFile.toString())
+            .getResolutionRequest();
+    ResolutionResult result = resolver.resolve(request);
+    Graph<Coordinates> resolved = result.getResolution();
 
-    assertEquals(Set.of(baseCoordinates, androidCoordinates), resolved.nodes());
+    assertTrue(resolved.nodes().contains(baseCoordinates));
+    assertTrue(resolved.nodes().contains(androidCoordinates));
+    assertFalse(resolved.nodes().contains(jvmCoordinates));
+    assertTrue(resolved.nodes().contains(jvmOnlyCoordinates));
+    assertArtifactExtension(result, androidCoordinates, "aar");
+    assertArtifactExtension(result, jvmOnlyCoordinates, "jar");
+  }
+
+  private static void assertArtifactExtension(
+      ResolutionResult result, Coordinates coordinates, String extension) {
+    Path path = result.getArtifacts().get(coordinates).getPath().orElseThrow();
+    assertTrue(path.toString(), path.getFileName().toString().endsWith("." + extension));
   }
 
   @Test
