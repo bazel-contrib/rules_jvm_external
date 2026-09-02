@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//private:resolve_for.bzl", "resolve_for_error")
+load("//private/lib:resolve_for.bzl", "resolve_for_error")
 load("//private/lib:urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url", "split_url")
 load(
     "//private/rules:coursier.bzl",

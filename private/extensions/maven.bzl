@@ -9,7 +9,7 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
-load("//private:resolve_for.bzl", "validate_resolve_for")
+load("//private/lib:resolve_for.bzl", "validate_resolve_for")
 load("//private/lib:coordinates.bzl", "to_external_form", "to_key", "unpack_coordinates")
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
 load("//private/rules:maven_version.bzl", "compare_maven_versions")
