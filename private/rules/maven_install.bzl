@@ -1,7 +1,6 @@
 load("//:specs.bzl", "parse", _json = "json")
 load("//private:constants.bzl", "DEFAULT_REPOSITORY_NAME")
-load("//private/lib:resolve_for.bzl", "validate_resolve_for")
-load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch", "validate_resolve_for")
 load("//private/rules:generate_pin_repository.bzl", "generate_pin_repository")
 
 def maven_install(

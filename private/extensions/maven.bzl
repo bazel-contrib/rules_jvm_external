@@ -9,9 +9,8 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
-load("//private/lib:resolve_for.bzl", "validate_resolve_for")
 load("//private/lib:coordinates.bzl", "to_external_form", "to_key", "unpack_coordinates")
-load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch", "validate_resolve_for")
 load("//private/rules:maven_version.bzl", "compare_maven_versions")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")

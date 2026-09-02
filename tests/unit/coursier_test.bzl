@@ -1,5 +1,4 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//private/lib:resolve_for.bzl", "resolve_for_error")
 load("//private/lib:urls.bzl", "extract_netrc_from_auth_url", "remove_auth_from_url", "split_url")
 load(
     "//private/rules:coursier.bzl",
@@ -9,6 +8,7 @@ load(
     "get_coursier_sha256",
     "get_direct_dependencies",
     "get_netrc_lines_from_entries",
+    "resolve_for_error",
     "strip_credentials_from_cache_path",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
