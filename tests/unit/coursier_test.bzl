@@ -4,6 +4,7 @@ load(
     "//private/rules:coursier.bzl",
     "compute_dependency_inputs_signature",
     "get_coursier_cache_or_default",
+    "get_coursier_environment",
     "get_coursier_sha256",
     "get_direct_dependencies",
     "get_netrc_lines_from_entries",
@@ -447,6 +448,118 @@ def _get_coursier_cache_or_default_enabled_with_custom_location_test(ctx):
     return unittest.end(env)
 
 get_coursier_cache_or_default_enabled_with_custom_location_test = add_test(_get_coursier_cache_or_default_enabled_with_custom_location_test)
+
+def _get_coursier_environment_without_shared_cache_test(ctx):
+    env = unittest.begin(ctx)
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "HOME": "/home/testuser",
+            },
+            name = "linux",
+        ),
+        which = _mock_which,
+        path = _mock_repo_path,
+    )
+    asserts.equals(
+        env,
+        {"COURSIER_CACHE": "/mockroot/v1"},
+        get_coursier_environment(mock_repository_ctx, False),
+    )
+    return unittest.end(env)
+
+get_coursier_environment_without_shared_cache_test = add_test(_get_coursier_environment_without_shared_cache_test)
+
+# Regression test for the shared cache with $HOME pointing somewhere the JVM's
+# `user.home` does not (e.g. a network mount): the spawned coursier process
+# must be told to use the $HOME-derived cache location explicitly, otherwise it
+# falls back to `user.home` and bypasses the shared cache.
+def _get_coursier_environment_with_shared_cache_uses_home_test(ctx):
+    env = unittest.begin(ctx)
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "HOME": "/mnt/nas/testuser",
+            },
+            name = "linux",
+        ),
+        which = _mock_which,
+        path = _mock_repo_path,
+    )
+    asserts.equals(
+        env,
+        {"COURSIER_CACHE": "/mnt/nas/testuser/.cache/coursier/v1"},
+        get_coursier_environment(mock_repository_ctx, True),
+    )
+    return unittest.end(env)
+
+get_coursier_environment_with_shared_cache_uses_home_test = add_test(_get_coursier_environment_with_shared_cache_uses_home_test)
+
+def _get_coursier_environment_with_custom_coursier_cache_test(ctx):
+    env = unittest.begin(ctx)
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "COURSIER_CACHE": "/custom/location",
+                "HOME": "/home/testuser",
+            },
+            name = "linux",
+        ),
+        which = _mock_which,
+        path = _mock_repo_path,
+    )
+    asserts.equals(
+        env,
+        {"COURSIER_CACHE": "/custom/location"},
+        get_coursier_environment(mock_repository_ctx, True),
+    )
+    return unittest.end(env)
+
+get_coursier_environment_with_custom_coursier_cache_test = add_test(_get_coursier_environment_with_custom_coursier_cache_test)
+
+def _get_coursier_environment_with_xdg_cache_home_test(ctx):
+    env = unittest.begin(ctx)
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {
+                "HOME": "/home/testuser",
+                "XDG_CACHE_HOME": "/xdg/cache",
+            },
+            name = "linux",
+        ),
+        which = _mock_which,
+        path = _mock_repo_path,
+    )
+    asserts.equals(
+        env,
+        {"COURSIER_CACHE": "/xdg/cache/coursier/v1"},
+        get_coursier_environment(mock_repository_ctx, True),
+    )
+    return unittest.end(env)
+
+get_coursier_environment_with_xdg_cache_home_test = add_test(_get_coursier_environment_with_xdg_cache_home_test)
+
+# Without $HOME (or any other variable a shared cache location could be derived
+# from), coursier must be left to use its own default rather than being pointed
+# at a nonsensical path.
+def _get_coursier_environment_without_home_test(ctx):
+    env = unittest.begin(ctx)
+    mock_repository_ctx = struct(
+        os = struct(
+            environ = {},
+            name = "linux",
+        ),
+        which = _mock_which,
+        path = _mock_repo_path,
+    )
+    asserts.equals(
+        env,
+        {},
+        get_coursier_environment(mock_repository_ctx, True),
+    )
+    return unittest.end(env)
+
+get_coursier_environment_without_home_test = add_test(_get_coursier_environment_without_home_test)
 
 def _get_coursier_sha256_default_test_impl(ctx):
     env = unittest.begin(ctx)
