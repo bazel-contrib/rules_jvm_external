@@ -14,6 +14,7 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.remote;
 
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -28,6 +29,8 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -156,12 +159,7 @@ public class Downloader {
 
           Path cachedResult = localRepository.resolve(path);
           if (cacheDownloads && !cachedResult.equals(pathInRepo)) {
-            try {
-              Files.createDirectories(cachedResult.getParent());
-              Files.copy(pathInRepo, cachedResult, REPLACE_EXISTING);
-            } catch (IOException e) {
-              throw new UncheckedIOException(e);
-            }
+            cacheDownload(pathInRepo, cachedResult);
           }
         }
       } else if (assumedDownloaded) {
@@ -181,6 +179,35 @@ public class Downloader {
     String sha256 = calculateSha256(pathInRepo);
 
     return new DownloadResult(coordsToUse, Set.copyOf(repos), pathInRepo, sha256);
+  }
+
+  // For the Gradle resolver, localRepository is the shared Gradle module cache, which the Gradle
+  // daemon and other worker threads write to concurrently. A plain Files.copy(REPLACE_EXISTING) is
+  // not atomic: REPLACE_EXISTING only removes a target present at check time, so a target created in
+  // the TOCTOU window makes the copy fail with FileAlreadyExistsException. Write to a temp file and
+  // atomically move it into place instead. These artifacts are content-addressed, so a destination
+  // another writer already produced is correct and "already there" is success, not an error.
+  private void cacheDownload(Path source, Path destination) {
+    try {
+      Path parent = destination.getParent();
+      Files.createDirectories(parent);
+
+      Path temp = Files.createTempFile(parent, ".rje-download-", ".tmp");
+      try {
+        Files.copy(source, temp, REPLACE_EXISTING);
+        try {
+          Files.move(temp, destination, ATOMIC_MOVE, REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+          Files.move(temp, destination, REPLACE_EXISTING);
+        }
+      } catch (FileAlreadyExistsException e) {
+        // Another writer won the race; the identical artifact is already cached.
+      } finally {
+        Files.deleteIfExists(temp);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   private URI buildUri(URI baseUri, String pathInRepo) {
