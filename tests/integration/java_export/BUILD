@@ -102,6 +102,18 @@ java_export(
     ],
 )
 
+# Published to the local Maven repository by the gradle non-timestamped snapshot
+# regression test. Kept dependency-free so the snapshot resolves hermetically
+# from m2Local without needing any remote repository.
+java_export(
+    name = "snapshot",
+    srcs = ["Snapshot.java"],
+    maven_coordinates = "com.example:snapshot:1.0-SNAPSHOT",
+    tags = [
+        "no-javadocs",
+    ],
+)
+
 java_export(
     name = "with-manifest",
     srcs = ["Main.java"],

@@ -834,6 +834,36 @@ dev_maven.install(
     ],
     resolver = "gradle",
 )
+
+# Non-timestamped snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+dev_maven.install(
+    name = "non_timestamped_snapshot_testing_gradle",
+    artifacts = [
+        "com.example:snapshot:1.0-SNAPSHOT",
+    ],
+    lock_file = "//tests/custom_maven_install:non_timestamped_snapshot_testing_gradle_install.json",
+    repositories = [
+        "file:///tmp/rje_non_timestamped_snapshot_repo",
+    ],
+    resolver = "gradle",
+)
+
+# Timestamped snapshot pinning support: https://github.com/bazel-contrib/rules_jvm_external/pull/1412
+# Uses the same java_export:snapshot fixture as the non-timestamped test, but post-processes
+# the published files to use timestamped snapshot naming (maven-metadata.xml with
+# <snapshot><timestamp>/<buildNumber> and renamed files) so the resolver exercises
+# the timestamped snapshot resolution path against a local hermetic repo.
+dev_maven.install(
+    name = "timestamped_snapshot_testing_gradle",
+    artifacts = [
+        "com.example:snapshot:1.0-SNAPSHOT",
+    ],
+    lock_file = "//tests/custom_maven_install:timestamped_snapshot_testing_gradle_install.json",
+    repositories = [
+        "file:///tmp/rje_timestamped_snapshot_repo",
+    ],
+    resolver = "gradle",
+)
 dev_maven.install(
     name = "starlark_aar_import_test",
     # Not actually necessary since this is the default value, but useful for
@@ -1127,9 +1157,13 @@ use_repo(
     "org_apache_flink_flink_test_utils_2_12",
     "org_eclipse_jetty_jetty_http_tests",
     "org_pantsbuild_jarjar",
+    "non_timestamped_snapshot_testing_gradle",
+    "timestamped_snapshot_testing_gradle",
     "regression_testing_coursier",
     "regression_testing_gradle",
     "regression_testing_maven",
+    "unpinned_non_timestamped_snapshot_testing_gradle",
+    "unpinned_timestamped_snapshot_testing_gradle",
     "unpinned_regression_testing_coursier",
     "unpinned_regression_testing_gradle",
     "unpinned_regression_testing_maven",
