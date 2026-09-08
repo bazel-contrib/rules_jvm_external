@@ -173,6 +173,32 @@ def _overridden_aar_original_artifact_uses_real_http_file_repo_impl(ctx):
 
 overridden_aar_original_artifact_uses_real_http_file_repo_test = unittest.make(_overridden_aar_original_artifact_uses_real_http_file_repo_impl)
 
+def _overridden_fileless_artifact_has_no_original_target_impl(ctx):
+    env = unittest.begin(ctx)
+
+    generated_imports = _generate_imports(
+        dependencies = [
+            {
+                "coordinates": "com.example:metadata:1.0",
+                "deps": [],
+                "file": None,
+                "urls": [],
+            },
+        ],
+        exclusions = {},
+        override_targets = {
+            "com.example:metadata": "//third_party:metadata",
+        },
+        maven_install_json = True,
+    )
+
+    asserts.true(env, "name = \"com_example_metadata\"," in generated_imports)
+    asserts.false(env, "original_com_example_metadata" in generated_imports)
+
+    return unittest.end(env)
+
+overridden_fileless_artifact_has_no_original_target_test = unittest.make(_overridden_fileless_artifact_has_no_original_target_impl)
+
 def dependency_tree_parser_test_suite():
     unittest.suite(
         "dependency_tree_parser_tests",
@@ -180,4 +206,5 @@ def dependency_tree_parser_test_suite():
         wildcard_exclusion_removes_all_generated_deps_test,
         pom_only_exclusion_removes_generated_export_test,
         overridden_aar_original_artifact_uses_real_http_file_repo_test,
+        overridden_fileless_artifact_has_no_original_target_test,
     )

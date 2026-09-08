@@ -529,6 +529,8 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             all_imports.append(
                 "alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n\tvisibility = %s,)" % (target_label, labels_to_override.get(target_label), visibility),
             )
+            if artifact_path == None:
+                continue
             if repository_ctx.attr.maven_install_json:
                 # Provide the downloaded artifact as a file target.
                 all_imports.append(_genrule_copy_artifact_from_http_file(artifact, default_visibilities))
