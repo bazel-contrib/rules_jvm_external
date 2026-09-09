@@ -279,6 +279,8 @@ root version looks like:
 WARNING: For dependency 'com.google.protobuf:protobuf-java' the root @maven repo wants version 3.25.5, but got 4.27.2 from the bazel_worker_java bazel dep. Please update the version in your MODULE.bazel or set `force_version = True`.
 ```
 
+You can either update the version in the root module to the highest version or set `force_version = True` in the root module to ensure that version will be the one used in the dependency resolution.
+
 ## Known issues
 
 - Some error messages print instructions that don't apply under bzlmod,
