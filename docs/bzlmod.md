@@ -255,31 +255,85 @@ as a Maven dependency, or when the project is only used as the root module.
 ### <a id="diagnostics"></a>Diagnostics
 
 Layering keeps the following diagnostics so that unexpected versions can be traced to their
-contributing module:
+contributing module. Each entry shows the message a user sees and how to resolve it. Several are
+governed by [`duplicate_version_warning`](bzlmod-api.md#maven.install-duplicate_version_warning),
+which is `"error"` to fail, `"warn"` (the default) to print and continue, or `"none"` to stay
+silent.
 
-| Condition | Behaviour |
-|---|---|
-| An unacknowledged non-root module contributes artifacts or BOMs | Always prints the contribution warning. |
-| One module declares `force_version` for the same coordinate at different versions | Fails with the module, coordinate, and both versions. |
-| Non-root modules force different versions of a coordinate that the root does not force | Fails with the contributing module names and versions, and tells the user how to select a version in the root module. |
-| `known_contributing_modules` excludes an artifact or BOM contributor | Prints an `INFO` message when `RJE_VERBOSE` is set. |
-| Layering selects a version different from the root version | `duplicate_version_warning` controls whether to warn, fail, or do nothing. Its default is `warn`, which prints during extension evaluation without requiring a repin variable. |
-| A non-root-only coordinate is added | Prints an `INFO` message when a repin variable and `RJE_VERBOSE` are both set. |
-| Multiple versions reach the repository rule | `duplicate_version_warning` controls whether to warn, fail, or do nothing. Its default is `warn`. |
+#### Which modules are contributing to this repository?
 
-No version-selection diagnostic is emitted when the root version is selected. This includes a
-forced root, an unforced root with the highest version, an equal unforced tie, and an equal-version
-forced non-root whose complete declaration survives. Coordinates that the root did not declare
-also have no version-selection diagnostic; the contribution warning covers their origin.
+An unacknowledged non-root module contributing artifacts or BOMs always prints the contribution
+warning:
 
-As an example, the version-selection warning when layering selects a version different from the
-root version looks like:
+```
+The maven repository 'my-project' has contributions from multiple bzlmod modules, and will be resolved together: ["my-project", "some-other-module"]
+```
+
+**Remedy:** if the contributions are expected, set `known_contributing_modules` on the root
+`install` tag to the module names in the message; otherwise remove the contributing module. When
+`known_contributing_modules` instead excludes a contributor, an `INFO` message is printed when
+`RJE_VERBOSE` is set.
+
+#### Why is my forced version rejected?
+
+One module forcing the same coordinate at two different versions fails:
+
+```
+Module 'my_module' forces dependency 'com.google.guava:guava' at different versions: 31.1-jre and 33.0.0-jre.
+```
+
+**Remedy:** keep a single version for the coordinate within that module.
+
+Non-root modules forcing different versions of a coordinate that the root does not force fails with:
+
+```
+Conflicting forced versions for dependency 'com.google.guava:guava': module_a wants 31.1-jre, module_b wants 33.0.0-jre. Add an `artifact` tag to the root module at the version you want and set `force_version = True`.
+```
+
+**Remedy:** add an `artifact` tag to the root module at the version you want and set
+`force_version = True` on it.
+
+#### Which version will be selected?
+
+When layering selects a version different from the root version, the version-selection warning is:
 
 ```
 WARNING: For dependency 'com.google.protobuf:protobuf-java' the root @maven repo wants version 3.25.5, but got 4.27.2 from the bazel_worker_java bazel dep. Please update the version in your MODULE.bazel or set `force_version = True`.
 ```
 
-You can either update the version in the root module to the highest version or set `force_version = True` in the root module to ensure that version will be the one used in the dependency resolution.
+`duplicate_version_warning` controls whether this warns, fails, or stays silent.
+
+**Remedy:** update the version in the root module to the highest version, or set
+`force_version = True` in the root module to ensure that version is the one used
+in dependency resolution.
+
+You only see this when the version that ends up being used differs from the one declared in your
+root module. For example, a `bazel_dep` may pull in a higher version of a dependency you also
+declare in the root. If the resolved version already matches your root declaration, there is
+nothing to act on and no warning is printed. Coordinates that only a `bazel_dep` declares (and
+your root does not) do not produce this warning either; they are covered by the contribution
+warning above instead.
+
+#### Which versions are reaching the repository?
+
+When more than one version of the same dependency makes it into the repository, whether declared
+twice in one module or contributed by several modules, the message is:
+
+```
+Found duplicate artifact versions
+    com.google.guava:guava has multiple versions 31.1-jre, 33.0.0-jre
+Please remove duplicate artifacts from the artifact list so you do not get unexpected artifact versions
+```
+
+`duplicate_version_warning` controls whether this warns, fails, or stays silent. **Remedy:** remove
+duplicate artifacts from the artifact list.
+
+A non-root-only coordinate is reported as an `INFO` message when a repin variable and `RJE_VERBOSE`
+are both set:
+
+```
+INFO: The @maven repo is getting the additional artifact com.google.guava:guava:33.0.0-jre from the module_a bazel dep.
+```
 
 ## Known issues
 
