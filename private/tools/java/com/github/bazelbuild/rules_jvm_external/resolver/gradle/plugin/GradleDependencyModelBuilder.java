@@ -98,14 +98,22 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // be used to attach the actual artifacts later
     ConcurrentHashMap<String, GradleResolvedDependency> variantGradleResolvedDependencyMap =
         new ConcurrentHashMap<>();
+    // Android resolution uses the detached configuration as the authoritative graph because
+    // runtimeClasspath requires JAR library elements, so resolving it would be wasted work.
+    // JVM resolution only uses the detached configuration to retry unresolved dependencies,
+    // preserving the complete runtimeClasspath graph otherwise.
+    boolean androidConsumer = isAndroidConsumer(cfg);
+
     // We get the root nodes in the dependency graph (or rather forest here since there can be
     // disjoint trees)
     List<GradleResolvedDependency> resolvedRoots =
-        collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
+        androidConsumer
+            ? List.of()
+            : collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
 
     // Collect any unresolved dependencies from the runtimeClasspath configuration
     List<GradleUnresolvedDependency> unresolvedDependenciesRuntimeClasspath =
-        getUnresolvedDependencies(cfg);
+        androidConsumer ? List.of() : getUnresolvedDependencies(cfg);
 
     List<Dependency> unresolvedDependencies =
         unresolvedDependenciesRuntimeClasspath.stream()
@@ -151,24 +159,15 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       }
     }
 
-    // Android resolution uses the detached configuration as the authoritative graph because
-    // runtimeClasspath requires JAR library elements. JVM resolution only uses it to retry
-    // unresolved dependencies, preserving the complete runtimeClasspath graph otherwise.
-    boolean androidConsumer = isAndroidConsumer(cfg);
     boolean resolveDetached = androidConsumer || !unresolvedDependenciesRuntimeClasspath.isEmpty();
-    if (androidConsumer) {
-      variantGradleResolvedDependencyMap.clear();
-    }
     List<GradleResolvedDependency> resolvedDetachedRoots =
         resolveDetached
             ? resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap)
             : List.of();
 
     List<GradleResolvedDependency> roots =
-        androidConsumer
-            ? resolvedDetachedRoots
-            : Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream())
-                .collect(Collectors.toList());
+        Streams.concat(resolvedRoots.stream(), resolvedDetachedRoots.stream())
+            .collect(Collectors.toList());
     // Use the ArtifactView API to get all the resolved artifacts (jars, aars)
     // The ArtifactView API doesn't download some of the classifiers by default, so we handle that
     // here
