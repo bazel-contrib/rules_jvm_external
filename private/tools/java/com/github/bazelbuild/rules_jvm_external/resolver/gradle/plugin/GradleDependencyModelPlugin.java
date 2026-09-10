@@ -50,6 +50,8 @@ public class GradleDependencyModelPlugin implements Plugin<Project> {
     registry.register(new GradleDependencyModelBuilder());
     configureKotlinPlatformSchema(project);
     if ("android".equals(project.findProperty(RESOLVE_FOR_PROPERTY))) {
+      // Relies on the generated build script (build.gradle.hbs) applying the `java` plugin.
+      // Without it there is no runtimeClasspath to configure and resolution silently uses JVM.
       project.getPlugins().withId("java", plugin -> configureAndroidConsumer(project));
     }
   }
