@@ -35,6 +35,11 @@ import java.util.stream.Stream;
 
 public class ResolutionRequest {
 
+  public enum ResolveFor {
+    JVM,
+    ANDROID
+  }
+
   private final List<URI> repos = new ArrayList<>();
   private final List<Artifact> dependencies = new ArrayList<>();
   private final List<Artifact> boms = new ArrayList<>();
@@ -42,6 +47,7 @@ public class ResolutionRequest {
   private boolean useUnsafeSharedCache;
   private Path userHome;
   private boolean isUsingM2Local;
+  private ResolveFor resolveFor = ResolveFor.JVM;
 
   public ResolutionRequest addRepository(String uri) {
     if ("m2local".equals(uri) || "m2Local".equals(uri)) {
@@ -123,6 +129,11 @@ public class ResolutionRequest {
     return this;
   }
 
+  public ResolutionRequest resolveFor(ResolveFor resolveFor) {
+    this.resolveFor = Objects.requireNonNull(resolveFor);
+    return this;
+  }
+
   public ResolutionRequest replaceDependencies(Collection<Artifact> amended) {
     ResolutionRequest toReturn = new ResolutionRequest();
 
@@ -133,6 +144,7 @@ public class ResolutionRequest {
     toReturn.useUnsafeSharedCache = isUseUnsafeSharedCache();
     toReturn.userHome = userHome;
     toReturn.isUsingM2Local = isUsingM2Local();
+    toReturn.resolveFor = resolveFor;
 
     return toReturn;
   }
@@ -159,6 +171,10 @@ public class ResolutionRequest {
 
   public boolean isUsingM2Local() {
     return isUsingM2Local;
+  }
+
+  public ResolveFor getResolveFor() {
+    return resolveFor;
   }
 
   public Path getUserHome() {
