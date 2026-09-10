@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -243,13 +244,10 @@ public class ResolverConfig {
   }
 
   private static ResolveFor parseResolveFor(String resolveFor) {
-    switch (resolveFor) {
-      case "jvm":
-        return ResolveFor.JVM;
-      case "android":
-        return ResolveFor.ANDROID;
-      default:
-        throw new IllegalArgumentException("resolveFor must be either \"jvm\" or \"android\"");
+    try {
+      return ResolveFor.valueOf(resolveFor.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("resolveFor must be either \"jvm\" or \"android\"", e);
     }
   }
 }
