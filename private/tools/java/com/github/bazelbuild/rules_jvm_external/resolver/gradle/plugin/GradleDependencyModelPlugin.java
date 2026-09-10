@@ -56,6 +56,8 @@ public class GradleDependencyModelPlugin implements Plugin<Project> {
     }
   }
 
+  // Registered for every resolution, but inert for JVM consumers: both rules only fire
+  // when the consumer declares the androidJvm platform.
   private static void configureKotlinPlatformSchema(Project project) {
     project
         .getDependencies()
