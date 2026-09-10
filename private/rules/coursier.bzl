@@ -382,6 +382,7 @@ def _add_to_hash_dictionary(dictionary, artifact, salt):
     value.append(hash(_stable_artifact(artifact) + salt))
     dictionary[key] = value
 
+# Visible for testing
 def resolve_for_error(resolver, resolve_for):
     if resolve_for not in ["jvm", "android"]:
         return "resolve_for must be either \"jvm\" or \"android\", got \"%s\"" % resolve_for
