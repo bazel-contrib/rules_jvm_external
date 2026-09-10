@@ -28,16 +28,17 @@ genrule(
     srcs = [
         "//docs:includes/main_functions_header.md",
         "//docs:defs.md",
-        "//docs:includes/spec_functions_header.md",
-        "//docs:specs.md",
+        "//docs:kt_defs.md",
     ],
     outs = ["api.md"],
     cmd = """cat \
     $(location //docs:includes/main_functions_header.md) \
-    $(location //docs:defs.md) \
-    $(location //docs:includes/spec_functions_header.md) \
-    $(location //docs:specs.md) > $@""",
-    visibility = ["//:__pkg__"],
+    $(location //docs:defs.md) > $@
+cat $(location //docs:kt_defs.md) >> $@""",
+    visibility = [
+        "//:__pkg__",
+        "//docs:__pkg__",
+    ],
 )
 
 java_binary(

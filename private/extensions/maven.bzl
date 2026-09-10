@@ -28,60 +28,60 @@ _DEFAULT_RESOLVER = "coursier"
 artifact = tag_class(
     doc = "Used to define a single artifact where the simple coordinates are insufficient. Will be added to the other artifacts declared by tags with the same `name` attribute.",
     attrs = {
-        "name": attr.string(default = DEFAULT_NAME),
-        "group": attr.string(mandatory = True),
-        "artifact": attr.string(mandatory = True),
-        "version": attr.string(),
-        "packaging": attr.string(),
-        "classifier": attr.string(),
-        "force_version": attr.bool(default = False),
-        "neverlink": attr.bool(),
-        "testonly": attr.bool(),
-        "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
+        "name": attr.string(doc = "Name of the generated Maven repository.", default = DEFAULT_NAME),
+        "group": attr.string(doc = "Maven group ID.", mandatory = True),
+        "artifact": attr.string(doc = "Maven artifact ID.", mandatory = True),
+        "version": attr.string(doc = "Maven artifact version."),
+        "packaging": attr.string(doc = "Maven packaging type, such as `jar` or `aar`."),
+        "classifier": attr.string(doc = "Maven artifact classifier."),
+        "force_version": attr.bool(doc = "Whether to force this artifact's version during dependency resolution.", default = False),
+        "neverlink": attr.bool(doc = "Whether the generated target should be available only for compilation, not at runtime."),
+        "testonly": attr.bool(doc = "Whether the generated target should be marked test-only."),
+        "exclusions": attr.string_list(doc = "Maven artifact coordinates to exclude, in `groupId:artifactId` format.", allow_empty = True),
     },
 )
 
 install = tag_class(
     doc = "Combines artifact and bom declarations with setting the location of lock files to use, and repositories to download artifacts from. There can only be one `install` tag with a given `name` per module. `install` tags with the same name across multiple modules will be merged, with the root module taking precedence.",
     attrs = {
-        "name": attr.string(default = DEFAULT_NAME),
+        "name": attr.string(doc = "Name of the generated Maven repository.", default = DEFAULT_NAME),
 
         # Actual artifacts and overrides
-        "artifacts": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId:version` format", allow_empty = True),
-        "boms": attr.string_list(doc = "Maven BOM tuples, in `artifactId:groupId:version` format", allow_empty = True),
-        "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
+        "artifacts": attr.string_list(doc = "Maven artifact coordinates in Gradle external dependency notation, `group:artifact[:version][:classifier][@packaging]`. The legacy `group:artifact[:packaging[:classifier]]:version` form is also accepted.", allow_empty = True),
+        "boms": attr.string_list(doc = "Maven BOM coordinates in `groupId:artifactId:version` format.", allow_empty = True),
+        "exclusions": attr.string_list(doc = "Unused. Use `excluded_artifacts` for global exclusions or an `artifact` tag for per-artifact exclusions.", allow_empty = True),
 
         # What do we fetch?
-        "fetch_javadoc": attr.bool(default = False),
-        "fetch_sources": attr.bool(default = False),
+        "fetch_javadoc": attr.bool(doc = "Whether to fetch Javadoc JARs.", default = False),
+        "fetch_sources": attr.bool(doc = "Whether to fetch source JARs.", default = False),
 
         # How do we do artifact resolution?
-        "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "gradle", "maven"], default = _DEFAULT_RESOLVER),
+        "resolver": attr.string(doc = "Resolver to use. Only honored for the root module.", values = ["coursier", "gradle", "maven"], default = _DEFAULT_RESOLVER),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
             doc = """Controls visibility of transitive dependencies.
 
-            If "True", transitive dependencies are private and invisible to user's rules.
-            If "False", transitive dependencies are public and visible to user's rules.
+            If true, transitive dependencies are private and invisible to user rules.
+            If false, transitive dependencies are public and visible to user rules.
             """,
             default = False,
         ),
-        "strict_visibility_value": attr.label_list(default = ["//visibility:private"]),
+        "strict_visibility_value": attr.label_list(doc = "Visibility applied to transitive dependencies when `strict_visibility` is true.", default = ["//visibility:private"]),
 
         # Android support
-        "aar_import_bzl_label": attr.string(default = DEFAULT_AAR_IMPORT_LABEL, doc = "The label (as a string) to use to import aar_import from"),
-        "use_starlark_android_rules": attr.bool(default = False, doc = "Whether to use the native or Starlark version of the Android rules."),
+        "aar_import_bzl_label": attr.string(doc = "Label, as a string, from which to load the `aar_import` rule.", default = DEFAULT_AAR_IMPORT_LABEL),
+        "use_starlark_android_rules": attr.bool(doc = "Whether to use the Starlark Android rules instead of Bazel's native Android rules.", default = False),
 
         # Configuration "stuff"
-        "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
-        "use_credentials_from_home_netrc_file": attr.bool(doc = "Whether to pass machine login credentials from the ~/.netrc file to coursier.", default = False),
+        "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file`. Requires `lock_file`.", default = []),
+        "use_credentials_from_home_netrc_file": attr.bool(doc = "Whether to pass machine login credentials from `~/.netrc` to Coursier.", default = False),
         "duplicate_version_warning": attr.string(
-            doc = """What to do if there are duplicate artifacts
+            doc = """What to do if there are duplicate artifacts.
 
-            If "error", then print a message and fail the build.
-            If "warn", then print a warning and continue.
-            If "none", then do nothing.
+            If `error`, print a message and fail the build.
+            If `warn`, print a warning and continue.
+            If `none`, do nothing.
             """,
             default = "warn",
             values = [
@@ -90,28 +90,28 @@ install = tag_class(
                 "none",
             ],
         ),
-        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.", default = True),
-        "lock_file": attr.label(),
-        "index_file": attr.label(doc = "If present, when dependencies are resolved this file will contain information the java gazelle plugin can use to more accurately construct build files. The default name should be `maven_index.json`."),
-        "repositories": attr.string_list(default = DEFAULT_REPOSITORIES),
+        "fail_if_repin_required": attr.bool(doc = "Whether to fail the build if the dependency inputs have changed but the lock file has not been repinned.", default = True),
+        "lock_file": attr.label(doc = "Lock file to read and update when pinning, such as `//:maven_install.json`."),
+        "index_file": attr.label(doc = "File to update with dependency information for the Java Gazelle plugin. Conventionally named `maven_index.json`."),
+        "repositories": attr.string_list(doc = "Maven repository URLs, specified in lookup order. Supports HTTP Basic Authentication in the URL.", default = DEFAULT_REPOSITORIES),
         "generate_compat_repositories": attr.bool(
-            doc = "Additionally generate repository aliases in a .bzl file for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
+            doc = "Whether to generate repository aliases for all JAR artifacts. For example, `@maven//:com_google_guava_guava` can also be referenced as `@com_google_guava_guava//jar`.",
         ),
         "known_contributing_modules": attr.string_list(
-            doc = "List of Bzlmod modules that are known to be contributing to this repository. Only honoured for the root module.",
+            doc = "Bzlmod modules allowed to contribute to this repository. Only honored for the root module.",
             default = [],
         ),
 
         # When using an unpinned repo
-        "excluded_artifacts": attr.string_list(doc = "Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs", default = []),  # list of artifacts to exclude
-        "fail_on_missing_checksum": attr.bool(default = True),
-        "resolve_timeout": attr.int(default = 600),
+        "excluded_artifacts": attr.string_list(doc = "Maven artifact coordinates in `groupId:artifactId` format to exclude from transitive dependencies.", default = []),
+        "fail_on_missing_checksum": attr.bool(doc = "Whether to fail resolution when an artifact has no checksum.", default = True),
+        "resolve_timeout": attr.int(doc = "Timeout, in seconds, for resolving and fetching artifacts.", default = 600),
         "version_conflict_policy": attr.string(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
 
-            If "pinned", choose the user-specified version in maven_install unconditionally.
+            If `pinned`, choose the user-specified version in `maven.install` unconditionally.
             With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module.
-            If "default", follow the selected resolver's default policy.
+            If `default`, follow the selected resolver's default policy.
             """,
             default = "default",
             values = [
@@ -119,41 +119,41 @@ install = tag_class(
                 "pinned",
             ],
         ),
-        "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
-        "repin_instructions": attr.string(doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default. Only honoured for the root module."),
-        "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
-        "resolver_extra_dependencies": attr.label_list(default = [], doc = "Jars or libraries to add to the resolver classpath (such as custom MetadataService or DownloadService SPI implementations)."),
+        "ignore_empty_files": attr.bool(doc = "Whether to treat empty JARs as missing.", default = False),
+        "repin_instructions": attr.string(doc = "Custom instructions shown when repinning is required. Only honored for the root module."),
+        "additional_coursier_options": attr.string_list(doc = "Additional options passed to Coursier."),
+        "resolver_extra_dependencies": attr.label_list(doc = "JARs or libraries added to the resolver classpath, such as custom `MetadataService` or `DownloadService` SPI implementations.", default = []),
     },
 )
 
 override = tag_class(
     doc = "Allows specific maven coordinates to be redirected elsewhere. Commonly used to replace an external dependency with another, or a compatible implementation from within this module.",
     attrs = {
-        "name": attr.string(default = DEFAULT_NAME),
-        "coordinates": attr.string(doc = "Maven artifact tuple in `artifactId:groupId` format", mandatory = True),
-        "target": attr.label(doc = "Target to use in place of maven coordinates", mandatory = True),
-        "visibility": attr.string_list(doc = "Visibility of the generated alias target", default = []),
+        "name": attr.string(doc = "Name of the generated Maven repository.", default = DEFAULT_NAME),
+        "coordinates": attr.string(doc = "Maven artifact coordinates in `groupId:artifactId` format.", mandatory = True),
+        "target": attr.label(doc = "Target to use in place of the Maven artifact.", mandatory = True),
+        "visibility": attr.string_list(doc = "Visibility of the generated alias target.", default = []),
     },
 )
 
 from_toml = tag_class(
     doc = "Allows a project to import dependencies from a Gradle format `libs.versions.toml` file.",
     attrs = {
-        "name": attr.string(default = DEFAULT_NAME),
-        "libs_versions_toml": attr.label(doc = "Gradle `libs.versions.toml` file to use", mandatory = True),
-        "bom_modules": attr.string_list(doc = "List of modules in `group:artifact` format to treat as BOMs, not artifacts"),
+        "name": attr.string(doc = "Name of the generated Maven repository.", default = DEFAULT_NAME),
+        "libs_versions_toml": attr.label(doc = "Gradle `libs.versions.toml` file to read.", mandatory = True),
+        "bom_modules": attr.string_list(doc = "Modules in `groupId:artifactId` format to treat as BOMs instead of artifacts."),
     },
 )
 
 amend_artifact = tag_class(
     doc = "Modifies an artifact with `coordinates` defined in other tags with additional properties.",
     attrs = {
-        "name": attr.string(default = DEFAULT_NAME),
-        "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
-        "force_version": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
-        "neverlink": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
-        "testonly": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
-        "exclusions": attr.string_list(doc = "Maven artifact tuples, in `artifactId:groupId` format", allow_empty = True),
+        "name": attr.string(doc = "Name of the generated Maven repository.", default = DEFAULT_NAME),
+        "coordinates": attr.string(doc = "Maven artifact coordinates to amend. Only `groupId:artifactId` are used for matching.", mandatory = True),
+        "force_version": attr.string(doc = "Whether to force this artifact's version during dependency resolution. Leave empty to preserve the current value.", values = ["on", "off", "true", "false", ""], default = ""),
+        "neverlink": attr.string(doc = "Whether the generated target should be available only for compilation, not at runtime. Leave empty to preserve the current value.", values = ["on", "off", "true", "false", ""], default = ""),
+        "testonly": attr.string(doc = "Whether the generated target should be marked test-only. Leave empty to preserve the current value.", values = ["on", "off", "true", "false", ""], default = ""),
+        "exclusions": attr.string_list(doc = "Maven artifact coordinates to exclude, in `groupId:artifactId` format.", allow_empty = True),
     },
 )
 
@@ -189,7 +189,7 @@ def _warn_if_multiple_contributing_modules(repo, repo_name, non_root_bazel_dep_t
         print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s." % (
                   repo_name,
                   sorted(contributing_module_names),
-              ) + "\nSee https://github.com/bazel-contrib/rules_jvm_external/blob/master/docs/bzlmod.md#module-dependency-layering" +
+              ) + "\nSee https://github.com/bazel-contrib/rules_jvm_external/blob/master/docs/module-dependency-layering.md" +
               " for more information. \n" +
               " To suppress this warning review the contributions from the other modules and add the following attribute" +
               " in the root MODULE.bazel file: \n" +

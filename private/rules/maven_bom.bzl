@@ -157,8 +157,8 @@ def maven_bom(
     dependencies artifact will be created if the parameter
     `dependencies_maven_coordinates` is set.
 
-    Both the BOM and dependencies artifact can be templatised to support
-    customisation, but a sensible default template will be used if none is
+    Both the BOM and dependencies artifact can be templated to support
+    customization, but a sensible default template will be used if none is
     provided. The template used is derived from the (optional)
     `pom_template` argument, and the following substitutions are performed on
     the template file:
@@ -171,7 +171,7 @@ def maven_bom(
 
     To publish, call the implicit `*.publish` target(s).
 
-    The maven repository may accessed locally using a `file://` URL, or
+    The maven repository may be accessed locally using a `file://` URL, or
     remotely using an `https://` URL. The following flags may be set
     using `--define`:
 
@@ -186,7 +186,7 @@ def maven_bom(
       * `name`: The BOM file itself.
       * `name.publish`: To be executed by `bazel run` to publish the BOM to a maven repo
       * `name-dependencies`: The BOM file for the dependencies `pom.xml`. Only generated if `dependencies_maven_coordinates` is set.
-      * `name-dependencies.publish`: To be executed by `bazel run` to publish the dependencies `pom.xml` to a maven rpo. Only generated if `dependencies_maven_coordinates` is set.
+      * `name-dependencies.publish`: To be executed by `bazel run` to publish the dependencies `pom.xml` to a maven repo. Only generated if `dependencies_maven_coordinates` is set.
 
     Args:
       name: A unique name for this rule.
@@ -195,6 +195,10 @@ def maven_bom(
       dependencies_maven_coordinates: The maven coordinates of a dependencies artifact to generate in GAV format. If empty, none will be generated. (optional)
       dependencies_pom_template: A template used for generating the `pom.xml` of the dependencies artifact at `dependencies_maven_coordinates` (optional)
       java_exports: A list of `java_export` targets that are used to generate the BOM.
+      tags: Tags applied to the generated targets.
+      testonly: Whether the generated targets should be marked test-only.
+      visibility: The visibility of the generated targets.
+      toolchains: Toolchains used by the generated targets.
     """
     fragments = []
     labels = [_label(je) for je in java_exports]

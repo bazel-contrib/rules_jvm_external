@@ -80,6 +80,9 @@ def java_export(
       exclusions: Mapping of target labels to a list of exclusions to be added to the POM file.
         Each label must correspond to a direct maven dependency of this target.
         Each exclusion is represented as a `group:artifact` string.
+      visibility: The visibility of the generated targets.
+      tags: Tags applied to the generated targets.
+      testonly: Whether the generated targets should be marked test-only.
       classifier_artifacts: A dict of classifier -> artifact of additional artifacts to publish to Maven.
       doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
         (if not using `tags = ["no-javadocs"]`)
@@ -92,7 +95,6 @@ def java_export(
       doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
         end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
         `com.example` will include only the files directly in `com.example`
-      visibility: The visibility of the target
       publish_maven_metadata: Whether to publish a maven-metadata.xml to remote repository. Some repositories
             (like AWS CodeArtifact) require the client to publish this file. It is disabled by default.
       kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
@@ -173,13 +175,9 @@ def maven_export(
         doc_included_packages = [],
         publish_maven_metadata = False,
         toolchains = None):
-    """
-    All arguments are the same as java_export with the addition of:
-      lib_name: Name of the library that has been built if a library is being exported.
-      target: Name of the zip archive being exported if only zip files are being exported.
-      javadocopts: The options to be used for javadocs.
+    """Generates Maven publishing targets for an existing library or archive.
 
-    This macro is used by java_export and kt_jvm_export to generate implicit `name.publish`
+    This macro is used by `java_export` and `kt_jvm_export` to generate implicit `name.publish`
     targets to publish maven artifacts derived from this macro to a maven repository.
 
     The publish rule understands the following variables (declared using `--define` when
@@ -216,9 +214,10 @@ def maven_export(
       * `name.publish`: To be executed by `bazel run` to publish to a maven repo.
 
     Args:
-      name: A unique name for this target
+      name: A unique name for this target.
       maven_coordinates: The maven coordinates for this target.
-      pom_template: The template to be used for the pom.xml file.
+      lib_name: Name of the library being exported.
+      target: Name of the archive being exported when no library target is used.
       manifest_entries: A dict of `String: String` containing additional manifest entry attributes and values.
       deploy_env: A list of labels of Java targets to exclude from the generated jar.
         [`java_binary`](https://bazel.build/reference/be/java#java_binary) targets are *not*
@@ -230,6 +229,13 @@ def maven_export(
       exclusions: Mapping of target labels to a list of exclusions to be added to the POM file.
         Each label must correspond to a direct maven dependency of this target.
         Each exclusion is represented as a `group:artifact` string.
+      pom_template: The template to be used for the pom.xml file.
+      allowed_duplicate_names: Patterns for file names that may occur more than once in the generated JAR.
+      visibility: The visibility of the generated targets.
+      tags: Tags applied to the generated targets.
+      testonly: Whether the generated targets should be marked test-only.
+      javadocopts: Options passed to Javadoc.
+      classifier_artifacts: A mapping of Maven classifiers to additional artifacts to publish.
       doc_deps: Other `javadoc` targets that are referenced by the generated `javadoc` target
         (if not using `tags = ["no-javadoc"]`)
       doc_url: The URL at which the generated `javadoc` will be hosted (if not using
@@ -241,11 +247,9 @@ def maven_export(
       doc_included_packages: A list of packages to include in the generated javadoc. Wildcards are supported at the
         end of the package name. For example, `com.example.*` will include all the subpackages of `com.example`, while
         `com.example` will include only the files directly in `com.example`
-      visibility: The visibility of the target
       publish_maven_metadata: Whether to publish a maven-metadata.xml to remote repository. Some repositories
             (like AWS CodeArtifact) require the client to publish this file. It is disabled by default.
-      kwargs: These are passed to [`java_library`](https://bazel.build/reference/be/java#java_library),
-        and so may contain any valid parameter for that rule.
+      toolchains: Toolchains used by the generated Javadoc target.
     """
     maven_coordinates_tags = ["maven_coordinates=%s" % maven_coordinates]
 

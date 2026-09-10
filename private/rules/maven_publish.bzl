@@ -1,7 +1,8 @@
 MavenPublishInfo = provider(
+    doc = "Information about the Maven artifacts produced by a publishing target.",
     fields = {
         "coordinates": "Maven coordinates for the project, which may be None",
-        "pom": "Pom.xml file for metdata",
+        "pom": "POM file containing project metadata",
         "javadocs": "Javadoc jar file for documentation files",
         "artifact": "Primary artifact to be published, typically a jar",
         "source_jar": "Jar with the source code for review",

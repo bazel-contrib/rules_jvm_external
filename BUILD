@@ -5,6 +5,7 @@ load("@package_metadata//rules:package_metadata.bzl", "package_metadata")
 exports_files([
     "defs.bzl",
     "extensions.bzl",
+    "kt_defs.bzl",
     "specs.bzl",
     "maven_install.json",
     "kt_defs.bzl",
