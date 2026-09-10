@@ -485,7 +485,6 @@ def _process_module_tags(mctx):
         for install in mod.tags.install:
             repo = target_repos.get(install.name, {})
 
-            validate_resolve_for(install.resolver, install.resolve_for)
             repo["resolver"] = install.resolver
             repo["resolve_for"] = install.resolve_for
 
@@ -822,6 +821,11 @@ def maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
+        # Validate the effective values after merging: a non-root module's settings are
+        # ignored when the root module declares the same repo, so validating each tag
+        # individually could fail the build on values that are never used.
+        validate_resolve_for(repo.get("resolver", _DEFAULT_RESOLVER), repo.get("resolve_for", "jvm"))
+
         boms_json = [json.encode(remove_fields(b)) for b in repo.get("boms", [])]
         artifacts_json = [json.encode(remove_fields(a)) for a in repo.get("artifacts", [])]
 
