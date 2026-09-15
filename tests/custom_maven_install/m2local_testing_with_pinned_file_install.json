@@ -5,7 +5,7 @@
     "repositories": -896170563
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "com.example:no-docs": -1087287837,
+    "com.example:no-docs": 516658158,
     "com.google.errorprone:error_prone_annotations": 1527418394,
     "com.google.guava:failureaccess": 1715931538,
     "com.google.guava:guava": -1587873388,
@@ -16,7 +16,7 @@
   "artifacts": {
     "com.example:no-docs": {
       "shasums": {
-        "jar": "ab83d2b92bf20138822e8b9f6e8105be4636155c59c28dfe262f847c11b18e72"
+        "jar": "13a9f3401f299ee2e4461c20eb9bb0c8e02a141cc240e2e0bbcaba878883f8c4"
       },
       "version": "1.0.0"
     },
