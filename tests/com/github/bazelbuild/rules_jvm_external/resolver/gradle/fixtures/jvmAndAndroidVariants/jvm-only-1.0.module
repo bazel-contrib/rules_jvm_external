@@ -2,24 +2,11 @@
   "formatVersion": "1.1",
   "component": {
     "group": "com.example",
-    "module": "sample-jvm",
+    "module": "jvm-only",
     "version": "1.0",
     "attributes": { "org.gradle.status": "release" }
   },
   "variants": [
-    {
-      "name": "apiElements",
-      "attributes": {
-        "org.gradle.category": "library",
-        "org.gradle.usage": "java-api",
-        "org.gradle.jvm.environment": "standard-jvm",
-        "org.gradle.libraryelements": "jar",
-        "org.jetbrains.kotlin.platform.type": "jvm"
-      },
-      "files": [
-        { "name": "sample-jvm-1.0.jar", "url": "sample-jvm-1.0.jar" }
-      ]
-    },
     {
       "name": "runtimeElements",
       "attributes": {
@@ -28,11 +15,10 @@
         "org.gradle.jvm.environment": "standard-jvm",
         "org.gradle.libraryelements": "jar",
         "org.gradle.dependency.bundling": "external",
-        "org.gradle.jvm.version": 11,
         "org.jetbrains.kotlin.platform.type": "jvm"
       },
       "files": [
-        { "name": "sample-jvm-1.0.jar", "url": "sample-jvm-1.0.jar" }
+        { "name": "jvm-only-1.0.jar", "url": "jvm-only-1.0.jar" }
       ]
     }
   ]

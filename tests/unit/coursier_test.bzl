@@ -8,6 +8,7 @@ load(
     "get_coursier_sha256",
     "get_direct_dependencies",
     "get_netrc_lines_from_entries",
+    "resolve_for_error",
     "strip_credentials_from_cache_path",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
@@ -757,6 +758,41 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
     return unittest.end(env)
 
 calculate_inputs_hash_uses_excluded_artifacts_test = add_test(_calculate_inputs_hash_uses_excluded_artifacts_test)
+
+def _changing_resolve_for_requires_repin_test(ctx):
+    env = unittest.begin(ctx)
+    common = {
+        "artifacts": ["{\"group\": \"com.example\", \"artifact\": \"sample\", \"version\": \"1.0\"}"],
+        "repositories": ["https://repo1.maven.org/maven2"],
+    }
+    jvm_hash, jvm_old_hashes = compute_dependency_inputs_signature(resolve_for = "jvm", **common)
+    android_hash, _ = compute_dependency_inputs_signature(resolve_for = "android", **common)
+
+    asserts.false(env, jvm_hash == android_hash)
+    asserts.false(env, android_hash in jvm_old_hashes)
+    return unittest.end(env)
+
+changing_resolve_for_requires_repin_test = add_test(_changing_resolve_for_requires_repin_test)
+
+def _android_resolve_for_is_rejected_for_non_gradle_resolver_test(ctx):
+    env = unittest.begin(ctx)
+
+    asserts.equals(
+        env,
+        "resolve_for = \"android\" requires resolver = \"gradle\"",
+        resolve_for_error("maven", "android"),
+    )
+    asserts.equals(
+        env,
+        "resolve_for must be either \"jvm\" or \"android\", got \"ios\"",
+        resolve_for_error("gradle", "ios"),
+    )
+
+    return unittest.end(env)
+
+android_resolve_for_is_rejected_for_non_gradle_resolver_test = add_test(
+    _android_resolve_for_is_rejected_for_non_gradle_resolver_test,
+)
 
 def _get_direct_dependencies_test_impl(ctx):
     env = unittest.begin(ctx)

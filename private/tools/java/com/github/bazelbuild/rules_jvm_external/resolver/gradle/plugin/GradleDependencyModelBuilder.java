@@ -62,6 +62,7 @@ import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.attributes.java.TargetJvmEnvironment;
 import org.gradle.maven.MavenModule;
 import org.gradle.maven.MavenPomArtifact;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
@@ -72,6 +73,11 @@ import org.gradle.tooling.provider.model.ToolingModelBuilder;
  * any failures and the final tooling model back to the resolver
  */
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
+
+  private static final Attribute<TargetJvmEnvironment> JVM_ENVIRONMENT_ATTRIBUTE =
+      TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE;
+  private static final Attribute<String> KOTLIN_PLATFORM_ATTRIBUTE =
+      Attribute.of("org.jetbrains.kotlin.platform.type", String.class);
 
   @Override
   public boolean canBuild(String modelName) {
@@ -92,14 +98,22 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // be used to attach the actual artifacts later
     ConcurrentHashMap<String, GradleResolvedDependency> variantGradleResolvedDependencyMap =
         new ConcurrentHashMap<>();
+    // Android resolution uses the detached configuration as the authoritative graph because
+    // runtimeClasspath requires JAR library elements, so resolving it would be wasted work.
+    // JVM resolution only uses the detached configuration to retry unresolved dependencies,
+    // preserving the complete runtimeClasspath graph otherwise.
+    boolean androidConsumer = isAndroidConsumer(cfg);
+
     // We get the root nodes in the dependency graph (or rather forest here since there can be
     // disjoint trees)
     List<GradleResolvedDependency> resolvedRoots =
-        collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
+        androidConsumer
+            ? List.of()
+            : collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
 
     // Collect any unresolved dependencies from the runtimeClasspath configuration
     List<GradleUnresolvedDependency> unresolvedDependenciesRuntimeClasspath =
-        getUnresolvedDependencies(cfg);
+        androidConsumer ? List.of() : getUnresolvedDependencies(cfg);
 
     List<Dependency> unresolvedDependencies =
         unresolvedDependenciesRuntimeClasspath.stream()
@@ -121,6 +135,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     Configuration detachedCfg =
         project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
+    copyAttribute(cfg, detachedCfg, JVM_ENVIRONMENT_ATTRIBUTE);
+    copyAttribute(cfg, detachedCfg, KOTLIN_PLATFORM_ATTRIBUTE);
     // Detached configurations are not covered by `configurations.all`, so the forced module
     // versions from the generated build script do not apply to them automatically. Without
     // them, pinned modules can resolve at a different version during the retry.
@@ -143,14 +159,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       }
     }
 
-    // build the updated dependency graph with the detached configuration for all the
-    // dependencies that we couldn't resolve with the default configuration. When everything
-    // resolved, skip the retry: the detached configuration resolves without the main
-    // configuration's attributes, so it can fail or pick different versions, and merging
-    // those results would corrupt an already-complete graph.
-    boolean retryUnresolved = !unresolvedDependenciesRuntimeClasspath.isEmpty();
+    boolean resolveDetached = androidConsumer || !unresolvedDependenciesRuntimeClasspath.isEmpty();
     List<GradleResolvedDependency> resolvedDetachedRoots =
-        retryUnresolved
+        resolveDetached
             ? resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap)
             : List.of();
 
@@ -165,12 +176,26 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     gradleDependencyModel.getResolvedDependencies().addAll(roots);
 
     // if anything is still unresolved, then add it for reporting
-    if (retryUnresolved) {
+    if (resolveDetached) {
       gradleDependencyModel
           .getUnresolvedDependencies()
           .addAll(getUnresolvedDependencies(detachedCfg));
     }
     return gradleDependencyModel;
+  }
+
+  private static <T> void copyAttribute(
+      Configuration source, Configuration target, Attribute<T> attribute) {
+    T value = source.getAttributes().getAttribute(attribute);
+    if (value != null) {
+      target.getAttributes().attribute(attribute, value);
+    }
+  }
+
+  private static boolean isAndroidConsumer(Configuration configuration) {
+    TargetJvmEnvironment environment =
+        configuration.getAttributes().getAttribute(JVM_ENVIRONMENT_ATTRIBUTE);
+    return environment != null && TargetJvmEnvironment.ANDROID.equals(environment.getName());
   }
 
   private List<GradleResolvedDependency> resolveDetachedGraph(

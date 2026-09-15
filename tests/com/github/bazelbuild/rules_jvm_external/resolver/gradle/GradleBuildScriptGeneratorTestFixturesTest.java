@@ -54,6 +54,14 @@ public class GradleBuildScriptGeneratorTestFixturesTest {
     assertTrue(script.contains("implementation(\"com.example:sample:1.0:sources@jar\")"));
   }
 
+  @Test
+  public void generatedBuildScriptDoesNotSetConsumerAttributes() throws Exception {
+    String script = renderBuildScript(List.of());
+
+    assertFalse(script.contains("org.gradle.jvm.environment"));
+    assertFalse(script.contains("org.jetbrains.kotlin.platform.type"));
+  }
+
   private String renderBuildScript(List<GradleDependency> dependencies) throws Exception {
     Runfiles runfiles =
         Runfiles.preload()
