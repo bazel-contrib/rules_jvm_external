@@ -14,8 +14,9 @@ def kt_jvm_export(
         tags = [],
         testonly = None,
         **kwargs):
-    """Extends `kt_jvm_library` to allow maven artifacts to be uploaded. This
-    rule is the Kotlin JVM version of `java_export`.
+    """Extends `kt_jvm_library` to allow maven artifacts to be uploaded.
+
+    This rule is the Kotlin JVM version of `java_export`.
 
     This macro can be used as a drop-in replacement for `kt_jvm_library`, but
     also generates an implicit `name.publish` target that can be run to publish
@@ -35,7 +36,7 @@ def kt_jvm_export(
       * `{groupId}`: Replaced with the maven coordinates group ID.
       * `{artifactId}`: Replaced with the maven coordinates artifact ID.
       * `{version}`: Replaced by the maven coordinates version.
-      * `{type}`: Replaced by the maven coordintes type, if present (defaults to "jar")
+      * `{type}`: Replaced by the maven coordinates type, if present (defaults to "jar")
       * `{dependencies}`: Replaced by a list of maven dependencies directly relied upon
         by kt_jvm_library targets within the artifact.
 
@@ -56,11 +57,14 @@ def kt_jvm_export(
       * `name.publish`: To be executed by `bazel run` to publish to a maven repo.
 
     Args:
-      name: A unique name for this target
+      name: A unique name for this target.
       maven_coordinates: The maven coordinates for this target.
-      pom_template: The template to be used for the pom.xml file.
-      deploy_env: A list of labels of java targets to exclude from the generated jar
-      visibility: The visibility of the target
+      deploy_env: A list of labels of Java targets to exclude from the generated JAR.
+      excluded_workspaces: Workspace names whose artifacts should not be included in the Maven JAR.
+      pom_template: The template to use for the pom.xml file.
+      visibility: The visibility of the target.
+      tags: Tags applied to the generated targets.
+      testonly: Whether the generated targets should be marked test-only.
       kwargs: These are passed to [`kt_jvm_library`](https://bazelbuild.github.io/rules_kotlin/kotlin),
         and so may contain any valid parameter for that rule.
     """

@@ -24,6 +24,12 @@ PR to update them, and land the change.
 Check that the `version` parameter in the `module` declaration is the
 same as the version number of the release you're about to push.
 
+Also update the literal `rules_jvm_external` version in the quickstart in
+`README.md` so the Bazel Central Registry page shows the new release:
+
+- [ ] `MODULE.bazel` declares the release version.
+- [ ] `README.md` uses the release version in its quickstart `bazel_dep`.
+
 You may well need to create a PR to update this too.
 
 ## Tag the release in `git` and push the tag

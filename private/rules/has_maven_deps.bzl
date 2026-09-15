@@ -64,6 +64,14 @@ _STOP_TAGS = [
 ]
 
 def read_coordinates(tags):
+    """Reads Maven coordinates from a target's tags.
+
+    Args:
+      tags: Target tags to inspect.
+
+    Returns:
+      The Maven coordinates, or `None` if the target has none or suppresses Maven metadata.
+    """
     coordinates = []
     for stop_tag in _STOP_TAGS:
         if stop_tag in tags:
