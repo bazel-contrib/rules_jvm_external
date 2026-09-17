@@ -144,9 +144,7 @@ public class IndexJarTest {
 
   @Test
   public void aarWithSinglePackage() throws Exception {
-    Path aarFile = new AarTestBuilder()
-        .withClass("com.example.TestClass")
-        .build();
+    Path aarFile = new AarTestBuilder().withClass("com.example.TestClass").build();
     try {
       PerJarIndexResults result = new IndexJar().index(aarFile);
       assertEquals(sortedSet("com.example"), result.getPackages());
@@ -158,16 +156,16 @@ public class IndexJarTest {
 
   @Test
   public void aarWithMultiplePackages() throws Exception {
-    Path aarFile = new AarTestBuilder()
-        .withClass("com.example.MainClass")
-        .withClass("com.example.model.User")
-        .withClass("com.example.utils.Helper")
-        .build();
+    Path aarFile =
+        new AarTestBuilder()
+            .withClass("com.example.MainClass")
+            .withClass("com.example.model.User")
+            .withClass("com.example.utils.Helper")
+            .build();
     try {
       PerJarIndexResults result = new IndexJar().index(aarFile);
       assertEquals(
-          sortedSet("com.example", "com.example.model", "com.example.utils"),
-          result.getPackages());
+          sortedSet("com.example", "com.example.model", "com.example.utils"), result.getPackages());
       assertEquals(new TreeMap<>(), result.getServiceImplementations());
     } finally {
       Files.deleteIfExists(aarFile);
@@ -176,11 +174,12 @@ public class IndexJarTest {
 
   @Test
   public void aarWithServiceImplementations() throws Exception {
-    Path aarFile = new AarTestBuilder()
-        .withClass("com.example.Service")
-        .withClass("com.example.ServiceImpl")
-        .withService("com.example.Service", "com.example.ServiceImpl")
-        .build();
+    Path aarFile =
+        new AarTestBuilder()
+            .withClass("com.example.Service")
+            .withClass("com.example.ServiceImpl")
+            .withService("com.example.Service", "com.example.ServiceImpl")
+            .build();
     try {
       PerJarIndexResults result = new IndexJar().index(aarFile);
       assertEquals(sortedSet("com.example"), result.getPackages());
@@ -194,20 +193,37 @@ public class IndexJarTest {
   }
 
   @Test
-  public void aarWithLibsDirectory() throws Exception {
-    AarTestBuilder libJar = new AarTestBuilder()
-        .withClass("com.third.party.LibraryClass");
+  public void aarMergesServiceImplementationsAcrossJars() throws Exception {
+    String service = "com.example.Service";
+    AarTestBuilder libJar =
+        new AarTestBuilder().withService(service, "com.third.party.LibraryServiceImpl");
+    Path aarFile =
+        new AarTestBuilder()
+            .withService(service, "com.example.ServiceImpl")
+            .withLibJar(libJar)
+            .build();
+    try {
+      PerJarIndexResults result = new IndexJar().index(aarFile);
 
-    Path aarFile = new AarTestBuilder()
-        .withClass("com.example.MainClass")
-        .withLibJar(libJar)
-        .build();
+      TreeMap<String, TreeSet<String>> expectedServices = new TreeMap<>();
+      expectedServices.put(
+          service, sortedSet("com.example.ServiceImpl", "com.third.party.LibraryServiceImpl"));
+      assertEquals(expectedServices, result.getServiceImplementations());
+    } finally {
+      Files.deleteIfExists(aarFile);
+    }
+  }
+
+  @Test
+  public void aarWithLibsDirectory() throws Exception {
+    AarTestBuilder libJar = new AarTestBuilder().withClass("com.third.party.LibraryClass");
+
+    Path aarFile =
+        new AarTestBuilder().withClass("com.example.MainClass").withLibJar(libJar).build();
     try {
       PerJarIndexResults result = new IndexJar().index(aarFile);
       // Should include packages from both classes.jar and libs/additional.jar
-      assertEquals(
-          sortedSet("com.example", "com.third.party"),
-          result.getPackages());
+      assertEquals(sortedSet("com.example", "com.third.party"), result.getPackages());
       assertEquals(new TreeMap<>(), result.getServiceImplementations());
     } finally {
       Files.deleteIfExists(aarFile);
@@ -263,9 +279,11 @@ public class IndexJarTest {
 
     private void addAndroidManifest(ZipOutputStream aar) throws IOException {
       aar.putNextEntry(new ZipEntry("AndroidManifest.xml"));
-      String manifest = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-          "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"com.example\">\n" +
-          "</manifest>\n";
+      String manifest =
+          "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+              + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\""
+              + " package=\"com.example\">\n"
+              + "</manifest>\n";
       aar.write(manifest.getBytes(StandardCharsets.UTF_8));
       aar.closeEntry();
     }
@@ -290,7 +308,6 @@ public class IndexJarTest {
       return jarBytes.toByteArray();
     }
   }
-
 
   @Test
   public void skipsPackageInfo() throws Exception {

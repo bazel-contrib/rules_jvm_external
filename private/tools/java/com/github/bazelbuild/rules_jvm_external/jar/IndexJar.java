@@ -117,7 +117,7 @@ public class IndexJar {
           if ("classes.jar".equals(aarEntry.getName())) {
             processJarStream(aarZis, packages, classes, serviceImplementations);
           } else if (aarEntry.getName().startsWith("libs/")
-                     && aarEntry.getName().endsWith(".jar")) {
+              && aarEntry.getName().endsWith(".jar")) {
             processJarStream(aarZis, packages, classes, serviceImplementations);
           }
         }
@@ -133,17 +133,19 @@ public class IndexJar {
       InputStream jarStream,
       SortedSet<String> packages,
       SortedSet<String> classes,
-      SortedMap<String, SortedSet<String>> serviceImplementations) throws IOException {
-      // Don't use try-with-resources here as we don't want to close the underlying stream
-      ZipInputStream jarZis = new ZipInputStream(jarStream);
-      processZipEntries(jarZis, packages, classes, serviceImplementations);
+      SortedMap<String, SortedSet<String>> serviceImplementations)
+      throws IOException {
+    // Don't use try-with-resources here as we don't want to close the underlying stream
+    ZipInputStream jarZis = new ZipInputStream(jarStream);
+    processZipEntries(jarZis, packages, classes, serviceImplementations);
   }
 
   private void processZipEntries(
       ZipInputStream zis,
       SortedSet<String> packages,
       SortedSet<String> classes,
-      SortedMap<String, SortedSet<String>> serviceImplementations) throws IOException {
+      SortedMap<String, SortedSet<String>> serviceImplementations)
+      throws IOException {
 
     ZipEntry entry;
     while ((entry = zis.getNextEntry()) != null) {
@@ -151,7 +153,9 @@ public class IndexJar {
           && !SERVICES_DIRECTORY_PREFIX.equals(entry.getName())) {
         String serviceInterface = entry.getName().substring(SERVICES_DIRECTORY_PREFIX.length());
         SortedSet<String> implementingClasses = parseServiceImplementations(zis);
-        serviceImplementations.put(serviceInterface, implementingClasses);
+        serviceImplementations
+            .computeIfAbsent(serviceInterface, unused -> new TreeSet<>())
+            .addAll(implementingClasses);
       }
       if (!entry.getName().endsWith(".class")) {
         continue;
