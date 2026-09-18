@@ -78,13 +78,16 @@ def deduplicate_non_root_artifacts(
     coordinate_to_forced_artifact = {}
     for bazel_dep_name in bazel_dep_to_non_root_artifacts:
         module_coordinate_to_artifact = {}
-        module_artifacts = bazel_dep_to_non_root_artifacts.get(bazel_dep_name, [])
+        module_artifacts = [
+            artifact
+            for artifact in bazel_dep_to_non_root_artifacts.get(bazel_dep_name, [])
+            if not getattr(artifact, "testonly", False)
+        ]
         _fail_if_conflicting_forces(bazel_dep_name, module_artifacts)
         for artifact in module_artifacts:
-            if not getattr(artifact, "testonly", False):
-                artifact_key = to_key(artifact)
-                if _candidate_takes_precedence(module_coordinate_to_artifact.get(artifact_key), artifact):
-                    module_coordinate_to_artifact[artifact_key] = artifact
+            artifact_key = to_key(artifact)
+            if _candidate_takes_precedence(module_coordinate_to_artifact.get(artifact_key), artifact):
+                module_coordinate_to_artifact[artifact_key] = artifact
 
         for artifact_key, artifact in module_coordinate_to_artifact.items():
             if getattr(artifact, "force_version", False) and artifact_key not in root_forced_artifact_keys:
@@ -137,6 +140,7 @@ def merge_with_root_priority(
     )
 
     duplicate_artifact_warning = ""
+    forced_version_info = ""
     filtered_root_artifacts = []
     filtered_non_root_artifacts = []
     for root_artifact in root_artifacts:
@@ -161,13 +165,18 @@ def merge_with_root_priority(
                         fail(message)
                     elif duplicate_version_warning == "warn":
                         duplicate_artifact_warning = duplicate_artifact_warning + "\nWARNING: " + message
+                elif non_root_forced:
+                    forced_version_info = forced_version_info + (
+                        "\nINFO: For dependency '%s:%s' the %s bazel dep forces version %s; " % (root_artifact.group, root_artifact.artifact, bazel_dep_name, non_root_artifact.version) +
+                        "its declaration replaces the root module's declaration of the same version."
+                    )
         if keep_root_artifact:
             filtered_root_artifacts.append(root_artifact)
 
     # Add any remaining non root artifacts that weren't found in the root artifact list
-    addtional_artifact_message = ""
+    additional_artifact_message = ""
     for bazel_dep_name, non_root_artifact in non_root_coordinate_to_artifact.values():
-        addtional_artifact_message = addtional_artifact_message + (
+        additional_artifact_message = additional_artifact_message + (
             "\nINFO: The @%s repo is getting the additional artifact %s:%s:%s from the %s bazel dep." % (name, non_root_artifact.group, non_root_artifact.artifact, non_root_artifact.version, bazel_dep_name)
         )
         filtered_non_root_artifacts.append(non_root_artifact)
@@ -175,8 +184,10 @@ def merge_with_root_priority(
     diagnostics = []
     if duplicate_artifact_warning != "":
         diagnostics.append(_diagnostic(duplicate_artifact_warning, "always"))
-    if addtional_artifact_message != "":
-        diagnostics.append(_diagnostic(addtional_artifact_message, "repin_verbose"))
+    if forced_version_info != "":
+        diagnostics.append(_diagnostic(forced_version_info, "verbose"))
+    if additional_artifact_message != "":
+        diagnostics.append(_diagnostic(additional_artifact_message, "repin_verbose"))
 
     return struct(
         artifacts = filtered_root_artifacts + filtered_non_root_artifacts,
