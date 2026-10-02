@@ -196,7 +196,7 @@ does not deduplicate within the root module, so repeated root declarations for o
 the existing repository-level duplicate check, which warns or fails according to
 `duplicate_version_warning`. Forcing is the exception: if any module, the root included, sets
 `force_version` on the same coordinate at two different versions, layering will fail with an
-error message.
+error message. Non-root declarations marked `testonly` are dropped before this check.
 
 The surviving declaration is chosen by these rules:
 
@@ -313,6 +313,17 @@ declare in the root. If the resolved version already matches your root declarati
 nothing to act on and no warning is printed. Coordinates that only a `bazel_dep` declares (and
 your root does not) do not produce this warning either; they are covered by the contribution
 warning above instead.
+
+One equal-version case still reports itself. When a non-root module forces the same version that
+your root module declares, its declaration displaces the root's, and an `INFO` message is printed
+when `RJE_VERBOSE` is set:
+
+```
+INFO: For dependency 'com.google.protobuf:protobuf-java' the bazel_worker_java bazel dep forces version 3.25.5; its declaration replaces the root module's declaration of the same version.
+```
+
+**Remedy:** set `force_version = True` on the root declaration to keep the root module's
+declaration, or drop the root declaration if the non-root module's is what you want.
 
 #### Which versions are reaching the repository?
 

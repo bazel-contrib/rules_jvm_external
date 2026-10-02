@@ -195,7 +195,14 @@ def _equal_nonroot_force_retains_transitive_pin_impl(ctx):
 
     asserts.equals(env, [non_root], result.artifacts)
     asserts.true(env, result.artifacts[0].force_version)
-    asserts.equals(env, [], result.diagnostics)
+    asserts.equals(
+        env,
+        [struct(
+            text = "\nINFO: For dependency 'com.example:library' the dep bazel dep forces version 1.0; its declaration replaces the root module's declaration of the same version.",
+            gate = "verbose",
+        )],
+        result.diagnostics,
+    )
 
     return unittest.end(env)
 
@@ -258,6 +265,44 @@ def _testonly_nonroot_is_filtered_impl(ctx):
     return unittest.end(env)
 
 testonly_nonroot_is_filtered_test = unittest.make(_testonly_nonroot_is_filtered_impl)
+
+def _testonly_force_conflicts_are_ignored_impl(ctx):
+    env = unittest.begin(ctx)
+    kept = _artifact("1.0", force_version = True)
+
+    # A testonly declaration is dropped, so its forced version cannot conflict
+    # with the surviving declaration's force.
+    asserts.equals(
+        env,
+        [kept],
+        deduplicate_non_root_artifacts(
+            {"dep": [kept, _artifact("2.0", force_version = True, testonly = True)]},
+            return_only_artifacts = True,
+        ),
+    )
+
+    return unittest.end(env)
+
+testonly_force_conflicts_are_ignored_test = unittest.make(_testonly_force_conflicts_are_ignored_impl)
+
+def _conflicting_testonly_forces_are_dropped_impl(ctx):
+    env = unittest.begin(ctx)
+
+    asserts.equals(
+        env,
+        [],
+        deduplicate_non_root_artifacts(
+            {"dep": [
+                _artifact("1.0", force_version = True, testonly = True),
+                _artifact("2.0", force_version = True, testonly = True),
+            ]},
+            return_only_artifacts = True,
+        ),
+    )
+
+    return unittest.end(env)
+
+conflicting_testonly_forces_are_dropped_test = unittest.make(_conflicting_testonly_forces_are_dropped_impl)
 
 def _multiple_nonroot_highest_wins_impl(ctx):
     env = unittest.begin(ctx)
@@ -833,6 +878,8 @@ def layering_test_suite():
         partial.make(root_force_beats_conflicting_nonroot_forces_test, size = "small"),
         partial.make(single_nonroot_survives_test, size = "small"),
         partial.make(testonly_nonroot_is_filtered_test, size = "small"),
+        partial.make(testonly_force_conflicts_are_ignored_test, size = "small"),
+        partial.make(conflicting_testonly_forces_are_dropped_test, size = "small"),
         partial.make(multiple_nonroot_highest_wins_test, size = "small"),
         partial.make(equal_version_tie_keeps_first_module_metadata_test, size = "small"),
         partial.make(root_force_beats_higher_unforced_nonroot_test, size = "small"),
