@@ -179,6 +179,33 @@ diff_test(
     tags = [] if is_bzlmod_enabled() else ["manual"],
 )
 
+genquery(
+    name = "coursier-pinned-layering-deps",
+    expression = "deps(@coursier_pinned_layering//:com_google_code_findbugs_jsr305)",
+    opts = [
+        "--nohost_deps",
+        "--noimplicit_deps",
+    ],
+    scope = ["@coursier_pinned_layering//:com_google_code_findbugs_jsr305"],
+)
+
+genrule(
+    name = "coursier-pinned-layering-deps-sorted",
+    srcs = [":coursier-pinned-layering-deps"],
+    outs = ["coursier-pinned-layering-deps-sorted.txt"],
+    cmd = "cat $< | grep coursier_pinned_layering | sed -e 's|^@@|@|g; s|\\r||g' | sed -e 's|^@[^/]*[+~]|@|g; s|\\r||g' | sort > $@",
+)
+
+# The root pins jsr305 at 3.0.1 while the contributing module offers 3.0.2.
+# Without root precedence under `version_conflict_policy = "pinned"` the
+# resolved version would be 3.0.2.
+diff_test(
+    name = "coursier-pinned-layering-deps-test",
+    file1 = "coursier-pinned-layering-deps.golden.unix",
+    file2 = ":coursier-pinned-layering-deps-sorted.txt",
+    tags = [] if is_bzlmod_enabled() else ["manual"],
+)
+
 # This target will fail to build if we're not handling merging of maven.install
 # tags properly, and if we don't handle multiple lock files properly.
 java_library(

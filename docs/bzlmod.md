@@ -216,16 +216,16 @@ plain versioned coordinate. This may lead to some surprises when resolution is c
 "Highest" uses the Maven `ComparableVersion` ordering implemented by
 `private/rules/maven_version.bzl`, not lexical string ordering.
 
-`version_conflict_policy = "pinned"` changes this interaction. For the Gradle and Maven resolvers,
-root artifacts are marked as `force_version` before layering. The duplicate-force check applies to
-declared forces before this policy is applied. Maven then marks every versioned root declaration.
-Gradle first selects one version for each root `group:artifact`: an unclassified declaration takes
-precedence over classified declarations, and Maven `ComparableVersion` order selects among
-declarations with the same classification status. Every root declaration for that module at the
-selected version is then marked forced, including classified declarations. The root consequently
-wins because it now forces the coordinate. For Coursier, layering is unchanged and the one
-surviving direct version is later passed as a `--force-version` argument. A higher non-root
-version can therefore displace the root under Coursier and then be pinned.
+`version_conflict_policy = "pinned"` changes this interaction. Root artifacts are marked as
+`force_version` before layering, whatever the resolver. The duplicate-force check applies to
+declared forces before this policy is applied. Maven and Coursier mark every versioned root
+declaration. Gradle first selects one version for each root `group:artifact`: an unclassified
+declaration takes precedence over classified declarations, and Maven `ComparableVersion` order
+selects among declarations with the same classification status. Every root declaration for that
+module at the selected version is then marked forced, including classified declarations. The
+root consequently wins because it now forces the coordinate. Coursier additionally passes every
+direct artifact's version as a `--force-version` argument, so transitive dependencies cannot
+displace the pinned version either.
 
 The `force_version` flag can be set by an `artifact` tag, an `amend_artifact` tag, or a regular
 artifact read by `from_toml`. Coordinates in `install.artifacts` cannot carry the flag. BOMs use the

@@ -319,7 +319,7 @@ def _forces_gradle_module_version(artifact, forced_versions):
 
 def apply_root_version_conflict_policy(artifacts, resolver, version_conflict_policy):
     """Applies the install-level conflict policy to root module artifacts."""
-    if resolver not in ["gradle", "maven"] or version_conflict_policy != "pinned":
+    if version_conflict_policy != "pinned":
         return artifacts
 
     if resolver == "gradle":

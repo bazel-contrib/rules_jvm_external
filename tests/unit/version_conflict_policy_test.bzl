@@ -8,7 +8,7 @@ load("//private/lib:layering.bzl", "apply_root_version_conflict_policy")
 def _pinned_policy_forces_versioned_root_artifacts_impl(ctx):
     env = unittest.begin(ctx)
 
-    for resolver in ["gradle", "maven"]:
+    for resolver in ["gradle", "maven", "coursier"]:
         versioned = unpack_coordinates("com.example:root:1.0")
         versionless = unpack_coordinates("com.example:managed-by-bom")
 
@@ -30,11 +30,9 @@ def _other_policies_leave_root_artifacts_unchanged_impl(ctx):
 
     artifact = unpack_coordinates("com.example:root:1.0")
 
-    default_artifacts = apply_root_version_conflict_policy([artifact], "gradle", "default")
-    coursier_artifacts = apply_root_version_conflict_policy([artifact], "coursier", "pinned")
-
-    asserts.false(env, hasattr(default_artifacts[0], "force_version"))
-    asserts.false(env, hasattr(coursier_artifacts[0], "force_version"))
+    for resolver in ["gradle", "maven", "coursier"]:
+        default_artifacts = apply_root_version_conflict_policy([artifact], resolver, "default")
+        asserts.false(env, hasattr(default_artifacts[0], "force_version"))
 
     return unittest.end(env)
 

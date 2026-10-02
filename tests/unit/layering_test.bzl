@@ -673,6 +673,63 @@ def _pinned_gradle_root_beats_higher_nonroot_force_impl(ctx):
 
 pinned_gradle_root_beats_higher_nonroot_force_test = unittest.make(_pinned_gradle_root_beats_higher_nonroot_force_impl)
 
+def _pinned_coursier_root_beats_higher_nonroot_impl(ctx):
+    env = unittest.begin(ctx)
+    root = _artifact("1.0")
+
+    result = _layer(
+        root_artifacts = [root],
+        resolver = "coursier",
+        version_conflict_policy = "pinned",
+        non_root_artifacts = {"dep": [_artifact("2.0")]},
+    )
+
+    asserts.equals(env, ["1.0"], [artifact.version for artifact in result.artifacts])
+    asserts.true(env, result.artifacts[0].force_version)
+
+    return unittest.end(env)
+
+pinned_coursier_root_beats_higher_nonroot_test = unittest.make(_pinned_coursier_root_beats_higher_nonroot_impl)
+
+def _pinned_coursier_root_beats_higher_nonroot_force_impl(ctx):
+    env = unittest.begin(ctx)
+    root = _artifact("1.0")
+
+    result = _layer(
+        root_artifacts = [root],
+        resolver = "coursier",
+        version_conflict_policy = "pinned",
+        non_root_artifacts = {"dep": [_artifact("2.0", force_version = True)]},
+    )
+
+    asserts.equals(env, ["1.0"], [artifact.version for artifact in result.artifacts])
+    asserts.true(env, result.artifacts[0].force_version)
+
+    return unittest.end(env)
+
+pinned_coursier_root_beats_higher_nonroot_force_test = unittest.make(_pinned_coursier_root_beats_higher_nonroot_force_impl)
+
+def _pinned_coursier_root_wins_without_override_diagnostics_impl(ctx):
+    env = unittest.begin(ctx)
+
+    # `duplicate_version_warning = "error"` must not fail: `pinned` resolves
+    # the displacement deterministically in favour of the root.
+    result = _layer(
+        root_artifacts = [_artifact("1.0")],
+        resolver = "coursier",
+        version_conflict_policy = "pinned",
+        duplicate_version_warning = "error",
+        known_contributing_modules = sets.make(["dep"]),
+        non_root_artifacts = {"dep": [_artifact("2.0")]},
+    )
+
+    asserts.equals(env, ["1.0"], [artifact.version for artifact in result.artifacts])
+    asserts.equals(env, [], result.diagnostics)
+
+    return unittest.end(env)
+
+pinned_coursier_root_wins_without_override_diagnostics_test = unittest.make(_pinned_coursier_root_wins_without_override_diagnostics_impl)
+
 def _namespaces_are_layered_independently_impl(ctx):
     env = unittest.begin(ctx)
 
@@ -871,6 +928,9 @@ def layering_test_suite():
         partial.make(boms_merge_with_root_priority_test, size = "small"),
         partial.make(classifier_and_packaging_layer_independently_test, size = "small"),
         partial.make(pinned_gradle_root_beats_higher_nonroot_force_test, size = "small"),
+        partial.make(pinned_coursier_root_beats_higher_nonroot_test, size = "small"),
+        partial.make(pinned_coursier_root_beats_higher_nonroot_force_test, size = "small"),
+        partial.make(pinned_coursier_root_wins_without_override_diagnostics_test, size = "small"),
         partial.make(namespaces_are_layered_independently_test, size = "small"),
         partial.make(diagnostics_preserve_text_gates_and_order_test, size = "small"),
         partial.make(default_namespace_contribution_warning_is_preserved_test, size = "small"),
