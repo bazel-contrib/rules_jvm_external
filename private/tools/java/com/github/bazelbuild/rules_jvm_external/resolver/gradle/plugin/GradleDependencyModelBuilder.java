@@ -350,7 +350,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       info = createResolvedVariant(component, variant);
     }
 
-    info.addRequestedVersion(info.getVersion()); // add a new version that may have been requested
+    info.addRequestedVersion(component.getModuleVersion().getVersion()); // add a new version that may have been requested
 
     List<GradleResolvedDependency> children = new ArrayList<>();
 
@@ -410,7 +410,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     }
 
     ModuleComponentIdentifier module = (ModuleComponentIdentifier) id;
-    String version = module.getVersion();
+    String version = resolvedVersion(module);
     String artifact = module.getModule();
 
     String name = file.getName(); // e.g. lib-1.0-sources.jar, lib-1.0.pom
@@ -556,7 +556,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
         GradleResolvedDependency resolvedDependency =
             findOwningDependency(
                 dependenciesByComponent,
-                componentKey(module.getGroup(), module.getModule(), module.getVersion()),
+                componentKey(module.getGroup(), module.getModule(), resolvedVersion(module)),
                 resolvedArtifact.getVariantCapabilities());
         if (resolvedDependency != null) {
           synchronized (resolvedDependency) {
@@ -652,6 +652,14 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     return componentKey(dependency.getGroup(), dependency.getName(), dependency.getVersion());
   }
 
+  // Timestamped (Maven-unique) snapshots report the base -SNAPSHOT version via
+  // ModuleComponentIdentifier.getVersion(), but the dependency map is keyed by the resolved
+  // timestamped version (see createResolvedVariant). Normalise here so artifact lookups match.
+  private String resolvedVersion(ModuleComponentIdentifier module) {
+    return GradleSnapshotUtil.timestampedSnapshotVersion(module, module.getVersion())
+        .orElse(module.getVersion());
+  }
+
   // The display name distinguishes every selected variant of a component within a single
   // resolution, which is exactly the granularity the graph walk needs.
   private String variantKey(ResolvedComponentResult component, ResolvedVariantResult variant) {
@@ -670,7 +678,12 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     GradleResolvedDependency info = new GradleResolvedDependencyImpl();
     info.setGroup(component.getModuleVersion().getGroup());
     info.setName(component.getModuleVersion().getName());
-    info.setVersion(component.getModuleVersion().getVersion());
+
+    // For timestamped snapshots, store the resolved timestamped version directly;
+    // otherwise store the declared version.
+    info.setVersion(
+        GradleSnapshotUtil.timestampedSnapshotVersion(component)
+            .orElseGet(() -> component.getModuleVersion().getVersion()));
     info.setVariantCapabilities(capabilityKeys(variant));
     return info;
   }

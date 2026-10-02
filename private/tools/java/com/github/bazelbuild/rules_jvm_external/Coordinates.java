@@ -15,12 +15,18 @@
 package com.github.bazelbuild.rules_jvm_external;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Represents a Maven coordinate using Maven's standard schema of
  * <groupId>:<artifactId>[:<extension>[:<classifier>][:<version>].
  */
 public class Coordinates implements Comparable<Coordinates> {
+  // Maven snapshot timestamp pattern: yyyyMMdd.HHmmss-buildNumber
+  // Example: 20250930.222312-91
+  private static final Pattern SNAPSHOT_TIMESTAMP_PATTERN =
+      Pattern.compile("-(\\d{8}\\.\\d{6}-\\d+)$");
+
   private final String groupId;
   private final String artifactId;
   private final String version;
@@ -125,11 +131,17 @@ public class Coordinates implements Comparable<Coordinates> {
 
   public String toRepoPath() {
     StringBuilder path = new StringBuilder();
+
+    // For timestamped snapshots, use -SNAPSHOT in directory path but timestamped version in filename
+    // Example: com/google/guava/guava/999.0.0-HEAD-jre-SNAPSHOT/guava-999.0.0-HEAD-jre-20250930.222312-91.jar
+    // toSnapshotBaseVersion is a no-op for non-snapshot versions, so no guard is needed here.
+    String directoryVersion = toSnapshotBaseVersion(getVersion());
+
     path.append(getGroupId().replace('.', '/'))
         .append("/")
         .append(getArtifactId())
         .append("/")
-        .append(getVersion())
+        .append(directoryVersion)
         .append("/")
         .append(getArtifactId())
         .append("-")
@@ -190,5 +202,23 @@ public class Coordinates implements Comparable<Coordinates> {
 
   private boolean isNullOrEmpty(String value) {
     return value == null || value.isEmpty();
+  }
+
+  /**
+   * Converts a timestamped snapshot version to its {@code -SNAPSHOT} base version, e.g.
+   * "999.0.0-HEAD-jre-20250930.222312-91" -> "999.0.0-HEAD-jre-SNAPSHOT". Returns the version
+   * unchanged when it is not a timestamped snapshot, so it is safe to call unconditionally. This is
+   * the single source of truth for snapshot timestamp handling across the Java code; callers must
+   * not re-implement the {@code yyyyMMdd.HHmmss-buildNumber} pattern.
+   *
+   * @param version the version string
+   * @return the {@code -SNAPSHOT} base version, or the original if no timestamp is present
+   */
+  public static String toSnapshotBaseVersion(String version) {
+    if (version == null) {
+      return version;
+    }
+    // replaceFirst returns the input unchanged when the pattern does not match, so no guard needed.
+    return SNAPSHOT_TIMESTAMP_PATTERN.matcher(version).replaceFirst("-SNAPSHOT");
   }
 }
