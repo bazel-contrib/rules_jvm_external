@@ -114,7 +114,8 @@ install = tag_class(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
 
             If "pinned", choose the user-specified version in maven_install unconditionally.
-            With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module.
+            In layered installs, artifacts contributed by the root module take precedence
+            over versions contributed by other modules.
             If "default", follow the selected resolver's default policy.
             """,
             default = "default",

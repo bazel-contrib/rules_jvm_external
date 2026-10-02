@@ -1076,6 +1076,18 @@ dev_maven.install(
     resolver = "coursier",
 )
 
+dev_maven.install(
+    name = "coursier_pinned_layering",
+    artifacts = [
+        "com.google.code.findbugs:jsr305:3.0.1",
+    ],
+    known_contributing_modules = [
+        "coursier_higher_layer",
+    ],
+    resolver = "coursier",
+    version_conflict_policy = "pinned",
+)
+
 bazel_dep(name = "coursier_higher_layer", version = "0.0.0", dev_dependency = True)
 local_path_override(
     module_name = "coursier_higher_layer",
@@ -1117,6 +1129,7 @@ use_repo(
     "amend_artifacts",
     "bom_only_pinning",
     "coursier_layering",
+    "coursier_pinned_layering",
     "duplicate_version_error",
     "duplicate_version_warning",
     "duplicate_version_warning_same_version",

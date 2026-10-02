@@ -14,3 +14,14 @@ maven.install(
     ],
 )
 use_repo(maven, "coursier_layering")
+
+# Contributes a higher version to the `coursier_pinned_layering` repo, whose
+# root pins jsr305 at 3.0.1. The root's `version_conflict_policy = "pinned"`
+# must win over this higher version.
+maven.install(
+    name = "coursier_pinned_layering",
+    artifacts = [
+        "com.google.code.findbugs:jsr305:3.0.2",
+    ],
+)
+use_repo(maven, "coursier_pinned_layering")
