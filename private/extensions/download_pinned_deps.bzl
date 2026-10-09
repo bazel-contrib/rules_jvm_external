@@ -17,7 +17,7 @@ def download_pinned_deps(mctx, artifacts, http_files, has_m2local):
             continue
 
         if not artifact.get("file"):
-            continue        
+            continue
 
         urls = []
         artifact_urls = artifact["urls"]
