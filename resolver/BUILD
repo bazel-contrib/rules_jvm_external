@@ -11,14 +11,14 @@ java_library(
         "src/main/java/com/github/bazelbuild/rules_jvm_external/resolver/ResolutionRequest.java",
     ],
     visibility = ["//visibility:public"],
+    exports = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external:coordinates",
+    ],
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external:coordinates",
         artifact(
             "com.google.guava:guava",
             repository_name = "rules_jvm_external_deps",
         ),
-    ],
-    exports = [
-        "//private/tools/java/com/github/bazelbuild/rules_jvm_external:coordinates",
     ],
 )

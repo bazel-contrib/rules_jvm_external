@@ -58,17 +58,17 @@ bzl_library(
     ],
 )
 
-bzl_library(                                                                                                            
-    name = "implementation-kotlin",                                                                                      
-    srcs = [                                                                                                             
-        ":kt_defs.bzl",                                                                                                  
-        "//private/rules:implementation",                                                                                
-    ],                                                                                                                   
-    visibility = [                                                                                                       
-        # Visible so downstream users can document their kt_jvm_export                                                   
-        # usage via stardoc (mirrors the java `implementation` target).                                                  
-        "//visibility:public",                                                                                           
-    ],  
+bzl_library(
+    name = "implementation-kotlin",
+    srcs = [
+        ":kt_defs.bzl",
+        "//private/rules:implementation",
+    ],
+    visibility = [
+        # Visible so downstream users can document their kt_jvm_export
+        # usage via stardoc (mirrors the java `implementation` target).
+        "//visibility:public",
+    ],
 )
 
 alias(

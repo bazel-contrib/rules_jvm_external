@@ -1075,7 +1075,6 @@ dev_maven.install(
     ],
     resolver = "coursier",
 )
-
 dev_maven.install(
     name = "coursier_pinned_layering",
     artifacts = [
@@ -1238,15 +1237,15 @@ use_repo(
 
     # Final entries
     "com_google_http_client_google_http_client",
+    "legacy_multi_repo_hash",
+    "multi_repo_hash",
     "root_wins",
     "testonly_testing",
+    "unpinned_legacy_multi_repo_hash",
+    "unpinned_multi_repo_hash",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",
-    "multi_repo_hash",
-    "unpinned_multi_repo_hash",
-    "legacy_multi_repo_hash",
-    "unpinned_legacy_multi_repo_hash",
 )
 
 http_file(
