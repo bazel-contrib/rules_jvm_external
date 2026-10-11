@@ -5,12 +5,14 @@
     "repositories": -896170563
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "com.example:kt": -1361913864
+    "com.example:kt": -1361913864,
+    "com.example:kt:jar:sources": -334305810
   },
   "artifacts": {
     "com.example:kt": {
       "shasums": {
-        "jar": "adab5f5e9dbc74d9de8ceb877652020132060f5c8a24b4559fd11bc319ec0904"
+        "jar": "adab5f5e9dbc74d9de8ceb877652020132060f5c8a24b4559fd11bc319ec0904",
+        "sources": null
       },
       "version": "1.0.0"
     }
