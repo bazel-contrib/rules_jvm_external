@@ -1,7 +1,6 @@
 load("@rules_java//java:java_library.bzl", "java_library")
 load("//private/rules:artifact.bzl", "artifact")
 
-
 java_library(
     name = "resolver",
     srcs = [
@@ -18,8 +17,8 @@ java_library(
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
     ],
     deps = [
-        "//resolver:resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
+        "//resolver",
         artifact(
             "com.google.guava:guava",
             repository_name = "rules_jvm_external_deps",
