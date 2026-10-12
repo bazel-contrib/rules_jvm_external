@@ -199,6 +199,34 @@ def _overridden_fileless_artifact_has_no_original_target_impl(ctx):
 
 overridden_fileless_artifact_has_no_original_target_test = unittest.make(_overridden_fileless_artifact_has_no_original_target_impl)
 
+def _overridden_dependency_uses_alias_when_destination_is_also_a_dependency_impl(ctx):
+    env = unittest.begin(ctx)
+
+    for maven_install_json in [False, True]:
+        generated_imports = _generate_imports(
+            dependencies = [
+                _artifact(
+                    "com.example:parent",
+                    "1.0",
+                    deps = ["com.example:old:1.0", "com.example:new:1.0"],
+                ),
+                _artifact("com.example:old", "1.0"),
+                _artifact("com.example:new", "1.0"),
+            ],
+            exclusions = {},
+            override_targets = {
+                "com.example:old": "@maven//:com_example_new",
+            },
+            maven_install_json = maven_install_json,
+        )
+
+        asserts.true(env, "\tdeps = [\n\t\t\":com_example_old\",\n\t\t\":com_example_new\",\n\t]," in generated_imports)
+        asserts.true(env, "name = \"com_example_old\",\n\tactual = \"@maven//:com_example_new\"," in generated_imports)
+
+    return unittest.end(env)
+
+overridden_dependency_uses_alias_when_destination_is_also_a_dependency_test = unittest.make(_overridden_dependency_uses_alias_when_destination_is_also_a_dependency_impl)
+
 def dependency_tree_parser_test_suite():
     unittest.suite(
         "dependency_tree_parser_tests",
@@ -207,4 +235,5 @@ def dependency_tree_parser_test_suite():
         pom_only_exclusion_removes_generated_export_test,
         overridden_aar_original_artifact_uses_real_http_file_repo_test,
         overridden_fileless_artifact_has_no_original_target_test,
+        overridden_dependency_uses_alias_when_destination_is_also_a_dependency_test,
     )
