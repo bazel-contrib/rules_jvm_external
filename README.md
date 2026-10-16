@@ -695,10 +695,6 @@ maven.artifact(
 
 In this case, once pinning is complete, guava `23.3-jre` will be selected.
 
-With `resolver = "gradle"`, forcing a BOM pins its version and enforces the
-versions it manages using Gradle's `enforcedPlatform`. BOMs without `force_version`
-use regular platforms, allowing newer dependency requests to upgrade their versions.
-
 ### Overriding generated targets
 
 You can override the generated targets for artifacts with a target label of your
