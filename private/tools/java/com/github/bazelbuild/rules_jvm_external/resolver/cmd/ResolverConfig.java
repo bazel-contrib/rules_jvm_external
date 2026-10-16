@@ -153,20 +153,12 @@ public class ResolverConfig {
           .getBoms()
           .forEach(
               art -> {
-                StringBuilder coords =
-                    new StringBuilder()
-                        .append(art.getGroupId())
-                        .append(":")
-                        .append(art.getArtifactId())
-                        .append(":")
-                        .append("pom")
-                        .append(":")
-                        .append(art.getVersion());
+                Coordinates coords =
+                    new Coordinates(
+                        art.getGroupId(), art.getArtifactId(), "pom", "", art.getVersion());
                 request.addBom(
-                    coords.toString(),
-                    art.getExclusions().stream()
-                        .map(c -> c.getGroupId() + ":" + c.getArtifactId())
-                        .toArray(String[]::new));
+                    new com.github.bazelbuild.rules_jvm_external.resolver.Artifact(
+                        coords, art.getExclusions(), art.isForceVersion()));
               });
 
       config
