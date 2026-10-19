@@ -11,6 +11,7 @@ filegroup(
         "strictTransitiveConstraint/app-1.0.module",
         "testFixturesVariant/sample-1.0.module",
         "testFixturesVariant/sample-2.0.module",
+        "transitiveBom/app-1.0.module",
     ],
     visibility = ["//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__"],
 )
