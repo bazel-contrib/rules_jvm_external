@@ -13,6 +13,7 @@ java_library(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/lockfile",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",

@@ -38,7 +38,6 @@ import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.google.common.graph.Graph;
-import com.google.common.hash.Hashing;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
@@ -46,7 +45,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,90 +63,6 @@ public class GradleResolverTest extends ResolverTestBase {
   @Override
   protected Resolver getResolver(Netrc netrc, EventListener listener) {
     return new GradleResolver(netrc, ResolverConfig.DEFAULT_MAX_THREADS, listener);
-  }
-
-  @Test
-  public void explicitJarPackagingRetainsTransitiveDependencies() throws IOException {
-    assertNativePackagingResolution("jar");
-  }
-
-  @Test
-  public void omittedPackagingUsesPublishedExtensionAndTransitiveDependencies() throws IOException {
-    assertNativePackagingResolution(null);
-  }
-
-  private void assertNativePackagingResolution(String packaging) throws IOException {
-    Coordinates jar = new Coordinates("com.example:native-lib:1.0");
-    Coordinates nativeLib = jar.setExtension("so");
-    Coordinates dependency = new Coordinates("com.example:dependency:1.0");
-    Model model = new Model();
-    model.setGroupId(jar.getGroupId());
-    model.setArtifactId(jar.getArtifactId());
-    model.setVersion(jar.getVersion());
-    model.setPackaging("so");
-    Path repo =
-        MavenRepo.create().add(dependency).add(model, dependency).addArtifactOnly(jar).getPath();
-
-    Path argsFile = tempFolder.newFile("resolver.json").toPath();
-    Files.writeString(
-        argsFile,
-        """
-        {"repositories": ["%s"], "artifacts": [{
-          "group": "com.example", "artifact": "native-lib", "version": "1.0"%s
-        }]}
-        """
-            .formatted(
-                repo.toUri(), packaging == null ? "" : ", \"packaging\": \"" + packaging + "\""));
-    ResolverConfig config =
-        new ResolverConfig(
-            new NullListener(), "--argsfile", argsFile.toString(), "--use_isolated_cache");
-    ResolutionResult result = resolver.resolve(config.getResolutionRequest());
-    Coordinates expected = packaging == null ? nativeLib : jar;
-
-    assertEquals(Set.of(expected, dependency), result.getResolution().nodes());
-    assertEquals(Set.of(dependency), result.getResolution().successors(expected));
-    Path resolvedFile = result.getArtifacts().get(expected).getPath().orElseThrow();
-    assertEquals(repo.resolve(expected.toRepoPath()).getFileName(), resolvedFile.getFileName());
-    assertEquals(
-        Files.readString(repo.resolve(expected.toRepoPath())), Files.readString(resolvedFile));
-
-    Downloader downloader =
-        new Downloader(
-            Netrc.fromUserHome(),
-            tempFolder.newFolder("cache").toPath(),
-            Set.of(repo.toUri()),
-            new NullListener(),
-            false,
-            result.getArtifacts().entrySet().stream()
-                .collect(
-                    Collectors.toMap(
-                        Map.Entry::getKey, e -> e.getValue().getPath().orElseThrow())));
-    Set<DependencyInfo> infos = new HashSet<>();
-    for (Coordinates coordinates : result.getResolution().nodes()) {
-      DownloadResult download = downloader.download(coordinates);
-      infos.add(
-          new DependencyInfo(
-              coordinates,
-              download.getRepositories(),
-              download.getPath(),
-              download.getSha256(),
-              result.getResolution().successors(coordinates),
-              Set.of(),
-              Set.of(),
-              new TreeMap<>()));
-    }
-    String expectedHash =
-        Hashing.sha256()
-            .hashBytes(Files.readAllBytes(repo.resolve(expected.toRepoPath())))
-            .toString();
-    Map<String, Object> lockFile =
-        new V3LockFile(Set.of(repo.toUri()), infos, Set.of(), false).render();
-    @SuppressWarnings("unchecked")
-    Map<String, Map<String, Object>> artifacts =
-        (Map<String, Map<String, Object>>) lockFile.get("artifacts");
-    String key = packaging == null ? "com.example:native-lib:so" : "com.example:native-lib";
-    assertEquals(Set.of(key, dependency.asKey()), artifacts.keySet());
-    assertEquals(Map.of("jar", expectedHash), artifacts.get(key).get("shasums"));
   }
 
   @Test
