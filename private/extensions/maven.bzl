@@ -379,7 +379,7 @@ def _process_module_tags(mctx):
         for from_toml_tag in mod.tags.from_toml:
             repo = target_repos.get(from_toml_tag.name, {})
 
-            content = mctx.read(mctx.path(from_toml_tag.libs_versions_toml))
+            content = mctx.read(from_toml_tag.libs_versions_toml)
             parsed = toml.decode(content)
 
             (new_artifacts, new_boms) = process_gradle_versions_file(parsed, from_toml_tag.bom_modules)
@@ -710,7 +710,7 @@ def maven_impl(mctx):
             compat_repos.extend(seen)
 
         if repo.get("lock_file"):
-            lock_file_content = mctx.read(mctx.path(repo.get("lock_file")))
+            lock_file_content = mctx.read(repo.get("lock_file"))
 
             if not len(lock_file_content) or contains_git_conflict_markers(repo["lock_file"], lock_file_content):
                 lock_file = {
