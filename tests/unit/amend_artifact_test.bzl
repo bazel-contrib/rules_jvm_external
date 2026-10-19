@@ -34,7 +34,7 @@ amends_artifact_test = unittest.make(_amends_artifact_impl)
 def _amends_packaging_impl(ctx):
     env = unittest.begin(ctx)
 
-    artifacts = [unpack_coordinates("com.example:archive:1.0")]
+    artifacts = [unpack_coordinates("com.example:archive:so:1.0")]
 
     matched = apply_amendment(_amend("com.example:archive", packaging = "jar"), artifacts, [])
 
