@@ -30,7 +30,8 @@ public class PackagingMappings {
           "dylib", new ExtensionAndClassifier("dylib", ""),
           "exe", new ExtensionAndClassifier("exe", ""),
           "json", new ExtensionAndClassifier("json", ""),
-          "so", new ExtensionAndClassifier("so", ""));
+          "so", new ExtensionAndClassifier("so", ""),
+          "tgz", new ExtensionAndClassifier("tgz", ""));
 
   private static final ArtifactTypeRegistry TYPE_REGISTRY =
       MavenRepositorySystemUtils.newSession().getArtifactTypeRegistry();
