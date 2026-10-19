@@ -212,12 +212,21 @@ public class MavenResolver implements Resolver {
         resolveBaseDependencies(
             system, session, repositories, fakeRoot, managedDependencies, depsWithGlobalExclusions);
 
+    Set<String> explicitArtifactKeys =
+        request.getDependencies().stream()
+            .filter(artifact -> artifact.isPackagingExplicit())
+            .map(artifact -> artifact.getCoordinates().asKey())
+            .collect(Collectors.toSet());
+    Map<Coordinates, Coordinates> remappings =
+        coordinatesListener.getRemappings().entrySet().stream()
+            .filter(entry -> !explicitArtifactKeys.contains(entry.getKey().asKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     if (System.getenv("RJE_VERBOSE") != null) {
       DependencyGraphDumper graphDumper = new DependencyGraphDumper(System.err::println);
       System.err.println("\nDependency Graph:");
       resolvedDependencies.forEach(node -> node.accept(graphDumper));
 
-      Map<Coordinates, Coordinates> remappings = coordinatesListener.getRemappings();
       if (remappings.isEmpty()) {
         System.err.println("\nNo dependency remappings");
       } else {
@@ -270,7 +279,7 @@ public class MavenResolver implements Resolver {
     }
 
     Graph<Coordinates> dependencyGraph =
-        buildDependencyGraph(coordinatesListener.getRemappings(), resolvedDependencies);
+        buildDependencyGraph(remappings, resolvedDependencies);
     GraphNormalizationResult graphNormalizationResult = makeVersionsConsistent(dependencyGraph);
 
     Set<Conflict> conflicts =

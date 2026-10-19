@@ -4,12 +4,13 @@ load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
 load("//private/extensions:maven.bzl", "apply_amendment")
 load("//private/lib:coordinates.bzl", "unpack_coordinates")
 
-def _amend(coordinates, force_version = None, neverlink = None, testonly = None, exclusions = None):
+def _amend(coordinates, force_version = None, neverlink = None, packaging = None, testonly = None, exclusions = None):
     """Builds a struct mirroring an `amend_artifact` tag."""
     return struct(
         coordinates = coordinates,
         force_version = force_version,
         neverlink = neverlink,
+        packaging = packaging,
         testonly = testonly,
         exclusions = exclusions,
     )
@@ -29,6 +30,20 @@ def _amends_artifact_impl(ctx):
     return unittest.end(env)
 
 amends_artifact_test = unittest.make(_amends_artifact_impl)
+
+def _amends_packaging_impl(ctx):
+    env = unittest.begin(ctx)
+
+    artifacts = [unpack_coordinates("com.example:archive:so:1.0")]
+
+    matched = apply_amendment(_amend("com.example:archive", packaging = "jar"), artifacts, [])
+
+    asserts.true(env, matched)
+    asserts.equals(env, "jar", artifacts[0].packaging)
+
+    return unittest.end(env)
+
+amends_packaging_test = unittest.make(_amends_packaging_impl)
 
 def _amends_bom_impl(ctx):
     env = unittest.begin(ctx)
@@ -88,6 +103,7 @@ def amend_artifact_test_suite():
     unittest.suite(
         "amend_artifact_tests",
         amends_artifact_test,
+        amends_packaging_test,
         amends_bom_test,
         amends_bom_alongside_artifacts_test,
         no_match_returns_false_test,

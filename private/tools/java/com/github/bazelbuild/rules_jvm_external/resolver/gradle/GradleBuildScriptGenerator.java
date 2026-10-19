@@ -182,6 +182,15 @@ public class GradleBuildScriptGenerator {
                     map.put("forceVersion", false);
                   }
                   map.put("notation", renderDependencyNotation(dep, version));
+                  if (hasExplicitArtifact(dep)) {
+                    map.put("artifactExtension", dep.getExtension());
+                    map.put("classifier", dep.getClassifier());
+                  }
+                  map.put(
+                      "configure",
+                      isForceVersion
+                          || hasExplicitArtifact(dep)
+                          || (dep.getExclusions() != null && !dep.getExclusions().isEmpty()));
 
                   if (dep.getExclusions() != null && !dep.getExclusions().isEmpty()) {
                     map.put(
@@ -232,15 +241,18 @@ public class GradleBuildScriptGenerator {
     }
 
     StringBuilder notation = new StringBuilder().append(coordinate);
-    if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
-      notation.append(":").append(dep.getClassifier());
-    }
-    if (dep.getExtension() != null
+    if (!hasExplicitArtifact(dep)
         && dep.getClassifier() != null
         && !dep.getClassifier().isEmpty()) {
-      notation.append("@").append(dep.getExtension());
+      notation.append(":").append(dep.getClassifier());
     }
     return "\"" + notation + "\"";
+  }
+
+  private static boolean hasExplicitArtifact(GradleDependency dep) {
+    return dep.getExtension() != null
+        && !dep.getExtension().isEmpty()
+        && !isTestFixturesDependency(dep);
   }
 
   private static boolean isTestFixturesDependency(GradleDependency dep) {

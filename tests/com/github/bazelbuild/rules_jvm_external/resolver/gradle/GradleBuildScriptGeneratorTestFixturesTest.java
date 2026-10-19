@@ -17,6 +17,9 @@ package com.github.bazelbuild.rules_jvm_external.resolver.gradle;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.github.bazelbuild.rules_jvm_external.Coordinates;
+import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
+import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.ExclusionImpl;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependency;
 import com.github.bazelbuild.rules_jvm_external.resolver.gradle.models.GradleDependencyImpl;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
@@ -26,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 
 @AutoBazelRepository
@@ -44,14 +48,77 @@ public class GradleBuildScriptGeneratorTestFixturesTest {
   }
 
   @Test
-  public void nonTestFixturesClassifierUsesClassifierNotation() throws Exception {
+  public void explicitClassifierUsesArtifactBlockWithoutArtifactOnlyNotation() throws Exception {
     String script =
         renderBuildScript(
             List.of(
                 new GradleDependencyImpl(
                     "com.example", "sample", "1.0", List.of(), "sources", "jar")));
 
-    assertTrue(script.contains("implementation(\"com.example:sample:1.0:sources@jar\")"));
+    assertTrue(script.contains("implementation(\"com.example:sample:1.0\") {"));
+    assertTrue(script.contains("classifier = \"sources\""));
+    assertTrue(script.contains("extension = \"jar\""));
+    assertFalse(script.contains("@jar"));
+  }
+
+  @Test
+  public void explicitJarExtensionUsesArtifactBlockWithoutArtifactOnlyNotation() throws Exception {
+    String script =
+        renderBuildScript(
+            List.of(createDependency(new Artifact(coordinates(), Set.of(), false, true))));
+
+    assertTrue(script.contains("implementation(\"com.example:sample:1.0\") {"));
+    assertTrue(script.contains("artifact {"));
+    assertTrue(script.contains("type = \"jar\""));
+    assertTrue(script.contains("extension = \"jar\""));
+    assertFalse(script.contains("@jar"));
+  }
+
+  @Test
+  public void defaultExtensionWithoutClassifierUsesDefaultNotation() throws Exception {
+    String script = renderBuildScript(List.of(createDependency(new Artifact(coordinates()))));
+
+    assertTrue(script.contains("implementation(\"com.example:sample:1.0\")"));
+    assertFalse(script.contains("com.example:sample:1.0@jar"));
+    assertFalse(script.contains("artifact {"));
+  }
+
+  @Test
+  public void classifierWithoutPackagingDoesNotForceJarExtension() throws Exception {
+    String script =
+        renderBuildScript(
+            List.of(createDependency(new Artifact(coordinates().setClassifier("sources")))));
+
+    assertTrue(script.contains("implementation(\"com.example:sample:1.0:sources\")"));
+    assertFalse(script.contains("artifact {"));
+    assertFalse(script.contains("@jar"));
+  }
+
+  @Test
+  public void explicitExtensionRetainsExclusionsAndForcedVersion() throws Exception {
+    String script =
+        renderBuildScript(
+            List.of(
+                new GradleDependencyImpl(
+                    "com.example",
+                    "sample",
+                    "1.0!!",
+                    List.of(new ExclusionImpl("com.example", "excluded")),
+                    null,
+                    "so")));
+
+    assertTrue(script.contains("extension = \"so\""));
+    assertTrue(script.contains("exclude group: \"com.example\", module: \"excluded\""));
+    assertTrue(script.contains("version { strictly(\"1.0\") }"));
+    assertFalse(script.contains("@so"));
+  }
+
+  private GradleDependency createDependency(Artifact artifact) {
+    return new GradleResolver(null, 1, event -> {}).createDependency(artifact);
+  }
+
+  private Coordinates coordinates() {
+    return new Coordinates("com.example", "sample", "jar", null, "1.0");
   }
 
   private String renderBuildScript(List<GradleDependency> dependencies) throws Exception {

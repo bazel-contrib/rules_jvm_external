@@ -53,6 +53,7 @@ java_test(
     deps = [
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
+        "//resolver",
         artifact(
             "junit:junit",
             repository_name = "regression_testing_coursier",

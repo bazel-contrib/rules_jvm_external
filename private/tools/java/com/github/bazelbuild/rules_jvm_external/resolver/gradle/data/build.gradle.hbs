@@ -27,18 +27,23 @@ dependencies {
     implementation platform("{{group}}:{{artifact}}:{{version}}")
 {{~/each}}
 {{~#each dependencies}}
-    implementation({{{notation}}}){{~#if exclusions}}{{~#if forceVersion}} {
+    implementation({{{notation}}}){{~#if configure}} {
+{{~#if artifactExtension}}
+        artifact {
+            type = "{{artifactExtension}}"
+            extension = "{{artifactExtension}}"
+{{~#if classifier}}
+            classifier = "{{classifier}}"
+{{~/if}}
+        }
+{{~/if}}
 {{~#each exclusions}}
         exclude group: "{{group}}", module: "{{module}}"
 {{~/each}}
+{{~#if forceVersion}}
         version { strictly("{{versionOnly}}") }
-    }{{~else}} {
-{{~#each exclusions}}
-        exclude group: "{{group}}", module: "{{module}}"
-{{~/each}}
-    }{{~/if}}{{~else}}{{~#if forceVersion}} {
-        version { strictly("{{versionOnly}}") }
-    }{{~/if}}{{~/if}}
+{{~/if}}
+    }{{~/if}}
 {{~/each}}
 }
 

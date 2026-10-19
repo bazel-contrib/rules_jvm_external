@@ -155,6 +155,7 @@ amend_artifact = tag_class(
     attrs = {
         "name": attr.string(default = DEFAULT_NAME),
         "coordinates": attr.string(doc = "Coordinates of the artifact to amend. Only `group:artifact` are used for matching.", mandatory = True),
+        "packaging": attr.string(),
         "force_version": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
         "neverlink": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
         "testonly": attr.string(values = ["on", "off", "true", "false", ""], default = ""),
@@ -227,7 +228,7 @@ def _amend_artifact(original_artifact, amend):
         group = original_artifact.group,
         artifact = original_artifact.artifact,
         version = getattr(original_artifact, "version", None),
-        packaging = getattr(original_artifact, "packaging", None),
+        packaging = amend.packaging or getattr(original_artifact, "packaging", None),
         classifier = getattr(original_artifact, "classifier", None),
         force_version = _get_tri_state_bool(amend.force_version, getattr(original_artifact, "force_version", None)),
         neverlink = _get_tri_state_bool(amend.neverlink, getattr(original_artifact, "neverlink", None)),
