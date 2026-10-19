@@ -46,6 +46,10 @@ public class ConfigArtifact {
     return packaging;
   }
 
+  public boolean isPackagingExplicit() {
+    return packaging != null && !packaging.isEmpty();
+  }
+
   public String getVersion() {
     return version;
   }

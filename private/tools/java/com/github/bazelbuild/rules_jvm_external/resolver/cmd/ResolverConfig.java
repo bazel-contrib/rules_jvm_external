@@ -182,7 +182,10 @@ public class ResolverConfig {
                         art.getVersion());
                 com.github.bazelbuild.rules_jvm_external.resolver.Artifact artifact =
                     new com.github.bazelbuild.rules_jvm_external.resolver.Artifact(
-                        coords, art.getExclusions(), art.isForceVersion());
+                        coords,
+                        art.getExclusions(),
+                        art.isForceVersion(),
+                        art.isPackagingExplicit());
                 request.addArtifact(artifact);
               });
     }

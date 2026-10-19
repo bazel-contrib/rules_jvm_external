@@ -25,6 +25,7 @@ public class Artifact {
   private final Coordinates coordinates;
   private final Set<Coordinates> exclusions;
   private final boolean forceVersion;
+  private final boolean packagingExplicit;
 
   public Artifact(Coordinates coordinates, Coordinates... exclusions) {
     this(coordinates, ImmutableSet.copyOf(exclusions));
@@ -36,9 +37,18 @@ public class Artifact {
 
   public Artifact(
       Coordinates coordinates, Collection<Coordinates> exclusions, boolean forceVersion) {
+    this(coordinates, exclusions, forceVersion, false);
+  }
+
+  public Artifact(
+      Coordinates coordinates,
+      Collection<Coordinates> exclusions,
+      boolean forceVersion,
+      boolean packagingExplicit) {
     this.coordinates = Objects.requireNonNull(coordinates);
     this.exclusions = ImmutableSet.copyOf(exclusions);
     this.forceVersion = forceVersion;
+    this.packagingExplicit = packagingExplicit;
   }
 
   public Coordinates getCoordinates() {
@@ -51,6 +61,10 @@ public class Artifact {
 
   public boolean isForceVersion() {
     return forceVersion;
+  }
+
+  public boolean isPackagingExplicit() {
+    return packagingExplicit;
   }
 
   @Override

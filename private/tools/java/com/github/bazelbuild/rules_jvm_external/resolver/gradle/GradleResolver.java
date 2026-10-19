@@ -683,7 +683,7 @@ public class GradleResolver implements Resolver {
     return new Repository(uri, true, credential.login(), credential.password());
   }
 
-  private GradleDependencyImpl createDependency(Artifact artifact) {
+  GradleDependencyImpl createDependency(Artifact artifact) {
     Coordinates coordinates = artifact.getCoordinates();
     List<Exclusion> exclusions = new ArrayList<>();
     artifact.getExclusions().stream()
@@ -705,7 +705,7 @@ public class GradleResolver implements Resolver {
         version,
         exclusions,
         coordinates.getClassifier(),
-        coordinates.getExtension());
+        artifact.isPackagingExplicit() ? coordinates.getExtension() : null);
   }
 
   private Path getGradleBuildScriptTemplate() throws IOException {

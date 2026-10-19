@@ -235,9 +235,7 @@ public class GradleBuildScriptGenerator {
     if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
       notation.append(":").append(dep.getClassifier());
     }
-    if (dep.getExtension() != null
-        && dep.getClassifier() != null
-        && !dep.getClassifier().isEmpty()) {
+    if (dep.getExtension() != null && !dep.getExtension().isEmpty()) {
       notation.append("@").append(dep.getExtension());
     }
     return "\"" + notation + "\"";
