@@ -40,6 +40,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.google.common.graph.Graph;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -151,51 +152,112 @@ public class GradleResolverTest extends ResolverTestBase {
   @Test
   public void resolvesAndroidVariantAndJvmFallbackForAndroidConsumer()
       throws IOException, XMLStreamException {
+    ResolutionResult result =
+        resolvePlatformVariants(
+            Map.of(
+                "org.gradle.category", "library",
+                "org.gradle.usage", "java-runtime",
+                "org.gradle.jvm.environment", "android",
+                "org.jetbrains.kotlin.platform.type", "androidJvm"),
+            "org.jetbrains.kotlin.platform.type");
+    Coordinates android = new Coordinates("com.example:sample-android:aar:1.0");
+    Coordinates jvmOnly = new Coordinates("com.example:jvm-only:1.0");
+
+    assertTrue(
+        result
+            .getResolution()
+            .nodes()
+            .containsAll(Set.of(new Coordinates("com.example:sample:1.0"), android, jvmOnly)));
+    assertFalse(
+        result.getResolution().nodes().contains(new Coordinates("com.example:sample-jvm:1.0")));
+    assertArtifactExtension(result, android, "aar");
+    assertArtifactExtension(result, jvmOnly, "jar");
+  }
+
+  @Test
+  public void resolvesJvmVariantWithExplicitAttributes() throws IOException, XMLStreamException {
+    ResolutionResult result =
+        resolvePlatformVariants(
+            Map.of(
+                "org.gradle.category", "library",
+                "org.gradle.usage", "java-runtime",
+                "org.gradle.jvm.environment", "standard-jvm",
+                "org.gradle.jvm.version", "17",
+                "org.gradle.libraryelements", "jar",
+                "org.gradle.dependency.bundling", "external",
+                "org.jetbrains.kotlin.platform.type", "jvm"),
+            "org.jetbrains.kotlin.platform.type");
+
+    assertEquals(
+        Set.of(
+            new Coordinates("com.example:sample:1.0"),
+            new Coordinates("com.example:sample-jvm:1.0")),
+        result.getResolution().nodes());
+    assertArtifactExtension(result, new Coordinates("com.example:sample-jvm:1.0"), "jar");
+  }
+
+  @Test
+  public void resolvesCustomVariantAttribute() throws IOException, XMLStreamException {
+    ResolutionResult result =
+        resolvePlatformVariants(
+            Map.of(
+                "org.gradle.category", "library",
+                "org.gradle.usage", "java-runtime",
+                "com.example.platform", "androidJvm"),
+            "com.example.platform");
+
+    assertTrue(
+        result
+            .getResolution()
+            .nodes()
+            .contains(new Coordinates("com.example:sample-android:aar:1.0")));
+    assertFalse(
+        result.getResolution().nodes().contains(new Coordinates("com.example:sample-jvm:1.0")));
+    assertArtifactExtension(result, new Coordinates("com.example:sample-android:aar:1.0"), "aar");
+  }
+
+  private ResolutionResult resolvePlatformVariants(
+      Map<String, String> variants, String platformAttribute)
+      throws IOException, XMLStreamException {
     Coordinates baseCoordinates = new Coordinates("com.example:sample:1.0");
-    Coordinates jvmCoordinates = new Coordinates("com.example:sample-jvm:1.0");
-    Coordinates androidCoordinates = new Coordinates("com.example:sample-android:aar:1.0");
-    Coordinates jvmOnlyCoordinates = new Coordinates("com.example:jvm-only:1.0");
     MavenRepo mavenRepo = MavenRepo.create();
     GradleModuleMetadataHelper moduleMetadataHelper = new GradleModuleMetadataHelper(mavenRepo);
-
     Runfiles runfiles =
         Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
     Map<String, Coordinates> fixtures =
         Map.of(
             "sample-1.0.module", baseCoordinates,
-            "sample-jvm-1.0.module", jvmCoordinates,
-            "sample-android-1.0.module", androidCoordinates,
-            "jvm-only-1.0.module", jvmOnlyCoordinates);
+            "sample-jvm-1.0.module", new Coordinates("com.example:sample-jvm:1.0"),
+            "sample-android-1.0.module", new Coordinates("com.example:sample-android:aar:1.0"),
+            "jvm-only-1.0.module", new Coordinates("com.example:jvm-only:1.0"));
     for (Map.Entry<String, Coordinates> fixture : fixtures.entrySet()) {
       Path metadataPath =
           Paths.get(
               runfiles.rlocation(
                   "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/jvmAndAndroidVariants/"
                       + fixture.getKey()));
-      moduleMetadataHelper.addToMavenRepo(fixture.getValue(), Files.readString(metadataPath));
+      String metadata = Files.readString(metadataPath);
+      if (!fixture.getKey().equals("jvm-only-1.0.module")) {
+        metadata = metadata.replace("org.jetbrains.kotlin.platform.type", platformAttribute);
+      }
+      moduleMetadataHelper.addToMavenRepo(fixture.getValue(), metadata);
     }
 
-    Path configFile = tempFolder.newFile("android-config.json").toPath();
-    String configJson =
-        String.format(
-            "{\"repositories\":[\"%s\"],\"artifacts\":[{\"group\":\"%s\",\"artifact\":\"%s\",\"version\":\"%s\"}],\"resolveFor\":\"android\"}",
-            mavenRepo.getPath().toUri(),
-            baseCoordinates.getGroupId(),
-            baseCoordinates.getArtifactId(),
-            baseCoordinates.getVersion());
-    Files.writeString(configFile, configJson);
+    Path configFile = tempFolder.newFile("variants-config.json").toPath();
+    Files.writeString(
+        configFile,
+        new Gson()
+            .toJson(
+                Map.of(
+                    "repositories", List.of(mavenRepo.getPath().toUri().toString()),
+                    "artifacts",
+                        List.of(
+                            Map.of("group", "com.example", "artifact", "sample", "version", "1.0")),
+                    "variants", variants)));
     ResolutionRequest request =
         new ResolverConfig(new NullListener(), "--argsfile", configFile.toString())
             .getResolutionRequest();
-    ResolutionResult result = resolver.resolve(request);
-    Graph<Coordinates> resolved = result.getResolution();
-
-    assertTrue(resolved.nodes().contains(baseCoordinates));
-    assertTrue(resolved.nodes().contains(androidCoordinates));
-    assertFalse(resolved.nodes().contains(jvmCoordinates));
-    assertTrue(resolved.nodes().contains(jvmOnlyCoordinates));
-    assertArtifactExtension(result, androidCoordinates, "aar");
-    assertArtifactExtension(result, jvmOnlyCoordinates, "jar");
+    return resolver.resolve(request);
   }
 
   private static void assertArtifactExtension(

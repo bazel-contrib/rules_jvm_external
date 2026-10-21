@@ -191,7 +191,7 @@ Generated rules:
 <pre>
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
-maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-boms">boms</a>, <a href="#maven_install-resolver">resolver</a>, <a href="#maven_install-resolve_for">resolve_for</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>,
+maven_install(<a href="#maven_install-name">name</a>, <a href="#maven_install-repositories">repositories</a>, <a href="#maven_install-artifacts">artifacts</a>, <a href="#maven_install-boms">boms</a>, <a href="#maven_install-resolver">resolver</a>, <a href="#maven_install-variants">variants</a>, <a href="#maven_install-fail_on_missing_checksum">fail_on_missing_checksum</a>,
               <a href="#maven_install-fetch_sources">fetch_sources</a>, <a href="#maven_install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven_install-excluded_artifacts">excluded_artifacts</a>, <a href="#maven_install-generate_compat_repositories">generate_compat_repositories</a>,
               <a href="#maven_install-version_conflict_policy">version_conflict_policy</a>, <a href="#maven_install-maven_install_json">maven_install_json</a>, <a href="#maven_install-override_targets">override_targets</a>, <a href="#maven_install-strict_visibility">strict_visibility</a>,
               <a href="#maven_install-strict_visibility_value">strict_visibility_value</a>, <a href="#maven_install-resolve_timeout">resolve_timeout</a>, <a href="#maven_install-additional_netrc_lines">additional_netrc_lines</a>,
@@ -217,7 +217,7 @@ and fetch Maven artifacts transitively.
 | <a id="maven_install-artifacts"></a>artifacts |  A list of Maven artifact coordinates in the form of `group:artifact:version`.   |  `[]` |
 | <a id="maven_install-boms"></a>boms |  A list of Maven artifact coordinates in the form of `group:artifact:version` which refer to Maven BOMs.   |  `[]` |
 | <a id="maven_install-resolver"></a>resolver |  Which resolver to use. One of `coursier`, `gradle` or `maven`.   |  `"coursier"` |
-| <a id="maven_install-resolve_for"></a>resolve_for |  The consumer platform for resolution. One of `jvm` or `android`. Android requires the Gradle resolver.   |  `"jvm"` |
+| <a id="maven_install-variants"></a>variants |  A dictionary of variant attribute names to string values. Requires the Gradle resolver when non-empty.   |  `{}` |
 | <a id="maven_install-fail_on_missing_checksum"></a>fail_on_missing_checksum |  fail the fetch if checksum attributes are not present.   |  `True` |
 | <a id="maven_install-fetch_sources"></a>fetch_sources |  Additionally fetch source JARs.   |  `False` |
 | <a id="maven_install-fetch_javadoc"></a>fetch_javadoc |  Additionally fetch javadoc JARs.   |  `False` |

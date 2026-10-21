@@ -16,7 +16,6 @@ package com.github.bazelbuild.rules_jvm_external.resolver.cmd;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
-import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest.ResolveFor;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -146,7 +144,7 @@ public class ResolverConfig {
 
       request.useUnsafeSharedCache(
           request.isUseUnsafeSharedCache() || config.isUsingUnsafeSharedCache());
-      request.resolveFor(parseResolveFor(config.getResolveFor()));
+      request.variants(config.getVariants());
 
       config.getRepositories().forEach(request::addRepository);
 
@@ -241,13 +239,5 @@ public class ResolverConfig {
 
   public Path getDependencyIndexOutput() {
     return dependencyIndexOutput;
-  }
-
-  private static ResolveFor parseResolveFor(String resolveFor) {
-    try {
-      return ResolveFor.valueOf(resolveFor.toUpperCase(Locale.ROOT));
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("resolveFor must be either \"jvm\" or \"android\"", e);
-    }
   }
 }

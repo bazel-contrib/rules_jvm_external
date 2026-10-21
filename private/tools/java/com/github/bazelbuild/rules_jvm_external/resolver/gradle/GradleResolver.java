@@ -18,7 +18,6 @@ import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Artifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest;
-import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequest.ResolveFor;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolutionResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.ResolvedArtifact;
 import com.github.bazelbuild.rules_jvm_external.resolver.Resolver;
@@ -118,9 +117,7 @@ public class GradleResolver implements Resolver {
       }
       Instant start = Instant.now();
       GradleDependencyModel resolved =
-          project.resolveDependencies(
-              getGradleTaskProperties(
-                  repositories, project.getProjectDir(), request.getResolveFor()));
+          project.resolveDependencies(getGradleTaskProperties(repositories, request.getVariants()));
       Instant end = Instant.now();
       if (isVerbose()) {
         System.out.println(
@@ -145,8 +142,7 @@ public class GradleResolver implements Resolver {
   }
 
   private Map<String, String> getGradleTaskProperties(
-      List<Repository> repositories, Path projectDir, ResolveFor resolveFor)
-      throws MalformedURLException {
+      List<Repository> repositories, Map<String, String> variants) throws MalformedURLException {
     Map<String, String> properties = new HashMap<>();
     for (Repository repository : repositories) {
       if (repository.requiresAuth) {
@@ -158,9 +154,7 @@ public class GradleResolver implements Resolver {
     if (isVerbose()) {
       properties.put("org.gradle.debug", "true");
     }
-    if (resolveFor == ResolveFor.ANDROID) {
-      properties.put("rules_jvm_external.resolve_for", "android");
-    }
+    variants.forEach((name, value) -> properties.put("rules_jvm_external.variant." + name, value));
     return properties;
   }
 

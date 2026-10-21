@@ -1,15 +1,18 @@
 load("@rules_java//java:java_library.bzl", "java_library")
+load("@rules_java//java:java_test.bzl", "java_test")
 load("//:defs.bzl", "artifact")
 
 java_library(
     name = "resolver",
     testonly = True,
-    srcs = glob(["*.java"]),
+    srcs = glob(
+        ["*.java"],
+        exclude = ["ResolutionRequestTest.java"],
+    ),
     visibility = [
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
     ],
     deps = [
-        "//resolver:resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/cmd",
@@ -17,6 +20,7 @@ java_library(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/remote",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",
+        "//resolver",
         artifact(
             "com.google.code.gson:gson",
             repository_name = "rules_jvm_external_deps",
@@ -36,6 +40,20 @@ java_library(
         artifact(
             "org.apache.maven:maven-repository-metadata",
             repository_name = "rules_jvm_external_deps",
+        ),
+    ],
+)
+
+java_test(
+    name = "ResolutionRequestTest",
+    size = "small",
+    srcs = ["ResolutionRequestTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.resolver.ResolutionRequestTest",
+    deps = [
+        "//resolver",
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
         ),
     ],
 )

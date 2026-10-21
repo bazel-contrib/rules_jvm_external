@@ -140,7 +140,7 @@ pin_dependencies(
     lock_file = {lock_file},
     dependency_index = {dependency_index},
     jvm_flags = {jvm_flags},
-    resolve_for = {resolve_for},
+    variants = {variants},
     visibility = ["//visibility:public"],
     resolver = ":custom_resolver",
 )
@@ -383,15 +383,13 @@ def _add_to_hash_dictionary(dictionary, artifact, salt):
     dictionary[key] = value
 
 # Visible for testing
-def resolve_for_error(resolver, resolve_for):
-    if resolve_for not in ["jvm", "android"]:
-        return "resolve_for must be either \"jvm\" or \"android\", got \"%s\"" % resolve_for
-    if resolve_for == "android" and resolver != "gradle":
-        return "resolve_for = \"android\" requires resolver = \"gradle\""
+def variants_error(resolver, variants, name):
+    if variants and resolver != "gradle":
+        return 'maven.install(name = "%s"): variants requires resolver = "gradle", but resolver is "%s"' % (name, resolver)
     return None
 
-def validate_resolve_for(resolver, resolve_for):
-    error = resolve_for_error(resolver, resolve_for)
+def validate_variants(resolver, variants, name):
+    error = variants_error(resolver, variants, name)
     if error:
         fail(error)
 
@@ -403,7 +401,7 @@ def validate_resolve_for(resolver, resolve_for):
 # upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = [], resolve_for = "jvm"):
+def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = [], variants = {}):
     if len(repositories) == 0:
         fail("Repositories must be set to calculate input signature")
 
@@ -428,8 +426,9 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
         excluded_artifact_inputs.append(_stable_artifact(artifact))
         _add_to_hash_dictionary(all_hashes, artifact, "excluded_artifact")
 
-    if resolve_for != "jvm":
-        artifact_inputs.append(resolve_for)
+    variants_input = repr(sorted(variants.items()))
+    if variants:
+        artifact_inputs.append(variants_input)
 
     v1_sig = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
 
@@ -445,8 +444,8 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
             all_hashes[k] = hash(repr(sorted(v)))
 
     all_hashes["repositories"] = hash(repr(sorted(repositories)))
-    if resolve_for != "jvm":
-        all_hashes["resolve_for"] = hash(resolve_for)
+    if variants:
+        all_hashes["variants"] = hash(variants_input)
 
     return (all_hashes, [v1_sig, v2_sig])
 
@@ -681,7 +680,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             artifacts = repository_ctx.attr.artifacts,
             repositories = repository_ctx.attr.repositories,
             excluded_artifacts = repository_ctx.attr.excluded_artifacts,
-            resolve_for = repository_ctx.attr.resolve_for,
+            variants = repository_ctx.attr.variants,
         )
         if input_artifacts_hash in old_hashes:
             print_if_not_repinning(
@@ -928,7 +927,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
             dependency_index = repr(dependency_index_location),
-            resolve_for = repr(repository_ctx.attr.resolve_for),
+            variants = repr(repository_ctx.attr.variants),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
@@ -1530,7 +1529,7 @@ def _coursier_fetch_impl(repository_ctx):
         artifacts = repository_ctx.attr.artifacts,
         repositories = repository_ctx.attr.repositories,
         excluded_artifacts = repository_ctx.attr.excluded_artifacts,
-        resolve_for = repository_ctx.attr.resolve_for,
+        variants = repository_ctx.attr.variants,
     )
 
     repository_ctx.file(
@@ -1724,7 +1723,7 @@ pinned_coursier_fetch = repository_rule(
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
         "resolver_extra_dependencies": attr.label_list(default = []),
-        "resolve_for": attr.string(default = "jvm", values = ["jvm", "android"]),
+        "variants": attr.string_dict(default = {}),
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },
@@ -1799,7 +1798,7 @@ coursier_fetch = repository_rule(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
-        "resolve_for": attr.string(default = "jvm", values = ["jvm", "android"]),
+        "variants": attr.string_dict(default = {}),
         "pinned_repo_name": attr.string(
             doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
             mandatory = False,

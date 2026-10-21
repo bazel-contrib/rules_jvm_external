@@ -36,5 +36,12 @@ maven.install(
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
+    resolver = "gradle",
+    variants = {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
+        "org.jetbrains.kotlin.platform.type": "androidJvm",
+    },
 )
 use_repo(maven, "maven")

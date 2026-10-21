@@ -62,7 +62,6 @@ import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.attributes.java.TargetJvmEnvironment;
 import org.gradle.maven.MavenModule;
 import org.gradle.maven.MavenPomArtifact;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
@@ -73,11 +72,6 @@ import org.gradle.tooling.provider.model.ToolingModelBuilder;
  * any failures and the final tooling model back to the resolver
  */
 public class GradleDependencyModelBuilder implements ToolingModelBuilder {
-
-  private static final Attribute<TargetJvmEnvironment> JVM_ENVIRONMENT_ATTRIBUTE =
-      TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE;
-  private static final Attribute<String> KOTLIN_PLATFORM_ATTRIBUTE =
-      Attribute.of("org.jetbrains.kotlin.platform.type", String.class);
 
   @Override
   public boolean canBuild(String modelName) {
@@ -90,6 +84,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // We only resolve dependencies and fetch artifacts for this configuration
     // similar to how we do in the Maven resolver
     Configuration cfg = project.getConfigurations().getByName("runtimeClasspath");
+    Map<String, String> variants = GradleDependencyModelPlugin.getVariantAttributes(project);
+    GradleDependencyModelPlugin.configureVariantAttributes(project, cfg, variants);
 
     List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
     // This stores the mapping between coordinates to the GradleResolvedDependency interface
@@ -98,22 +94,20 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // be used to attach the actual artifacts later
     ConcurrentHashMap<String, GradleResolvedDependency> variantGradleResolvedDependencyMap =
         new ConcurrentHashMap<>();
-    // Android resolution uses the detached configuration as the authoritative graph because
-    // runtimeClasspath requires JAR library elements, so resolving it would be wasted work.
-    // JVM resolution only uses the detached configuration to retry unresolved dependencies,
-    // preserving the complete runtimeClasspath graph otherwise.
-    boolean androidConsumer = isAndroidConsumer(cfg);
+    // Explicit variants use a detached configuration so Java plugin defaults, such as JAR
+    // library elements, cannot prevent selection of other artefact types.
+    boolean customVariants = !variants.isEmpty();
 
     // We get the root nodes in the dependency graph (or rather forest here since there can be
     // disjoint trees)
     List<GradleResolvedDependency> resolvedRoots =
-        androidConsumer
+        customVariants
             ? List.of()
             : collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
 
     // Collect any unresolved dependencies from the runtimeClasspath configuration
     List<GradleUnresolvedDependency> unresolvedDependenciesRuntimeClasspath =
-        androidConsumer ? List.of() : getUnresolvedDependencies(cfg);
+        customVariants ? List.of() : getUnresolvedDependencies(cfg);
 
     List<Dependency> unresolvedDependencies =
         unresolvedDependenciesRuntimeClasspath.stream()
@@ -135,8 +129,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     Configuration detachedCfg =
         project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
-    copyAttribute(cfg, detachedCfg, JVM_ENVIRONMENT_ATTRIBUTE);
-    copyAttribute(cfg, detachedCfg, KOTLIN_PLATFORM_ATTRIBUTE);
+    GradleDependencyModelPlugin.configureVariantAttributes(project, detachedCfg, variants);
     // Detached configurations are not covered by `configurations.all`, so the forced module
     // versions from the generated build script do not apply to them automatically. Without
     // them, pinned modules can resolve at a different version during the retry.
@@ -159,7 +152,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       }
     }
 
-    boolean resolveDetached = androidConsumer || !unresolvedDependenciesRuntimeClasspath.isEmpty();
+    boolean resolveDetached = customVariants || !unresolvedDependenciesRuntimeClasspath.isEmpty();
     List<GradleResolvedDependency> resolvedDetachedRoots =
         resolveDetached
             ? resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap)
@@ -182,20 +175,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
           .addAll(getUnresolvedDependencies(detachedCfg));
     }
     return gradleDependencyModel;
-  }
-
-  private static <T> void copyAttribute(
-      Configuration source, Configuration target, Attribute<T> attribute) {
-    T value = source.getAttributes().getAttribute(attribute);
-    if (value != null) {
-      target.getAttributes().attribute(attribute, value);
-    }
-  }
-
-  private static boolean isAndroidConsumer(Configuration configuration) {
-    TargetJvmEnvironment environment =
-        configuration.getAttributes().getAttribute(JVM_ENVIRONMENT_ATTRIBUTE);
-    return environment != null && TargetJvmEnvironment.ANDROID.equals(environment.getName());
   }
 
   private List<GradleResolvedDependency> resolveDetachedGraph(

@@ -14,15 +14,18 @@
 
 package com.github.bazelbuild.rules_jvm_external.resolver.gradle.plugin;
 
+import java.util.Map;
+import java.util.TreeMap;
 import javax.inject.Inject;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeCompatibilityRule;
 import org.gradle.api.attributes.AttributeDisambiguationRule;
 import org.gradle.api.attributes.CompatibilityCheckDetails;
 import org.gradle.api.attributes.MultipleCandidatesDetails;
-import org.gradle.api.attributes.java.TargetJvmEnvironment;
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
 
 /**
@@ -30,13 +33,11 @@ import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
  * resolution
  */
 public class GradleDependencyModelPlugin implements Plugin<Project> {
-  private static final Attribute<TargetJvmEnvironment> JVM_ENVIRONMENT_ATTRIBUTE =
-      TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE;
   private static final Attribute<String> KOTLIN_PLATFORM_ATTRIBUTE =
       Attribute.of("org.jetbrains.kotlin.platform.type", String.class);
   private static final String ANDROID_JVM_PLATFORM = "androidJvm";
   private static final String JVM_PLATFORM = "jvm";
-  private static final String RESOLVE_FOR_PROPERTY = "rules_jvm_external.resolve_for";
+  private static final String VARIANT_PROPERTY_PREFIX = "rules_jvm_external.variant.";
 
   private final ToolingModelBuilderRegistry registry;
 
@@ -49,11 +50,6 @@ public class GradleDependencyModelPlugin implements Plugin<Project> {
   public void apply(Project project) {
     registry.register(new GradleDependencyModelBuilder());
     configureKotlinPlatformSchema(project);
-    if ("android".equals(project.findProperty(RESOLVE_FOR_PROPERTY))) {
-      // Relies on the generated build script (build.gradle.hbs) applying the `java` plugin.
-      // Without it there is no runtimeClasspath to configure and resolution silently uses JVM.
-      project.getPlugins().withId("java", plugin -> configureAndroidConsumer(project));
-    }
   }
 
   // Registered for every resolution, but inert for JVM consumers: both rules only fire
@@ -70,15 +66,49 @@ public class GradleDependencyModelPlugin implements Plugin<Project> {
             });
   }
 
-  private static void configureAndroidConsumer(Project project) {
+  static Map<String, String> getVariantAttributes(Project project) {
+    Map<String, String> variants = new TreeMap<>();
     project
-        .getConfigurations()
-        .getByName("runtimeClasspath")
-        .getAttributes()
-        .attribute(
-            JVM_ENVIRONMENT_ATTRIBUTE,
-            project.getObjects().named(TargetJvmEnvironment.class, TargetJvmEnvironment.ANDROID))
-        .attribute(KOTLIN_PLATFORM_ATTRIBUTE, ANDROID_JVM_PLATFORM);
+        .getProperties()
+        .forEach(
+            (name, value) -> {
+              if (name.startsWith(VARIANT_PROPERTY_PREFIX)) {
+                variants.put(name.substring(VARIANT_PROPERTY_PREFIX.length()), value.toString());
+              }
+            });
+    return variants;
+  }
+
+  static void configureVariantAttributes(
+      Project project, Configuration configuration, Map<String, String> variants) {
+    variants.forEach(
+        (name, value) -> {
+          Attribute<?> attribute =
+              project.getDependencies().getAttributesSchema().getAttributes().stream()
+                  .filter(candidate -> candidate.getName().equals(name))
+                  .findFirst()
+                  .orElse(Attribute.of(name, String.class));
+          setAttribute(project, configuration, attribute, value);
+        });
+  }
+
+  private static <T> void setAttribute(
+      Project project, Configuration configuration, Attribute<T> attribute, String value) {
+    Class<T> type = attribute.getType();
+    Object typedValue;
+    if (type == String.class) {
+      typedValue = value;
+    } else if (type == Integer.class) {
+      typedValue = Integer.valueOf(value);
+    } else if (type == Boolean.class && (value.equals("true") || value.equals("false"))) {
+      typedValue = Boolean.valueOf(value);
+    } else if (Named.class.isAssignableFrom(type)) {
+      typedValue = project.getObjects().named(type.asSubclass(Named.class), value);
+    } else {
+      throw new IllegalArgumentException(
+          "Unsupported value for variant attribute " + attribute + ": " + value);
+    }
+    configuration.getAttributes().attribute(attribute, type.cast(typedValue));
   }
 
   public static class KotlinPlatformCompatibilityRule
