@@ -60,8 +60,40 @@ def _null_shasum_artifacts_do_not_get_synthetic_file_impl(ctx):
 
 null_shasum_artifacts_do_not_get_synthetic_file_test = unittest.make(_null_shasum_artifacts_do_not_get_synthetic_file_impl)
 
+def _tgz_artifacts_keep_their_checksum_and_download_url_impl(ctx):
+    env = unittest.begin(ctx)
+
+    lock_file_contents = {
+        "artifacts": {
+            "com.example:archive:tgz": {
+                "shasums": {"linux": "tgz-checksum"},
+                "version": "1.0",
+            },
+        },
+        "repositories": {
+            "https://example.com/maven/": ["com.example:archive:tgz:linux"],
+        },
+    }
+
+    artifacts = v3_lock_file.get_artifacts(lock_file_contents)
+
+    asserts.equals(env, 1, len(artifacts))
+    artifact = _find_artifact(artifacts, "com.example:archive:1.0:linux@tgz")
+    asserts.equals(env, "tgz-checksum", artifact["sha256"])
+    asserts.equals(env, "com/example/archive/1.0/archive-1.0-linux.tgz", artifact["file"])
+    asserts.equals(
+        env,
+        ["https://example.com/maven/com/example/archive/1.0/archive-1.0-linux.tgz"],
+        artifact["urls"],
+    )
+
+    return unittest.end(env)
+
+tgz_artifacts_keep_their_checksum_and_download_url_test = unittest.make(_tgz_artifacts_keep_their_checksum_and_download_url_impl)
+
 def v3_lock_file_test_suite():
     unittest.suite(
         "v3_lock_file_tests",
         null_shasum_artifacts_do_not_get_synthetic_file_test,
+        tgz_artifacts_keep_their_checksum_and_download_url_test,
     )
