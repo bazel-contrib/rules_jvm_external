@@ -259,6 +259,20 @@ copy_file(
             target_import_string.append("\t\t\"maven_exclusion=%s\"," % exclusion)
     target_import_string.append("\t],")
 
+    sha256 = artifact.get("sha256") if getattr(repository_ctx.attr, "render_checksums", False) else None
+    checksum_attr = ""
+    checksum_rule = ""
+    if sha256:
+        checksum_name = "%s_checksum" % target_label
+        checksum_attr = "\n    attributes = [\":%s\"]," % checksum_name
+        checksum_rule = """
+checksum(
+    name = {checksum_name},
+    checksums = {{"SHA-256": {sha256}}},
+    visibility = ["//visibility:public"],
+)
+""".format(checksum_name = repr(checksum_name), sha256 = repr(sha256))
+
     if packaging == "jar":
         target_import_string.append("\tmaven_coordinates = \"%s\"," % coordinates)
         if len(artifact["urls"]):
@@ -269,12 +283,14 @@ copy_file(
         to_return.append("""
 package_metadata(
     name = {package_metadata_name},
-    purl = {purl},
+    purl = {purl},{attributes}
     visibility = ["//visibility:public"],
-)
+){checksum_rule}
 """.format(
             package_metadata_name = repr(package_metadata_name),
             purl = repr(to_purl(coordinates, scheme_and_host(maven_url))),
+            attributes = checksum_attr,
+            checksum_rule = checksum_rule,
         ))
     else:
         unpacked = unpack_coordinates(coordinates)
@@ -293,9 +309,9 @@ package_info(
 
 package_metadata(
     name = {package_metadata_name},
-    purl = {purl},
+    purl = {purl},{attributes}
     visibility = ["//visibility:public"],
-)
+){checksum_rule}
 """.format(
             coordinates = repr(coordinates),
             name = repr(package_info_name),
@@ -303,6 +319,8 @@ package_metadata(
             purl = repr(to_purl(coordinates, scheme_and_host(url))),
             url = repr(url),
             version = repr(unpacked.version),
+            attributes = checksum_attr,
+            checksum_rule = checksum_rule,
         ))
 
     # 6. If `neverlink` is True in the artifact spec, add the neverlink attribute to make this artifact
