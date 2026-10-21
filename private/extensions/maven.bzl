@@ -265,6 +265,18 @@ def apply_amendment(amend, artifacts, boms):
                 amended = True
     return amended
 
+def _parse_gradle_version(version):
+    if type(version) == "string":
+        return version, False
+    if type(version) == "dict":
+        for key in ("reject", "rejectAll", "rejects"):
+            if key in version:
+                fail("Unsupported Gradle version rejection '%s' in %s" % (key, version))
+        for key in ("strictly", "require", "prefer"):
+            if key in version:
+                return version[key], key == "strictly"
+    fail("Unsupported Gradle version constraint:", version)
+
 def process_gradle_versions_file(parsed, bom_modules):
     artifacts = []
     boms = []
@@ -272,6 +284,7 @@ def process_gradle_versions_file(parsed, bom_modules):
     for alias, value in parsed.get("libraries", {}).items():
         # Handle different dependency declaration formats
         coords = None
+        force_version = False
 
         # Case 1: Simple string notation: "group:artifact:version"
         if type(value) == "string":
@@ -290,23 +303,17 @@ def process_gradle_versions_file(parsed, bom_modules):
                 fail("Library '%s' must have either 'module' or both 'group' and 'name' keys" % alias)
 
             # Handle version (applies to both module and group+name formats)
-            if "version.ref" in value.keys():
-                version = parsed.get("versions", {}).get(value["version.ref"])
-                if not version:
-                    fail("Unable to resolve version.ref %s" % value["version.ref"])
+            if "version.ref" in value or "version" in value:
+                raw_version = value.get("version", "")
+                version_ref = value.get("version.ref")
+                if type(raw_version) == "dict":
+                    version_ref = raw_version.get("ref", version_ref)
+                if version_ref:
+                    raw_version = parsed.get("versions", {}).get(version_ref)
+                    if not raw_version:
+                        fail("Unable to resolve version.ref %s" % version_ref)
+                version, force_version = _parse_gradle_version(raw_version)
                 coords += ":%s" % version
-            elif "version" in value.keys():
-                raw_version = value["version"]
-                if type(raw_version) == "string":
-                    coords += ":%s" % value["version"]
-                elif type(raw_version) == "dict":
-                    version_ref = raw_version.get("ref", None)
-                    if not version_ref:
-                        fail("Unable to find version ref in", value)
-                    version = parsed.get("versions", {}).get(version_ref)
-                    if not version:
-                        fail("Unable to resolve version ref", value)
-                    coords += ":%s" % version
 
             # Handle packaging (e.g., "aar" for Android libraries)
             # Note: Gradle uses "package" but we'll check common variants
@@ -322,11 +329,13 @@ def process_gradle_versions_file(parsed, bom_modules):
 
         is_bom = type(value) == "dict" and value.get("is_bom", "false").lower() == "true"
 
-        if is_bom or module_id in bom_modules:
-            boms.append(unpack_coordinates(coords))
-        else:
-            artifact = unpack_coordinates(coords)
+        artifact = unpack_coordinates(coords)
+        if force_version:
+            artifact = struct(**(remove_empty_fields(artifact) | {"force_version": True}))
 
+        if is_bom or module_id in bom_modules:
+            boms.append(artifact)
+        else:
             if type(value) == "dict":
                 artifact_dict = {
                     "group": artifact.group,
@@ -339,8 +348,8 @@ def process_gradle_versions_file(parsed, bom_modules):
                     artifact_dict["classifier"] = value["classifier"]
                 if "exclusions" in value.keys():
                     artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace("'", '"')))
-                if "force_version" in value.keys():
-                    artifact_dict["force_version"] = (value["force_version"].lower() == "true")
+                if force_version or "force_version" in value:
+                    artifact_dict["force_version"] = force_version or value["force_version"].lower() == "true"
                 artifact = struct(**artifact_dict)
 
             artifacts.append(artifact)
