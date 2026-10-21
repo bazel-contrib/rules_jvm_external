@@ -52,7 +52,7 @@ public class Downloader {
       Set.of("jar", "ejb", "bundle", "maven-plugin", "eclipse-plugin");
   // Packaging types (extensions) we know don't have fallbacks. I know `jar` is in both sets.
   private static final Set<String> NO_FALLBACK_PACKAGINGS =
-      Set.of("jar", "tar.gz", "tar.bz2", "tar", "zip", "exe", "dll", "so");
+      Set.of("jar", "tar.gz", "tar.bz2", "tar", "tgz", "zip", "exe", "dll", "so");
   private static final Set<String> NO_FALLBACK_CLASSIFIERS = Set.of("sources", "javadoc");
   private final Path localRepository;
   private final Set<URI> repos;
@@ -90,6 +90,13 @@ public class Downloader {
 
     if (result != null) {
       return result;
+    }
+
+    // Source and javadoc jars are optional: many artifacts publish a main jar but no sources jar
+    // (for example the empty com.google.guava:listenablefuture jar Guava depends on). Signal their
+    // absence with null so callers can skip them instead of failing the whole resolution.
+    if (NO_FALLBACK_CLASSIFIERS.contains(coords.getClassifier())) {
+      return null;
     }
 
     // Are we dealing with a packaging dep? Download the `pom.xml` and check

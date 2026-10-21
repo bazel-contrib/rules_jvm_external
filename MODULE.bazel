@@ -1,6 +1,6 @@
 module(
     name = "rules_jvm_external",
-    version = "7.1",
+    version = "7.2",
     bazel_compatibility = [">=7.0.0"],
 )
 
@@ -202,6 +202,18 @@ dev_maven.amend_artifact(
     name = "amend_artifacts",
     coordinates = "org.slf4j:slf4j-api",
     neverlink = "on",
+)
+dev_maven.install(
+    name = "duplicate_version_error",
+    artifacts = [
+        "com.fasterxml.jackson.core:jackson-annotations:2.10.1",
+        "com.fasterxml.jackson.core:jackson-annotations:2.12.1",
+    ],
+    duplicate_version_warning = "error",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
 )
 dev_maven.install(
     name = "duplicate_version_warning",
@@ -940,6 +952,41 @@ dev_maven.install(
     fetch_sources = True,
     lock_file = "//tests/custom_maven_install:transitive_dependency_with_type_of_pom.json",
 )
+
+# https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+dev_maven.install(
+    name = "maven_missing_source_jar",
+    artifacts = [
+        # Guava depends on the empty
+        # com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+        # jar, which publishes a main jar but no sources jar. With the Maven
+        # resolver and fetch_sources = True this used to fail resolution rather
+        # than treat the missing sources jar as absent.
+        "com.google.guava:guava:33.4.8-jre",
+    ],
+    fetch_sources = True,
+    lock_file = "//tests/custom_maven_install:maven_missing_source_jar_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "maven",
+)
+
+# https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+# Same missing-sources-jar case as maven_missing_source_jar, but exercised via
+# the Gradle resolver.
+dev_maven.install(
+    name = "gradle_missing_source_jar",
+    artifacts = [
+        "com.google.guava:guava:33.4.8-jre",
+    ],
+    fetch_sources = True,
+    lock_file = "//tests/custom_maven_install:gradle_missing_source_jar_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "gradle",
+)
 dev_maven.install(
     name = "pom_exclusion_testing_coursier",
     artifacts = [],
@@ -1019,6 +1066,34 @@ local_path_override(
 )
 
 dev_maven.install(
+    name = "coursier_layering",
+    artifacts = [
+        "com.google.code.findbugs:jsr305:3.0.1",
+    ],
+    known_contributing_modules = [
+        "coursier_higher_layer",
+    ],
+    resolver = "coursier",
+)
+dev_maven.install(
+    name = "coursier_pinned_layering",
+    artifacts = [
+        "com.google.code.findbugs:jsr305:3.0.1",
+    ],
+    known_contributing_modules = [
+        "coursier_higher_layer",
+    ],
+    resolver = "coursier",
+    version_conflict_policy = "pinned",
+)
+
+bazel_dep(name = "coursier_higher_layer", version = "0.0.0", dev_dependency = True)
+local_path_override(
+    module_name = "coursier_higher_layer",
+    path = "tests/integration/coursier_higher_layer",
+)
+
+dev_maven.install(
     name = "root_module_can_override",
     artifacts = ["com.squareup:javapoet:1.11.1"],
     known_contributing_modules = [
@@ -1052,6 +1127,9 @@ use_repo(
     dev_maven,
     "amend_artifacts",
     "bom_only_pinning",
+    "coursier_layering",
+    "coursier_pinned_layering",
+    "duplicate_version_error",
     "duplicate_version_warning",
     "duplicate_version_warning_same_version",
     "exclusion_testing",
@@ -1120,6 +1198,14 @@ use_repo(
     "transitive_dependency_with_type_of_pom",
     "unpinned_transitive_dependency_with_type_of_pom",
 
+    # Pinned repo
+    "maven_missing_source_jar",
+    "unpinned_maven_missing_source_jar",
+
+    # Pinned repo
+    "gradle_missing_source_jar",
+    "unpinned_gradle_missing_source_jar",
+
     # Regression testing and libraries exposed as compat repos
     "com_android_support_appcompat_v7_aar_28_0_0",
     "com_google_guava_guava_27_0_jre",
@@ -1151,15 +1237,15 @@ use_repo(
 
     # Final entries
     "com_google_http_client_google_http_client",
+    "legacy_multi_repo_hash",
+    "multi_repo_hash",
     "root_wins",
     "testonly_testing",
+    "unpinned_legacy_multi_repo_hash",
+    "unpinned_multi_repo_hash",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
     "version_interval_testing",
-    "multi_repo_hash",
-    "unpinned_multi_repo_hash",
-    "legacy_multi_repo_hash",
-    "unpinned_legacy_multi_repo_hash",
 )
 
 http_file(

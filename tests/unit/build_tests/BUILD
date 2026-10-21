@@ -28,6 +28,27 @@ build_test(
     ],
 )
 
+# https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+# Guava (resolved with fetch_sources = True) depends on the empty listenablefuture
+# jar, which has no sources jar. Resolution should still succeed and the
+# source-less artifact should build. Exercised via both the Maven and Gradle
+# resolvers.
+build_test(
+    name = "maven_missing_source_jar",
+    targets = [
+        "@maven_missing_source_jar//:com_google_guava_guava",
+        "@maven_missing_source_jar//:com_google_guava_listenablefuture",
+    ],
+)
+
+build_test(
+    name = "gradle_missing_source_jar",
+    targets = [
+        "@gradle_missing_source_jar//:com_google_guava_guava",
+        "@gradle_missing_source_jar//:com_google_guava_listenablefuture",
+    ],
+)
+
 # Note: skylib's `native_test` would fail on "Exec format error" under the other platform, hence the following 2 steps
 [native_binary(
     name = "src_that_refers_to_a_valid_executable_{}_target".format(platform),

@@ -94,7 +94,7 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).   | List of strings | optional |  `[]`  |
 | <a id="maven.install-artifacts"></a>artifacts |  Maven artifact tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
 | <a id="maven.install-boms"></a>boms |  Maven BOM tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
-| <a id="maven.install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if there are duplicate artifacts<br><br>If "error", then print a message and fail the build. If "warn", then print a warning and continue. If "none", then do nothing.   | String | optional |  `"warn"`  |
+| <a id="maven.install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if layering selects a non-root version instead of the root version, or if the root module declares multiple versions of the same coordinate<br><br>If "error", then print a message and fail the build. If "warn", then print a warning and continue. If "none", then do nothing.   | String | optional |  `"warn"`  |
 | <a id="maven.install-excluded_artifacts"></a>excluded_artifacts |  Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs   | List of strings | optional |  `[]`  |
 | <a id="maven.install-exclusions"></a>exclusions |  Maven artifact tuples, in `artifactId:groupId` format   | List of strings | optional |  `[]`  |
 | <a id="maven.install-fail_if_repin_required"></a>fail_if_repin_required |  Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.   | Boolean | optional |  `True`  |
@@ -116,7 +116,7 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-use_credentials_from_home_netrc_file"></a>use_credentials_from_home_netrc_file |  Whether to pass machine login credentials from the ~/.netrc file to coursier.   | Boolean | optional |  `False`  |
 | <a id="maven.install-use_starlark_android_rules"></a>use_starlark_android_rules |  Whether to use the native or Starlark version of the Android rules.   | Boolean | optional |  `False`  |
 | <a id="maven.install-variants"></a>variants |  Variant attributes used for dependency resolution. Requires the Gradle resolver when non-empty.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> String</a> | optional |  `{}`  |
-| <a id="maven.install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts<br><br>If "pinned", choose the user-specified version in maven_install unconditionally. With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module. If "default", follow the selected resolver's default policy.   | String | optional |  `"default"`  |
+| <a id="maven.install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts<br><br>If "pinned", choose the user-specified version in maven_install unconditionally. In layered installs, artifacts contributed by the root module take precedence over versions contributed by other modules. If "default", follow the selected resolver's default policy.   | String | optional |  `"default"`  |
 
 <a id="maven.override"></a>
 

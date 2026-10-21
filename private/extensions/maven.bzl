@@ -9,9 +9,15 @@ load(
     "escape",
     "strip_packaging_and_classifier_and_version",
 )
-load("//private/lib:coordinates.bzl", "to_external_form", "to_key", "unpack_coordinates")
+load("//private/lib:coordinates.bzl", "to_external_form", "unpack_coordinates")
+load(
+    "//private/lib:layering.bzl",
+    "DEFAULT_NAME",
+    "layer_maven_namespace",
+    "remove_empty_fields",
+    "should_print_diagnostic",
+)
 load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch", "validate_variants")
-load("//private/rules:maven_version.bzl", "compare_maven_versions")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
@@ -20,8 +26,6 @@ load(":download_pinned_deps.bzl", "download_pinned_deps")
 DEFAULT_REPOSITORIES = [
     "https://repo1.maven.org/maven2",
 ]
-
-DEFAULT_NAME = "maven"
 
 _DEFAULT_RESOLVER = "coursier"
 
@@ -78,7 +82,7 @@ install = tag_class(
         "additional_netrc_lines": attr.string_list(doc = "Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).", default = []),
         "use_credentials_from_home_netrc_file": attr.bool(doc = "Whether to pass machine login credentials from the ~/.netrc file to coursier.", default = False),
         "duplicate_version_warning": attr.string(
-            doc = """What to do if there are duplicate artifacts
+            doc = """What to do if layering selects a non-root version instead of the root version, or if the root module declares multiple versions of the same coordinate
 
             If "error", then print a message and fail the build.
             If "warn", then print a warning and continue.
@@ -111,7 +115,8 @@ install = tag_class(
             doc = """Policy for user-defined vs. transitive dependency version conflicts
 
             If "pinned", choose the user-specified version in maven_install unconditionally.
-            With the Gradle and Maven resolvers, this only applies to artifacts contributed by the root module.
+            In layered installs, artifacts contributed by the root module take precedence
+            over versions contributed by other modules.
             If "default", follow the selected resolver's default policy.
             """,
             default = "default",
@@ -182,24 +187,6 @@ def _add_exclusions(exclusions):
             to_return.append(exclusion)
     return to_return
 
-def _warn_if_multiple_contributing_modules(repo, repo_name, non_root_bazel_dep_to_artifacts):
-    known_contributing_modules = repo.get("known_contributing_modules", sets.make())
-    contributing_module_names = non_root_bazel_dep_to_artifacts.keys()
-    new_contributing_modules = sets.difference(sets.make(contributing_module_names), known_contributing_modules)
-    if sets.length(new_contributing_modules) > 0:
-        print("The maven repository '%s' has contributions from multiple bzlmod modules, and will be resolved together: %s." % (
-                  repo_name,
-                  sorted(contributing_module_names),
-              ) + "\nSee https://github.com/bazel-contrib/rules_jvm_external/blob/master/docs/bzlmod.md#module-dependency-layering" +
-              " for more information. \n" +
-              " To suppress this warning review the contributions from the other modules and add the following attribute" +
-              " in the root MODULE.bazel file: \n" +
-              "maven.install(\n" +
-              ("  name = \"{0}\"\n".format(repo_name) if repo_name != DEFAULT_NAME else "") +
-              "  known_contributing_modules = {0},\n".format(sorted(contributing_module_names)) +
-              "  ...\n" +
-              ")")
-
 def _generate_compat_repos(name, existing_compat_repos, artifacts):
     seen = []
 
@@ -217,68 +204,6 @@ def _generate_compat_repos(name, existing_compat_repos, artifacts):
         )
 
     return seen
-
-def _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, return_only_artifacts = False):
-    coordinate_to_artifact = {}
-    for bazel_dep_name in bazel_dep_to_non_root_artifacts:
-        for artifact in bazel_dep_to_non_root_artifacts.get(bazel_dep_name, []):
-            if not getattr(artifact, "testonly", False):
-                artifact_key = to_key(artifact)
-
-                # prioritize highest version
-                if artifact_key in coordinate_to_artifact:
-                    _bazel_dep_name, current_artifact = coordinate_to_artifact[artifact_key]
-                    if compare_maven_versions(current_artifact.version, artifact.version) == -1:
-                        coordinate_to_artifact[artifact_key] = (bazel_dep_name, artifact)
-                else:
-                    coordinate_to_artifact[artifact_key] = (bazel_dep_name, artifact)
-
-    if return_only_artifacts:
-        return [v[1] for v in coordinate_to_artifact.values()]
-    else:
-        return coordinate_to_artifact
-
-# Each bzlmod module may contribute jars to different rules_jvm_external maven repo namespaces.
-# We emit a warning to the user if a module overrides an artifact version in the root maven repo.
-#
-# This can be typical for the default @maven namespace, if a bzlmod dependency
-# wishes to contribute to the users' jars.
-def _deduplicate_artifacts_with_root_priority(name, root_artifacts, bazel_dep_to_non_root_artifacts, repin_env_var, rje_verbose_env_var):
-    """Deduplicate artifacts, giving priority to root module artifacts with force_version set."""
-    non_root_coordinate_to_artifact = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts)
-
-    duplicate_artifact_warning = ""
-    filtered_non_root_artifacts = []
-    for root_artifact in root_artifacts:
-        artifact_key = to_key(root_artifact)
-        if artifact_key in non_root_coordinate_to_artifact:
-            bazel_dep_name, non_root_artifact = non_root_coordinate_to_artifact.pop(artifact_key)
-            if not getattr(root_artifact, "force_version", False):
-                # prioritize highest version
-                if compare_maven_versions(root_artifact.version, non_root_artifact.version) == -1:
-                    filtered_non_root_artifacts.append(non_root_artifact)
-                    duplicate_artifact_warning = duplicate_artifact_warning + (
-                        "\nWARNING: For dependency '%s:%s' the root @%s repo wants version %s, " % (root_artifact.group, root_artifact.artifact, name, root_artifact.version) +
-                        "but got %s from the %s bazel dep. " % (non_root_artifact.version, bazel_dep_name) +
-                        "Please update the version in your MODULE.bazel or set `force_version = True`."
-                    )
-
-    # Add any remaining non root artifacts that weren't found in the root artifact list
-    addtional_artifact_message = ""
-    for bazel_dep_name, non_root_artifact in non_root_coordinate_to_artifact.values():
-        addtional_artifact_message = addtional_artifact_message + (
-            "\nINFO: The @%s repo is getting the additional artifact %s:%s:%s from the %s bazel dep." % (name, non_root_artifact.group, non_root_artifact.artifact, non_root_artifact.version, bazel_dep_name)
-        )
-        filtered_non_root_artifacts.append(non_root_artifact)
-
-    if repin_env_var:
-        if duplicate_artifact_warning != "":
-            print(duplicate_artifact_warning)
-        if rje_verbose_env_var:
-            if addtional_artifact_message != "":
-                print(addtional_artifact_message)
-
-    return root_artifacts + filtered_non_root_artifacts
 
 def _get_tri_state_bool(amend_val, original_val):
     if amend_val in ["true", "on"]:
@@ -341,6 +266,18 @@ def apply_amendment(amend, artifacts, boms):
                 amended = True
     return amended
 
+def _parse_gradle_version(version):
+    if type(version) == "string":
+        return version, False
+    if type(version) == "dict":
+        for key in ("reject", "rejectAll", "rejects"):
+            if key in version:
+                fail("Unsupported Gradle version rejection '%s' in %s" % (key, version))
+        for key in ("strictly", "require", "prefer"):
+            if key in version:
+                return version[key], key == "strictly"
+    fail("Unsupported Gradle version constraint:", version)
+
 def process_gradle_versions_file(parsed, bom_modules):
     artifacts = []
     boms = []
@@ -348,6 +285,7 @@ def process_gradle_versions_file(parsed, bom_modules):
     for alias, value in parsed.get("libraries", {}).items():
         # Handle different dependency declaration formats
         coords = None
+        force_version = False
 
         # Case 1: Simple string notation: "group:artifact:version"
         if type(value) == "string":
@@ -366,23 +304,17 @@ def process_gradle_versions_file(parsed, bom_modules):
                 fail("Library '%s' must have either 'module' or both 'group' and 'name' keys" % alias)
 
             # Handle version (applies to both module and group+name formats)
-            if "version.ref" in value.keys():
-                version = parsed.get("versions", {}).get(value["version.ref"])
-                if not version:
-                    fail("Unable to resolve version.ref %s" % value["version.ref"])
+            if "version.ref" in value or "version" in value:
+                raw_version = value.get("version", "")
+                version_ref = value.get("version.ref")
+                if type(raw_version) == "dict":
+                    version_ref = raw_version.get("ref", version_ref)
+                if version_ref:
+                    raw_version = parsed.get("versions", {}).get(version_ref)
+                    if not raw_version:
+                        fail("Unable to resolve version.ref %s" % version_ref)
+                version, force_version = _parse_gradle_version(raw_version)
                 coords += ":%s" % version
-            elif "version" in value.keys():
-                raw_version = value["version"]
-                if type(raw_version) == "string":
-                    coords += ":%s" % value["version"]
-                elif type(raw_version) == "dict":
-                    version_ref = raw_version.get("ref", None)
-                    if not version_ref:
-                        fail("Unable to find version ref in", value)
-                    version = parsed.get("versions", {}).get(version_ref)
-                    if not version:
-                        fail("Unable to resolve version ref", value)
-                    coords += ":%s" % version
 
             # Handle packaging (e.g., "aar" for Android libraries)
             # Note: Gradle uses "package" but we'll check common variants
@@ -398,11 +330,13 @@ def process_gradle_versions_file(parsed, bom_modules):
 
         is_bom = type(value) == "dict" and value.get("is_bom", "false").lower() == "true"
 
-        if is_bom or module_id in bom_modules:
-            boms.append(unpack_coordinates(coords))
-        else:
-            artifact = unpack_coordinates(coords)
+        artifact = unpack_coordinates(coords)
+        if force_version:
+            artifact = struct(**(remove_empty_fields(artifact) | {"force_version": True}))
 
+        if is_bom or module_id in bom_modules:
+            boms.append(artifact)
+        else:
             if type(value) == "dict":
                 artifact_dict = {
                     "group": artifact.group,
@@ -415,8 +349,8 @@ def process_gradle_versions_file(parsed, bom_modules):
                     artifact_dict["classifier"] = value["classifier"]
                 if "exclusions" in value.keys():
                     artifact_dict["exclusions"] = _add_exclusions(json.decode(value["exclusions"].replace("'", '"')))
-                if "force_version" in value.keys():
-                    artifact_dict["force_version"] = (value["force_version"].lower() == "true")
+                if force_version or "force_version" in value:
+                    artifact_dict["force_version"] = force_version or value["force_version"].lower() == "true"
                 artifact = struct(**artifact_dict)
 
             artifacts.append(artifact)
@@ -455,7 +389,7 @@ def _process_module_tags(mctx):
         for from_toml_tag in mod.tags.from_toml:
             repo = target_repos.get(from_toml_tag.name, {})
 
-            content = mctx.read(mctx.path(from_toml_tag.libs_versions_toml))
+            content = mctx.read(from_toml_tag.libs_versions_toml)
             parsed = toml.decode(content)
 
             (new_artifacts, new_boms) = process_gradle_versions_file(parsed, from_toml_tag.bom_modules)
@@ -592,62 +526,10 @@ def concat_coursier_options(root_list, non_root_list):
     """
     return root_list + non_root_list
 
-def remove_fields(s):
-    """Used for reducing an artifact struct down to only those fields that have values"""
-    return {
-        k: getattr(s, k)
-        for k in dir(s)
-        if k != "to_json" and k != "to_proto" and getattr(s, k, None)
-    } | {"version": getattr(s, "version", "")}
-
-def _defines_gradle_module_version(candidate, current):
-    """Whether candidate should force the Gradle module version instead of current."""
-    candidate_classified = bool(getattr(candidate, "classifier", None))
-    current_classified = bool(getattr(current, "classifier", None))
-    if candidate_classified != current_classified:
-        # An unclassified root defines the module version.
-        return current_classified
-    return compare_maven_versions(candidate.version, current.version) == 1
-
-def _select_gradle_forced_versions(artifacts):
-    """Selects the single version to force for each Gradle group:artifact module.
-
-    Gradle resolves one version per module regardless of classifier, so forcing
-    two versions of the same module (for example a main jar and its
-    test-fixtures jar) makes resolution unsatisfiable.
-    """
-    winners = {}
-    for artifact in artifacts:
-        if not getattr(artifact, "version", None):
-            continue
-        key = "%s:%s" % (artifact.group, artifact.artifact)
-        current = winners.get(key)
-        if current == None or _defines_gradle_module_version(artifact, current):
-            winners[key] = artifact
-    return {key: winner.version for key, winner in winners.items()}
-
-def _forces_gradle_module_version(artifact, forced_versions):
-    version = getattr(artifact, "version", None)
-    if not version:
-        return False
-    return version == forced_versions.get("%s:%s" % (artifact.group, artifact.artifact))
-
-def apply_root_version_conflict_policy(artifacts, resolver, version_conflict_policy):
-    """Applies the install-level conflict policy to root module artifacts."""
-    if resolver not in ["gradle", "maven"] or version_conflict_policy != "pinned":
-        return artifacts
-
-    if resolver == "gradle":
-        forced_versions = _select_gradle_forced_versions(artifacts)
-        return [
-            struct(**(remove_fields(artifact) | {"force_version": True})) if _forces_gradle_module_version(artifact, forced_versions) else artifact
-            for artifact in artifacts
-        ]
-
-    return [
-        struct(**(remove_fields(artifact) | {"force_version": True})) if getattr(artifact, "version", None) else artifact
-        for artifact in artifacts
-    ]
+def _print_layering_diagnostics(diagnostics, repin_env_var, rje_verbose_env_var):
+    for diagnostic in diagnostics:
+        if should_print_diagnostic(diagnostic, repin_env_var, rje_verbose_env_var):
+            print(diagnostic.text)
 
 def maven_impl(mctx):
     repos = {}
@@ -703,62 +585,21 @@ def maven_impl(mctx):
         merged_repo.update(non_root_repo)
         merged_repo.update(root_repo)
 
-        # Special handling for artifacts and boms - deduplicate with root priority
-        root_artifacts = apply_root_version_conflict_policy(
-            root_repo.get("artifacts", []),
-            root_repo.get("resolver", _DEFAULT_RESOLVER),
-            root_repo.get("version_conflict_policy", "default"),
+        layered_artifacts_and_boms = layer_maven_namespace(
+            name = repo_name,
+            root_present = repo_name in root_module_repos,
+            root_artifacts = root_repo.get("artifacts", []),
+            root_boms = root_repo.get("boms", []),
+            resolver = root_repo.get("resolver", _DEFAULT_RESOLVER),
+            version_conflict_policy = root_repo.get("version_conflict_policy", "default"),
+            duplicate_version_warning = root_repo.get("duplicate_version_warning") or "warn",
+            known_contributing_modules = root_repo.get("known_contributing_modules", sets.make()),
+            bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {}),
+            bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", {}),
         )
-        bazel_dep_to_non_root_artifacts = non_root_repo.get("bazel_dep_to_artifacts", {})
-        root_boms = root_repo.get("boms", [])
-        bazel_dep_to_non_root_boms = non_root_repo.get("bazel_dep_to_boms", {})
-
-        if repo_name in root_module_repos.keys():
-            known_contributing_modules = root_repo.get("known_contributing_modules", sets.make())
-            if sets.length(known_contributing_modules) == 0:
-                # Warn users if multiple modules contribute to the same maven `name`
-                _warn_if_multiple_contributing_modules(root_repo, repo_name, bazel_dep_to_non_root_artifacts)
-            else:
-                # Filter results so only modules in the known_contributing_modules add artifacts or boms
-                all_non_root_artifact_modules = bazel_dep_to_non_root_artifacts.keys()
-                bazel_dep_to_non_root_artifacts = {
-                    k: bazel_dep_to_non_root_artifacts[k]
-                    for k in sets.to_list(known_contributing_modules)
-                    if k in bazel_dep_to_non_root_artifacts
-                }
-                if rje_verbose_env_var:
-                    for k in all_non_root_artifact_modules:
-                        if k not in bazel_dep_to_non_root_artifacts.keys():
-                            print("\nINFO: The @%s repo is not using deps from %s because it is not in the known_contributing_modules" % (repo_name, k))
-                all_non_root_bom_modules = bazel_dep_to_non_root_boms.keys()
-                bazel_dep_to_non_root_boms = {
-                    k: bazel_dep_to_non_root_boms[k]
-                    for k in sets.to_list(known_contributing_modules)
-                    if k in bazel_dep_to_non_root_boms
-                }
-                if rje_verbose_env_var:
-                    for k in all_non_root_bom_modules:
-                        if k not in bazel_dep_to_non_root_boms.keys():
-                            print("\nINFO: The @%s repo is not using boms from %s because it is not in the known_contributing_modules" % (repo_name, k))
-
-            merged_repo["artifacts"] = _deduplicate_artifacts_with_root_priority(
-                repo_name,
-                root_artifacts,
-                bazel_dep_to_non_root_artifacts,
-                repin_env_var,
-                rje_verbose_env_var,
-            )
-
-            merged_repo["boms"] = _deduplicate_artifacts_with_root_priority(
-                repo_name,
-                root_boms,
-                bazel_dep_to_non_root_boms,
-                repin_env_var,
-                rje_verbose_env_var,
-            )
-        else:
-            merged_repo["artifacts"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_artifacts, True)
-            merged_repo["boms"] = _deduplicate_non_root_artifacts(bazel_dep_to_non_root_boms, True)
+        merged_repo["artifacts"] = layered_artifacts_and_boms.artifacts
+        merged_repo["boms"] = layered_artifacts_and_boms.boms
+        _print_layering_diagnostics(layered_artifacts_and_boms.diagnostics, repin_env_var, rje_verbose_env_var)
 
         # For list attributes, concatenate but avoid duplicates (root items first)
         for list_attr in ["repositories", "excluded_artifacts", "additional_netrc_lines"]:
@@ -826,8 +667,8 @@ def maven_impl(mctx):
         # individually could fail the build on values that are never used.
         validate_variants(repo.get("resolver", _DEFAULT_RESOLVER), repo.get("variants", {}), name)
 
-        boms_json = [json.encode(remove_fields(b)) for b in repo.get("boms", [])]
-        artifacts_json = [json.encode(remove_fields(a)) for a in repo.get("artifacts", [])]
+        boms_json = [json.encode(remove_empty_fields(b)) for b in repo.get("boms", [])]
+        artifacts_json = [json.encode(remove_empty_fields(a)) for a in repo.get("artifacts", [])]
 
         excluded_artifacts = parse.parse_exclusion_spec_list(repo.get("excluded_artifacts", []))
         excluded_artifacts_json = [_json.write_exclusion_spec(a) for a in excluded_artifacts]
@@ -887,7 +728,7 @@ def maven_impl(mctx):
             compat_repos.extend(seen)
 
         if repo.get("lock_file"):
-            lock_file_content = mctx.read(mctx.path(repo.get("lock_file")))
+            lock_file_content = mctx.read(repo.get("lock_file"))
 
             if not len(lock_file_content) or contains_git_conflict_markers(repo["lock_file"], lock_file_content):
                 lock_file = {

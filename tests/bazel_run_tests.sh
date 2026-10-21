@@ -32,6 +32,17 @@ function test_duplicate_version_warning() {
   expect_log "Successfully pinned resolved artifacts"
 }
 
+function test_duplicate_version_error() {
+  if bazel run @duplicate_version_error//:pin >> "$TEST_LOG" 2>&1; then
+    printf "Expected duplicate artifact versions to fail the build\n" >> "$TEST_LOG"
+    return 1
+  fi
+
+  expect_log "Found duplicate artifact versions"
+  expect_log "com.fasterxml.jackson.core:jackson-annotations has multiple versions"
+  expect_not_log "Successfully pinned resolved artifacts"
+}
+
 function test_duplicate_version_warning_same_version() {
   bazel run @duplicate_version_warning_same_version//:pin >> "$TEST_LOG" 2>&1
   rm -f *duplicate_version_warning_same_version_install.json
@@ -285,6 +296,34 @@ function test_bom_only_pinning() {
   expect_file_is_not_empty "tests/custom_maven_install/bom_only_pinning_install.json"
 }
 
+function test_maven_resolver_missing_source_jar() {
+  # https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+  # Guava depends on the empty listenablefuture jar, which has no sources jar.
+  # Resolving with the Maven resolver and fetch_sources = True must not fail on
+  # the missing sources jar (this `bazel run` crashed before the fix).
+  REPIN=1 bazel run @maven_missing_source_jar//:pin >> "$TEST_LOG" 2>&1
+  expect_file_is_not_empty "tests/custom_maven_install/maven_missing_source_jar_install.json"
+
+  bazel query '@maven_missing_source_jar//:*' >> "$TEST_LOG" 2>&1
+  # Sources were fetched for artifacts that publish them...
+  expect_log "guava.*-sources.jar"
+  # ...but the source-less listenablefuture jar has no sources target.
+  expect_not_log "listenablefuture.*sources"
+}
+
+function test_gradle_resolver_missing_source_jar() {
+  # https://github.com/bazel-contrib/rules_jvm_external/issues/1477
+  # As test_maven_resolver_missing_source_jar, but via the Gradle resolver.
+  REPIN=1 bazel run @gradle_missing_source_jar//:pin >> "$TEST_LOG" 2>&1
+  expect_file_is_not_empty "tests/custom_maven_install/gradle_missing_source_jar_install.json"
+
+  bazel query '@gradle_missing_source_jar//:*' >> "$TEST_LOG" 2>&1
+  # Sources were fetched for artifacts that publish them...
+  expect_log "guava.*-sources.jar"
+  # ...but the source-less listenablefuture jar has no sources target.
+  expect_not_log "listenablefuture.*sources"
+}
+
 function test_coursier_resolution_with_boms() {
     # Only run for Bazel 7 or above
     RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
@@ -422,6 +461,7 @@ TESTS=(
   "test_coursier_resolution_with_boms"
   "test_maven_resolution"
   "test_dependency_aggregation"
+  "test_duplicate_version_error"
   "test_duplicate_version_warning"
   "test_duplicate_version_warning_same_version"
   "test_outdated"
@@ -440,6 +480,8 @@ TESTS=(
   "test_v1_lock_file_format"
   "test_dependency_pom_exclusion"
   "test_transitive_dependency_with_type_of_pom"
+  "test_maven_resolver_missing_source_jar"
+  "test_gradle_resolver_missing_source_jar"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
   "test_publish_java_binary_jar_with_maven_export"

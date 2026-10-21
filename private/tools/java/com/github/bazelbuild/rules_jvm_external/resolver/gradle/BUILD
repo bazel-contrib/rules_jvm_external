@@ -20,12 +20,12 @@ java_library(
         "//tests/com/github/bazelbuild/rules_jvm_external:__subpackages__",
     ],
     deps = [
-        "//resolver:resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/events",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/gradle/models",
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/netrc",
+        "//resolver",
         artifact(
             "org.gradle:gradle-tooling-api",
             repository_name = "rules_jvm_external_deps",

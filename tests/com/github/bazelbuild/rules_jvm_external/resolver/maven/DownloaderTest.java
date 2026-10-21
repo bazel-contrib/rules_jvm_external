@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.maven;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
@@ -22,6 +23,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.UriNotFoundException;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +33,21 @@ import java.util.Set;
 import org.junit.Test;
 
 public class DownloaderTest {
+  @Test(expected = UriNotFoundException.class)
+  public void missingTgzDoesNotFallBackToJar() throws IOException {
+    Coordinates coords = new Coordinates("com.example:archive:tgz:1.0");
+    Path repo = MavenRepo.create().add(coords.setExtension("jar")).getPath();
+
+    new Downloader(
+            Netrc.fromUserHome(),
+            Files.createTempDirectory("local"),
+            Set.of(repo.toUri()),
+            new NullListener(),
+            false,
+            Map.of())
+        .download(coords);
+  }
+
   @Test
   public void downloaderHandleUndeclaredCharacterEntityInPOM() throws IOException {
     Coordinates coords = new Coordinates("com.example:characterentity:1.0");
@@ -99,5 +116,31 @@ public class DownloaderTest {
     assertNotNull(downloadResult);
     assertTrue(downloadResult.getPath().isPresent());
     assertTrue(Files.exists(destination));
+  }
+
+  @Test
+  public void missingSourceJarReturnsNullRatherThanThrowing() throws IOException {
+    // Some artifacts (for example, the empty
+    // com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava jar pulled in by
+    // Guava) publish a main jar but no sources jar. Requesting the missing sources jar should
+    // signal absence by returning null, not fail the whole resolution.
+    Coordinates coords = new Coordinates("com.example:no-sources:1.0");
+
+    Path repo = MavenRepo.create().add(coords).getPath();
+    Path localRepo = Files.createTempDirectory("local");
+
+    Coordinates sourceCoords = coords.setClassifier("sources").setExtension("jar");
+
+    DownloadResult downloadResult =
+        new Downloader(
+                Netrc.fromUserHome(),
+                localRepo,
+                Set.of(repo.toUri()),
+                new NullListener(),
+                false,
+                Map.of())
+            .download(sourceCoords);
+
+    assertNull(downloadResult);
   }
 }

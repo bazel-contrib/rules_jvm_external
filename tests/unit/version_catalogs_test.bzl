@@ -1,4 +1,5 @@
-load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
+load("@bazel_skylib//lib:partial.bzl", "partial")
+load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts", "unittest")
 load("@toml.bzl", "toml")
 load("//private/extensions:maven.bzl", "process_gradle_versions_file")
 
@@ -335,7 +336,118 @@ not-a-bom = { module = "org.example:example-lib", version = "1.0.0", is_bom = "f
 
 is_bom_field_test = unittest.make(_is_bom_field_impl)
 
+def _rich_versions_select_version_and_force_only_strictly_impl(ctx):
+    env = unittest.begin(ctx)
+
+    for constraint, expected_version, expected_force in [
+        ('strictly = "6.1.2"', "6.1.2", True),
+        ('require = "6.1.2"', "6.1.2", False),
+        ('prefer = "6.1.2"', "6.1.2", False),
+        ('strictly = "6.1.2", require = "6.2.6", prefer = "6.0.0"', "6.1.2", True),
+        ('require = "6.2.6", prefer = "6.0.0"', "6.2.6", False),
+    ]:
+        for declaration in [
+            'module = "io.kotest:kotest-extensions-mockserver-jvm", version = { %s }' % constraint,
+            'group = "io.kotest", name = "kotest-extensions-mockserver-jvm", version.ref = "kotest"',
+        ]:
+            parsed = toml.decode("""\
+[versions]
+kotest = { %s }
+[libraries]
+kotest-extension = { %s }
+""" % (constraint, declaration))
+            artifacts, boms = process_gradle_versions_file(parsed, [])
+
+            asserts.equals(env, [], boms)
+            asserts.equals(env, 1, len(artifacts))
+            asserts.equals(env, "io.kotest", artifacts[0].group)
+            asserts.equals(env, "kotest-extensions-mockserver-jvm", artifacts[0].artifact)
+            asserts.equals(env, expected_version, artifacts[0].version)
+            asserts.equals(env, expected_force, getattr(artifacts[0], "force_version", False))
+
+    return unittest.end(env)
+
+rich_versions_select_version_and_force_only_strictly_test = unittest.make(_rich_versions_select_version_and_force_only_strictly_impl)
+
+def _strictly_preserves_artifact_metadata_impl(ctx):
+    env = unittest.begin(ctx)
+
+    parsed = toml.decode("""\
+[libraries]
+example = { module = "org.example:example", version.strictly = "1.0", force_version = "false", classifier = "tests", packaging = "aar", exclusions = "['org.example:excluded']" }
+""")
+    artifacts, _ = process_gradle_versions_file(parsed, [])
+
+    asserts.equals(env, "1.0", artifacts[0].version)
+    asserts.true(env, artifacts[0].force_version)
+    asserts.equals(env, "tests", artifacts[0].classifier)
+    asserts.equals(env, "aar", artifacts[0].packaging)
+    asserts.equals(env, [{"group": "org.example", "artifact": "excluded"}], artifacts[0].exclusions)
+
+    return unittest.end(env)
+
+strictly_preserves_artifact_metadata_test = unittest.make(_strictly_preserves_artifact_metadata_impl)
+
+def _strictly_forces_bom_versions_impl(ctx):
+    env = unittest.begin(ctx)
+
+    parsed = toml.decode("""\
+[versions]
+example = { strictly = "1.0" }
+[libraries]
+example-bom = { module = "org.example:example-bom", version.ref = "example", is_bom = "true" }
+another-bom = { module = "org.example:another-bom", version = { strictly = "2.0" } }
+""")
+    artifacts, boms = process_gradle_versions_file(parsed, ["org.example:another-bom"])
+
+    asserts.equals(env, [], artifacts)
+    asserts.equals(env, ["1.0", "2.0"], [bom.version for bom in boms])
+    asserts.equals(env, [True, True], [getattr(bom, "force_version", False) for bom in boms])
+
+    return unittest.end(env)
+
+strictly_forces_bom_versions_test = unittest.make(_strictly_forces_bom_versions_impl)
+
+def _version_rejection_target_impl(ctx):
+    process_gradle_versions_file(toml.decode(ctx.attr.catalog), [])
+    return []
+
+version_rejection_target = rule(
+    implementation = _version_rejection_target_impl,
+    attrs = {"catalog": attr.string(mandatory = True)},
+)
+
+def _version_rejections_fail_clearly_impl(ctx):
+    env = analysistest.begin(ctx)
+    asserts.expect_failure(env, "Unsupported Gradle version rejection")
+    return analysistest.end(env)
+
+version_rejections_fail_clearly_test = analysistest.make(
+    _version_rejections_fail_clearly_impl,
+    expect_failure = True,
+)
+
 def version_catalogs_test_suite():
+    rejection_tests = []
+    for key, value in [("reject", '["1.1"]'), ("rejectAll", "true"), ("rejects", '["1.1"]')]:
+        for referenced in [False, True]:
+            name = "version_%s_%s_target" % (key, "referenced" if referenced else "inline")
+            version_rejection_target(
+                name = name,
+                catalog = """\
+[versions]
+example = { strictly = "1.0", %s = %s }
+[libraries]
+example = { module = "org.example:example", %s }
+""" % (key, value, 'version.ref = "example"' if referenced else 'version = { strictly = "1.0", %s = %s }' % (key, value)),
+                tags = ["manual"],
+            )
+            rejection_tests.append(partial.make(
+                version_rejections_fail_clearly_test,
+                target_under_test = ":" + name,
+                size = "small",
+            ))
+
     unittest.suite(
         "version_catalogs_tests",
         simple_string_notation_test,
@@ -351,4 +463,8 @@ def version_catalogs_test_suite():
         multiple_libraries_test,
         extra_fields_test,
         is_bom_field_test,
+        partial.make(rich_versions_select_version_and_force_only_strictly_test, size = "small"),
+        partial.make(strictly_preserves_artifact_metadata_test, size = "small"),
+        partial.make(strictly_forces_bom_versions_test, size = "small"),
+        *rejection_tests
     )
