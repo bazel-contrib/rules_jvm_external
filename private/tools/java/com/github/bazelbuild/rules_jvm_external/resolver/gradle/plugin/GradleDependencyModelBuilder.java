@@ -84,6 +84,8 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // We only resolve dependencies and fetch artifacts for this configuration
     // similar to how we do in the Maven resolver
     Configuration cfg = project.getConfigurations().getByName("runtimeClasspath");
+    Map<String, String> variants = GradleDependencyModelPlugin.getVariantAttributes(project);
+    GradleDependencyModelPlugin.configureVariantAttributes(project, cfg, variants);
 
     List<GradleDependency> declaredDeps = collectDeclaredDependencies(cfg);
     // This stores the mapping between coordinates to the GradleResolvedDependency interface
@@ -92,14 +94,20 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // be used to attach the actual artifacts later
     ConcurrentHashMap<String, GradleResolvedDependency> variantGradleResolvedDependencyMap =
         new ConcurrentHashMap<>();
+    // Explicit variants use a detached configuration so Java plugin defaults, such as JAR
+    // library elements, cannot prevent selection of other artefact types.
+    boolean customVariants = !variants.isEmpty();
+
     // We get the root nodes in the dependency graph (or rather forest here since there can be
     // disjoint trees)
     List<GradleResolvedDependency> resolvedRoots =
-        collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
+        customVariants
+            ? List.of()
+            : collectResolvedDependencies(cfg, variantGradleResolvedDependencyMap);
 
     // Collect any unresolved dependencies from the runtimeClasspath configuration
     List<GradleUnresolvedDependency> unresolvedDependenciesRuntimeClasspath =
-        getUnresolvedDependencies(cfg);
+        customVariants ? List.of() : getUnresolvedDependencies(cfg);
 
     List<Dependency> unresolvedDependencies =
         unresolvedDependenciesRuntimeClasspath.stream()
@@ -121,6 +129,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
     Configuration detachedCfg =
         project.getConfigurations().detachedConfiguration(detachedDeps.toArray(new Dependency[0]));
+    GradleDependencyModelPlugin.configureVariantAttributes(project, detachedCfg, variants);
     // Detached configurations are not covered by `configurations.all`, so the forced module
     // versions from the generated build script do not apply to them automatically. Without
     // them, pinned modules can resolve at a different version during the retry.
@@ -143,14 +152,9 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       }
     }
 
-    // build the updated dependency graph with the detached configuration for all the
-    // dependencies that we couldn't resolve with the default configuration. When everything
-    // resolved, skip the retry: the detached configuration resolves without the main
-    // configuration's attributes, so it can fail or pick different versions, and merging
-    // those results would corrupt an already-complete graph.
-    boolean retryUnresolved = !unresolvedDependenciesRuntimeClasspath.isEmpty();
+    boolean resolveDetached = customVariants || !unresolvedDependenciesRuntimeClasspath.isEmpty();
     List<GradleResolvedDependency> resolvedDetachedRoots =
-        retryUnresolved
+        resolveDetached
             ? resolveDetachedGraph(detachedCfg, variantGradleResolvedDependencyMap)
             : List.of();
 
@@ -165,7 +169,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     gradleDependencyModel.getResolvedDependencies().addAll(roots);
 
     // if anything is still unresolved, then add it for reporting
-    if (retryUnresolved) {
+    if (resolveDetached) {
       gradleDependencyModel
           .getUnresolvedDependencies()
           .addAll(getUnresolvedDependencies(detachedCfg));

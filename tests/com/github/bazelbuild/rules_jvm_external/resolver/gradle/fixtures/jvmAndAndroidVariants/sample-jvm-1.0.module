@@ -12,6 +12,7 @@
       "attributes": {
         "org.gradle.category": "library",
         "org.gradle.usage": "java-api",
+        "org.gradle.jvm.environment": "standard-jvm",
         "org.gradle.libraryelements": "jar",
         "org.jetbrains.kotlin.platform.type": "jvm"
       },
@@ -24,6 +25,7 @@
       "attributes": {
         "org.gradle.category": "library",
         "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "standard-jvm",
         "org.gradle.libraryelements": "jar",
         "org.gradle.dependency.bundling": "external",
         "org.gradle.jvm.version": 11,

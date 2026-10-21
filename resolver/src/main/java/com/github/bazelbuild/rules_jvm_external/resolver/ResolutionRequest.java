@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ public class ResolutionRequest {
   private boolean useUnsafeSharedCache;
   private Path userHome;
   private boolean isUsingM2Local;
+  private Map<String, String> variants = Map.of();
 
   public ResolutionRequest addRepository(String uri) {
     if ("m2local".equals(uri) || "m2Local".equals(uri)) {
@@ -123,6 +125,11 @@ public class ResolutionRequest {
     return this;
   }
 
+  public ResolutionRequest variants(Map<String, String> variants) {
+    this.variants = Map.copyOf(variants);
+    return this;
+  }
+
   public ResolutionRequest replaceDependencies(Collection<Artifact> amended) {
     ResolutionRequest toReturn = new ResolutionRequest();
 
@@ -133,6 +140,7 @@ public class ResolutionRequest {
     toReturn.useUnsafeSharedCache = isUseUnsafeSharedCache();
     toReturn.userHome = userHome;
     toReturn.isUsingM2Local = isUsingM2Local();
+    toReturn.variants = variants;
 
     return toReturn;
   }
@@ -159,6 +167,10 @@ public class ResolutionRequest {
 
   public boolean isUsingM2Local() {
     return isUsingM2Local;
+  }
+
+  public Map<String, String> getVariants() {
+    return variants;
   }
 
   public Path getUserHome() {

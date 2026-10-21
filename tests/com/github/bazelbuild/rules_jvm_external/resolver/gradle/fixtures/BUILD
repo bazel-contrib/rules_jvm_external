@@ -6,6 +6,7 @@ filegroup(
         "jvmAndAndroidVariants/sample-1.0.module",
         "jvmAndAndroidVariants/sample-android-1.0.module",
         "jvmAndAndroidVariants/sample-jvm-1.0.module",
+        "jvmAndAndroidVariants/jvm-only-1.0.module",
         "simpleJvmVariant/sample-1.0.module",
         "simpleJvmVariant/sample-jvm-1.0.module",
         "strictTransitiveConstraint/app-1.0.module",

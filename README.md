@@ -1050,6 +1050,63 @@ attribute of `maven_install` to `gradle`. This resolver requires the
 use of a lock file. For bootstrapping purposes, this file may simply
 be an empty file.
 
+#### Selecting variants
+
+Set `variants` on `maven.install` in `MODULE.bazel` to select dependencies using
+Gradle Module Metadata attributes. This is a dictionary of attribute names to
+string values. Non-empty `variants` requires
+`resolver = "gradle"`; using it with another resolver fails the build. A non-empty
+dictionary supplies the requested attribute set, so include the category and usage
+needed by your dependencies.
+
+The default, `variants = {}`, preserves standard JVM resolution and keeps existing
+lock files valid. For an explicit Java 17 JVM runtime selection, use:
+
+```starlark
+variants = {
+    "org.gradle.category": "library",
+    "org.gradle.usage": "java-runtime",
+    "org.gradle.jvm.environment": "standard-jvm",
+    "org.gradle.jvm.version": "17",
+    "org.gradle.libraryelements": "jar",
+    "org.gradle.dependency.bundling": "external",
+    "org.jetbrains.kotlin.platform.type": "jvm",
+}
+```
+
+Set `org.gradle.jvm.version` to your target Java version.
+
+For Android, use the following configuration:
+
+```starlark
+maven.install(
+    artifacts = ["androidx.activity:activity:1.13.0"],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+    resolver = "gradle",
+    variants = {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
+        "org.jetbrains.kotlin.platform.type": "androidJvm",
+    },
+)
+```
+
+Android consumers prefer Android variants and can also use JVM-only dependencies.
+Leave `org.gradle.libraryelements` unset for Android so both AARs and JARs can be
+selected. The [`android_kotlin_app` example](examples/android_kotlin_app) uses this
+configuration.
+
+Custom attribute names are supported too. Gradle's built-in typed attributes are
+converted from strings, for example `"org.gradle.jvm.version": "17"`. Changing
+`variants` requires repinning; dictionary entry order does not affect the lockfile
+signature. See also [Coursier's Gradle Modules documentation](https://github.com/coursier/coursier/blob/main/docs/pages/features-gradle-modules.md)
+for the attribute-based approach; this option currently supports only Gradle.
+
 | Environment variable | Meaning                                                                                                          |
 |----------------------|------------------------------------------------------------------------------------------------------------------|
 | `RJE_ASSUME_PRESENT` | Prevents the resolver from checking remote repositories to see if a dependency is present, and just assumes it is |

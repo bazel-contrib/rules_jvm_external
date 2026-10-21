@@ -16,6 +16,7 @@ package com.github.bazelbuild.rules_jvm_external.resolver.cmd;
 
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.google.common.collect.ImmutableSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ExternalResolverConfig {
@@ -29,6 +30,7 @@ public class ExternalResolverConfig {
   private boolean fetchSources;
   private boolean fetchJavadoc;
   private boolean useUnsafeSharedCache;
+  private Map<String, String> variants;
 
   public Set<String> getRepositories() {
     return repositories == null ? ImmutableSet.of() : ImmutableSet.copyOf(repositories);
@@ -64,5 +66,9 @@ public class ExternalResolverConfig {
 
   public String getResolver() {
     return resolver;
+  }
+
+  public Map<String, String> getVariants() {
+    return variants == null ? Map.of() : Map.copyOf(variants);
   }
 }
