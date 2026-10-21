@@ -41,6 +41,7 @@ _BUILD = """
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@package_metadata//rules:package_metadata.bzl", "package_metadata")
+{checksum_load}
 load("@rules_license//rules:package_info.bzl", "package_info")
 load("@compatibility_proxy//:proxy.bzl", "java_binary", "java_library", "java_plugin")
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
@@ -838,6 +839,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             repository_name = repository_ctx.name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            checksum_load = 'load("@package_metadata//attributes:checksum.bzl", "checksum")' if repository_ctx.attr.render_checksums else "",
             unpinned_pin_target = unpinned_pin_target,
         ) + pin_target,
         executable = False,
@@ -1575,6 +1577,7 @@ def _coursier_fetch_impl(repository_ctx):
             repository_name = repository_name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            checksum_load = "",
         ),
         executable = False,
     )
@@ -1667,6 +1670,7 @@ pinned_coursier_fetch = repository_rule(
         "fetch_sources": attr.bool(default = False),
         "fetch_javadoc": attr.bool(default = False),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
+        "render_checksums": attr.bool(default = False),  # emit a `checksum` package_metadata attribute (SHA-256 from the lockfile) per artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "dependency_index": attr.label(allow_single_file = True),
         "override_targets": attr.string_dict(default = {}),

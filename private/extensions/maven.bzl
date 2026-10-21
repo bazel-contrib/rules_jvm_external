@@ -59,6 +59,9 @@ install = tag_class(
         "fetch_javadoc": attr.bool(default = False),
         "fetch_sources": attr.bool(default = False),
 
+        # SBOM metadata
+        "render_checksums": attr.bool(default = False, doc = "Emit a `checksum` package_metadata attribute (SHA-256 from the lockfile) per artifact, for SBOM generation. Off by default to avoid extra targets for consumers that do not build SBOMs."),
+
         # How do we do artifact resolution?
         "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "gradle", "maven"], default = _DEFAULT_RESOLVER),
 
@@ -433,6 +436,7 @@ def _process_module_tags(mctx):
             repo["excluded_artifacts"] = repo.get("excluded_artifacts", []) + install.excluded_artifacts
 
             _logical_or(repo, "fetch_sources", False, install.fetch_sources)
+            _logical_or(repo, "render_checksums", False, install.render_checksums)
             _logical_or(repo, "generate_compat_repositories", False, install.generate_compat_repositories)
             _logical_or(repo, "use_starlark_android_rules", False, install.use_starlark_android_rules)
             _logical_or(repo, "ignore_empty_files", False, install.ignore_empty_files)
@@ -766,6 +770,7 @@ def maven_impl(mctx):
                 additional_netrc_lines = repo.get("additional_netrc_lines"),
                 use_credentials_from_home_netrc_file = repo.get("use_credentials_from_home_netrc_file"),
                 fail_if_repin_required = repo.get("fail_if_repin_required"),
+                render_checksums = repo.get("render_checksums"),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
