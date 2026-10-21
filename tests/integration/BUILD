@@ -225,18 +225,23 @@ java_library(
 
 genquery(
     name = "import-from-file-query",
-    expression = "@from_files//:org_junit_jupiter_junit_jupiter_api",
+    expression = "@from_files//:org_junit_jupiter_junit_jupiter_api + @from_files//:org_apiguardian_apiguardian_api",
     opts = [
         "--output=build",
     ],
-    scope = ["@from_files//:org_junit_jupiter_junit_jupiter_api"],
+    scope = [
+        "@from_files//:org_junit_jupiter_junit_jupiter_api",
+        "@from_files//:org_apiguardian_apiguardian_api",
+    ],
 )
 
+# `testonly` is applied by the amend_artifact tag; the apiguardian coordinates
+# prove the rich `strictly` constraint forced 1.1.0 over the transitive 1.1.2
 genrule(
     name = "import-from-file-extract",
     srcs = [":import-from-file-query"],
     outs = ["import-from-file-extract.txt"],
-    cmd = "cat $< | grep testonly >$@",
+    cmd = "cat $< | grep -e testonly -e 'maven_coordinates = \"org.apiguardian' | sort >$@",
 )
 
 diff_test(
