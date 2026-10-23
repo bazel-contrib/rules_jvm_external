@@ -20,6 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.bazelbuild.rules_jvm_external.Coordinates;
 import com.github.bazelbuild.rules_jvm_external.resolver.Conflict;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyInfo;
+import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.DependencyIndex;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -57,6 +58,7 @@ public class LockFileConverter {
   public static void main(String[] args) {
     Path unsortedJson = null;
     Path output = null;
+    Path dependencyIndexOutput = null;
 
     // Insertion order matters
     Set<URI> repositories = new LinkedHashSet<>();
@@ -71,6 +73,11 @@ public class LockFileConverter {
         case "--output":
           i++;
           output = Paths.get(args[i]);
+          break;
+
+        case "--dependency-index-output":
+          i++;
+          dependencyIndexOutput = Paths.get(args[i]);
           break;
 
         case "--repo":
@@ -102,17 +109,21 @@ public class LockFileConverter {
 
     Map<String, Object> rendered = new V3LockFile(repositories, infos, conflicts, true).render();
 
-    String converted =
-        new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(rendered);
+    Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+    String converted = gson.toJson(rendered);
 
-    if (output == null) {
-      System.out.println(converted);
-    } else {
-      try {
+    try {
+      if (output == null) {
+        System.out.println(converted);
+      } else {
         Files.write(output, converted.getBytes(UTF_8));
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
       }
+      if (dependencyIndexOutput != null) {
+        Files.writeString(
+            dependencyIndexOutput, gson.toJson(new DependencyIndex(infos).render()) + "\n", UTF_8);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -199,6 +210,10 @@ public class LockFileConverter {
         packages = new TreeSet<>(depPackages);
       }
 
+      @SuppressWarnings("unchecked")
+      Collection<String> classes =
+          (Collection<String>) coursierDep.getOrDefault("classes", Collections.emptySet());
+
       SortedMap<String, SortedSet<String>> services = new TreeMap<>();
       Object rawServices = coursierDep.get("services");
       if (rawServices != null) {
@@ -213,7 +228,7 @@ public class LockFileConverter {
               Optional.ofNullable((String) coursierDep.get("sha256")),
               directDeps,
               packages,
-              Set.of(),
+              new TreeSet<>(classes),
               services));
     }
 
