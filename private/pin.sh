@@ -12,16 +12,29 @@ source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
 # --- end runfiles.bash initialization v3 ---
 
 set -euo pipefail
-# Workaround lack of rlocationpath, see comment on _BUILD_PIN in coursier.bzl
-maven_unsorted_file=$(rlocation "${1#external\/}")
-if [[ ! -e $maven_unsorted_file ]]; then
-  # for --experimental_sibling_repository_layout
-  maven_unsorted_file="${1#..\/}"
-fi
-if [[ ! -e $maven_unsorted_file ]]; then (echo >&2 "Failed to locate the unsorted_deps.json file: $1" && exit 1) fi
+function resolve_runfile() {
+  local file
+  file=$(rlocation "${1#external\/}")
+  if [[ ! -e $file ]]; then
+    # for --experimental_sibling_repository_layout
+    file="${1#..\/}"
+  fi
+  if [[ ! -e $file ]]; then
+    echo >&2 "Failed to locate the generated file: $1"
+    return 1
+  fi
+  echo "$file"
+}
+
+maven_unsorted_file=$(resolve_runfile "$1")
 readonly maven_install_json_loc={maven_install_location}
 
 cp "$maven_unsorted_file" "$maven_install_json_loc"
+
+if [[ $# -gt 1 ]]; then
+  dependency_index_file=$(resolve_runfile "$2")
+  cp "$dependency_index_file" "$BUILD_WORKSPACE_DIRECTORY/{dependency_index_location}"
+fi
 
 if [ "{predefined_maven_install}" = "True" ]; then
     echo "Successfully pinned resolved artifacts for @{repository_name}, $maven_install_json_loc is now up-to-date."
