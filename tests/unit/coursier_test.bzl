@@ -858,6 +858,22 @@ def _strip_credentials_email_username_test_impl(ctx):
 
 strip_credentials_email_username_test = add_test(_strip_credentials_email_username_test_impl)
 
+def _strip_credentials_username_with_slash_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.equals(
+        env,
+        "/https/c1/group/artifact/version/foo.jar",
+        strip_credentials_from_cache_path("/https/org/123456%40c1/group/artifact/version/foo.jar"),
+    )
+    asserts.equals(
+        env,
+        "/http/c1/group/artifact/version/foo.jar",
+        strip_credentials_from_cache_path("/http/a/b/c%40c1/group/artifact/version/foo.jar"),
+    )
+    return unittest.end(env)
+
+strip_credentials_username_with_slash_test = add_test(_strip_credentials_username_with_slash_test_impl)
+
 def coursier_test_suite():
     unittest.suite(
         "coursier_tests",
