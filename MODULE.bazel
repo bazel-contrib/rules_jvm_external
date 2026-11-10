@@ -934,6 +934,19 @@ dev_maven.install(
     lock_file = "//tests/custom_maven_install:v1_lock_file_format_install.json",
 )
 
+# Keep this fixture frozen so repinning other repositories cannot remove v3 coverage.
+dev_maven.install(
+    name = "v3_lock_file_format",
+    artifacts = [
+        "com.google.guava:guava:33.5.0-jre",
+        "com.google.protobuf:protobuf-java:4.33.4",
+        "org.hamcrest:hamcrest-core:2.1",
+        "io.netty:netty-tcnative-boringssl-static:2.0.61.Final",
+    ],
+    fail_if_repin_required = True,
+    lock_file = "//tests/custom_maven_install:v3_lock_file_format_install.json",
+)
+
 # https://github.com/bazelbuild/rules_jvm_external/issues/1206
 dev_maven.install(
     name = "transitive_dependency_with_type_of_pom",
@@ -1245,6 +1258,7 @@ use_repo(
     "unpinned_multi_repo_hash",
     "unpinned_v1_lock_file_format",
     "v1_lock_file_format",
+    "v3_lock_file_format",
     "version_interval_testing",
 )
 

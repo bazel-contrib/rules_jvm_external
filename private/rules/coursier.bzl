@@ -32,8 +32,10 @@ load(
 )
 load("//private/lib:coordinates.bzl", "to_key", "unpack_coordinates")
 load("//private/lib:urls.bzl", "remove_auth_from_url")
+load("//private/rules:lock_file_inputs.bzl", "inputs_from_attrs")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
+load("//private/rules:v4_lock_file.bzl", "v4_lock_file")
 
 _BUILD = """
 # package(default_visibility = [{visibilities}])  # https://github.com/bazelbuild/bazel/issues/13681
@@ -133,6 +135,7 @@ pin_dependencies(
     name = "pin",
     boms = {boms},
     artifacts = {artifacts},
+    input_metadata = {input_metadata},
     excluded_artifacts = {excluded_artifacts},
     repositories = {repos},
     fetch_sources = {fetch_sources},
@@ -599,17 +602,19 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     else:
         maven_install_json_content = json.decode(lock_file_content)
 
-    if v3_lock_file.is_valid_lock_file(maven_install_json_content):
+    if v4_lock_file.is_valid_lock_file(maven_install_json_content):
+        importer = v4_lock_file
+    elif v3_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v3_lock_file
     elif v2_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v2_lock_file
     elif v1_lock_file.is_valid_lock_file(maven_install_json_content):
         importer = v1_lock_file
     else:
-        fail("Unable to read lock file: %s" % repository_ctx.attr.maven_install_json)
+        fail("Unable to read lock file: %s. Regenerate it with your repin command." % repository_ctx.attr.maven_install_json)
 
     # Check if using the most recent lock file format.
-    if importer != v3_lock_file:
+    if importer != v4_lock_file:
         print_if_not_repinning(
             repository_ctx,
             "Lock file should be updated. Please run `REPIN=1 bazel run @unpinned_%s//:pin`" % repository_ctx.name,
@@ -623,7 +628,9 @@ def _pinned_coursier_fetch_impl(repository_ctx):
              "It is not a valid maven_install.json file. Has this " +
              "file been modified manually?")
 
-    input_artifacts_hash = importer.get_input_artifacts_hash(maven_install_json_content)
+    input_artifacts_hash = (
+        importer.get_inputs(maven_install_json_content) if importer == v4_lock_file else importer.get_input_artifacts_hash(maven_install_json_content)
+    )
 
     # With Bzlmod, repository_ctx.name is the mangled ("canonical") name of the repository, so we
     # use the user_provided_name attribute to get the original name (always set by maven_install).
@@ -657,12 +664,15 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             "have changed. To generate this signature, run 'bazel run %s'." % pin_target,
         )
     else:
-        computed_artifacts_hash, old_hashes = compute_dependency_inputs_signature(
-            boms = repository_ctx.attr.boms,
-            artifacts = repository_ctx.attr.artifacts,
-            repositories = repository_ctx.attr.repositories,
-            excluded_artifacts = repository_ctx.attr.excluded_artifacts,
-        )
+        if importer == v4_lock_file:
+            computed_artifacts_hash, old_hashes = inputs_from_attrs(repository_ctx.attr), []
+        else:
+            computed_artifacts_hash, old_hashes = compute_dependency_inputs_signature(
+                boms = repository_ctx.attr.boms,
+                artifacts = repository_ctx.attr.artifacts,
+                repositories = repository_ctx.attr.repositories,
+                excluded_artifacts = repository_ctx.attr.excluded_artifacts,
+            )
         if input_artifacts_hash in old_hashes:
             print_if_not_repinning(
                 repository_ctx,
@@ -672,8 +682,10 @@ def _pinned_coursier_fetch_impl(repository_ctx):
         elif computed_artifacts_hash != input_artifacts_hash:
             if _get_fail_if_repin_required(repository_ctx):
                 to_print = importer.print_friendly_hash_difference(input_artifacts_hash, computed_artifacts_hash)
-                fail("%s_install.json contains an invalid input signature (%s) and must be regenerated. " % (
+                problem = "stale input metadata" if importer == v4_lock_file else "an invalid input signature"
+                fail("%s_install.json contains %s (%s) and must be regenerated. " % (
                          user_provided_name,
+                         problem,
                          to_print,
                      ) +
                      "This typically happens when the maven_install artifacts have been changed but not repinned. " +
@@ -901,6 +913,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             resolver_extra_dependencies = repr([str(l) for l in repository_ctx.attr.resolver_extra_dependencies]),
             boms = repr(repository_ctx.attr.boms),
             artifacts = repr(repository_ctx.attr.artifacts),
+            input_metadata = repr(json.encode(inputs_from_attrs(repository_ctx.attr))),
             excluded_artifacts = repr(repository_ctx.attr.excluded_artifacts),
             jvm_flags = repr(repository_ctx.os.environ.get("JDK_JAVA_OPTIONS")),
             repos = repr(repository_ctx.attr.repositories),
@@ -1493,7 +1506,7 @@ def _coursier_fetch_impl(repository_ctx):
     )
     for repo in repositories:
         reformat_lock_file_cmd.extend(["--repo", repo["repo_url"]])
-    reformat_lock_file_cmd.extend(["--json", "coursier-deps.json"])
+    reformat_lock_file_cmd.extend(["--json", "coursier-deps.json", "--cache", str(repository_ctx.path(coursier_cache_path))])
 
     # But update the format to the latest lock file
     result = _execute(
@@ -1506,18 +1519,11 @@ def _coursier_fetch_impl(repository_ctx):
 
     lock_file_contents = json.decode(result.stdout)
 
-    inputs_hash, _ = compute_dependency_inputs_signature(
-        boms = repository_ctx.attr.boms,
-        artifacts = repository_ctx.attr.artifacts,
-        repositories = repository_ctx.attr.repositories,
-        excluded_artifacts = repository_ctx.attr.excluded_artifacts,
-    )
-
     repository_ctx.file(
         "unsorted_deps.json",
-        content = v3_lock_file.render_lock_file(
+        content = v4_lock_file.render_lock_file(
             lock_file_contents,
-            inputs_hash,
+            inputs_from_attrs(repository_ctx.attr),
         ),
     )
 
@@ -1666,6 +1672,9 @@ pinned_coursier_fetch = repository_rule(
         "boms": attr.string_list(),  # list of bom objects, each as json
         "fetch_sources": attr.bool(default = False),
         "fetch_javadoc": attr.bool(default = False),
+        "ignore_empty_files": attr.bool(default = False),
+        "version_conflict_policy": attr.string(default = "default", values = ["default", "pinned"]),
+        "additional_coursier_options": attr.string_list(),
         "generate_compat_repositories": attr.bool(default = False),  # generate a compatible layer with repositories for each artifact
         "maven_install_json": attr.label(allow_single_file = True),
         "dependency_index": attr.label(allow_single_file = True),
@@ -1702,7 +1711,7 @@ pinned_coursier_fetch = repository_rule(
         "repin_instructions": attr.string(
             doc = "Instructions to re-pin the repository if required. Many people have wrapper scripts for keeping dependencies up to date, and would like to point users to that instead of the default.",
         ),
-        "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
+        "excluded_artifacts": attr.string_list(default = []),  # resolution inputs for freshness checks
         "resolver_extra_dependencies": attr.label_list(default = []),
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),

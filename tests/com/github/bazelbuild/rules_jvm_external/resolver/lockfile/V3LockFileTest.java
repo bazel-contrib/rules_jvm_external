@@ -221,10 +221,14 @@ public class V3LockFileTest {
   public void testCalculateArtifactHashMatchesStoredHash() throws IOException {
     String lockFileContent =
         new String(
-            getClass().getClassLoader().getResourceAsStream("maven_install.json").readAllBytes());
+            getClass()
+                .getClassLoader()
+                .getResourceAsStream("tests/custom_maven_install/v3_lock_file_format_install.json")
+                .readAllBytes());
 
     Gson gson = new GsonBuilder().create();
     Map<String, Object> lockFileData = gson.fromJson(lockFileContent, Map.class);
+    assertEquals("3", lockFileData.get("version"));
     Map<String, Double> storedHash =
         (Map<String, Double>) lockFileData.get("__RESOLVED_ARTIFACTS_HASH");
 

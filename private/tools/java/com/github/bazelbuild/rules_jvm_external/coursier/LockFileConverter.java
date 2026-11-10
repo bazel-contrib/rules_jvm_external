@@ -53,10 +53,12 @@ public class LockFileConverter {
 
   private final Set<URI> repositories;
   private final Path unsortedJson;
+  private final Path cache;
 
   public static void main(String[] args) {
     Path unsortedJson = null;
     Path output = null;
+    Path cache = null;
 
     // Insertion order matters
     Set<URI> repositories = new LinkedHashSet<>();
@@ -66,6 +68,10 @@ public class LockFileConverter {
         case "--json":
           i++;
           unsortedJson = Paths.get(args[i]);
+          break;
+
+        case "--cache":
+          cache = Paths.get(args[++i]);
           break;
 
         case "--output":
@@ -96,7 +102,7 @@ public class LockFileConverter {
       System.exit(1);
     }
 
-    LockFileConverter converter = new LockFileConverter(repositories, unsortedJson);
+    LockFileConverter converter = new LockFileConverter(repositories, unsortedJson, cache);
     Set<DependencyInfo> infos = converter.getDependencies();
     Set<Conflict> conflicts = converter.getConflicts();
 
@@ -117,6 +123,11 @@ public class LockFileConverter {
   }
 
   public LockFileConverter(Set<URI> repositories, Path unsortedJson) {
+    this(repositories, unsortedJson, null);
+  }
+
+  private LockFileConverter(Set<URI> repositories, Path unsortedJson, Path cache) {
+    this.cache = cache;
     this.repositories = Objects.requireNonNull(repositories);
     this.unsortedJson = Objects.requireNonNull(unsortedJson);
   }
@@ -142,6 +153,7 @@ public class LockFileConverter {
   public Set<DependencyInfo> getDependencies() {
     Map<String, Object> depTree = readDepTree();
     Map<Coordinates, Coordinates> mappings = deriveCoordinateMappings(depTree);
+    CoordinateResolver coordinateResolver = new CoordinateResolver(repositories, cache, mappings);
 
     Set<DependencyInfo> toReturn =
         new TreeSet<>(Comparator.comparing(DependencyInfo::getCoordinates));
@@ -187,7 +199,7 @@ public class LockFileConverter {
         directDeps =
             depCoords.stream()
                 .map(Coordinates::new)
-                .map(c -> mappings.getOrDefault(c, c))
+                .map(coordinateResolver::resolve)
                 .collect(Collectors.toCollection(TreeSet::new));
       }
 

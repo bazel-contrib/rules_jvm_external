@@ -42,6 +42,7 @@ public class ResolverConfig {
   private final Path output;
   private final Path dependencyIndexOutput;
   private final Map<String, Integer> inputHash;
+  private final Map<String, Object> inputMetadata;
   private final int maxThreads;
 
   public ResolverConfig(EventListener listener, String... args) throws IOException {
@@ -55,6 +56,7 @@ public class ResolverConfig {
     Path output = null;
     Path dependencyIndexOutput = null;
     Path inputHashPath = null;
+    Path inputMetadataPath = null;
 
     if (System.getenv("RJE_MAX_THREADS") != null) {
       maxThreads = Integer.parseInt(System.getenv("RJE_MAX_THREADS"));
@@ -79,6 +81,11 @@ public class ResolverConfig {
         case "--bom":
           i++;
           request.addBom(args[i]);
+          break;
+
+        case "--input-metadata-path":
+          i++;
+          inputMetadataPath = Paths.get(args[i]);
           break;
 
         case "--input-hash-path":
@@ -187,6 +194,14 @@ public class ResolverConfig {
               });
     }
 
+    this.inputMetadata =
+        inputMetadataPath == null
+            ? null
+            : new Gson()
+                .fromJson(
+                    Files.readString(inputMetadataPath),
+                    new TypeToken<Map<String, Object>>() {}.getType());
+
     if (inputHashPath != null) {
       String rawJson = Files.readString(inputHashPath);
       Map<String, Integer> json =
@@ -226,6 +241,10 @@ public class ResolverConfig {
 
   public int getMaxThreads() {
     return maxThreads;
+  }
+
+  public Map<String, Object> getInputMetadata() {
+    return inputMetadata;
   }
 
   public Map<String, Integer> getInputHash() {

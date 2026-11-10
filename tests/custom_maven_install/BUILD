@@ -7,4 +7,5 @@ exports_files([
     "regression_testing_coursier_install.json",
     "regression_testing_maven_install.json",
     "service_indexing_testing.json",
+    "v3_lock_file_format_install.json",
 ])

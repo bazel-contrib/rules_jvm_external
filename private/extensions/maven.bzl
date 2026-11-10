@@ -21,6 +21,7 @@ load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
+load("//private/rules:v4_lock_file.bzl", "v4_lock_file")
 load(":download_pinned_deps.bzl", "download_pinned_deps")
 
 DEFAULT_REPOSITORIES = [
@@ -731,7 +732,10 @@ def maven_impl(mctx):
             else:
                 lock_file = json.decode(lock_file_content)
 
-            if v3_lock_file.is_valid_lock_file(lock_file):
+            if v4_lock_file.is_valid_lock_file(lock_file):
+                artifacts = v4_lock_file.get_artifacts(lock_file)
+                importer = v4_lock_file
+            elif v3_lock_file.is_valid_lock_file(lock_file):
                 artifacts = v3_lock_file.get_artifacts(lock_file)
                 importer = v3_lock_file
             elif v2_lock_file.is_valid_lock_file(lock_file):
@@ -741,7 +745,7 @@ def maven_impl(mctx):
                 artifacts = v1_lock_file.get_artifacts(lock_file)
                 importer = v1_lock_file
             else:
-                fail("Unable to determine lock file version: %s" % repo.get("lock_file"))
+                fail("Unable to determine lock file version: %s. Regenerate it with your repin command." % repo.get("lock_file"))
 
             created = download_pinned_deps(mctx = mctx, artifacts = artifacts, http_files = http_files, has_m2local = importer.has_m2local(lock_file))
             existing_repos.extend(created)
@@ -754,6 +758,9 @@ def maven_impl(mctx):
                 artifacts = artifacts_json,
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
+                ignore_empty_files = repo.get("ignore_empty_files"),
+                version_conflict_policy = repo.get("version_conflict_policy"),
+                additional_coursier_options = repo.get("additional_coursier_options"),
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
                 resolver_extra_dependencies = repo.get("resolver_extra_dependencies", []),
                 generate_compat_repositories = False,

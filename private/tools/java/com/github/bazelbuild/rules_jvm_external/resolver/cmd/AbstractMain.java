@@ -30,6 +30,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.DependencyIndex;
 import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V3LockFile;
+import com.github.bazelbuild.rules_jvm_external.resolver.lockfile.V4LockFile;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.DependencyMetadata;
@@ -315,7 +316,10 @@ public abstract class AbstractMain {
     }
 
     String converted =
-        new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(toReturn) + "\n";
+        config.getInputMetadata() == null
+            ? new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(toReturn)
+                + "\n"
+            : V4LockFile.render(rendered, config.getInputMetadata());
 
     try (OutputStream os = output == null ? System.out : Files.newOutputStream(output);
         BufferedOutputStream bos = new BufferedOutputStream(os)) {

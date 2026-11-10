@@ -169,6 +169,9 @@ def maven_install(
             maven_install_json = maven_install_json,
             fetch_sources = fetch_sources,
             fetch_javadoc = fetch_javadoc,
+            ignore_empty_files = ignore_empty_files,
+            version_conflict_policy = version_conflict_policy,
+            additional_coursier_options = additional_coursier_options,
             generate_compat_repositories = generate_compat_repositories,
             override_targets = override_targets,
             strict_visibility = strict_visibility,
@@ -180,6 +183,6 @@ def maven_install(
             use_starlark_android_rules = use_starlark_android_rules,
             aar_import_bzl_label = aar_import_bzl_label,
             repin_instructions = repin_instructions,
-            # Extra arguments only used for hash generation
+            # Resolution inputs for lock-file freshness checks
             excluded_artifacts = excluded_artifacts_json_strings,
         )
