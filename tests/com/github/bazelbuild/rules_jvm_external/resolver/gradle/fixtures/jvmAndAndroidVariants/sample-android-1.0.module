@@ -12,12 +12,20 @@
       "attributes": {
         "org.gradle.category": "library",
         "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
         "org.gradle.libraryelements": "aar",
         "org.gradle.dependency.bundling": "external",
         "org.jetbrains.kotlin.platform.type": "androidJvm"
       },
       "files": [
         { "name": "sample-android-1.0.aar", "url": "sample-android-1.0.aar" }
+      ],
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "jvm-only",
+          "version": { "requires": "1.0" }
+        }
       ]
     }
   ]

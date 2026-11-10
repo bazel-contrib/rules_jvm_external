@@ -23,6 +23,7 @@
       "attributes": {
         "org.gradle.category": "library",
         "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "standard-jvm",
         "org.jetbrains.kotlin.platform.type": "jvm",
         "org.gradle.libraryelements": "jar"
       },
@@ -38,6 +39,7 @@
       "attributes": {
         "org.gradle.category": "library",
         "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
         "org.jetbrains.kotlin.platform.type": "androidJvm",
         "org.gradle.libraryelements": "aar"
       },

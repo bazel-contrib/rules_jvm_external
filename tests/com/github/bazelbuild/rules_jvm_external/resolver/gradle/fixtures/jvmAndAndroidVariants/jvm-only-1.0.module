@@ -1,0 +1,25 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.example",
+    "module": "jvm-only",
+    "version": "1.0",
+    "attributes": { "org.gradle.status": "release" }
+  },
+  "variants": [
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.dependency.bundling": "external",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        { "name": "jvm-only-1.0.jar", "url": "jvm-only-1.0.jar" }
+      ]
+    }
+  ]
+}

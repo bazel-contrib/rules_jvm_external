@@ -17,7 +17,7 @@ load(
     "remove_empty_fields",
     "should_print_diagnostic",
 )
-load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch")
+load("//private/rules:coursier.bzl", "DEFAULT_AAR_IMPORT_LABEL", "coursier_fetch", "pinned_coursier_fetch", "validate_variants")
 load("//private/rules:unpinned_maven_pin_command_alias.bzl", "unpinned_maven_pin_command_alias")
 load("//private/rules:v1_lock_file.bzl", "v1_lock_file")
 load("//private/rules:v3_lock_file.bzl", "v2_lock_file", "v3_lock_file")
@@ -61,6 +61,7 @@ install = tag_class(
 
         # How do we do artifact resolution?
         "resolver": attr.string(doc = "The resolver to use. Only honoured for the root module.", values = ["coursier", "gradle", "maven"], default = _DEFAULT_RESOLVER),
+        "variants": attr.string_dict(doc = "Variant attributes used for dependency resolution. Requires the Gradle resolver when non-empty.", default = {}),
 
         # Controlling visibility
         "strict_visibility": attr.bool(
@@ -419,6 +420,7 @@ def _process_module_tags(mctx):
             repo = target_repos.get(install.name, {})
 
             repo["resolver"] = install.resolver
+            repo["variants"] = install.variants
 
             _add_artifacts_to_repo(repo, mod, [unpack_coordinates(a) for a in install.artifacts])
             _add_boms_to_repo(repo, mod, [unpack_coordinates(b) for b in install.boms])
@@ -636,6 +638,7 @@ def maven_impl(mctx):
                 repo["fetch_javadoc"] = install.fetch_javadoc
                 repo["fetch_sources"] = install.fetch_sources
                 repo["resolver"] = install.resolver
+                repo["variants"] = install.variants
                 repo["resolver_extra_dependencies"] = install.resolver_extra_dependencies
                 repo["strict_visibility"] = install.strict_visibility
                 if len(install.repositories):
@@ -659,6 +662,11 @@ def maven_impl(mctx):
 
     existing_repos = []
     for (name, repo) in repos.items():
+        # Validate the effective values after merging: a non-root module's settings are
+        # ignored when the root module declares the same repo, so validating each tag
+        # individually could fail the build on values that are never used.
+        validate_variants(repo.get("resolver", _DEFAULT_RESOLVER), repo.get("variants", {}), name)
+
         boms_json = [json.encode(remove_empty_fields(b)) for b in repo.get("boms", [])]
         artifacts_json = [json.encode(remove_empty_fields(a)) for a in repo.get("artifacts", [])]
 
@@ -699,6 +707,7 @@ def maven_impl(mctx):
                 maven_install_json = repo.get("lock_file"),
                 dependency_index = repo.get("dependency_index"),
                 resolve_timeout = repo.get("resolve_timeout"),
+                variants = repo.get("variants", {}),
                 use_starlark_android_rules = repo.get("use_starlark_android_rules"),
                 aar_import_bzl_label = repo.get("aar_import_bzl_label"),
                 duplicate_version_warning = repo.get("duplicate_version_warning"),
@@ -755,6 +764,7 @@ def maven_impl(mctx):
                 fetch_sources = repo.get("fetch_sources"),
                 fetch_javadoc = repo.get("fetch_javadoc"),
                 resolver = repo.get("resolver", _DEFAULT_RESOLVER),
+                variants = repo.get("variants", {}),
                 resolver_extra_dependencies = repo.get("resolver_extra_dependencies", []),
                 generate_compat_repositories = False,
                 maven_install_json = repo.get("lock_file"),

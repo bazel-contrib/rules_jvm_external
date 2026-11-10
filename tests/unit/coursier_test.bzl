@@ -10,6 +10,7 @@ load(
     "get_direct_dependencies",
     "get_netrc_lines_from_entries",
     "strip_credentials_from_cache_path",
+    "variants_error",
     infer = "infer_artifact_path_from_primary_and_repos",
 )
 load("//private/rules:v1_lock_file.bzl", "add_netrc_entries_from_mirror_urls")
@@ -787,6 +788,63 @@ def _calculate_inputs_hash_uses_excluded_artifacts_test(ctx):
     return unittest.end(env)
 
 calculate_inputs_hash_uses_excluded_artifacts_test = add_test(_calculate_inputs_hash_uses_excluded_artifacts_test)
+
+def _variants_affect_input_hashes_test(ctx):
+    env = unittest.begin(ctx)
+    common = {
+        "artifacts": ['{"group": "com.example", "artifact": "sample", "version": "1.0"}'],
+        "repositories": ["https://repo1.maven.org/maven2"],
+    }
+    default_hash, default_old_hashes = compute_dependency_inputs_signature(**common)
+    empty_hash, empty_old_hashes = compute_dependency_inputs_signature(variants = {}, **common)
+    variants = {
+        "org.gradle.jvm.environment": "android",
+        "org.jetbrains.kotlin.platform.type": "androidJvm",
+    }
+    android_hash, android_old_hashes = compute_dependency_inputs_signature(variants = variants, **common)
+    reordered_hash, reordered_old_hashes = compute_dependency_inputs_signature(
+        variants = {k: variants[k] for k in reversed(variants.keys())},
+        **common
+    )
+    changed_hash, changed_old_hashes = compute_dependency_inputs_signature(
+        variants = dict(variants, **{"org.gradle.jvm.environment": "standard-jvm"}),
+        **common
+    )
+    renamed_hash, renamed_old_hashes = compute_dependency_inputs_signature(
+        variants = {"custom.environment": "android", "org.jetbrains.kotlin.platform.type": "androidJvm"},
+        **common
+    )
+
+    asserts.equals(env, default_hash, empty_hash)
+    asserts.equals(env, default_old_hashes, empty_old_hashes)
+    asserts.equals(env, android_hash, reordered_hash)
+    asserts.equals(env, android_old_hashes, reordered_old_hashes)
+    for other_hash, other_old_hashes in [
+        (default_hash, default_old_hashes),
+        (changed_hash, changed_old_hashes),
+        (renamed_hash, renamed_old_hashes),
+    ]:
+        asserts.false(env, android_hash == other_hash)
+        for old_hash in android_old_hashes:
+            asserts.false(env, old_hash in other_old_hashes)
+    return unittest.end(env)
+
+variants_affect_input_hashes_test = add_test(_variants_affect_input_hashes_test)
+
+def _variants_require_gradle_resolver_test(ctx):
+    env = unittest.begin(ctx)
+    variants = {"org.gradle.jvm.environment": "android"}
+    for resolver in ["coursier", "maven"]:
+        asserts.equals(
+            env,
+            'maven.install(name = "android_deps"): variants requires resolver = "gradle", but resolver is "%s"' % resolver,
+            variants_error(resolver, variants, "android_deps"),
+        )
+        asserts.equals(env, None, variants_error(resolver, {}, "android_deps"))
+    asserts.equals(env, None, variants_error("gradle", variants, "android_deps"))
+    return unittest.end(env)
+
+variants_require_gradle_resolver_test = add_test(_variants_require_gradle_resolver_test)
 
 def _get_direct_dependencies_test_impl(ctx):
     env = unittest.begin(ctx)

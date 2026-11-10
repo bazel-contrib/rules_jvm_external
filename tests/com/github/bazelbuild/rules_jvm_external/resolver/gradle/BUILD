@@ -89,6 +89,7 @@ java_test(
         "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver/ui",
         "//resolver",
         "//tests/com/github/bazelbuild/rules_jvm_external/resolver",
+        "@rules_jvm_external_deps//:com_google_code_gson_gson",
         "@rules_jvm_external_deps//:org_apache_maven_maven_model",
         artifact(
             "junit:junit",

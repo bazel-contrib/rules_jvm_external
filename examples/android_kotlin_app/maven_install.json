@@ -7,48 +7,49 @@
     "com.google.errorprone:error_prone_annotations": 1790047777,
     "com.google.guava:guava": -249069712,
     "com.google.j2objc:j2objc-annotations": -26400317,
-    "repositories": 1670674627
+    "repositories": 1670674627,
+    "variants": -826817493
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "androidx.activity:activity:aar": 654789632,
-    "androidx.annotation:annotation": -2082996707,
-    "androidx.annotation:annotation-experimental:aar": 168543031,
-    "androidx.annotation:annotation-jvm": -39777951,
-    "androidx.arch.core:core-common": -276685466,
-    "androidx.arch.core:core-runtime:aar": 772552375,
-    "androidx.collection:collection": -1087439336,
-    "androidx.collection:collection-jvm": -1421045810,
-    "androidx.compose.runtime:runtime-annotation": 643700823,
-    "androidx.compose.runtime:runtime-annotation-android:aar": -1289886478,
-    "androidx.compose.runtime:runtime-annotation-jvm": 753187538,
-    "androidx.concurrent:concurrent-futures": 2126605523,
-    "androidx.core:core-ktx:aar": 1332717181,
-    "androidx.core:core-viewtree:aar": 1111248771,
-    "androidx.core:core:aar": 930996422,
-    "androidx.interpolator:interpolator:aar": 834659242,
-    "androidx.lifecycle:lifecycle-common": 304060681,
-    "androidx.lifecycle:lifecycle-livedata-core:aar": -1983528837,
-    "androidx.lifecycle:lifecycle-runtime:aar": -106457416,
-    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": -1081525685,
-    "androidx.lifecycle:lifecycle-viewmodel:aar": -3275227,
-    "androidx.navigationevent:navigationevent-android:aar": -924153545,
-    "androidx.navigationevent:navigationevent:aar": -1773051533,
-    "androidx.profileinstaller:profileinstaller:aar": 1785451846,
-    "androidx.savedstate:savedstate:aar": 751328758,
-    "androidx.startup:startup-runtime:aar": 1840587120,
-    "androidx.tracing:tracing:aar": -832774871,
-    "androidx.versionedparcelable:versionedparcelable:aar": -2053842893,
+    "androidx.activity:activity:aar": -656318607,
+    "androidx.annotation:annotation": 324139863,
+    "androidx.annotation:annotation-experimental:aar": -851866836,
+    "androidx.annotation:annotation-jvm": 1394686166,
+    "androidx.arch.core:core-common": 387085313,
+    "androidx.arch.core:core-runtime:aar": 1753633837,
+    "androidx.collection:collection": 1207161288,
+    "androidx.collection:collection-jvm": -766881097,
+    "androidx.compose.runtime:runtime-annotation": -1153762173,
+    "androidx.compose.runtime:runtime-annotation-android:aar": 805983527,
+    "androidx.concurrent:concurrent-futures": 1896578082,
+    "androidx.core:core-ktx:aar": 1482821316,
+    "androidx.core:core-viewtree:aar": -424918920,
+    "androidx.core:core:aar": 796238061,
+    "androidx.interpolator:interpolator:aar": -921911739,
+    "androidx.lifecycle:lifecycle-common": 1233330576,
+    "androidx.lifecycle:lifecycle-livedata-core:aar": -1419218400,
+    "androidx.lifecycle:lifecycle-runtime:aar": -1939364888,
+    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": -453198042,
+    "androidx.lifecycle:lifecycle-viewmodel:aar": -1674342037,
+    "androidx.navigationevent:navigationevent-android:aar": -326185568,
+    "androidx.navigationevent:navigationevent:aar": -650870630,
+    "androidx.profileinstaller:profileinstaller:aar": 179876296,
+    "androidx.savedstate:savedstate:aar": -1120048363,
+    "androidx.startup:startup-runtime:aar": 2095423293,
+    "androidx.tracing:tracing:aar": 1948165828,
+    "androidx.versionedparcelable:versionedparcelable:aar": -2131808419,
     "com.google.code.findbugs:jsr305": 870839855,
     "com.google.code.gson:gson": -1496337728,
     "com.google.errorprone:error_prone_annotations": 430949977,
     "com.google.guava:failureaccess": 1715931538,
-    "com.google.guava:guava": -384001514,
+    "com.google.guava:guava": 646961762,
     "com.google.guava:listenablefuture": 1079558157,
     "com.google.j2objc:j2objc-annotations": -1008747351,
     "org.jetbrains.kotlin:kotlin-stdlib": 661411577,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-android": 1874631337,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-core": -1927043705,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": 1392787226,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-android": 1589646716,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-bom": -966616507,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-core": 684783106,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": -1910328115,
     "org.jetbrains:annotations": -1663747638,
     "org.jspecify:jspecify": 117231129
   },
@@ -61,7 +62,7 @@
     },
     "androidx.annotation:annotation": {
       "shasums": {
-        "jar": "38322afa7345c37e29c65ec8852178ae1c26e23096a0634d07a4a3893931f58c"
+        "jar": null
       },
       "version": "1.9.1"
     },
@@ -91,7 +92,7 @@
     },
     "androidx.collection:collection": {
       "shasums": {
-        "jar": "28ccf80e14a1144710ab3af69fb7ca8037d938a07ee4dcdbc325b6c6c09c549c"
+        "jar": null
       },
       "version": "1.4.2"
     },
@@ -103,19 +104,13 @@
     },
     "androidx.compose.runtime:runtime-annotation": {
       "shasums": {
-        "jar": "a4ad4eb1139a80737755b3ddb7da993697f758f6555486d6eaae59cb8dca19d2"
+        "jar": null
       },
       "version": "1.9.0"
     },
     "androidx.compose.runtime:runtime-annotation-android:aar": {
       "shasums": {
         "jar": "3fba9d6be5307d998403038f6dfaa3fedd924c5618cb45a49f56a5bf6282509d"
-      },
-      "version": "1.9.0"
-    },
-    "androidx.compose.runtime:runtime-annotation-jvm": {
-      "shasums": {
-        "jar": "989b2da28bf5ba7966c08ca2db3f48a607e684e4ab4ff0de80e9cd5ec663c076"
       },
       "version": "1.9.0"
     },
@@ -159,7 +154,7 @@
       "shasums": {
         "jar": "2256780a3cff4a1e57fbb3d442557c17dc363ab8af105bcaf5261d8e2d5db949"
       },
-      "version": "2.6.1"
+      "version": "2.6.2"
     },
     "androidx.lifecycle:lifecycle-runtime:aar": {
       "shasums": {
@@ -169,15 +164,15 @@
     },
     "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": {
       "shasums": {
-        "jar": "c82f89221adbe19df7c7adbab63f4ecc857fc746e3c9494256ab8fa5c20491b2"
+        "jar": "7bc7dcbab17636ec076f12afe4d02671265c389457b1b366b37a0e8cb91e2da0"
       },
-      "version": "2.6.1"
+      "version": "2.6.2"
     },
     "androidx.lifecycle:lifecycle-viewmodel:aar": {
       "shasums": {
         "jar": "e4ff4338999e1c6c9c724719f5d4aa7dd61bf6f545d5256a27a9d375df9f2330"
       },
-      "version": "2.6.1"
+      "version": "2.6.2"
     },
     "androidx.navigationevent:navigationevent-android:aar": {
       "shasums": {
@@ -187,7 +182,7 @@
     },
     "androidx.navigationevent:navigationevent:aar": {
       "shasums": {
-        "jar": "3069f1643e26a990bb71023524c852bb02036b8f9c5dbca8a1ca782064243c3b"
+        "jar": null
       },
       "version": "1.0.0"
     },
@@ -247,7 +242,7 @@
     },
     "com.google.guava:guava": {
       "shasums": {
-        "jar": "dc573e1fca4fd5454f4a5fd3d7da2df03002876a4175bafc14a95980dd7713b3"
+        "jar": "9532ca9ba8aceb4cd2067171f981c799988b7f5844e3e274811a3bb757034bc4"
       },
       "version": "33.6.0-jre"
     },
@@ -275,9 +270,15 @@
       },
       "version": "1.9.0"
     },
+    "org.jetbrains.kotlinx:kotlinx-coroutines-bom": {
+      "shasums": {
+        "jar": null
+      },
+      "version": "1.9.0"
+    },
     "org.jetbrains.kotlinx:kotlinx-coroutines-core": {
       "shasums": {
-        "jar": "7089c33c145865020760d3dbca5e4634133cc3dd7feb926e830f6de6ede28ac6"
+        "jar": null
       },
       "version": "1.9.0"
     },
@@ -300,6 +301,24 @@
       "version": "1.0.0"
     }
   },
+  "conflict_resolution": {
+    "androidx.annotation:annotation:1.0.0": "androidx.annotation:annotation:1.9.1",
+    "androidx.arch.core:core-common:2.1.0": "androidx.arch.core:core-common:2.2.0",
+    "androidx.arch.core:core-runtime:aar:2.1.0": "androidx.arch.core:core-runtime:aar:2.2.0",
+    "androidx.collection:collection:1.0.0": "androidx.collection:collection:1.4.2",
+    "androidx.concurrent:concurrent-futures:1.0.0": "androidx.concurrent:concurrent-futures:1.1.0",
+    "androidx.core:core-ktx:aar:1.2.0": "androidx.core:core-ktx:aar:1.18.0",
+    "androidx.lifecycle:lifecycle-common:2.6.1": "androidx.lifecycle:lifecycle-common:2.6.2",
+    "androidx.lifecycle:lifecycle-runtime:aar:2.6.1": "androidx.lifecycle:lifecycle-runtime:aar:2.6.2",
+    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar:2.6.1": "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar:2.6.2",
+    "androidx.lifecycle:lifecycle-viewmodel:aar:2.6.1": "androidx.lifecycle:lifecycle-viewmodel:aar:2.6.2",
+    "androidx.profileinstaller:profileinstaller:aar:1.3.0": "androidx.profileinstaller:profileinstaller:aar:1.4.0",
+    "androidx.tracing:tracing:aar:1.0.0": "androidx.tracing:tracing:aar:1.2.0",
+    "com.google.guava:listenablefuture:1.0": "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+    "org.jetbrains.kotlin:kotlin-stdlib": "org.jetbrains.kotlin:kotlin-stdlib:2.1.20",
+    "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4": "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0",
+    "org.jetbrains:annotations:13.0": "org.jetbrains:annotations:23.0.0"
+  },
   "dependencies": {
     "androidx.activity:activity:aar": [
       "androidx.annotation:annotation",
@@ -317,8 +336,7 @@
       "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     ],
     "androidx.annotation:annotation": [
-      "androidx.annotation:annotation-jvm",
-      "org.jetbrains.kotlin:kotlin-stdlib"
+      "androidx.annotation:annotation-jvm"
     ],
     "androidx.annotation:annotation-experimental:aar": [
       "org.jetbrains.kotlin:kotlin-stdlib"
@@ -334,22 +352,16 @@
       "androidx.arch.core:core-common"
     ],
     "androidx.collection:collection": [
-      "androidx.annotation:annotation",
-      "androidx.collection:collection-jvm",
-      "org.jetbrains.kotlin:kotlin-stdlib"
+      "androidx.collection:collection-jvm"
     ],
     "androidx.collection:collection-jvm": [
-      "androidx.annotation:annotation-jvm",
+      "androidx.annotation:annotation",
       "org.jetbrains.kotlin:kotlin-stdlib"
     ],
     "androidx.compose.runtime:runtime-annotation": [
-      "androidx.compose.runtime:runtime-annotation-jvm",
-      "org.jetbrains.kotlin:kotlin-stdlib"
+      "androidx.compose.runtime:runtime-annotation-android:aar"
     ],
     "androidx.compose.runtime:runtime-annotation-android:aar": [
-      "org.jetbrains.kotlin:kotlin-stdlib"
-    ],
-    "androidx.compose.runtime:runtime-annotation-jvm": [
       "org.jetbrains.kotlin:kotlin-stdlib"
     ],
     "androidx.concurrent:concurrent-futures": [
@@ -416,19 +428,15 @@
       "org.jetbrains.kotlin:kotlin-stdlib"
     ],
     "androidx.navigationevent:navigationevent-android:aar": [
-      "androidx.annotation:annotation-jvm",
-      "androidx.compose.runtime:runtime-annotation-android:aar",
+      "androidx.annotation:annotation",
+      "androidx.compose.runtime:runtime-annotation",
       "androidx.core:core-viewtree:aar",
       "org.jetbrains.kotlin:kotlin-stdlib",
       "org.jetbrains.kotlinx:kotlinx-coroutines-android",
       "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     ],
     "androidx.navigationevent:navigationevent:aar": [
-      "androidx.annotation:annotation",
-      "androidx.compose.runtime:runtime-annotation",
-      "androidx.navigationevent:navigationevent-android:aar",
-      "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+      "androidx.navigationevent:navigationevent-android:aar"
     ],
     "androidx.profileinstaller:profileinstaller:aar": [
       "androidx.annotation:annotation",
@@ -468,13 +476,15 @@
     ],
     "org.jetbrains.kotlinx:kotlinx-coroutines-android": [
       "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm"
+      "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
+      "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     ],
     "org.jetbrains.kotlinx:kotlinx-coroutines-core": [
       "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm"
     ],
     "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": [
       "org.jetbrains.kotlin:kotlin-stdlib",
+      "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
       "org.jetbrains:annotations"
     ]
   },
@@ -489,10 +499,6 @@
     "androidx.collection:collection-jvm": [
       "androidx.collection",
       "androidx.collection.internal"
-    ],
-    "androidx.compose.runtime:runtime-annotation-jvm": [
-      "androidx.compose.runtime",
-      "androidx.compose.runtime.annotation"
     ],
     "androidx.concurrent:concurrent-futures": [
       "androidx.concurrent.futures"
@@ -625,16 +631,12 @@
   "repositories": {
     "https://maven.google.com/": [
       "androidx.activity:activity:aar",
-      "androidx.annotation:annotation",
       "androidx.annotation:annotation-experimental:aar",
       "androidx.annotation:annotation-jvm",
       "androidx.arch.core:core-common",
       "androidx.arch.core:core-runtime:aar",
-      "androidx.collection:collection",
       "androidx.collection:collection-jvm",
-      "androidx.compose.runtime:runtime-annotation",
       "androidx.compose.runtime:runtime-annotation-android:aar",
-      "androidx.compose.runtime:runtime-annotation-jvm",
       "androidx.concurrent:concurrent-futures",
       "androidx.core:core-ktx:aar",
       "androidx.core:core-viewtree:aar",
@@ -646,55 +648,13 @@
       "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar",
       "androidx.lifecycle:lifecycle-viewmodel:aar",
       "androidx.navigationevent:navigationevent-android:aar",
-      "androidx.navigationevent:navigationevent:aar",
       "androidx.profileinstaller:profileinstaller:aar",
       "androidx.savedstate:savedstate:aar",
       "androidx.startup:startup-runtime:aar",
       "androidx.tracing:tracing:aar",
-      "androidx.versionedparcelable:versionedparcelable:aar",
-      "com.google.code.findbugs:jsr305",
-      "com.google.code.gson:gson",
-      "com.google.errorprone:error_prone_annotations",
-      "com.google.guava:failureaccess",
-      "com.google.guava:guava",
-      "com.google.guava:listenablefuture",
-      "com.google.j2objc:j2objc-annotations",
-      "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-android",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",
-      "org.jetbrains:annotations",
-      "org.jspecify:jspecify"
+      "androidx.versionedparcelable:versionedparcelable:aar"
     ],
     "https://repo1.maven.org/maven2/": [
-      "androidx.activity:activity:aar",
-      "androidx.annotation:annotation",
-      "androidx.annotation:annotation-experimental:aar",
-      "androidx.annotation:annotation-jvm",
-      "androidx.arch.core:core-common",
-      "androidx.arch.core:core-runtime:aar",
-      "androidx.collection:collection",
-      "androidx.collection:collection-jvm",
-      "androidx.compose.runtime:runtime-annotation",
-      "androidx.compose.runtime:runtime-annotation-android:aar",
-      "androidx.compose.runtime:runtime-annotation-jvm",
-      "androidx.concurrent:concurrent-futures",
-      "androidx.core:core-ktx:aar",
-      "androidx.core:core-viewtree:aar",
-      "androidx.core:core:aar",
-      "androidx.interpolator:interpolator:aar",
-      "androidx.lifecycle:lifecycle-common",
-      "androidx.lifecycle:lifecycle-livedata-core:aar",
-      "androidx.lifecycle:lifecycle-runtime:aar",
-      "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar",
-      "androidx.lifecycle:lifecycle-viewmodel:aar",
-      "androidx.navigationevent:navigationevent-android:aar",
-      "androidx.navigationevent:navigationevent:aar",
-      "androidx.profileinstaller:profileinstaller:aar",
-      "androidx.savedstate:savedstate:aar",
-      "androidx.startup:startup-runtime:aar",
-      "androidx.tracing:tracing:aar",
-      "androidx.versionedparcelable:versionedparcelable:aar",
       "com.google.code.findbugs:jsr305",
       "com.google.code.gson:gson",
       "com.google.errorprone:error_prone_annotations",
@@ -704,7 +664,6 @@
       "com.google.j2objc:j2objc-annotations",
       "org.jetbrains.kotlin:kotlin-stdlib",
       "org.jetbrains.kotlinx:kotlinx-coroutines-android",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-core",
       "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",
       "org.jetbrains:annotations",
       "org.jspecify:jspecify"
@@ -720,5 +679,13 @@
       ]
     }
   },
+  "skipped": [
+    "androidx.annotation:annotation",
+    "androidx.collection:collection",
+    "androidx.compose.runtime:runtime-annotation",
+    "androidx.navigationevent:navigationevent:aar",
+    "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
+    "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+  ],
   "version": "3"
 }
