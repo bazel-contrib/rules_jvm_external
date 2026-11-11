@@ -4,66 +4,67 @@
     "com.google.android.gms:play-services-tasks": -617508626,
     "com.google.guava:guava": 616303286,
     "com.google.guava:guava-bom": -327361527,
+    "org.apiguardian:apiguardian-api": -1315971674,
     "org.junit.jupiter:junit-jupiter-api": -1634990719,
     "org.junit:junit-bom": 809197349,
     "repositories": 1670674627
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "androidx.activity:activity:aar": 794333096,
-    "androidx.activity:activity:jar:sources": -1180096882,
-    "androidx.annotation:annotation": -1976814289,
-    "androidx.annotation:annotation:jar:sources": 1452931766,
-    "androidx.arch.core:core-common": -567092908,
-    "androidx.arch.core:core-common:jar:sources": 279561531,
-    "androidx.arch.core:core-runtime:aar": -2138902823,
-    "androidx.arch.core:core-runtime:jar:sources": 1038031040,
-    "androidx.collection:collection": -315592028,
-    "androidx.collection:collection:jar:sources": -1084218178,
-    "androidx.core:core:aar": 1006814318,
-    "androidx.core:core:jar:sources": -994429536,
-    "androidx.customview:customview:aar": -1010798470,
-    "androidx.customview:customview:jar:sources": 454043118,
-    "androidx.fragment:fragment:aar": 2065582078,
-    "androidx.fragment:fragment:jar:sources": 1068046387,
-    "androidx.lifecycle:lifecycle-common": -1463379378,
-    "androidx.lifecycle:lifecycle-common:jar:sources": -1741680851,
-    "androidx.lifecycle:lifecycle-livedata-core:aar": -1140639174,
-    "androidx.lifecycle:lifecycle-livedata-core:jar:sources": 2141313770,
-    "androidx.lifecycle:lifecycle-livedata:aar": 131905896,
-    "androidx.lifecycle:lifecycle-livedata:jar:sources": -226265335,
-    "androidx.lifecycle:lifecycle-runtime:aar": -93723701,
-    "androidx.lifecycle:lifecycle-runtime:jar:sources": -1822097260,
-    "androidx.lifecycle:lifecycle-viewmodel:aar": 1763104038,
-    "androidx.lifecycle:lifecycle-viewmodel:jar:sources": -1986045530,
-    "androidx.loader:loader:aar": -1323623930,
-    "androidx.loader:loader:jar:sources": -723045957,
-    "androidx.savedstate:savedstate:aar": -190725513,
-    "androidx.savedstate:savedstate:jar:sources": -90415725,
-    "androidx.versionedparcelable:versionedparcelable:aar": -1391725915,
-    "androidx.versionedparcelable:versionedparcelable:jar:sources": -1041991439,
-    "androidx.viewpager:viewpager:aar": -666812430,
-    "androidx.viewpager:viewpager:jar:sources": -1999416519,
-    "com.google.android.gms:play-services-basement:aar": 804961563,
-    "com.google.android.gms:play-services-tasks:aar": 604726658,
-    "com.google.errorprone:error_prone_annotations": -524329429,
-    "com.google.errorprone:error_prone_annotations:jar:sources": 1611642703,
-    "com.google.guava:failureaccess": 1206604605,
-    "com.google.guava:failureaccess:jar:sources": 89841848,
-    "com.google.guava:guava": -1884313081,
-    "com.google.guava:guava:jar:sources": -1561632838,
-    "com.google.guava:listenablefuture": 624574968,
-    "com.google.j2objc:j2objc-annotations": -1879703412,
-    "com.google.j2objc:j2objc-annotations:jar:sources": 1156973553,
-    "org.apiguardian:apiguardian-api": 25663664,
-    "org.apiguardian:apiguardian-api:jar:sources": -1137264259,
-    "org.jspecify:jspecify": -2091595516,
-    "org.jspecify:jspecify:jar:sources": 122484641,
-    "org.junit.jupiter:junit-jupiter-api": 456559607,
-    "org.junit.jupiter:junit-jupiter-api:jar:sources": 1152530730,
-    "org.junit.platform:junit-platform-commons": -53369843,
-    "org.junit.platform:junit-platform-commons:jar:sources": 2049022074,
-    "org.opentest4j:opentest4j": 1825777459,
-    "org.opentest4j:opentest4j:jar:sources": 532110863
+    "androidx.activity:activity:aar": -1634882532,
+    "androidx.activity:activity:jar:sources": 1442012195,
+    "androidx.annotation:annotation": 1413426692,
+    "androidx.annotation:annotation:jar:sources": 1810788939,
+    "androidx.arch.core:core-common": 775335689,
+    "androidx.arch.core:core-common:jar:sources": 1159431440,
+    "androidx.arch.core:core-runtime:aar": 1493812608,
+    "androidx.arch.core:core-runtime:jar:sources": 392388821,
+    "androidx.collection:collection": -1823184967,
+    "androidx.collection:collection:jar:sources": 354350675,
+    "androidx.core:core:aar": 1995471632,
+    "androidx.core:core:jar:sources": 1173181877,
+    "androidx.customview:customview:aar": 745293740,
+    "androidx.customview:customview:jar:sources": -1103801469,
+    "androidx.fragment:fragment:aar": -1397303258,
+    "androidx.fragment:fragment:jar:sources": -153174520,
+    "androidx.lifecycle:lifecycle-common": 1419147855,
+    "androidx.lifecycle:lifecycle-common:jar:sources": 950735234,
+    "androidx.lifecycle:lifecycle-livedata-core:aar": 512630873,
+    "androidx.lifecycle:lifecycle-livedata-core:jar:sources": -1504552065,
+    "androidx.lifecycle:lifecycle-livedata:aar": -211687130,
+    "androidx.lifecycle:lifecycle-livedata:jar:sources": 1617962078,
+    "androidx.lifecycle:lifecycle-runtime:aar": 2059500255,
+    "androidx.lifecycle:lifecycle-runtime:jar:sources": 55122345,
+    "androidx.lifecycle:lifecycle-viewmodel:aar": -1343142281,
+    "androidx.lifecycle:lifecycle-viewmodel:jar:sources": -1462969029,
+    "androidx.loader:loader:aar": -903575157,
+    "androidx.loader:loader:jar:sources": -1145728624,
+    "androidx.savedstate:savedstate:aar": -1503458125,
+    "androidx.savedstate:savedstate:jar:sources": 1407220584,
+    "androidx.versionedparcelable:versionedparcelable:aar": -430616626,
+    "androidx.versionedparcelable:versionedparcelable:jar:sources": 972167238,
+    "androidx.viewpager:viewpager:aar": 70218223,
+    "androidx.viewpager:viewpager:jar:sources": -2053759858,
+    "com.google.android.gms:play-services-basement:aar": -1051605914,
+    "com.google.android.gms:play-services-tasks:aar": 1434416700,
+    "com.google.errorprone:error_prone_annotations": 1014409728,
+    "com.google.errorprone:error_prone_annotations:jar:sources": 2059442212,
+    "com.google.guava:failureaccess": 1715931538,
+    "com.google.guava:failureaccess:jar:sources": 1303858893,
+    "com.google.guava:guava": -2046459454,
+    "com.google.guava:guava:jar:sources": 544801871,
+    "com.google.guava:listenablefuture": 1079558157,
+    "com.google.j2objc:j2objc-annotations": -404209759,
+    "com.google.j2objc:j2objc-annotations:jar:sources": 1852793670,
+    "org.apiguardian:apiguardian-api": 720546703,
+    "org.apiguardian:apiguardian-api:jar:sources": 702285398,
+    "org.jspecify:jspecify": 117231129,
+    "org.jspecify:jspecify:jar:sources": -2134060298,
+    "org.junit.jupiter:junit-jupiter-api": 1366817650,
+    "org.junit.jupiter:junit-jupiter-api:jar:sources": 582158783,
+    "org.junit.platform:junit-platform-commons": -796607718,
+    "org.junit.platform:junit-platform-commons:jar:sources": 1087483151,
+    "org.opentest4j:opentest4j": -1711174392,
+    "org.opentest4j:opentest4j:jar:sources": -1740624156
   },
   "conflict_resolution": {
     "com.google.guava:guava": "com.google.guava:guava:33.4.8-jre"
@@ -301,10 +302,10 @@
     },
     "org.apiguardian:apiguardian-api": {
       "shasums": {
-        "jar": "b509448ac506d607319f182537f0b35d71007582ec741832a1f111e5b5b70b38",
-        "sources": "277a7a4315412817beb6655b324dc7276621e95ebff00b8bf65e17a27b685e2d"
+        "jar": "a9aae9ff8ae3e17a2a18f79175e82b16267c246fbbd3ca9dfbbb290b08dcfdd4",
+        "sources": "d39a5bb9b4b57e7584ac81f714ba8ef73b08ca462a48d7828d4a93fa5013fe1e"
       },
-      "version": "1.1.2"
+      "version": "1.1.0"
     },
     "org.jspecify:jspecify": {
       "shasums": {
@@ -438,6 +439,9 @@
     ]
   },
   "packages": {
+    "androidx.activity:activity:aar": [
+      "androidx.activity"
+    ],
     "androidx.annotation:annotation": [
       "androidx.annotation"
     ],
@@ -445,11 +449,104 @@
       "androidx.arch.core.internal",
       "androidx.arch.core.util"
     ],
+    "androidx.arch.core:core-runtime:aar": [
+      "androidx.arch.core.executor"
+    ],
     "androidx.collection:collection": [
       "androidx.collection"
     ],
+    "androidx.core:core:aar": [
+      "android.support.v4.app",
+      "android.support.v4.graphics.drawable",
+      "android.support.v4.os",
+      "androidx.core.accessibilityservice",
+      "androidx.core.app",
+      "androidx.core.content",
+      "androidx.core.content.pm",
+      "androidx.core.content.res",
+      "androidx.core.database",
+      "androidx.core.database.sqlite",
+      "androidx.core.graphics",
+      "androidx.core.graphics.drawable",
+      "androidx.core.hardware.display",
+      "androidx.core.hardware.fingerprint",
+      "androidx.core.internal.view",
+      "androidx.core.location",
+      "androidx.core.math",
+      "androidx.core.net",
+      "androidx.core.os",
+      "androidx.core.provider",
+      "androidx.core.telephony.mbms",
+      "androidx.core.text",
+      "androidx.core.text.util",
+      "androidx.core.util",
+      "androidx.core.view",
+      "androidx.core.view.accessibility",
+      "androidx.core.view.animation",
+      "androidx.core.view.inputmethod",
+      "androidx.core.widget"
+    ],
+    "androidx.customview:customview:aar": [
+      "androidx.customview.view",
+      "androidx.customview.widget"
+    ],
+    "androidx.fragment:fragment:aar": [
+      "androidx.fragment.app"
+    ],
     "androidx.lifecycle:lifecycle-common": [
       "androidx.lifecycle"
+    ],
+    "androidx.lifecycle:lifecycle-livedata-core:aar": [
+      "androidx.lifecycle"
+    ],
+    "androidx.lifecycle:lifecycle-livedata:aar": [
+      "androidx.lifecycle"
+    ],
+    "androidx.lifecycle:lifecycle-runtime:aar": [
+      "androidx.lifecycle"
+    ],
+    "androidx.lifecycle:lifecycle-viewmodel:aar": [
+      "androidx.lifecycle"
+    ],
+    "androidx.loader:loader:aar": [
+      "androidx.loader.app",
+      "androidx.loader.content"
+    ],
+    "androidx.savedstate:savedstate:aar": [
+      "androidx.savedstate"
+    ],
+    "androidx.versionedparcelable:versionedparcelable:aar": [
+      "androidx.versionedparcelable"
+    ],
+    "androidx.viewpager:viewpager:aar": [
+      "androidx.viewpager.widget"
+    ],
+    "com.google.android.gms:play-services-basement:aar": [
+      "com.google.android.gms.actions",
+      "com.google.android.gms.common",
+      "com.google.android.gms.common.annotation",
+      "com.google.android.gms.common.api",
+      "com.google.android.gms.common.api.internal",
+      "com.google.android.gms.common.config",
+      "com.google.android.gms.common.internal",
+      "com.google.android.gms.common.internal.constants",
+      "com.google.android.gms.common.internal.safeparcel",
+      "com.google.android.gms.common.logging",
+      "com.google.android.gms.common.providers",
+      "com.google.android.gms.common.sqlite",
+      "com.google.android.gms.common.stats",
+      "com.google.android.gms.common.util",
+      "com.google.android.gms.common.util.concurrent",
+      "com.google.android.gms.common.wrappers",
+      "com.google.android.gms.dynamic",
+      "com.google.android.gms.dynamite",
+      "com.google.android.gms.internal.common",
+      "com.google.android.gms.security",
+      "com.google.firebase"
+    ],
+    "com.google.android.gms:play-services-tasks:aar": [
+      "com.google.android.gms.internal.tasks",
+      "com.google.android.gms.tasks"
     ],
     "com.google.errorprone:error_prone_annotations": [
       "com.google.errorprone.annotations",
