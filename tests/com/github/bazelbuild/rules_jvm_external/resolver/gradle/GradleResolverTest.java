@@ -38,6 +38,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import com.google.common.graph.Graph;
+import com.google.common.hash.Hashing;
 import com.google.devtools.build.runfiles.AutoBazelRepository;
 import com.google.devtools.build.runfiles.Runfiles;
 import java.io.IOException;
@@ -63,6 +64,60 @@ public class GradleResolverTest extends ResolverTestBase {
   @Override
   protected Resolver getResolver(Netrc netrc, EventListener listener) {
     return new GradleResolver(netrc, ResolverConfig.DEFAULT_MAX_THREADS, listener);
+  }
+
+  @Test
+  public void preservesTgzCoordinatesAndChecksumInLockFile() throws IOException {
+    Coordinates coords = new Coordinates("com.example:archive:tgz:linux:1.0");
+    Path repo =
+        MavenRepo.create().add(coords).addArtifactOnly(coords.setExtension("jar")).getPath();
+    URI repository = repo.toUri();
+    String expectedSha =
+        Hashing.sha256()
+            .hashBytes(Files.readAllBytes(repo.resolve(coords.toRepoPath())))
+            .toString();
+
+    ResolutionResult resolved = resolver.resolve(prepareRequestFor(repository, coords));
+
+    assertEquals(Set.of(coords), resolved.getResolution().nodes());
+    Path resolvedPath = resolved.getArtifacts().get(coords).getPath().orElseThrow();
+    assertEquals("archive-1.0-linux.tgz", resolvedPath.getFileName().toString());
+
+    DownloadResult download =
+        new Downloader(
+                Netrc.fromUserHome(),
+                tempFolder.newFolder("local-repo").toPath(),
+                Set.of(repository),
+                new NullListener(),
+                false,
+                Map.of(coords, resolvedPath))
+            .download(coords);
+
+    assertEquals(coords, download.getCoordinates());
+    assertEquals(Optional.of(expectedSha), download.getSha256());
+
+    DependencyInfo info =
+        new DependencyInfo(
+            download.getCoordinates(),
+            download.getRepositories(),
+            download.getPath(),
+            download.getSha256(),
+            Set.of(),
+            Set.of(),
+            Set.of(),
+            new TreeMap<>());
+    Map<String, Object> lockFile =
+        new V3LockFile(Set.of(repository), Set.of(info), Set.of(), false).render();
+
+    assertEquals(
+        Map.of(
+            "com.example:archive:tgz",
+            Map.of("version", "1.0", "shasums", Map.of("linux", expectedSha))),
+        lockFile.get("artifacts"));
+    Map<?, ?> repositories = (Map<?, ?>) lockFile.get("repositories");
+    assertEquals(1, repositories.size());
+    assertEquals(repository, URI.create((String) repositories.keySet().iterator().next()));
+    assertEquals(Set.of("com.example:archive:tgz:linux"), repositories.values().iterator().next());
   }
 
   @Test

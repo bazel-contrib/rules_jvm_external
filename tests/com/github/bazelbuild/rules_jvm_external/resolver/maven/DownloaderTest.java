@@ -23,6 +23,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.MavenRepo;
 import com.github.bazelbuild.rules_jvm_external.resolver.netrc.Netrc;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.DownloadResult;
 import com.github.bazelbuild.rules_jvm_external.resolver.remote.Downloader;
+import com.github.bazelbuild.rules_jvm_external.resolver.remote.UriNotFoundException;
 import com.github.bazelbuild.rules_jvm_external.resolver.ui.NullListener;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +33,21 @@ import java.util.Set;
 import org.junit.Test;
 
 public class DownloaderTest {
+  @Test(expected = UriNotFoundException.class)
+  public void missingTgzDoesNotFallBackToJar() throws IOException {
+    Coordinates coords = new Coordinates("com.example:archive:tgz:1.0");
+    Path repo = MavenRepo.create().add(coords.setExtension("jar")).getPath();
+
+    new Downloader(
+            Netrc.fromUserHome(),
+            Files.createTempDirectory("local"),
+            Set.of(repo.toUri()),
+            new NullListener(),
+            false,
+            Map.of())
+        .download(coords);
+  }
+
   @Test
   public void downloaderHandleUndeclaredCharacterEntityInPOM() throws IOException {
     Coordinates coords = new Coordinates("com.example:characterentity:1.0");

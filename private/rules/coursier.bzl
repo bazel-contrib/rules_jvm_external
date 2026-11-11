@@ -73,9 +73,11 @@ sh_binary(
     srcs = ["pin.sh"],
     args = [
         "$(rlocationpath :unsorted_deps.json)",
+        {dependency_index_arg}
     ],
     data = [
         ":unsorted_deps.json",
+        {dependency_index_data}
     ],
     deps = [
         "@bazel_tools//tools/bash/runfiles",
@@ -252,8 +254,21 @@ def _normalize_to_unix_path(path):
 def strip_credentials_from_cache_path(relative_path):
     credential_marker = relative_path.rfind("%40")
     if credential_marker > -1:
-        user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
-        relative_path = relative_path.replace(user_prefix, "")
+        # The username may itself contain '/' (some registries issue
+        # pull-token usernames like "org/123456"), so drop everything
+        # between the protocol directory and the marker rather than only
+        # the last path segment.
+        protocol_dir_end = -1
+        for protocol_dir in ["/https/", "/http/"]:
+            protocol_dir_index = relative_path.rfind(protocol_dir, 0, credential_marker)
+            if protocol_dir_index > -1:
+                protocol_dir_end = protocol_dir_index + len(protocol_dir)
+                break
+        if protocol_dir_end > -1:
+            relative_path = relative_path[:protocol_dir_end] + relative_path[credential_marker + 3:]
+        else:
+            user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
+            relative_path = relative_path.replace(user_prefix, "")
     return relative_path
 
 # Relativize an absolute path to an artifact in coursier's default cache location.
@@ -1478,6 +1493,8 @@ def _coursier_fetch_impl(repository_ctx):
             continue
         artifact.update({"sha256": shas[path]})
         artifact.update({"packages": jars_to_index_results[path]["packages"]})
+        if repository_ctx.attr.dependency_index:
+            artifact.update({"classes": jars_to_index_results[path]["classes"]})
         service_implementations = jars_to_index_results[path].get("serviceImplementations", {})
         if service_implementations:
             artifact.update({"services": service_implementations})
@@ -1494,6 +1511,8 @@ def _coursier_fetch_impl(repository_ctx):
     for repo in repositories:
         reformat_lock_file_cmd.extend(["--repo", repo["repo_url"]])
     reformat_lock_file_cmd.extend(["--json", "coursier-deps.json"])
+    if repository_ctx.attr.dependency_index:
+        reformat_lock_file_cmd.extend(["--dependency-index-output", "dependency_index.json"])
 
     # But update the format to the latest lock file
     result = _execute(
@@ -1575,6 +1594,8 @@ def _coursier_fetch_impl(repository_ctx):
             repository_name = repository_name,
             imports = generated_imports,
             aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            dependency_index_arg = '"$(rlocationpath :dependency_index.json)",' if repository_ctx.attr.dependency_index else "",
+            dependency_index_data = '":dependency_index.json",' if repository_ctx.attr.dependency_index else "",
         ),
         executable = False,
     )
@@ -1597,6 +1618,11 @@ def _coursier_fetch_impl(repository_ctx):
         # Default maven_install.json file name.
         maven_install_location = "{repository_name}_install.json"
 
+    dependency_index_location = ""
+    if repository_ctx.attr.dependency_index:
+        dependency_index = repository_ctx.attr.dependency_index
+        dependency_index_location = "/".join([dependency_index.package, dependency_index.name]) if dependency_index.package else dependency_index.name
+
     # Expose the script to let users pin the state of the fetch in
     # `<workspace_root>/maven_install.json`.
     #
@@ -1610,6 +1636,7 @@ def _coursier_fetch_impl(repository_ctx):
             "{maven_install_location}": "$BUILD_WORKSPACE_DIRECTORY/" + maven_install_location,
             "{predefined_maven_install}": str(predefined_maven_install),
             "{repository_name}": repository_name,
+            "{dependency_index_location}": dependency_index_location,
         },
         executable = True,
     )
