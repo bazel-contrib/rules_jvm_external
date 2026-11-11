@@ -131,6 +131,8 @@ public class MergeJars {
     // so that we have a deterministic output.
     Map<String, Path> fileToSourceJar = new TreeMap<>();
     Map<String, byte[]> fileHashCodes = new HashMap<>();
+    Map<String, Map<String, Path>> kotlinModules = new TreeMap<>();
+    Map<String, String> originalKotlinModuleNames = new HashMap<>();
 
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
@@ -161,7 +163,15 @@ public class MergeJars {
           if (!entry.isDirectory()) {
             // Duplicate files, however may not be. We need the hash to determine
             // whether we should do anything.
-            byte[] hash = hash(zis);
+            boolean kotlinModule = isKotlinModule(entry.getName());
+            byte[] hash = hash(zis, kotlinModule ? "SHA-256" : "SHA-1");
+
+            if (kotlinModule) {
+              kotlinModules
+                  .computeIfAbsent(entry.getName(), key -> new TreeMap<>())
+                  .putIfAbsent(hex(hash), source);
+              continue;
+            }
 
             if (!fileToSourceJar.containsKey(entry.getName())) {
               fileToSourceJar.put(entry.getName(), source);
@@ -177,6 +187,29 @@ public class MergeJars {
             }
           }
         }
+      }
+    }
+
+    // Split Kotlin compilations can share a module name. Each mapping is needed to
+    // discover its top-level declarations, even when another mapping has the same name.
+    Set<String> reservedNames = new HashSet<>(fileToSourceJar.keySet());
+    reservedNames.addAll(kotlinModules.keySet());
+    for (Map.Entry<String, Map<String, Path>> module : kotlinModules.entrySet()) {
+      for (Map.Entry<String, Path> variant : module.getValue().entrySet()) {
+        String originalName = module.getKey();
+        String name = originalName;
+        if (module.getValue().size() > 1) {
+          String prefix =
+              originalName.substring(0, originalName.length() - ".kotlin_module".length())
+                  + "-"
+                  + variant.getKey();
+          name = prefix + ".kotlin_module";
+          for (int suffix = 1; !reservedNames.add(name); suffix++) {
+            name = prefix + "-" + suffix + ".kotlin_module";
+          }
+        }
+        fileToSourceJar.put(name, variant.getValue());
+        originalKotlinModuleNames.put(name, originalName);
       }
     }
 
@@ -259,7 +292,7 @@ public class MergeJars {
           previousSource = pathAndSource.getValue();
         }
 
-        ZipEntry original = source.getEntry(name);
+        ZipEntry original = source.getEntry(originalKotlinModuleNames.getOrDefault(name, name));
         if (original == null) {
           continue;
         }
@@ -366,9 +399,24 @@ public class MergeJars {
     return into;
   }
 
-  private static byte[] hash(InputStream inputStream) {
+  private static boolean isKotlinModule(String name) {
+    return name.startsWith("META-INF/")
+        && name.indexOf('/', "META-INF/".length()) == -1
+        && name.endsWith(".kotlin_module");
+  }
+
+  private static String hex(byte[] bytes) {
+    StringBuilder result = new StringBuilder(bytes.length * 2);
+    for (byte value : bytes) {
+      result.append(Character.forDigit((value >>> 4) & 0xf, 16));
+      result.append(Character.forDigit(value & 0xf, 16));
+    }
+    return result.toString();
+  }
+
+  private static byte[] hash(InputStream inputStream, String algorithm) {
     try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      MessageDigest digest = MessageDigest.getInstance(algorithm);
 
       byte[] buf = new byte[100 * 1024];
       int read;
