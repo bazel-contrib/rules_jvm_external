@@ -24,7 +24,11 @@ repositories {
 
 dependencies {
 {{~#each boms}}
+{{~#if forceVersion}}
+    implementation enforcedPlatform("{{group}}:{{artifact}}:{{version}}")
+{{~else}}
     implementation platform("{{group}}:{{artifact}}:{{version}}")
+{{~/if}}
 {{~/each}}
 {{~#each dependencies}}
     implementation({{{notation}}}){{~#if exclusions}}{{~#if forceVersion}} {

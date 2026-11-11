@@ -157,7 +157,8 @@ public class GradleBuildScriptGenerator {
                   Map<String, Object> map = new HashMap<>();
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
-                  map.put("version", dep.getVersion());
+                  map.put("version", getVersion(dep));
+                  map.put("forceVersion", isForceVersion(dep));
                   return map;
                 })
             .collect(Collectors.toList()));
@@ -171,11 +172,9 @@ public class GradleBuildScriptGenerator {
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
 
-                  String version = dep.getVersion();
-                  boolean isForceVersion = version != null && version.endsWith("!!");
+                  String version = getVersion(dep);
+                  boolean isForceVersion = isForceVersion(dep);
                   if (isForceVersion) {
-                    // Strip the !! suffix, we'll use version { strictly() } in template
-                    version = version.substring(0, version.length() - 2);
                     map.put("forceVersion", true);
                     map.put("versionOnly", version); // Version without : prefix for strictly()
                   } else {
@@ -218,6 +217,15 @@ public class GradleBuildScriptGenerator {
     // Render the template and write the actual build file
     String output = template.apply(Context.newContext(contextMap)).trim();
     Files.writeString(outputGradleBuildScript, output);
+  }
+
+  private static boolean isForceVersion(GradleDependency dep) {
+    return dep.getVersion() != null && dep.getVersion().endsWith("!!");
+  }
+
+  private static String getVersion(GradleDependency dep) {
+    String version = dep.getVersion();
+    return isForceVersion(dep) ? version.substring(0, version.length() - 2) : version;
   }
 
   private static String renderDependencyNotation(GradleDependency dep, String version) {
