@@ -254,8 +254,21 @@ def _normalize_to_unix_path(path):
 def strip_credentials_from_cache_path(relative_path):
     credential_marker = relative_path.rfind("%40")
     if credential_marker > -1:
-        user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
-        relative_path = relative_path.replace(user_prefix, "")
+        # The username may itself contain '/' (some registries issue
+        # pull-token usernames like "org/123456"), so drop everything
+        # between the protocol directory and the marker rather than only
+        # the last path segment.
+        protocol_dir_end = -1
+        for protocol_dir in ["/https/", "/http/"]:
+            protocol_dir_index = relative_path.rfind(protocol_dir, 0, credential_marker)
+            if protocol_dir_index > -1:
+                protocol_dir_end = protocol_dir_index + len(protocol_dir)
+                break
+        if protocol_dir_end > -1:
+            relative_path = relative_path[:protocol_dir_end] + relative_path[credential_marker + 3:]
+        else:
+            user_prefix = relative_path[:credential_marker + 3].split("/")[-1]
+            relative_path = relative_path.replace(user_prefix, "")
     return relative_path
 
 # Relativize an absolute path to an artifact in coursier's default cache location.
