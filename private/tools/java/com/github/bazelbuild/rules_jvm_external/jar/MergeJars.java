@@ -23,6 +23,7 @@ import static java.util.zip.ZipOutputStream.DEFLATED;
 
 import com.github.bazelbuild.rules_jvm_external.ByteStreams;
 import com.github.bazelbuild.rules_jvm_external.zip.StableZipEntry;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +44,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
@@ -131,6 +133,8 @@ public class MergeJars {
     // so that we have a deterministic output.
     Map<String, Path> fileToSourceJar = new TreeMap<>();
     Map<String, byte[]> fileHashCodes = new HashMap<>();
+    Map<String, Map<String, byte[]>> kotlinModules = new TreeMap<>();
+    Map<String, byte[]> kotlinModuleContents = new HashMap<>();
 
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
@@ -161,8 +165,17 @@ public class MergeJars {
           if (!entry.isDirectory()) {
             // Duplicate files, however may not be. We need the hash to determine
             // whether we should do anything.
-            byte[] hash = hash(zis);
+            if (isKotlinModule(entry.getName())) {
+              // Entry names need not be unique within a source ZIP.
+              byte[] contents = ByteStreams.toByteArray(zis);
+              byte[] hash = hash(new ByteArrayInputStream(contents), "SHA-256");
+              kotlinModules
+                  .computeIfAbsent(entry.getName(), key -> new TreeMap<>())
+                  .putIfAbsent(hex(hash), contents);
+              continue;
+            }
 
+            byte[] hash = hash(zis, "SHA-1");
             if (!fileToSourceJar.containsKey(entry.getName())) {
               fileToSourceJar.put(entry.getName(), source);
               fileHashCodes.put(entry.getName(), hash);
@@ -179,6 +192,30 @@ public class MergeJars {
         }
       }
     }
+
+    // Split Kotlin compilations can share a module name. Each mapping is needed to
+    // discover its top-level declarations, even when another mapping has the same name.
+    Set<String> reservedNames = new HashSet<>(fileToSourceJar.keySet());
+    reservedNames.addAll(kotlinModules.keySet());
+    for (Map.Entry<String, Map<String, byte[]>> module : kotlinModules.entrySet()) {
+      for (Map.Entry<String, byte[]> variant : module.getValue().entrySet()) {
+        String originalName = module.getKey();
+        String name = originalName;
+        if (module.getValue().size() > 1) {
+          String prefix =
+              originalName.substring(0, originalName.length() - ".kotlin_module".length())
+                  + "-"
+                  + variant.getKey();
+          name = prefix + ".kotlin_module";
+          for (int suffix = 1; !reservedNames.add(name); suffix++) {
+            name = prefix + "-" + suffix + ".kotlin_module";
+          }
+        }
+        kotlinModuleContents.put(name, variant.getValue());
+      }
+    }
+    Set<String> fileNames = new TreeSet<>(fileToSourceJar.keySet());
+    fileNames.addAll(kotlinModuleContents.keySet());
 
     manifest.getMainAttributes().put(new Attributes.Name("Created-By"), "mergejars");
     // Bazel labels are an internal detail of the project producing the merged
@@ -233,9 +270,9 @@ public class MergeJars {
       ZipFile source = previousSource == null ? null : new ZipFile(previousSource.toFile());
 
       // We should never enter this loop without there being any sources
-      for (Map.Entry<String, Path> pathAndSource : fileToSourceJar.entrySet()) {
+      for (String entryName : fileNames) {
         // Get the original entry
-        String name = pathAndSource.getKey();
+        String name = entryName;
 
         // Make sure we're not trying to create root entries.
         if (name.startsWith("/")) {
@@ -251,12 +288,21 @@ public class MergeJars {
           continue;
         }
 
-        if (!Objects.equals(previousSource, pathAndSource.getValue())) {
+        byte[] moduleContents = kotlinModuleContents.get(entryName);
+        if (moduleContents != null) {
+          jos.putNextEntry(new StableZipEntry(name));
+          jos.write(moduleContents);
+          jos.closeEntry();
+          continue;
+        }
+
+        Path sourcePath = fileToSourceJar.get(entryName);
+        if (!Objects.equals(previousSource, sourcePath)) {
           if (source != null) {
             source.close();
           }
-          source = new ZipFile(pathAndSource.getValue().toFile());
-          previousSource = pathAndSource.getValue();
+          source = new ZipFile(sourcePath.toFile());
+          previousSource = sourcePath;
         }
 
         ZipEntry original = source.getEntry(name);
@@ -366,9 +412,24 @@ public class MergeJars {
     return into;
   }
 
-  private static byte[] hash(InputStream inputStream) {
+  private static boolean isKotlinModule(String name) {
+    return name.startsWith("META-INF/")
+        && name.indexOf('/', "META-INF/".length()) == -1
+        && name.endsWith(".kotlin_module");
+  }
+
+  private static String hex(byte[] bytes) {
+    StringBuilder result = new StringBuilder(bytes.length * 2);
+    for (byte value : bytes) {
+      result.append(Character.forDigit((value >>> 4) & 0xf, 16));
+      result.append(Character.forDigit(value & 0xf, 16));
+    }
+    return result.toString();
+  }
+
+  private static byte[] hash(InputStream inputStream, String algorithm) {
     try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-1");
+      MessageDigest digest = MessageDigest.getInstance(algorithm);
 
       byte[] buf = new byte[100 * 1024];
       int read;
