@@ -16,6 +16,7 @@ package com.github.bazelbuild.rules_jvm_external.jar;
 
 import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
 import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -238,6 +239,39 @@ public class MergeJarsTest {
           contents.keySet().stream()
               .allMatch(name -> name.startsWith("META-INF/") && name.endsWith(".kotlin_module")));
       assertArrayEquals(Files.readAllBytes(forward), Files.readAllBytes(reverse));
+    }
+  }
+
+  @Test
+  public void shouldPreserveDistinctKotlinModuleMappingsWithinOneSourceJar() throws IOException {
+    Path input = temp.newFile("input.jar").toPath();
+    createJar(
+        input,
+        ImmutableMap.of(
+            "META-INF/first.kotlin_module", "first",
+            "META-INF/other.kotlin_module", "second",
+            "META-INF/third.kotlin_module", "first"));
+    // ZipOutputStream rejects repeated names. Equal-length replacements preserve ZIP offsets.
+    String jar = new String(Files.readAllBytes(input), ISO_8859_1);
+    Files.write(
+        input,
+        jar.replace("META-INF/other.kotlin_module", "META-INF/first.kotlin_module")
+            .replace("META-INF/third.kotlin_module", "META-INF/first.kotlin_module")
+            .getBytes(ISO_8859_1));
+    Path output = temp.newFile("output.jar").toPath();
+
+    for (String strategy : List.of("first-wins", "last-wins", "are-errors")) {
+      MergeJars.main(
+          new String[] {
+            "--output", output.toString(),
+            "--sources", input.toString(),
+            "--duplicates", strategy
+          });
+
+      Map<String, String> contents = new HashMap<>(readJar(output));
+      contents.remove("META-INF/MANIFEST.MF");
+      assertEquals(2, contents.size());
+      assertEquals(Set.of("first", "second"), new HashSet<>(contents.values()));
     }
   }
 
