@@ -333,8 +333,8 @@ public class GradleResolver implements Resolver {
     return new ResolutionResult(graph, conflicts, artifacts);
   }
 
-  private String makeDepKey(String group, String artifact, String version) {
-    return group + ":" + artifact + ":" + version;
+  private static String makeDepKey(String group, String artifact, String version) {
+    return group + ":" + artifact + ":" + (version == null ? "" : version);
   }
 
   // A feature variant's node identity comes from its classified artifacts. The module's POM
@@ -910,7 +910,8 @@ public class GradleResolver implements Resolver {
    * fail.
    *
    * @param unresolvedDependencies List of all unresolved dependencies from Gradle
-   * @param requestedDepKeys Set of "group:artifact:version" strings for user-requested deps
+   * @param requestedDepKeys Set of "group:artifact:version" strings for user-requested deps; the
+   *     version is empty for a dependency whose version comes from a BOM
    * @param resolvedGroupArtifacts Set of "group:artifact" strings for successfully resolved deps
    * @return List of unresolved dependencies that should cause resolution to fail
    */
@@ -923,7 +924,10 @@ public class GradleResolver implements Resolver {
         .filter(
             dep ->
                 requestedDepKeys.contains(
-                    dep.getGroup() + ":" + dep.getName() + ":" + dep.getVersion()))
+                        makeDepKey(dep.getGroup(), dep.getName(), dep.getVersion()))
+                    // A versionless request is reported by Gradle at the BOM's version, so also
+                    // try the empty-version key.
+                    || requestedDepKeys.contains(makeDepKey(dep.getGroup(), dep.getName(), "")))
         .filter(dep -> !resolvedGroupArtifacts.contains(dep.getGroup() + ":" + dep.getName()))
         .collect(Collectors.toList());
   }

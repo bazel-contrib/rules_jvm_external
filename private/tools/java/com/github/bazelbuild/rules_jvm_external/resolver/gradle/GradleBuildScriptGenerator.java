@@ -229,23 +229,24 @@ public class GradleBuildScriptGenerator {
   }
 
   private static String renderDependencyNotation(GradleDependency dep, String version) {
+    boolean hasVersion = version != null && !version.isEmpty();
+    boolean hasClassifier = dep.getClassifier() != null && !dep.getClassifier().isEmpty();
     String coordinate =
-        dep.getGroup()
-            + ":"
-            + dep.getArtifact()
-            + ((version != null && !version.isEmpty()) ? ":" + version : "");
+        dep.getGroup() + ":" + dep.getArtifact() + (hasVersion ? ":" + version : "");
 
     if (isTestFixturesDependency(dep)) {
       return "testFixtures(\"" + coordinate + "\")";
     }
 
     StringBuilder notation = new StringBuilder().append(coordinate);
-    if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
+    if (hasClassifier) {
+      // Keep an empty version slot so the classifier is not parsed as the version.
+      if (!hasVersion) {
+        notation.append(":");
+      }
       notation.append(":").append(dep.getClassifier());
     }
-    if (dep.getExtension() != null
-        && dep.getClassifier() != null
-        && !dep.getClassifier().isEmpty()) {
+    if (dep.getExtension() != null && hasClassifier) {
       notation.append("@").append(dep.getExtension());
     }
     return "\"" + notation + "\"";
