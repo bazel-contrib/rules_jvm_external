@@ -107,7 +107,7 @@ public class LockFileConverter {
     Set<DependencyInfo> infos = converter.getDependencies();
     Set<Conflict> conflicts = converter.getConflicts();
 
-    Map<String, Object> rendered = new V3LockFile(repositories, infos, conflicts, true).render();
+    Map<String, Object> rendered = new V3LockFile(repositories, infos, conflicts).render();
 
     Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
     String converted = gson.toJson(rendered);

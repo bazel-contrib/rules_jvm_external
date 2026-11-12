@@ -1492,8 +1492,9 @@ def _coursier_fetch_impl(repository_ctx):
                 artifact.pop("url")
             continue
         artifact.update({"sha256": shas[path]})
-        artifact.update({"packages": jars_to_index_results[path]["packages"]})
         if repository_ctx.attr.dependency_index:
+            # Packages and classes are only needed to build the dependency index
+            artifact.update({"packages": jars_to_index_results[path]["packages"]})
             artifact.update({"classes": jars_to_index_results[path]["classes"]})
         service_implementations = jars_to_index_results[path].get("serviceImplementations", {})
         if service_implementations:

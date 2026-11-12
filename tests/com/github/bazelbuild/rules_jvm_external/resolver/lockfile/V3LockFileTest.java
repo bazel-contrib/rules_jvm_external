@@ -15,7 +15,6 @@
 package com.github.bazelbuild.rules_jvm_external.resolver.lockfile;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -53,8 +52,7 @@ public class V3LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    Map<String, Object> rendered =
-        new V3LockFile(repos, Set.of(aggregator), Set.of(), true).render();
+    Map<String, Object> rendered = new V3LockFile(repos, Set.of(aggregator), Set.of()).render();
 
     Map<?, ?> artifacts = (Map<?, ?>) rendered.get("artifacts");
     Map<?, ?> data = (Map<?, ?>) artifacts.get("com.example:aggregator");
@@ -67,7 +65,7 @@ public class V3LockFileTest {
 
   @Test
   public void shouldRoundTripASimpleSetOfDependencies() {
-    V3LockFile roundTripped = roundTrip(new V3LockFile(repos, Set.of(), Set.of(), true));
+    V3LockFile roundTripped = roundTrip(new V3LockFile(repos, Set.of(), Set.of()));
 
     assertEquals(repos, roundTripped.getRepositories());
     assertEquals(Set.of(), roundTripped.getDependencyInfos());
@@ -76,7 +74,7 @@ public class V3LockFileTest {
 
   @Test
   public void shouldRoundTripM2Local() {
-    V3LockFile lockFile = new V3LockFile(repos, Set.of(), Set.of(), true);
+    V3LockFile lockFile = new V3LockFile(repos, Set.of(), Set.of());
     Map<String, Object> rendered = lockFile.render();
     rendered.put("m2local", true);
 
@@ -100,7 +98,7 @@ public class V3LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info), Set.of(), true));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info), Set.of()));
 
     assertEquals(Set.of(info), lockFile.getDependencyInfos());
   }
@@ -131,7 +129,7 @@ public class V3LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info, dep), Set.of(), true));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(info, dep), Set.of()));
 
     assertEquals(Set.of(info, dep), lockFile.getDependencyInfos());
   }
@@ -145,53 +143,13 @@ public class V3LockFileTest {
             new Conflict(
                 new Coordinates("com.foo:bar:1.2.3"), new Coordinates("com.foo:bar:1.2.1")));
 
-    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(), conflicts, true));
+    V3LockFile lockFile = roundTrip(new V3LockFile(repos, Set.of(), conflicts));
 
     assertEquals(conflicts, lockFile.getConflicts());
   }
 
   @Test
-  public void shouldIncludePackagesWhenIncludePackagesIsTrue() {
-    DependencyInfo info =
-        new DependencyInfo(
-            new Coordinates("com.example:item:1.0.0"),
-            repos,
-            Optional.empty(),
-            Optional.of("abc123"),
-            Set.of(),
-            Set.of("com.example", "com.example.sub"),
-            Set.of(),
-            new TreeMap<>());
-
-    Map<String, Object> rendered = new V3LockFile(repos, Set.of(info), Set.of(), true).render();
-
-    assertNotNull(rendered.get("packages"));
-    @SuppressWarnings("unchecked")
-    Map<String, Set<String>> packages = (Map<String, Set<String>>) rendered.get("packages");
-    assertFalse(packages.isEmpty());
-    assertEquals(Set.of("com.example", "com.example.sub"), packages.get("com.example:item"));
-  }
-
-  @Test
-  public void shouldExcludePackagesWhenIncludePackagesIsFalse() {
-    DependencyInfo info =
-        new DependencyInfo(
-            new Coordinates("com.example:item:1.0.0"),
-            repos,
-            Optional.empty(),
-            Optional.of("abc123"),
-            Set.of(),
-            Set.of("com.example", "com.example.sub"),
-            Set.of(),
-            new TreeMap<>());
-
-    Map<String, Object> rendered = new V3LockFile(repos, Set.of(info), Set.of(), false).render();
-
-    assertNull(rendered.get("packages"));
-  }
-
-  @Test
-  public void shouldStillIncludeOtherFieldsWhenPackagesExcluded() {
+  public void shouldNotRenderPackages() {
     DependencyInfo info =
         new DependencyInfo(
             new Coordinates("com.example:item:1.0.0"),
@@ -203,12 +161,11 @@ public class V3LockFileTest {
             Set.of(),
             new TreeMap<>());
 
-    Map<String, Object> rendered = new V3LockFile(repos, Set.of(info), Set.of(), false).render();
+    Map<String, Object> rendered = new V3LockFile(repos, Set.of(info), Set.of()).render();
 
-    // Packages should be excluded
+    // Packages are rendered to the dependency index, never to the lock file
     assertNull(rendered.get("packages"));
 
-    // But other fields should still be present
     assertNotNull(rendered.get("artifacts"));
     assertNotNull(rendered.get("dependencies"));
     assertNotNull(rendered.get("services"));

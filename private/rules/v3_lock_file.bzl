@@ -312,7 +312,6 @@ def _render_lock_file(lock_file_contents, input_hash):
     contents.append("  \"dependencies\": %s," % json.encode_indent(lock_file_contents["dependencies"], prefix = "  ", indent = "  "))
     if lock_file_contents.get("m2local"):
         contents.append("  \"m2local\": true,")
-    contents.append("  \"packages\": %s," % json.encode_indent(lock_file_contents["packages"], prefix = "  ", indent = "  "))
     contents.append("  \"repositories\": {")
 
     items = lock_file_contents["repositories"].items()
