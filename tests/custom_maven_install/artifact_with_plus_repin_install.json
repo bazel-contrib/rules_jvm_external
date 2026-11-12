@@ -35,21 +35,6 @@
       "org.scala-sbt:util-interface"
     ]
   },
-  "packages": {
-    "ch.epfl.scala:compiler-interface": [
-      "xsbti",
-      "xsbti.api",
-      "xsbti.compile",
-      "xsbti.compile.analysis"
-    ],
-    "com.google.protobuf:protobuf-java": [
-      "com.google.protobuf",
-      "com.google.protobuf.compiler"
-    ],
-    "org.scala-sbt:util-interface": [
-      "xsbti"
-    ]
-  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "ch.epfl.scala:compiler-interface",

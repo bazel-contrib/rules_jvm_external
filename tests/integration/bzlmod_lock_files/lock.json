@@ -42,58 +42,6 @@
       "org.slf4j:slf4j-api"
     ]
   },
-  "packages": {
-    "com.google.code.gson:gson": [
-      "com.google.gson",
-      "com.google.gson.annotations",
-      "com.google.gson.internal",
-      "com.google.gson.internal.bind",
-      "com.google.gson.internal.bind.util",
-      "com.google.gson.internal.reflect",
-      "com.google.gson.internal.sql",
-      "com.google.gson.reflect",
-      "com.google.gson.stream"
-    ],
-    "org.apache.commons:commons-pool2": [
-      "org.apache.commons.pool2",
-      "org.apache.commons.pool2.impl",
-      "org.apache.commons.pool2.proxy"
-    ],
-    "org.json:json": [
-      "org.json"
-    ],
-    "org.slf4j:slf4j-api": [
-      "org.slf4j",
-      "org.slf4j.event",
-      "org.slf4j.helpers",
-      "org.slf4j.spi"
-    ],
-    "redis.clients:jedis": [
-      "redis.clients.jedis",
-      "redis.clients.jedis.args",
-      "redis.clients.jedis.bloom",
-      "redis.clients.jedis.bloom.commands",
-      "redis.clients.jedis.commands",
-      "redis.clients.jedis.exceptions",
-      "redis.clients.jedis.executors",
-      "redis.clients.jedis.gears",
-      "redis.clients.jedis.gears.resps",
-      "redis.clients.jedis.graph",
-      "redis.clients.jedis.graph.entities",
-      "redis.clients.jedis.json",
-      "redis.clients.jedis.json.commands",
-      "redis.clients.jedis.mcf",
-      "redis.clients.jedis.params",
-      "redis.clients.jedis.providers",
-      "redis.clients.jedis.resps",
-      "redis.clients.jedis.search",
-      "redis.clients.jedis.search.aggr",
-      "redis.clients.jedis.search.querybuilder",
-      "redis.clients.jedis.search.schemafields",
-      "redis.clients.jedis.timeseries",
-      "redis.clients.jedis.util"
-    ]
-  },
   "services": {},
   "repositories": {
     "https://repo1.maven.org/maven2/": [
