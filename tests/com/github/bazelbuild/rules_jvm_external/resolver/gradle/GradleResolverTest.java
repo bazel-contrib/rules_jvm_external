@@ -107,7 +107,7 @@ public class GradleResolverTest extends ResolverTestBase {
             Set.of(),
             new TreeMap<>());
     Map<String, Object> lockFile =
-        new V3LockFile(Set.of(repository), Set.of(info), Set.of(), false).render();
+        new V3LockFile(Set.of(repository), Set.of(info), Set.of()).render();
 
     assertEquals(
         Map.of(
@@ -368,8 +368,7 @@ public class GradleResolverTest extends ResolverTestBase {
                         Set.of(),
                         Set.of(),
                         new TreeMap<>())),
-                Set.of(),
-                false)
+                Set.of())
             .render();
 
     Map<String, Integer> hashes = AbstractMain.calculateArtifactHash(rendered);

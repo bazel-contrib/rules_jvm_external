@@ -91,9 +91,38 @@ def _tgz_artifacts_keep_their_checksum_and_download_url_impl(ctx):
 
 tgz_artifacts_keep_their_checksum_and_download_url_test = unittest.make(_tgz_artifacts_keep_their_checksum_and_download_url_impl)
 
+def _rendered_lock_files_do_not_contain_packages_impl(ctx):
+    env = unittest.begin(ctx)
+
+    lock_file_contents = {
+        "artifacts": {
+            "com.example:item": {
+                "shasums": {"jar": "abc123"},
+                "version": "1.0.0",
+            },
+        },
+        "dependencies": {},
+        # Packages are rendered to the dependency index, never to the lock file
+        "packages": {"com.example:item": ["com.example"]},
+        "repositories": {
+            "https://example.com/maven/": ["com.example:item"],
+        },
+        "services": {},
+        "version": "3",
+    }
+
+    rendered = v3_lock_file.render_lock_file(lock_file_contents, {})
+
+    asserts.false(env, '"packages"' in rendered)
+
+    return unittest.end(env)
+
+rendered_lock_files_do_not_contain_packages_test = unittest.make(_rendered_lock_files_do_not_contain_packages_impl)
+
 def v3_lock_file_test_suite():
     unittest.suite(
         "v3_lock_file_tests",
         null_shasum_artifacts_do_not_get_synthetic_file_test,
+        rendered_lock_files_do_not_contain_packages_test,
         tgz_artifacts_keep_their_checksum_and_download_url_test,
     )

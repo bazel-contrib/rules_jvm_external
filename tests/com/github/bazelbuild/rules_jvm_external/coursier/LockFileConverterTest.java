@@ -15,6 +15,7 @@
 package com.github.bazelbuild.rules_jvm_external.coursier;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
@@ -85,19 +86,19 @@ public class LockFileConverterTest {
                     "com.example:second", Map.of("com.example", Set.of("Second")))),
         index.get("split_package_classes"));
     assertTrue(readJson(lockFile).getAsJsonObject("artifacts").has("com.example:first"));
+    // Packages live in the index file, so must not be duplicated in the lock file
+    assertNull(readJson(lockFile).get("packages"));
   }
 
   @Test
-  public void shouldKeepPackagesInLockFileWithoutIndex() throws IOException {
+  public void shouldNotWritePackagesToTheLockFileWithoutAnIndex() throws IOException {
     Path input = writeDependencies(dependency("first", "com.example.First"));
     Path lockFile = temp.newFile("lock.json").toPath();
 
     LockFileConverter.main(
         new String[] {"--json", input.toString(), "--output", lockFile.toString()});
 
-    assertEquals(
-        new Gson().toJsonTree(Map.of("com.example:first", Set.of("com.example"))),
-        readJson(lockFile).get("packages"));
+    assertNull(readJson(lockFile).get("packages"));
   }
 
   private Map<String, Object> dependency(String artifact, String... classes) {

@@ -16,12 +16,6 @@
     }
   },
   "dependencies": {},
-  "packages": {
-    "com.google.protobuf:protobuf-java": [
-      "com.google.protobuf",
-      "com.google.protobuf.compiler"
-    ]
-  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "com.google.protobuf:protobuf-java"
