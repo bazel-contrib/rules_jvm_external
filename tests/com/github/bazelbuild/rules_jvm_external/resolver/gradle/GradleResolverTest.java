@@ -616,6 +616,29 @@ public class GradleResolverTest extends ResolverTestBase {
   }
 
   @Test
+  public void failsWhenAVersionlessRootManagedByABomCannotBeResolved() throws IOException {
+    Coordinates managed = new Coordinates("com.example:managed:1.0");
+    Coordinates bom = new Coordinates("com.example:bom:1.0");
+    Coordinates other = new Coordinates("com.example:other:1.0");
+    Path repo = MavenRepo.create().add(other).add(createBom(bom, managed)).getPath();
+
+    ResolutionRequest request =
+        new ResolutionRequest()
+            .addRepository(repo.toUri())
+            .addBom(bom)
+            .addArtifact(new Artifact(other))
+            .addArtifact(new Artifact(new Coordinates("com.example:managed")));
+
+    try {
+      resolver.resolve(request).getResolution();
+      fail("Resolution shouldn't succeed if a BOM-managed root is missing from the repository");
+    } catch (Exception e) {
+      assertTrue(e.getCause() instanceof GradleDependencyResolutionException);
+      assertTrue(e.getCause().getMessage().contains("com.example:managed:1.0"));
+    }
+  }
+
+  @Test
   public void forcedVersionBelowBomConstraintKeepsBomManagedRootsResolvable() {
     // Mirrors the Cash Loanstar shape: a BOM manages `lib` at 2.0 while the root pins it at
     // 1.0 with force_version, and another root is versionless, relying on the BOM. The pin
