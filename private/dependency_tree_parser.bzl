@@ -101,7 +101,6 @@ def _generate_target(
         jar_versionless_target_labels,
         explicit_artifacts,
         srcjar_paths,
-        labels_to_override,
         repository_urls,
         neverlink_artifacts,
         testonly_artifacts,
@@ -214,10 +213,7 @@ copy_file(
         # Coursier returns cyclic dependencies sometimes. Handle it here.
         # See https://github.com/bazelbuild/rules_jvm_external/issues/172
         if dep_target_label != target_label:
-            if dep_target_label in labels_to_override:
-                dep_target_label = labels_to_override.get(dep_target_label)
-            else:
-                dep_target_label = ":" + dep_target_label
+            dep_target_label = ":" + dep_target_label
             target_import_labels.append("\t\t\"%s\",\n" % dep_target_label)
     target_import_labels = _deduplicate_list(target_import_labels)
 
@@ -545,7 +541,6 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 jar_versionless_target_labels,
                 explicit_artifacts,
                 srcjar_paths,
-                labels_to_override,
                 repository_urls,
                 neverlink_artifacts,
                 testonly_artifacts,
@@ -561,7 +556,6 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 jar_versionless_target_labels,
                 explicit_artifacts,
                 srcjar_paths,
-                labels_to_override,
                 repository_urls,
                 neverlink_artifacts,
                 testonly_artifacts,
