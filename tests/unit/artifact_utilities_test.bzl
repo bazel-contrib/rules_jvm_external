@@ -500,6 +500,74 @@ def _duplicate_with_and_without_dependencies_and_exclusions_test_impl(ctx):
 
 duplicate_with_and_without_dependencies_and_exclusions_test = unittest.make(_duplicate_with_and_without_dependencies_and_exclusions_test_impl)
 
+def _duplicates_with_different_dependencies_test_impl(ctx):
+    env = unittest.begin(ctx)
+
+    # Reached through a path whose dependencyManagement excludes most of its dependencies.
+    excluded = {
+        "coord": "io.grpc:grpc-util:1.78.0",
+        "file": "v1/https/repo1.maven.org/maven2/io/grpc/grpc-util/1.78.0/grpc-util-1.78.0.jar",
+        "directDependencies": ["io.grpc:grpc-api:1.78.0"],
+        "dependencies": ["io.grpc:grpc-api:1.78.0"],
+        "exclusions": ["com.google.guava:guava", "io.grpc:grpc-core"],
+    }
+
+    # Reached through a path that excludes nothing.
+    full = {
+        "coord": "io.grpc:grpc-util:1.78.0",
+        "file": "v1/https/repo1.maven.org/maven2/io/grpc/grpc-util/1.78.0/grpc-util-1.78.0.jar",
+        "directDependencies": [
+            "com.google.guava:guava:33.0.0-jre",
+            "io.grpc:grpc-api:1.78.0",
+            "io.grpc:grpc-core:1.78.0",
+        ],
+        "dependencies": [
+            "com.google.guava:guava:33.0.0-jre",
+            "io.grpc:grpc-api:1.78.0",
+            "io.grpc:grpc-core:1.78.0",
+        ],
+        "exclusions": ["io.grpc:grpc-core"],
+    }
+
+    # coursier prints the duplicates in hash order, so the result must not depend on it.
+    for duplicates in [[excluded, full], [full, excluded]]:
+        dep_tree = {
+            "conflict_resolution": {},
+            "dependencies": duplicates,
+            "version": "0.1.0",
+        }
+
+        sorted_dep_tree = deduplicate_and_sort_artifacts(dep_tree, [], [], False)
+
+        asserts.equals(env, 1, len(sorted_dep_tree["dependencies"]))
+        merged = sorted_dep_tree["dependencies"][0]
+        asserts.equals(env, "io.grpc:grpc-util:1.78.0", merged["coord"])
+        asserts.equals(
+            env,
+            [
+                "com.google.guava:guava:33.0.0-jre",
+                "io.grpc:grpc-api:1.78.0",
+                "io.grpc:grpc-core:1.78.0",
+            ],
+            sorted(merged["directDependencies"]),
+        )
+        asserts.equals(
+            env,
+            [
+                "com.google.guava:guava:33.0.0-jre",
+                "io.grpc:grpc-api:1.78.0",
+                "io.grpc:grpc-core:1.78.0",
+            ],
+            sorted(merged["dependencies"]),
+        )
+
+        # Only exclusions that every path applies survive the merge.
+        asserts.equals(env, ["io.grpc:grpc-core"], merged["exclusions"])
+
+    return unittest.end(env)
+
+duplicates_with_different_dependencies_test = unittest.make(_duplicates_with_different_dependencies_test_impl)
+
 def artifact_utilities_test_suite():
     unittest.suite(
         "artifact_utilities_tests",
@@ -511,4 +579,5 @@ def artifact_utilities_test_suite():
         one_artifact_duplicate_with_global_exclusions_test,
         duplicate_with_and_without_dependencies_test,
         duplicate_with_and_without_dependencies_and_exclusions_test,
+        duplicates_with_different_dependencies_test,
     )

@@ -4,6 +4,19 @@
 
 load("//:specs.bzl", "utils")
 
+def _merge_duplicate_artifacts(first, second):
+    # coursier reports an artifact once per distinct set of exclusions it was reached with, and
+    # lists those duplicates in hash order. The lock file has one entry per artifact, which must
+    # carry every edge that some path keeps, as Maven would put on the classpath. Picking one
+    # duplicate instead drops edges, and which ones depends on the order coursier printed them.
+    merged = dict(first)
+    for key in ["dependencies", "directDependencies"]:
+        merged[key] = {d: True for d in first.get(key, []) + second.get(key, [])}.keys()
+    second_exclusions = {e: True for e in (second.get("exclusions") or [])}
+    if "exclusions" in first or "exclusions" in second:
+        merged["exclusions"] = [e for e in (first.get("exclusions") or []) if e in second_exclusions]
+    return merged
+
 def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verbose):
     # The deps json returned from coursier can have duplicate artifacts with
     # different dependencies and exclusions. We want to de-duplicate the
@@ -27,8 +40,8 @@ def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verb
             artifacts_with_exclusions[coordinate] = deduped_exclusions.keys()
 
     # As we de-duplicate the list keep the duplicate artifacts with exclusions separate
-    # so we can look at them and select the one that has the same exclusions
-    # Also prefer the duplicates with non-empty dependency lists
+    # so we can look at them and select the one that has the same exclusions, and merge
+    # the duplicates of every other artifact
     duplicate_artifacts_with_exclusions = {}
     deduped_artifacts = {}
     null_artifacts = []
@@ -42,8 +55,7 @@ def deduplicate_and_sort_artifacts(dep_tree, artifacts, excluded_artifacts, verb
             else:
                 duplicate_artifacts_with_exclusions[artifact["coord"]] = [artifact]
         elif artifact["file"] in deduped_artifacts:
-            if len(artifact["dependencies"]) > 0 and len(deduped_artifacts[artifact["file"]]["dependencies"]) == 0:
-                deduped_artifacts[artifact["file"]] = artifact
+            deduped_artifacts[artifact["file"]] = _merge_duplicate_artifacts(deduped_artifacts[artifact["file"]], artifact)
         else:
             deduped_artifacts[artifact["file"]] = artifact
 
