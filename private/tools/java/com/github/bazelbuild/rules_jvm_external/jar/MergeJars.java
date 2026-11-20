@@ -64,6 +64,9 @@ public class MergeJars {
           .collect(Collectors.toSet());
 
   public static void main(String[] args) throws IOException {
+    if (args.length == 1 && args[0].startsWith("@")) {
+      args = Files.readAllLines(Paths.get(args[0].substring(1))).toArray(new String[0]);
+    }
     Path out = null;
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
