@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -159,9 +158,10 @@ public class AddJarManifestEntry {
   }
 
   private static boolean isJarSigned(Path source) throws IOException {
-    try (InputStream is = Files.newInputStream(source);
-        JarInputStream jis = new JarInputStream(is)) {
-      for (ZipEntry entry = jis.getNextEntry(); entry != null; entry = jis.getNextJarEntry()) {
+    try (JarFile jarFile = new JarFile(source.toFile(), false)) {
+      Enumeration<JarEntry> entries = jarFile.entries();
+      while (entries.hasMoreElements()) {
+        JarEntry entry = entries.nextElement();
         if (entry.isDirectory()) {
           continue;
         }

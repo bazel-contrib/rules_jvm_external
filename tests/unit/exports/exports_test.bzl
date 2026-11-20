@@ -28,10 +28,39 @@ exports_test = analysistest.make(
     },
 )
 
+def _manifest_entries_test_impl(ctx):
+    env = analysistest.begin(ctx)
+    actions = analysistest.target_actions(env)
+    asserts.false(env, "AmendManifestEntry" in [action.mnemonic for action in actions])
+    merges = [action for action in actions if action.mnemonic == "MergeJars"]
+    asserts.equals(env, 2, len(merges))
+    binary_merges = [action for action in merges if any([output.basename == "amended_with_manifest.jar" for output in action.outputs.to_list()])]
+    asserts.equals(env, 1, len(binary_merges))
+    if binary_merges:
+        asserts.true(env, "--manifest-entry" in binary_merges[0].argv)
+        asserts.true(env, "Version:1.0" in binary_merges[0].argv)
+    for action in merges:
+        if action not in binary_merges:
+            asserts.false(env, "--manifest-entry" in action.argv)
+    return analysistest.end(env)
+
+manifest_entries_test = analysistest.make(_manifest_entries_test_impl)
+
 def exports_tests(name):
     maven_project_jar(
         name = "maven_project_jar",
         target = ":library_to_test",
+    )
+
+    maven_project_jar(
+        name = "with_manifest",
+        target = ":library_to_test",
+        manifest_entries = {"Version": "1.0"},
+    )
+
+    manifest_entries_test(
+        name = "manifest_entries_test",
+        target_under_test = ":with_manifest",
     )
 
     java_library(
