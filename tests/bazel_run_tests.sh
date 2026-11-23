@@ -328,7 +328,8 @@ function test_gradle_selects_android_variant() {
   # OkHttp publishes Android and JVM variants under the same root coordinate.
   REPIN=1 bazel run @gradle_android_variant//:pin >> "$TEST_LOG" 2>&1
 
-  bazel query 'deps(@gradle_android_variant//:com_squareup_okhttp3_okhttp, 1)' >> "$TEST_LOG" 2>&1
+  bazel query --output=label_kind 'deps(@gradle_android_variant//:com_squareup_okhttp3_okhttp, 1)' >> "$TEST_LOG" 2>&1
+  expect_log "android_library rule @gradle_android_variant//:com_squareup_okhttp3_okhttp[[:space:]]*$"
   expect_log "@gradle_android_variant//:com_squareup_okhttp3_okhttp_android[[:space:]]*$"
   expect_not_log "@gradle_android_variant//:com_squareup_okhttp3_okhttp_jvm[[:space:]]*$"
 

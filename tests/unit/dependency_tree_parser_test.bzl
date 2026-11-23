@@ -30,27 +30,15 @@ def _generate_imports(dependencies, exclusions, override_targets = {}, maven_ins
     )
     return result[0]
 
-def _artifact(group_artifact, version, deps = []):
+def _artifact(group_artifact, version, deps = [], extension = "jar"):
     group, artifact = group_artifact.split(":")
+    path = "%s/%s/%s/%s-%s.%s" % (group.replace(".", "/"), artifact, version, artifact, version, extension)
+    coordinates = "%s:%s" % (group_artifact, version)
     return {
-        "coordinates": "%s:%s" % (group_artifact, version),
+        "coordinates": coordinates if extension == "jar" else coordinates + "@" + extension,
         "deps": deps,
-        "file": "v1/https/repo1.maven.org/maven2/%s/%s/%s/%s-%s.jar" % (
-            group.replace(".", "/"),
-            artifact,
-            version,
-            artifact,
-            version,
-        ),
-        "urls": [
-            "https://repo1.maven.org/maven2/%s/%s/%s/%s-%s.jar" % (
-                group.replace(".", "/"),
-                artifact,
-                version,
-                artifact,
-                version,
-            ),
-        ],
+        "file": "v1/https/repo1.maven.org/maven2/" + path,
+        "urls": ["https://repo1.maven.org/maven2/" + path],
     }
 
 def _exclusion_removes_generated_dep_impl(ctx):
@@ -144,6 +132,32 @@ def _pom_only_exclusion_removes_generated_export_impl(ctx):
 
 pom_only_exclusion_removes_generated_export_test = unittest.make(_pom_only_exclusion_removes_generated_export_impl)
 
+def _fileless_aggregators_export_android_resources_impl(ctx):
+    env = unittest.begin(ctx)
+    aar = _artifact("com.example:android", "1.0", extension = "aar")
+    dependencies = [
+        {"coordinates": "com.example:root:1.0", "file": None, "deps": ["com.example:child:1.0"]},
+        {"coordinates": "com.example:child:1.0", "file": None, "deps": [aar["coordinates"], "com.example:jvm:1.0"]},
+        aar,
+        _artifact("com.example:jvm", "1.0"),
+    ]
+
+    generated_imports = _generate_imports(dependencies, exclusions = {})
+    asserts.true(env, "android_library(\n\tname = \"com_example_root\",\n" in generated_imports)
+    asserts.true(env, "android_library(\n\tname = \"com_example_child\",\n" in generated_imports)
+    asserts.true(env, "maven_coordinates=com.example:root:1.0" in generated_imports)
+
+    excluded_imports = _generate_imports(dependencies, exclusions = {"com.example:child": ["com.example:android"]})
+    asserts.true(env, "java_library(\n\tname = \"com_example_root\",\n" in excluded_imports)
+    asserts.true(env, "java_library(\n\tname = \"com_example_child\",\n" in excluded_imports)
+
+    overridden_imports = _generate_imports(dependencies, exclusions = {}, override_targets = {"com.example:child": "//third_party:child"})
+    asserts.true(env, "java_library(\n\tname = \"com_example_root\",\n" in overridden_imports)
+
+    return unittest.end(env)
+
+fileless_aggregators_export_android_resources_test = unittest.make(_fileless_aggregators_export_android_resources_impl)
+
 def _overridden_aar_original_artifact_uses_real_http_file_repo_impl(ctx):
     env = unittest.begin(ctx)
 
@@ -205,6 +219,7 @@ def dependency_tree_parser_test_suite():
         exclusion_removes_generated_dep_test,
         wildcard_exclusion_removes_all_generated_deps_test,
         pom_only_exclusion_removes_generated_export_test,
+        fileless_aggregators_export_android_resources_test,
         overridden_aar_original_artifact_uses_real_http_file_repo_test,
         overridden_fileless_artifact_has_no_original_target_test,
     )

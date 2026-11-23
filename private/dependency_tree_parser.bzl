@@ -434,6 +434,22 @@ processor_class = "{processor_class}",
 
     return to_return
 
+def _find_android_aggregators(aar_targets, aggregator_count, exporting_targets):
+    # Walk backwards through exports so each aggregator is visited at most once.
+    android_aggregators = {}
+    frontier = aar_targets
+    for _ in range(aggregator_count):
+        if not frontier:
+            break
+        next_frontier = []
+        for dependency in frontier:
+            for target in exporting_targets.get(dependency, []):
+                if target not in android_aggregators:
+                    android_aggregators[target] = True
+                    next_frontier.append(target)
+        frontier = next_frontier
+    return android_aggregators
+
 # Generate BUILD file with jvm_import and aar_import for each artifact in
 # the transitive closure, with their respective deps mapped to the resolved
 # tree.
@@ -444,6 +460,9 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
 
     # The list of java_import/aar_import declaration strings to be joined at the end
     all_imports = []
+    aar_targets = []
+    aggregators = {}
+    exporting_targets = {}
 
     # A dictionary (set) of coordinates. This is to ensure we don't generate
     # duplicate labels
@@ -556,6 +575,8 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
 
         elif artifact_path != None and packaging != "pom":
             seen_imports[target_label] = True
+            if artifact_path.endswith(".aar"):
+                aar_targets.append(target_label)
             all_imports.extend(_generate_target(
                 repository_ctx,
                 jar_versionless_target_labels,
@@ -588,7 +609,7 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
             # parent artifact that just exports its dependencies, instead of
             # failing.
             seen_imports[target_label] = True
-            target_import_string = ["java_library("]
+            target_import_string = []
             target_import_string.append("\tname = \"%s\"," % target_label)
             target_import_string.append("\texports = [")
 
@@ -602,10 +623,12 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
                 # Coursier returns cyclic dependencies sometimes. Handle it here.
                 # See https://github.com/bazelbuild/rules_jvm_external/issues/172
                 if dep_target_label != target_label:
-                    target_import_labels.append("\t\t\":%s\",\n" % dep_target_label)
+                    target_import_labels.append(dep_target_label)
             target_import_labels = _deduplicate_list(target_import_labels)
+            for dep_target_label in target_import_labels:
+                exporting_targets.setdefault(dep_target_label, []).append(target_label)
 
-            target_import_string.append("".join(target_import_labels) + "\t],")
+            target_import_string.append("".join(["\t\t\":%s\",\n" % label for label in target_import_labels]) + "\t],")
             coordinates = artifact.get("maven_coordinates", artifact["coordinates"])
             target_import_string.append("\ttags = [\"maven_coordinates=%s\"]," % coordinates)
 
@@ -614,13 +637,19 @@ def _generate_imports(repository_ctx, dependencies, explicit_artifacts, neverlin
 
             target_import_string.append(")")
 
+            aggregators[target_label] = len(all_imports)
             all_imports.append("\n".join(target_import_string))
 
             versioned_target_alias_label = escape(strip_packaging_and_classifier(artifact["coordinates"]))
             all_imports.append("alias(\n\tname = \"%s\",\n\tactual = \"%s\",\n%s)" %
                                (versioned_target_alias_label, target_label, alias_visibility))
 
-    return ("\n".join(all_imports), jar_versionless_target_labels)
+    android_aggregators = _find_android_aggregators(aar_targets, len(aggregators), exporting_targets)
+    for target, index in aggregators.items():
+        rule = "android_library" if target in android_aggregators else "java_library"
+        all_imports[index] = rule + "(\n" + all_imports[index]
+
+    return ("\n".join(all_imports), jar_versionless_target_labels, bool(android_aggregators))
 
 parser = struct(
     generate_imports = _generate_imports,
