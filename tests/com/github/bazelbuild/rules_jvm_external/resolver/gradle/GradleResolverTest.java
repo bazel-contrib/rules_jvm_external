@@ -284,6 +284,51 @@ public class GradleResolverTest extends ResolverTestBase {
     assertArtifactExtension(result, new Coordinates("com.example:sample-android:aar:1.0"), "aar");
   }
 
+  @Test
+  public void collectsOnlyTheAndroidBinaryWhenBothVariantsShareACoordinate()
+      throws IOException, XMLStreamException {
+    assertSelectedPlatformBinary("android", "androidJvm", "aar");
+  }
+
+  @Test
+  public void collectsOnlyTheJvmBinaryWhenBothVariantsShareACoordinate()
+      throws IOException, XMLStreamException {
+    assertSelectedPlatformBinary("standard-jvm", "jvm", "jar");
+  }
+
+  private void assertSelectedPlatformBinary(String environment, String platform, String extension)
+      throws IOException, XMLStreamException {
+    Coordinates jar = new Coordinates("com.example:sample:1.0");
+    MavenRepo mavenRepo = MavenRepo.create();
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    Path metadata =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/sharedPlatformCoordinate/sample-1.0.module"));
+    new GradleModuleMetadataHelper(mavenRepo).addToMavenRepo(jar, Files.readString(metadata));
+    mavenRepo.addArtifactOnly(jar.setExtension("aar"));
+
+    ResolutionRequest request =
+        prepareRequestFor(mavenRepo.getPath().toUri(), jar)
+            .variants(
+                Map.of(
+                    "org.gradle.category", "library",
+                    "org.gradle.usage", "java-runtime",
+                    "org.gradle.jvm.environment", environment,
+                    "org.jetbrains.kotlin.platform.type", platform));
+    ResolutionResult result = resolver.resolve(request);
+    Set<String> binaries =
+        result.getArtifacts().values().stream()
+            .flatMap(artifact -> artifact.getPath().stream())
+            .map(path -> path.getFileName().toString())
+            .filter(name -> name.endsWith(".jar") || name.endsWith(".aar"))
+            .collect(Collectors.toSet());
+
+    assertEquals(Set.of("sample-1.0." + extension), binaries);
+    assertArtifactExtension(result, jar.setExtension(extension), extension);
+  }
+
   private ResolutionResult resolvePlatformVariants(
       Map<String, String> variants, String platformAttribute)
       throws IOException, XMLStreamException {

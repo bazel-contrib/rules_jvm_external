@@ -165,7 +165,7 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
     // The ArtifactView API doesn't download some of the classifiers by default, so we handle that
     // here
     collectAllResolvedArtifacts(
-        project, cfg, detachedCfg, variantGradleResolvedDependencyMap, declaredDeps);
+        project, cfg, detachedCfg, variantGradleResolvedDependencyMap, declaredDeps, customVariants);
     gradleDependencyModel.getResolvedDependencies().addAll(roots);
 
     // if anything is still unresolved, then add it for reporting
@@ -441,10 +441,30 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       Configuration runtimeClassPathCfg,
       Configuration detachedCfg,
       Map<String, GradleResolvedDependency> variantDependencyMap,
-      List<GradleDependency> declaredDeps) {
+      List<GradleDependency> declaredDeps,
+      boolean customVariants) {
     Map<String, List<GradleResolvedDependency>> dependenciesByComponent =
         indexByComponent(variantDependencyMap.values());
 
+    if (customVariants) {
+      // Use the files from the same variants that supplied the dependency graph.
+      collectArtifactsFromArtifactView(
+          detachedCfg.getIncoming().artifactView(spec -> spec.setLenient(true)),
+          dependenciesByComponent);
+    } else {
+      collectDefaultVariantArtifacts(
+          project, runtimeClassPathCfg, detachedCfg, dependenciesByComponent);
+    }
+
+    // Gradle only fetches POM files when requested explicitly.
+    collectPOMsForAllComponents(project, dependenciesByComponent, declaredDeps);
+  }
+
+  private void collectDefaultVariantArtifacts(
+      Project project,
+      Configuration runtimeClassPathCfg,
+      Configuration detachedCfg,
+      Map<String, List<GradleResolvedDependency>> dependenciesByComponent) {
     // Collect JAR artifacts - we need to check both JAVA_API and JAVA_RUNTIME because some
     // libraries (like resilience4j) only publish runtime variants, while others might only
     // have API variants. We'll collect from both and merge them.
@@ -528,12 +548,6 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
                 });
     collectArtifactsFromArtifactView(detachedApiJars, dependenciesByComponent);
     collectArtifactsFromArtifactView(detachedRuntimeJars, dependenciesByComponent);
-
-    // Collect POM files explicitly as gradle doesn't fetch them unless requested
-    collectPOMsForAllComponents(project, dependenciesByComponent, declaredDeps);
-    // Don't collect conflicting version artifacts - we only need artifacts for the resolved graph
-    // The conflicts are tracked for reporting purposes only, we don't need to download rejected
-    // versions
   }
 
   private void collectArtifactsFromArtifactView(
