@@ -324,6 +324,18 @@ function test_gradle_resolver_missing_source_jar() {
   expect_not_log "listenablefuture.*sources"
 }
 
+function test_gradle_selects_android_variant() {
+  # OkHttp publishes Android and JVM variants under the same root coordinate.
+  REPIN=1 bazel run @gradle_android_variant//:pin >> "$TEST_LOG" 2>&1
+
+  bazel query 'deps(@gradle_android_variant//:com_squareup_okhttp3_okhttp, 1)' >> "$TEST_LOG" 2>&1
+  expect_log "@gradle_android_variant//:com_squareup_okhttp3_okhttp_android[[:space:]]*$"
+  expect_not_log "@gradle_android_variant//:com_squareup_okhttp3_okhttp_jvm[[:space:]]*$"
+
+  # Fetch the selected AAR without requiring an Android SDK toolchain.
+  bazel build @gradle_android_variant//:com/squareup/okhttp3/okhttp-android/5.1.0/okhttp-android-5.1.0.aar >> "$TEST_LOG" 2>&1
+}
+
 function test_coursier_resolution_with_boms() {
     # Only run for Bazel 7 or above
     RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
@@ -482,6 +494,7 @@ TESTS=(
   "test_transitive_dependency_with_type_of_pom"
   "test_maven_resolver_missing_source_jar"
   "test_gradle_resolver_missing_source_jar"
+  "test_gradle_selects_android_variant"
   "test_when_both_pom_and_jar_artifact_are_available_jar_artifact_is_present"
   "test_when_both_pom_and_jar_artifact_are_dependencies_jar_artifact_is_present"
   "test_publish_java_binary_jar_with_maven_export"
