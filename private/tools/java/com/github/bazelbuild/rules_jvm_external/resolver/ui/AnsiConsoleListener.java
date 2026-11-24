@@ -23,6 +23,7 @@ import com.github.bazelbuild.rules_jvm_external.resolver.events.EventListener;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.LogEvent;
 import com.github.bazelbuild.rules_jvm_external.resolver.events.PhaseEvent;
 import com.google.common.collect.ImmutableList;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,6 +108,26 @@ public class AnsiConsoleListener implements EventListener {
 
     if (maxWidth <= 3) {
       return toShorten.substring(length - maxWidth);
+    }
+
+    try {
+      URI uri = URI.create(toShorten);
+      String path = uri.getRawPath();
+      if (uri.getScheme() != null && uri.getHost() != null && path != null) {
+        int filenameStart = path.lastIndexOf('/');
+        if (filenameStart > 0 && filenameStart < path.length() - 1) {
+          int hostEnd = uri.getScheme().length() + 3 + uri.getRawAuthority().length();
+          String shortened =
+              toShorten.substring(0, hostEnd)
+                  + "/...."
+                  + toShorten.substring(hostEnd + filenameStart);
+          if (shortened.length() <= maxWidth) {
+            return shortened;
+          }
+        }
+      }
+    } catch (IllegalArgumentException ignored) {
+      // Progress messages can also contain text that is not a URI.
     }
 
     return "..." + toShorten.substring(length - maxWidth + 3);

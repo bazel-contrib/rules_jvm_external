@@ -5,13 +5,13 @@
     "com.google.code.findbugs:jsr305": 495355163,
     "com.google.code.gson:gson": 2063056812,
     "com.google.errorprone:error_prone_annotations": 1790047777,
-    "com.google.guava:guava": -249069712,
+    "com.google.guava:guava": 1659141954,
     "com.google.j2objc:j2objc-annotations": -26400317,
     "repositories": 1670674627,
     "variants": -826817493
   },
   "__RESOLVED_ARTIFACTS_HASH": {
-    "androidx.activity:activity:aar": -656318607,
+    "androidx.activity:activity:aar": -1336794945,
     "androidx.annotation:annotation": 324139863,
     "androidx.annotation:annotation-experimental:aar": -851866836,
     "androidx.annotation:annotation-jvm": 1394686166,
@@ -22,19 +22,19 @@
     "androidx.compose.runtime:runtime-annotation": -1153762173,
     "androidx.compose.runtime:runtime-annotation-android:aar": 805983527,
     "androidx.concurrent:concurrent-futures": 1896578082,
-    "androidx.core:core-ktx:aar": 1482821316,
+    "androidx.core:core-ktx:aar": -2053082551,
     "androidx.core:core-viewtree:aar": -424918920,
-    "androidx.core:core:aar": 796238061,
+    "androidx.core:core:aar": -1051829318,
     "androidx.interpolator:interpolator:aar": -921911739,
-    "androidx.lifecycle:lifecycle-common": 1233330576,
-    "androidx.lifecycle:lifecycle-livedata-core:aar": -1419218400,
-    "androidx.lifecycle:lifecycle-runtime:aar": -1939364888,
-    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": -453198042,
+    "androidx.lifecycle:lifecycle-common": 2058049798,
+    "androidx.lifecycle:lifecycle-livedata-core:aar": -357411549,
+    "androidx.lifecycle:lifecycle-runtime:aar": -1686900795,
+    "androidx.lifecycle:lifecycle-viewmodel-savedstate:aar": -462082607,
     "androidx.lifecycle:lifecycle-viewmodel:aar": -1674342037,
-    "androidx.navigationevent:navigationevent-android:aar": -326185568,
-    "androidx.navigationevent:navigationevent:aar": -650870630,
+    "androidx.navigationevent:navigationevent-android:aar": -2060846052,
+    "androidx.navigationevent:navigationevent:aar": 1410577137,
     "androidx.profileinstaller:profileinstaller:aar": 179876296,
-    "androidx.savedstate:savedstate:aar": -1120048363,
+    "androidx.savedstate:savedstate:aar": -58241512,
     "androidx.startup:startup-runtime:aar": 2095423293,
     "androidx.tracing:tracing:aar": 1948165828,
     "androidx.versionedparcelable:versionedparcelable:aar": -2131808419,
@@ -42,14 +42,13 @@
     "com.google.code.gson:gson": -1496337728,
     "com.google.errorprone:error_prone_annotations": 430949977,
     "com.google.guava:failureaccess": 1715931538,
-    "com.google.guava:guava": 646961762,
+    "com.google.guava:guava": -886863536,
     "com.google.guava:listenablefuture": 1079558157,
     "com.google.j2objc:j2objc-annotations": -1008747351,
     "org.jetbrains.kotlin:kotlin-stdlib": 661411577,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-android": 1589646716,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-bom": -966616507,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-core": 684783106,
-    "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": -1910328115,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-android": -1892323103,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-core": 551014441,
+    "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": 1392787226,
     "org.jetbrains:annotations": -1663747638,
     "org.jspecify:jspecify": 117231129
   },
@@ -244,7 +243,7 @@
       "shasums": {
         "jar": "9532ca9ba8aceb4cd2067171f981c799988b7f5844e3e274811a3bb757034bc4"
       },
-      "version": "33.6.0-jre"
+      "version": "33.6.0-android"
     },
     "com.google.guava:listenablefuture": {
       "shasums": {
@@ -267,12 +266,6 @@
     "org.jetbrains.kotlinx:kotlinx-coroutines-android": {
       "shasums": {
         "jar": "bd783acd2f9738845d58380f46f45b5cde95d0cb03027d56725338b26bfc4d72"
-      },
-      "version": "1.9.0"
-    },
-    "org.jetbrains.kotlinx:kotlinx-coroutines-bom": {
-      "shasums": {
-        "jar": null
       },
       "version": "1.9.0"
     },
@@ -476,7 +469,6 @@
     ],
     "org.jetbrains.kotlinx:kotlinx-coroutines-android": [
       "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
       "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     ],
     "org.jetbrains.kotlinx:kotlinx-coroutines-core": [
@@ -484,148 +476,7 @@
     ],
     "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": [
       "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
       "org.jetbrains:annotations"
-    ]
-  },
-  "packages": {
-    "androidx.annotation:annotation-jvm": [
-      "androidx.annotation"
-    ],
-    "androidx.arch.core:core-common": [
-      "androidx.arch.core.internal",
-      "androidx.arch.core.util"
-    ],
-    "androidx.collection:collection-jvm": [
-      "androidx.collection",
-      "androidx.collection.internal"
-    ],
-    "androidx.concurrent:concurrent-futures": [
-      "androidx.concurrent.futures"
-    ],
-    "androidx.lifecycle:lifecycle-common": [
-      "androidx.lifecycle"
-    ],
-    "com.google.code.findbugs:jsr305": [
-      "javax.annotation",
-      "javax.annotation.concurrent",
-      "javax.annotation.meta"
-    ],
-    "com.google.code.gson:gson": [
-      "com.google.gson",
-      "com.google.gson.annotations",
-      "com.google.gson.internal",
-      "com.google.gson.internal.bind",
-      "com.google.gson.internal.bind.util",
-      "com.google.gson.internal.reflect",
-      "com.google.gson.internal.sql",
-      "com.google.gson.reflect",
-      "com.google.gson.stream"
-    ],
-    "com.google.errorprone:error_prone_annotations": [
-      "com.google.errorprone.annotations",
-      "com.google.errorprone.annotations.concurrent"
-    ],
-    "com.google.guava:failureaccess": [
-      "com.google.common.util.concurrent.internal"
-    ],
-    "com.google.guava:guava": [
-      "com.google.common.annotations",
-      "com.google.common.base",
-      "com.google.common.base.internal",
-      "com.google.common.cache",
-      "com.google.common.collect",
-      "com.google.common.escape",
-      "com.google.common.eventbus",
-      "com.google.common.graph",
-      "com.google.common.hash",
-      "com.google.common.html",
-      "com.google.common.io",
-      "com.google.common.math",
-      "com.google.common.net",
-      "com.google.common.primitives",
-      "com.google.common.reflect",
-      "com.google.common.util.concurrent",
-      "com.google.common.xml",
-      "com.google.thirdparty.publicsuffix"
-    ],
-    "com.google.j2objc:j2objc-annotations": [
-      "com.google.j2objc.annotations"
-    ],
-    "org.jetbrains.kotlin:kotlin-stdlib": [
-      "kotlin",
-      "kotlin.annotation",
-      "kotlin.collections",
-      "kotlin.collections.builders",
-      "kotlin.collections.jdk8",
-      "kotlin.collections.unsigned",
-      "kotlin.comparisons",
-      "kotlin.concurrent",
-      "kotlin.concurrent.atomics",
-      "kotlin.concurrent.internal",
-      "kotlin.contracts",
-      "kotlin.coroutines",
-      "kotlin.coroutines.cancellation",
-      "kotlin.coroutines.intrinsics",
-      "kotlin.coroutines.jvm.internal",
-      "kotlin.enums",
-      "kotlin.experimental",
-      "kotlin.internal",
-      "kotlin.internal.jdk7",
-      "kotlin.internal.jdk8",
-      "kotlin.io",
-      "kotlin.io.encoding",
-      "kotlin.io.path",
-      "kotlin.jdk7",
-      "kotlin.js",
-      "kotlin.jvm",
-      "kotlin.jvm.functions",
-      "kotlin.jvm.internal",
-      "kotlin.jvm.internal.markers",
-      "kotlin.jvm.internal.unsafe",
-      "kotlin.jvm.jdk8",
-      "kotlin.jvm.optionals",
-      "kotlin.math",
-      "kotlin.properties",
-      "kotlin.random",
-      "kotlin.random.jdk8",
-      "kotlin.ranges",
-      "kotlin.reflect",
-      "kotlin.sequences",
-      "kotlin.streams.jdk8",
-      "kotlin.system",
-      "kotlin.text",
-      "kotlin.text.jdk8",
-      "kotlin.time",
-      "kotlin.time.jdk8",
-      "kotlin.uuid"
-    ],
-    "org.jetbrains.kotlinx:kotlinx-coroutines-android": [
-      "kotlinx.coroutines.android"
-    ],
-    "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm": [
-      "_COROUTINE",
-      "kotlinx.coroutines",
-      "kotlinx.coroutines.channels",
-      "kotlinx.coroutines.debug",
-      "kotlinx.coroutines.debug.internal",
-      "kotlinx.coroutines.flow",
-      "kotlinx.coroutines.flow.internal",
-      "kotlinx.coroutines.future",
-      "kotlinx.coroutines.internal",
-      "kotlinx.coroutines.intrinsics",
-      "kotlinx.coroutines.scheduling",
-      "kotlinx.coroutines.selects",
-      "kotlinx.coroutines.stream",
-      "kotlinx.coroutines.sync",
-      "kotlinx.coroutines.time"
-    ],
-    "org.jetbrains:annotations": [
-      "org.intellij.lang.annotations",
-      "org.jetbrains.annotations"
-    ],
-    "org.jspecify:jspecify": [
-      "org.jspecify.annotations"
     ]
   },
   "repositories": {
@@ -684,7 +535,6 @@
     "androidx.collection:collection",
     "androidx.compose.runtime:runtime-annotation",
     "androidx.navigationevent:navigationevent:aar",
-    "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
     "org.jetbrains.kotlinx:kotlinx-coroutines-core"
   ],
   "version": "3"

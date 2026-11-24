@@ -21,27 +21,6 @@
       "io.netty:netty-common"
     ]
   },
-  "packages": {
-    "io.netty:netty-buffer": [
-      "io.netty.buffer",
-      "io.netty.buffer.search"
-    ],
-    "io.netty:netty-common": [
-      "io.netty.util",
-      "io.netty.util.collection",
-      "io.netty.util.concurrent",
-      "io.netty.util.internal",
-      "io.netty.util.internal.logging",
-      "io.netty.util.internal.shaded.org.jctools.counters",
-      "io.netty.util.internal.shaded.org.jctools.maps",
-      "io.netty.util.internal.shaded.org.jctools.queues",
-      "io.netty.util.internal.shaded.org.jctools.queues.atomic",
-      "io.netty.util.internal.shaded.org.jctools.queues.atomic.unpadded",
-      "io.netty.util.internal.shaded.org.jctools.queues.unpadded",
-      "io.netty.util.internal.shaded.org.jctools.util",
-      "io.netty.util.internal.svm"
-    ]
-  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "io.netty:netty-buffer",

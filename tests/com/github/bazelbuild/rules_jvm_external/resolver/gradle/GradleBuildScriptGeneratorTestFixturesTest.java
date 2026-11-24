@@ -62,6 +62,42 @@ public class GradleBuildScriptGeneratorTestFixturesTest {
     assertFalse(script.contains("org.jetbrains.kotlin.platform.type"));
   }
 
+  @Test
+  public void classifierWithoutVersionLeavesVersionSlotEmpty() throws Exception {
+    assertRenders("", "linux-aarch_64", "jar", "\"com.example:sample::linux-aarch_64@jar\"");
+  }
+
+  @Test
+  public void classifierWithNullVersionLeavesVersionSlotEmpty() throws Exception {
+    assertRenders(null, "linux-aarch_64", "jar", "\"com.example:sample::linux-aarch_64@jar\"");
+  }
+
+  @Test
+  public void versionlessClassifierWithoutExtensionOmitsExtension() throws Exception {
+    assertRenders("", "linux-aarch_64", null, "\"com.example:sample::linux-aarch_64\"");
+  }
+
+  @Test
+  public void versionlessTestFixturesUsesTestFixturesNotation() throws Exception {
+    assertRenders("", "test-fixtures", "jar", "testFixtures(\"com.example:sample\")");
+  }
+
+  @Test
+  public void versionlessWithoutClassifierOmitsVersionSlot() throws Exception {
+    assertRenders("", null, null, "\"com.example:sample\"");
+  }
+
+  private void assertRenders(String version, String classifier, String extension, String expected)
+      throws Exception {
+    String script =
+        renderBuildScript(
+            List.of(
+                new GradleDependencyImpl(
+                    "com.example", "sample", version, List.of(), classifier, extension)));
+
+    assertTrue(script, script.contains("implementation(" + expected + ")"));
+  }
+
   private String renderBuildScript(List<GradleDependency> dependencies) throws Exception {
     Runfiles runfiles =
         Runfiles.preload()

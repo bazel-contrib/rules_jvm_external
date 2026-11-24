@@ -136,6 +136,68 @@ public class UnresolvedDepsTest {
   }
 
   @Test
+  public void shouldReportVersionlessRequestedDepWhenBomVersionNotResolved() {
+    // Versionless request (the BOM supplies the version): Gradle reports it at the BOM's
+    // version, so the exact group:artifact:version key does not match.
+    Set<String> requestedDepKeys = Set.of("com.example:native:");
+    Set<String> resolvedGroupArtifacts = Set.of("com.example:other");
+
+    List<GradleUnresolvedDependency> unresolvedDeps =
+        List.of(
+            new GradleUnresolvedDependencyImpl(
+                "com.example",
+                "native",
+                "2.0.0",
+                GradleUnresolvedDependency.FailureReason.NOT_FOUND,
+                "Artifact not found"));
+
+    List<GradleUnresolvedDependency> filtered =
+        GradleResolver.filterUnresolvedRequestedDeps(
+            unresolvedDeps, requestedDepKeys, resolvedGroupArtifacts);
+
+    assertEquals(1, filtered.size());
+    assertEquals("native", filtered.get(0).getName());
+  }
+
+  @Test
+  public void shouldNotReportVersionlessRequestedDepWhenArtifactResolved() {
+    Set<String> requestedDepKeys = Set.of("com.example:native:");
+    Set<String> resolvedGroupArtifacts = Set.of("com.example:native");
+
+    List<GradleUnresolvedDependency> unresolvedDeps =
+        List.of(
+            new GradleUnresolvedDependencyImpl(
+                "com.example",
+                "native",
+                "1.0.0",
+                GradleUnresolvedDependency.FailureReason.INTERNAL,
+                "Version conflict"));
+
+    assertTrue(
+        GradleResolver.filterUnresolvedRequestedDeps(
+                unresolvedDeps, requestedDepKeys, resolvedGroupArtifacts)
+            .isEmpty());
+  }
+
+  @Test
+  public void shouldNotReportVersionlessRequestForADifferentArtifact() {
+    Set<String> requestedDepKeys = Set.of("com.example:native:");
+
+    List<GradleUnresolvedDependency> unresolvedDeps =
+        List.of(
+            new GradleUnresolvedDependencyImpl(
+                "com.example",
+                "transitive",
+                "2.0.0",
+                GradleUnresolvedDependency.FailureReason.NOT_FOUND,
+                "Artifact not found"));
+
+    assertTrue(
+        GradleResolver.filterUnresolvedRequestedDeps(unresolvedDeps, requestedDepKeys, Set.of())
+            .isEmpty());
+  }
+
+  @Test
   public void shouldHandleMultipleUnresolvedEntriesForSameArtifact() {
     // The same artifact appears multiple times in the unresolved list.
     // If the artifact was resolved at any version, all entries should be skipped

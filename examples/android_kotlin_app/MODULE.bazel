@@ -27,7 +27,7 @@ maven.install(
         "androidx.activity:activity:1.13.0",
         "com.google.code.gson:gson:2.14.0",
         "com.google.errorprone:error_prone_annotations:2.49.0",
-        "com.google.guava:guava:33.6.0-jre",
+        "com.google.guava:guava:33.6.0-android",
         "com.google.j2objc:j2objc-annotations:3.1",
     ],
     known_contributing_modules = ["protobuf"],

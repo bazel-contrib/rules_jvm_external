@@ -16,10 +16,13 @@ package com.github.bazelbuild.rules_jvm_external.jar;
 
 import static com.github.bazelbuild.rules_jvm_external.ZipUtils.createJar;
 import static com.github.bazelbuild.rules_jvm_external.ZipUtils.readJar;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +33,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -194,6 +198,191 @@ public class MergeJarsTest {
     // We expect the manifest and one file
     assertEquals(2, contents.size());
     assertEquals("Hello, World!", contents.get("com/example/A.class"));
+  }
+
+  @Test
+  public void shouldPreserveDistinctKotlinModuleMappingsRegardlessOfSourceOrder()
+      throws IOException {
+    Path first = temp.newFile("first.jar").toPath();
+    createJar(first, ImmutableMap.of("META-INF/shared.kotlin_module", "first"));
+    Path second = temp.newFile("second.jar").toPath();
+    createJar(second, ImmutableMap.of("META-INF/shared.kotlin_module", "second"));
+    Path identical = temp.newFile("identical.jar").toPath();
+    createJar(identical, ImmutableMap.of("META-INF/shared.kotlin_module", "first"));
+    Path forward = temp.newFile("forward.jar").toPath();
+    Path reverse = temp.newFile("reverse.jar").toPath();
+
+    for (String strategy : List.of("first-wins", "last-wins", "are-errors")) {
+      MergeJars.main(
+          new String[] {
+            "--output", forward.toString(),
+            "--sources", first.toString(),
+            "--sources", second.toString(),
+            "--sources", identical.toString(),
+            "--duplicates", strategy
+          });
+      MergeJars.main(
+          new String[] {
+            "--output", reverse.toString(),
+            "--sources", identical.toString(),
+            "--sources", second.toString(),
+            "--sources", first.toString(),
+            "--duplicates", strategy
+          });
+
+      Map<String, String> contents = new HashMap<>(readJar(forward));
+      contents.remove("META-INF/MANIFEST.MF");
+      assertEquals(2, contents.size());
+      assertEquals(Set.of("first", "second"), new HashSet<>(contents.values()));
+      assertFalse(contents.containsKey("META-INF/shared.kotlin_module"));
+      assertTrue(
+          contents.keySet().stream()
+              .allMatch(name -> name.startsWith("META-INF/") && name.endsWith(".kotlin_module")));
+      assertArrayEquals(Files.readAllBytes(forward), Files.readAllBytes(reverse));
+    }
+  }
+
+  @Test
+  public void shouldPreserveDistinctKotlinModuleMappingsWithinOneSourceJar() throws IOException {
+    Path input = temp.newFile("input.jar").toPath();
+    createJar(
+        input,
+        ImmutableMap.of(
+            "META-INF/first.kotlin_module", "first",
+            "META-INF/other.kotlin_module", "second",
+            "META-INF/third.kotlin_module", "first"));
+    // ZipOutputStream rejects repeated names. Equal-length replacements preserve ZIP offsets.
+    String jar = new String(Files.readAllBytes(input), ISO_8859_1);
+    Files.write(
+        input,
+        jar.replace("META-INF/other.kotlin_module", "META-INF/first.kotlin_module")
+            .replace("META-INF/third.kotlin_module", "META-INF/first.kotlin_module")
+            .getBytes(ISO_8859_1));
+    Path output = temp.newFile("output.jar").toPath();
+
+    for (String strategy : List.of("first-wins", "last-wins", "are-errors")) {
+      MergeJars.main(
+          new String[] {
+            "--output", output.toString(),
+            "--sources", input.toString(),
+            "--duplicates", strategy
+          });
+
+      Map<String, String> contents = new HashMap<>(readJar(output));
+      contents.remove("META-INF/MANIFEST.MF");
+      assertEquals(2, contents.size());
+      assertEquals(Set.of("first", "second"), new HashSet<>(contents.values()));
+    }
+  }
+
+  @Test
+  public void shouldKeepTheOriginalNamesForUnambiguousKotlinModuleMappings() throws IOException {
+    Path first = temp.newFile("first.jar").toPath();
+    createJar(
+        first,
+        ImmutableMap.of(
+            "META-INF/shared.kotlin_module", "same",
+            "META-INF/unique.kotlin_module", "unique"));
+    Path second = temp.newFile("second.jar").toPath();
+    createJar(second, ImmutableMap.of("META-INF/shared.kotlin_module", "same"));
+    Path output = temp.newFile("output.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", output.toString(),
+          "--sources", first.toString(),
+          "--sources", second.toString(),
+          "--duplicates", "are-errors"
+        });
+
+    Map<String, String> contents = readJar(output);
+    assertEquals(3, contents.size());
+    assertEquals("same", contents.get("META-INF/shared.kotlin_module"));
+    assertEquals("unique", contents.get("META-INF/unique.kotlin_module"));
+  }
+
+  @Test
+  public void shouldAvoidExistingNamesWhenRetainingKotlinModuleMappings() throws IOException {
+    Path first = temp.newFile("first.jar").toPath();
+    createJar(first, ImmutableMap.of("META-INF/shared.kotlin_module", "first"));
+    Path second = temp.newFile("second.jar").toPath();
+    createJar(second, ImmutableMap.of("META-INF/shared.kotlin_module", "second"));
+    Path initial = temp.newFile("initial.jar").toPath();
+    MergeJars.main(
+        new String[] {
+          "--output", initial.toString(),
+          "--sources", first.toString(),
+          "--sources", second.toString()
+        });
+    assertTrue(readJar(initial).containsValue("first"));
+    String reservedName =
+        readJar(initial).entrySet().stream()
+            .filter(entry -> entry.getValue().equals("first"))
+            .findFirst()
+            .get()
+            .getKey();
+    Path reserved = temp.newFile("reserved.jar").toPath();
+    createJar(reserved, ImmutableMap.of(reservedName, "existing"));
+    Path output = temp.newFile("output.jar").toPath();
+    Path reverse = temp.newFile("reverse.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", output.toString(),
+          "--sources", first.toString(),
+          "--sources", second.toString(),
+          "--sources", reserved.toString()
+        });
+    MergeJars.main(
+        new String[] {
+          "--output", reverse.toString(),
+          "--sources", reserved.toString(),
+          "--sources", second.toString(),
+          "--sources", first.toString()
+        });
+
+    Map<String, String> contents = new HashMap<>(readJar(output));
+    contents.remove("META-INF/MANIFEST.MF");
+    assertEquals(3, contents.size());
+    assertEquals(Set.of("first", "second", "existing"), new HashSet<>(contents.values()));
+    assertEquals("existing", contents.get(reservedName));
+    assertArrayEquals(Files.readAllBytes(output), Files.readAllBytes(reverse));
+  }
+
+  @Test
+  public void shouldApplyDuplicatePolicyToOrdinaryKotlinModuleResources() throws IOException {
+    for (String name : List.of("META-INF/nested/shared.kotlin_module", "shared.kotlin_module")) {
+      Path first = temp.newFile().toPath();
+      createJar(first, ImmutableMap.of(name, "first"));
+      Path second = temp.newFile().toPath();
+      createJar(second, ImmutableMap.of(name, "second"));
+      Path output = temp.newFile().toPath();
+
+      for (String strategy : List.of("first-wins", "last-wins")) {
+        MergeJars.main(
+            new String[] {
+              "--output", output.toString(),
+              "--sources", first.toString(),
+              "--sources", second.toString(),
+              "--duplicates", strategy
+            });
+        Map<String, String> contents = readJar(output);
+        assertEquals(2, contents.size());
+        assertEquals(strategy.equals("first-wins") ? "first" : "second", contents.get(name));
+      }
+      try {
+        MergeJars.main(
+            new String[] {
+              "--output", output.toString(),
+              "--sources", first.toString(),
+              "--sources", second.toString(),
+              "--duplicates", "are-errors"
+            });
+        fail("Expected conflicting ordinary resource to be rejected: " + name);
+      } catch (IOException expected) {
+        assertTrue(expected.getMessage().contains(name));
+      }
+    }
   }
 
   @Test

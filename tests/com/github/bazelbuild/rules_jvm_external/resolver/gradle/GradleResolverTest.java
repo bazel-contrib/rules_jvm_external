@@ -108,7 +108,7 @@ public class GradleResolverTest extends ResolverTestBase {
             Set.of(),
             new TreeMap<>());
     Map<String, Object> lockFile =
-        new V3LockFile(Set.of(repository), Set.of(info), Set.of(), false).render();
+        new V3LockFile(Set.of(repository), Set.of(info), Set.of()).render();
 
     assertEquals(
         Map.of(
@@ -526,8 +526,7 @@ public class GradleResolverTest extends ResolverTestBase {
                         Set.of(),
                         Set.of(),
                         new TreeMap<>())),
-                Set.of(),
-                false)
+                Set.of())
             .render();
 
     Map<String, Integer> hashes = AbstractMain.calculateArtifactHash(rendered);
@@ -696,6 +695,103 @@ public class GradleResolverTest extends ResolverTestBase {
     assertFalse(resolved.nodes().contains(higher));
     for (Coordinates node : resolved.nodes()) {
       assertFalse(node.toString(), node.getVersion() == null || node.getVersion().isEmpty());
+    }
+  }
+
+  @Test
+  public void forcedBomOverridesHigherTransitiveBomAndManagedVersions()
+      throws IOException, XMLStreamException {
+    assertBomControlsAlignment(true);
+  }
+
+  @Test
+  public void ordinaryBomAllowsHigherTransitiveBomAndManagedVersions()
+      throws IOException, XMLStreamException {
+    assertBomControlsAlignment(false);
+  }
+
+  private void assertBomControlsAlignment(boolean forceVersion)
+      throws IOException, XMLStreamException {
+    Coordinates bom = new Coordinates("com.example:bom:pom:1.0");
+    Coordinates newerBom = new Coordinates("com.example:bom:pom:2.0");
+    Coordinates managed = new Coordinates("com.example:managed:1.0");
+    Coordinates newerManaged = new Coordinates("com.example:managed:2.0");
+    Coordinates app = new Coordinates("com.example:app:1.0");
+
+    MavenRepo repo =
+        MavenRepo.create()
+            .add(createBom(bom, managed))
+            .add(createBom(newerBom, newerManaged))
+            .add(managed)
+            .add(newerManaged);
+    Runfiles runfiles =
+        Runfiles.preload().withSourceRepository(AutoBazelRepository_GradleResolverTest.NAME);
+    Path metadata =
+        Paths.get(
+            runfiles.rlocation(
+                "rules_jvm_external/tests/com/github/bazelbuild/rules_jvm_external/resolver/gradle/fixtures/transitiveBom/app-1.0.module"));
+    new GradleModuleMetadataHelper(repo).addToMavenRepo(app, Files.readString(metadata));
+
+    Path argsFile = tempFolder.newFile().toPath();
+    Files.writeString(
+        argsFile,
+        """
+        {
+          "repositories": ["%s"],
+          "boms": [
+            {"group": "com.example", "artifact": "bom", "version": "1.0", "force_version": %s}
+          ],
+          "artifacts": [
+            {"group": "com.example", "artifact": "managed"},
+            {"group": "com.example", "artifact": "app", "version": "1.0"}
+          ]
+        }
+        """
+            .formatted(repo.getPath().toUri(), forceVersion));
+    ResolutionRequest request =
+        new ResolverConfig(new NullListener(), "--argsfile", argsFile.toString())
+            .getResolutionRequest();
+    request.useUnsafeSharedCache(false);
+
+    Graph<Coordinates> resolved = resolver.resolve(request).getResolution();
+
+    assertEquals(Set.of(app, forceVersion ? managed : newerManaged), resolved.nodes());
+    assertEquals(Set.of(forceVersion ? managed : newerManaged), resolved.successors(app));
+  }
+
+  private Model createBom(Coordinates coordinates, Coordinates managed) {
+    Dependency dependency = new Dependency();
+    dependency.setGroupId(managed.getGroupId());
+    dependency.setArtifactId(managed.getArtifactId());
+    dependency.setVersion(managed.getVersion());
+    DependencyManagement management = new DependencyManagement();
+    management.addDependency(dependency);
+    Model bom = createModel(coordinates);
+    bom.setPackaging("pom");
+    bom.setDependencyManagement(management);
+    return bom;
+  }
+
+  @Test
+  public void failsWhenAVersionlessRootManagedByABomCannotBeResolved() throws IOException {
+    Coordinates managed = new Coordinates("com.example:managed:1.0");
+    Coordinates bom = new Coordinates("com.example:bom:1.0");
+    Coordinates other = new Coordinates("com.example:other:1.0");
+    Path repo = MavenRepo.create().add(other).add(createBom(bom, managed)).getPath();
+
+    ResolutionRequest request =
+        new ResolutionRequest()
+            .addRepository(repo.toUri())
+            .addBom(bom)
+            .addArtifact(new Artifact(other))
+            .addArtifact(new Artifact(new Coordinates("com.example:managed")));
+
+    try {
+      resolver.resolve(request).getResolution();
+      fail("Resolution shouldn't succeed if a BOM-managed root is missing from the repository");
+    } catch (Exception e) {
+      assertTrue(e.getCause() instanceof GradleDependencyResolutionException);
+      assertTrue(e.getCause().getMessage().contains("com.example:managed:1.0"));
     }
   }
 

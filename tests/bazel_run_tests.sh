@@ -349,6 +349,8 @@ function test_coursier_resolution_with_boms() {
       return
     fi
 
+    rm -f tests/custom_maven_install/coursier_resolved_index.json
+
     # should run successfully
     REPIN=1 bazel run @coursier_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
 
@@ -356,8 +358,11 @@ function test_coursier_resolution_with_boms() {
 
     expect_file_is_not_empty "tests/custom_maven_install/coursier_resolved_install.json"
 
-    # TODO: Add back in once coursier supports index files
-    # expect_file_is_not_empty "tests/custom_maven_install/coursier_resolved_index.json"
+    # Packages are rendered to the index file, never duplicated in the lock file
+    expect_not_in_file '"packages"' tests/custom_maven_install/coursier_resolved_install.json
+
+    expect_file_is_not_empty "tests/custom_maven_install/coursier_resolved_index.json"
+    grep -q '"com.google.auth:google-auth-library-oauth2-http"' tests/custom_maven_install/coursier_resolved_index.json
 }
 
 function test_v1_lock_file_format() {
@@ -389,6 +394,7 @@ function test_maven_resolution() {
     bazel run @maven_resolved_with_boms//:pin >> "$TEST_LOG" 2>&1
 
     expect_file_is_not_empty "tests/custom_maven_install/maven_resolved_install.json"
+    expect_not_in_file '"packages"' tests/custom_maven_install/maven_resolved_install.json
     expect_file_is_not_empty "tests/custom_maven_install/maven_resolved_index.json"
 }
 

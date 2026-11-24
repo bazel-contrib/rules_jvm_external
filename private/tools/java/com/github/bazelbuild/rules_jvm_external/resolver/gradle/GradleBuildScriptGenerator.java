@@ -157,7 +157,8 @@ public class GradleBuildScriptGenerator {
                   Map<String, Object> map = new HashMap<>();
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
-                  map.put("version", dep.getVersion());
+                  map.put("version", getVersion(dep));
+                  map.put("forceVersion", isForceVersion(dep));
                   return map;
                 })
             .collect(Collectors.toList()));
@@ -171,11 +172,9 @@ public class GradleBuildScriptGenerator {
                   map.put("group", dep.getGroup());
                   map.put("artifact", dep.getArtifact());
 
-                  String version = dep.getVersion();
-                  boolean isForceVersion = version != null && version.endsWith("!!");
+                  String version = getVersion(dep);
+                  boolean isForceVersion = isForceVersion(dep);
                   if (isForceVersion) {
-                    // Strip the !! suffix, we'll use version { strictly() } in template
-                    version = version.substring(0, version.length() - 2);
                     map.put("forceVersion", true);
                     map.put("versionOnly", version); // Version without : prefix for strictly()
                   } else {
@@ -220,24 +219,34 @@ public class GradleBuildScriptGenerator {
     Files.writeString(outputGradleBuildScript, output);
   }
 
+  private static boolean isForceVersion(GradleDependency dep) {
+    return dep.getVersion() != null && dep.getVersion().endsWith("!!");
+  }
+
+  private static String getVersion(GradleDependency dep) {
+    String version = dep.getVersion();
+    return isForceVersion(dep) ? version.substring(0, version.length() - 2) : version;
+  }
+
   private static String renderDependencyNotation(GradleDependency dep, String version) {
+    boolean hasVersion = version != null && !version.isEmpty();
+    boolean hasClassifier = dep.getClassifier() != null && !dep.getClassifier().isEmpty();
     String coordinate =
-        dep.getGroup()
-            + ":"
-            + dep.getArtifact()
-            + ((version != null && !version.isEmpty()) ? ":" + version : "");
+        dep.getGroup() + ":" + dep.getArtifact() + (hasVersion ? ":" + version : "");
 
     if (isTestFixturesDependency(dep)) {
       return "testFixtures(\"" + coordinate + "\")";
     }
 
     StringBuilder notation = new StringBuilder().append(coordinate);
-    if (dep.getClassifier() != null && !dep.getClassifier().isEmpty()) {
+    if (hasClassifier) {
+      // Keep an empty version slot so the classifier is not parsed as the version.
+      if (!hasVersion) {
+        notation.append(":");
+      }
       notation.append(":").append(dep.getClassifier());
     }
-    if (dep.getExtension() != null
-        && dep.getClassifier() != null
-        && !dep.getClassifier().isEmpty()) {
+    if (dep.getExtension() != null && hasClassifier) {
       notation.append("@").append(dep.getExtension());
     }
     return "\"" + notation + "\"";

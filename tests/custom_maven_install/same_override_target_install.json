@@ -35,33 +35,6 @@
       "org.slf4j:slf4j-api"
     ]
   },
-  "packages": {
-    "ch.qos.reload4j:reload4j": [
-      "org.apache.log4j",
-      "org.apache.log4j.chainsaw",
-      "org.apache.log4j.config",
-      "org.apache.log4j.helpers",
-      "org.apache.log4j.jdbc",
-      "org.apache.log4j.net",
-      "org.apache.log4j.or",
-      "org.apache.log4j.or.jms",
-      "org.apache.log4j.or.sax",
-      "org.apache.log4j.pattern",
-      "org.apache.log4j.rewrite",
-      "org.apache.log4j.spi",
-      "org.apache.log4j.varia",
-      "org.apache.log4j.xml"
-    ],
-    "org.slf4j:slf4j-api": [
-      "org.slf4j",
-      "org.slf4j.event",
-      "org.slf4j.helpers",
-      "org.slf4j.spi"
-    ],
-    "org.slf4j:slf4j-reload4j": [
-      "org.slf4j.impl"
-    ]
-  },
   "repositories": {
     "https://repo1.maven.org/maven2/": [
       "ch.qos.reload4j:reload4j",

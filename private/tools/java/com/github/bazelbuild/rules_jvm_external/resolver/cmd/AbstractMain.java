@@ -296,11 +296,7 @@ public abstract class AbstractMain {
 
     listener.close();
 
-    // If a dependency index is being generated, we can omit packages from the lock file
-    // since that information is available in the index file
-    boolean includePackages = config.getDependencyIndexOutput() == null;
-    Map<String, Object> rendered =
-        new V3LockFile(request.getRepositories(), infos, conflicts, includePackages).render();
+    Map<String, Object> rendered = new V3LockFile(request.getRepositories(), infos, conflicts).render();
 
     Map<Object, Object> toReturn = new TreeMap<>(rendered);
     // We don't need this, and having it will cause problems
