@@ -18,6 +18,17 @@ java_binary(
     ],
 )
 
+java_binary(
+    name = "WriteJdeps",
+    srcs = ["WriteJdeps.java"],
+    # Disable perfdata to avoid warning on Linux hosts (https://github.com/bazelbuild/bazel/issues/3236)
+    jvm_flags = ["-XX:-UsePerfData"],
+    main_class = "com.github.bazelbuild.rules_jvm_external.jar.WriteJdeps",
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
 java_library(
     name = "IndexJar-lib",
     srcs = [

@@ -93,6 +93,45 @@ def _jvm_import_impl(ctx):
             ),
         )
 
+    deps = [
+        dep[JavaInfo]
+        for dep in ctx.attr.deps
+        if JavaInfo in dep
+    ]
+
+    # Bazel computes the reduced compile-time classpath of a Java target from
+    # the `.jdeps` files of its direct dependencies (see
+    # `--experimental_java_classpath`). An imported jar may expose types from
+    # its dependencies in its API (e.g. the supertypes of its public classes),
+    # so list all of them. Otherwise, these jars are pruned from the classpath
+    # of dependents and compilation falls back to the full classpath.
+    compile_jdeps = None
+    if deps:
+        compile_jdeps = ctx.actions.declare_file(ctx.label.name + ".jdeps")
+        jdeps_args = ctx.actions.args()
+
+        # Imports with large dependency trees exceed the command line length
+        # limit on Windows.
+        jdeps_args.use_param_file("@%s", use_always = True)
+        jdeps_args.set_param_file_format("multiline")
+        jdeps_args.add_all(["--output", compile_jdeps])
+        jdeps_args.add("--label", ctx.label)
+        jdeps_args.add_all(
+            depset(transitive = [dep.transitive_compile_time_jars for dep in deps]),
+            before_each = "--dependency",
+        )
+        java_args = ctx.actions.args()
+        java_args.add_all(["-jar", ctx.file._write_jdeps])
+        ctx.actions.run(
+            executable = java_runtime.java_executable_exec_path,
+            arguments = [java_args, jdeps_args],
+            outputs = [compile_jdeps],
+            env = {"LC_CTYPE": "C.UTF-8"},
+            tools = [ctx.file._write_jdeps, java_runtime.files],
+            mnemonic = "JvmImportJdeps",
+            progress_message = "Writing compile-time dependencies of %{label}",
+        )
+
     return [
         DefaultInfo(
             files = depset([outjar]),
@@ -101,12 +140,9 @@ def _jvm_import_impl(ctx):
             compile_jar = compilejar,
             output_jar = outjar,
             source_jar = ctx.file.srcjar,
-            deps = [
-                dep[JavaInfo]
-                for dep in ctx.attr.deps
-                if JavaInfo in dep
-            ],
+            deps = deps,
             neverlink = ctx.attr.neverlink,
+            compile_jdeps = compile_jdeps,
         ),
     ] + additional_providers
 
@@ -147,6 +183,11 @@ jvm_import = rule(
             default = "@rules_java//toolchains:current_java_runtime",
             providers = [java_common.JavaRuntimeInfo],
             cfg = "exec",
+        ),
+        "_write_jdeps": attr.label(
+            allow_single_file = True,
+            cfg = "exec",
+            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:WriteJdeps_deploy.jar",
         ),
         "_stamp_manifest": attr.label(
             default = "@rules_jvm_external//settings:stamp_manifest",
