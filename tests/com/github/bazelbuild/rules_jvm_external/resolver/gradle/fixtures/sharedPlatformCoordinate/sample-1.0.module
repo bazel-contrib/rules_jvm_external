@@ -1,0 +1,39 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.example",
+    "module": "sample",
+    "version": "1.0",
+    "attributes": { "org.gradle.status": "release" }
+  },
+  "variants": [
+    {
+      "name": "jvmRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.dependency.bundling": "external",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        { "name": "sample-1.0.jar", "url": "sample-1.0.jar" }
+      ]
+    },
+    {
+      "name": "androidRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.dependency.bundling": "external",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "files": [
+        { "name": "sample-1.0.aar", "url": "sample-1.0.aar" }
+      ]
+    }
+  ]
+}

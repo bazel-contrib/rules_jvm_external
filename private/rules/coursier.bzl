@@ -46,7 +46,7 @@ load("@compatibility_proxy//:proxy.bzl", "java_binary", "java_library", "java_pl
 load("@rules_jvm_external//private/rules:pin_dependencies.bzl", "pin_dependencies")
 load("@rules_jvm_external//private/rules:jvm_import.bzl", "jvm_import")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
-{aar_import_statement}
+{android_rule_loads}
 
 {imports}
 
@@ -142,6 +142,7 @@ pin_dependencies(
     lock_file = {lock_file},
     dependency_index = {dependency_index},
     jvm_flags = {jvm_flags},
+    variants = {variants},
     visibility = ["//visibility:public"],
     resolver = ":custom_resolver",
 )
@@ -306,15 +307,18 @@ def _relativize_and_symlink_file_in_maven_local(repository_ctx, absolute_path):
         repository_ctx.symlink(absolute_path, repository_ctx.path(artifact_relative_path))
     return artifact_relative_path
 
-def _get_aar_import_statement_or_empty_str(repository_ctx):
-    # Use the Starlark version of aar_import if requested, or if this version of Bazel
-    # does not have native aar_import.
-    if repository_ctx.attr.use_starlark_android_rules or not hasattr(native, "aar_import"):
-        # parse the label to validate it
-        _ = Label(repository_ctx.attr.aar_import_bzl_label)
-        return _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
-    else:
+def _get_android_rule_loads(repository_ctx, has_android_aggregators):
+    # Use matching implementations so wrappers can forward the AAR's Android providers.
+    if (not repository_ctx.attr.use_starlark_android_rules and
+        hasattr(native, "aar_import") and
+        (not has_android_aggregators or hasattr(native, "android_library"))):
         return ""
+
+    _ = Label(repository_ctx.attr.aar_import_bzl_label)
+    loads = _AAR_IMPORT_STATEMENT % repository_ctx.attr.aar_import_bzl_label
+    if has_android_aggregators:
+        loads += 'load("%s", "android_library")\n' % DEFAULT_AAR_IMPORT_LABEL
+    return loads
 
 def _java_path(repository_ctx):
     # Allow setting an env var to keep legacy JAVA_HOME behavior
@@ -396,6 +400,17 @@ def _add_to_hash_dictionary(dictionary, artifact, salt):
     value.append(hash(_stable_artifact(artifact) + salt))
     dictionary[key] = value
 
+# Visible for testing
+def variants_error(resolver, variants, name):
+    if variants and resolver != "gradle":
+        return 'maven.install(name = "%s"): variants requires resolver = "gradle", but resolver is "%s"' % (name, resolver)
+    return None
+
+def validate_variants(resolver, variants, name):
+    error = variants_error(resolver, variants, name)
+    if error:
+        fail(error)
+
 # Compute a signature of the list of artifacts that will be used to build
 # the dependency tree. This is used as a check to see whether the dependency
 # tree needs to be repinned.
@@ -404,7 +419,7 @@ def _add_to_hash_dictionary(dictionary, artifact, salt):
 # upgrading rules_jvm_external when the hash inputs change.
 #
 # Visible for testing
-def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = []):
+def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories = [], excluded_artifacts = [], variants = {}):
     if len(repositories) == 0:
         fail("Repositories must be set to calculate input signature")
 
@@ -429,6 +444,10 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
         excluded_artifact_inputs.append(_stable_artifact(artifact))
         _add_to_hash_dictionary(all_hashes, artifact, "excluded_artifact")
 
+    variants_input = repr(sorted(variants.items()))
+    if variants:
+        artifact_inputs.append(variants_input)
+
     v1_sig = hash(repr(sorted(artifact_inputs))) ^ hash(repr(sorted(repositories)))
 
     hash_parts = [sorted(artifact_inputs), sorted(repositories), sorted(excluded_artifact_inputs)]
@@ -443,6 +462,8 @@ def compute_dependency_inputs_signature(boms = [], artifacts = [], repositories 
             all_hashes[k] = hash(repr(sorted(v)))
 
     all_hashes["repositories"] = hash(repr(sorted(repositories)))
+    if variants:
+        all_hashes["variants"] = hash(variants_input)
 
     return (all_hashes, [v1_sig, v2_sig])
 
@@ -677,6 +698,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             artifacts = repository_ctx.attr.artifacts,
             repositories = repository_ctx.attr.repositories,
             excluded_artifacts = repository_ctx.attr.excluded_artifacts,
+            variants = repository_ctx.attr.variants,
         )
         if input_artifacts_hash in old_hashes:
             print_if_not_repinning(
@@ -804,7 +826,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
     )
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
+    (generated_imports, jar_versionless_target_labels, has_android_aggregators) = parser.generate_imports(
         repository_ctx = repository_ctx,
         dependencies = importer.get_artifacts(maven_install_json_content),
         explicit_artifacts = {
@@ -852,7 +874,7 @@ def _pinned_coursier_fetch_impl(repository_ctx):
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_ctx.name,
             imports = generated_imports,
-            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            android_rule_loads = _get_android_rule_loads(repository_ctx, has_android_aggregators),
             unpinned_pin_target = unpinned_pin_target,
         ) + pin_target,
         executable = False,
@@ -923,6 +945,7 @@ def generate_pin_target(repository_ctx, unpinned_pin_target):
             fetch_javadocs = repr(repository_ctx.attr.fetch_javadoc),
             lock_file = repr(lock_file_location),
             dependency_index = repr(dependency_index_location),
+            variants = repr(repository_ctx.attr.variants),
         )
 
 def infer_artifact_path_from_primary_and_repos(primary_url, repository_urls):
@@ -1531,6 +1554,7 @@ def _coursier_fetch_impl(repository_ctx):
         artifacts = repository_ctx.attr.artifacts,
         repositories = repository_ctx.attr.repositories,
         excluded_artifacts = repository_ctx.attr.excluded_artifacts,
+        variants = repository_ctx.attr.variants,
     )
 
     repository_ctx.file(
@@ -1542,7 +1566,7 @@ def _coursier_fetch_impl(repository_ctx):
     )
 
     repository_ctx.report_progress("Generating BUILD targets..")
-    (generated_imports, jar_versionless_target_labels) = parser.generate_imports(
+    (generated_imports, jar_versionless_target_labels, has_android_aggregators) = parser.generate_imports(
         repository_ctx = repository_ctx,
         dependencies = v3_lock_file.get_artifacts(lock_file_contents),
         explicit_artifacts = {
@@ -1594,7 +1618,7 @@ def _coursier_fetch_impl(repository_ctx):
             visibilities = ",".join(["\"%s\"" % s for s in (["//visibility:public"] if not repository_ctx.attr.strict_visibility else repository_ctx.attr.strict_visibility_value)]),
             repository_name = repository_name,
             imports = generated_imports,
-            aar_import_statement = _get_aar_import_statement_or_empty_str(repository_ctx),
+            android_rule_loads = _get_android_rule_loads(repository_ctx, has_android_aggregators),
             dependency_index_arg = '"$(rlocationpath :dependency_index.json)",' if repository_ctx.attr.dependency_index else "",
             dependency_index_data = '":dependency_index.json",' if repository_ctx.attr.dependency_index else "",
         ),
@@ -1732,6 +1756,7 @@ pinned_coursier_fetch = repository_rule(
         ),
         "excluded_artifacts": attr.string_list(default = []),  # only used for hash generation
         "resolver_extra_dependencies": attr.label_list(default = []),
+        "variants": attr.string_dict(default = {}),
         # Use @@// to refer to the main repo with Bzlmod.
         "_workspace_label": attr.label(default = ("@@" if str(Label("//:invalid")).startswith("@@") else "@") + "//does/not:exist"),
     },
@@ -1806,6 +1831,7 @@ coursier_fetch = repository_rule(
         ),
         "ignore_empty_files": attr.bool(default = False, doc = "Treat jars that are empty as if they were not found."),
         "additional_coursier_options": attr.string_list(doc = "Additional options that will be passed to coursier."),
+        "variants": attr.string_dict(default = {}),
         "pinned_repo_name": attr.string(
             doc = "Name of the corresponding pinned repo for this repo. Presence implies that this is an unpinned repo.",
             mandatory = False,

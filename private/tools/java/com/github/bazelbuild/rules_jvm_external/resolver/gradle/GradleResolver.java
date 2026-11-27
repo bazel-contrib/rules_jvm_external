@@ -117,8 +117,7 @@ public class GradleResolver implements Resolver {
       }
       Instant start = Instant.now();
       GradleDependencyModel resolved =
-          project.resolveDependencies(
-              getGradleTaskProperties(repositories, project.getProjectDir()));
+          project.resolveDependencies(getGradleTaskProperties(repositories, request.getVariants()));
       Instant end = Instant.now();
       if (isVerbose()) {
         System.out.println(
@@ -143,7 +142,7 @@ public class GradleResolver implements Resolver {
   }
 
   private Map<String, String> getGradleTaskProperties(
-      List<Repository> repositories, Path projectDir) throws MalformedURLException {
+      List<Repository> repositories, Map<String, String> variants) throws MalformedURLException {
     Map<String, String> properties = new HashMap<>();
     for (Repository repository : repositories) {
       if (repository.requiresAuth) {
@@ -155,6 +154,7 @@ public class GradleResolver implements Resolver {
     if (isVerbose()) {
       properties.put("org.gradle.debug", "true");
     }
+    variants.forEach((name, value) -> properties.put("rules_jvm_external.variant." + name, value));
     return properties;
   }
 

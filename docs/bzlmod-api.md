@@ -17,9 +17,9 @@ maven.install(<a href="#maven.install-name">name</a>, <a href="#maven.install-aa
               <a href="#maven.install-fail_if_repin_required">fail_if_repin_required</a>, <a href="#maven.install-fail_on_missing_checksum">fail_on_missing_checksum</a>, <a href="#maven.install-fetch_javadoc">fetch_javadoc</a>, <a href="#maven.install-fetch_sources">fetch_sources</a>,
               <a href="#maven.install-generate_compat_repositories">generate_compat_repositories</a>, <a href="#maven.install-ignore_empty_files">ignore_empty_files</a>, <a href="#maven.install-index_file">index_file</a>,
               <a href="#maven.install-known_contributing_modules">known_contributing_modules</a>, <a href="#maven.install-lock_file">lock_file</a>, <a href="#maven.install-repin_instructions">repin_instructions</a>, <a href="#maven.install-repositories">repositories</a>,
-              <a href="#maven.install-resolve_timeout">resolve_timeout</a>, <a href="#maven.install-resolver">resolver</a>, <a href="#maven.install-strict_visibility">strict_visibility</a>, <a href="#maven.install-strict_visibility_value">strict_visibility_value</a>,
-              <a href="#maven.install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>, <a href="#maven.install-use_starlark_android_rules">use_starlark_android_rules</a>,
-              <a href="#maven.install-version_conflict_policy">version_conflict_policy</a>)
+              <a href="#maven.install-resolve_timeout">resolve_timeout</a>, <a href="#maven.install-resolver">resolver</a>, <a href="#maven.install-resolver_extra_dependencies">resolver_extra_dependencies</a>, <a href="#maven.install-strict_visibility">strict_visibility</a>,
+              <a href="#maven.install-strict_visibility_value">strict_visibility_value</a>, <a href="#maven.install-use_credentials_from_home_netrc_file">use_credentials_from_home_netrc_file</a>,
+              <a href="#maven.install-use_starlark_android_rules">use_starlark_android_rules</a>, <a href="#maven.install-variants">variants</a>, <a href="#maven.install-version_conflict_policy">version_conflict_policy</a>)
 maven.override(<a href="#maven.override-name">name</a>, <a href="#maven.override-coordinates">coordinates</a>, <a href="#maven.override-target">target</a>, <a href="#maven.override-visibility">visibility</a>)
 </pre>
 
@@ -94,7 +94,7 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-additional_netrc_lines"></a>additional_netrc_lines |  Additional lines prepended to the netrc file used by `http_file` (with `maven_install_json` only).   | List of strings | optional |  `[]`  |
 | <a id="maven.install-artifacts"></a>artifacts |  Maven artifact tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
 | <a id="maven.install-boms"></a>boms |  Maven BOM tuples, in `artifactId:groupId:version` format   | List of strings | optional |  `[]`  |
-| <a id="maven.install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if there are duplicate artifacts<br><br>If "error", then print a message and fail the build. If "warn", then print a warning and continue. If "none", then do nothing.   | String | optional |  `"warn"`  |
+| <a id="maven.install-duplicate_version_warning"></a>duplicate_version_warning |  What to do if layering selects a non-root version instead of the root version, or if the root module declares multiple versions of the same coordinate<br><br>If "error", then print a message and fail the build. If "warn", then print a warning and continue. If "none", then do nothing.   | String | optional |  `"warn"`  |
 | <a id="maven.install-excluded_artifacts"></a>excluded_artifacts |  Artifacts to exclude, in `artifactId:groupId` format. Only used on unpinned installs   | List of strings | optional |  `[]`  |
 | <a id="maven.install-exclusions"></a>exclusions |  Maven artifact tuples, in `artifactId:groupId` format   | List of strings | optional |  `[]`  |
 | <a id="maven.install-fail_if_repin_required"></a>fail_if_repin_required |  Whether to fail the build if the maven_artifact inputs have changed but the lock file has not been repinned.   | Boolean | optional |  `True`  |
@@ -110,10 +110,12 @@ Combines artifact and bom declarations with setting the location of lock files t
 | <a id="maven.install-repositories"></a>repositories |  -   | List of strings | optional |  `["https://repo1.maven.org/maven2"]`  |
 | <a id="maven.install-resolve_timeout"></a>resolve_timeout |  -   | Integer | optional |  `600`  |
 | <a id="maven.install-resolver"></a>resolver |  The resolver to use. Only honoured for the root module.   | String | optional |  `"coursier"`  |
+| <a id="maven.install-resolver_extra_dependencies"></a>resolver_extra_dependencies |  Jars or libraries to add to the resolver classpath (such as custom MetadataService or DownloadService SPI implementations).   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="maven.install-strict_visibility"></a>strict_visibility |  Controls visibility of transitive dependencies.<br><br>If "True", transitive dependencies are private and invisible to user's rules. If "False", transitive dependencies are public and visible to user's rules.   | Boolean | optional |  `False`  |
 | <a id="maven.install-strict_visibility_value"></a>strict_visibility_value |  -   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `["@rules_jvm_external//visibility:private"]`  |
 | <a id="maven.install-use_credentials_from_home_netrc_file"></a>use_credentials_from_home_netrc_file |  Whether to pass machine login credentials from the ~/.netrc file to coursier.   | Boolean | optional |  `False`  |
 | <a id="maven.install-use_starlark_android_rules"></a>use_starlark_android_rules |  Whether to use the native or Starlark version of the Android rules.   | Boolean | optional |  `False`  |
+| <a id="maven.install-variants"></a>variants |  Variant attributes used for dependency resolution. Requires the Gradle resolver when non-empty.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> String</a> | optional |  `{}`  |
 | <a id="maven.install-version_conflict_policy"></a>version_conflict_policy |  Policy for user-defined vs. transitive dependency version conflicts<br><br>If "pinned", choose the user-specified version in maven_install unconditionally. In layered installs, artifacts contributed by the root module take precedence over versions contributed by other modules. If "default", follow the selected resolver's default policy.   | String | optional |  `"default"`  |
 
 <a id="maven.override"></a>

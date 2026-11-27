@@ -991,6 +991,24 @@ dev_maven.install(
     resolver = "gradle",
 )
 dev_maven.install(
+    name = "gradle_android_variant",
+    artifacts = [
+        "com.squareup.okhttp3:okhttp:5.1.0",
+    ],
+    lock_file = "//tests/custom_maven_install:gradle_android_variant_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ],
+    resolver = "gradle",
+    variants = {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.gradle.jvm.environment": "android",
+        "org.jetbrains.kotlin.platform.type": "androidJvm",
+    },
+)
+dev_maven.install(
     name = "pom_exclusion_testing_coursier",
     artifacts = [],
     excluded_artifacts = [
@@ -1206,7 +1224,9 @@ use_repo(
     "unpinned_maven_missing_source_jar",
 
     # Pinned repo
+    "gradle_android_variant",
     "gradle_missing_source_jar",
+    "unpinned_gradle_android_variant",
     "unpinned_gradle_missing_source_jar",
 
     # Regression testing and libraries exposed as compat repos

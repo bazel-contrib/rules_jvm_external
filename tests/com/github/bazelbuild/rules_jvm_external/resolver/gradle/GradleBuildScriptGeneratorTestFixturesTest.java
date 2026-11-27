@@ -55,6 +55,14 @@ public class GradleBuildScriptGeneratorTestFixturesTest {
   }
 
   @Test
+  public void generatedBuildScriptDoesNotSetConsumerAttributes() throws Exception {
+    String script = renderBuildScript(List.of());
+
+    assertFalse(script.contains("org.gradle.jvm.environment"));
+    assertFalse(script.contains("org.jetbrains.kotlin.platform.type"));
+  }
+
+  @Test
   public void classifierWithoutVersionLeavesVersionSlotEmpty() throws Exception {
     assertRenders("", "linux-aarch_64", "jar", "\"com.example:sample::linux-aarch_64@jar\"");
   }
