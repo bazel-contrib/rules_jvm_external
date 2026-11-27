@@ -41,12 +41,16 @@ def _strip_toolchain_protobuf_runtime(jar_files, java_toolchain):
         sets.make(transitive_proto_jars),
     ))
 
-def _combine_jars(ctx, merge_jars, inputs, excludes, allowed_duplicates, output):
+def _combine_jars(ctx, merge_jars, inputs, excludes, allowed_duplicates, output, manifest_entries = {}):
     args = ctx.actions.args()
     args.add("--output", output)
     args.add_all(inputs, before_each = "--sources")
     args.add_all(excludes, before_each = "--exclude")
     args.add_all(allowed_duplicates, before_each = "--allow-duplicate")
+    args.add_all(
+        ["%s:%s" % (k, v) for (k, v) in manifest_entries.items()],
+        before_each = "--manifest-entry",
+    )
 
     ctx.actions.run(
         mnemonic = "MergeJars",
@@ -85,7 +89,9 @@ def _maven_project_jar_impl(ctx):
     )
 
     # Merge together all the binary jars
-    intermediate_jar = ctx.actions.declare_file("%s.jar" % ctx.label.name)
+    bin_jar = ctx.actions.declare_file(
+        ("amended_%s.jar" if ctx.attr.manifest_entries else "%s.jar") % ctx.label.name,
+    )
     _combine_jars(
         ctx,
         ctx.executable._merge_jars,
@@ -94,28 +100,9 @@ def _maven_project_jar_impl(ctx):
                    [ji.transitive_runtime_jars for ji in info.dep_infos.to_list()] +
                    [jar[JavaInfo].transitive_runtime_jars for jar in ctx.attr.deploy_env]),
         ctx.attr.allowed_duplicate_names,
-        intermediate_jar,
+        bin_jar,
+        manifest_entries = ctx.attr.manifest_entries,
     )
-
-    # Add manifest lines if necessary
-    if len(ctx.attr.manifest_entries.items()):
-        bin_jar = ctx.actions.declare_file("amended_%s.jar" % ctx.label.name)
-        args = ctx.actions.args()
-        args.add_all(["--source", intermediate_jar, "--output", bin_jar])
-        args.add_all(
-            ["%s:%s" % (k, v) for (k, v) in ctx.attr.manifest_entries.items()],
-            before_each = "--manifest-entry",
-        )
-        ctx.actions.run(
-            executable = ctx.executable._add_jar_manifest_entry,
-            arguments = [args],
-            inputs = [intermediate_jar],
-            outputs = [bin_jar],
-            mnemonic = "AmendManifestEntry",
-            progress_message = "Adding additional manifest entries %s" % ctx.label,
-        )
-    else:
-        bin_jar = intermediate_jar
 
     # Bazel's java_binary has a deploy_env attribute that only supports java_binary targets.
     # Unfortunately, java_binary targets only expose their runtime classpath via the native
@@ -253,11 +240,6 @@ single artifact that other teams can download and use.
         "allowed_duplicate_names": attr.string_list(
             doc = "A list of patterns (compiled as a java regex) that may be duplicated within the generated jar",
             allow_empty = True,
-        ),
-        "_add_jar_manifest_entry": attr.label(
-            executable = True,
-            cfg = "exec",
-            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
         ),
         # Bazel's own singlejar doesn't respect java service files,
         # so use our own.

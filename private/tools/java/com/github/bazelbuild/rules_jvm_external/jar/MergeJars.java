@@ -68,6 +68,7 @@ public class MergeJars {
     // Insertion order may matter
     Set<Path> sources = new LinkedHashSet<>();
     Set<Path> excludes = new HashSet<>();
+    List<String> manifestEntries = new ArrayList<>();
     Set<Predicate<String>> duplicateAllowList = new HashSet<>(ALWAYS_ALLOW_DUPLICATES);
     DuplicateEntryStrategy onDuplicate = LAST_IN_WINS;
 
@@ -94,6 +95,10 @@ public class MergeJars {
           out = Paths.get(args[++i]);
           break;
 
+        case "--manifest-entry":
+          manifestEntries.add(args[++i]);
+          break;
+
         case "--sources":
           sources.add(isValid(Paths.get(args[++i])));
           break;
@@ -105,11 +110,17 @@ public class MergeJars {
     }
 
     Objects.requireNonNull(out, "Output path must be set.");
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+
     if (sources.isEmpty()) {
-      // Just write an empty jar and leave
       try (OutputStream fos = Files.newOutputStream(out);
           JarOutputStream jos = new JarOutputStream(fos)) {
-        // This space left blank deliberately
+        if (!manifestEntries.isEmpty()) {
+          addManifestEntries(manifest, manifestEntries);
+          jos.putNextEntry(new StableZipEntry("META-INF/MANIFEST.MF"));
+          manifest.write(jos);
+        }
       }
       return;
     }
@@ -123,9 +134,6 @@ public class MergeJars {
     // we'll do is create a list of contents from each jar, and where we should
     // pull the contents from. Whee!
 
-    Manifest manifest = new Manifest();
-    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-
     Map<String, List<String>> allServices = new TreeMap<>();
     Set<String> excludedPaths = readExcludedFileNames(excludes, duplicateAllowList);
 
@@ -135,6 +143,7 @@ public class MergeJars {
     Map<String, byte[]> fileHashCodes = new HashMap<>();
     Map<String, Map<String, byte[]>> kotlinModules = new TreeMap<>();
     Map<String, byte[]> kotlinModuleContents = new HashMap<>();
+    boolean signed = false;
 
     for (Path source : sources) {
       try (InputStream fis = Files.newInputStream(source);
@@ -153,6 +162,11 @@ public class MergeJars {
                   && excludedPaths.contains(entry.getName()))) {
             continue;
           }
+
+          signed |=
+              !entry.isDirectory()
+                  && entry.getName().startsWith("META-INF/")
+                  && entry.getName().endsWith(".SF");
 
           if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) {
             String servicesName = entry.getName().substring("META-INF/services/".length());
@@ -221,6 +235,11 @@ public class MergeJars {
     // Bazel labels are an internal detail of the project producing the merged
     // jar and not useful for consumers.
     manifest.getMainAttributes().remove(new Attributes.Name("Target-Label"));
+
+    // Match the standalone amendment tool's treatment of signed jars and explicit overrides.
+    if (!manifestEntries.isEmpty() && !signed) {
+      addManifestEntries(manifest, manifestEntries);
+    }
 
     // Now create the output jar
     Files.createDirectories(out.getParent());
@@ -390,6 +409,14 @@ public class MergeJars {
     }
 
     return path;
+  }
+
+  private static void addManifestEntries(Manifest manifest, List<String> entries) {
+    manifest.getMainAttributes().putValue("Created-By", "AddJarManifestEntry");
+    for (String entry : entries) {
+      String[] parts = entry.split(":", 2);
+      manifest.getMainAttributes().putValue(parts[0], parts[1]);
+    }
   }
 
   private static Manifest merge(Manifest into, Manifest from) {

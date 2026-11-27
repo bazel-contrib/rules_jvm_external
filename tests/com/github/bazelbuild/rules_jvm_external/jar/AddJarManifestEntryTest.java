@@ -161,7 +161,10 @@ public class AddJarManifestEntryTest {
 
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-    createJar(input, manifest, ImmutableMap.of("META-INF/SOME_FILE.SF", ""));
+    createJar(
+        input,
+        manifest,
+        ImmutableMap.of("com/example/A.class", "Hello, World!", "META-INF/SOME_FILE.SF", ""));
 
     AddJarManifestEntry.main(
         new String[] {

@@ -63,6 +63,102 @@ public class MergeJarsTest {
   }
 
   @Test
+  public void shouldAddManifestEntriesWithoutSources() throws IOException {
+    Path output = temp.newFile("out.jar").toPath();
+    Path unusedExclude = temp.newFile("unused-exclude.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", output.toString(),
+          "--exclude", unusedExclude.toString(),
+          "--manifest-entry", "Version:1.0"
+        });
+
+    try (JarFile jar = new JarFile(output.toFile())) {
+      assertEquals(1, jar.size());
+      Attributes attributes = jar.getManifest().getMainAttributes();
+      assertEquals("1.0", attributes.getValue(Attributes.Name.MANIFEST_VERSION));
+      assertEquals("1.0", attributes.getValue("Version"));
+      assertEquals("AddJarManifestEntry", attributes.getValue("Created-By"));
+    }
+  }
+
+  @Test
+  public void shouldApplyManifestEntriesAfterMergingSourceManifests() throws IOException {
+    Path first = temp.newFile("first.jar").toPath();
+    createJar(
+        first,
+        ImmutableMap.of("META-INF/MANIFEST.MF", "Manifest-Version: 1.0\r\nVersion: first\r\n\r\n"));
+    Path second = temp.newFile("second.jar").toPath();
+    createJar(
+        second,
+        ImmutableMap.of(
+            "META-INF/MANIFEST.MF",
+            "Manifest-Version: 1.0\r\nVersion: second\r\nRetained: yes\r\n\r\n",
+            "com/example/A.class",
+            "class contents"));
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", output.toString(),
+          "--sources", first.toString(),
+          "--sources", second.toString(),
+          "--manifest-entry", "version:overridden",
+          "--manifest-entry", "Version:final:version",
+          "--manifest-entry", "Created-By:custom",
+          "--manifest-entry", "Target-Label:explicit"
+        });
+
+    try (JarFile jar = new JarFile(output.toFile())) {
+      Attributes attributes = jar.getManifest().getMainAttributes();
+      assertEquals("final:version", attributes.getValue("Version"));
+      assertEquals("yes", attributes.getValue("Retained"));
+      assertEquals("custom", attributes.getValue("Created-By"));
+      assertEquals("explicit", attributes.getValue("Target-Label"));
+    }
+    assertEquals("class contents", readJar(output).get("com/example/A.class"));
+  }
+
+  @Test
+  public void shouldNotAmendManifestWhenMergedJarContainsASignature() throws IOException {
+    Path input = temp.newFile("signed.jar").toPath();
+    createJar(
+        input,
+        ImmutableMap.of("com/example/A.class", "class contents", "META-INF/SIGNATURE.SF", ""));
+    Path merged = temp.newFile("merged.jar").toPath();
+    Path amended = temp.newFile("amended.jar").toPath();
+
+    MergeJars.main(new String[] {"--output", merged.toString(), "--sources", input.toString()});
+    MergeJars.main(
+        new String[] {
+          "--output", amended.toString(),
+          "--sources", input.toString(),
+          "--manifest-entry", "Version:1.0"
+        });
+
+    assertArrayEquals(Files.readAllBytes(merged), Files.readAllBytes(amended));
+  }
+
+  @Test
+  public void shouldAmendManifestWhenSignatureEntryIsNotCopied() throws IOException {
+    Path input = temp.newFile("input.jar").toPath();
+    createJar(input, ImmutableMap.of("/META-INF/SIGNATURE.SF", ""));
+    Path output = temp.newFile("out.jar").toPath();
+
+    MergeJars.main(
+        new String[] {
+          "--output", output.toString(),
+          "--sources", input.toString(),
+          "--manifest-entry", "Version:1.0"
+        });
+
+    try (JarFile jar = new JarFile(output.toFile())) {
+      assertEquals("1.0", jar.getManifest().getMainAttributes().getValue("Version"));
+    }
+  }
+
+  @Test
   public void shouldGenerateAJarContainingAllTheClassesFromASingleSource() throws IOException {
     Path inputOne = temp.newFile("first.jar").toPath();
     createJar(inputOne, ImmutableMap.of("com/example/A.class", "Hello, World!"));
