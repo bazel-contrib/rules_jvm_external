@@ -126,6 +126,7 @@ def _jvm_import_impl(ctx):
             executable = java_runtime.java_executable_exec_path,
             arguments = [java_args, jdeps_args],
             outputs = [compile_jdeps],
+            env = {"LC_CTYPE": "C.UTF-8"},
             tools = [ctx.file._write_jdeps, java_runtime.files],
             mnemonic = "JvmImportJdeps",
             progress_message = "Writing compile-time dependencies of %{label}",
