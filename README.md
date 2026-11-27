@@ -185,6 +185,25 @@ $ REPIN=1 bazel run @maven//:pin
 Without re-pinning, `maven_install` will not pick up the changes made to
 `MODULE.bazel`, as `maven_install.json` is now the source of truth.
 
+Repinning writes lock file format version 4. Resolved artefacts use compact
+records containing a Gradle external coordinate, SHA-256 checksum, integrity
+hash and optional metadata. Each hash covers the record's own data and immediate
+dependency identities, so changing a transitive version does not change its
+unchanged dependants' hashes. Repository locations are download hints and do not
+contribute to integrity or freshness checks; downloaded bytes still undergo
+checksum verification.
+
+Blank lines between records are intentional. They give Git an unchanged separator
+when branches update neighbouring dependencies, allowing those edits to merge
+independently. Keep these separators when changing the lock-file formatter.
+
+Direct request metadata retains requested selectors separately from selected
+versions. Ordered `boms`, resolver `settings` and requests without a selected
+artefact are also recorded, so freshness checks do not need aggregate input
+hashes. The generated source and Javadoc inventory is checked alongside dependency
+edges. Existing version 1, 2 and 3 files retain their original validation and can
+be migrated with the usual repin command.
+
 ### Requiring lock file repinning when the list of artifacts changes
 
 It can be easy to forget to update the `maven_install.json` lock file
