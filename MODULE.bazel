@@ -4,6 +4,9 @@ module(
     bazel_compatibility = [">=7.0.0"],
 )
 
+# Must be first so its C++ toolchain is registered ahead of the autoconfigured
+# one, which rejects the SDKSettings.json dependency newer Xcode clangs emit.
+bazel_dep(name = "apple_support", version = "1.23.1", dev_dependency = True)
 bazel_dep(name = "rules_android", version = "0.7.1")
 bazel_dep(name = "bazel_features", version = "1.33.0")
 bazel_dep(name = "bazel_skylib", version = "1.8.1")

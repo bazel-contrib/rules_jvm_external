@@ -1,0 +1,32 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.example",
+    "module": "app",
+    "version": "1.0"
+  },
+  "variants": [
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.example",
+          "module": "bom",
+          "version": { "requires": "2.0" },
+          "attributes": { "org.gradle.category": "platform" }
+        },
+        {
+          "group": "com.example",
+          "module": "managed",
+          "version": { "requires": "2.0" }
+        }
+      ],
+      "files": [{ "name": "app-1.0.jar", "url": "app-1.0.jar" }]
+    }
+  ]
+}

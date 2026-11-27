@@ -43,17 +43,11 @@ public class V3LockFile {
   private final Collection<URI> allRepos;
   private final Set<DependencyInfo> infos;
   private final Set<Conflict> conflicts;
-  private final boolean renderPackages;
 
-  public V3LockFile(
-      Collection<URI> repositories,
-      Set<DependencyInfo> infos,
-      Set<Conflict> conflicts,
-      boolean renderPackages) {
+  public V3LockFile(Collection<URI> repositories, Set<DependencyInfo> infos, Set<Conflict> conflicts) {
     this.allRepos = repositories;
     this.infos = infos;
     this.conflicts = conflicts;
-    this.renderPackages = renderPackages;
   }
 
   public Collection<URI> getRepositories() {
@@ -177,7 +171,7 @@ public class V3LockFile {
       conflicts.add(new Conflict(resolved, requested));
     }
 
-    return new V3LockFile(repos, infos, conflicts, true);
+    return new V3LockFile(repos, infos, conflicts);
   }
 
   public Map<String, Object> render() {
@@ -187,7 +181,6 @@ public class V3LockFile {
 
     Map<String, Map<String, Object>> artifacts = new TreeMap<>();
     Map<String, Set<String>> deps = new TreeMap<>();
-    Map<String, Set<String>> packages = new TreeMap<>();
     Map<String, Map<String, SortedSet<String>>> services = new TreeMap<>();
     Map<String, Set<String>> repos = new LinkedHashMap<>();
     repositories.stream()
@@ -251,9 +244,6 @@ public class V3LockFile {
                   .map(Coordinates::asKey)
                   .map(Object::toString)
                   .collect(Collectors.toCollection(TreeSet::new)));
-          if (renderPackages) {
-            packages.put(key, info.getPackages());
-          }
           services.put(key, info.getServices());
 
           if (info.getPath().isPresent()) {
@@ -265,9 +255,6 @@ public class V3LockFile {
     Map<String, Object> lock = new LinkedHashMap<>();
     lock.put("artifacts", ensureArtifactsAllHaveAtLeastOneShaSum(artifacts));
     lock.put("dependencies", removeEmptyItems(deps));
-    if (renderPackages) {
-      lock.put("packages", removeEmptyItems(packages));
-    }
     lock.put("services", removeEmptyItemsMap(services));
     if (isUsingM2Local) {
       lock.put("m2local", true);

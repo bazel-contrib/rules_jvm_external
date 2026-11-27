@@ -17,3 +17,22 @@ java_test(
         artifact("org.hamcrest:hamcrest_core"),
     ],
 )
+
+java_test(
+    name = "LockFileConverterTest",
+    size = "small",
+    srcs = ["LockFileConverterTest.java"],
+    test_class = "com.github.bazelbuild.rules_jvm_external.coursier.LockFileConverterTest",
+    deps = [
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/coursier",
+        "//private/tools/java/com/github/bazelbuild/rules_jvm_external/resolver",
+        artifact(
+            "com.google.code.gson:gson",
+            repository_name = "rules_jvm_external_deps",
+        ),
+        artifact(
+            "junit:junit",
+            repository_name = "regression_testing_coursier",
+        ),
+    ],
+)

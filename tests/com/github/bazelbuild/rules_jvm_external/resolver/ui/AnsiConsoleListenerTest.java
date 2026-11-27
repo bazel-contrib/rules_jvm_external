@@ -52,6 +52,54 @@ public class AnsiConsoleListenerTest {
   }
 
   @Test
+  public void preservesHostAndFilenameWhenShorteningUrls() {
+    for (String host :
+        new String[] {
+          "http://repo.example.com", "https://repo.example.com:8443", "http://[::1]:8080"
+        }) {
+      String url = host + "/org/example/some-dep/0.0.1/some-dep-0.0.1.jar";
+      String expected = host + "/..../some-dep-0.0.1.jar";
+
+      assertEquals(expected, AnsiConsoleListener.elideLine(expected.length(), url));
+      assertEquals(expected, AnsiConsoleListener.elideLine(expected.length() + 1, url));
+    }
+  }
+
+  @Test
+  public void leavesUrlUnchangedWhenItFits() {
+    String url = "https://repo.example.com/org/example/file.jar";
+
+    assertEquals(url, AnsiConsoleListener.elideLine(url.length(), url));
+  }
+
+  @Test
+  public void prefersFilenameWhenHostAndFilenameDoNotFit() {
+    String url = "http://repo.example.com/org/example/some-dep/0.0.1/some-dep-0.0.1.jar";
+    int width = "http://repo.example.com/..../some-dep-0.0.1.jar".length() - 1;
+
+    assertEquals(
+        "..." + url.substring(url.length() - width + 3), AnsiConsoleListener.elideLine(width, url));
+    assertEquals("...some-dep-0.0.1.jar", AnsiConsoleListener.elideLine(21, url));
+    assertEquals("...0.1.jar", AnsiConsoleListener.elideLine(10, url));
+  }
+
+  @Test
+  public void preservesRawFilenameAndUrlSuffix() {
+    String url = "https://repo.example.com/org/example/some%20dep.jar?redirect=/cache#download";
+    String expected = "https://repo.example.com/..../some%20dep.jar?redirect=/cache#download";
+
+    assertEquals(expected, AnsiConsoleListener.elideLine(expected.length(), url));
+  }
+
+  @Test
+  public void keepsTailForPathsAndMalformedUrls() {
+    for (String line :
+        new String[] {"/local/path/to/file.jar", "https://bad host/path/to/file.jar"}) {
+      assertEquals("...file.jar", AnsiConsoleListener.elideLine(11, line));
+    }
+  }
+
+  @Test
   public void accountsForDownloadIndentWithinTerminalWidth() {
     int terminalWidth = 20;
     String line =

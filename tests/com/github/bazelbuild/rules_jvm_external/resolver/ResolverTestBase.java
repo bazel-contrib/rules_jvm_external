@@ -624,7 +624,13 @@ public abstract class ResolverTestBase {
     model.addDependency(dependency);
 
     Path repo =
-        MavenRepo.create().add(model13).add(model14).add(model16).add(model, coordinates).getPath();
+        MavenRepo.create()
+            .add(model13)
+            .add(model14)
+            .add(model16)
+            .add(model, coordinates)
+            .add(new Coordinates("com.fasterxml.jackson.core:jackson-core:2.14.3"))
+            .getPath();
 
     ResolutionRequest request = prepareRequestFor(repo.toUri(), jacksonCoreCoords);
     request.addBom(jacksonBom14);

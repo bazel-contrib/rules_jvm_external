@@ -128,7 +128,7 @@ public class ResolutionRequest {
 
     getRepositories().forEach(toReturn::addRepository);
     amended.forEach(toReturn::addArtifact);
-    getBoms().stream().map(Objects::toString).forEach(toReturn::addBom);
+    getBoms().forEach(toReturn::addBom);
     getGlobalExclusions().forEach(toReturn::exclude);
     toReturn.useUnsafeSharedCache = isUseUnsafeSharedCache();
     toReturn.userHome = userHome;

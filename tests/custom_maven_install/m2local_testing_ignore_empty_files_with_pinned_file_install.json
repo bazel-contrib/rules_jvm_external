@@ -11,11 +11,6 @@
   "m2local_artifacts": [
     "com.example:kt"
   ],
-  "packages": {
-    "com.example:kt": [
-      "com.jvm.external.jvm_export"
-    ]
-  },
   "repositories": {
     "https://repo1.maven.org/maven2/": []
   },

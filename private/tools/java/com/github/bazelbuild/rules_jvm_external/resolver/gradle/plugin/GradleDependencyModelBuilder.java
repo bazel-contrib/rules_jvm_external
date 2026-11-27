@@ -213,9 +213,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
 
   private boolean isBom(ResolvedDependencyResult result) {
     for (Attribute attribute : result.getRequested().getAttributes().keySet()) {
-      // Gradle sets this attributes for BOMs
+      // Gradle sets this attribute for BOMs.
       if (attribute.getName().equals("org.gradle.category")) {
-        return result.getRequested().getAttributes().getAttribute(attribute).equals("platform");
+        Object category = result.getRequested().getAttributes().getAttribute(attribute);
+        return "platform".equals(category) || "enforced-platform".equals(category);
       }
     }
     return false;
@@ -362,10 +363,10 @@ public class GradleDependencyModelBuilder implements ToolingModelBuilder {
       ResolvedDependencyResult resolvedDep = (ResolvedDependencyResult) dep;
       ResolvedComponentResult selected = resolvedDep.getSelected();
 
-      // Skip dependency constraint edges
+      // Skip dependency constraint and BOM edges.
       // These are not actual dependencies but show up as edges in the graph.
       // If we don't handle this, this can lead to cycles in the graph
-      if (resolvedDep.isConstraint()) {
+      if (resolvedDep.isConstraint() || isBom(resolvedDep)) {
         continue;
       }
 
