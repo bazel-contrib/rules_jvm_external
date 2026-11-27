@@ -14,6 +14,8 @@
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_java//java:java_import.bzl", "java_import")
+load("@rules_java//java:java_library.bzl", "java_library")
+load("//:defs.bzl", "artifact")
 load(":jvm_import_test.bzl", "jvm_import_test_suite")
 
 platform(
@@ -34,6 +36,21 @@ build_test(
     name = "test_does_jar_artifact_have_the_correct_file_extension",
     targets = [
         ":java_import_that_consumes_the_downloaded_file_directly",
+    ],
+)
+
+# Uses a method inherited from a class in a dependency of the imported jar. This
+# only compiles with a reduced classpath if `jvm_import` lists the dependencies
+# of the jar in its `.jdeps`; see `test_jvm_import_reduced_classpath` in
+# `tests/bazel_run_tests.sh`.
+java_library(
+    name = "uses_inherited_api_of_imported_jar",
+    srcs = ["reduced_classpath/UsesInheritedApi.java"],
+    deps = [
+        artifact(
+            "com.google.auth:google-auth-library-oauth2-http",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )
 

@@ -67,6 +67,10 @@ java_library(
             "org.apache.maven:maven-repository-metadata",
             repository_name = "rules_jvm_external_deps",
         ),
+        artifact(
+            "org.codehaus.plexus:plexus-xml",
+            repository_name = "rules_jvm_external_deps",
+        ),
     ],
 )
 

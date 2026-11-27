@@ -385,6 +385,19 @@ function test_maven_resolution() {
     expect_file_is_not_empty "tests/custom_maven_install/maven_resolved_index.json"
 }
 
+function test_jvm_import_reduced_classpath() {
+    # `--experimental_java_classpath=bazel_no_fallback` is only available in Bazel 8 or above
+    RELEASE="$(bazel info release | sed -e 's/release //' | cut -d '.' -f 1)"
+    if ! [[ "$RELEASE" =~ ^[0-9]+$ ]] || (( RELEASE < 8 )); then
+      return
+    fi
+
+    # Without the jars from the `.jdeps` of `jvm_import`, the reduced classpath misses the
+    # superclass of the imported class and javac fails instead of falling back to the full one.
+    bazel build --experimental_java_classpath=bazel_no_fallback \
+      //tests/unit/jvm_import:uses_inherited_api_of_imported_jar >> "$TEST_LOG" 2>&1
+}
+
 function test_transitive_dependency_with_type_of_pom {
   # transitive_dependency_with_type_of_pom installs an artifact which depends on
   # org.javamoney:moneta:pom, which should expand into the transitive
@@ -466,6 +479,7 @@ TESTS=(
   "test_bom_only_pinning"
   "test_coursier_resolution_with_boms"
   "test_maven_resolution"
+  "test_jvm_import_reduced_classpath"
   "test_dependency_aggregation"
   "test_duplicate_version_error"
   "test_duplicate_version_warning"
