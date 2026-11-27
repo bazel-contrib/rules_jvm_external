@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,28 +36,28 @@ public class WriteJdeps {
   private static final int WIRE_TYPE_VARINT = 0;
   private static final int WIRE_TYPE_LENGTH_DELIMITED = 2;
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] rawArgs) throws IOException {
+    List<String> args = expandParamFiles(rawArgs);
     Path output = null;
     String label = null;
     List<String> paths = new ArrayList<>();
 
-    for (int i = 0; i < args.length; i++) {
-      switch (args[i]) {
+    for (int i = 0; i < args.size(); i++) {
+      switch (args.get(i)) {
         case "--output":
-          output = Paths.get(args[++i]);
+          output = Paths.get(args.get(++i));
           break;
 
         case "--label":
-          label = args[++i];
+          label = args.get(++i);
           break;
 
         case "--dependency":
-          paths.add(args[++i]);
+          paths.add(args.get(++i));
           break;
 
         default:
-          throw new IllegalArgumentException(
-              "Unable to parse command line: " + Arrays.toString(args));
+          throw new IllegalArgumentException("Unable to parse command line: " + args);
       }
     }
 
@@ -68,6 +67,20 @@ public class WriteJdeps {
     try (OutputStream out = Files.newOutputStream(output)) {
       out.write(encode(label, paths));
     }
+  }
+
+  // Bazel passes the arguments in a param file with one argument per line; see
+  // `Args.set_param_file_format("multiline")`.
+  private static List<String> expandParamFiles(String[] args) throws IOException {
+    List<String> expanded = new ArrayList<>();
+    for (String arg : args) {
+      if (arg.startsWith("@")) {
+        expanded.addAll(Files.readAllLines(Paths.get(arg.substring(1)), StandardCharsets.UTF_8));
+      } else {
+        expanded.add(arg);
+      }
+    }
+    return expanded;
   }
 
   // Visible for testing

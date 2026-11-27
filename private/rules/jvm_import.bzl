@@ -109,6 +109,11 @@ def _jvm_import_impl(ctx):
     if deps:
         compile_jdeps = ctx.actions.declare_file(ctx.label.name + ".jdeps")
         jdeps_args = ctx.actions.args()
+
+        # Imports with large dependency trees exceed the command line length
+        # limit on Windows.
+        jdeps_args.use_param_file("@%s", use_always = True)
+        jdeps_args.set_param_file_format("multiline")
         jdeps_args.add_all(["--output", compile_jdeps])
         jdeps_args.add("--label", ctx.label)
         jdeps_args.add_all(
