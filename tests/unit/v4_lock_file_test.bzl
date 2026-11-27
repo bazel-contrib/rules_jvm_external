@@ -16,11 +16,14 @@ def _legacy():
 def _compact_records_round_trip_inputs_and_keep_merge_separators_impl(ctx):
     env = unittest.begin(ctx)
     inputs = canonical_inputs(artifacts = [{"group": "g", "artifact": "a", "version": "1"}])
-    text = v4_lock_file.render_lock_file(_legacy(), inputs)
+    legacy = _legacy()
+    legacy["packages"] = {"g:a": ["com.example"]}
+    text = v4_lock_file.render_lock_file(legacy, inputs)
     lock = json.decode(text)
     asserts.true(env, v4_lock_file.is_valid_lock_file(lock))
     asserts.false(env, "__INPUT_ARTIFACTS_HASH" in lock)
     asserts.false(env, "__RESOLVED_ARTIFACTS_HASH" in lock)
+    asserts.false(env, "packages" in lock)
     asserts.true(env, "],\n\n    [" in text)
     asserts.equals(env, inputs, v4_lock_file.get_inputs(lock))
     asserts.equals(env, v4_lock_file.get_lock_file_hash(lock), v4_lock_file.compute_lock_file_hash(lock))

@@ -68,7 +68,6 @@ public final class V4LockFile {
       append(lines, "m2local", true);
       append(lines, "m2local_artifacts", graph.local);
     }
-    append(lines, "packages", v3.get("packages"));
     lines.add("  \"repositories\": " + V4Json.prettyInOrder(graph.repositories) + ",");
     append(lines, "services", v3.get("services"));
     append(lines, "settings", inputs.getOrDefault("settings", Map.of()));

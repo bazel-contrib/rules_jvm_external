@@ -64,7 +64,7 @@ public class V4LockFileTest {
   }
 
   @Test
-  public void shouldRetainAncillaryMapsAndIncludeFilesOnlyWhenRequested() {
+  public void shouldRetainAncillaryMapsExceptPackagesAndIncludeFilesOnlyWhenRequested() {
     Map<String, Object> v3 = v3("1");
     v3.put("files", Map.of("g:a", "/tmp/a.jar"));
     v3.put("packages", Map.of("g:a", List.of("com.example")));
@@ -72,7 +72,8 @@ public class V4LockFileTest {
     v3.put("conflict_resolution", Map.of("g:a:0", "g:a:1"));
     Map<String, Object> result = parse(V4LockFile.render(v3, Map.of()));
     assertFalse(result.containsKey("files"));
-    for (String key : List.of("packages", "services", "conflict_resolution")) {
+    assertFalse(result.containsKey("packages"));
+    for (String key : List.of("services", "conflict_resolution")) {
       assertEquals(v3.get(key), result.get(key));
     }
     assertEquals(v3.get("files"), parse(V4LockFile.render(v3, Map.of(), true)).get("files"));
